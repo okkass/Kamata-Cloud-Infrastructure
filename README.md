@@ -3,9 +3,9 @@
 
 
 ### Redmine-KCI
-プロジェクト管理ツール Redmine
-Oracle Cloud Infrastructure上にて運用中
-713の有線だと怒られます。
+プロジェクト管理ツール Redmine  
+Oracle Cloud Infrastructure上にて運用中  
+713の有線だと怒られます。  
 https://kci.redmine.chiffon-lab.tech
 
 ### Trello(タスク管理)
