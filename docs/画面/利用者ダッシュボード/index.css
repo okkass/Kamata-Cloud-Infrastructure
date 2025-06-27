@@ -1,0 +1,114 @@
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: 'Segoe UI', sans-serif;
+  background-color: #f5f7fa;
+  color: #333;
+  display: flex;
+  height: 100vh;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #2f3b52;
+  color: #fff;
+  padding: 20px;
+}
+
+.sidebar h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  border-bottom: 1px solid #444;
+  padding-bottom: 10px;
+}
+
+.sidebar ul {
+  list-style: none;
+}
+
+.sidebar li {
+  margin: 15px 0;
+}
+
+.sidebar a {
+  color: #fff;
+  text-decoration: none;
+  transition: color 0.2s;
+}
+
+.sidebar a:hover {
+  color: #00bcd4;
+}
+
+.main {
+  flex: 1;
+  padding: 30px;
+}
+
+.main h1 {
+  font-size: 28px;
+  margin-bottom: 20px;
+}
+
+
+
+
+/* test */
+ .main {
+      padding: 20px;
+    }
+
+    /* === ここから変更 === */
+    .quick-links {
+      margin-bottom: 30px;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 12px; /* 余白を調整 */
+    }
+    .quick-links a {
+      display: inline-block; /* 横幅を内容に合わせる */
+      padding: 5px 12px;     /* パディングを小さくする */
+      margin-bottom: 8px;    /* 下方向の余白でリンク間の距離を確保 */
+      font-size: 14px;       /* フォントサイズを小さくする */
+      background-color: #f0f0f0;
+      border-radius: 5px;
+      text-decoration: none;
+      color: #333;
+      font-weight: bold;
+    }
+
+    .quick-links ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .quick-links a:hover {
+      background-color: #e0e0e0;
+    }
+    .customizable-area h2 {
+      border-bottom: 2px solid #007bff;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+    .widgets-container {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+    .widget {
+      flex: 1;
+      min-width: 250px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      padding: 20px;
+      background-color: #fff;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    .widget h3 {
+      margin-top: 0;
+      color: #333;
+    }
