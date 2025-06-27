@@ -6,24 +6,37 @@
   <link rel="stylesheet" href="image_admin_style.css">
 </head>
 <body>
-  <div class="card">
-    <h1>イメージ追加</h1>
-    <form>
-      <div class="form-group">
-        <label for="imageName">イメージ名</label>
-        <input type="text" id="imageName" name="imageName" placeholder="例: Ubuntu-22.04">
-      </div>
+  <div class="dashboard-container">
+    <aside class="sidebar">
+      <h2>管理メニュー</h2>
+      <nav>
+        <ul>
+          <li><a href="#">物理ノード管理</a></li>
+          <li><a href="#">インスタンスタイプ管理</a></li>
+          <li><a href="#">利用者管理</a></li>
+          <li><a href="#">イメージ管理</a></li>
+        </ul>
+      </nav>
+      <button class="logout-btn">ログアウト</button>
+    </aside>
 
-      <div class="form-group">
-        <label for="imageFile">イメージファイル</label>
-        <input type="file" id="imageFile" name="imageFile">
-      </div>
+    <main class="dashboard-main">
+      <div class="card">
+        <h1>イメージ追加</h1>
+        <form>
+          <label for="imageName">イメージ名</label>
+          <input type="text" id="imageName" name="imageName" required>
 
-      <div class="actions">
-        <button type="submit">追加</button>
-        <button type="button" class="secondary" onclick="history.back()">戻る</button>
+          <label for="imageFile">イメージファイル</label>
+          <input type="file" id="imageFile" name="imageFile" required>
+
+          <div class="form-actions">
+            <button type="submit">追加</button>
+            <button type="button" onclick="window.location.href='image_list.html'">戻る</button>
+          </div>
+        </form>
       </div>
-    </form>
+    </main>
   </div>
 </body>
 </html>
