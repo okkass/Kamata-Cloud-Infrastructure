@@ -1,0 +1,92 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KCI - ログイン</title>
+  <style>
+    body {
+      margin: 0;
+      background: #f4f6f9;
+      font-family: 'Segoe UI', sans-serif;
+      color: #1e1e1e;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .login-container {
+      background: #ffffff;
+      padding: 40px;
+      border-radius: 12px;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+      width: 100%;
+      max-width: 400px;
+    }
+
+    .login-title {
+      text-align: center;
+      font-size: 24px;
+      color: #0a2540;
+      margin-bottom: 10px;
+    }
+
+    .login-subtitle {
+      text-align: center;
+      font-size: 14px;
+      color: #555;
+      margin-bottom: 30px;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    input[type="text"], input[type="password"] {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 20px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      background: #f9f9f9;
+      color: #333;
+      font-size: 14px;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 12px;
+      background: #0a2540;
+      border: none;
+      border-radius: 8px;
+      color: #fff;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s;
+    }
+
+    input[type="submit"]:hover {
+      background: #13335c;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-title">KCI</div>
+    <div class="login-subtitle">蒲田クラウドインフラストラクチャー</div>
+    <form action="#" method="post">
+      <label for="username">ユーザー名 または メールアドレス</label>
+      <input type="text" id="username" name="username" required>
+
+      <label for="password">パスワード</label>
+      <input type="password" id="password" name="password" required>
+
+      <input type="submit" value="ログイン">
+    </form>
+  </div>
+</body>
+</html>
