@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+  <head>
+
+    <meta charset="UTF-8">
+    <title>SGダッシュボード</title>
+
+    <link rel="stylesheet" href="./SGダッシュボード.css">
+
+  </head>
+
+  <body>
+    <div class="sidebar">
+      <h2>利用者メニュー</h2>
+      <ul>
+        <li><a href="#">ダッシュボード</a></li>
+        <li><a href="#">仮想マシン管理</a></li>
+        <li><a href="#">仮想ネットワーク構築</a></li>
+        <li><a href="#" class="active">セキュリティグループ管理</a></li>
+        <li><a href="#">成果物アップロード</a></li>
+      </ul>
+    </div>
+    <div class="main">
+      <h1>セキュリティグループダッシュボード</h1>
+
+      <div class="content-section">
+        <h2>セキュリティグループ一覧</h2>
+        <div class="button-area">
+          <button id="openNewModalBtn">＋ 新規作成</button>
+        </div>
+        <table class="sg-table">
+          <thead>
+            <tr>
+              <th>グループ名</th>
+              <th>セキュリティグループID</th>
+              <th>説明</th>
+              <th>イン/アウト ルール数</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>default-web-server-sg</td>
+              <td>sg-0123456789abcdef0</td>
+              <td>デフォルトのWebサーバー用SG。HTTP/HTTPSを許可。</td>
+              <td>2 / 1</td>
+              <td>
+                <div class="actions-menu">
+                  <button class="actions-button">操作 ▼</button>
+                  <div class="dropdown-content">
+                    <a class="edit-link">編集</a>
+                    <a class="delete-link">削除</a>
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+            <tr>
+              <td>db-server-sg</td>
+              <td>sg-fedcba9876543210f</td>
+              <td>データベースサーバー用SG。特定のIPからのみ許可。</td>
+              <td>1 / 1</td>
+              <td>
+                <div class="actions-menu">
+                  <button class="actions-button">操作 ▼</button>
+                  <div class="dropdown-content">
+                    <a class="edit-link">編集</a>
+                    <a class="delete-link">削除</a>
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="newSgModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>セキュリティグループ新規作成</h2>
+        <form id="newSgForm" class="modal-form">
+          <label for="sg-name">セキュリティグループ名</label>
+          <input type="text" id="sg-name" name="sg-name" required>
+          <label for="sg-desc">説明</label>
+          <textarea id="sg-desc" name="sg-desc"></textarea>
+          <div class="rule-set">
+            <h4>ルール設定</h4>
+            <div id="new-rule-container"></div>
+            <button type="button" class="add-rule-btn" id="addNewRuleBtn">＋
+              ルールを追加</button>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="submit-btn">作成</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div id="editSgModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>セキュリティグループ編集</h2>
+        <form id="editSgForm" class="modal-form">
+          <label for="edit-sg-name">セキュリティグループ名</label>
+          <input type="text" id="edit-sg-name" name="sg-name" readonly
+            style="background-color: #e9e9e9;">
+          <label for="edit-sg-desc">説明</label>
+          <textarea id="edit-sg-desc" name="sg-desc"></textarea>
+          <div class="rule-set">
+            <h4>ルール設定</h4>
+            <div id="edit-rule-container"></div>
+            <button type="button" class="add-rule-btn" id="addEditRuleBtn">＋
+              ルールを追加</button>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="submit-btn">変更を保存</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <template id="rule-template">
+      <div class="rule-row">
+        <input type="text" placeholder="ルール名" name="rule_name" style="flex: 2;">
+        <select name="rule_action" style="flex: 1.5;">
+          <option value="allow">許可</option>
+          <option value="deny">拒否</option>
+        </select>
+        <select name="rule_protocol" style="flex: 1;">
+          <option value="tcp">TCP</option>
+          <option value="udp">UDP</option>
+          <option value="icmp">ICMP</option>
+        </select>
+        <input type="text" placeholder="ポート番号" name="rule_port"
+          style="flex: 2;">
+        <input type="text" placeholder="ソース (例: 0.0.0.0/0)" name="rule_source"
+          style="flex: 2;">
+        <button type="button" onclick="this.parentElement.remove()">×</button>
+      </div>
+    </template>
+
+    <script>
+    document.addEventListener('DOMContentLoaded', function () {
+
+      // --- ▼ プルダウンメニューのロジック ▼ ---
+      document.querySelectorAll('.actions-button').forEach(button => {
+        button.addEventListener('click', function (event) {
+          event.stopPropagation();
+          closeAllDropdowns(this);
+          this.nextElementSibling.classList.toggle('show');
+        });
+      });
+
+      function closeAllDropdowns(exceptThisButton) {
+        document.querySelectorAll('.actions-button').forEach(button => {
+          if (button !== exceptThisButton) {
+            button.nextElementSibling.classList.remove('show');
+          }
+        });
+      }
+
+      window.addEventListener('click', function (event) {
+        if (!event.target.matches('.actions-button')) {
+          closeAllDropdowns(null);
+        }
+      });
+
+      // --- ▼ 共用関数 ▼ ---
+      const ruleTemplate = document.getElementById('rule-template');
+      const addRule = (container, ruleData = {}) => {
+        const newRule = ruleTemplate.content.cloneNode(true);
+        if (Object.keys(ruleData).length > 0) {
+          newRule.querySelector('[name="rule_name"]').value = ruleData.name || '';
+          newRule.querySelector('[name="rule_action"]').value = ruleData.action || 'allow';
+          newRule.querySelector('[name="rule_protocol"]').value = ruleData.protocol || 'tcp';
+          newRule.querySelector('[name="rule_port"]').value = ruleData.port || '';
+          newRule.querySelector('[name="rule_source"]').value = ruleData.source || '';
+        }
+        container.appendChild(newRule);
+      }
+
+      // --- ▼ 新規作成モーダルのロジック ▼ ---
+      const newModal = document.getElementById('newSgModal');
+      if (newModal) {
+        const openNewModalBtn = document.getElementById('openNewModalBtn');
+        const closeNewModalBtn = newModal.querySelector('.close-button');
+        const newRuleContainer = document.getElementById('new-rule-container');
+        const newSgForm = document.getElementById('newSgForm');
+        const addNewRuleBtn = document.getElementById('addNewRuleBtn');
+
+        openNewModalBtn.onclick = function () {
+          newSgForm.reset();
+          newRuleContainer.innerHTML = '';
+          addRule(newRuleContainer);
+          newModal.style.display = 'block';
+        }
+        closeNewModalBtn.onclick = function () { newModal.style.display = 'none'; }
+        addNewRuleBtn.onclick = () => addRule(newRuleContainer);
+        newSgForm.onsubmit = function (event) {
+          event.preventDefault();
+          const sgName = this.querySelector('#sg-name').value;
+          alert(`セキュリティグループ「${sgName}」を作成しました。（ダミー）`);
+          newModal.style.display = 'none';
+        };
+      }
+
+      // --- ▼ 編集モーダルのロジック ▼ ---
+      const editModal = document.getElementById('editSgModal');
+      if (editModal) {
+        const closeEditModalBtn = editModal.querySelector('.close-button');
+        const editRuleContainer = document.getElementById('edit-rule-container');
+        const editSgForm = document.getElementById('editSgForm');
+        const addEditRuleBtn = document.getElementById('addEditRuleBtn');
+
+        document.querySelectorAll('.edit-link').forEach(link => {
+          link.addEventListener('click', function (event) {
+            event.preventDefault();
+            const row = event.target.closest('tr');
+            const groupName = row.cells[0].textContent;
+            const description = row.cells[2].textContent;
+
+            editSgForm.reset();
+            editModal.querySelector('#edit-sg-name').value = groupName;
+            editModal.querySelector('#edit-sg-desc').value = description;
+
+            editRuleContainer.innerHTML = '';
+            loadDummyRules(groupName, editRuleContainer);
+
+            editModal.style.display = 'block';
+          });
+        });
+
+        closeEditModalBtn.onclick = function () { editModal.style.display = 'none'; }
+        addEditRuleBtn.onclick = () => addRule(editRuleContainer);
+        editSgForm.onsubmit = function (event) {
+          event.preventDefault();
+          const sgName = this.querySelector('#edit-sg-name').value;
+          alert(`「${sgName}」の変更を保存しました。（ダミー）`);
+          editModal.style.display = 'none';
+        };
+      }
+
+      function loadDummyRules(groupName, container) {
+        if (groupName.includes('web-server')) {
+          addRule(container, { name: 'HTTP', protocol: 'tcp', port: '80', source: '0.0.0.0/0' });
+          addRule(container, { name: 'HTTPS', protocol: 'tcp', port: '443', source: '0.0.0.0/0' });
+        } else if (groupName.includes('db-server')) {
+          addRule(container, { name: 'MySQL', protocol: 'tcp', port: '3306', source: '10.9.22.0/24' });
+        } else {
+          addRule(container);
+        }
+      }
+
+      // --- ▼ 削除リンクのロジック ▼ ---
+      document.querySelectorAll('.delete-link').forEach(link => {
+        link.addEventListener('click', function (event) {
+          const row = event.target.closest('tr');
+          const groupName = row.cells[0].textContent;
+          if (confirm(`本当に「${groupName}」を削除しますか？`)) {
+            alert(`「${groupName}」を削除しました。（ダミー）`);
+            // 実際のアプリケーションではここでサーバーに削除リクエストを送り、成功したら行を削除します。
+            // row.remove(); 
+          }
+        });
+      });
+
+      // --- ▼ モーダルの外側クリックで閉じるロジック ▼ ---
+      window.addEventListener('click', function (event) {
+        if (event.target == newModal) {
+          newModal.style.display = 'none';
+        }
+        if (event.target == editModal) {
+          editModal.style.display = 'none';
+        }
+      });
+    });
+  </script>
+
+  </body>
+
+</html>
