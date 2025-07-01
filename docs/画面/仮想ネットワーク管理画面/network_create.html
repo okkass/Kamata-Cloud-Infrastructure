@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>仮想ネットワーク作成</title>
+  <link rel="stylesheet" href="network_create.css
+  ">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>利用者メニュー</h2>
+      <nav>
+        <ul>
+          <li><a href="#">ダッシュボード</a></li>
+          <li><a href="#">仮想マシン管理</a></li>
+          <li><a href="#">仮想ネットワーク構築</a></li>
+          <li><a href="#">セキュリティグループ管理</a></li>
+          <li><a href="#" class="logout">ログアウト</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <h1>仮想ネットワーク作成</h1>
+      <form class="form-card">
+        <div class="form-group">
+          <label for="network-name">ネットワーク名</label>
+          <input type="text" id="network-name" name="network-name" required>
+        </div>
+        <div class="form-group">
+          <label for="cidr">IPアドレス / CIDR</label>
+          <input type="text" id="cidr" name="cidr" placeholder="例: 192.168.0.0/16" required>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">作成</button>
+          <button type="button" class="btn-secondary">キャンセル</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</body>
+</html>

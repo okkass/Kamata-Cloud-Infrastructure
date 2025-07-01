@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>サブネット作成</title>
+  <link rel="stylesheet" href="subnet_create.css">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>利用者メニュー</h2>
+      <nav>
+        <ul>
+          <li><a href="#">ダッシュボード</a></li>
+          <li><a href="#">仮想マシン管理</a></li>
+          <li><a href="#">仮想ネットワーク構築</a></li>
+          <li><a href="#">セキュリティグループ管理</a></li>
+          <li><a href="#" class="logout">ログアウト</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <h1>サブネット作成</h1>
+      <form class="form-card">
+        <div class="form-group">
+          <label for="subnet-name">サブネット名</label>
+          <input type="text" id="subnet-name" name="subnet-name" required>
+        </div>
+        <div class="form-group">
+          <label for="ip-address">IPアドレス</label>
+          <input type="text" id="ip-address" name="ip-address" placeholder="例: 192.168.1.0/24" required>
+        </div>
+        <div class="form-group">
+          <label>外部接続</label>
+          <div class="radio-group">
+            <label><input type="radio" name="external" value="yes" required> 許可する</label>
+            <label><input type="radio" name="external" value="no"> 許可しない</label>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn-primary">作成</button>
+          <button type="button" class="btn-secondary">キャンセル</button>
+        </div>
+      </form>
+    </main>
+  </div>
+</body>
+</html>
