@@ -1,0 +1,151 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>物理ノード追加</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .sidebar {
+      width: 220px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      height: 100%;
+      background-color: #2f3e4d;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      font-size: 18px;
+      border-bottom: 2px solid white;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 10px 0;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    .main {
+      margin-left: 220px;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .section {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      margin-bottom: 30px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 15px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    th, td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #e0e0e0;
+    }
+
+    .form-group {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .form-group input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+    }
+
+    .form-group button {
+      padding: 8px 16px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .form-group button:hover {
+      background-color: #43a047;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>管理者メニュー</h2>
+    <a href="#">物理ノード</a>
+    <a href="#">インスタンスタイプ</a>
+    <a href="#">利用者管理</a>
+    <a href="#">イメージ管理</a>
+  </div>
+
+  <div class="main">
+    <h1>物理ノード追加</h1>
+
+    <div class="section">
+      <div class="section-title">自動検知されたノード一覧</div>
+      <table>
+        <thead>
+          <tr>
+            <th>ノード名</th>
+            <th>IPアドレス</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr><td>Node-X</td><td>192.168.1.101</td></tr>
+          <tr><td>Node-Y</td><td>192.168.1.102</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="section">
+      <div class="section-title">手動でIPを入力してノードを追加</div>
+      <div class="form-group">
+        <input type="text" placeholder="例: 192.168.1.150">
+        <button>追加</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

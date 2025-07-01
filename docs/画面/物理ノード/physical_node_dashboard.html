@@ -1,0 +1,144 @@
+
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>物理ノードダッシュボード</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .sidebar {
+      width: 220px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      height: 100%;
+      background-color: #2f3e4d;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      font-size: 18px;
+      border-bottom: 2px solid white;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: white;
+      text-decoration: none;
+      padding: 10px 0;
+    }
+
+    .sidebar a:hover {
+      text-decoration: underline;
+    }
+
+    .main {
+      margin-left: 220px;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #e0e0e0;
+      font-weight: bold;
+    }
+
+    .status-running {
+      color: #4caf50;
+      font-weight: bold;
+    }
+
+    .status-stopped {
+      color: #f44336;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>管理者メニュー</h2>
+    <a href="#">物理ノード</a>
+    <a href="#">インスタンスタイプ</a>
+    <a href="#">利用者管理</a>
+    <a href="#">イメージ管理</a>
+  </div>
+
+  <div class="main">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+      <h1>物理ノードダッシュボード</h1>
+      <div>
+        <button style="margin-right: 10px; padding: 8px 12px; background-color: #4caf50; color: white; border: none; border-radius: 4px; cursor: pointer;">ノード追加</button>
+        <button style="padding: 8px 12px; background-color: #f44336; color: white; border: none; border-radius: 4px; cursor: pointer;">ノード削除</button>
+      </div>
+    </div>
+    <h1>物理ノードダッシュボード</h1>
+    <table>
+      <thead>
+        <tr>
+          <th>ノード名</th>
+          <th>IPアドレス</th>
+          <th>状態</th>
+          <th>CPU</th>
+          <th>メモリ</th>
+          <th>ストレージ</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Node-A</td>
+          <td>192.168.0.10</td>
+          <td class="status-running">稼働中</td>
+          <td>70%</td>
+          <td>60%</td>
+          <td>80%</td>
+        </tr>
+        <tr>
+          <td>Node-B</td>
+          <td>192.168.0.11</td>
+          <td class="status-stopped">停止中</td>
+          <td>—</td>
+          <td>—</td>
+          <td>—</td>
+        </tr>
+        <tr>
+          <td>Node-C</td>
+          <td>192.168.0.12</td>
+          <td class="status-running">稼働中</td>
+          <td>45%</td>
+          <td>55%</td>
+          <td>30%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+</html>
