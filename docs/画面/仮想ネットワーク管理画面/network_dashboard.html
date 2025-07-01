@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>仮想ネットワークダッシュボード</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>利用者メニュー</h2>
+      <nav>
+        <ul>
+          <li><a href="#">ダッシュボード</a></li>
+          <li><a href="#">仮想マシン管理</a></li>
+          <li><a href="#">仮想ネットワーク構築</a></li>
+          <li><a href="#">セキュリティグループ管理</a></li>
+          <li><a href="#" class="logout">ログアウト</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <div class="header">
+        <h1>仮想ネットワークダッシュボード</h1>
+        <div class="header-actions">
+          <button class="btn-primary">＋ 仮想ネットワーク新規作成</button>
+          <button class="btn-secondary">戻る</button>
+        </div>
+      </div>
+
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>仮想ネットワーク名</th>
+            <th>ネットワークID</th>
+            <th>アドレス範囲</th>
+            <th>サブネット数</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>dev-network</td>
+            <td>net-1234567890abcdef</td>
+            <td>192.168.0.0/16</td>
+            <td>2</td>
+            <td><div class="action-dropdown">操作 ▾</div></td>
+          </tr>
+          <tr>
+            <td>test-network</td>
+            <td>net-fedcba0987654321</td>
+            <td>10.0.0.0/8</td>
+            <td>1</td>
+            <td><div class="action-dropdown">操作 ▾</div></td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+</body>
+</html>
