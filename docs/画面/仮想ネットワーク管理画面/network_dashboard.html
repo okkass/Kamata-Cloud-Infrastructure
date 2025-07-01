@@ -45,18 +45,56 @@
             <td>net-1234567890abcdef</td>
             <td>192.168.0.0/16</td>
             <td>2</td>
-            <td><div class="action-dropdown">操作 ▾</div></td>
+            <td>
+              <div class="dropdown">
+                <button class="dropdown-toggle">操作 ▾</button>
+                <div class="dropdown-menu">
+                  <a href="#">編集</a>
+                  <a href="#">削除</a>
+                </div>
+              </div>
+            </td>
           </tr>
           <tr>
             <td>test-network</td>
             <td>net-fedcba0987654321</td>
             <td>10.0.0.0/8</td>
             <td>1</td>
-            <td><div class="action-dropdown">操作 ▾</div></td>
+            <td>
+              <div class="dropdown">
+                <button class="dropdown-toggle">操作 ▾</button>
+                <div class="dropdown-menu">
+                  <a href="#">編集</a>
+                  <a href="#">削除</a>
+                </div>
+              </div>
+            </td>
           </tr>
         </tbody>
       </table>
     </main>
   </div>
+
+  <script>
+    document.addEventListener("click", function(e) {
+      const isDropdownToggle = e.target.matches(".dropdown-toggle");
+      document.querySelectorAll(".dropdown-menu").forEach(menu => {
+        menu.classList.remove("show");
+      });
+      if (isDropdownToggle) {
+        const menu = e.target.nextElementSibling;
+        menu.classList.toggle("show");
+        e.stopPropagation();
+      }
+    });
+
+    document.addEventListener("click", function(e) {
+      if (!e.target.closest(".dropdown")) {
+        document.querySelectorAll(".dropdown-menu").forEach(menu => {
+          menu.classList.remove("show");
+        });
+      }
+    });
+  </script>
 </body>
 </html>
