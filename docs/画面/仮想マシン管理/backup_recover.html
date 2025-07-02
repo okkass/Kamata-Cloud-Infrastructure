@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>バックアップから復元</title>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <style>
     body {
       margin: 0;
@@ -102,6 +102,15 @@
       border-radius: 4px;
     }
 
+    .info-box {
+      background-color: #eef2f5;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      padding: 10px;
+      margin-top: 10px;
+      font-size: 14px;
+    }
+
     .button-group {
       text-align: right;
     }
@@ -146,12 +155,16 @@
     <h1>バックアップから復元</h1>
     <div class="form-section">
       <div class="form-group">
-        <label>回復元ストレージ</label>
-        <select>
-          <option>Storage-A</option>
-          <option>Storage-B</option>
-          <option>Storage-C</option>
+        <label>バックアップ名</label>
+        <select id="backupSelect" class="select2" onchange="updateInfo()">
+          <option value="backup-2025-07-02">backup-2025-07-02</option>
+          <option value="backup-2025-07-01">backup-2025-07-01</option>
+          <option value="backup-2025-06-30">backup-2025-06-30</option>
         </select>
+        <div class="info-box" id="backupInfo">
+          サイズ: 16GB<br>
+          保存日時: 2025年7月2日 09:45
+        </div>
       </div>
 
       <div class="form-group">
@@ -169,11 +182,48 @@
     </div>
   </div>
 
+  <!-- jQuery & Select2 -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
   <script>
     const dropdown = document.querySelector(".dropdown-btn");
     const container = document.querySelector(".dropdown-container");
     dropdown.addEventListener("click", () => {
       container.style.display = container.style.display === "block" ? "none" : "block";
+    });
+
+    const backupData = {
+      "backup-2025-07-02": {
+        size: "16GB",
+        date: "2025年7月2日 09:45"
+      },
+      "backup-2025-07-01": {
+        size: "8GB",
+        date: "2025年7月1日 10:15"
+      },
+      "backup-2025-06-30": {
+        size: "12GB",
+        date: "2025年6月30日 15:30"
+      }
+    };
+
+    function updateInfo() {
+      const select = document.getElementById("backupSelect");
+      const info = document.getElementById("backupInfo");
+      const selected = select.value;
+      const data = backupData[selected];
+      info.innerHTML = `サイズ: ${data.size}<br>保存日時: ${data.date}`;
+    }
+
+    $(document).ready(function () {
+      $('.select2').select2({
+        width: '100%',
+        placeholder: "バックアップ名を検索",
+        allowClear: false
+      });
+
+      updateInfo(); // 初期表示時にも反映
     });
   </script>
 </body>
