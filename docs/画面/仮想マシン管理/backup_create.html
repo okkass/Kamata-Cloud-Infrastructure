@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -94,7 +93,8 @@
       font-weight: bold;
     }
 
-    .form-group select {
+    .form-group select,
+    .form-group input[type="text"] {
       width: 100%;
       padding: 8px;
       font-size: 14px;
@@ -155,12 +155,8 @@
       </div>
 
       <div class="form-group">
-        <label>バックアップ先のストレージ</label>
-        <select>
-          <option>Storage-A</option>
-          <option>Storage-B</option>
-          <option>Storage-C</option>
-        </select>
+        <label>バックアップ名</label>
+        <input type="text" placeholder="例: backup-2025-07-02">
       </div>
 
       <div class="button-group">

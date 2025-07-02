@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -17,7 +16,6 @@
       top: 0;
       left: 0;
       bottom: 0;
-      height: 100%;
       background-color: #2f3e4d;
       color: white;
       padding: 20px;
@@ -79,15 +77,27 @@
 
     .form-section {
       background-color: white;
-      padding: 20px;
-      margin-bottom: 30px;
+      margin-bottom: 20px;
       border-radius: 8px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
 
-    .form-section h2 {
-      font-size: 18px;
-      margin-bottom: 15px;
+    .form-section button.toggle-btn {
+      width: 100%;
+      background-color: #f0f0f0;
+      border: none;
+      padding: 12px;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: left;
+      cursor: pointer;
+      border-radius: 8px 8px 0 0;
+    }
+
+    .form-content {
+      display: none;
+      padding: 20px;
+      border-top: 1px solid #ccc;
     }
 
     .form-group {
@@ -172,42 +182,75 @@
     <h1>仮想マシン編集</h1>
 
     <div class="form-section">
-      <h2>仮想マシンタイプの変更</h2>
-      <div class="form-group">
-        <label for="vm-type">仮想マシンタイプ</label>
-        <select id="vm-type">
-          <option value="small">Small (1CPU, 2GB RAM)</option>
-          <option value="medium">Medium (2CPU, 4GB RAM)</option>
-          <option value="large">Large (4CPU, 8GB RAM)</option>
-        </select>
+      <button class="toggle-btn">仮想マシンタイプの変更 ▼</button>
+      <div class="form-content">
+        <div class="form-group">
+          <label for="vm-type">仮想マシンタイプ</label>
+          <select id="vm-type">
+            <option value="small">Small (1CPU, 2GB RAM)</option>
+            <option value="medium">Medium (2CPU, 4GB RAM)</option>
+            <option value="large">Large (4CPU, 8GB RAM)</option>
+          </select>
+        </div>
       </div>
     </div>
 
     <div class="form-section">
-      <h2>NIC一覧</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>NIC名</th>
-            <th>ネットワーク</th>
-            <th>IPアドレス</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr><td>nic-01</td><td>student-net</td><td>192.168.10.5</td></tr>
-          <tr><td>nic-02</td><td>dev-net</td><td>192.168.20.8</td></tr>
-        </tbody>
-      </table>
-      <div class="nic-actions">
-        <button>NIC追加</button>
+      <button class="toggle-btn">NIC一覧 ▼</button>
+      <div class="form-content">
+        <table>
+          <thead>
+            <tr>
+              <th>NIC名</th>
+              <th>ネットワーク</th>
+              <th>IPアドレス</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr><td>nic-01</td><td>student-net</td><td>192.168.10.5</td></tr>
+            <tr><td>nic-02</td><td>dev-net</td><td>192.168.20.8</td></tr>
+          </tbody>
+        </table>
+        <div class="nic-actions">
+          <button>NIC追加</button>
+        </div>
       </div>
     </div>
 
     <div class="form-section">
-      <h2>仮想マシン名の変更</h2>
-      <div class="form-group">
-        <label for="vm-name">新しい仮想マシン名</label>
-        <input type="text" id="vm-name" placeholder="例: vm-new-name">
+      <button class="toggle-btn">仮想マシン名の変更 ▼</button>
+      <div class="form-content">
+        <div class="form-group">
+          <label for="vm-name">新しい仮想マシン名</label>
+          <input type="text" id="vm-name" placeholder="例: vm-new-name">
+        </div>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <button class="toggle-btn">ストレージの管理 ▼</button>
+      <div class="form-content">
+        <table>
+          <thead>
+            <tr>
+              <th>ストレージタイプ</th>
+              <th>サイズ</th>
+              <th>デバイスファイル</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>SSD</td>
+              <td>100GB</td>
+              <td>/dev/sda</td>
+            </tr>
+            <tr>
+              <td>HDD</td>
+              <td>500GB</td>
+              <td>/dev/sdb</td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
@@ -215,8 +258,18 @@
   <script>
     const dropdown = document.querySelector(".dropdown-btn");
     const dropdownContainer = document.querySelector(".dropdown-container");
-    dropdown.addEventListener("click", function () {
+    dropdown.addEventListener("click", () => {
       dropdownContainer.style.display = dropdownContainer.style.display === "block" ? "none" : "block";
+    });
+
+    const toggleButtons = document.querySelectorAll('.toggle-btn');
+    toggleButtons.forEach(btn => {
+      btn.addEventListener('click', () => {
+        const content = btn.nextElementSibling;
+        const isOpen = content.style.display === 'block';
+        content.style.display = isOpen ? 'none' : 'block';
+        btn.textContent = btn.textContent.replace(isOpen ? '▲' : '▼', isOpen ? '▼' : '▲');
+      });
     });
   </script>
 </body>
