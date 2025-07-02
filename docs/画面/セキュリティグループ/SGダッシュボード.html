@@ -49,7 +49,6 @@
                 <div class="actions-menu">
                   <button class="actions-button">操作 ▼</button>
                   <div class="dropdown-content">
-                    <a class="edit-link">編集</a>
                     <a class="delete-link">削除</a>
                   </div>
                 </div>
@@ -65,7 +64,6 @@
                 <div class="actions-menu">
                   <button class="actions-button">操作 ▼</button>
                   <div class="dropdown-content">
-                    <a class="edit-link">編集</a>
                     <a class="delete-link">削除</a>
                   </div>
                 </div>
@@ -99,28 +97,6 @@
       </div>
     </div>
 
-    <div id="editSgModal" class="modal">
-      <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>セキュリティグループ編集</h2>
-        <form id="editSgForm" class="modal-form">
-          <label for="edit-sg-name">セキュリティグループ名</label>
-          <input type="text" id="edit-sg-name" name="sg-name" readonly
-            style="background-color: #e9e9e9;">
-          <label for="edit-sg-desc">説明</label>
-          <textarea id="edit-sg-desc" name="sg-desc"></textarea>
-          <div class="rule-set">
-            <h4>ルール設定</h4>
-            <div id="edit-rule-container"></div>
-            <button type="button" class="add-rule-btn" id="addEditRuleBtn">＋
-              ルールを追加</button>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="submit-btn">変更を保存</button>
-          </div>
-        </form>
-      </div>
-    </div>
 
     <template id="rule-template">
       <div class="rule-row">
