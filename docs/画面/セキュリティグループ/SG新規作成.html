@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+
+    <title>セキュリティグループ新規作成</title>
+    <style>
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 5px;
+            width: 80%;
+        }
+
+        .close-button {
+            color: #aaa;
+            float: right;
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .close-button:hover,
+        .close-button:focus {
+            color: black;
+            text-decoration: none;
+            cursor: pointer;
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-form label {
+            margin-bottom: 5px;
+        }
+
+        .modal-form input,
+        .modal-form textarea {
+            margin-bottom: 15px;
+            padding: 10px;
+            border-radius: 4px;
+            border: 1px solid #ccc;
+        }
+
+        .rule-set {
+            margin-bottom: 20px;
+        }
+
+        .add-rule-btn {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .add-rule-btn:hover {
+            background-color: #0056b3;
+        }
+
+        .submit-btn {
+            background-color: #28a745;
+            color: white;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .submit-btn:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div id="newSgModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>セキュリティグループ新規作成</h2>
+        <form id="newSgForm" class="modal-form">
+          <label for="sg-name">セキュリティグループ名</label>
+          <input type="text" id="sg-name" name="sg-name" required>
+          <label for="sg-desc">説明</label>
+          <textarea id="sg-desc" name="sg-desc"></textarea>
+          <div class="rule-set">
+            <h4>ルール設定</h4>
+            <div class="rule-row">
+        <input type="text" placeholder="ルール名" name="rule_name" style="flex: 2;">
+        <select name="rule_action" style="flex: 1.5;">
+          <option value="allow">許可</option>
+          <option value="deny">拒否</option>
+        </select>
+        <select name="rule_protocol" style="flex: 1;">
+          <option value="tcp">TCP</option>
+          <option value="udp">UDP</option>
+          <option value="icmp">ICMP</option>
+        </select>
+        <input type="text" placeholder="ポート番号" name="rule_port"
+          style="flex: 2;">
+        <input type="text" placeholder="ソース (例: 0.0.0.0/0)" name="rule_source"
+          style="flex: 2;">
+        <button type="button" onclick="this.parentElement.remove()">×</button>
+      </div>
+            <button type="button" class="add-rule-btn" id="addNewRuleBtn">＋
+              ルールを追加</button>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="submit-btn">作成</button>
+          </div>
+        </form>
+      </div>
+    </div>
+</body>
+</html>
