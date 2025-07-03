@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>バックアップ・復元管理</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    /* ▼ サイドバー（記憶済み） */
+    .sidebar {
+      width: 260px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background-color: #2f3e4d;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      font-size: 20px;
+      font-weight: bold;
+      background-color: #1f2e3d;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-bottom: 25px;
+    }
+
+    .sidebar-section {
+      margin-bottom: 24px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #444;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      background-color: #3f4f60;
+      border-radius: 4px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 6px 0 6px 18px;
+      border-radius: 4px;
+    }
+
+    .sidebar a:hover {
+      background-color: #4f5f6f;
+    }
+
+    /* ▼ メインエリア */
+    .main {
+      margin-left: 260px;
+      padding: 30px;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-bottom: 24px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0;
+    }
+
+    .header-buttons {
+      display: flex;
+      gap: 10px;
+    }
+
+    .header-buttons button {
+      padding: 10px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+
+    .header-buttons button:hover {
+      background-color: #388e3c;
+    }
+
+    .form-section {
+      background-color: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      max-width: 600px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .button-area {
+      text-align: right;
+      margin-top: 20px;
+    }
+
+    .button-area button {
+      padding: 10px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+
+    .button-area button:hover {
+      background-color: #388e3c;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">利用者メニュー</div>
+
+    <div class="sidebar-section">
+      <div class="section-title">利用者ダッシュボード</div>
+      <a href="#">利用者ダッシュボード</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-title">仮想ネットワーク管理</div>
+      <a href="#">仮想ネットワークダッシュボード</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-title">セキュリティグループ管理</div>
+      <a href="#">セキュリティグループダッシュボード</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-title">仮想マシン管理</div>
+      <a href="#">仮想マシンダッシュボード</a>
+      <a href="#">ポートフォリオ公開環境管理</a>
+      <a href="#">スナップショット管理</a>
+      <a href="#">バックアップ・復元管理</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="header-row">
+      <h1>バックアップ・復元管理</h1>
+      <div class="header-buttons">
+        <button onclick="alert('バックアップ作成画面へ移動')">バックアップ作成</button>
+        <button onclick="alert('バックアップから復元画面へ移動')">バックアップから復元</button>
+      </div>
+    </div>
+
+    <div class="form-section">
+      <div class="form-group">
+        <label for="snapshotSelect">復元するスナップショット</label>
+        <select id="snapshotSelect">
+          <option>snapshot-001</option>
+          <option>snapshot-002</option>
+          <option>snapshot-dev</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="vmSelect">起動する仮想マシン</label>
+        <select id="vmSelect">
+          <option>vm-kamata01</option>
+          <option>vm-student01</option>
+          <option>vm-dev01</option>
+        </select>
+      </div>
+
+      <div class="button-area">
+        <button onclick="alert('復元処理を開始します')">復元</button>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
