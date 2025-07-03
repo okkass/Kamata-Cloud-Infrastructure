@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>スナップショット管理</title>
+  <title>バックアップ・復元管理</title>
   <style>
     body {
       margin: 0;
@@ -10,7 +10,7 @@
       background-color: #f5f7fa;
     }
 
-    /* 記憶済みのサイドバー構成 */
+    /* ▼ サイドバー（記憶済み） */
     .sidebar {
       width: 260px;
       position: fixed;
@@ -61,7 +61,7 @@
       background-color: #4f5f6f;
     }
 
-    /* メインコンテンツ */
+    /* ▼ メインエリア */
     .main {
       margin-left: 260px;
       padding: 30px;
@@ -71,9 +71,8 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 20px;
       flex-wrap: wrap;
-      gap: 10px;
+      margin-bottom: 24px;
     }
 
     h1 {
@@ -81,13 +80,12 @@
       margin: 0;
     }
 
-    .button-group {
+    .header-buttons {
       display: flex;
       gap: 10px;
-      flex-wrap: wrap;
     }
 
-    .button-group button {
+    .header-buttons button {
       padding: 10px 16px;
       font-size: 14px;
       border: none;
@@ -97,28 +95,53 @@
       cursor: pointer;
     }
 
-    .button-group button:hover {
-      background-color: #43a047;
+    .header-buttons button:hover {
+      background-color: #388e3c;
     }
 
-    table {
-      width: 100%;
-      border-collapse: collapse;
+    .form-section {
       background-color: white;
+      padding: 24px;
       border-radius: 8px;
-      overflow: hidden;
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      max-width: 600px;
     }
 
-    th, td {
-      padding: 12px 15px;
-      text-align: left;
-      border-bottom: 1px solid #eee;
+    .form-group {
+      margin-bottom: 20px;
     }
 
-    th {
-      background-color: #e0e0e0;
+    .form-group label {
+      display: block;
       font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .form-group select {
+      width: 100%;
+      padding: 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .button-area {
+      text-align: right;
+      margin-top: 20px;
+    }
+
+    .button-area button {
+      padding: 10px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+
+    .button-area button:hover {
+      background-color: #388e3c;
     }
   </style>
 </head>
@@ -152,46 +175,36 @@
 
   <div class="main">
     <div class="header-row">
-      <h1>スナップショット管理</h1>
-      <div class="button-group">
-        <button onclick="alert('スナップショット作成画面へ')">スナップショット作成</button>
-        <button onclick="alert('復元画面へ')">復元</button>
-        <button onclick="alert('削除処理実行')">削除</button>
+      <h1>バックアップ・復元管理</h1>
+      <div class="header-buttons">
+        <button onclick="alert('バックアップ作成画面へ移動')">バックアップ作成</button>
+        <button onclick="alert('バックアップから復元画面へ移動')">バックアップから復元</button>
       </div>
     </div>
 
-    <table>
-      <thead>
-        <tr>
-          <th>スナップショット名</th>
-          <th>作成日</th>
-          <th>対象仮想マシン</th>
-          <th>状態</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr>
-          <td>snapshot-001</td>
-          <td>2025/06/15</td>
-          <td>vm-kamata01</td>
-          <td>保存済</td>
-        </tr>
-        <tr>
-          <td>snapshot-002</td>
-          <td>2025/06/30</td>
-          <td>vm-kamata02</td>
-          <td>保存済</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+    <div class="form-section">
+      <div class="form-group">
+        <label for="snapshotSelect">復元するスナップショット</label>
+        <select id="snapshotSelect">
+          <option>snapshot-001</option>
+          <option>snapshot-002</option>
+          <option>snapshot-dev</option>
+        </select>
+      </div>
 
-  <script>
-    const dropdown = document.querySelector(".dropdown-btn");
-    const container = document.querySelector(".dropdown-container");
-    dropdown.addEventListener("click", () => {
-      container.style.display = container.style.display === "block" ? "none" : "block";
-    });
-  </script>
+      <div class="form-group">
+        <label for="vmSelect">起動する仮想マシン</label>
+        <select id="vmSelect">
+          <option>vm-kamata01</option>
+          <option>vm-student01</option>
+          <option>vm-dev01</option>
+        </select>
+      </div>
+
+      <div class="button-area">
+        <button onclick="alert('復元処理を開始します')">復元</button>
+      </div>
+    </div>
+  </div>
 </body>
 </html>

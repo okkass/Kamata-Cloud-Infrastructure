@@ -23,46 +23,41 @@
       overflow-y: auto;
     }
 
-    .sidebar h2 {
-      font-size: 18px;
-      border-bottom: 2px solid white;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-    }
-
-    .sidebar a, .sidebar .dropdown-btn {
-      display: block;
-      color: white;
-      text-decoration: none;
-      padding: 8px 0;
-      cursor: pointer;
-      background: none;
-      border: none;
-      font-size: 16px;
-      text-align: left;
-      width: 100%;
-    }
-
-    .sidebar .dropdown-btn {
-      background-color: #3f4f5f;
-      padding: 10px;
+    .sidebar-header {
+      font-size: 20px;
+      font-weight: bold;
+      background-color: #1f2e3d;
+      padding: 10px 15px;
       border-radius: 4px;
-      margin-top: 8px;
+      margin-bottom: 25px;
     }
 
-    .sidebar a:hover, .sidebar .dropdown-btn:hover {
-      background-color: #4f5f6f;
+    .sidebar-section {
+      margin-bottom: 24px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #444;
     }
 
-    .dropdown-container {
-      display: none;
-      padding-left: 15px;
-      margin-top: 5px;
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      background-color: #3f4f60;
+      border-radius: 4px;
     }
 
-    .dropdown-container a {
+    .sidebar a {
+      display: block;
+      color: #ffffff;
+      text-decoration: none;
       font-size: 14px;
-      padding: 6px 0;
+      padding: 6px 0 6px 18px;
+      border-radius: 4px;
+    }
+
+    .sidebar a:hover {
+      background-color: #4f5f6f;
     }
 
     .main {
@@ -71,39 +66,44 @@
     }
 
     h1 {
-      font-size: 24px;
-      margin-bottom: 20px;
+      font-size: 26px;
+      margin-bottom: 24px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid #ccc;
     }
 
     .form-section {
       background-color: white;
-      padding: 20px;
-      border-radius: 8px;
+      padding: 24px;
+      border-radius: 10px;
       box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      max-width: 600px;
+      max-width: 640px;
     }
 
     .form-group {
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
 
     .form-group label {
       display: block;
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       font-weight: bold;
+      font-size: 15px;
     }
 
-    .form-group select,
-    .form-group input[type="text"] {
+    .form-group input,
+    .form-group select {
       width: 100%;
-      padding: 8px;
+      padding: 10px;
       font-size: 14px;
       border: 1px solid #ccc;
       border-radius: 4px;
     }
 
     .button-group {
-      text-align: right;
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
     }
 
     .button-group button {
@@ -111,36 +111,29 @@
       font-size: 14px;
       border: none;
       border-radius: 4px;
-      background-color: #4caf50;
-      color: white;
       cursor: pointer;
     }
 
-    .button-group button:hover {
+    .upload-btn {
+      background-color: #2196f3;
+      color: white;
+    }
+
+    .upload-btn:hover {
+      background-color: #1976d2;
+    }
+
+    .complete-btn {
+      background-color: #4caf50;
+      color: white;
+    }
+
+    .complete-btn:hover {
       background-color: #388e3c;
     }
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h2>利用者メニュー</h2>
-    <a href="#">利用者ダッシュボード</a>
-    <a href="#">仮想ネットワーク</a>
-    <a href="#">セキュリティグループ</a>
-    <button class="dropdown-btn">仮想マシン管理 ▼</button>
-    <div class="dropdown-container">
-      <a href="#">仮想マシンダッシュボード</a>
-      <a href="#">仮想マシン編集</a>
-      <a href="#">仮想マシン作成</a>
-      <a href="#">ポートフォリオ公開用環境管理</a>
-      <a href="#">成果物アップロード</a>
-      <a href="#">スナップショット管理</a>
-      <a href="#">スナップショット作成</a>
-      <a href="#">バックアップ・復元管理</a>
-      <a href="#">バックアップ作成</a>
-      <a href="#">バックアップから復元</a>
-    </div>
-  </div>
 
   <div class="main">
     <h1>バックアップ作成</h1>

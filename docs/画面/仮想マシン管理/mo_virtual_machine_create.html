@@ -2,78 +2,29 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>仮想マシン作成</title>
+  <title>ミドルウェア導入済み仮想マシン作成</title>
   <style>
     body {
       margin: 0;
       font-family: sans-serif;
       background-color: #f5f7fa;
-    }
-
-    .sidebar {
-      width: 260px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      height: 100%;
-      background-color: #2f3e4d;
-      color: white;
-      padding: 20px;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
-
-    .sidebar h2 {
-      font-size: 18px;
-      border-bottom: 2px solid white;
-      padding-bottom: 10px;
-      margin-bottom: 20px;
-    }
-
-    .sidebar a, .sidebar .dropdown-btn {
-      display: block;
-      color: white;
-      text-decoration: none;
-      padding: 8px 0;
-      cursor: pointer;
-      background: none;
-      border: none;
-      font-size: 16px;
-      text-align: left;
-      width: 100%;
-    }
-
-    .sidebar .dropdown-btn {
-      background-color: #3f4f5f;
-      padding: 10px;
-      border-radius: 4px;
-      margin-top: 8px;
-    }
-
-    .sidebar a:hover, .sidebar .dropdown-btn:hover {
-      background-color: #4f5f6f;
-    }
-
-    .dropdown-container {
-      display: none;
-      padding-left: 15px;
-      margin-top: 5px;
-    }
-
-    .dropdown-container a {
-      font-size: 14px;
-      padding: 6px 0;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      min-height: 100vh;
+      padding-top: 60px;
     }
 
     .main {
-      margin-left: 260px;
-      padding: 30px;
+      width: 100%;
+      max-width: 700px;
+      padding: 0 20px;
     }
 
     h1 {
       font-size: 24px;
       margin-bottom: 20px;
+      text-align: center;
     }
 
     .form-section {
@@ -108,6 +59,7 @@
       display: flex;
       gap: 10px;
       margin-top: 20px;
+      justify-content: flex-end;
     }
 
     .button-group button {
@@ -188,33 +140,26 @@
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h2>利用者メニュー</h2>
-    <a href="#">利用者ダッシュボード</a>
-    <a href="#">仮想ネットワーク</a>
-    <a href="#">セキュリティグループ</a>
-    <button class="dropdown-btn">仮想マシン管理 ▼</button>
-    <div class="dropdown-container">
-      <a href="#">仮想マシンダッシュボード</a>
-      <a href="#">仮想マシン編集</a>
-      <a href="#">仮想マシン作成</a>
-      <a href="#">ポートフォリオ公開用環境管理</a>
-      <a href="#">成果物アップロード</a>
-      <a href="#">スナップショット管理</a>
-      <a href="#">スナップショット作成</a>
-      <a href="#">バックアップ・復元管理</a>
-      <a href="#">バックアップ作成</a>
-      <a href="#">バックアップから復元</a>
-    </div>
-  </div>
-
   <div class="main">
-    <h1>仮想マシン作成</h1>
+    <h1>ミドルウェア導入済み仮想マシン作成</h1>
     <div class="form-section">
       <div class="form-group">
         <label>仮想マシン名</label>
-        <input type="text" placeholder="例: vm-student01">
+        <input type="text" placeholder="例: vm-middleware01">
       </div>
+
+      <div class="form-group">
+        <label>ミドルウェア選択</label>
+        <select>
+          <option>マインクラフトサーバー</option>
+          <option>Nginx</option>
+          <option>WordPress</option>
+          <option>Apache</option>
+          <option>Node.js</option>
+          <option>Docker</option>
+        </select>
+      </div>
+
       <div class="form-group">
         <label>仮想マシンタイプ</label>
         <select>
@@ -223,6 +168,7 @@
           <option>Large (4CPU, 8GB RAM)</option>
         </select>
       </div>
+
       <div class="form-group">
         <label>ネットワーク</label>
         <select>
@@ -231,6 +177,7 @@
           <option>lab-net</option>
         </select>
       </div>
+
       <div class="form-group">
         <label>サブネット</label>
         <select>
@@ -239,10 +186,12 @@
           <option>10.0.0.0/16</option>
         </select>
       </div>
+
       <div class="form-group">
         <label>公開鍵</label>
         <textarea rows="4" placeholder="ssh-rsa AAAAB3..."></textarea>
       </div>
+
       <div class="form-group">
         <label>OSイメージ</label>
         <select>
@@ -251,6 +200,7 @@
           <option>Debian 11</option>
         </select>
       </div>
+
       <div class="button-group">
         <button onclick="document.getElementById('popup').style.display='flex'">構築済み仮想マシン選択</button>
         <button style="background-color:#4caf50; color:white;">マシンを作成</button>
@@ -266,8 +216,8 @@
           <tr><th>名前</th><th>イメージ</th><th>状態</th></tr>
         </thead>
         <tbody>
-          <tr><td>vm-template01</td><td>Ubuntu</td><td>利用可</td></tr>
-          <tr><td>vm-template02</td><td>CentOS</td><td>利用可</td></tr>
+          <tr><td>vm-template01</td><td>Ubuntu + Nginx</td><td>利用可</td></tr>
+          <tr><td>vm-template02</td><td>Ubuntu + Minecraft</td><td>利用可</td></tr>
         </tbody>
       </table>
       <div class="popup-buttons">
@@ -276,22 +226,5 @@
       </div>
     </div>
   </div>
-
-  <script>
-    const dropdown = document.querySelector(".dropdown-btn");
-    const container = document.querySelector(".dropdown-container");
-    dropdown.addEventListener("click", () => {
-      container.style.display = container.style.display === "block" ? "none" : "block";
-    });
-
-    const popup = document.getElementById('popup');
-    const popupContent = document.getElementById('popupContent');
-
-    window.addEventListener('click', function(e) {
-      if (e.target === popup) {
-        popup.style.display = 'none';
-      }
-    });
-  </script>
 </body>
 </html>

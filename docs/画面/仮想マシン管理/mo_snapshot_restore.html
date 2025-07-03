@@ -1,9 +1,9 @@
-
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>スナップショット作成</title>
+  <title>バックアップ・復元管理</title>
+  <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
   <style>
     body {
       margin: 0;
@@ -94,7 +94,6 @@
       font-weight: bold;
     }
 
-    .form-group input,
     .form-group select {
       width: 100%;
       padding: 8px;
@@ -123,52 +122,53 @@
   </style>
 </head>
 <body>
-  <div class="sidebar">
-    <h2>利用者メニュー</h2>
-    <a href="#">利用者ダッシュボード</a>
-    <a href="#">仮想ネットワーク</a>
-    <a href="#">セキュリティグループ</a>
-    <button class="dropdown-btn">仮想マシン管理 ▼</button>
-    <div class="dropdown-container">
-      <a href="#">仮想マシンダッシュボード</a>
-      <a href="#">仮想マシン編集</a>
-      <a href="#">仮想マシン作成</a>
-      <a href="#">ポートフォリオ公開用環境管理</a>
-      <a href="#">成果物アップロード</a>
-      <a href="#">スナップショット管理</a>
-      <a href="#">スナップショット作成</a>
-      <a href="#">バックアップ・復元管理</a>
-      <a href="#">バックアップ作成</a>
-      <a href="#">バックアップから復元</a>
-    </div>
-  </div>
 
   <div class="main">
-    <h1>スナップショット作成</h1>
+    <h1>スナップショット管理</h1>
     <div class="form-section">
       <div class="form-group">
-        <label>スナップショット名</label>
-        <input type="text" placeholder="例: snapshot-new">
-      </div>
-      <div class="form-group">
-        <label>対象仮想マシン</label>
-        <select>
-          <option>vm-kamata01</option>
-          <option>vm-kamata02</option>
-          <option>vm-student01</option>
+        <label>復元するスナップショットを選択</label>
+        <select id="snapshot-select" class="select2">
+          <option>snapshot-001</option>
+          <option>snapshot-002</option>
+          <option>snapshot-dev</option>
+          <option>snapshot-test01</option>
+          <option>snapshot-test02</option>
+          <option>snapshot-lab01</option>
         </select>
       </div>
+
+      <div class="form-group">
+        <label>起動する仮想マシンを選択</label>
+        <select>
+          <option>vm-kamata01</option>
+          <option>vm-student01</option>
+          <option>vm-dev01</option>
+        </select>
+      </div>
+
       <div class="button-group">
-        <button onclick="alert('スナップショット作成処理実行')">作成</button>
+        <button onclick="alert('復元処理を開始')">復元</button>
       </div>
     </div>
   </div>
 
+  <!-- JavaScript: jQuery + Select2 -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
   <script>
     const dropdown = document.querySelector(".dropdown-btn");
     const container = document.querySelector(".dropdown-container");
     dropdown.addEventListener("click", () => {
       container.style.display = container.style.display === "block" ? "none" : "block";
+    });
+
+    $(document).ready(function () {
+      $('#snapshot-select').select2({
+        width: '100%',
+        placeholder: "スナップショットを検索",
+        allowClear: true
+      });
     });
   </script>
 </body>
