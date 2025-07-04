@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>インスタンスタイプモーダル（静的）</title>
+  <link rel="stylesheet" href="mo_インスタンスタイプ.css">
+</head>
+<body>
+
+  <div class="modal always-show">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">インスタンスタイプの追加</h2>
+        <span class="close-button">×</span>
+      </div>
+      <form class="modal-form">
+        <label for="add-name">名前</label>
+        <input type="text" id="add-name" placeholder="例: standard.xlarge">
+
+        <label for="add-vcpu">vCPU数</label>
+        <input type="number" id="add-vcpu" min="1" placeholder="例: 16">
+
+        <label for="add-memory">メモリ数</label>
+        <div class="input-group">
+          <input type="number" id="add-memory" min="1" placeholder="例: 32">
+          <span class="input-group-append">GB</span>
+        </div>
+
+        <label for="add-storage">ストレージ数</label>
+        <div class="input-group">
+          <input type="number" id="add-storage" min="10" placeholder="例: 500">
+          <span class="input-group-append">GB</span>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-primary">作成</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</body>
+</html>

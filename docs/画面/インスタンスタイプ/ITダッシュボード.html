@@ -1,254 +1,114 @@
 <!DOCTYPE html>
 <html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>インスタンスタイプ管理</title>
+  <link rel="stylesheet" href="ITダッシュボード.css">
+</head>
 
-    <head>
-        <meta charset="UTF-8">
-        <title>インスタンスタイプ管理</title>
-        <link rel="stylesheet" href="./ITダッシュボード.css">
-    </head>
+<body>
+  <div class="sidebar">
+    <h2>利用者メニュー</h2>
+    <ul>
+      <li><a href="#">ダッシュボード</a></li>
+      <li><a href="#" class="active">インスタンスタイプ管理</a></li>
+      <li><a href="#">仮想マシン管理</a></li>
+      <li><a href="#">セキュリティグループ管理</a></li>
+    </ul>
+  </div>
 
-    <body>
-        <div class="sidebar">
-            <h2>利用者メニュー</h2>
-            <ul>
-                <li><a href="#">ダッシュボード</a></li>
-                <li><a href="#" class="active">インスタンスタイプ管理</a></li>
-                <li><a href="#">仮想マシン管理</a></li>
-                <li><a href="#">セキュリティグループ管理</a></li>
-            </ul>
-        </div>
+  <div class="main">
+    <h1>インスタンスタイプ管理</h1>
+    <div class="content-section">
+      <div class="button-area">
+        <button id="openAddModalBtn" class="btn btn-primary">＋ インスタンスタイプ追加</button>
+      </div>
 
-        <div class="main">
-            <h1>インスタンスタイプ管理</h1>
-
-            <div class="content-section">
-                <h2>インスタンスタイプ一覧</h2>
-                <div class="button-area">
-                    <button id="openAddModalBtn" class="btn btn-primary">＋
-                        インスタンスタイプ追加</button>
+      <table class="data-table" id="instanceTypeTable">
+        <thead>
+          <tr>
+            <th>名前</th>
+            <th>vCPU</th>
+            <th>メモリ</th>
+            <th>ストレージ</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="#">standard.small</a></td>
+            <td>2</td>
+            <td>4 GB</td>
+            <td>50 GB</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <a class="edit-link">編集</a>
+                  <a class="delete-link">削除</a>
                 </div>
-                <table class="data-table" id="instanceTypeTable">
-                    <thead>
-                        <tr>
-                            <th>名前</th>
-                            <th>vCPU</th>
-                            <th>メモリ</th>
-                            <th>ストレージ</th>
-                            <th>操作</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>standard.small</td>
-                            <td>2</td>
-                            <td>4 GB</td>
-                            <td>50 GB</td>
-                            <td>
-                                <div class="actions-menu">
-                                    <button class="actions-button">操作 ▼</button>
-                                    <div class="dropdown-content">
-                                        <a class="edit-link">編集</a>
-                                        <a class="delete-link">削除</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>standard.medium</td>
-                            <td>4</td>
-                            <td>8 GB</td>
-                            <td>100 GB</td>
-                            <td>
-                                <div class="actions-menu">
-                                    <button class="actions-button">操作 ▼</button>
-                                    <div class="dropdown-content">
-                                        <a class="edit-link">編集</a>
-                                        <a class="delete-link">削除</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                        <tr>
-                            <td>compute.large</td>
-                            <td>8</td>
-                            <td>16 GB</td>
-                            <td>200 GB</td>
-                            <td>
-                                <div class="actions-menu">
-                                    <button class="actions-button">操作 ▼</button>
-                                    <div class="dropdown-content">
-                                        <a class="edit-link">編集</a>
-                                        <a class="delete-link">削除</a>
-                                    </div>
-                                </div>
-                            </td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><a href="#">standard.medium</a></td>
+            <td>4</td>
+            <td>8 GB</td>
+            <td>100 GB</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <a class="edit-link">編集</a>
+                  <a class="delete-link">削除</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td><a href="#">compute.large</a></td>
+            <td>8</td>
+            <td>16 GB</td>
+            <td>200 GB</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <a class="edit-link">編集</a>
+                  <a class="delete-link">削除</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
 
-        <div id="addModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header"><h2
-                        class="modal-title">インスタンスタイプの追加</h2><span
-                        class="close-button">&times;</span></div>
-                <form id="addForm" class="modal-form">
-                    <label for="add-name">名前</label><input type="text"
-                        id="add-name" required placeholder="例: standard.xlarge">
-                    <label for="add-vcpu">vCPU数</label><input type="number"
-                        id="add-vcpu" required min="1" placeholder="例: 16">
-                    <label for="add-memory">メモリ数</label><div
-                        class="input-group"><input type="number" id="add-memory"
-                            required min="1" placeholder="例: 32"><span
-                            class="input-group-append">GB</span></div>
-                    <label for="add-storage">ストレージ数</label><div
-                        class="input-group"><input type="number"
-                            id="add-storage" required min="10"
-                            placeholder="例: 500"><span
-                            class="input-group-append">GB</span></div>
-                    <div class="modal-footer"><button type="submit"
-                            class="btn btn-primary">作成</button></div>
-                </form>
-            </div>
-        </div>
-
-        <div id="editModal" class="modal">
-            <div class="modal-content">
-                <div class="modal-header"><h2
-                        class="modal-title">インスタンスタイプの編集</h2><span
-                        class="close-button">&times;</span></div>
-                <form id="editForm" class="modal-form">
-                    <input type="hidden" id="edit-row-index">
-                    <label for="edit-name">名前</label><input type="text"
-                        id="edit-name" required>
-                    <label for="edit-vcpu">vCPU数</label><input type="number"
-                        id="edit-vcpu" required min="1">
-                    <label for="edit-memory">メモリ数</label><div
-                        class="input-group"><input type="number"
-                            id="edit-memory" required min="1"><span
-                            class="input-group-append">GB</span></div>
-                    <label for="edit-storage">ストレージ数</label><div
-                        class="input-group"><input type="number"
-                            id="edit-storage" required min="10"><span
-                            class="input-group-append">GB</span></div>
-                    <div class="modal-footer"><button type="submit"
-                            class="btn btn-primary">変更を保存</button></div>
-                </form>
-            </div>
-        </div>
-
-        <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const addModal = document.getElementById('addModal');
-            const editModal = document.getElementById('editModal');
-            
-            // --- ▼ プルダウンメニューのロジック ▼ ---
-            document.querySelectorAll('.actions-button').forEach(button => {
-                button.addEventListener('click', function(event) {
-                    event.stopPropagation();
-                    closeAllDropdowns(this);
-                    this.nextElementSibling.classList.toggle('show');
-                });
-            });
-
-            function closeAllDropdowns(exceptThisButton) {
-                document.querySelectorAll('.actions-button').forEach(button => {
-                    if (button !== exceptThisButton) {
-                        button.nextElementSibling.classList.remove('show');
-                    }
-                });
-            }
-
-            window.addEventListener('click', function(event) {
-                if (!event.target.matches('.actions-button')) {
-                    closeAllDropdowns(null);
-                }
-            });
-
-            // --- モーダルを開く・閉じるロジック ---
-            document.getElementById('openAddModalBtn').onclick = () => {
-                addModal.style.display = 'block';
-                document.getElementById('addForm').reset();
-            };
-            
-            const closeButtons = document.querySelectorAll('.close-button');
-            closeButtons.forEach(btn => btn.onclick = () => {
-                addModal.style.display = 'none';
-                editModal.style.display = 'none';
-            });
-            window.onclick = (event) => {
-                if (!event.target.matches('.actions-button')) {
-                    closeAllDropdowns(null);
-                }
-                if (event.target == addModal || event.target == editModal) {
-                    addModal.style.display = 'none';
-                    editModal.style.display = 'none';
-                }
-            };
-
-            // --- フォームの処理 ---
-            document.getElementById('addForm').onsubmit = (event) => {
-                event.preventDefault();
-                const name = document.getElementById('add-name').value;
-                alert(`インスタンスタイプ「${name}」を追加しました。（ダミー）`);
-                addModal.style.display = 'none';
-            };
-            
-            document.getElementById('editForm').onsubmit = (event) => {
-                event.preventDefault();
-                const name = document.getElementById('edit-name').value;
-                const rowIndex = document.getElementById('edit-row-index').value;
-                
-                const table = document.getElementById('instanceTypeTable');
-                const row = table.rows[rowIndex];
-                row.cells[0].textContent = name;
-                row.cells[1].textContent = document.getElementById('edit-vcpu').value;
-                row.cells[2].textContent = document.getElementById('edit-memory').value + ' GB';
-                row.cells[3].textContent = document.getElementById('edit-storage').value + ' GB';
-                
-                alert(`インスタンスタイプ「${name}」の変更を保存しました。（ダミー）`);
-                editModal.style.display = 'none';
-            };
-
-            // --- ▼ テーブル操作のイベントリスナー設定 ▼ ---
-            const setupTableActions = () => {
-                // 編集リンク
-                document.querySelectorAll('.edit-link').forEach(link => {
-                    link.onclick = (event) => {
-                        event.preventDefault();
-                        const row = event.target.closest('tr');
-                        const name = row.cells[0].textContent;
-                        const vcpu = parseFloat(row.cells[1].textContent);
-                        const memory = parseFloat(row.cells[2].textContent);
-                        const storage = parseFloat(row.cells[3].textContent);
-                        
-                        document.getElementById('edit-name').value = name;
-                        document.getElementById('edit-vcpu').value = vcpu;
-                        document.getElementById('edit-memory').value = memory;
-                        document.getElementById('edit-storage').value = storage;
-                        document.getElementById('edit-row-index').value = row.rowIndex;
-                        
-                        editModal.style.display = 'block';
-                    };
-                });
-                
-                // 削除リンク
-                document.querySelectorAll('.delete-link').forEach(link => {
-                    link.onclick = (event) => {
-                        event.preventDefault();
-                        const row = event.target.closest('tr');
-                        const name = row.cells[0].textContent;
-                        if (confirm(`「${name}」を本当に削除しますか？`)) {
-                            alert(`「${name}」を削除しました。（ダミー）`);
-                            row.remove();
-                        }
-                    };
-                });
-            };
-            
-            setupTableActions();
+  <script>
+    document.addEventListener('DOMContentLoaded', function () {
+      document.querySelectorAll('.actions-button').forEach(button => {
+        button.addEventListener('click', function (event) {
+          event.stopPropagation();
+          closeAllDropdowns(this);
+          this.nextElementSibling.classList.toggle('show');
         });
-    </script>
-    </body>
+      });
+
+      function closeAllDropdowns(exceptThisButton) {
+        document.querySelectorAll('.actions-button').forEach(button => {
+          if (button !== exceptThisButton) {
+            button.nextElementSibling.classList.remove('show');
+          }
+        });
+      }
+
+      window.addEventListener('click', function (event) {
+        if (!event.target.matches('.actions-button')) {
+          closeAllDropdowns(null);
+        }
+      });
+    });
+  </script>
+</body>
 </html>
