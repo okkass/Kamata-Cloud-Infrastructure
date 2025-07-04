@@ -1,58 +1,127 @@
+/* 全体のベース設定 */
 body {
   margin: 0;
   font-family: sans-serif;
   background-color: #f5f7fa;
 }
 
-.main {
-  margin-left: 220px;
-  padding: 30px;
-}
-
-h1 {
-  font-size: 24px;
-  margin-bottom: 20px;
-}
-
-.section {
-  background-color: white;
-  padding: 20px;
-  border-radius: 8px;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-  margin-bottom: 30px;
-}
-
-.section-title {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 15px;
-}
-
-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 10px;
-}
-
-th, td {
-  padding: 10px 12px;
-  text-align: left;
-  border-bottom: 1px solid #eee;
-}
-
-th {
-  background-color: #e0e0e0;
-}
-
-.add-btn {
-  padding: 6px 12px;
-  background-color: #4caf50;
+/* サイドバー共通デザイン */
+.sidebar {
+  width: 260px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #2f3e4d;
   color: white;
-  border: none;
+  padding: 20px;
+  box-sizing: border-box;
+  overflow-y: auto;
+}
+
+.sidebar-header {
+  font-size: 20px;
+  font-weight: bold;
+  background-color: #1f2e3d;
+  padding: 10px 15px;
+  border-radius: 4px;
+  margin-bottom: 25px;
+}
+
+.sidebar-link {
+  display: block;
+  color: #ffffff;
+  font-size: 14px;
+  padding: 10px 15px;
+  margin-bottom: 8px;
+  text-decoration: none;
   border-radius: 4px;
   cursor: pointer;
 }
 
-.add-btn:hover {
+.sidebar-link:hover {
+  background-color: #4f5f6f;
+}
+
+/* メインコンテンツ */
+.main {
+  margin-left: 280px;
+  padding: 30px;
+}
+
+/* ヘッダー */
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.header h1 {
+  font-size: 24px;
+}
+
+/* ボタン類 */
+.btn-green {
+  padding: 8px 14px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.btn-green:hover {
   background-color: #43a047;
+}
+
+.btn-red {
+  padding: 6px 12px;
+  background-color: #f44336;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.btn-red:hover {
+  background-color: #e53935;
+}
+
+.btn-red.small {
+  font-size: 12px;
+  padding: 4px 10px;
+}
+
+/* テーブルデザイン */
+.node-table {
+  width: 100%;
+  border-collapse: collapse;
+  background-color: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+}
+
+.node-table th, .node-table td {
+  padding: 12px 14px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+.node-table th {
+  background-color: #e0e0e0;
+  font-weight: bold;
+}
+
+.status-running {
+  color: #2e7d32;
+  font-weight: bold;
+}
+
+.status-stopped {
+  color: #c62828;
+  font-weight: bold;
 }
