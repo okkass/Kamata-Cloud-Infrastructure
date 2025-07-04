@@ -125,3 +125,20 @@ body {
   color: #c62828;
   font-weight: bold;
 }
+
+/* 管理ノード行のグレーアウト */
+.grayout {
+  background-color: #e0e0e0;
+  color: #888;
+}
+
+/* 無効状態の操作ボタン */
+.btn-gray {
+  background-color: #9e9e9e;
+  color: white;
+  cursor: default;
+}
+
+.btn-gray:hover {
+  background-color: #9e9e9e;
+}

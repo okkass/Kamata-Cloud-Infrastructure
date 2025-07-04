@@ -1,9 +1,24 @@
+
 <!DOCTYPE html>
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
   <title>物理ノードダッシュボード</title>
   <link rel="stylesheet" href="phtsical_node_dashboard.css">
+  <style>
+    .grayout {
+      background-color: #e0e0e0;
+      color: #888;
+    }
+    .btn-gray {
+      background-color: #9e9e9e;
+      color: white;
+      cursor: default;
+    }
+    .btn-gray:hover {
+      background-color: #9e9e9e;
+    }
+  </style>
 </head>
 <body>
   <div class="sidebar">
@@ -35,14 +50,16 @@
         </tr>
       </thead>
       <tbody>
-        <tr>
-          <td>Node-A</td>
+        <tr class="grayout">
+          <td>Node-A（管理ノード）</td>
           <td>192.168.0.10</td>
           <td class="status-running">稼働中</td>
           <td>70%</td>
           <td>60%</td>
           <td>80%</td>
-          <td><button class="btn-red small">削除</button></td>
+          <td>
+            <button class="btn-gray small">削除不可</button>
+          </td>
         </tr>
         <tr>
           <td>Node-B</td>
@@ -51,7 +68,10 @@
           <td>—</td>
           <td>—</td>
           <td>—</td>
-          <td><button class="btn-red small">削除</button></td>
+          <td>
+            <button class="btn-red small">削除</button>
+            <button class="btn-green small">管理ノードに設定</button>
+          </td>
         </tr>
         <tr>
           <td>Node-C</td>
@@ -60,7 +80,10 @@
           <td>45%</td>
           <td>55%</td>
           <td>30%</td>
-          <td><button class="btn-red small">削除</button></td>
+          <td>
+            <button class="btn-red small">削除</button>
+            <button class="btn-green small">管理ノードに設定</button>
+          </td>
         </tr>
       </tbody>
     </table>
