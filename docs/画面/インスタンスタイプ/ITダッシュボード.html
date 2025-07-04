@@ -40,75 +40,42 @@
             <td>2</td>
             <td>4 GB</td>
             <td>50 GB</td>
-            <td>
-              <div class="actions-menu">
-                <button class="actions-button">操作 ▼</button>
-                <div class="dropdown-content">
-                  <a class="edit-link">編集</a>
-                  <a class="delete-link">削除</a>
-                </div>
-              </div>
-            </td>
+            <td><button class="btn btn-red small delete-button">削除</button></td>
           </tr>
           <tr>
             <td><a href="#">standard.medium</a></td>
             <td>4</td>
             <td>8 GB</td>
             <td>100 GB</td>
-            <td>
-              <div class="actions-menu">
-                <button class="actions-button">操作 ▼</button>
-                <div class="dropdown-content">
-                  <a class="edit-link">編集</a>
-                  <a class="delete-link">削除</a>
-                </div>
-              </div>
-            </td>
+            <td><button class="btn btn-red small delete-button">削除</button></td>
           </tr>
           <tr>
             <td><a href="#">compute.large</a></td>
             <td>8</td>
             <td>16 GB</td>
             <td>200 GB</td>
-            <td>
-              <div class="actions-menu">
-                <button class="actions-button">操作 ▼</button>
-                <div class="dropdown-content">
-                  <a class="edit-link">編集</a>
-                  <a class="delete-link">削除</a>
-                </div>
-              </div>
-            </td>
+            <td><button class="btn btn-red small delete-button">削除</button></td>
           </tr>
         </tbody>
+
       </table>
     </div>
   </div>
 
   <script>
-    document.addEventListener('DOMContentLoaded', function () {
-      document.querySelectorAll('.actions-button').forEach(button => {
-        button.addEventListener('click', function (event) {
-          event.stopPropagation();
-          closeAllDropdowns(this);
-          this.nextElementSibling.classList.toggle('show');
-        });
-      });
-
-      function closeAllDropdowns(exceptThisButton) {
-        document.querySelectorAll('.actions-button').forEach(button => {
-          if (button !== exceptThisButton) {
-            button.nextElementSibling.classList.remove('show');
-          }
-        });
-      }
-
-      window.addEventListener('click', function (event) {
-        if (!event.target.matches('.actions-button')) {
-          closeAllDropdowns(null);
+  document.addEventListener('DOMContentLoaded', function () {
+    document.querySelectorAll('.delete-button').forEach(button => {
+      button.addEventListener('click', function () {
+        const row = button.closest('tr');
+        const name = row.querySelector('td a')?.textContent || 'この行';
+        if (confirm(`「${name}」を削除しますか？`)) {
+          row.remove();
+          alert(`「${name}」を削除しました。（ダミー処理）`);
         }
       });
     });
-  </script>
+  });
+</script>
+
 </body>
 </html>
