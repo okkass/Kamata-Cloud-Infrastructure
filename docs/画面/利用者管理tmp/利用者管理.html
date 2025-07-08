@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+    <meta charset="UTF-8">
+    <title>利用者管理</title>
+    <link rel="stylesheet" href="./利用者管理ダッシュボード.css">
+</head>
+
+<body>
+    <div class="sidebar">
+        <h2>管理メニュー</h2>
+        <ul>
+            <li><a href="#">ダッシュボード</a></li>
+            <li><a href="#" class="active">利用者管理</a></li>
+            <li><a href="#">インスタンスタイプ管理</a></li>
+            <li><a href="#">イメージ管理</a></li>
+        </ul>
+    </div>
+
+    <div class="main">
+        <h1>利用者管理</h1>
+
+        <div id="user-list-view">
+            <div class="content-section">
+                <div class="content-header">
+                    <h2>利用者一覧</h2>
+                    <div class="button-area" style="margin-top:0;">
+                        <button id="openAddModalBtn" class="btn btn-primary">＋ 利用者追加</button>
+                    </div>
+                </div>
+                <table class="data-table" id="userTable">
+                    <thead>
+                        <tr>
+                            <th>アカウント名</th>
+                            <th>メールアドレス</th>
+                            <th>最大リソース</th>
+                            <th>最終ログイン</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr data-cpu="8" data-memory="16" data-storage="200">
+                            <td><a href="#" class="details-link">tanaka-ichiro</a></td>
+                            <td>tanaka@example.com</td>
+                            <td class="resource-limits">CPU: 8, メモリ: 16 GB, ストレージ: 200 GB</td>
+                            <td>2025/06/30 15:48</td>
+                            <td>
+                                <div class="actions-menu"><button class="actions-button">操作 ▼</button>
+                                    <div class="dropdown-content"><a class="delete-link">削除</a></div>
+                                </div>
+                            </td>
+                        </tr>
+                        <tr data-cpu="4" data-memory="8" data-storage="100">
+                            <td><a href="#" class="details-link">suzuki-hanako</a></td>
+                            <td>suzuki@example.com</td>
+                            <td class="resource-limits">CPU: 4, メモリ: 8 GB, ストレージ: 100 GB</td>
+                            <td>2025/07/01 09:15</td>
+                            <td>
+                                <div class="actions-menu"><button class="actions-button">操作 ▼</button>
+                                    <div class="dropdown-content"><a class="delete-link">削除</a></div>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <div id="user-details-view">
+            <div class="content-section">
+                <a href="#" id="back-to-list-btn" class="details-link" style="font-weight: normal;">&laquo; 利用者一覧に戻る</a>
+                <div class="content-header">
+                    <h2 style="margin-top: 20px;">利用者詳細</h2>
+                    <div class="button-area" style="margin-top:0;">
+                        <button id="openEditModalBtn" class="btn btn-secondary">編集</button>
+                    </div>
+                </div>
+                <div class="details-form-group"><label>アカウント名</label>
+                    <div id="details-name" class="value"></div>
+                </div>
+                <div class="details-form-group"><label>メールアドレス</label>
+                    <div id="details-email" class="value"></div>
+                </div>
+                <div class="details-form-group">
+                    <label>最大リソース制限</label>
+                    <div class="details-grid">
+                        <div class="value">CPU: <span id="details-cpu"></span></div>
+                        <div class="value">メモリ: <span id="details-memory"></span> GB</div>
+                        <div class="value">ストレージ: <span id="details-storage"></span> GB</div>
+                    </div>
+                </div>
+                <div class="details-form-group">
+                    <label>パスワード</label><button id="reset-password-btn"
+                        class="btn btn-secondary">パスワードリセットメールを送る</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="addModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">利用者の追加</h2><span class="close-button">&times;</span>
+            </div>
+            <form id="addForm" class="modal-form">
+                <label for="add-name">アカウント名</label><input type="text" id="add-name" required>
+                <label for="add-email">メールアドレス</label><input type="email" id="add-email" required>
+                <label>最大リソース制限</label>
+                <div class="input-group"><input type="number" id="add-cpu" required min="1" placeholder="最大CPU数"><span
+                        class="input-group-append">vCPU</span></div>
+                <div class="input-group"><input type="number" id="add-memory" required min="1"
+                        placeholder="最大メモリ数"><span class="input-group-append">GB</span></div>
+                <div class="input-group"><input type="number" id="add-storage" required min="10"
+                        placeholder="最大ストレージ数"><span class="input-group-append">GB</span></div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">追加</button></div>
+            </form>
+        </div>
+    </div>
+
+    <div id="editModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">利用者の編集</h2><span class="close-button">&times;</span>
+            </div>
+            <form id="editForm" class="modal-form">
+                <input type="hidden" id="edit-row-index">
+                <div class="details-form-group"><label>アカウント名</label>
+                    <div id="edit-view-name" class="value"></div>
+                </div>
+                <label for="edit-email">メールアドレス</label><input type="email" id="edit-email" required>
+                <label>最大リソース制限</label>
+                <div class="input-group"><input type="number" id="edit-cpu" required min="1"><span
+                        class="input-group-append">vCPU</span></div>
+                <div class="input-group"><input type="number" id="edit-memory" required min="1"><span
+                        class="input-group-append">GB</span></div>
+                <div class="input-group"><input type="number" id="edit-storage" required min="10"><span
+                        class="input-group-append">GB</span></div>
+                <div class="modal-footer"><button type="submit" class="btn btn-primary">変更を保存</button></div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const userListView = document.getElementById('user-list-view');
+            const userDetailsView = document.getElementById('user-details-view');
+            const addModal = document.getElementById('addModal');
+            const editModal = document.getElementById('editModal');
+            let currentUserRowIndex = null; // 現在表示している詳細の行インデックスを保持
+
+            // --- 画面切り替えロジック ---
+            const showListView = () => {
+                userListView.style.display = 'block';
+                userDetailsView.style.display = 'none';
+            };
+            const showDetailsView = (data, rowIndex) => {
+                currentUserRowIndex = rowIndex; // 行インデックスを記憶
+                document.getElementById('details-name').textContent = data.name;
+                document.getElementById('details-email').textContent = data.email;
+                document.getElementById('details-cpu').textContent = data.cpu;
+                document.getElementById('details-memory').textContent = data.memory;
+                document.getElementById('details-storage').textContent = data.storage;
+                userListView.style.display = 'none';
+                userDetailsView.style.display = 'block';
+            };
+
+            // --- イベントリスナー設定 ---
+            const setupEventListeners = () => {
+                // アカウント名クリック
+                document.querySelectorAll('.details-link').forEach(link => {
+                    link.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        const row = this.closest('tr');
+                        const userData = {
+                            name: row.cells[0].textContent.trim(),
+                            email: row.cells[1].textContent,
+                            cpu: row.dataset.cpu, memory: row.dataset.memory, storage: row.dataset.storage
+                        };
+                        showDetailsView(userData, row.rowIndex);
+                    });
+                });
+                // 削除リンク
+                document.querySelectorAll('.delete-link').forEach(link => {
+                    link.addEventListener('click', function (event) {
+                        event.preventDefault();
+                        const row = this.closest('tr');
+                        if (confirm(`利用者「${row.cells[0].textContent.trim()}」を本当に削除しますか？`)) {
+                            row.remove();
+                        }
+                    });
+                });
+                // プルダウンメニュー
+                document.querySelectorAll('.actions-button').forEach(button => {
+                    button.addEventListener('click', function (event) {
+                        event.stopPropagation();
+                        closeAllDropdowns(this);
+                        this.nextElementSibling.classList.toggle('show');
+                    });
+                });
+            };
+
+            // --- 詳細画面のボタン ---
+            document.getElementById('back-to-list-btn').addEventListener('click', (e) => { e.preventDefault(); showListView(); });
+            document.getElementById('reset-password-btn').addEventListener('click', () => {
+                alert(`${document.getElementById('details-email').textContent} にパスワードリセットメールを送信しました。（ダミー）`);
+            });
+            document.getElementById('openEditModalBtn').addEventListener('click', () => {
+                // 詳細画面のデータから編集モーダルに値を設定
+                document.getElementById('edit-view-name').textContent = document.getElementById('details-name').textContent;
+                document.getElementById('edit-email').value = document.getElementById('details-email').textContent;
+                document.getElementById('edit-cpu').value = document.getElementById('details-cpu').textContent;
+                document.getElementById('edit-memory').value = document.getElementById('details-memory').textContent;
+                document.getElementById('edit-storage').value = document.getElementById('details-storage').textContent;
+                editModal.style.display = 'block';
+            });
+
+            // --- モーダル共通ロジック ---
+            const closeAllDropdowns = (exceptThis) => {
+                document.querySelectorAll('.dropdown-content.show').forEach(d => {
+                    if (d.previousElementSibling !== exceptThis) d.classList.remove('show');
+                });
+            };
+            [addModal, editModal].forEach(modal => {
+                modal.querySelector('.close-button').onclick = () => modal.style.display = 'none';
+            });
+            window.addEventListener('click', (event) => {
+                closeAllDropdowns(null);
+                if (event.target == addModal) addModal.style.display = 'none';
+                if (event.target == editModal) editModal.style.display = 'none';
+            });
+
+            // --- フォーム送信処理 ---
+            document.getElementById('addForm').onsubmit = (event) => {
+                event.preventDefault();
+                alert(`利用者「${document.getElementById('add-name').value}」を追加しました。（ダミー）`);
+                addModal.style.display = 'none';
+            };
+            document.getElementById('editForm').onsubmit = (event) => {
+                event.preventDefault();
+                // 編集結果を取得
+                const updatedData = {
+                    email: document.getElementById('edit-email').value,
+                    cpu: document.getElementById('edit-cpu').value,
+                    memory: document.getElementById('edit-memory').value,
+                    storage: document.getElementById('edit-storage').value,
+                    name: document.getElementById('edit-view-name').textContent
+                };
+
+                // 1. 詳細ページを更新
+                document.getElementById('details-email').textContent = updatedData.email;
+                document.getElementById('details-cpu').textContent = updatedData.cpu;
+                document.getElementById('details-memory').textContent = updatedData.memory;
+                document.getElementById('details-storage').textContent = updatedData.storage;
+
+                // 2. 一覧テーブルの裏側も更新
+                const row = document.getElementById('userTable').rows[currentUserRowIndex];
+                if (row) {
+                    row.cells[1].textContent = updatedData.email;
+                    row.cells[2].textContent = `CPU: ${updatedData.cpu}, メモリ: ${updatedData.memory} GB, ストレージ: ${updatedData.storage} GB`;
+                    row.dataset.cpu = updatedData.cpu;
+                    row.dataset.memory = updatedData.memory;
+                    row.dataset.storage = updatedData.storage;
+                }
+                alert(`利用者「${updatedData.name}」の情報を更新しました。（ダミー）`);
+                editModal.style.display = 'none';
+            };
+
+            // --- 初期化 ---
+            document.getElementById('openAddModalBtn').onclick = () => { addModal.style.display = 'block'; document.getElementById('addForm').reset(); };
+            setupEventListeners();
+            showListView();
+        });
+    </script>
+</body>
+
+</html>
