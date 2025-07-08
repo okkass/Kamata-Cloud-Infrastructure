@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <title>ストレージ追加</title>
@@ -75,6 +76,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <h1>ストレージ追加</h1>
@@ -86,12 +88,7 @@
 
     <div class="form-group">
       <label for="storage-size">ストレージサイズ</label>
-      <select id="storage-size">
-        <option value="10">10 GB</option>
-        <option value="20">20 GB</option>
-        <option value="50">50 GB</option>
-        <option value="100">100 GB</option>
-      </select>
+      <input type="text" id="storage-size" value="32" placeholder="例: 100">GB
     </div>
 
     <div class="form-group">
@@ -135,4 +132,5 @@
     });
   </script>
 </body>
+
 </html>
