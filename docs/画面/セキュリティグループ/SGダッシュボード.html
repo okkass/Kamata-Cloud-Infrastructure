@@ -1,116 +1,126 @@
 <!DOCTYPE html>
 <html lang="ja">
 
-<head>
+  <head>
 
-  <meta charset="UTF-8">
-  <title>SGダッシュボード</title>
+    <meta charset="UTF-8">
+    <title>SGダッシュボード</title>
 
-  <link rel="stylesheet" href="./SGダッシュボード.css">
+    <link rel="stylesheet" href="./SGダッシュボード.css">
 
-</head>
+  </head>
 
-<body>
-  <div class="sidebar">
-    <h2>利用者メニュー</h2>
-    <ul>
-      <li><a href="#">ダッシュボード</a></li>
-      <li><a href="#">仮想マシン管理</a></li>
-      <li><a href="#">仮想ネットワーク構築</a></li>
-      <li><a href="#" class="active">セキュリティグループ管理</a></li>
-      <li><a href="#">成果物アップロード</a></li>
-    </ul>
-  </div>
-  <div class="main">
-    <h1>セキュリティグループダッシュボード</h1>
+  <body>
+    <div class="sidebar">
+      <h2>利用者メニュー</h2>
+      <ul>
+        <li><a href="#">ダッシュボード</a></li>
+        <li><a href="#">仮想マシン管理</a></li>
+        <li><a href="#">仮想ネットワーク構築</a></li>
+        <li><a href="#" class="active">セキュリティグループ管理</a></li>
+        <li><a href="#">成果物アップロード</a></li>
+      </ul>
+    </div>
+    <div class="main">
+      <h1>セキュリティグループダッシュボード</h1>
 
-    <div class="content-section">
-      <h2>セキュリティグループ一覧</h2>
-      <div class="button-area">
-        <button id="openNewModalBtn">＋ 新規作成</button>
+      <div class="content-section">
+        <h2>セキュリティグループ一覧</h2>
+        <div class="button-area">
+          <button id="openNewModalBtn">＋ 新規作成</button>
+        </div>
+        <table class="sg-table">
+          <thead>
+            <tr>
+              <th>グループ名</th>
+              <th>セキュリティグループID</th>
+              <th>説明</th>
+              <th>イン/アウト ルール数</th>
+              <th>操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>default-web-server-sg</td>
+              <td>sg-0123456789abcdef0</td>
+              <td>デフォルトのWebサーバー用SG。HTTP/HTTPSを許可。</td>
+              <td>2 / 1</td>
+              <td>
+                <div class="actions-menu">
+                  <button class="actions-button">操作 ▼</button>
+                  <div class="dropdown-content">
+                    <a class="delete-link">削除</a>
+                    <a class="edit-link">編集</a>
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+            <tr>
+              <td>db-server-sg</td>
+              <td>sg-fedcba9876543210f</td>
+              <td>データベースサーバー用SG。特定のIPからのみ許可。</td>
+              <td>1 / 1</td>
+              <td>
+                <div class="actions-menu">
+                  <button class="actions-button">操作 ▼</button>
+                  <div class="dropdown-content">
+                    <a class="delete-link">削除</a>
+                    <a class="edit-link">編集</a>
+                  </div>
+                </div>
+
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
-      <table class="sg-table">
-        <thead>
-          <tr>
-            <th>グループ名</th>
-            <th>セキュリティグループID</th>
-            <th>説明</th>
-            <th>イン/アウト ルール数</th>
-            <th>操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>default-web-server-sg</td>
-            <td>sg-0123456789abcdef0</td>
-            <td>デフォルトのWebサーバー用SG。HTTP/HTTPSを許可。</td>
-            <td>2 / 1</td>
-            <td>
-              <div class="actions-menu">
-                <button class="actions-button">削除</button>
-              </div>
-
-            </td>
-          </tr>
-          <tr>
-            <td>db-server-sg</td>
-            <td>sg-fedcba9876543210f</td>
-            <td>データベースサーバー用SG。特定のIPからのみ許可。</td>
-            <td>1 / 1</td>
-            <td>
-              <div class="actions-menu">
-                <button class="actions-button">削除</button>
-              </div>
-
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
-  </div>
 
-  <div id="newSgModal" class="modal">
-    <div class="modal-content">
-      <span class="close-button">&times;</span>
-      <h2>セキュリティグループ新規作成</h2>
-      <form id="newSgForm" class="modal-form">
-        <label for="sg-name">セキュリティグループ名</label>
-        <input type="text" id="sg-name" name="sg-name" required>
-        <label for="sg-desc">説明</label>
-        <textarea id="sg-desc" name="sg-desc"></textarea>
-        <div class="rule-set">
-          <h4>ルール設定</h4>
-          <div id="new-rule-container"></div>
-          <button type="button" class="add-rule-btn" id="addNewRuleBtn">＋
-            ルールを追加</button>
-        </div>
-        <div class="modal-footer">
-          <button type="submit" class="submit-btn">作成</button>
-        </div>
-      </form>
+    <div id="newSgModal" class="modal">
+      <div class="modal-content">
+        <span class="close-button">&times;</span>
+        <h2>セキュリティグループ新規作成</h2>
+        <form id="newSgForm" class="modal-form">
+          <label for="sg-name">セキュリティグループ名</label>
+          <input type="text" id="sg-name" name="sg-name" required>
+          <label for="sg-desc">説明</label>
+          <textarea id="sg-desc" name="sg-desc"></textarea>
+          <div class="rule-set">
+            <h4>ルール設定</h4>
+            <div id="new-rule-container"></div>
+            <button type="button" class="add-rule-btn" id="addNewRuleBtn">＋
+              ルールを追加</button>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="submit-btn">作成</button>
+          </div>
+        </form>
+      </div>
     </div>
-  </div>
 
 
-  <template id="rule-template">
-    <div class="rule-row">
-      <input type="text" placeholder="ルール名" name="rule_name" style="flex: 2;">
-      <select name="rule_action" style="flex: 1.5;">
-        <option value="allow">許可</option>
-        <option value="deny">拒否</option>
-      </select>
-      <select name="rule_protocol" style="flex: 1;">
-        <option value="tcp">TCP</option>
-        <option value="udp">UDP</option>
-        <option value="icmp">ICMP</option>
-      </select>
-      <input type="text" placeholder="ポート番号" name="rule_port" style="flex: 2;">
-      <input type="text" placeholder="ソース (例: 0.0.0.0/0)" name="rule_source" style="flex: 2;">
-      <button type="button" onclick="this.parentElement.remove()">×</button>
-    </div>
-  </template>
+    <template id="rule-template">
+      <div class="rule-row">
+        <input type="text" placeholder="ルール名" name="rule_name" style="flex: 2;">
+        <select name="rule_action" style="flex: 1.5;">
+          <option value="allow">許可</option>
+          <option value="deny">拒否</option>
+        </select>
+        <select name="rule_protocol" style="flex: 1;">
+          <option value="tcp">TCP</option>
+          <option value="udp">UDP</option>
+          <option value="icmp">ICMP</option>
+        </select>
+        <input type="text" placeholder="ポート番号" name="rule_port"
+          style="flex: 2;">
+        <input type="text" placeholder="ソース (例: 0.0.0.0/0)" name="rule_source"
+          style="flex: 2;">
+        <button type="button" onclick="this.parentElement.remove()">×</button>
+      </div>
+    </template>
 
-  <script>
+    <script>
     document.addEventListener('DOMContentLoaded', function () {
 
       // --- ▼ プルダウンメニューのロジック ▼ ---
@@ -247,6 +257,6 @@
     });
   </script>
 
-</body>
+  </body>
 
 </html>
