@@ -2,7 +2,7 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ミドルウェア導入済み仮想マシン作成</title>
+  <title>仮想マシン作成</title>
   <style>
     body {
       margin: 0;
@@ -141,23 +141,11 @@
 </head>
 <body>
   <div class="main">
-    <h1>ミドルウェア導入済み仮想マシン作成</h1>
+    <h1>仮想マシン作成</h1>
     <div class="form-section">
       <div class="form-group">
         <label>仮想マシン名</label>
         <input type="text" placeholder="例: vm-middleware01">
-      </div>
-
-      <div class="form-group">
-        <label>ミドルウェア選択</label>
-        <select>
-          <option>マインクラフトサーバー</option>
-          <option>Nginx</option>
-          <option>WordPress</option>
-          <option>Apache</option>
-          <option>Node.js</option>
-          <option>Docker</option>
-        </select>
       </div>
 
       <div class="form-group">
@@ -201,8 +189,20 @@
         </select>
       </div>
 
+      <div class="form-group">
+        <label>ミドルウェア選択</label>
+        <select>
+          <option>なし</option>
+          <option>マインクラフトサーバー</option>
+          <option>Nginx</option>
+          <option>WordPress</option>
+          <option>Apache</option>
+          <option>Node.js</option>
+          <option>Docker</option>
+        </select>
+      </div>
+
       <div class="button-group">
-        <button onclick="document.getElementById('popup').style.display='flex'">構築済み仮想マシン選択</button>
         <button style="background-color:#4caf50; color:white;">マシンを作成</button>
       </div>
     </div>
