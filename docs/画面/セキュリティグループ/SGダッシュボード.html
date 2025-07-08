@@ -1,262 +1,234 @@
 <!DOCTYPE html>
 <html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>SGダッシュボード</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f5f7fa;
+    }
 
-  <head>
+    .sidebar {
+      width: 260px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background-color: #2f3e4d;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
 
-    <meta charset="UTF-8">
-    <title>SGダッシュボード</title>
+    .sidebar h2 {
+      font-size: 18px;
+      border-bottom: 2px solid white;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
 
-    <link rel="stylesheet" href="./SGダッシュボード.css">
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
 
-  </head>
+    .sidebar li {
+      margin-bottom: 10px;
+    }
 
-  <body>
-    <div class="sidebar">
-      <h2>利用者メニュー</h2>
-      <ul>
-        <li><a href="#">ダッシュボード</a></li>
-        <li><a href="#">仮想マシン管理</a></li>
-        <li><a href="#">仮想ネットワーク構築</a></li>
-        <li><a href="#" class="active">セキュリティグループ管理</a></li>
-        <li><a href="#">成果物アップロード</a></li>
-      </ul>
-    </div>
-    <div class="main">
-      <h1>セキュリティグループダッシュボード</h1>
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+    }
 
-      <div class="content-section">
-        <h2>セキュリティグループ一覧</h2>
-        <div class="button-area">
-          <button id="openNewModalBtn">＋ 新規作成</button>
-        </div>
-        <table class="sg-table">
-          <thead>
-            <tr>
-              <th>グループ名</th>
-              <th>セキュリティグループID</th>
-              <th>説明</th>
-              <th>イン/アウト ルール数</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>default-web-server-sg</td>
-              <td>sg-0123456789abcdef0</td>
-              <td>デフォルトのWebサーバー用SG。HTTP/HTTPSを許可。</td>
-              <td>2 / 1</td>
-              <td>
-                <div class="actions-menu">
-                  <button class="actions-button">操作 ▼</button>
-                  <div class="dropdown-content">
-                    <a class="delete-link">削除</a>
-                    <a class="edit-link">編集</a>
-                  </div>
+    .sidebar a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    .main {
+      margin-left: 260px;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .content-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .button-area {
+      margin-bottom: 15px;
+      text-align: right;
+    }
+
+    .button-area button {
+      padding: 10px 16px;
+      font-size: 14px;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .button-area button:hover {
+      background-color: #1976d2;
+    }
+
+    .sg-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .sg-table th, .sg-table td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+    }
+
+    .sg-table th {
+      background-color: #e0e0e0;
+    }
+
+    .actions-menu {
+      position: relative;
+      display: inline-block;
+    }
+
+    .actions-button {
+      padding: 6px 12px;
+      font-size: 14px;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .actions-button:hover {
+      background-color: #1976d2;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 100px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 1;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .dropdown-content button {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      background: none;
+      text-align: left;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .dropdown-content button:hover {
+      background-color: #f0f0f0;
+    }
+
+    .dropdown-content.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>利用者メニュー</h2>
+    <ul>
+      <li><a href="#">ダッシュボード</a></li>
+      <li><a href="#">仮想マシン管理</a></li>
+      <li><a href="#">仮想ネットワーク構築</a></li>
+      <li><a href="#" class="active">セキュリティグループ管理</a></li>
+      <li><a href="#">成果物アップロード</a></li>
+    </ul>
+  </div>
+
+  <div class="main">
+    <h1>セキュリティグループダッシュボード</h1>
+
+    <div class="content-section">
+      <h2>セキュリティグループ一覧</h2>
+      <div class="button-area">
+        <button id="openNewModalBtn">＋ 新規作成</button>
+      </div>
+      <table class="sg-table">
+        <thead>
+          <tr>
+            <th>グループ名</th>
+            <th>セキュリティグループID</th>
+            <th>説明</th>
+            <th>イン/アウト ルール数</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>default-web-server-sg</td>
+            <td>sg-0123456789abcdef0</td>
+            <td>デフォルトのWebサーバー用SG。HTTP/HTTPSを許可。</td>
+            <td>2 / 1</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <button class="edit-link">編集</button>
+                  <button class="delete-link">削除</button>
                 </div>
-
-              </td>
-            </tr>
-            <tr>
-              <td>db-server-sg</td>
-              <td>sg-fedcba9876543210f</td>
-              <td>データベースサーバー用SG。特定のIPからのみ許可。</td>
-              <td>1 / 1</td>
-              <td>
-                <div class="actions-menu">
-                  <button class="actions-button">操作 ▼</button>
-                  <div class="dropdown-content">
-                    <a class="delete-link">削除</a>
-                    <a class="edit-link">編集</a>
-                  </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>db-server-sg</td>
+            <td>sg-fedcba9876543210f</td>
+            <td>データベースサーバー用SG。特定のIPからのみ許可。</td>
+            <td>1 / 1</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <button class="edit-link">編集</button>
+                  <button class="delete-link">削除</button>
                 </div>
-
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
     </div>
+  </div>
 
-    <div id="newSgModal" class="modal">
-      <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>セキュリティグループ新規作成</h2>
-        <form id="newSgForm" class="modal-form">
-          <label for="sg-name">セキュリティグループ名</label>
-          <input type="text" id="sg-name" name="sg-name" required>
-          <label for="sg-desc">説明</label>
-          <textarea id="sg-desc" name="sg-desc"></textarea>
-          <div class="rule-set">
-            <h4>ルール設定</h4>
-            <div id="new-rule-container"></div>
-            <button type="button" class="add-rule-btn" id="addNewRuleBtn">＋
-              ルールを追加</button>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="submit-btn">作成</button>
-          </div>
-        </form>
-      </div>
-    </div>
-
-
-    <template id="rule-template">
-      <div class="rule-row">
-        <input type="text" placeholder="ルール名" name="rule_name" style="flex: 2;">
-        <select name="rule_action" style="flex: 1.5;">
-          <option value="allow">許可</option>
-          <option value="deny">拒否</option>
-        </select>
-        <select name="rule_protocol" style="flex: 1;">
-          <option value="tcp">TCP</option>
-          <option value="udp">UDP</option>
-          <option value="icmp">ICMP</option>
-        </select>
-        <input type="text" placeholder="ポート番号" name="rule_port"
-          style="flex: 2;">
-        <input type="text" placeholder="ソース (例: 0.0.0.0/0)" name="rule_source"
-          style="flex: 2;">
-        <button type="button" onclick="this.parentElement.remove()">×</button>
-      </div>
-    </template>
-
-    <script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-      // --- ▼ プルダウンメニューのロジック ▼ ---
-      document.querySelectorAll('.actions-button').forEach(button => {
-        button.addEventListener('click', function (event) {
-          event.stopPropagation();
-          closeAllDropdowns(this);
-          this.nextElementSibling.classList.toggle('show');
-        });
+  <script>
+    document.addEventListener("click", function (e) {
+      const isDropdownToggle = e.target.matches(".actions-button");
+      document.querySelectorAll(".dropdown-content").forEach(menu => {
+        menu.classList.remove("show");
       });
-
-      function closeAllDropdowns(exceptThisButton) {
-        document.querySelectorAll('.actions-button').forEach(button => {
-          if (button !== exceptThisButton) {
-            button.nextElementSibling.classList.remove('show');
-          }
-        });
+      if (isDropdownToggle) {
+        const menu = e.target.nextElementSibling;
+        menu.classList.toggle("show");
+        e.stopPropagation();
       }
-
-      window.addEventListener('click', function (event) {
-        if (!event.target.matches('.actions-button')) {
-          closeAllDropdowns(null);
-        }
-      });
-
-      // --- ▼ 共用関数 ▼ ---
-      const ruleTemplate = document.getElementById('rule-template');
-      const addRule = (container, ruleData = {}) => {
-        const newRule = ruleTemplate.content.cloneNode(true);
-        if (Object.keys(ruleData).length > 0) {
-          newRule.querySelector('[name="rule_name"]').value = ruleData.name || '';
-          newRule.querySelector('[name="rule_action"]').value = ruleData.action || 'allow';
-          newRule.querySelector('[name="rule_protocol"]').value = ruleData.protocol || 'tcp';
-          newRule.querySelector('[name="rule_port"]').value = ruleData.port || '';
-          newRule.querySelector('[name="rule_source"]').value = ruleData.source || '';
-        }
-        container.appendChild(newRule);
-      }
-
-      // --- ▼ 新規作成モーダルのロジック ▼ ---
-      const newModal = document.getElementById('newSgModal');
-      if (newModal) {
-        const openNewModalBtn = document.getElementById('openNewModalBtn');
-        const closeNewModalBtn = newModal.querySelector('.close-button');
-        const newRuleContainer = document.getElementById('new-rule-container');
-        const newSgForm = document.getElementById('newSgForm');
-        const addNewRuleBtn = document.getElementById('addNewRuleBtn');
-
-        openNewModalBtn.onclick = function () {
-          newSgForm.reset();
-          newRuleContainer.innerHTML = '';
-          addRule(newRuleContainer);
-          newModal.style.display = 'block';
-        }
-        closeNewModalBtn.onclick = function () { newModal.style.display = 'none'; }
-        addNewRuleBtn.onclick = () => addRule(newRuleContainer);
-        newSgForm.onsubmit = function (event) {
-          event.preventDefault();
-          const sgName = this.querySelector('#sg-name').value;
-          alert(`セキュリティグループ「${sgName}」を作成しました。（ダミー）`);
-          newModal.style.display = 'none';
-        };
-      }
-
-      // --- ▼ 編集モーダルのロジック ▼ ---
-      const editModal = document.getElementById('editSgModal');
-      if (editModal) {
-        const closeEditModalBtn = editModal.querySelector('.close-button');
-        const editRuleContainer = document.getElementById('edit-rule-container');
-        const editSgForm = document.getElementById('editSgForm');
-        const addEditRuleBtn = document.getElementById('addEditRuleBtn');
-
-        document.querySelectorAll('.edit-link').forEach(link => {
-          link.addEventListener('click', function (event) {
-            event.preventDefault();
-            const row = event.target.closest('tr');
-            const groupName = row.cells[0].textContent;
-            const description = row.cells[2].textContent;
-
-            editSgForm.reset();
-            editModal.querySelector('#edit-sg-name').value = groupName;
-            editModal.querySelector('#edit-sg-desc').value = description;
-
-            editRuleContainer.innerHTML = '';
-            loadDummyRules(groupName, editRuleContainer);
-
-            editModal.style.display = 'block';
-          });
-        });
-
-        closeEditModalBtn.onclick = function () { editModal.style.display = 'none'; }
-        addEditRuleBtn.onclick = () => addRule(editRuleContainer);
-        editSgForm.onsubmit = function (event) {
-          event.preventDefault();
-          const sgName = this.querySelector('#edit-sg-name').value;
-          alert(`「${sgName}」の変更を保存しました。（ダミー）`);
-          editModal.style.display = 'none';
-        };
-      }
-
-      function loadDummyRules(groupName, container) {
-        if (groupName.includes('web-server')) {
-          addRule(container, { name: 'HTTP', protocol: 'tcp', port: '80', source: '0.0.0.0/0' });
-          addRule(container, { name: 'HTTPS', protocol: 'tcp', port: '443', source: '0.0.0.0/0' });
-        } else if (groupName.includes('db-server')) {
-          addRule(container, { name: 'MySQL', protocol: 'tcp', port: '3306', source: '10.9.22.0/24' });
-        } else {
-          addRule(container);
-        }
-      }
-
-      // --- ▼ 削除リンクのロジック ▼ ---
-      document.querySelectorAll('.delete-link').forEach(link => {
-        link.addEventListener('click', function (event) {
-          const row = event.target.closest('tr');
-          const groupName = row.cells[0].textContent;
-          if (confirm(`本当に「${groupName}」を削除しますか？`)) {
-            alert(`「${groupName}」を削除しました。（ダミー）`);
-            // 実際のアプリケーションではここでサーバーに削除リクエストを送り、成功したら行を削除します。
-            // row.remove(); 
-          }
-        });
-      });
-
-      // --- ▼ モーダルの外側クリックで閉じるロジック ▼ ---
-      window.addEventListener('click', function (event) {
-        if (event.target == newModal) {
-          newModal.style.display = 'none';
-        }
-        if (event.target == editModal) {
-          editModal.style.display = 'none';
-        }
-      });
     });
   </script>
-
-  </body>
-
+</body>
 </html>
