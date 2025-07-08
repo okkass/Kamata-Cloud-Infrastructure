@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <title>仮想ネットワークダッシュボード</title>
@@ -113,10 +114,11 @@
       background-color: white;
       border-radius: 8px;
       overflow: hidden;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
     }
 
-    .data-table th, .data-table td {
+    .data-table th,
+    .data-table td {
       padding: 12px 15px;
       text-align: left;
       border-bottom: 1px solid #eee;
@@ -128,6 +130,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <aside class="sidebar">
@@ -148,7 +151,7 @@
         <h1>仮想ネットワークダッシュボード</h1>
         <div class="header-actions">
           <button class="btn-primary">＋ 仮想ネットワーク新規作成</button>
-          <button class="btn-secondary">戻る</button>
+          <!-- <button class="btn-secondary">戻る</button> -->
         </div>
       </div>
 
@@ -187,7 +190,7 @@
   </div>
 
   <script>
-    document.addEventListener("click", function(e) {
+    document.addEventListener("click", function (e) {
       const isDropdownToggle = e.target.matches(".dropdown-toggle");
       document.querySelectorAll(".dropdown-menu").forEach(menu => {
         menu.classList.remove("show");
@@ -199,7 +202,7 @@
       }
     });
 
-    document.addEventListener("click", function(e) {
+    document.addEventListener("click", function (e) {
       if (!e.target.closest(".dropdown")) {
         document.querySelectorAll(".dropdown-menu").forEach(menu => {
           menu.classList.remove("show");
@@ -208,4 +211,5 @@
     });
   </script>
 </body>
+
 </html>
