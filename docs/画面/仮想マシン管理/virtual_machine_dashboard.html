@@ -10,7 +10,7 @@
       background-color: #f5f7fa;
     }
 
-    /* ▼ 統一サイドバー ▼ */
+    /* ▼ サイドバー */
     .sidebar {
       width: 260px;
       position: fixed;
@@ -61,7 +61,7 @@
       background-color: #4f5f6f;
     }
 
-    /* ▼ メインエリア ▼ */
+    /* ▼ メインエリア */
     .main {
       margin-left: 260px;
       padding: 30px;
@@ -124,6 +124,50 @@
       color: #f44336;
       font-weight: bold;
     }
+
+    /* ▼ ドロップダウン操作 */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-toggle {
+      background-color: #607d8b;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 110%;
+      left: 0;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      z-index: 10;
+      min-width: 120px;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 8px 12px;
+      text-decoration: none;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .dropdown-menu a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .dropdown.show .dropdown-menu {
+      display: block;
+    }
   </style>
 </head>
 <body>
@@ -166,6 +210,7 @@
           <th>仮想マシン名</th>
           <th>所属ネットワーク</th>
           <th>状態</th>
+          <th>操作</th>
         </tr>
       </thead>
       <tbody>
@@ -173,26 +218,69 @@
           <td>vm-kamata01</td>
           <td>student-net</td>
           <td class="status-running">稼働中</td>
+          <td>
+            <div class="dropdown">
+              <button class="dropdown-toggle">操作 ▼</button>
+              <div class="dropdown-menu">
+                <a href="#">編集</a>
+                <a href="#">一時停止</a>
+                <a href="#">削除</a>
+              </div>
+            </div>
+          </td>
         </tr>
         <tr>
           <td>vm-kamata02</td>
           <td>dev-net</td>
           <td class="status-stopped">停止中</td>
+          <td>
+            <div class="dropdown">
+              <button class="dropdown-toggle">操作 ▼</button>
+              <div class="dropdown-menu">
+                <a href="#">編集</a>
+                <a href="#">一時停止</a>
+                <a href="#">削除</a>
+              </div>
+            </div>
+          </td>
         </tr>
         <tr>
           <td>vm-kamata03</td>
           <td>lab-net</td>
           <td class="status-running">稼働中</td>
+          <td>
+            <div class="dropdown">
+              <button class="dropdown-toggle">操作 ▼</button>
+              <div class="dropdown-menu">
+                <a href="#">編集</a>
+                <a href="#">一時停止</a>
+                <a href="#">削除</a>
+              </div>
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
   </div>
 
   <script>
-    const dropdown = document.querySelector(".dropdown-btn");
-    const dropdownContainer = document.querySelector(".dropdown-container");
-    dropdown.addEventListener("click", function () {
-      dropdownContainer.style.display = dropdownContainer.style.display === "block" ? "none" : "block";
+    document.querySelectorAll('.dropdown-toggle').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        const parent = this.closest('.dropdown');
+        const alreadyOpen = parent.classList.contains('show');
+
+        document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show'));
+
+        if (!alreadyOpen) {
+          parent.classList.add('show');
+        }
+
+        e.stopPropagation();
+      });
+    });
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show'));
     });
   </script>
 </body>

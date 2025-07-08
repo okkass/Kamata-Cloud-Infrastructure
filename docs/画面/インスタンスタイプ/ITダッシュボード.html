@@ -4,6 +4,51 @@
   <meta charset="UTF-8">
   <title>インスタンスタイプ管理</title>
   <link rel="stylesheet" href="ITダッシュボード.css">
+  <style>
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-toggle {
+      padding: 6px 12px;
+      font-size: 13px;
+      background-color: #607d8b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 110%;
+      left: 0;
+      background-color: white;
+      border: 1px solid #ccc;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      border-radius: 4px;
+      z-index: 10;
+      min-width: 100px;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 8px 12px;
+      text-decoration: none;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .dropdown-menu a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .dropdown.show .dropdown-menu {
+      display: block;
+    }
+  </style>
 </head>
 
 <body>
@@ -40,33 +85,76 @@
             <td>2</td>
             <td>4 GB</td>
             <td>50 GB</td>
-            <td><button class="btn btn-red small delete-button">削除</button></td>
+            <td>
+              <div class="dropdown">
+                <button class="dropdown-toggle">操作 ▼</button>
+                <div class="dropdown-menu">
+                  <a href="#" class="edit-link">編集</a>
+                  <a href="#" class="delete-link">削除</a>
+                </div>
+              </div>
+            </td>
           </tr>
           <tr>
             <td><a href="#">standard.medium</a></td>
             <td>4</td>
             <td>8 GB</td>
             <td>100 GB</td>
-            <td><button class="btn btn-red small delete-button">削除</button></td>
+            <td>
+              <div class="dropdown">
+                <button class="dropdown-toggle">操作 ▼</button>
+                <div class="dropdown-menu">
+                  <a href="#" class="edit-link">編集</a>
+                  <a href="#" class="delete-link">削除</a>
+                </div>
+              </div>
+            </td>
           </tr>
           <tr>
             <td><a href="#">compute.large</a></td>
             <td>8</td>
             <td>16 GB</td>
             <td>200 GB</td>
-            <td><button class="btn btn-red small delete-button">削除</button></td>
+            <td>
+              <div class="dropdown">
+                <button class="dropdown-toggle">操作 ▼</button>
+                <div class="dropdown-menu">
+                  <a href="#" class="edit-link">編集</a>
+                  <a href="#" class="delete-link">削除</a>
+                </div>
+              </div>
+            </td>
           </tr>
         </tbody>
-
       </table>
     </div>
   </div>
 
   <script>
-  document.addEventListener('DOMContentLoaded', function () {
-    document.querySelectorAll('.delete-button').forEach(button => {
-      button.addEventListener('click', function () {
-        const row = button.closest('tr');
+    // ドロップダウン開閉処理
+    document.addEventListener('click', function (e) {
+      const isToggle = e.target.matches('.dropdown-toggle');
+      document.querySelectorAll('.dropdown').forEach(drop => drop.classList.remove('show'));
+      if (isToggle) {
+        e.target.closest('.dropdown').classList.add('show');
+        e.stopPropagation();
+      }
+    });
+
+    // 編集リンクの動作
+    document.querySelectorAll('.edit-link').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const name = this.closest('tr').querySelector('td a')?.textContent || 'この項目';
+        alert(`「${name}」の編集画面を開く処理（ダミー）`);
+      });
+    });
+
+    // 削除リンクの動作
+    document.querySelectorAll('.delete-link').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const row = this.closest('tr');
         const name = row.querySelector('td a')?.textContent || 'この行';
         if (confirm(`「${name}」を削除しますか？`)) {
           row.remove();
@@ -74,8 +162,6 @@
         }
       });
     });
-  });
-</script>
-
+  </script>
 </body>
 </html>
