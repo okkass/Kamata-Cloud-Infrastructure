@@ -5,16 +5,44 @@
   <title>仮想ネットワーク詳細・編集</title>
   <link rel="stylesheet" href="network_detail.css">
   <style>
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-toggle {
+      background-color: #607d8b;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
     .dropdown-menu {
       display: none;
       position: absolute;
       background-color: #fff;
       border: 1px solid #ccc;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
       z-index: 1;
+      min-width: 100px;
     }
 
     .dropdown-menu.show {
       display: block;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 8px 12px;
+      text-decoration: none;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .dropdown-menu a:hover {
+      background-color: #f0f0f0;
     }
   </style>
 </head>
@@ -62,7 +90,13 @@
             <td class="subnet-ip">192.168.1.0/24</td>
             <td class="subnet-ext">Yes</td>
             <td>
-              <button class="edit-btn">編集</button>
+              <div class="dropdown">
+                <button class="dropdown-toggle">操作 ▼</button>
+                <div class="dropdown-menu">
+                  <a href="#" class="edit-action">編集</a>
+                  <a href="#" class="delete-action">削除</a>
+                </div>
+              </div>
             </td>
           </tr>
           <tr>
@@ -70,7 +104,13 @@
             <td class="subnet-ip">192.168.2.0/24</td>
             <td class="subnet-ext">No</td>
             <td>
-              <button class="edit-btn">編集</button>
+              <div class="dropdown">
+                <button class="dropdown-toggle">操作 ▼</button>
+                <div class="dropdown-menu">
+                  <a href="#" class="edit-action">編集</a>
+                  <a href="#" class="delete-action">削除</a>
+                </div>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -83,21 +123,35 @@
   </div>
 
   <script>
-    document.querySelectorAll('.edit-btn').forEach(button => {
-      button.addEventListener('click', function () {
-        const row = button.closest('tr');
+    // ドロップダウン動作
+    document.addEventListener("click", function (e) {
+      const toggle = e.target.closest(".dropdown-toggle");
+      if (toggle) {
+        const menu = toggle.nextElementSibling;
+        document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
+        menu.classList.toggle("show");
+        e.stopPropagation();
+      } else {
+        document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
+      }
+    });
 
-        if (button.textContent === '編集') {
-          // 現在の値を保存
-          const nameCell = row.querySelector('.subnet-name');
-          const ipCell = row.querySelector('.subnet-ip');
-          const extCell = row.querySelector('.subnet-ext');
+    // 編集・保存ボタンの切り替え動作
+    document.querySelectorAll('.edit-action').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const row = e.target.closest('tr');
+        const editBtn = row.querySelector('.dropdown-toggle');
+        const nameCell = row.querySelector('.subnet-name');
+        const ipCell = row.querySelector('.subnet-ip');
+        const extCell = row.querySelector('.subnet-ext');
 
+        if (editBtn.dataset.editing !== 'true') {
+          // 編集モードへ
           const name = nameCell.textContent;
           const ip = ipCell.textContent;
           const ext = extCell.textContent;
 
-          // 編集モードに切り替え
           nameCell.innerHTML = `<input type="text" value="${name}">`;
           ipCell.innerHTML = `<input type="text" value="${ip}">`;
           extCell.innerHTML = `
@@ -107,19 +161,32 @@
             </select>
           `;
 
-          button.textContent = '保存';
+          editBtn.textContent = '保存 ▼';
+          editBtn.dataset.editing = 'true';
         } else {
-          // 入力値を取得して保存
-          const name = row.querySelector('.subnet-name input').value;
-          const ip = row.querySelector('.subnet-ip input').value;
-          const ext = row.querySelector('.subnet-ext select').value;
+          // 保存して戻す
+          const name = nameCell.querySelector('input').value;
+          const ip = ipCell.querySelector('input').value;
+          const ext = extCell.querySelector('select').value;
 
-          // 通常モードに戻す
-          row.querySelector('.subnet-name').textContent = name;
-          row.querySelector('.subnet-ip').textContent = ip;
-          row.querySelector('.subnet-ext').textContent = ext;
+          nameCell.textContent = name;
+          ipCell.textContent = ip;
+          extCell.textContent = ext;
 
-          button.textContent = '編集';
+          editBtn.textContent = '操作 ▼';
+          editBtn.dataset.editing = 'false';
+        }
+      });
+    });
+
+    // 削除アクション
+    document.querySelectorAll('.delete-action').forEach(link => {
+      link.addEventListener('click', function (e) {
+        e.preventDefault();
+        const row = e.target.closest('tr');
+        const name = row.querySelector('.subnet-name').textContent;
+        if (confirm(`「${name}」を削除しますか？`)) {
+          row.remove();
         }
       });
     });

@@ -85,29 +85,6 @@
       background-color: #1976d2;
     }
 
-    .btn-secondary {
-      background-color: #9e9e9e;
-      color: white;
-    }
-
-    .btn-secondary:hover {
-      background-color: #757575;
-    }
-
-    .btn-danger {
-      background-color: #f44336;
-      color: white;
-      padding: 6px 12px;
-      font-size: 13px;
-      border: none;
-      border-radius: 4px;
-      cursor: pointer;
-    }
-
-    .btn-danger:hover {
-      background-color: #d32f2f;
-    }
-
     .data-table {
       width: 100%;
       border-collapse: collapse;
@@ -127,6 +104,49 @@
     .data-table th {
       background-color: #e0e0e0;
       font-weight: bold;
+    }
+
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-toggle {
+      background-color: #607d8b;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      right: 0;
+      top: 100%;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      z-index: 1000;
+      min-width: 100px;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 8px 12px;
+      text-decoration: none;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .dropdown-menu a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .dropdown-menu.show {
+      display: block;
     }
   </style>
 </head>
@@ -151,7 +171,6 @@
         <h1>仮想ネットワークダッシュボード</h1>
         <div class="header-actions">
           <button class="btn-primary">＋ 仮想ネットワーク新規作成</button>
-          <!-- <button class="btn-secondary">戻る</button> -->
         </div>
       </div>
 
@@ -172,7 +191,13 @@
             <td>192.168.0.0/16</td>
             <td>2</td>
             <td>
-              <button class="btn-danger">削除</button>
+              <div class="dropdown">
+                <button class="dropdown-toggle">操作 ▼</button>
+                <div class="dropdown-menu">
+                  <a href="#">編集</a>
+                  <a href="#">削除</a>
+                </div>
+              </div>
             </td>
           </tr>
           <tr>
@@ -181,7 +206,13 @@
             <td>10.0.0.0/8</td>
             <td>1</td>
             <td>
-              <button class="btn-danger">削除</button>
+              <div class="dropdown">
+                <button class="dropdown-toggle">操作 ▼</button>
+                <div class="dropdown-menu">
+                  <a href="#">編集</a>
+                  <a href="#">削除</a>
+                </div>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -191,22 +222,14 @@
 
   <script>
     document.addEventListener("click", function (e) {
-      const isDropdownToggle = e.target.matches(".dropdown-toggle");
-      document.querySelectorAll(".dropdown-menu").forEach(menu => {
-        menu.classList.remove("show");
-      });
-      if (isDropdownToggle) {
-        const menu = e.target.nextElementSibling;
+      const toggle = e.target.closest(".dropdown-toggle");
+      if (toggle) {
+        const menu = toggle.nextElementSibling;
+        document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
         menu.classList.toggle("show");
         e.stopPropagation();
-      }
-    });
-
-    document.addEventListener("click", function (e) {
-      if (!e.target.closest(".dropdown")) {
-        document.querySelectorAll(".dropdown-menu").forEach(menu => {
-          menu.classList.remove("show");
-        });
+      } else {
+        document.querySelectorAll(".dropdown-menu").forEach(m => m.classList.remove("show"));
       }
     });
   </script>
