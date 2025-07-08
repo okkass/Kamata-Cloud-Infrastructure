@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
   <title>セキュリティグループ詳細・編集</title>
@@ -32,6 +33,7 @@
     }
   </style>
 </head>
+
 <body>
   <div class="container">
     <aside class="sidebar">
@@ -68,6 +70,7 @@
             <th>ルール名</th>
             <th>ポート番号</th>
             <th>プロトコル</th>
+            <th>送信元IP</th>
             <th>許可／拒否</th>
             <th>操作</th>
           </tr>
@@ -77,6 +80,7 @@
             <td class="rule-name">allow-http</td>
             <td class="port">80</td>
             <td class="protocol">TCP</td>
+            <td class="source-ip">0.0.0.0/0</td>
             <td class="action">許可</td>
             <td><button class="btn-edit">編集</button></td>
           </tr>
@@ -84,6 +88,7 @@
             <td class="rule-name">deny-ftp</td>
             <td class="port">21</td>
             <td class="protocol">TCP</td>
+            <td class="source-ip">0.0.0.0/0</td>
             <td class="action">拒否</td>
             <td><button class="btn-edit">編集</button></td>
           </tr>
@@ -95,64 +100,68 @@
     </main>
   </div>
 
-<script>
-  // テーブル全体にイベントリスナーを設定（イベント委譲）
-  document.querySelector('#rules-table').addEventListener('click', (event) => {
-    // クリックされたのが「編集」ボタンの場合
-    if (event.target.classList.contains('btn-edit')) {
-      const button = event.target;
-      const row = button.closest('tr');
+  <script>
+    // テーブル全体にイベントリスナーを設定（イベント委譲）
+    document.querySelector('#rules-table').addEventListener('click', (event) => {
+      // クリックされたのが「編集」ボタンの場合
+      if (event.target.classList.contains('btn-edit')) {
+        const button = event.target;
+        const row = button.closest('tr');
 
-      const nameCell = row.querySelector('.rule-name');
-      const portCell = row.querySelector('.port');
-      const protoCell = row.querySelector('.protocol');
-      const actionCell = row.querySelector('.action');
-      const actionTd = button.parentElement;
+        const nameCell = row.querySelector('.rule-name');
+        const portCell = row.querySelector('.port');
+        const protoCell = row.querySelector('.protocol');
+        const sourceCell = row.querySelector('.source-ip');
+        const actionCell = row.querySelector('.action');
+        const actionTd = button.parentElement;
 
-      const name = nameCell.textContent.trim();
-      const port = portCell.textContent.trim();
-      const protocol = protoCell.textContent.trim();
-      const action = actionCell.textContent.trim();
+        const name = nameCell.textContent.trim();
+        const port = portCell.textContent.trim();
+        const protocol = protoCell.textContent.trim();
+        const sourceIp = sourceCell.textContent.trim();
+        const action = actionCell.textContent.trim();
 
-      nameCell.innerHTML = `<input type="text" value="${name}">`;
-      portCell.innerHTML = `<input type="number" value="${port}">`;
-      protoCell.innerHTML = `
+        nameCell.innerHTML = `<input type="text" value="${name}">`;
+        portCell.innerHTML = `<input type="number" value="${port}">`;
+        protoCell.innerHTML = `
         <select>
           <option value="TCP" ${protocol === "TCP" ? "selected" : ""}>TCP</option>
           <option value="UDP" ${protocol === "UDP" ? "selected" : ""}>UDP</option>
         </select>`;
-      actionCell.innerHTML = `
+        sourceCell.innerHTML = `<input type="text" value="${sourceIp}">`;
+        actionCell.innerHTML = `
         <select>
           <option value="許可" ${action === "許可" ? "selected" : ""}>許可</option>
           <option value="拒否" ${action === "拒否" ? "selected" : ""}>拒否</option>
         </select>`;
 
-      actionTd.innerHTML = `<button class="btn-save">保存</button>`;
-    }
+        actionTd.innerHTML = `<button class="btn-save">保存</button>`;
+      }
 
-    // クリックされたのが「保存」ボタンの場合
-    if (event.target.classList.contains('btn-save')) {
-      const button = event.target;
-      const row = button.closest('tr');
+      // クリックされたのが「保存」ボタンの場合
+      if (event.target.classList.contains('btn-save')) {
+        const button = event.target;
+        const row = button.closest('tr');
 
-      const nameCell = row.querySelector('.rule-name');
-      const portCell = row.querySelector('.port');
-      const protoCell = row.querySelector('.protocol');
-      const actionCell = row.querySelector('.action');
-      const actionTd = button.parentElement;
+        const nameCell = row.querySelector('.rule-name');
+        const portCell = row.querySelector('.port');
+        const protoCell = row.querySelector('.protocol');
+        const actionCell = row.querySelector('.action');
+        const actionTd = button.parentElement;
 
-      const newName = nameCell.querySelector('input').value;
-      const newPort = portCell.querySelector('input').value;
-      const newProto = protoCell.querySelector('select').value;
-      const newAction = actionCell.querySelector('select').value;
+        const newName = nameCell.querySelector('input').value;
+        const newPort = portCell.querySelector('input').value;
+        const newProto = protoCell.querySelector('select').value;
+        const newAction = actionCell.querySelector('select').value;
 
-      nameCell.textContent = newName;
-      portCell.textContent = newPort;
-      protoCell.textContent = newProto;
-      actionCell.textContent = newAction;
-      actionTd.innerHTML = `<button class="btn-edit">編集</button>`;
-    }
-  });
-</script>
+        nameCell.textContent = newName;
+        portCell.textContent = newPort;
+        protoCell.textContent = newProto;
+        actionCell.textContent = newAction;
+        actionTd.innerHTML = `<button class="btn-edit">編集</button>`;
+      }
+    });
+  </script>
 </body>
+
 </html>
