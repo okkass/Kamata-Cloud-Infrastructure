@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>ストレージ追加</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f5f7fa;
+      margin: 0;
+      padding: 40px;
+    }
+
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background-color: white;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    h1 {
+      font-size: 22px;
+      margin-bottom: 24px;
+      text-align: center;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    input[type="text"],
+    select {
+      width: 100%;
+      padding: 8px 10px;
+      font-size: 14px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    .radio-group {
+      display: flex;
+      gap: 20px;
+      margin-top: 6px;
+    }
+
+    .radio-group label {
+      font-weight: normal;
+    }
+
+    .backup-select {
+      margin-top: 10px;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      background-color: #1976d2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-size: 15px;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background-color: #1565c0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>ストレージ追加</h1>
+
+    <div class="form-group">
+      <label for="storage-name">ストレージ名</label>
+      <input type="text" id="storage-name" placeholder="例: data-storage-01">
+    </div>
+
+    <div class="form-group">
+      <label for="storage-size">ストレージサイズ</label>
+      <select id="storage-size">
+        <option value="10">10 GB</option>
+        <option value="20">20 GB</option>
+        <option value="50">50 GB</option>
+        <option value="100">100 GB</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label for="storage-type">ストレージタイプ</label>
+      <select id="storage-type">
+        <option value="ssd">SSD</option>
+        <option value="hdd">HDD</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>バックアップから復元</label>
+      <div class="radio-group">
+        <label><input type="radio" name="restore" value="no" checked> しない</label>
+        <label><input type="radio" name="restore" value="yes"> する</label>
+      </div>
+      <select id="backup-select" class="backup-select" disabled>
+        <option value="">-- バックアップを選択 --</option>
+        <option value="backup-001">backup-001</option>
+        <option value="backup-002">backup-002</option>
+        <option value="backup-003">backup-003</option>
+      </select>
+    </div>
+
+    <button>作成</button>
+  </div>
+
+  <script>
+    const radios = document.querySelectorAll('input[name="restore"]');
+    const backupSelect = document.getElementById('backup-select');
+
+    radios.forEach(radio => {
+      radio.addEventListener('change', () => {
+        if (document.querySelector('input[name="restore"]:checked').value === 'yes') {
+          backupSelect.disabled = false;
+        } else {
+          backupSelect.disabled = true;
+          backupSelect.value = "";
+        }
+      });
+    });
+  </script>
+</body>
+</html>
