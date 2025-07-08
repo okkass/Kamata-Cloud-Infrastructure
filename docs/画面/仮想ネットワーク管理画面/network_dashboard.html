@@ -4,6 +4,129 @@
   <meta charset="UTF-8">
   <title>仮想ネットワークダッシュボード</title>
   <link rel="stylesheet" href="network_dashboard.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .container {
+      display: flex;
+    }
+
+    .sidebar {
+      width: 260px;
+      background-color: #2f3e4d;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      border-bottom: 2px solid white;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar nav ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar nav ul li {
+      margin-bottom: 10px;
+    }
+
+    .sidebar nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    .sidebar nav ul li a.logout {
+      color: #ff5252;
+    }
+
+    .main-content {
+      flex: 1;
+      padding: 30px;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .header h1 {
+      font-size: 24px;
+      margin: 0;
+    }
+
+    .header-actions button {
+      margin-left: 10px;
+      padding: 10px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background-color: #2196f3;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background-color: #1976d2;
+    }
+
+    .btn-secondary {
+      background-color: #9e9e9e;
+      color: white;
+    }
+
+    .btn-secondary:hover {
+      background-color: #757575;
+    }
+
+    .btn-danger {
+      background-color: #f44336;
+      color: white;
+      padding: 6px 12px;
+      font-size: 13px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-danger:hover {
+      background-color: #d32f2f;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .data-table th, .data-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    .data-table th {
+      background-color: #e0e0e0;
+      font-weight: bold;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -46,13 +169,7 @@
             <td>192.168.0.0/16</td>
             <td>2</td>
             <td>
-              <div class="dropdown">
-                <button class="dropdown-toggle">操作 ▾</button>
-                <div class="dropdown-menu">
-                  <a href="#">編集</a>
-                  <a href="#">削除</a>
-                </div>
-              </div>
+              <button class="btn-danger">削除</button>
             </td>
           </tr>
           <tr>
@@ -61,13 +178,7 @@
             <td>10.0.0.0/8</td>
             <td>1</td>
             <td>
-              <div class="dropdown">
-                <button class="dropdown-toggle">操作 ▾</button>
-                <div class="dropdown-menu">
-                  <a href="#">編集</a>
-                  <a href="#">削除</a>
-                </div>
-              </div>
+              <button class="btn-danger">削除</button>
             </td>
           </tr>
         </tbody>
