@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>利用者詳細</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      display: flex;
+    }
+
+    .sidebar {
+      width: 220px;
+      background-color: #2c3e50;
+      color: white;
+      padding: 20px;
+      height: 100vh;
+    }
+
+    .sidebar h2 {
+      font-size: 1.2em;
+      margin-bottom: 20px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar li {
+      margin: 10px 0;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    .main {
+      flex: 1;
+      padding: 30px;
+    }
+
+    .content-section {
+      background-color: #f9f9f9;
+      padding: 20px 30px;
+      border-radius: 10px;
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+    .details-form-group {
+      margin-bottom: 15px;
+    }
+
+    .details-form-group label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 5px;
+    }
+
+    .value {
+      padding: 8px 12px;
+      background-color: #fff;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      font-size: 1em;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .edit-input {
+      width: 100%;
+      padding: 6px 10px;
+      font-size: 1em;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    .edit-actions {
+      margin-top: 20px;
+      display: flex;
+      gap: 10px;
+    }
+
+    #back-to-list-btn {
+      text-decoration: none;
+      font-size: 0.9em;
+      color: #007bff;
+    }
+
+
+    .header-with-button {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="sidebar">
+    <h2>管理メニュー</h2>
+    <ul>
+      <li><a href="#">ダッシュボード</a></li>
+      <li><a href="#" class="active">利用者管理</a></li>
+      <li><a href="#">インスタンスタイプ管理</a></li>
+      <li><a href="#">イメージ管理</a></li>
+    </ul>
+  </div>
+
+  <div class="main">
+    <h1 class="header-with-button">
+      <span>利用者詳細</span>
+      <button id="editBtn" class="btn btn-secondary">編集</button>
+    </h1>
+    <div class="content-section">
+
+
+      <div class="details-form-group">
+        <label>アカウント名</label>
+        <div id="details-name" class="value">tanaka-ichiro</div>
+      </div>
+
+      <div class="details-form-group">
+        <label>メールアドレス</label>
+        <div id="details-email" class="value view-mode">tanaka@example.com</div>
+        <input type="email" id="input-email" class="edit-input edit-mode" style="display:none;" value="tanaka@example.com">
+      </div>
+
+      <div class="details-form-group">
+        <label>最大リソース制限</label>
+        <div class="details-grid">
+          <div class="value view-mode">CPU: <span id="details-cpu">8</span></div>
+          <input type="number" id="input-cpu" class="edit-input edit-mode" style="display:none;" value="8" min="1">
+
+          <div class="value view-mode">メモリ: <span id="details-memory">16</span> GB</div>
+          <input type="number" id="input-memory" class="edit-input edit-mode" style="display:none;" value="16" min="1">
+
+          <div class="value view-mode">ストレージ: <span id="details-storage">200</span> GB</div>
+          <input type="number" id="input-storage" class="edit-input edit-mode" style="display:none;" value="200" min="10">
+        </div>
+      </div>
+
+      <div class="details-form-group">
+        <label>パスワード</label>
+        <button id="reset-password-btn" class="btn btn-secondary">パスワードリセットメールを送る</button>
+      </div>
+
+      <div class="edit-actions" id="edit-actions" style="display: none;">
+        <button class="btn btn-primary" id="saveBtn">保存</button>
+        <button class="btn btn-secondary" id="cancelBtn">キャンセル</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const editBtn = document.getElementById('editBtn');
+    const saveBtn = document.getElementById('saveBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const editActions = document.getElementById('edit-actions');
+
+    const toggleEditMode = (editing) => {
+      document.querySelectorAll('.view-mode').forEach(el => el.style.display = editing ? 'none' : '');
+      document.querySelectorAll('.edit-mode').forEach(el => el.style.display = editing ? '' : 'none');
+      editActions.style.display = editing ? 'flex' : 'none';
+      editBtn.style.display = editing ? 'none' : 'inline-block';
+    };
+
+    editBtn.addEventListener('click', () => toggleEditMode(true));
+
+    cancelBtn.addEventListener('click', () => {
+      // 編集前の値に戻す
+      document.getElementById('input-email').value = document.getElementById('details-email').textContent;
+      document.getElementById('input-cpu').value = document.getElementById('details-cpu').textContent;
+      document.getElementById('input-memory').value = document.getElementById('details-memory').textContent;
+      document.getElementById('input-storage').value = document.getElementById('details-storage').textContent;
+      toggleEditMode(false);
+    });
+
+    saveBtn.addEventListener('click', () => {
+      document.getElementById('details-email').textContent = document.getElementById('input-email').value;
+      document.getElementById('details-cpu').textContent = document.getElementById('input-cpu').value;
+      document.getElementById('details-memory').textContent = document.getElementById('input-memory').value;
+      document.getElementById('details-storage').textContent = document.getElementById('input-storage').value;
+      alert("利用者情報を保存しました（ダミー）");
+      toggleEditMode(false);
+    });
+
+    document.getElementById('reset-password-btn').addEventListener('click', () => {
+      const email = document.getElementById('details-email').textContent;
+      alert(`${email} にパスワードリセットメールを送信しました。（ダミー）`);
+    });
+  </script>
+
+</body>
+
+</html>
