@@ -10,7 +10,6 @@
       background-color: #f5f7fa;
     }
 
-    /* ▼ サイドバー（記憶済み） */
     .sidebar {
       width: 260px;
       position: fixed;
@@ -61,7 +60,6 @@
       background-color: #4f5f6f;
     }
 
-    /* ▼ メインエリア */
     .main {
       margin-left: 260px;
       padding: 30px;
@@ -99,49 +97,69 @@
       background-color: #388e3c;
     }
 
-    .form-section {
-      background-color: white;
-      padding: 24px;
-      border-radius: 8px;
-      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
-      max-width: 600px;
-    }
-
-    .form-group {
-      margin-bottom: 20px;
-    }
-
-    .form-group label {
-      display: block;
-      font-weight: bold;
-      margin-bottom: 6px;
-    }
-
-    .form-group select {
+    table {
       width: 100%;
-      padding: 10px;
-      font-size: 14px;
-      border: 1px solid #ccc;
-      border-radius: 4px;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
     }
 
-    .button-area {
-      text-align: right;
-      margin-top: 20px;
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
     }
 
-    .button-area button {
-      padding: 10px 16px;
+    th {
+      background-color: #e0e0e0;
+      font-weight: bold;
+    }
+
+    .actions-menu {
+      position: relative;
+      display: inline-block;
+    }
+
+    .actions-button {
+      background-color: #4caf50;
+      color: white;
+      padding: 6px 10px;
       font-size: 14px;
       border: none;
       border-radius: 4px;
-      background-color: #4caf50;
-      color: white;
       cursor: pointer;
     }
 
-    .button-area button:hover {
+    .actions-button:hover {
       background-color: #388e3c;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 120px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      z-index: 1;
+      border-radius: 4px;
+    }
+
+    .dropdown-content a {
+      color: black;
+      padding: 10px 14px;
+      text-decoration: none;
+      display: block;
+      font-size: 14px;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f1f1f1;
+    }
+
+    .show {
+      display: block;
     }
   </style>
 </head>
@@ -182,29 +200,60 @@
       </div>
     </div>
 
-    <div class="form-section">
-      <div class="form-group">
-        <label for="snapshotSelect">復元するスナップショット</label>
-        <select id="snapshotSelect">
-          <option>snapshot-001</option>
-          <option>snapshot-002</option>
-          <option>snapshot-dev</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label for="vmSelect">起動する仮想マシン</label>
-        <select id="vmSelect">
-          <option>vm-kamata01</option>
-          <option>vm-student01</option>
-          <option>vm-dev01</option>
-        </select>
-      </div>
-
-      <div class="button-area">
-        <button onclick="alert('復元処理を開始します')">復元</button>
-      </div>
-    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>バックアップ名</th>
+          <th>作成日</th>
+          <th>サイズ</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>backup-2025-07-01</td>
+          <td>2025/07/01</td>
+          <td>16GB</td>
+          <td>
+            <div class="actions-menu">
+              <button class="actions-button">操作 ▼</button>
+              <div class="dropdown-content">
+                <a href="#" onclick="alert('復元処理開始')">復元</a>
+                <a href="#" onclick="alert('削除しますか？')">削除</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>backup-2025-06-28</td>
+          <td>2025/06/28</td>
+          <td>8GB</td>
+          <td>
+            <div class="actions-menu">
+              <button class="actions-button">操作 ▼</button>
+              <div class="dropdown-content">
+                <a href="#" onclick="alert('復元処理開始')">復元</a>
+                <a href="#" onclick="alert('削除しますか？')">削除</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
   </div>
+
+  <script>
+    document.querySelectorAll('.actions-button').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        e.stopPropagation();
+        document.querySelectorAll('.dropdown-content').forEach(el => el.classList.remove('show'));
+        this.nextElementSibling.classList.toggle('show');
+      });
+    });
+
+    window.addEventListener('click', () => {
+      document.querySelectorAll('.dropdown-content').forEach(el => el.classList.remove('show'));
+    });
+  </script>
 </body>
 </html>
