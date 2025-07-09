@@ -154,12 +154,14 @@
       background-color: #e0e0e0;
     }
 
-    .nic-actions {
+    .nic-actions,
+    .storage-actions {
       text-align: right;
       margin-top: 10px;
     }
 
-    .nic-actions button {
+    .nic-actions button,
+    .storage-actions button {
       padding: 8px 12px;
       background-color: #4caf50;
       color: white;
@@ -168,7 +170,8 @@
       cursor: pointer;
     }
 
-    .nic-actions button:hover {
+    .nic-actions button:hover,
+    .storage-actions button:hover {
       background-color: #43a047;
     }
   </style>
@@ -259,18 +262,33 @@
         <table>
           <thead>
             <tr>
+              <th>ストレージ名</th>
               <th>ストレージタイプ</th>
               <th>サイズ</th>
               <th>デバイスファイル</th>
             </tr>
           </thead>
           <tbody>
-            <tr><td>SSD</td><td>100GB</td><td>/dev/sda</td></tr>
-            <tr><td>HDD</td><td>500GB</td><td>/dev/sdb</td></tr>
+            <tr><td>OS</td><td>SSD</td><td>100GB</td><td>/dev/sda</td></tr>
+            <tr><td>Web-File</td><td>HDD</td><td>500GB</td><td>/dev/sdb</td></tr>
           </tbody>
         </table>
+        <div class="storage-actions">
+          <button>ストレージ追加</button>
+        </div>
       </div>
     </div>
+
+    <div class="form-section">
+      <button class="toggle-btn">セキュリティグループの管理 ▼</button>
+      <div class="form-content">
+        <div class="form-group">
+          <label>設定中のセキュリティグループ</label>
+          <p>web-server-sg</p>
+        </div>
+      </div>
+    </div>
+
   </div>
 
   <script>
