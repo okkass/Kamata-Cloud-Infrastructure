@@ -138,6 +138,12 @@
   <div class="main">
     <h1>バックアップ作成</h1>
     <div class="form-section">
+      
+      <div class="form-group">
+        <label>バックアップ名</label>
+        <input type="text" placeholder="例: backup-2025-07-02">
+      </div>
+     
       <div class="form-group">
         <label>バックアップ対象の仮想マシン</label>
         <select>
@@ -148,8 +154,11 @@
       </div>
 
       <div class="form-group">
-        <label>バックアップ名</label>
-        <input type="text" placeholder="例: backup-2025-07-02">
+        <label>バックアップ対象のストレージ</label>
+        <select>
+          <option>os</option>
+          <option>web-data</option>
+        </select>
       </div>
 
       <div class="button-group">
@@ -161,9 +170,11 @@
   <script>
     const dropdown = document.querySelector(".dropdown-btn");
     const container = document.querySelector(".dropdown-container");
-    dropdown.addEventListener("click", () => {
-      container.style.display = container.style.display === "block" ? "none" : "block";
-    });
+    if (dropdown && container) {
+      dropdown.addEventListener("click", () => {
+        container.style.display = container.style.display === "block" ? "none" : "block";
+      });
+    }
   </script>
 </body>
 </html>
