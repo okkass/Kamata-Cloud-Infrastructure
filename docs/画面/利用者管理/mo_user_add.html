@@ -1,16 +1,134 @@
-<div id="addModal" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2 class="modal-title">利用者の追加</h2><span class="close-button">&times;</span>
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>利用者追加モーダル</title>
+  <style>
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 999;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      overflow: auto;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 10% auto;
+      padding: 20px 30px;
+      border-radius: 10px;
+      max-width: 500px;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      margin: 0;
+      font-size: 1.5em;
+    }
+
+    .close-button {
+      font-size: 1.5em;
+      cursor: pointer;
+    }
+
+    .modal-form {
+      margin-top: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .input-group {
+      display: flex;
+      align-items: center;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 6px;
+    }
+
+    .input-group-append {
+      padding: 6px 10px;
+      background-color: #eee;
+      border-left: 1px solid #ccc;
+    }
+
+    .btn {
+      padding: 10px 16px;
+      font-size: 1em;
+      cursor: pointer;
+      border: none;
+      border-radius: 6px;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .modal-footer {
+      margin-top: 15px;
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="addModal" class="modal" style="display: block;">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 class="modal-title">利用者の追加</h2>
+        <span class="close-button" onclick="document.getElementById('addModal').style.display='none'">&times;</span>
+      </div>
+      <form id="addForm" class="modal-form" onsubmit="handleAdd(event)">
+        <label for="add-name">アカウント名</label>
+        <input type="text" id="add-name" required>
+
+        <label for="add-email">メールアドレス</label>
+        <input type="email" id="add-email" required>
+
+        <label>最大リソース制限</label>
+        <div class="input-group">
+          <input type="number" id="add-cpu" required min="1" placeholder="最大CPU数">
+          <span class="input-group-append">vCPU</span>
+        </div>
+        <div class="input-group">
+          <input type="number" id="add-memory" required min="1" placeholder="最大メモリ数">
+          <span class="input-group-append">GB</span>
+        </div>
+        <div class="input-group">
+          <input type="number" id="add-storage" required min="10" placeholder="最大ストレージ数">
+          <span class="input-group-append">GB</span>
+        </div>
+
+        <div class="modal-footer">
+          <button type="submit" class="btn btn-primary">追加</button>
+        </div>
+      </form>
     </div>
-    <form id="addForm" class="modal-form">
-      <label for="add-name">アカウント名</label><input type="text" id="add-name" required>
-      <label for="add-email">メールアドレス</label><input type="email" id="add-email" required>
-      <label>最大リソース制限</label>
-      <div class="input-group"><input type="number" id="add-cpu" required min="1" placeholder="最大CPU数"><span class="input-group-append">vCPU</span></div>
-      <div class="input-group"><input type="number" id="add-memory" required min="1" placeholder="最大メモリ数"><span class="input-group-append">GB</span></div>
-      <div class="input-group"><input type="number" id="add-storage" required min="10" placeholder="最大ストレージ数"><span class="input-group-append">GB</span></div>
-      <div class="modal-footer"><button type="submit" class="btn btn-primary">追加</button></div>
-    </form>
   </div>
-</div>
+
+  <script>
+    function handleAdd(event) {
+      event.preventDefault();
+      const name = document.getElementById('add-name').value;
+      alert(`利用者「${name}」を追加しました。（ダミー）`);
+      document.getElementById('addModal').style.display = 'none';
+    }
+  </script>
+</body>
+
+</html>
