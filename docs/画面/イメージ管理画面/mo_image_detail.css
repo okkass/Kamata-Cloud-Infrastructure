@@ -39,6 +39,7 @@ body {
   border: none;
   border-radius: 4px;
   cursor: pointer;
+  margin-right: 38px;
 }
 
 .edit-button:hover {
@@ -61,3 +62,27 @@ body {
   padding: 8px 12px;
   border-radius: 4px;
 }
+
+.close-button {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: #ff4d4f;
+  color: white;
+  border: none;
+  font-size: 20px;
+  font-weight: bold;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  cursor: default;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+}
+
+.close-button:hover {
+  background: #d9363e;
+}
+
