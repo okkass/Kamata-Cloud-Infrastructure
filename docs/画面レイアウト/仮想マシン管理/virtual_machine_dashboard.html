@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>仮想マシンダッシュボード</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    /* ▼ サイドバー */
+    .sidebar {
+      width: 260px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background-color: #2f3e4d;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      font-size: 20px;
+      font-weight: bold;
+      background-color: #1f2e3d;
+      padding: 10px 15px;
+      border-radius: 4px;
+      margin-bottom: 25px;
+    }
+
+    .sidebar-section {
+      margin-bottom: 24px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #444;
+    }
+
+    .section-title {
+      font-size: 15px;
+      font-weight: bold;
+      margin-bottom: 8px;
+      padding: 6px 10px;
+      background-color: #3f4f60;
+      border-radius: 4px;
+    }
+
+    .sidebar a {
+      display: block;
+      color: #ffffff;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 6px 0 6px 18px;
+      border-radius: 4px;
+    }
+
+    .sidebar a:hover {
+      background-color: #4f5f6f;
+    }
+
+    /* ▼ メインエリア */
+    .main {
+      margin-left: 260px;
+      padding: 30px;
+    }
+
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin: 0;
+    }
+
+    .create-btn {
+      padding: 10px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      background-color: #4caf50;
+      color: white;
+      cursor: pointer;
+    }
+
+    .create-btn:hover {
+      background-color: #388e3c;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background-color: white;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    th, td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+
+    th {
+      background-color: #e0e0e0;
+      font-weight: bold;
+    }
+
+    .status-running {
+      color: #4caf50;
+      font-weight: bold;
+    }
+
+    .status-stopped {
+      color: #f44336;
+      font-weight: bold;
+    }
+
+    /* ▼ ドロップダウン操作 */
+    .dropdown {
+      position: relative;
+      display: inline-block;
+    }
+
+    .dropdown-toggle {
+      background-color: #607d8b;
+      color: white;
+      border: none;
+      padding: 6px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .dropdown-menu {
+      display: none;
+      position: absolute;
+      top: 110%;
+      left: 0;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      z-index: 10;
+      min-width: 120px;
+    }
+
+    .dropdown-menu a {
+      display: block;
+      padding: 8px 12px;
+      text-decoration: none;
+      color: #333;
+      font-size: 14px;
+    }
+
+    .dropdown-menu a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .dropdown.show .dropdown-menu {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <div class="sidebar-header">利用者メニュー</div>
+
+    <div class="sidebar-section">
+      <div class="section-title">利用者ダッシュボード</div>
+      <a href="#">利用者ダッシュボード</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-title">仮想ネットワーク管理</div>
+      <a href="#">仮想ネットワークダッシュボード</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-title">セキュリティグループ管理</div>
+      <a href="#">セキュリティグループダッシュボード</a>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="section-title">仮想マシン管理</div>
+      <a href="#">仮想マシンダッシュボード</a>
+      <a href="#">ポートフォリオ公開環境管理</a>
+      <a href="#">スナップショット管理</a>
+      <a href="#">バックアップ・復元管理</a>
+    </div>
+  </div>
+
+  <div class="main">
+    <div class="header-row">
+      <h1>仮想マシンダッシュボード</h1>
+      <button class="create-btn" onclick="alert('仮想マシン作成画面へ')">仮想マシン作成</button>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>仮想マシン名</th>
+          <th>所属ネットワーク</th>
+          <th>状態</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>vm-kamata01</td>
+          <td>student-net</td>
+          <td class="status-running">稼働中</td>
+          <td>
+            <div class="dropdown">
+              <button class="dropdown-toggle">操作 ▼</button>
+              <div class="dropdown-menu">
+                <a href="#">編集</a>
+                <a href="#">一時停止</a>
+                <a href="#">削除</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>vm-kamata02</td>
+          <td>dev-net</td>
+          <td class="status-stopped">停止中</td>
+          <td>
+            <div class="dropdown">
+              <button class="dropdown-toggle">操作 ▼</button>
+              <div class="dropdown-menu">
+                <a href="#">編集</a>
+                <a href="#">一時停止</a>
+                <a href="#">削除</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+        <tr>
+          <td>vm-kamata03</td>
+          <td>lab-net</td>
+          <td class="status-running">稼働中</td>
+          <td>
+            <div class="dropdown">
+              <button class="dropdown-toggle">操作 ▼</button>
+              <div class="dropdown-menu">
+                <a href="#">編集</a>
+                <a href="#">一時停止</a>
+                <a href="#">削除</a>
+              </div>
+            </div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <script>
+    document.querySelectorAll('.dropdown-toggle').forEach(btn => {
+      btn.addEventListener('click', function (e) {
+        const parent = this.closest('.dropdown');
+        const alreadyOpen = parent.classList.contains('show');
+
+        document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show'));
+
+        if (!alreadyOpen) {
+          parent.classList.add('show');
+        }
+
+        e.stopPropagation();
+      });
+    });
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.dropdown').forEach(d => d.classList.remove('show'));
+    });
+  </script>
+</body>
+</html>

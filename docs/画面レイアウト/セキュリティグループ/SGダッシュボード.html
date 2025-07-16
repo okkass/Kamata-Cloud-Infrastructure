@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>SGダッシュボード</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .sidebar {
+      width: 260px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background-color: #2f3e4d;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+      overflow-y: auto;
+    }
+
+    .sidebar h2 {
+      font-size: 18px;
+      border-bottom: 2px solid white;
+      padding-bottom: 10px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar li {
+      margin-bottom: 10px;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      font-size: 16px;
+    }
+
+    .sidebar a.active {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+
+    .main {
+      margin-left: 260px;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .content-section {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.1);
+    }
+
+    .button-area {
+      margin-bottom: 15px;
+      text-align: right;
+    }
+
+    .button-area button {
+      padding: 10px 16px;
+      font-size: 14px;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .button-area button:hover {
+      background-color: #1976d2;
+    }
+
+    .sg-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+
+    .sg-table th, .sg-table td {
+      padding: 10px;
+      border-bottom: 1px solid #ccc;
+      text-align: left;
+    }
+
+    .sg-table th {
+      background-color: #e0e0e0;
+    }
+
+    .actions-menu {
+      position: relative;
+      display: inline-block;
+    }
+
+    .actions-button {
+      padding: 6px 12px;
+      font-size: 14px;
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .actions-button:hover {
+      background-color: #1976d2;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      min-width: 100px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+      z-index: 1;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .dropdown-content button {
+      width: 100%;
+      padding: 8px;
+      border: none;
+      background: none;
+      text-align: left;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .dropdown-content button:hover {
+      background-color: #f0f0f0;
+    }
+
+    .dropdown-content.show {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="sidebar">
+    <h2>利用者メニュー</h2>
+    <ul>
+      <li><a href="#">ダッシュボード</a></li>
+      <li><a href="#">仮想マシン管理</a></li>
+      <li><a href="#">仮想ネットワーク構築</a></li>
+      <li><a href="#" class="active">セキュリティグループ管理</a></li>
+      <li><a href="#">成果物アップロード</a></li>
+    </ul>
+  </div>
+
+  <div class="main">
+    <h1>セキュリティグループダッシュボード</h1>
+
+    <div class="content-section">
+      <h2>セキュリティグループ一覧</h2>
+      <div class="button-area">
+        <button id="openNewModalBtn">＋ 新規作成</button>
+      </div>
+      <table class="sg-table">
+        <thead>
+          <tr>
+            <th>グループ名</th>
+            <th>セキュリティグループID</th>
+            <th>説明</th>
+            <th>イン/アウト ルール数</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>default-web-server-sg</td>
+            <td>sg-0123456789abcdef0</td>
+            <td>デフォルトのWebサーバー用SG。HTTP/HTTPSを許可。</td>
+            <td>2 / 1</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <button class="edit-link">編集</button>
+                  <button class="delete-link">削除</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td>db-server-sg</td>
+            <td>sg-fedcba9876543210f</td>
+            <td>データベースサーバー用SG。特定のIPからのみ許可。</td>
+            <td>1 / 1</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <button class="edit-link">編集</button>
+                  <button class="delete-link">削除</button>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    document.addEventListener("click", function (e) {
+      const isDropdownToggle = e.target.matches(".actions-button");
+      document.querySelectorAll(".dropdown-content").forEach(menu => {
+        menu.classList.remove("show");
+      });
+      if (isDropdownToggle) {
+        const menu = e.target.nextElementSibling;
+        menu.classList.toggle("show");
+        e.stopPropagation();
+      }
+    });
+  </script>
+</body>
+</html>

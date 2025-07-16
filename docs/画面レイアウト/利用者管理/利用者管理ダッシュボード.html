@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8">
+  <title>利用者管理ダッシュボード</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f5f7fa;
+    }
+
+    .sidebar {
+      width: 260px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      bottom: 0;
+      background-color: #2f3e4d;
+      color: white;
+      padding: 20px;
+      box-sizing: border-box;
+    }
+
+    .sidebar h2 {
+      font-size: 20px;
+      margin-bottom: 20px;
+    }
+
+    .sidebar ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .sidebar li {
+      margin-bottom: 10px;
+    }
+
+    .sidebar a {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      display: block;
+    }
+
+    .sidebar a.active {
+      font-weight: bold;
+    }
+
+    .main {
+      margin-left: 260px;
+      padding: 30px;
+    }
+
+    h1 {
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .content-section {
+      background-color: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .content-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      font-size: 14px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .btn-primary {
+      background-color: #2196f3;
+      color: white;
+    }
+
+    .btn-secondary {
+      background-color: #9e9e9e;
+      color: white;
+    }
+
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    .data-table th,
+    .data-table td {
+      padding: 12px 15px;
+      text-align: left;
+      border-bottom: 1px solid #ddd;
+    }
+
+    .data-table th {
+      background-color: #e0e0e0;
+    }
+
+    .actions-menu {
+      position: relative;
+      display: inline-block;
+    }
+
+    .actions-button {
+      padding: 6px 12px;
+      font-size: 13px;
+      background-color: #607d8b;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      top: 110%;
+      left: 0;
+      background-color: white;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+      min-width: 100px;
+      z-index: 10;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 8px 12px;
+      font-size: 14px;
+      color: #333;
+      text-decoration: none;
+    }
+
+    .dropdown-content a:hover {
+      background-color: #f0f0f0;
+    }
+
+    .dropdown-content.show {
+      display: block;
+    }
+  </style>
+</head>
+
+<body>
+  <div class="sidebar">
+    <h2>管理メニュー</h2>
+    <ul>
+      <li><a href="#">ダッシュボード</a></li>
+      <li><a href="#" class="active">利用者管理ダッシュボード</a></li>
+      <li><a href="#">インスタンスタイプ管理</a></li>
+      <li><a href="#">イメージ管理</a></li>
+    </ul>
+  </div>
+
+  <div class="main">
+    <h1>利用者管理ダッシュボード</h1>
+    <div class="content-section">
+      <div class="content-header">
+        <h2>利用者一覧</h2>
+        <button id="openAddModalBtn" class="btn btn-primary">＋ 利用者追加</button>
+      </div>
+
+      <table class="data-table" id="userTable">
+        <thead>
+          <tr>
+            <th>アカウント名</th>
+            <th>メールアドレス</th>
+            <th>最大リソース</th>
+            <th>最終ログイン</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr data-cpu="8" data-memory="16" data-storage="200">
+            <td><a href="#" class="details-link">tanaka-ichiro</a></td>
+            <td>tanaka@example.com</td>
+            <td class="resource-limits">CPU: 8, メモリ: 16 GB, ストレージ: 200 GB</td>
+            <td>2025/06/30 15:48</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <a href="#" class="edit-link">編集</a>
+                  <a href="#" class="delete-link">削除</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr data-cpu="4" data-memory="8" data-storage="100">
+            <td><a href="#" class="details-link">suzuki-hanako</a></td>
+            <td>suzuki@example.com</td>
+            <td class="resource-limits">CPU: 4, メモリ: 8 GB, ストレージ: 100 GB</td>
+            <td>2025/07/01 09:15</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <a href="#" class="edit-link">編集</a>
+                  <a href="#" class="delete-link">削除</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <script>
+    // 削除処理
+    document.querySelectorAll('.delete-link').forEach(link => {
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+        const row = this.closest('tr');
+        const name = row.querySelector('td a')?.textContent || 'このユーザー';
+        if (confirm(`「${name}」を削除しますか？`)) {
+          row.remove();
+        }
+      });
+    });
+
+    // 編集（詳細ページへ遷移）
+    document.querySelectorAll('.edit-link').forEach(link => {
+      link.addEventListener('click', function (event) {
+        event.preventDefault();
+        const row = this.closest('tr');
+        const name = row.querySelector('.details-link').textContent.trim();
+        alert(`「${name}」の編集ページへ遷移します（ダミー処理）`);
+        // 実際には詳細画面へ切り替える処理をここに追加
+      });
+    });
+
+    // 操作プルダウン開閉
+    document.querySelectorAll('.actions-button').forEach(button => {
+      button.addEventListener('click', function (event) {
+        event.stopPropagation();
+        closeAllDropdowns();
+        this.nextElementSibling.classList.toggle('show');
+      });
+    });
+
+    function closeAllDropdowns() {
+      document.querySelectorAll('.dropdown-content').forEach(menu => menu.classList.remove('show'));
+    }
+
+    window.addEventListener('click', function () {
+      closeAllDropdowns();
+    });
+  </script>
+</body>
+
+</html>
