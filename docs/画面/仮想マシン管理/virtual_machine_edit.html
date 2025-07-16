@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="ja">
-<head>
-  <meta charset="UTF-8">
-  <title>仮想マシン詳細</title>
-  <style>
+  <head>
+    <meta charset="UTF-8">
+    <title>仮想マシン詳細</title>
+    <style>
     body {
       margin: 0;
       font-family: sans-serif;
@@ -128,6 +128,7 @@
 
     .form-group select,
     .form-group input {
+      margin-top: 5px;
       width: 100%;
       padding: 8px;
       font-size: 14px;
@@ -174,124 +175,177 @@
     .storage-actions button:hover {
       background-color: #43a047;
     }
+
+    .security-group-actions {
+      text-align: right;
+      margin-top: 10px;
+    }
+    .security-group-actions button {
+      padding: 8px 12px;
+      background-color: #4caf50;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .security-group-actions button:hover {
+      background-color: #43a047;
+    }
+    .toggle-btn:after {
+      content: ' ▼';
+      float: right;
+      font-size: 12px;
+      color: #888;
+    }
+    .toggle-btn.open:after {
+      content: ' ▲';
+    }
+    .toggle-btn.open + .form-content {
+      display: block;
+    }
   </style>
-</head>
-<body>
-  <div class="sidebar">
-    <div class="sidebar-header">利用者メニュー</div>
+  </head>
+  <body>
+    <div class="sidebar">
+      <div class="sidebar-header">利用者メニュー</div>
 
-    <div class="sidebar-section">
-      <div class="section-title">利用者ダッシュボード</div>
-      <a href="#">利用者ダッシュボード</a>
-    </div>
+      <div class="sidebar-section">
+        <div class="section-title">利用者ダッシュボード</div>
+        <a href="#">利用者ダッシュボード</a>
+      </div>
 
-    <div class="sidebar-section">
-      <div class="section-title">仮想ネットワーク管理</div>
-      <a href="#">仮想ネットワークダッシュボード</a>
-    </div>
+      <div class="sidebar-section">
+        <div class="section-title">仮想ネットワーク管理</div>
+        <a href="#">仮想ネットワークダッシュボード</a>
+      </div>
 
-    <div class="sidebar-section">
-      <div class="section-title">セキュリティグループ管理</div>
-      <a href="#">セキュリティグループダッシュボード</a>
-    </div>
+      <div class="sidebar-section">
+        <div class="section-title">セキュリティグループ管理</div>
+        <a href="#">セキュリティグループダッシュボード</a>
+      </div>
 
-    <div class="sidebar-section">
-      <div class="section-title">仮想マシン管理</div>
-      <a href="#">仮想マシンダッシュボード</a>
-      <a href="#">ポートフォリオ公開環境管理</a>
-      <a href="#">スナップショット管理</a>
-      <a href="#">バックアップ・復元管理</a>
-    </div>
-  </div>
-
-  <div class="main">
-    <div class="title-bar">
-      <h1>仮想マシン詳細</h1>
-      <button class="edit-button" onclick="alert('編集モードに切り替え予定')">編集</button>
-    </div>
-
-    <div class="form-section">
-      <button class="toggle-btn">仮想マシンタイプの変更 ▼</button>
-      <div class="form-content">
-        <div class="form-group">
-          <label for="vm-type">仮想マシンタイプ</label>
-          <select id="vm-type">
-            <option value="small">Small (1CPU, 2GB RAM)</option>
-            <option value="medium">Medium (2CPU, 4GB RAM)</option>
-            <option value="large">Large (4CPU, 8GB RAM)</option>
-          </select>
-        </div>
+      <div class="sidebar-section">
+        <div class="section-title">仮想マシン管理</div>
+        <a href="#">仮想マシンダッシュボード</a>
+        <a href="#">ポートフォリオ公開環境管理</a>
+        <a href="#">スナップショット管理</a>
+        <a href="#">バックアップ・復元管理</a>
       </div>
     </div>
 
-    <div class="form-section">
-      <button class="toggle-btn">NIC一覧 ▼</button>
-      <div class="form-content">
-        <table>
-          <thead>
-            <tr>
-              <th>NIC名</th>
-              <th>ネットワーク</th>
-              <th>IPアドレス</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>nic-01</td><td>student-net</td><td>192.168.10.5</td></tr>
-            <tr><td>nic-02</td><td>dev-net</td><td>192.168.20.8</td></tr>
-          </tbody>
-        </table>
-        <div class="nic-actions">
-          <button>NIC追加</button>
+    <div class="main">
+      <div class="title-bar">
+        <h1>仮想マシン詳細</h1>
+        <button class="edit-button" onclick="alert('編集モードに切り替え予定')">編集</button>
+      </div>
+
+      <div class="form-section">
+        <button class="toggle-btn">仮想マシンタイプの変更 ▼</button>
+        <div class="form-content">
+          <div class="form-group">
+            <label for="vm-type">仮想マシンタイプ</label>
+            <select id="vm-type">
+              <option value="small">Small (1CPU, 2GB RAM)</option>
+              <option value="medium">Medium (2CPU, 4GB RAM)</option>
+              <option value="large">Large (4CPU, 8GB RAM)</option>
+            </select>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="form-section">
-      <button class="toggle-btn">仮想マシン名の変更 ▼</button>
-      <div class="form-content">
-        <div class="form-group">
-          <label for="vm-name">新しい仮想マシン名</label>
-          <input type="text" id="vm-name" placeholder="例: vm-new-name">
+      <div class="form-section">
+        <button class="toggle-btn">NIC一覧 ▼</button>
+        <div class="form-content">
+          <table>
+            <thead>
+              <tr>
+                <th>NIC名</th>
+                <th>ネットワーク</th>
+                <th>IPアドレス</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>nic-01</td><td>student-net</td><td>192.168.10.5</td></tr>
+              <tr><td>nic-02</td><td>dev-net</td><td>192.168.20.8</td></tr>
+            </tbody>
+          </table>
+          <div class="form-group">
+            <select id="nic-select">
+              <option value="student">student-net</option>
+              <option value="dev">dev-net</option>
+            </select>
+
+            <div class="nic-actions">
+              <button>追加</button>
+            </div>
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="form-section">
-      <button class="toggle-btn">ストレージの管理 ▼</button>
-      <div class="form-content">
-        <table>
-          <thead>
-            <tr>
-              <th>ストレージ名</th>
-              <th>ストレージタイプ</th>
-              <th>サイズ</th>
-              <th>デバイスファイル</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr><td>OS</td><td>SSD</td><td>100GB</td><td>/dev/sda</td></tr>
-            <tr><td>Web-File</td><td>HDD</td><td>500GB</td><td>/dev/sdb</td></tr>
-          </tbody>
-        </table>
-        <div class="storage-actions">
-          <button>ストレージ追加</button>
+      <div class="form-section">
+        <button class="toggle-btn">仮想マシン名の変更 ▼</button>
+        <div class="form-content">
+          <div class="form-group">
+            <label for="vm-name">新しい仮想マシン名</label>
+            <input type="text" id="vm-name" placeholder="例: vm-new-name">
+          </div>
         </div>
       </div>
-    </div>
 
-    <div class="form-section">
-      <button class="toggle-btn">セキュリティグループの管理 ▼</button>
-      <div class="form-content">
-        <div class="form-group">
-          <label>設定中のセキュリティグループ</label>
-          <p>web-server-sg</p>
+      <div class="form-section">
+        <button class="toggle-btn">ストレージの管理 ▼</button>
+        <div class="form-content">
+          <table>
+            <thead>
+              <tr>
+                <th>ストレージ名</th>
+                <th>ストレージタイプ</th>
+                <th>サイズ</th>
+                <th>デバイスファイル</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>OS</td><td>SSD</td><td>100GB</td><td>/dev/sda</td></tr>
+              <tr><td>Web-File</td><td>HDD</td><td>500GB</td><td>/dev/sdb</td></tr>
+            </tbody>
+          </table>
+          <div class="storage-actions">
+            <button>ストレージ追加</button>
+          </div>
         </div>
       </div>
+
+      <div class="form-section">
+        <button class="toggle-btn">セキュリティグループの管理 ▼</button>
+        <div class="form-content">
+          <div class="form-group">
+            <table>
+              <thead>
+                <tr>
+                  <th>セキュリティグループ名</th>
+                  <th>説明</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr><td>default</td><td>デフォルトのセキュリティグループ</td></tr>
+                <tr><td>web-server</td><td>Webサーバー用のセキュリティグループ</td></tr>
+              </tbody>
+            </table>
+            <select id="security-group-select">
+              <option value="default">default</option>
+              <option value="web-server">web-server</option>
+              <option value="db-server">db-server</option>
+            </select>
+            <div class="security-group-actions">
+              <button>追加</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
-  </div>
-
-  <script>
+    <script>
     const toggleButtons = document.querySelectorAll('.toggle-btn');
     toggleButtons.forEach(btn => {
       btn.addEventListener('click', () => {
@@ -302,5 +356,5 @@
       });
     });
   </script>
-</body>
+  </body>
 </html>
