@@ -204,6 +204,7 @@
       <div class="form-group">
         <label>公開鍵</label>
         <textarea rows="4" placeholder="ssh-rsa AAAAB3..."></textarea>
+        <input type="file" accept=".pub">
       </div>
 
       <div class="form-group">
@@ -282,6 +283,20 @@
 
       <div class="form-group">
         <label>セキュリティグループ</label>
+        <table>
+          <tr>
+            <th>グループ名</th>
+            <th>説明</th>
+          </tr>
+          <tr>
+            <td>default</td>
+            <td>デフォルトのセキュリティグループ</td>
+          </tr>
+          <tr>
+            <td>web-server</td>
+            <td>Webサーバー用のセキュリティグループ</td>
+          </tr>
+        </table>
         <select>
           <option>allow-http</option>
           <option>allow-https</option>
