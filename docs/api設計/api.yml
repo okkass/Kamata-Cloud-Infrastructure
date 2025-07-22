@@ -5,6 +5,41 @@ info:
   description: KCI API documentation
   version: 0.0.1
 
+paths:
+  /users:
+    get:
+      summary: すべてのユーザを取得
+      description: 管理者がすべてのユーザ情報を取得するためのエンドポイント
+      operationId: getAllUsers
+      security:
+        - BearerAuth:
+            - admin
+      responses:
+        "200":
+          description: ユーザ情報のリストを返す
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          description: 認証が必要
+        "403":
+          description: 権限がありません(管理者権限が必要)
+        "500":
+          description: サーバーエラー
+    post:
+      summary: 新しいユーザを作成
+      description: |
+        管理者が新しいユーザを作成するためのエンドポイント。
+        登録されたユーザは認証情報を使用してログインできます。
+      operationId: createUser
+      security:
+        - BearerAuth:
+            - admin
+      requestBody:
+
 components:
   schemas:
     User:
@@ -26,6 +61,7 @@ components:
           type: string
           format: password
           description: ユーザのパスワード
+
         totpSeed:
           type: string
           description: TOTPシード
@@ -396,3 +432,9 @@ components:
         - createdAt
         - totalSize
         - usedSize
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWTを使用した認証方式
