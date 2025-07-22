@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+  <meta charset="UTF-8" />
+  <title>ストレージダッシュボード</title>
+  <link rel="stylesheet" href="storage_dashboard.css">
+</head>
+
+<body>
+  <div class="sidebar">
+    <h2>管理メニュー</h2>
+    <ul>
+      <li><a href="#">ダッシュボード</a></li>
+      <li><a href="#">ユーザー管理</a></li>
+      <li><a href="#">イメージ管理</a></li>
+      <li><a href="#">ストレージ管理</a></li>
+      <li><a href="#">システム設定</a></li>
+    </ul>
+  </div>
+
+  <div class="main-content">
+    <h1>ストレージダッシュボード</h1>
+    <div class="button-area">
+      <button id="openAddModalBtn" class="btn btn-primary">＋ ストレージ追加</button>
+    </div>
+    <table class="storage-table">
+      <thead>
+        <tr>
+          <th>ストレージプール名</th>
+          <th>サイズ</th>
+          <th>使用済みデータ量</th>
+          <th>使用率</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>pool01</td>
+          <td>500GB</td>
+          <td>300GB</td>
+          <td>60%</td>
+        </tr>
+        <tr>
+          <td>pool02</td>
+          <td>1TB</td>
+          <td>720GB</td>
+          <td>72%</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</body>
+
+</html>

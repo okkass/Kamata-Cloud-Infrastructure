@@ -63,6 +63,12 @@
           box-sizing: border-box;
         }
 
+        .form-group textarea {
+          width: 100%;
+          padding: 8px;
+          box-sizing: border-box;
+        }
+
         .btn-primary,
         .btn-secondary {
           padding: 10px 15px;
@@ -161,4 +167,9 @@
 
         .show {
           display: block;
+        }
+
+        .form-actions {
+          margin-top: 20px;
+          text-align: right;
         }

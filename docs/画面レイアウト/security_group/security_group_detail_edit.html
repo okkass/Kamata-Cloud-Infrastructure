@@ -1,236 +1,241 @@
 <!DOCTYPE html>
 <html lang="ja">
-  <head>
-    <meta charset="UTF-8">
-    <title>セキュリティグループ詳細・編集</title>
-    <link rel="stylesheet" href="./security_group_detail.css">
-  </head>
-  <body>
-    <div class="container">
-      <aside class="sidebar">
-        <h2>利用者メニュー</h2>
-        <nav>
-          <ul>
-            <li><a href="#">ダッシュボード</a></li>
-            <li><a href="#">仮想マシン管理</a></li>
-            <li><a href="#">仮想ネットワーク構築</a></li>
-            <li><a href="#">セキュリティグループ管理</a></li>
-            <li><a href="#" class="logout">ログアウト</a></li>
-          </ul>
-        </nav>
-      </aside>
 
-      <main class="main-content">
-        <h1>セキュリティグループ詳細・編集</h1>
-        <form class="form-card">
-          <div class="form-group">
-            <label for="group-name">セキュリティグループ名</label>
-            <input type="text" id="group-name" name="group-name"
-              value="web-allow-group">
-          </div>
-          <div class="form-actions">
-            <button type="submit" class="btn-primary">保存</button>
-            <button type="button" class="btn-secondary">キャンセル</button>
-          </div>
-        </form>
+<head>
+  <meta charset="UTF-8">
+  <title>セキュリティグループ詳細・編集</title>
+  <link rel="stylesheet" href="./security_group_detail.css">
+</head>
 
-        <h2 style="margin-top: 40px;">インバウンドルール</h2>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>ルール名</th>
-              <th>ポート番号</th>
-              <th>プロトコル</th>
-              <th>送信元IP</th>
-              <th>許可／拒否</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody class="rules-table">
-            <tr>
-              <td class="rule-name">allow-http</td>
-              <td class="port">80</td>
-              <td class="protocol">TCP</td>
-              <td class="source-ip">0.0.0.0/0</td>
-              <td class="action">許可</td>
-              <td>
-                <div class="actions-menu">
-                  <button class="actions-button">操作 ▼</button>
-                  <div class="dropdown-content">
-                    <a class="edit-link">編集</a>
-                    <a class="delete-link">削除</a>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td class="rule-name">deny-ftp</td>
-              <td class="port">21</td>
-              <td class="protocol">TCP</td>
-              <td class="source-ip">0.0.0.0/0</td>
-              <td class="action">拒否</td>
-              <td>
-                <div class="actions-menu">
-                  <button class="actions-button">操作 ▼</button>
-                  <div class="dropdown-content">
-                    <a class="edit-link">編集</a>
-                    <a class="delete-link">削除</a>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div style="margin-top: 20px;">
-          <button class="btn-primary">＋ルールを追加</button>
-        </div>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>利用者メニュー</h2>
+      <nav>
+        <ul>
+          <li><a href="#">ダッシュボード</a></li>
+          <li><a href="#">仮想マシン管理</a></li>
+          <li><a href="#">仮想ネットワーク構築</a></li>
+          <li><a href="#">セキュリティグループ管理</a></li>
+          <li><a href="#" class="logout">ログアウト</a></li>
+        </ul>
+      </nav>
+    </aside>
 
-        <h2 style="margin-top: 40px;">アウトバウンドルール</h2>
-        <table class="table">
-          <thead>
-            <tr>
-              <th>ルール名</th>
-              <th>ポート番号</th>
-              <th>プロトコル</th>
-              <th>送信先IP</th>
-              <th>許可／拒否</th>
-              <th>操作</th>
-            </tr>
-          </thead>
-          <tbody class="rules-table">
-            <tr>
-              <td class="rule-name">allow-ssh</td>
-              <td class="port">22</td>
-              <td class="protocol">TCP</td>
-              <td class="source-ip">0.0.0.0/0</td>
-              <td class="action">許可</td>
-              <td>
-                <div class="actions-menu">
-                  <button class="actions-button">操作 ▼</button>
-                  <div class="dropdown-content">
-                    <a class="edit-link">編集</a>
-                    <a class="delete-link">削除</a>
-                  </div>
-                </div>
-              </td>
-            </tr>
-            <tr>
-              <td class="rule-name">deny-all</td>
-              <td class="port">-</td>
-              <td class="protocol">-</td>
-              <td class="source-ip">0.0.0.0/0</td>
-              <td class="action">拒否</td>
-              <td>
-                <div class="actions-menu">
-                  <button class="actions-button">操作 ▼</button>
-                  <div class="dropdown-content">
-                    <a class="edit-link">編集</a>
-                    <a class="delete-link">削除</a>
-                  </div>
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-        <div style="margin-top: 20px;">
-          <button class="btn-primary">＋ルールを追加</button>
-        </div>
-      </main>
-    </div>
+    <main class="main-content">
+      <h1>セキュリティグループ詳細・編集</h1>
+      <div class="form-group">
+        <label for="group-name">セキュリティグループ名</label>
+        <input type="text" id="group-name" name="group-name" value="web-allow-group">
+      </div>
+      <div class="form-group">
+        <label for="description">説明</label>
+        <textarea id="description" name="description" rows="4" cols="70"
+          placeholder="このセキュリティグループの説明を入力してください。">Webサーバー用のセキュリティグループ</textarea>
+      </div>
 
-    <script>
+      <h2 style="margin-top: 40px;">インバウンドルール</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ルール名</th>
+            <th>ポート番号</th>
+            <th>プロトコル</th>
+            <th>送信元IP</th>
+            <th>許可／拒否</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody class="rules-table">
+          <tr>
+            <td class="rule-name">allow-http</td>
+            <td class="port">80</td>
+            <td class="protocol">TCP</td>
+            <td class="source-ip">0.0.0.0/0</td>
+            <td class="action">許可</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <a class="edit-link">編集</a>
+                  <a class="delete-link">削除</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="rule-name">deny-ftp</td>
+            <td class="port">21</td>
+            <td class="protocol">TCP</td>
+            <td class="source-ip">0.0.0.0/0</td>
+            <td class="action">拒否</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <a class="edit-link">編集</a>
+                  <a class="delete-link">削除</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top: 20px;">
+        <button class="btn-primary">＋ルールを追加</button>
+      </div>
+
+      <h2 style="margin-top: 40px;">アウトバウンドルール</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ルール名</th>
+            <th>ポート番号</th>
+            <th>プロトコル</th>
+            <th>送信先IP</th>
+            <th>許可／拒否</th>
+            <th>操作</th>
+          </tr>
+        </thead>
+        <tbody class="rules-table">
+          <tr>
+            <td class="rule-name">allow-ssh</td>
+            <td class="port">22</td>
+            <td class="protocol">TCP</td>
+            <td class="source-ip">0.0.0.0/0</td>
+            <td class="action">許可</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <a class="edit-link">編集</a>
+                  <a class="delete-link">削除</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+          <tr>
+            <td class="rule-name">deny-all</td>
+            <td class="port">-</td>
+            <td class="protocol">-</td>
+            <td class="source-ip">0.0.0.0/0</td>
+            <td class="action">拒否</td>
+            <td>
+              <div class="actions-menu">
+                <button class="actions-button">操作 ▼</button>
+                <div class="dropdown-content">
+                  <a class="edit-link">編集</a>
+                  <a class="delete-link">削除</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div style="margin-top: 20px;">
+        <button class="btn-primary">＋ルールを追加</button>
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn-primary">保存</button>
+        <button type="button" class="btn-secondary">キャンセル</button>
+      </div>
+    </main>
+  </div>
+
+
+  <script>
     // 開いているドロップダウンを閉じる関数
     function closeAllDropdowns(exceptThis) {
-        document.querySelectorAll('.dropdown-content').forEach(dropdown => {
-            if (dropdown !== exceptThis) {
-                dropdown.classList.remove('show');
-            }
-        });
+      document.querySelectorAll('.dropdown-content').forEach(dropdown => {
+        if (dropdown !== exceptThis) {
+          dropdown.classList.remove('show');
+        }
+      });
     }
 
     // ドキュメント全体にイベントリスナーを設定（イベント委譲）
     document.addEventListener('click', (event) => {
-        const target = event.target;
+      const target = event.target;
 
-        // --- ドロップダウンボタンの処理 ---
-        if (target.matches('.actions-button')) {
-            event.stopPropagation();
-            const dropdown = target.nextElementSibling;
-            // 他のドロップダウンを閉じてから、現在のドロップダウンの表示/非表示を切り替える
-            const isShowing = dropdown.classList.contains('show');
-            closeAllDropdowns(null);
-            if (!isShowing) {
-                dropdown.classList.toggle('show');
-            }
-            return;
-        }
-
-        // --- 画面のどこかをクリックしたら、すべてのドロップダウンを閉じる ---
+      // --- ドロップダウンボタンの処理 ---
+      if (target.matches('.actions-button')) {
+        event.stopPropagation();
+        const dropdown = target.nextElementSibling;
+        // 他のドロップダウンを閉じてから、現在のドロップダウンの表示/非表示を切り替える
+        const isShowing = dropdown.classList.contains('show');
         closeAllDropdowns(null);
-        
-        // --- テーブル内のイベント処理 ---
-        const tableBody = target.closest('.rules-table');
-        if (!tableBody) return;
-
-        const row = target.closest('tr');
-
-        // 「削除」リンクがクリックされた場合
-        if (target.classList.contains('delete-link')) {
-            if (confirm('このルールを本当に削除しますか？')) {
-                row.remove();
-            }
+        if (!isShowing) {
+          dropdown.classList.toggle('show');
         }
+        return;
+      }
 
-        // 「編集」リンクがクリックされた場合
-        if (target.classList.contains('edit-link')) {
-            const nameCell = row.querySelector('.rule-name');
-            const portCell = row.querySelector('.port');
-            const protoCell = row.querySelector('.protocol');
-            const sourceCell = row.querySelector('.source-ip');
-            const actionCell = row.querySelector('.action');
-            const actionTd = target.closest('td');
+      // --- 画面のどこかをクリックしたら、すべてのドロップダウンを閉じる ---
+      closeAllDropdowns(null);
 
-            const name = nameCell.textContent.trim();
-            const port = portCell.textContent.trim();
-            const protocol = protoCell.textContent.trim();
-            const sourceIp = sourceCell.textContent.trim();
-            const action = actionCell.textContent.trim();
+      // --- テーブル内のイベント処理 ---
+      const tableBody = target.closest('.rules-table');
+      if (!tableBody) return;
 
-            nameCell.innerHTML = `<input type="text" value="${name}">`;
-            portCell.innerHTML = `<input type="text" value="${port}">`; // numberからtextに変更してハイフン等も許容
-            protoCell.innerHTML = `
+      const row = target.closest('tr');
+
+      // 「削除」リンクがクリックされた場合
+      if (target.classList.contains('delete-link')) {
+        if (confirm('このルールを本当に削除しますか？')) {
+          row.remove();
+        }
+      }
+
+      // 「編集」リンクがクリックされた場合
+      if (target.classList.contains('edit-link')) {
+        const nameCell = row.querySelector('.rule-name');
+        const portCell = row.querySelector('.port');
+        const protoCell = row.querySelector('.protocol');
+        const sourceCell = row.querySelector('.source-ip');
+        const actionCell = row.querySelector('.action');
+        const actionTd = target.closest('td');
+
+        const name = nameCell.textContent.trim();
+        const port = portCell.textContent.trim();
+        const protocol = protoCell.textContent.trim();
+        const sourceIp = sourceCell.textContent.trim();
+        const action = actionCell.textContent.trim();
+
+        nameCell.innerHTML = `<input type="text" value="${name}">`;
+        portCell.innerHTML = `<input type="text" value="${port}">`; // numberからtextに変更してハイフン等も許容
+        protoCell.innerHTML = `
                 <select>
                     <option value="TCP" ${protocol === "TCP" ? "selected" : ""}>TCP</option>
                     <option value="UDP" ${protocol === "UDP" ? "selected" : ""}>UDP</option>
                     <option value="-" ${protocol === "-" ? "selected" : ""}>-</option>
                 </select>`;
-            sourceCell.innerHTML = `<input type="text" value="${sourceIp}">`;
-            actionCell.innerHTML = `
+        sourceCell.innerHTML = `<input type="text" value="${sourceIp}">`;
+        actionCell.innerHTML = `
                 <select>
                     <option value="許可" ${action === "許可" ? "selected" : ""}>許可</option>
                     <option value="拒否" ${action === "拒否" ? "selected" : ""}>拒否</option>
                 </select>`;
-            
-            actionTd.innerHTML = `<button class="btn-save">保存</button>`;
-        }
 
-        // 「保存」ボタンがクリックされた場合
-        if (target.classList.contains('btn-save')) {
-            const nameCell = row.querySelector('.rule-name');
-            const portCell = row.querySelector('.port');
-            const protoCell = row.querySelector('.protocol');
-            const sourceCell = row.querySelector('.source-ip');
-            const actionCell = row.querySelector('.action');
-            const actionTd = target.parentElement;
+        actionTd.innerHTML = `<button class="btn-save">保存</button>`;
+      }
 
-            nameCell.textContent = nameCell.querySelector('input').value;
-            portCell.textContent = portCell.querySelector('input').value;
-            protoCell.textContent = protoCell.querySelector('select').value;
-            sourceCell.textContent = sourceCell.querySelector('input').value;
-            actionCell.textContent = actionCell.querySelector('select').value;
-            
-            // 操作セルをドロップダウンメニューに戻す
-            actionTd.innerHTML = `
+      // 「保存」ボタンがクリックされた場合
+      if (target.classList.contains('btn-save')) {
+        const nameCell = row.querySelector('.rule-name');
+        const portCell = row.querySelector('.port');
+        const protoCell = row.querySelector('.protocol');
+        const sourceCell = row.querySelector('.source-ip');
+        const actionCell = row.querySelector('.action');
+        const actionTd = target.parentElement;
+
+        nameCell.textContent = nameCell.querySelector('input').value;
+        portCell.textContent = portCell.querySelector('input').value;
+        protoCell.textContent = protoCell.querySelector('select').value;
+        sourceCell.textContent = sourceCell.querySelector('input').value;
+        actionCell.textContent = actionCell.querySelector('select').value;
+
+        // 操作セルをドロップダウンメニューに戻す
+        actionTd.innerHTML = `
                 <div class="actions-menu">
                     <button class="actions-button">操作 ▼</button>
                     <div class="dropdown-content">
@@ -238,8 +243,9 @@
                         <a class="delete-link">削除</a>
                     </div>
                 </div>`;
-        }
+      }
     });
-    </script>
-  </body>
+  </script>
+</body>
+
 </html>
