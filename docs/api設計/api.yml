@@ -12,8 +12,8 @@ components:
       description: User object
       properties:
         id:
-          type: integer
-          format: int64
+          type: string
+          format: uuid
           description: ユーザを識別するための一意なID
         name:
           type: string
@@ -33,7 +33,128 @@ components:
           type: string
           format: date-time
           description: ユーザが作成された日時
+        is_admin:
+          type: boolean
+          description: ユーザが管理者かどうかを示すフラグ
       required:
         - id
         - name
         - email
+        - password
+    AttachedStorage:
+      type: object
+      description: アタッチされたストレージオブジェクト
+      properties:
+        storage:
+          $ref: "#/components/schemas/VirtualStorage"
+        path:
+          type: string
+          description: ストレージデバイスのパス
+          example: "/dev/sda"
+      required:
+        - id
+        - path
+    VirtualMachine:
+      type: object
+      description: 仮想マシンオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 仮想マシンを識別するための一意なID
+        name:
+          type: string
+          description: 仮想マシンの名前
+        instance_type:
+          type: string
+          format: uuid
+          description: 仮想マシンのインスタンスタイプのID
+        status:
+          type: string
+          enum: [running, stopped, suspended]
+          description: 仮想マシンの状態
+        created_at:
+          type: string
+          format: date-time
+          description: 仮想マシンが作成された日時
+        security_group:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: 仮想マシンに関連付けられたセキュリティグループのIDリスト
+        attached_storage:
+          type: array
+          description: アタッチされたストレージのリスト
+          items:
+            $ref: "#/components/schemas/AttachedStorage"
+
+      required:
+        - id
+        - name
+        - instance_type
+        - status
+        - created_at
+    VirtualNetwork:
+      type: object
+      description: 仮想ネットワークオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 仮想ネットワークを識別するための一意なID
+        name:
+          type: string
+          description: 仮想ネットワークの名前
+        cidr:
+          type: string
+          description: CIDR形式のネットワークアドレス
+          example: "10.0.0.0/16"
+        created_at:
+          type: string
+          format: date-time
+          description: 仮想ネットワークが作成された日時
+        subnets:
+          type: array
+          items:
+            type: string
+    Subnet:
+      type: object
+      description: サブネットオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: サブネットを識別するための一意なID
+        name:
+          type: string
+          description: サブネットの名前
+        cidr:
+          type: string
+          description: CIDR形式のサブネットアドレス
+          example: "10.0.0.0/24"
+    SecurityGroup:
+    SnapShot:
+    Backup:
+    VirtualStorage:
+      type: object
+      description: 仮想ストレージオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 仮想ストレージを識別するための一意なID
+        name:
+          type: string
+          description: 仮想ストレージの名前
+        size:
+          type: integer
+          description: 仮想ストレージのサイズ（バイト単位）
+        pool:
+          type: string
+          format: uuid
+          description: 仮想ストレージが属するストレージプールのID
+    Image:
+    InstanceType:
+    PhysicalNode:
+    StoragePool:
