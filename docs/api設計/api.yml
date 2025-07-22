@@ -26,14 +26,14 @@ components:
           type: string
           format: password
           description: ユーザのパスワード
-        totp_seed:
+        totpSeed:
           type: string
           description: TOTPシード
-        created_at:
+        createdAt:
           type: string
           format: date-time
           description: ユーザが作成された日時
-        is_admin:
+        isAdmin:
           type: boolean
           description: ユーザが管理者かどうかを示すフラグ
       required:
@@ -65,7 +65,7 @@ components:
         name:
           type: string
           description: 仮想マシンの名前
-        instance_type:
+        instanceType:
           type: string
           format: uuid
           description: 仮想マシンのインスタンスタイプのID
@@ -73,17 +73,17 @@ components:
           type: string
           enum: [running, stopped, suspended]
           description: 仮想マシンの状態
-        created_at:
+        createdAt:
           type: string
           format: date-time
           description: 仮想マシンが作成された日時
-        security_group:
+        securityGroup:
           type: array
           items:
             type: string
             format: uuid
           description: 仮想マシンに関連付けられたセキュリティグループのIDリスト
-        attached_storage:
+        attachedStorage:
           type: array
           description: アタッチされたストレージのリスト
           items:
@@ -92,9 +92,9 @@ components:
       required:
         - id
         - name
-        - instance_type
+        - instanceType
         - status
-        - created_at
+        - createdAt
     VirtualNetwork:
       type: object
       description: 仮想ネットワークオブジェクト
@@ -110,14 +110,14 @@ components:
           type: string
           description: CIDR形式のネットワークアドレス
           example: "10.0.0.0/16"
-        created_at:
+        createdAt:
           type: string
           format: date-time
           description: 仮想ネットワークが作成された日時
         subnets:
           type: array
           items:
-            type: string
+            $ref: "#/components/schemas/Subnet"
     Subnet:
       type: object
       description: サブネットオブジェクト
@@ -133,9 +133,137 @@ components:
           type: string
           description: CIDR形式のサブネットアドレス
           example: "10.0.0.0/24"
+        possibleExternalConnections:
+          type: boolean
+          description: 外部接続が可能かどうかを示すフラグ
+        createdAt:
+          type: string
+          format: date-time
+          description: サブネットが作成された日時
+      required:
+        - id
+        - name
+        - cidr
+        - createdAt
+        - possibleExternalConnections
     SecurityGroup:
+      type: object
+      description: セキュリティグループオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: セキュリティグループを識別するための一意なID
+        name:
+          type: string
+          description: セキュリティグループの名前
+        description:
+          type: string
+          description: セキュリティグループの説明
+        rules:
+          type: array
+          items:
+            $ref: "#/components/schemas/SecurityRule"
+        createdAt:
+          type: string
+          format: date-time
+          description: セキュリティグループが作成された日時
+      required:
+        - id
+        - name
+        - createdAt
+    SecurityRule:
+      type: object
+      description: セキュリティルールオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: セキュリティルールを識別するための一意なID
+        name:
+          type: string
+          description: セキュリティルールの名前
+        ruleType:
+          type: string
+          enum: [inbound, outbound]
+          description: ルールのタイプ（インバウンドまたはアウトバウンド）
+        port:
+          type: integer
+          description: 適用されるポート番号
+          example: 22
+        protocol:
+          type: string
+          enum: [tcp, udp, icmp]
+          description: 適用されるプロトコル
+        targetIp:
+          type: string
+          format: ipv4
+          description: ターゲットIPアドレス
+          example: "192.0.2.0/24"
+        createdAt:
+          type: string
+          format: date-time
+          description: セキュリティルールが作成された日時
+      required:
+        - id
+        - name
+        - ruleType
+        - port
+        - protocol
+        - targetIp
+        - createdAt
     SnapShot:
+      type: object
+      description: スナップショットオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: スナップショットを識別するための一意なID
+        name:
+          type: string
+          description: スナップショットの名前
+        description:
+          type: string
+          description: スナップショットの説明
+        createdAt:
+          type: string
+          format: date-time
+          description: スナップショットが作成された日時
+        targetVirtualMachine:
+          $ref: "#/components/schemas/VirtualMachine"
+          description: スナップショット取得元の仮想マシン
+      required:
+        - id
+        - name
+        - createdAt
+        - targetVirtualMachine
     Backup:
+      type: object
+      description: バックアップオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: バックアップを識別するための一意なID
+        name:
+          type: string
+          description: バックアップの名前
+        description:
+          type: string
+          description: バックアップの説明
+        createdAt:
+          type: string
+          format: date-time
+          description: バックアップが作成された日時
+        targetVirtualStorage:
+          $ref: "#/components/schemas/VirtualStorage"
+          description: バックアップ対象の仮想ストレージ
+      required:
+        - id
+        - name
+        - createdAt
+        - targetVirtualStorage
     VirtualStorage:
       type: object
       description: 仮想ストレージオブジェクト
@@ -155,6 +283,116 @@ components:
           format: uuid
           description: 仮想ストレージが属するストレージプールのID
     Image:
+      type: object
+      description: 仮想マシンイメージオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 仮想マシンイメージを識別するための一意なID
+        name:
+          type: string
+          description: 仮想マシンイメージの名前
+        description:
+          type: string
+          description: 仮想マシンイメージの説明
+        createdAt:
+          type: string
+          format: date-time
+          description: 仮想マシンイメージが作成された日時
+        size:
+          type: number
+          format: double
+          description: 仮想マシンイメージのサイズ
+      required:
+        - id
+        - name
+        - createdAt
+        - size
     InstanceType:
+      type: object
+      description: 仮想マシンのインスタンスタイプオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: インスタンスタイプを識別するための一意なID
+        name:
+          type: string
+          description: インスタンスタイプの名前
+        createdAt:
+          type: string
+          format: date-time
+          description: インスタンスタイプが作成された日時
+        cpuCores:
+          type: integer
+          description: CPUコア数
+        memorySize:
+          type: integer
+          description: メモリサイズ（バイト単位）
+      required:
+        - id
+        - name
+        - createdAt
+        - cpuCores
+        - memorySize
     PhysicalNode:
+      type: object
+      description: 物理ノードオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 物理ノードを識別するための一意なID
+        name:
+          type: string
+          description: 物理ノードの名前
+        ipAddress:
+          type: string
+          format: ipv4
+          description: 物理ノードのIPアドレス
+        status:
+          type: string
+          enum: [active, inactive]
+          description: 物理ノードの状態
+        isAdmin:
+          type: boolean
+          description: 物理ノードが管理ノードかどうかを示すフラグ
+        createdAt:
+          type: string
+          format: date-time
+          description: 物理ノードが作成された日時
+      required:
+        - id
+        - name
+        - ipAddress
+        - status
+        - isAdmin
+        - createdAt
     StoragePool:
+      type: object
+      description: ストレージプールオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ストレージプールを識別するための一意なID
+        name:
+          type: string
+          description: ストレージプールの名前
+        createdAt:
+          type: string
+          format: date-time
+          description: ストレージプールが作成された日時
+        totalSize:
+          type: integer
+          description: ストレージプールの総サイズ（バイト単位）
+        usedSize:
+          type: integer
+          description: 使用中のストレージサイズ（バイト単位）
+      required:
+        - id
+        - name
+        - createdAt
+        - totalSize
+        - usedSize
