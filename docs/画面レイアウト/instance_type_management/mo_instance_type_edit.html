@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8">
+    <title>インスタンスタイプ編集</title>
+    <link rel="stylesheet" href="mo_instance_type_edit.css">
+  </head>
+  <body>
+    <div class="main">
+      <h1>インスタンスタイプ編集</h1>
+      <div class="form-section">
+        <div class="close-button">
+          <button onclick="history.back()" title="戻る">×</button>
+        </div>
+        <div class="form-item">
+          <label for="name-input">インスタンスタイプ名：</label>
+          <input type="text" id="name-input" class="edit-input"
+            value="standard.medium">
+        </div>
+        <div class="form-item">
+          <label for="memory-input">メモリ (MB)：</label>
+          <input type="number" id="memory-input" class="edit-input" value="8192"
+            step="1024" min="1024" placeholder="例: 8192">
+        </div>
+        <div class="form-item">
+          <label for="vcpu-input">vCPU（個）：</label>
+          <input type="number" id="vcpu-input" class="edit-input" value="4"
+            min="1">
+        </div>
+        <div class="form-item">
+          <label for="storage-input">ストレージ (GB)：</label>
+          <input type="number" id="storage-input" class="edit-input" value="100"
+            min="10"　step="10" placeholder="例: 100">
+        </div>
+        <div class="button-area">
+          <button id="saveBtn" class="btn btn-primary">保存</button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+    document.getElementById("saveBtn").onclick = () => {
+      const name = document.getElementById("name-input").value;
+      // 本来はここでサーバーにデータを送信する
+      alert(`「${name}」の内容を保存しました。（ダミー処理）`);
+    };
+    </script>
+  </body>
+</html>

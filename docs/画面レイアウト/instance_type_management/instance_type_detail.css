@@ -1,0 +1,120 @@
+body {
+  margin: 0;
+  font-family: Arial, "Helvetica Neue", "Hiragino Kaku Gothic ProN", "Meiryo", sans-serif;
+  background-color: #f8f9fa;
+}
+
+/* --- サイドバー --- */
+.sidebar {
+  width: 240px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  background-color: #2f3e4d;
+  color: white;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+.sidebar h2 {
+  font-size: 20px;
+  margin-bottom: 20px;
+  text-align: center;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar a {
+  color: white;
+  text-decoration: none;
+  padding: 10px 15px;
+  display: block;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.sidebar a:hover,
+.sidebar a.active {
+  background-color: #4f5f6f;
+}
+
+/* --- メインコンテンツ --- */
+.main {
+  margin-left: 260px; /* sidebar幅 + 余白 */
+  padding: 40px;
+}
+
+.main h1 {
+  font-size: 24px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+.detail-section {
+  background-color: white;
+  padding: 30px;
+  border-radius: 8px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+  max-width: 700px;
+}
+
+.detail-item {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 16px;
+}
+
+.detail-item label {
+  font-weight: bold;
+  color: #555;
+  width: 120px; /* ラベルの幅を固定 */
+  flex-shrink: 0; /* 幅が縮まないように */
+}
+
+.detail-item span {
+  color: #333;
+}
+
+/* --- ボタンエリア --- */
+.button-area {
+  margin-top: 30px;
+}
+
+.btn {
+  display: inline-block;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-right: 10px;
+  transition: opacity 0.2s;
+}
+
+.btn:hover {
+  opacity: 0.85;
+}
+
+.btn-primary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btn-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  color: white;
+}

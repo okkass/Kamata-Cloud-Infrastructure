@@ -54,6 +54,7 @@ body {
 }
 
 .button-area {
+  text-align: right;
   margin-bottom: 15px;
 }
 
@@ -66,6 +67,7 @@ body {
 }
 
 .btn-primary {
+  
   background-color: #007bff;
   color: white;
 }
