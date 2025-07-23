@@ -1,0 +1,81 @@
+/* 全体構成 */
+body {
+  margin: 0;
+  font-family: sans-serif;
+  display: flex;
+  background-color: #f0f2f5;
+}
+
+.sidebar {
+  width: 220px;
+  background-color: #2c3e50;
+  color: white;
+  padding: 20px;
+  height: 100vh;
+}
+
+.sidebar h2 {
+  font-size: 1.2em;
+  margin-bottom: 20px;
+}
+
+.sidebar ul {
+  list-style: none;
+  padding: 0;
+}
+
+.sidebar li {
+  margin: 10px 0;
+}
+
+.sidebar a {
+  color: white;
+  text-decoration: none;
+}
+
+.sidebar a.active {
+  font-weight: bold;
+  text-decoration: underline;
+}
+
+/* メインエリア */
+.main {
+  flex: 1;
+  padding: 30px;
+}
+
+.header-without-button {
+  font-size: 1.8em;
+  margin-bottom: 20px;
+}
+
+/* 詳細表示エリア */
+.content-section {
+  background-color: #f9f9f9;
+  padding: 20px 30px;
+  border-radius: 10px;
+}
+
+.details-form-group {
+  margin-bottom: 20px;
+}
+
+.details-form-group label {
+  font-weight: bold;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.value {
+  padding: 10px 14px;
+  background-color: #fff;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+/* リソース情報用のグリッド */
+.details-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+}
