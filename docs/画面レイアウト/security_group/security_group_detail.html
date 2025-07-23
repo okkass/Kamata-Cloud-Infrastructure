@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>セキュリティグループ詳細</title>
+  <link rel="stylesheet" href="./security_group_detail.css">
+</head>
+<body>
+  <div class="container">
+    <aside class="sidebar">
+      <h2>利用者メニュー</h2>
+      <nav>
+        <ul>
+          <li><a href="#">ダッシュボード</a></li>
+          <li><a href="#">仮想マシン管理</a></li>
+          <li><a href="#">仮想ネットワーク構築</a></li>
+          <li><a href="#">セキュリティグループ管理</a></li>
+          <li><a href="#" class="logout">ログアウト</a></li>
+        </ul>
+      </nav>
+    </aside>
+
+    <main class="main-content">
+      <h1>セキュリティグループ詳細</h1>
+
+      <div class="form-group">
+        <label for="group-name">セキュリティグループ名</label>
+        <input type="text" id="group-name" name="group-name" value="web-allow-group" readonly>
+      </div>
+
+      <div class="form-group">
+        <label for="description">説明</label>
+        <textarea id="description" name="description" rows="4" cols="70" readonly>
+Webサーバー用のセキュリティグループ
+        </textarea>
+      </div>
+
+      <h2 style="margin-top: 40px;">インバウンドルール</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ルール名</th>
+            <th>ポート番号</th>
+            <th>プロトコル</th>
+            <th>送信元IP</th>
+            <th>許可／拒否</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>allow-http</td>
+            <td>80</td>
+            <td>TCP</td>
+            <td>0.0.0.0/0</td>
+            <td>許可</td>
+          </tr>
+          <tr>
+            <td>deny-ftp</td>
+            <td>21</td>
+            <td>TCP</td>
+            <td>0.0.0.0/0</td>
+            <td>拒否</td>
+          </tr>
+        </tbody>
+      </table>
+
+      <h2 style="margin-top: 40px;">アウトバウンドルール</h2>
+      <table class="table">
+        <thead>
+          <tr>
+            <th>ルール名</th>
+            <th>ポート番号</th>
+            <th>プロトコル</th>
+            <th>送信先IP</th>
+            <th>許可／拒否</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>allow-ssh</td>
+            <td>22</td>
+            <td>TCP</td>
+            <td>0.0.0.0/0</td>
+            <td>許可</td>
+          </tr>
+          <tr>
+            <td>deny-all</td>
+            <td>-</td>
+            <td>-</td>
+            <td>0.0.0.0/0</td>
+            <td>拒否</td>
+          </tr>
+        </tbody>
+      </table>
+    </main>
+  </div>
+</body>
+</html>

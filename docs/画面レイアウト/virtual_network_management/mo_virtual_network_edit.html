@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>仮想ネットワーク詳細（編集可能モーダル）</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      margin: 0;
+      background-color: #eef1f5;
+    }
+
+    .modal {
+      display: block;
+      position: fixed;
+      z-index: 1000;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0,0,0,0.5);
+    }
+
+    .modal-content {
+      background-color: #fff;
+      margin: 60px auto;
+      padding: 24px 32px 40px;
+      border-radius: 8px;
+      width: 640px;
+      max-width: 90%;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+      position: relative;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+    }
+
+    .close {
+      font-size: 24px;
+      cursor: pointer;
+    }
+
+    .form-group {
+      margin-top: 24px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 6px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      background-color: #ffffff;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      padding: 10px;
+      border-bottom: 1px solid #ddd;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f0f0f0;
+    }
+
+    td input, td select {
+      width: 100%;
+      padding: 6px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      box-sizing: border-box;
+    }
+
+    .button-row {
+      display: flex;
+      justify-content: flex-end;
+      margin-top: 30px;
+    }
+
+    .save-btn {
+      background-color: #2196f3;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <div class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>仮想ネットワーク詳細</h2>
+        <span class="close" onclick="alert('閉じる処理は別途実装')">&times;</span>
+      </div>
+
+      <div class="form-group">
+        <label for="network-name">ネットワーク名</label>
+        <input type="text" id="network-name" value="example-network">
+      </div>
+
+      <h3 style="margin-top: 30px;">サブネット一覧</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>サブネット名</th>
+            <th>アドレス範囲</th>
+            <th>外部接続</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><input type="text" value="subnet-a"></td>
+            <td><input type="text" value="192.168.1.0/24"></td>
+            <td>
+              <select>
+                <option value="Yes" selected>Yes</option>
+                <option value="No">No</option>
+              </select>
+            </td>
+          </tr>
+          <tr>
+            <td><input type="text" value="subnet-b"></td>
+            <td><input type="text" value="192.168.2.0/24"></td>
+            <td>
+              <select>
+                <option value="Yes">Yes</option>
+                <option value="No" selected>No</option>
+              </select>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div class="button-row">
+        <button class="save-btn" onclick="saveChanges()">保存</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function saveChanges() {
+      const networkName = document.getElementById("network-name").value;
+      const rows = document.querySelectorAll("tbody tr");
+      const data = [];
+
+      rows.forEach(row => {
+        const name = row.cells[0].querySelector('input').value;
+        const ip = row.cells[1].querySelector('input').value;
+        const ext = row.cells[2].querySelector('select').value;
+        data.push({ name, ip, ext });
+      });
+
+      console.log("保存データ：", { networkName, subnets: data });
+      alert("仮保存しました。開発時は console をご確認ください。");
+    }
+  </script>
+</body>
+</html>
