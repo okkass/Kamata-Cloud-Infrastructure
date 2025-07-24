@@ -1,135 +1,211 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
+  <meta charset="UTF-8">
+  <title>セキュリティグループ作成</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: rgba(0, 0, 0, 0.5);
+    }
 
-    <title>セキュリティグループ新規作成</title>
-    <style>
+    .modal {
+      background-color: #fff;
+      width: 90%;
+      max-width: 900px;
+      margin: 40px auto;
+      padding: 30px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
 
-        body {
-            font-family: Arial, sans-serif;
-            background-color: #f4f4f4;
-            margin: 0;
-            padding: 20px;
-        }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
 
-        .modal {
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-        }
+    .modal-header h1 {
+      margin: 0;
+    }
 
-        .modal-content {
-            background-color: #fff;
-            margin: 15% auto;
-            padding: 20px;
-            border-radius: 5px;
-            width: 80%;
-        }
+    .form-group {
+      margin-top: 20px;
+    }
 
-        .close-button {
-            color: #aaa;
-            float: right;
-            font-size: 28px;
-            font-weight: bold;
-        }
+    label {
+      font-weight: bold;
+      display: block;
+      margin-bottom: 6px;
+    }
 
-        .close-button:hover,
-        .close-button:focus {
-            color: black;
-            text-decoration: none;
-            cursor: pointer;
-        }
+    input[type="text"],
+    textarea {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+      box-sizing: border-box;
+    }
 
-        .modal-form {
-            display: flex;
-            flex-direction: column;
-        }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
 
-        .modal-form label {
-            margin-bottom: 5px;
-        }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 8px;
+      text-align: left;
+    }
 
-        .modal-form input,
-        .modal-form textarea {
-            margin-bottom: 15px;
-            padding: 10px;
-            border-radius: 4px;
-            border: 1px solid #ccc;
-        }
+    .btn-primary,
+    .btn-secondary {
+      margin-right: 10px;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      color: #fff;
+      cursor: pointer;
+    }
 
-        .rule-set {
-            margin-bottom: 20px;
-        }
+    .btn-primary {
+      background-color: #007bff;
+    }
 
-        .add-rule-btn {
-            background-color: #007bff;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+    .btn-secondary {
+      background-color: #6c757d;
+    }
 
-        .add-rule-btn:hover {
-            background-color: #0056b3;
-        }
+    .actions-menu {
+      position: relative;
+    }
 
-        .submit-btn {
-            background-color: #28a745;
-            color: white;
-            border: none;
-            padding: 10px 15px;
-            border-radius: 4px;
-            cursor: pointer;
-        }
+    .actions-button {
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      padding: 4px 8px;
+      border-radius: 4px;
+      cursor: pointer;
+    }
 
-        .submit-btn:hover {
-            background-color: #218838;
-        }
-    </style>
+    .dropdown-content {
+      display: none;
+      position: absolute;
+      background-color: white;
+      border: 1px solid #ccc;
+      z-index: 1;
+    }
+
+    .dropdown-content.show {
+      display: block;
+    }
+
+    .dropdown-content a {
+      display: block;
+      padding: 6px 12px;
+      text-decoration: none;
+      color: #333;
+    }
+
+    .form-actions {
+      margin-top: 30px;
+      text-align: right;
+    }
+  </style>
 </head>
 <body>
-    <div id="newSgModal" class="modal">
-      <div class="modal-content">
-        <span class="close-button">&times;</span>
-        <h2>セキュリティグループ新規作成</h2>
-        <form id="newSgForm" class="modal-form">
-          <label for="sg-name">セキュリティグループ名</label>
-          <input type="text" id="sg-name" name="sg-name" required>
-          <label for="sg-desc">説明</label>
-          <textarea id="sg-desc" name="sg-desc"></textarea>
-          <div class="rule-set">
-            <h4>ルール設定</h4>
-            <div class="rule-row">
-        <input type="text" placeholder="ルール名" name="rule_name" style="flex: 2;">
-        <select name="rule_action" style="flex: 1.5;">
-          <option value="allow">許可</option>
-          <option value="deny">拒否</option>
-        </select>
-        <select name="rule_protocol" style="flex: 1;">
-          <option value="tcp">TCP</option>
-          <option value="udp">UDP</option>
-          <option value="icmp">ICMP</option>
-        </select>
-        <input type="text" placeholder="ポート番号" name="rule_port"
-          style="flex: 2;">
-        <input type="text" placeholder="ソース (例: 0.0.0.0/0)" name="rule_source"
-          style="flex: 2;">
-        <button type="button" onclick="this.parentElement.remove()">×</button>
-      </div>
-            <button type="button" class="add-rule-btn" id="addNewRuleBtn">＋
-              ルールを追加</button>
-          </div>
-          <div class="modal-footer">
-            <button type="submit" class="submit-btn">作成</button>
-          </div>
-        </form>
-      </div>
+  <div class="modal">
+    <div class="modal-header">
+      <h1>セキュリティグループ作成</h1>
     </div>
+
+    <div class="form-group">
+      <label for="group-name">セキュリティグループ名</label>
+      <input type="text" id="group-name" name="group-name">
+    </div>
+
+    <div class="form-group">
+      <label for="description">説明</label>
+      <textarea id="description" name="description" rows="3"></textarea>
+    </div>
+
+    <h2>インバウンドルール</h2>
+    <table id="inbound-table">
+      <thead>
+        <tr>
+          <th>ルール名</th>
+          <th>ポート番号</th>
+          <th>プロトコル</th>
+          <th>送信元IP</th>
+          <th>許可／拒否</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody class="rules-table">
+      </tbody>
+    </table>
+    <div style="margin-top: 10px;">
+      <button class="btn-primary" onclick="addRule('inbound-table')">＋ルールを追加</button>
+    </div>
+
+    <h2 style="margin-top: 30px;">アウトバウンドルール</h2>
+    <table id="outbound-table">
+      <thead>
+        <tr>
+          <th>ルール名</th>
+          <th>ポート番号</th>
+          <th>プロトコル</th>
+          <th>送信先IP</th>
+          <th>許可／拒否</th>
+          <th>操作</th>
+        </tr>
+      </thead>
+      <tbody class="rules-table">
+      </tbody>
+    </table>
+    <div style="margin-top: 10px;">
+      <button class="btn-primary" onclick="addRule('outbound-table')">＋ルールを追加</button>
+    </div>
+
+    <div class="form-actions">
+      <button class="btn-primary" onclick="alert('作成処理は別途実装')">作成</button>
+      <button class="btn-secondary" onclick="alert('キャンセル処理は別途実装')">キャンセル</button>
+    </div>
+  </div>
+
+  <script>
+    function addRule(tableId) {
+      const tbody = document.querySelector(`#${tableId} .rules-table`);
+      const row = document.createElement('tr');
+
+      row.innerHTML = `
+        <td class="rule-name"><input type="text" value=""></td>
+        <td class="port"><input type="text" value=""></td>
+        <td class="protocol">
+          <select>
+            <option value="TCP">TCP</option>
+            <option value="UDP">UDP</option>
+            <option value="-">-</option>
+          </select>
+        </td>
+        <td class="source-ip"><input type="text" value=""></td>
+        <td class="action">
+          <select>
+            <option value="許可">許可</option>
+            <option value="拒否">拒否</option>
+          </select>
+        </td>
+        <td>
+          <button class="btn-secondary" onclick="this.closest('tr').remove()">削除</button>
+        </td>
+      `;
+
+      tbody.appendChild(row);
+    }
+  </script>
 </body>
 </html>
