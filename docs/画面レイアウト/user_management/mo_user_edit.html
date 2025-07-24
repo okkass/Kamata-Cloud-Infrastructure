@@ -4,20 +4,87 @@
 <head>
   <meta charset="UTF-8">
   <title>利用者編集</title>
-  <link rel="stylesheet" href="user_edit.css">
+  <style>
+    body {
+      margin: 0;
+      font-family: sans-serif;
+      background-color: #f9f9f9;
+    }
+
+    .main {
+      max-width: 600px;
+      margin: 40px auto;
+      padding: 30px;
+      background-color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .header-with-button {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .btn {
+      padding: 8px 14px;
+      font-size: 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .btn-primary {
+      background-color: #007bff;
+      color: white;
+    }
+
+    .btn-secondary {
+      background-color: #6c757d;
+      color: white;
+    }
+
+    .content-section {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    .details-form-group label {
+      font-weight: bold;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .details-form-group .value {
+      padding: 8px;
+      background-color: #f1f1f1;
+      border-radius: 4px;
+    }
+
+    .edit-input {
+      width: 100%;
+      padding: 8px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .details-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+    }
+
+    .edit-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+  </style>
 </head>
 
 <body>
-  <div class="sidebar">
-    <h2>管理メニュー</h2>
-    <ul>
-      <li><a href="#">ダッシュボード</a></li>
-      <li><a href="#" class="active">利用者管理</a></li>
-      <li><a href="#">インスタンスタイプ管理</a></li>
-      <li><a href="#">イメージ管理</a></li>
-    </ul>
-  </div>
-
   <div class="main">
     <h1 class="header-with-button">
       <span>利用者編集</span>
@@ -99,7 +166,6 @@
       alert(`${email} にパスワードリセットメールを送信しました。（ダミー）`);
     });
   </script>
-
 </body>
 
 </html>
