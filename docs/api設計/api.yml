@@ -1,14 +1,22 @@
-openapi: 3.1.0
+openapi: 3.0.0
 
 info:
   title: KCI API
   description: KCI API documentation
   version: 0.0.1
 
+tags:
+  - name: Users
+    description: ユーザ管理に関するエンドポイント
+  - name: Virtual Machines
+    description: 仮想マシン管理に関するエンドポイント
+
 paths:
   /users:
     get:
       summary: すべてのユーザを取得
+      tags:
+        - Users
       description: 管理者がすべてのユーザ情報を取得するためのエンドポイント
       operationId: getAllUsers
       security:
@@ -31,6 +39,8 @@ paths:
           description: サーバーエラー
     post:
       summary: 新しいユーザを作成
+      tags:
+        - Users
       description: |
         管理者が新しいユーザを作成するためのエンドポイント。
         登録されたユーザは認証情報を使用してログインできます。
@@ -39,7 +49,143 @@ paths:
         - BearerAuth:
             - admin
       requestBody:
-
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreateRequest"
+      responses:
+        "201":
+          description: ユーザが正常に作成されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: リクエストが不正です
+  /users/{id}:
+    get:
+      summary: 特定のユーザを取得
+      tags:
+        - Users
+      description: 管理者が特定のユーザ情報を取得するためのエンドポイント
+      operationId: getUserById
+      security:
+        - BearerAuth:
+            - admin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ユーザを識別するための一意なID
+      responses:
+        "200":
+          description: ユーザ情報を返す
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "404":
+          description: ユーザが見つかりません
+        "401":
+          description: 認証が必要
+        "403":
+          description: 権限がありません(管理者権限が必要)
+        "500":
+          description: サーバーエラー
+    put:
+      summary: ユーザ情報を更新
+      tags:
+        - Users
+      description: 管理者が特定のユーザ情報を更新するためのエンドポイント
+      operationId: updateUserById
+      security:
+        - BearerAuth:
+            - admin
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ユーザを識別するための一意なID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateRequest"
+      responses:
+        "200":
+          description: ユーザ情報が正常に更新されました
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: リクエストが不正です
+        "404":
+          description: ユーザが見つかりません
+        "401":
+          description: 認証が必要
+        "403":
+          description: 権限がありません(管理者権限が必要)
+        "500":
+          description: サーバーエラー
+  /users/{id}/request-reset-password:
+    post:
+      summary: パスワードリセットリクエスト
+      tags:
+        - Users
+      description: ユーザがパスワードリセットをリクエストするためのエンドポイント
+      operationId: requestResetPassword
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ユーザを識別するための一意なID
+      responses:
+        "200":
+          description: パスワードリセットリクエストが正常に処理されました
+        "404":
+          description: ユーザが見つかりません
+        "400":
+          description: リクエストが不正です
+        "500":
+          description: サーバーエラー
+  /virtual-machines:
+    get:
+      summary: 自分が所有する仮想マシンの一覧を取得
+      tags:
+        - Virtual Machines
+      description: ユーザが所有する仮想マシンの一覧を取得するためのエンドポイント
+      operationId: getUserVirtualMachines
+      security:
+        - BearerAuth:
+            - user
+      responses:
+        "200":
+          description: 仮想マシンの一覧を返す
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VirtualMachine"
+        "401":
+          description: 認証が必要
+        "403":
+          description: 権限がありません(ユーザ権限が必要)
+        "500":
+          description: サーバーエラー
+    post:
 components:
   schemas:
     User:
@@ -64,11 +210,61 @@ components:
         isAdmin:
           type: boolean
           description: ユーザが管理者かどうかを示すフラグ
+        TotpInfo:
+          $ref: "#/components/schemas/TotpInfo"
       required:
         - id
         - name
         - email
         - password
+    TotpInfo:
+      type: object
+      description: TOTP情報オブジェクト
+      properties:
+        secret:
+          type: string
+          description: TOTPシークレットキー
+        uri:
+          type: string
+          description: TOTP URI（QRコード生成用）
+    UserCreateRequest:
+      type: object
+      description: ユーザ作成リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: ユーザの名前
+        email:
+          type: string
+          format: email
+          description: ユーザのメールアドレス
+        password:
+          type: string
+          format: password
+          description: ユーザのパスワード
+        useTOTP:
+          type: boolean
+          description: TOTPを使用するかどうかを示すフラグ
+        isAdmin:
+          type: boolean
+          description: ユーザが管理者かどうかを示すフラグ
+      required:
+        - name
+        - email
+        - password
+        - useTOTP
+        - isAdmin
+    UserUpdateRequest:
+      type: object
+      description: ユーザ更新リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: ユーザの名前
+        email:
+          type: string
+          format: email
+          description: ユーザのメールアドレス
     AttachedStorage:
       type: object
       description: アタッチされたストレージオブジェクト
