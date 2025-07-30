@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ja">
 
-<head>
-  <meta charset="UTF-8">
-  <title>仮想マシン作成</title>
-  <style>
+  <head>
+    <meta charset="UTF-8">
+    <title>仮想マシン作成</title>
+    <style>
     body {
       margin: 0;
       font-family: sans-serif;
@@ -162,185 +162,160 @@
 }
 
 </style>
-</head>
+  </head>
 
-<body>
-  <div class="close-button">×</div>
-  <div class="main">
-    <h1>仮想マシン作成</h1>
-    <div class="form-section">
-      <div class="form-group">
-        <label>仮想マシン名</label>
-        <input type="text" placeholder="例: vm-middleware01">
-      </div>
+  <body>
+    <div class="close-button">×</div>
+    <div class="main">
+      <h1>仮想マシン作成</h1>
+      <div class="form-section">
+        <div class="form-group">
+          <label>仮想マシン名</label>
+          <input type="text" placeholder="例: vm-middleware01">
+        </div>
 
-      <div class="form-group">
-        <label>仮想マシンタイプ</label>
-        <select>
-          <option>Small (1CPU, 2GB RAM)</option>
-          <option>Medium (2CPU, 4GB RAM)</option>
-          <option>Large (4CPU, 8GB RAM)</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label>仮想マシンタイプ</label>
+          <select>
+            <option>Small (1CPU, 2GB RAM)</option>
+            <option>Medium (2CPU, 4GB RAM)</option>
+            <option>Large (4CPU, 8GB RAM)</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label>ネットワーク</label>
-        <select>
-          <option>student-net</option>
-          <option>dev-net</option>
-          <option>lab-net</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label>ネットワーク</label>
+          <select>
+            <option>student-net</option>
+            <option>dev-net</option>
+            <option>lab-net</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label>サブネット</label>
-        <select>
-          <option>192.168.10.0/24</option>
-          <option>192.168.20.0/24</option>
-          <option>10.0.0.0/16</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label>サブネット</label>
+          <select>
+            <option>192.168.10.0/24</option>
+            <option>192.168.20.0/24</option>
+            <option>10.0.0.0/16</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label>公開鍵</label>
-        <textarea rows="4" placeholder="ssh-rsa AAAAB3..."></textarea>
-        <input type="file" accept=".pub">
-      </div>
+        <div class="form-group">
+          <label>公開鍵</label>
+          <textarea rows="4" placeholder="ssh-rsa AAAAB3..."></textarea>
+          <input type="file" accept=".pub">
+        </div>
 
-      <div class="form-group">
-        <label>OSイメージ</label>
-        <select>
-          <option>Ubuntu 22.04</option>
-          <option>CentOS 7</option>
-          <option>Debian 11</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label>OSイメージ</label>
+          <select>
+            <option>Ubuntu 22.04</option>
+            <option>CentOS 7</option>
+            <option>Debian 11</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label>ミドルウェア選択</label>
-        <select>
-          <option>なし</option>
-          <option>マインクラフトサーバー</option>
-          <option>Nginx</option>
-          <option>WordPress</option>
-          <option>Apache</option>
-          <option>Node.js</option>
-          <option>Docker</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label>ミドルウェア選択</label>
+          <select>
+            <option>なし</option>
+            <option>マインクラフトサーバー</option>
+            <option>Nginx</option>
+            <option>WordPress</option>
+            <option>Apache</option>
+            <option>Node.js</option>
+            <option>Docker</option>
+          </select>
+        </div>
 
-      <div class="form-group">
-        <label>ストレージ設定</label>
-        <table>
-          <tr>
-            <th></th>
-            <th>名前</th>
-            <th>サイズ</th>
-            <th>ストレージタイプ</th>
-            <th>バックアップ選択</th>
-          </tr>
-          <tr>
-            <td>1.</td>
-            <td>OS</td>
-            <td>
-              <input type="text" value="20" style="width: 80px;">
-              GB
-            </td>
-            <td>
-              <select>
-                <option>HDD</option>
-                <option>SSD</option>
-              </select>
-            </td>
-            <td></td>
-          </tr>
-          <tr>
-            <td>2.</td>
-            <td>
-              <input type="text" placeholder="例:web-data">
-            </td>
-            <td>
-              <input type="text" value="10" style="width: 80px;">
-              GB
-            </td>
-            <td>
-              <select>
-                <option>HDD</option>
-                <option>SSD</option>
-              </select>
-            </td>
-            <td>
-              <select>
-                <option>新たに作成</option>
-                <option>backup-1</option>
-                <option>backup-2</option>
-              </select>
-            </td>
-          </tr>
-        </table>
-        <button>追加</button>
-      </div>
+        <div class="form-group">
+          <label>ストレージ設定</label>
+          <table>
+            <tr>
+              <th></th>
+              <th>名前</th>
+              <th>サイズ</th>
+              <th>ストレージタイプ</th>
+              <th>バックアップ選択</th>
+            </tr>
+            <tr>
+              <td>1.</td>
+              <td>OS</td>
+              <td>
+                <input type="text" value="20" style="width: 80px;">
+                GB
+              </td>
+              <td>
+                <select>
+                  <option>HDD</option>
+                  <option>SSD</option>
+                </select>
+              </td>
+              <td></td>
+            </tr>
+            <tr>
+              <td>2.</td>
+              <td>
+                <input type="text" placeholder="例:web-data">
+              </td>
+              <td>
+                <input type="text" value="10" style="width: 80px;">
+                GB
+              </td>
+              <td>
+                <select>
+                  <option>HDD</option>
+                  <option>SSD</option>
+                </select>
+              </td>
+              <td>
+                <select>
+                  <option>新たに作成</option>
+                  <option>backup-1</option>
+                  <option>backup-2</option>
+                </select>
+              </td>
+            </tr>
+          </table>
+          <div class="button-group">
+            <button>追加</button>
+          </div>
+        </div>
 
-      <div class="form-group">
-        <label>セキュリティグループ</label>
-        <table>
-          <tr>
-            <th>グループ名</th>
-            <th>説明</th>
-          </tr>
-          <tr>
-            <td>default</td>
-            <td>デフォルトのセキュリティグループ</td>
-          </tr>
-          <tr>
-            <td>web-server</td>
-            <td>Webサーバー用のセキュリティグループ</td>
-          </tr>
-        </table>
-        <select>
-          <option>allow-http</option>
-          <option>allow-https</option>
-          <option>allow-ssh</option>
-          <option>custom-group-1</option>
-        </select>
-      </div>
+        <div class="form-group">
+          <label>セキュリティグループ</label>
+          <table>
+            <tr>
+              <th>グループ名</th>
+              <th>説明</th>
+            </tr>
+            <tr>
+              <td>default</td>
+              <td>デフォルトのセキュリティグループ</td>
+            </tr>
+            <tr>
+              <td>web-server</td>
+              <td>Webサーバー用のセキュリティグループ</td>
+            </tr>
+          </table>
+          <select>
+            <option>allow-http</option>
+            <option>allow-https</option>
+            <option>allow-ssh</option>
+            <option>custom-group-1</option>
+          </select>
+          <div class="button-group">
+            <button>追加</button>
+          </div>
+        </div>
 
-      <div class="button-group">
-        <button style="background-color:#4caf50; color:white;" onclick="alert('仮想マシンを作成しました')">マシンを作成</button>
-      </div>
-    </div>
-  </div>
-
-  <div class="popup" id="popup">
-    <div class="popup-content" id="popupContent">
-      <h2>構築済み仮想マシン一覧</h2>
-      <table>
-        <thead>
-          <tr>
-            <th>名前</th>
-            <th>イメージ</th>
-            <th>状態</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr>
-            <td>vm-template01</td>
-            <td>Ubuntu + Nginx</td>
-            <td>利用可</td>
-          </tr>
-          <tr>
-            <td>vm-template02</td>
-            <td>Ubuntu + Minecraft</td>
-            <td>利用可</td>
-          </tr>
-        </tbody>
-      </table>
-      <div class="popup-buttons">
-        <button class="back-btn" onclick="document.getElementById('popup').style.display='none'">戻る</button>
-        <button onclick="document.getElementById('popup').style.display='none'">決定</button>
+        <div class="button-group">
+          <button style="background-color:#4caf50; color:white;"
+            onclick="alert('仮想マシンを作成しました')">マシンを作成</button>
+        </div>
       </div>
     </div>
-  </div>
-</body>
+  </body>
 
 </html>
