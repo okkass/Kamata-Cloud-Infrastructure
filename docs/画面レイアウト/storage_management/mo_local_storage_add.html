@@ -2,8 +2,8 @@
 <html lang="ja">
 <head>
   <meta charset="UTF-8">
-  <title>ストレージ追加</title>
-  <link rel="stylesheet" href="mo_physical_storage_add.css">
+  <title>ローカルストレージ追加</title>
+  <link rel="stylesheet" href="mo_local_storage_add.css">
 </head>
 <body>
 
@@ -11,9 +11,18 @@
 <div class="modal-overlay">
   <div class="modal">
     <div class="modal-header">
-      <h2>ストレージ追加</h2>
+      <h2>ローカルストレージ追加</h2>
       <button class="close-btn" id="closeModalBtn">&times;</button>
     </div>
+
+    <div class="form-group">
+            <label for="detectedNode">ノード名</label>
+            <select id="detectedNode">
+              <option value="nda">ノードA</option>
+              <option value="ndb">ノードB</option>
+              <option value="nda">ノードC</option>
+            </select>
+          </div>
 
     <div class="modal-body">
       <div class="form-group">
@@ -24,7 +33,6 @@
       <div class="form-group">
         <label for="detectedDisk">認識ディスク</label>
         <select id="detectedDisk">
-          <option value="">-- 選択してください --</option>
           <option value="sda">/dev/sda</option>
           <option value="sdb">/dev/sdb</option>
           <option value="sdc">/dev/sdc</option>
