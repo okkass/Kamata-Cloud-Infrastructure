@@ -7,62 +7,32 @@
     body {
       margin: 0;
       font-family: sans-serif;
-      background-color: #f5f7fa;
+      /* 背景を少し暗くしてモーダルを際立たせる */
+      background-color: #e2e8f0; 
+      /* モーダルを中央に配置するための設定 */
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 20px 0;
     }
 
-    .sidebar {
-      width: 260px;
-      position: fixed;
-      top: 0;
-      left: 0;
-      bottom: 0;
-      background-color: #2f3e4d;
-      color: white;
-      padding: 20px;
-      box-sizing: border-box;
-      overflow-y: auto;
-    }
-
-    .sidebar-header {
-      font-size: 20px;
-      font-weight: bold;
-      background-color: #1f2e3d;
-      padding: 10px 15px;
-      border-radius: 4px;
-      margin-bottom: 25px;
-    }
-
-    .sidebar-section {
-      margin-bottom: 24px;
-      padding-bottom: 10px;
-      border-bottom: 1px solid #444;
-    }
-
-    .section-title {
-      font-size: 15px;
-      font-weight: bold;
-      margin-bottom: 8px;
-      padding: 6px 10px;
-      background-color: #3f4f60;
-      border-radius: 4px;
-    }
-
-    .sidebar a {
-      display: block;
-      color: #ffffff;
-      text-decoration: none;
-      font-size: 14px;
-      padding: 6px 0 6px 18px;
-      border-radius: 4px;
-    }
-
-    .sidebar a:hover {
-      background-color: #4f5f6f;
-    }
+    /* --- サイドバーは今回不要なためコメントアウト ---
+    .sidebar { ... }
+    */
 
     .main {
-      margin-left: 260px;
+      /* margin-left: 260px; を削除 */
       padding: 30px;
+      /* ▼▼▼ モーダル風にするためのスタイルを追加 ▼▼▼ */
+      background-color: #ffffff;
+      border: 1px solid #ddd;
+      border-radius: 12px;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      max-width: 800px; /* モーダルの最大幅を指定 */
+      width: 100%;
+      box-sizing: border-box;
+      /* ▲▲▲ ここまで追加 ▲▲▲ */
     }
 
     .title-bar {
@@ -271,14 +241,24 @@
             <thead>
               <tr>
                 <th>ストレージ名</th>
-                <th>ストレージタイプ</th>
+                <th>ストレージプール</th> 
                 <th>サイズ</th>
                 <th>デバイスファイル</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td>OS</td><td>SSD</td><td>100GB</td><td>/dev/sda</td></tr>
-              <tr><td>Web-File</td><td>HDD</td><td>500GB</td><td>/dev/sdb</td></tr>
+              <tr>
+                <td>OS</td>
+                <td>Pool-1</td>
+                <td>100GB</td>
+                <td>/dev/sda</td>
+              </tr>
+              <tr>
+                <td>Web-File</td>
+                <td>Pool-2</td>
+                <td>500GB</td>
+                <td>/dev/sdb</td>
+              </tr>
             </tbody>
           </table>
           <div class="storage-actions">
