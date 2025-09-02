@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ネットワークストレージ追加</title>
+    <link rel="stylesheet" href="mo_network_storage_add.css">
+</head>
+<body>
+
+    <div class="modal-content">
+        <h2>ネットワークストレージ追加</h2>
+        
+        <form action="#" method="post">
+            <div class="form-group">
+                <label for="physical-node">作成先物理ノード</label>
+                <select id="physical-node" name="physical_node">
+                    <option value="">選択してください</option>
+                    <option value="node1">物理ノード 1</option>
+                    <option value="node2">物理ノード 2</option>
+                    <option value="node3">物理ノード 3</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="local-storage">作成先ローカルストレージ</label>
+                <select id="local-storage" name="local_storage">
+                    <option value="">選択してください</option>
+                    <option value="storage_a">ローカルストレージ A</option>
+                    <option value="storage_b">ローカルストレージ B</option>
+                </select>
+            </div>
+            
+            <div class="form-group">
+                <label for="storage-size">ストレージサイズ (GB)</label>
+                <input type="number" id="storage-size" name="storage_size" placeholder="例: 100">
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn-create">作成</button>
+            </div>
+        </form>
+    </div>
+
+</body>
+</html>
