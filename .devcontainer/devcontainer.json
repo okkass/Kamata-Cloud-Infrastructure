@@ -5,11 +5,14 @@
 	// Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
 	"image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
 
+	"workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
 	"customizations": {
 		"vscode": {
 			"extensions": [
+				"vue.volar",
 				"esbenp.prettier-vscode",
-				"dbaeumer.vscode-eslint",
+				"dbaeumer.vscode-eslint"
 			],
 			"settings": {
 				"editor.formatOnSave": true,
@@ -20,12 +23,13 @@
 					"javascriptreact",
 					"typescript",
 					"typescriptreact"
-				]
+				],
+				"terminal.integrated.cwd": "${containerWorkspaceFolder}/frontend"
 			}
 		}
 	},
 
-	"forwardPorts": [3000],
+	"forwardPorts": [3000, 24678],
 
-	"postCreateCommand": "npm install"
+	"postCreateCommand": "cd frontend && npm install"
 }
