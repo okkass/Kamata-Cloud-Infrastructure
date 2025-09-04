@@ -90,6 +90,16 @@ components:
       required:
         - name
         - file
+    ImageUpdateRequest:
+      type: object
+      description: 仮想マシンイメージ更新リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: 仮想マシンイメージの名前
+        description:
+          type: string
+          description: 仮想マシンイメージの説明
     InstanceType:
       type: object
       description: 仮想マシンのインスタンスタイプオブジェクト
@@ -111,12 +121,53 @@ components:
         memorySize:
           type: integer
           description: メモリサイズ（バイト単位）
+        storageSize:
+          type: integer
+          description: ストレージサイズ（バイト単位）
       required:
         - id
         - name
         - createdAt
         - cpuCores
         - memorySize
+        - storageSize
+    InstanceTypeCreateRequest:
+      type: object
+      description: インスタンスタイプ作成リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: インスタンスタイプの名前
+        cpuCores:
+          type: integer
+          description: CPUコア数
+        memorySize:
+          type: integer
+          description: メモリサイズ（バイト単位）
+        storageSize:
+          type: integer
+          description: ストレージサイズ（バイト単位）
+      required:
+        - name
+        - cpuCores
+        - memorySize
+        - storageSize
+    InstanceTypeUpdateRequest:
+      type: object
+      description: インスタンスタイプ更新リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: インスタンスタイプの名前
+        cpuCores:
+          type: integer
+          description: CPUコア数
+        memorySize:
+          type: integer
+          description: メモリサイズ（バイト単位）
+        storageSize:
+          type: integer
+          description: ストレージサイズ（バイト単位）
     LoginRequest:
       type: object
       description: ログインリクエストオブジェクト
@@ -205,6 +256,38 @@ components:
         - status
         - isAdmin
         - createdAt
+    PhysicalNodeCandiate:
+      type: object
+      description: 物理ノード候補オブジェクト
+      properties:
+        name:
+          type: string
+          description: 物理ノードの名前
+        ipAddress:
+          type: string
+          format: ipv4
+          description: 物理ノードのIPアドレス
+      required:
+        - name
+        - ipAddress
+    PhysicalNodeAddRequest:
+      type: object
+      description: 物理ノード追加リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: 物理ノードの名前
+        ipAddress:
+          type: string
+          format: ipv4
+          description: 物理ノードのIPアドレス
+        isAdmin:
+          type: boolean
+          description: 物理ノードが管理ノードかどうかを示すフラグ
+      required:
+        - name
+        - ipAddress
+        - isAdmin
     SecurityGroup:
       type: object
       description: セキュリティグループオブジェクト
@@ -231,6 +314,36 @@ components:
         - id
         - name
         - createdAt
+    SecurityGroupCreateRequest:
+      type: object
+      description: セキュリティグループ作成リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: セキュリティグループの名前
+        description:
+          type: string
+          description: セキュリティグループの説明
+        rules:
+          type: array
+          items:
+            $ref: "#/components/schemas/SecurityRule"
+      required:
+        - name
+    SecurityGroupUpdateRequest:
+      type: object
+      description: セキュリティグループ更新リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: セキュリティグループの名前
+        description:
+          type: string
+          description: セキュリティグループの説明
+        rules:
+          type: array
+          items:
+            $ref: "#/components/schemas/SecurityRule"
     SecurityRule:
       type: object
       description: セキュリティルールオブジェクト
