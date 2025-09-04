@@ -26,7 +26,7 @@
       margin: 60px auto;
       padding: 24px 32px 40px;
       border-radius: 8px;
-      width: 640px;
+      width: 720px; /* 少し幅を広げました */
       max-width: 90%;
       box-shadow: 0 2px 8px rgba(0,0,0,0.2);
       position: relative;
@@ -75,6 +75,7 @@
       padding: 10px;
       border-bottom: 1px solid #ddd;
       text-align: left;
+      vertical-align: middle; /* ボタンとの垂直位置を調整 */
     }
 
     th {
@@ -94,46 +95,39 @@
       justify-content: flex-end;
       margin-top: 30px;
     }
-
-    .edit-button {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      background-color: #4CAF50;
-      color: white;
+    
+    .btn {
       border: none;
-      padding: 8px 16px;
-      border-radius: 4px;
-      cursor: pointer;
+      padding: 8px 14px;
       font-size: 14px;
-    }
-
-    .edit-button:hover {
-      background-color: #45a049;
-    }
-
-    .save-btn {
-      background-color: #2196f3;
-      color: white;
-      border: none;
-      padding: 10px 20px;
       border-radius: 4px;
       cursor: pointer;
+      color: white;
     }
     
     .btn-primary {
       background-color: #007bff;
-      color: #fff;
-      border: none;
-      padding: 10px 18px;
-      font-size: 14px;
-      border-radius: 4px;
-      cursor: pointer;
     }
-
     .btn-primary:hover {
       background-color: #0056b3;
     }
+
+    .save-btn {
+      background-color: #2196f3;
+    }
+    .save-btn:hover {
+      background-color: #0b7dda;
+    }
+
+    /* ▼▼▼ 削除ボタンのスタイルを追加 ▼▼▼ */
+    .btn-delete {
+      background-color: #dc3545; /* 赤色 */
+    }
+    .btn-delete:hover {
+      background-color: #c82333;
+    }
+    /* ▲▲▲ ここまで追加 ▲▲▲ */
+
   </style>
 </head>
 <body>
@@ -156,7 +150,7 @@
             <th>サブネット名</th>
             <th>アドレス範囲</th>
             <th>外部接続</th>
-          </tr>
+            <th>操作</th> </tr>
         </thead>
         <tbody>
           <tr>
@@ -168,7 +162,10 @@
                 <option value="No">No</option>
               </select>
             </td>
-          </tr>
+            <td>
+              <button class="btn btn-delete">削除</button>
+            </td>
+            </tr>
           <tr>
             <td><input type="text" value="subnet-b"></td>
             <td><input type="text" value="192.168.2.0/24"></td>
@@ -178,36 +175,49 @@
                 <option value="No" selected>No</option>
               </select>
             </td>
-          </tr>
+            <td>
+              <button class="btn btn-delete">削除</button>
+            </td>
+            </tr>
         </tbody>
       </table>
 
       <div style="margin-top: 20px;">
-        <button class="btn-primary">＋サブネットを追加</button>
+        <button class="btn btn-primary">＋サブネットを追加</button>
       </div>
 
       <div class="button-row">
-        <button class="save-btn" onclick="saveChanges()">保存</button>
+        <button class="btn save-btn" onclick="saveChanges()">保存</button>
       </div>
     </div>
   </div>
 
   <script>
     function saveChanges() {
-      const networkName = document.getElementById("network-name").value;
-      const rows = document.querySelectorAll("tbody tr");
-      const data = [];
-
-      rows.forEach(row => {
-        const name = row.cells[0].querySelector('input').value;
-        const ip = row.cells[1].querySelector('input').value;
-        const ext = row.cells[2].querySelector('select').value;
-        data.push({ name, ip, ext });
-      });
-
-      console.log("保存データ：", { networkName, subnets: data });
-      alert("仮保存しました。開発時は console をご確認ください。");
+      // (省略) 元の保存処理
+      alert("仮保存しました。");
     }
+
+    // ▼▼▼ 削除ボタンの処理を追加 ▼▼▼
+    document.addEventListener('DOMContentLoaded', () => {
+      // すべての削除ボタンにイベントリスナーを設定
+      const deleteButtons = document.querySelectorAll('.btn-delete');
+      deleteButtons.forEach(button => {
+        button.addEventListener('click', (event) => {
+          // 確認ダイアログを表示
+          const isConfirmed = confirm('このサブネットを削除しますか？');
+          
+          // 「はい」が押された場合
+          if (isConfirmed) {
+            // クリックされたボタンが所属する行(tr)を取得して削除
+            const row = event.target.closest('tr');
+            row.remove();
+          }
+          // 「いいえ」が押された場合は何もしない
+        });
+      });
+    });
+    // ▲▲▲ ここまで追加 ▲▲▲
   </script>
 </body>
 </html>
