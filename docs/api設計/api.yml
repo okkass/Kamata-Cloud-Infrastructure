@@ -46,6 +46,20 @@ components:
         - name
         - createdAt
         - targetVirtualStorage
+    BackupCreateRequest:
+      type: object
+      description: バックアップ作成リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: バックアップの名前
+        targetStorage:
+          type: string
+          format: uuid
+          description: バックアップ対象の仮想ストレージのID
+      required:
+        - name
+        - targetStorage
     Image:
       type: object
       description: 仮想マシンイメージオブジェクト
@@ -194,6 +208,30 @@ components:
       required:
         - id
         - name
+    NetworkInterface:
+      type: object
+      description: ネットワークインターフェースオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ネットワークインターフェースを識別するための一意なID
+        name:
+          type: string
+          description: ネットワークインターフェースの名前
+        macAddress:
+          type: string
+          description: ネットワークインターフェースのMACアドレス
+          example: "02:42:ac:11:00:02"
+        ipAddress:
+          type: string
+          format: ipv4
+          description: ネットワークインターフェースのIPアドレス
+          example: "10.0.0.0/32"
+        subnetId:
+          type: string
+          format: uuid
+          description: ネットワークインターフェースが属するサブネットのID
     PasswordResetRequest:
       type: object
       description: パスワードリセットリクエストオブジェクト
@@ -249,6 +287,13 @@ components:
           format: float
           description: ストレージ使用率（0.0から1.0の範囲）
           example: 0.80
+        storageDevices:
+          type: array
+          items:
+            devFile:
+              type: string
+              description: ストレージデバイスのパス
+              example: "/dev/sda"
       required:
         - id
         - name
@@ -256,20 +301,6 @@ components:
         - status
         - isAdmin
         - createdAt
-    PhysicalNodeCandiate:
-      type: object
-      description: 物理ノード候補オブジェクト
-      properties:
-        name:
-          type: string
-          description: 物理ノードの名前
-        ipAddress:
-          type: string
-          format: ipv4
-          description: 物理ノードのIPアドレス
-      required:
-        - name
-        - ipAddress
     PhysicalNodeAddRequest:
       type: object
       description: 物理ノード追加リクエストオブジェクト
@@ -288,6 +319,43 @@ components:
         - name
         - ipAddress
         - isAdmin
+    PhysicalNodeCandiate:
+      type: object
+      description: 物理ノード候補オブジェクト
+      properties:
+        name:
+          type: string
+          description: 物理ノードの名前
+        ipAddress:
+          type: string
+          format: ipv4
+          description: 物理ノードのIPアドレス
+      required:
+        - name
+        - ipAddress
+    PhysicalNodeUpdateRequest:
+      type: object
+      description: 物理ノード更新リクエストオブジェクト
+      properties:
+        isAdmin:
+          type: boolean
+          description: 物理ノードが管理ノードかどうかを示すフラグ
+    Portfolio:
+      type: object
+      description: ポートフォリオオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ポートフォリオを識別するための一意なID
+        viewCount24Hour:
+          type: number
+          format: integer
+          description: 過去24時間のビュー数
+        viewCount7Day:
+          type: number
+          format: integer
+          description: 過去7日間のビュー数
     SecurityGroup:
       type: object
       description: セキュリティグループオブジェクト
@@ -421,6 +489,9 @@ components:
         name:
           type: string
           description: ストレージプールの名前
+        type:
+          type: enum
+          enum: [local, network]
         createdAt:
           type: string
           format: date-time
@@ -437,6 +508,36 @@ components:
         - createdAt
         - totalSize
         - usedSize
+    StoragePoolCreateRequest:
+      type: object
+      description: ストレージプール作成リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: ストレージプールの名前
+        type:
+          type: enum
+          enum: [local, network]
+        nodeId:
+          type: string
+          format: uuid
+          description: ストレージプールを作成する物理ノードのID
+        size:
+          type: integer
+          description: ストレージプールのサイズ（バイト単位）
+        devFile:
+          type: string
+          description: ストレージデバイスのパス（ローカルストレージの場合）
+          example: "/dev/sdb"
+        localStorageId:
+          type: string
+          format: uuid
+          description: 使用するローカルストレージのID（ネットワークストレージの場合）
+      required:
+        - name
+        - type
+        - nodeId
+        - size
     Subnet:
       type: object
       description: サブネットオブジェクト
@@ -475,6 +576,20 @@ components:
         uri:
           type: string
           description: TOTP URI（QRコード生成用）
+    TotpLoginRequest:
+      type: object
+      description: TOTPログインリクエストオブジェクト
+      properties:
+        email:
+          type: string
+          format: email
+          description: ユーザのメールアドレス
+        totpCode:
+          type: string
+          description: TOTPコード
+      required:
+        - email
+        - totpCode
     User:
       type: object
       description: User object
@@ -497,6 +612,10 @@ components:
         isAdmin:
           type: boolean
           description: ユーザが管理者かどうかを示すフラグ
+        lastLoginAt:
+          type: string
+          format: date-time
+          description: ユーザが最後にログインした日時
         TotpInfo:
           $ref: "#/components/schemas/TotpInfo"
       required:
@@ -525,6 +644,15 @@ components:
         isAdmin:
           type: boolean
           description: ユーザが管理者かどうかを示すフラグ
+        maxCpuCores:
+          type: integer
+          description: ユーザが使用できる最大CPUコア数
+        maxMemorySize:
+          type: integer
+          description: ユーザが使用できる最大メモリサイズ（バイト単位）
+        maxStorageSize:
+          type: integer
+          description: ユーザが使用できる最大ストレージサイズ（バイト単位）
       required:
         - name
         - email
@@ -542,6 +670,15 @@ components:
           type: string
           format: email
           description: ユーザのメールアドレス
+        maxCpuCores:
+          type: integer
+          description: ユーザが使用できる最大CPUコア数
+        maxMemorySize:
+          type: integer
+          description: ユーザが使用できる最大メモリサイズ（バイト単位）
+        maxStorageSize:
+          type: integer
+          description: ユーザが使用できる最大ストレージサイズ（バイト単位）
     VirtualMachine:
       type: object
       description: 仮想マシンオブジェクト
@@ -578,6 +715,26 @@ components:
           description: アタッチされたストレージのリスト
           items:
             $ref: "#/components/schemas/AttachedStorage"
+        attachedNic:
+          type: array
+          description: アタッチされたネットワークインターフェースのリスト
+          items:
+            $ref: "#/components/schemas/NetworkInterface"
+        cpuUtilization:
+          type: number
+          format: float
+          description: CPU使用率（0.0から1.0の範囲）
+          example: 0.55
+        memoryUtilization:
+          type: number
+          format: float
+          description: メモリ使用率（0.0から1.0の範囲）
+          example: 0.70
+        storageUtilization:
+          type: number
+          format: float
+          description: ストレージ使用率（0.0から1.0の範囲）
+          example: 0.40
       required:
         - id
         - name
@@ -642,6 +799,49 @@ components:
             type: string
             format: uuid
           description: 関連付けるセキュリティグループのIDリスト
+      required:
+        - name
+        - instanceTypeId
+        - subnetId
+        - publicKey
+        - imageId
+        - storages
+    VirtualMachineUpdateRequest:
+      type: object
+      description: 仮想マシン更新リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: 仮想マシンの名前
+        instanceType:
+          $ref: "#/components/schemas/InstanceType"
+          description: 仮想マシンのインスタンスタイプ
+        node:
+          $ref: "#/components/schemas/PhysicalNode"
+          description: 仮想マシンが配置されている物理ノード
+        createdAt:
+          type: string
+          format: date-time
+          description: 仮想マシンが作成された日時
+        securityGroup:
+          type: array
+          items:
+            type: string
+            format: uuid
+          description: 仮想マシンに関連付けられたセキュリティグループのIDリスト
+        attachedStorage:
+          type: array
+          description: アタッチされたストレージのリスト
+          items:
+            $ref: "#/components/schemas/AttachedStorage"
+        attachedNic:
+          type: array
+          description: アタッチされたネットワークインターフェースのリスト
+          items:
+            $ref: "#/components/schemas/NetworkInterface"
+      required:
+        - name
+        - securityGroupIds
     VirtualNetwork:
       type: object
       description: 仮想ネットワークオブジェクト
@@ -665,6 +865,16 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/Subnet"
+        inboundTraffic:
+          type: number
+          format: float
+          description: 仮想ネットワークのインバウンドトラフィック（bps単位）
+          example: 125000.0
+        outboundTraffic:
+          type: number
+          format: float
+          description: 仮想ネットワークのアウトバウンドトラフィック（bps単位）
+          example: 98000.0
     VirtualStorage:
       type: object
       description: 仮想ストレージオブジェクト
