@@ -13,6 +13,7 @@
         "vue.volar",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint"
+        "42Crunch.vscode-openapi"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -32,7 +33,7 @@
   "containerEnv": {
     "CHOKIDAR_USEPOLLING": "true"
   },
-
+    
   "forwardPorts": [3000, 24678],
 
   "postCreateCommand": "cd frontend && npm install"
