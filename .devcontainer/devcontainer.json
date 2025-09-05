@@ -12,7 +12,7 @@
       "extensions": [
         "vue.volar",
         "esbenp.prettier-vscode",
-        "dbaeumer.vscode-eslint",
+        "dbaeumer.vscode-eslint"
         "42Crunch.vscode-openapi"
       ],
       "settings": {
@@ -30,6 +30,10 @@
     }
   },
 
+  "containerEnv": {
+    "CHOKIDAR_USEPOLLING": "true"
+  },
+    
   "forwardPorts": [3000, 24678],
 
   "postCreateCommand": "cd frontend && npm install"
