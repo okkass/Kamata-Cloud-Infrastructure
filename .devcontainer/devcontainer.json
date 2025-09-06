@@ -38,7 +38,7 @@
     "CHOKIDAR_USEPOLLING": "true"
   },
 
-  "forwardPorts": [3000, 24678],
+  "forwardPorts": [3000],
 
   "postCreateCommand": "cd frontend && npm install"
 }
