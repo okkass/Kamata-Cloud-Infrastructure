@@ -38,6 +38,10 @@ components:
           type: string
           format: date-time
           description: バックアップが作成された日時
+        size:
+          type: number
+          format: double
+          description: バックアップのサイズ
         targetVirtualStorage:
           $ref: "#/components/schemas/VirtualStorage"
           description: バックアップ対象の仮想ストレージ
@@ -45,6 +49,7 @@ components:
         - id
         - name
         - createdAt
+        - size
         - targetVirtualStorage
     BackupCreateRequest:
       type: object
@@ -53,13 +58,28 @@ components:
         name:
           type: string
           description: バックアップの名前
-        targetStorage:
+        targetStorageId:
           type: string
           format: uuid
           description: バックアップ対象の仮想ストレージのID
       required:
         - name
-        - targetStorage
+        - targetStorageId
+    BackupRestoreRequest:
+      type: object
+      description: バックアップ復元リクエストオブジェクト
+      properties:
+        backupId:
+          type: string
+          format: uuid
+          description: 復元するバックアップのID
+        targetVmId:
+          type: string
+          format: uuid
+          description: バックアップを復元する仮想マシンのID
+      required:
+        - backupId
+        - targetVmId
     Image:
       type: object
       description: 仮想マシンイメージオブジェクト
@@ -287,13 +307,6 @@ components:
           format: float
           description: ストレージ使用率（0.0から1.0の範囲）
           example: 0.80
-        storageDevices:
-          type: array
-          items:
-            devFile:
-              type: string
-              description: ストレージデバイスのパス
-              example: "/dev/sda"
       required:
         - id
         - name
@@ -356,6 +369,24 @@ components:
           type: number
           format: integer
           description: 過去7日間のビュー数
+    PortfolioArticle:
+      type: object
+      description: ポートフォリオ記事オブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ポートフォリオ記事を識別するための一意なID
+        title:
+          type: string
+          description: ポートフォリオ記事のタイトル
+        createdAt:
+          type: string
+          format: date-time
+          description: ポートフォリオ記事が作成された日時
+        status:
+          type: string
+          enum: [published, draft]
     SecurityGroup:
       type: object
       description: セキュリティグループオブジェクト
@@ -478,6 +509,33 @@ components:
         - name
         - createdAt
         - targetVirtualMachine
+    SnapShotCreateRequest:
+      type: object
+      description: スナップショット作成リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: スナップショットの名前
+        description:
+          type: string
+          description: スナップショットの説明
+        targetVmId:
+          type: string
+          format: uuid
+          description: スナップショットを取得する仮想マシンのID
+      required:
+        - name
+        - targetVmId
+    SnapShotRestoreRequest:
+      type: object
+      description: スナップショット復元リクエストオブジェクト
+      properties:
+        snapshotId:
+          type: string
+          format: uuid
+          description: 復元するスナップショットのID
+      required:
+        - snapshotId
     StoragePool:
       type: object
       description: ストレージプールオブジェクト
@@ -490,7 +548,7 @@ components:
           type: string
           description: ストレージプールの名前
         type:
-          type: enum
+          type: string
           enum: [local, network]
         createdAt:
           type: string
@@ -516,7 +574,7 @@ components:
           type: string
           description: ストレージプールの名前
         type:
-          type: enum
+          type: string
           enum: [local, network]
         nodeId:
           type: string
@@ -566,6 +624,38 @@ components:
         - cidr
         - createdAt
         - possibleExternalConnections
+    SubnetCreateRequest:
+      type: object
+      description: サブネット作成リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: サブネットの名前
+        cidr:
+          type: string
+          description: CIDR形式のサブネットアドレス
+          example: "10.0.0.0/16"
+        possibleExternalConnections:
+          type: boolean
+          description: 外部接続が可能かどうかを示すフラグ
+      required:
+        - name
+        - cidr
+        - possibleExternalConnections
+    SubnetUpdateRequest:
+      type: object
+      description: サブネット更新リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: サブネットの名前
+        cidr:
+          type: string
+          description: CIDR形式のサブネットアドレス
+          example: "10.0.0.0/16"
+        possibleExternalConnections:
+          type: boolean
+          description: 外部接続が可能かどうかを示すフラグ
     TotpInfo:
       type: object
       description: TOTP情報オブジェクト
@@ -875,6 +965,20 @@ components:
           format: float
           description: 仮想ネットワークのアウトバウンドトラフィック（bps単位）
           example: 98000.0
+    VirtualNetworkCreateRequest:
+      type: object
+      description: 仮想ネットワーク作成リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: 仮想ネットワークの名前
+        cidr:
+          type: string
+          description: CIDR形式のネットワークアドレス
+          example: "10.0.0.0/16"
+      required:
+        - name
+        - cidr
     VirtualStorage:
       type: object
       description: 仮想ストレージオブジェクト
