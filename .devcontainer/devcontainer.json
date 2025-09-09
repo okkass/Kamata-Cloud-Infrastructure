@@ -13,7 +13,8 @@
         "vue.volar",
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
-        "42Crunch.vscode-openapi"
+        "42Crunch.vscode-openapi",
+        "bradlc.vscode-tailwindcss"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -25,12 +26,19 @@
           "typescript",
           "typescriptreact"
         ],
-        "terminal.integrated.cwd": "${containerWorkspaceFolder}/frontend"
+        "terminal.integrated.cwd": "${containerWorkspaceFolder}/frontend",
+        "editor.quickSuggestions": {
+          "strings": true
+        }
       }
     }
   },
 
-  "forwardPorts": [3000, 24678],
+  "containerEnv": {
+    "CHOKIDAR_USEPOLLING": "true"
+  },
+
+  "forwardPorts": [3000],
 
   "postCreateCommand": "cd frontend && npm install"
 }
