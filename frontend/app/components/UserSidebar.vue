@@ -1,61 +1,49 @@
 <script setup>
-// Vueのリアクティブ（変更を自動で画面に反映する）機能を使うためにrefをインポートします。
-import { ref } from "vue";
+import { ref, computed } from "vue";
+// Step 1で作成したファイルからメニューデータをインポートします。
+import {
+  userSidebarSections,
+  adminSidebarSections,
+} from "~/composables/menuItems";
+
+// --- Props定義 ---
+// 親コンポーネントから'role'を受け取ります。
+// required: true はこのpropが必須であることを意味します。
+// validatorで受け取る値を'admin'か'user'に限定すると、より安全になります。
+const props = defineProps({
+  role: {
+    type: String,
+    required: true,
+    validator: (value) => ["admin", "user"].includes(value),
+  },
+});
 
 // --- データ定義 ---
-// refで囲むことで、このデータが変更された際にVueが自動的に画面を更新するようになります。
-// サイドバーに表示するメニューの構造を、オブジェクトの配列として定義しています。
-// この配列を書き換えるだけで、サイドバーの見た目を自由に変更できます。
-const sidebarSections = ref([
-  {
-    title: "利用者ダッシュボード",
-    links: [{ text: "利用者ダッシュボード", href: "#" }],
-  },
-  {
-    title: "仮想ネットワーク管理",
-    links: [{ text: "仮想ネットワークダッシュボード", href: "#" }],
-  },
-  {
-    title: "セキュリティグループ管理",
-    links: [{ text: "セキュリティグループダッシュボード", href: "#" }],
-  },
-  {
-    title: "仮想マシン管理",
-    links: [
-      { text: "仮想マシンダッシュボード", href: "#" },
-      { text: "ポートフォリオ公開環境管理", href: "#" },
-      { text: "スナップショット管理", href: "#" },
-      { text: "バックアップ・復元管理", href: "#" },
-    ],
-  },
-]);
+// props.roleの値に応じて、表示するメニューデータを動的に決定します。
+// computedを使うことで、props.roleの変更に自動的に追従します。
+const sidebarSections = computed(() => {
+  return props.role === "admin" ? adminSidebarSections : userSidebarSections;
+});
 
-// --- 状態管理 ---
-// 開いているセクションのタイトルを複数保持するための配列です。
-// 初期値は空の配列なので、最初はすべてのセクションが閉じた状態になります。
-// 例: ref(['仮想マシン管理']) とすると、初期状態で仮想マシン管理が開きます。
+// サイドバーのタイトルも動的に変更します。
+const sidebarTitle = computed(() => {
+  return props.role === "admin" ? "管理者メニュー" : "利用者メニュー";
+});
+
+// --- 状態管理 --- (これ以降のロジックは変更なし)
 const openSections = ref([]);
 
 // --- メソッド（関数） ---
-// セクションのタイトル部分がクリックされたときに呼び出される関数です。
 function toggleSection(title) {
-  // openSections配列の中に、クリックされたセクションのタイトルが存在するかどうかを探します。
   const index = openSections.value.indexOf(title);
-
   if (index === -1) {
-    // indexが-1の場合、タイトルは配列内に存在しないことを意味します。
-    // そのため、配列にタイトルを追加してセクションを開きます。
     openSections.value.push(title);
   } else {
-    // タイトルが配列内に存在する場合、その要素を配列から削除してセクションを閉じます。
     openSections.value.splice(index, 1);
   }
 }
 
-// テンプレート内でセクションが開いているかどうかを判定するためのヘルパー関数です。
-// これを使うことで、テンプレート内のv-ifの記述がスッキリします。
 function isSectionOpen(title) {
-  // openSections配列に指定されたタイトルが含まれているかを true / false で返します。
   return openSections.value.includes(title);
 }
 </script>
@@ -65,7 +53,7 @@ function isSectionOpen(title) {
     class="fixed top-0 left-0 bottom-0 w-64 bg-slate-800 text-white p-5 overflow-y-auto"
   >
     <div class="text-lg font-bold bg-slate-900 p-3 rounded-md mb-6">
-      利用者メニュー
+      {{ sidebarTitle }}
     </div>
 
     <div
@@ -78,7 +66,6 @@ function isSectionOpen(title) {
         class="flex justify-between items-center p-3 bg-slate-700 rounded-md cursor-pointer hover:bg-slate-600 transition-colors"
       >
         <span class="font-semibold text-sm">{{ section.title }}</span>
-
         <span
           class="transform transition-transform duration-300"
           :class="{ 'rotate-180': isSectionOpen(section.title) }"
