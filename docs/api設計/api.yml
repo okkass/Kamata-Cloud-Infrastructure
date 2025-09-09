@@ -1,9 +1,1150 @@
-openapi: 3.0.0
-
+# yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
+openapi: "3.0.3"
 info:
   title: KCI API
   description: KCI API documentation
   version: 0.0.1
+
+paths:
+  /users:
+    get:
+      summary: ユーザ一覧の取得
+      description: すべてのユーザのリストを取得します。
+      tags:
+        - Users
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: ユーザの作成
+      description: 新しいユーザを作成します。
+      tags:
+        - Users
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /users/{userId}:
+    get:
+      summary: ユーザの詳細取得
+      description: 指定したIDのユーザの詳細情報を取得します。
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ユーザの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ユーザが見つからない
+      security:
+        - BearerAuth: []
+    put:
+      summary: ユーザの更新
+      description: 指定したIDのユーザ情報を更新します。
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ユーザの一意なID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ユーザが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: ユーザの削除
+      description: 指定したIDのユーザを削除します。
+      tags:
+        - Users
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ユーザの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ユーザが見つからない
+      security:
+        - BearerAuth: []
+  /images:
+    get:
+      summary: 仮想マシンイメージ一覧の取得
+      description: すべての仮想マシンイメージのリストを取得します。
+      tags:
+        - Images
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Image"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: 仮想マシンイメージの作成
+      description: 新しい仮想マシンイメージを作成します。
+      tags:
+        - Images
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/ImageCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Image"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /images/{imageId}:
+    get:
+      summary: 仮想マシンイメージの詳細取得
+      description: 指定したIDの仮想マシンイメージの詳細情報を取得します。
+      tags:
+        - Images
+      parameters:
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想マシンイメージの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Image"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想マシンイメージが見つからない
+      security:
+        - BearerAuth: []
+    put:
+      summary: 仮想マシンイメージの更新
+      description: 指定したIDの仮想マシンイメージ情報を更新します。
+      tags:
+        - Images
+      parameters:
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想マシンイメージの一意なID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ImageUpdateRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Image"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想マシンイメージが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: 仮想マシンイメージの削除
+      description: 指定したIDの仮想マシンイメージを削除します。
+      tags:
+        - Images
+      parameters:
+        - name: imageId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想マシンイメージの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想マシンイメージが見つからない
+      security:
+        - BearerAuth: []
+  /instance-types:
+    get:
+      summary: インスタンスタイプ一覧の取得
+      description: すべてのインスタンスタイプのリストを取得します。
+      tags:
+        - InstanceTypes
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/InstanceType"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: インスタンスタイプの作成
+      description: 新しいインスタンスタイプを作成します。
+      tags:
+        - InstanceTypes
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InstanceTypeCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceType"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /instance-types/{instanceTypeId}:
+    get:
+      summary: インスタンスタイプの詳細取得
+      description: 指定したIDのインスタンスタイプの詳細情報を取得します。
+      tags:
+        - InstanceTypes
+      parameters:
+        - name: instanceTypeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: インスタンスタイプの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceType"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: インスタンスタイプが見つからない
+      security:
+        - BearerAuth: []
+    put:
+      summary: インスタンスタイプの更新
+      description: 指定したIDのインスタンスタイプ情報を更新します。
+      tags:
+        - InstanceTypes
+      parameters:
+        - name: instanceTypeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: インスタンスタイプの一意なID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/InstanceTypeUpdateRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/InstanceType"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: インスタンスタイプが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: インスタンスタイプの削除
+      description: 指定したIDのインスタンスタイプを削除します。
+      tags:
+        - InstanceTypes
+      parameters:
+        - name: instanceTypeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: インスタンスタイプの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: インスタンスタイプが見つからない
+      security:
+        - BearerAuth: []
+  /login:
+    post:
+      summary: ユーザのログイン
+      description: ユーザのメールアドレスとパスワードを使用してログインします。成功すると、認証トークンが返されます。
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+                    description: 認証トークン
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+      security: []
+    /physical-nodes:
+      get:
+        summary: 物理ノード一覧の取得
+        description: すべての物理ノードのリストを取得します。
+        tags:
+          - PhysicalNodes
+        responses:
+          "200":
+            description: 成功
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: "#/components/schemas/PhysicalNode"
+          "401":
+            description: 認証エラー
+          "403":
+            description: 権限エラー
+        security:
+          - BearerAuth: []
+      post:
+        summary: 物理ノードの追加
+        description: 新しい物理ノードを追加します。
+        tags:
+          - PhysicalNodes
+        requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhysicalNodeAddRequest"
+        responses:
+          "201":
+            description: 作成成功
+            content:
+              application/json:
+                schema:
+                  $ref: "#/components/schemas/PhysicalNode"
+          "400":
+            description: リクエストエラー
+          "401":
+            description: 認証エラー
+          "403":
+            description: 権限エラー
+        security:
+          - BearerAuth: []
+  /physical-nodes/candidates:
+    get:
+      summary: 物理ノード候補一覧の取得
+      description: 物理ノードとして追加可能な候補のリストを取得します。
+      tags:
+        - PhysicalNodes
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/PhysicalNodeCandiate"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /physical-nodes/{nodeId}:
+    get:
+      summary: 物理ノードの詳細取得
+      description: 指定したIDの物理ノードの詳細情報を取得します。
+      tags:
+        - PhysicalNodes
+      parameters:
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 物理ノードの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhysicalNode"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 物理ノードが見つからない
+      security:
+        - BearerAuth: []
+    put:
+      summary: 物理ノードの更新
+      description: 指定したIDの物理ノード情報を更新します。
+      tags:
+        - PhysicalNodes
+      parameters:
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 物理ノードの一意なID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PhysicalNodeUpdateRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PhysicalNode"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 物理ノードが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: 物理ノードの削除
+      description: 指定したIDの物理ノードを削除します。
+      tags:
+        - PhysicalNodes
+      parameters:
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 物理ノードの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 物理ノードが見つからない
+      security:
+        - BearerAuth: []
+  /security-groups:
+    get:
+      summary: セキュリティグループ一覧の取得
+      description: すべてのセキュリティグループのリストを取得します。
+      tags:
+        - SecurityGroups
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SecurityGroup"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: セキュリティグループの作成
+      description: 新しいセキュリティグループを作成します。
+      tags:
+        - SecurityGroups
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SecurityGroupCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SecurityGroup"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /security-groups/{groupId}:
+    get:
+      summary: セキュリティグループの詳細取得
+      description: 指定したIDのセキュリティグループの詳細情報を取得します。
+      tags:
+        - SecurityGroups
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: セキュリティグループの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SecurityGroup"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: セキュリティグループが見つからない
+      security:
+        - BearerAuth: []
+    put:
+      summary: セキュリティグループの更新
+      description: 指定したIDのセキュリティグループ情報を更新します。
+      tags:
+        - SecurityGroups
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: セキュリティグループの一意なID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SecurityGroupUpdateRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SecurityGroup"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: セキュリティグループが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: セキュリティグループの削除
+      description: 指定したIDのセキュリティグループを削除します。
+      tags:
+        - SecurityGroups
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: セキュリティグループの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: セキュリティグループが見つからない
+      security:
+        - BearerAuth: []
+  /security-groups/{groupId}/rules:
+    post:
+      summary: セキュリティグループルールの追加
+      description: 指定したセキュリティグループに新しいルールを追加します。
+      tags:
+        - SecurityGroups
+      parameters:
+        - name: groupId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: セキュリティグループの一意なID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SecurityRuleCreateRequest"
+      responses:
+        "201":
+          description: ルール追加成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SecurityRule"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: セキュリティグループが見つからない
+      security:
+        - BearerAuth: []
+  /storage-pools:
+    get:
+      summary: ストレージプール一覧の取得
+      description: すべてのストレージプールのリストを取得します。
+      tags:
+        - StoragePools
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StoragePool"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: ストレージプールの作成
+      description: 新しいストレージプールを作成します。
+      tags:
+        - StoragePools
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/StoragePoolCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoragePool"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /storage-pools/{poolId}:
+    get:
+      summary: ストレージプールの詳細取得
+      description: 指定したIDのストレージプールの詳細情報を取得します。
+      tags:
+        - StoragePools
+      parameters:
+        - name: poolId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ストレージプールの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoragePool"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ストレージプールが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: ストレージプールの削除
+      description: 指定したIDのストレージプールを削除します。
+      tags:
+        - StoragePools
+      parameters:
+        - name: poolId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ストレージプールの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ストレージプールが見つからない
+      security:
+        - BearerAuth: []
+  /virtual-machines:
+    get:
+      summary: 仮想マシン一覧の取得
+      description: すべての仮想マシンのリストを取得します。
+      tags:
+        - VirtualMachines
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VirtualMachine"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: 仮想マシンの作成
+      description: 新しい仮想マシンを作成します。
+      tags:
+        - VirtualMachines
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VirtualMachineCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VirtualMachine"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /virtual-machines/{vmId}:
+    get:
+      summary: 仮想マシンの詳細取得
+      description: 指定したIDの仮想マシンの詳細情報を取得します。
+      tags:
+        - VirtualMachines
+      parameters:
+        - name: vmId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想マシンの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VirtualMachine"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想マシンが見つからない
+      security:
+        - BearerAuth: []
+    put:
+      summary: 仮想マシンの更新
+      description: 指定したIDの仮想マシン情報を更新します。
+      tags:
+        - VirtualMachines
+      parameters:
+        - name: vmId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想マシンの一意なID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VirtualMachineUpdateRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VirtualMachine"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想マシンが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: 仮想マシンの削除
+      description: 指定したIDの仮想マシンを削除します。
+      tags:
+        - VirtualMachines
+      parameters:
+        - name: vmId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想マシンの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想マシンが見つからない
+      security:
+        - BearerAuth: []
+  /virtual-networks:
+    get:
+      summary: 仮想ネットワーク一覧の取得
+      description: すべての仮想ネットワークのリストを取得します。
+      tags:
+        - VirtualNetworks
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VirtualNetwork"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: 仮想ネットワークの作成
+      description: 新しい仮想ネットワークを作成します。
+      tags:
+        - VirtualNetworks
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VirtualNetworkCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VirtualNetwork"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /virtual-networks/{networkId}:
+    get:
+      summary: 仮想ネットワークの詳細取得
+      description: 指定したIDの仮想ネットワークの詳細情報を取得します。
+      tags:
+        - VirtualNetworks
+      parameters:
+        - name: networkId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想ネットワークの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VirtualNetwork"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想ネットワークが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: 仮想ネットワークの削除
+      description: 指定したIDの仮想ネットワークを削除します。
+      tags:
+        - VirtualNetworks
+      parameters:
+        - name: networkId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想ネットワークの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想ネットワークが見つからない
+      security:
+        - BearerAuth: []
+  /virtual-networks/{networkId}/subnets:
+    post:
+      summary: サブネットの追加
+      description: 指定した仮想ネットワークに新しいサブネットを追加します。
+      tags:
+        - VirtualNetworks
+      parameters:
+        - name: networkId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想ネットワークの一意なID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubnetCreateRequest"
+      responses:
+        "201":
+          description: サブネット追加成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subnet"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想ネットワークが見つからない
+      security:
+        - BearerAuth: []
 
 components:
   schemas:
@@ -483,6 +1624,60 @@ components:
         - protocol
         - targetIp
         - createdAt
+    SecurityRuleCreateRequest:
+      type: object
+      description: セキュリティルール作成リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: セキュリティルールの名前
+        ruleType:
+          type: string
+          enum: [inbound, outbound]
+          description: ルールのタイプ（インバウンドまたはアウトバウンド）
+        port:
+          type: integer
+          description: 適用されるポート番号
+          example: 22
+        protocol:
+          type: string
+          enum: [tcp, udp, icmp]
+          description: 適用されるプロトコル
+        targetIp:
+          type: string
+          format: ipv4
+          description: ターゲットIPアドレス
+          example: "10.0.0.0/16"
+      required:
+        - name
+        - ruleType
+        - port
+        - protocol
+        - targetIp
+    SecurityRuleUpdateRequest:
+      type: object
+      description: セキュリティルール更新リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: セキュリティルールの名前
+        ruleType:
+          type: string
+          enum: [inbound, outbound]
+          description: ルールのタイプ（インバウンドまたはアウトバウンド）
+        port:
+          type: integer
+          description: 適用されるポート番号
+          example: 22
+        protocol:
+          type: string
+          enum: [tcp, udp, icmp]
+          description: 適用されるプロトコル
+        targetIp:
+          type: string
+          format: ipv4
+          description: ターゲットIPアドレス
+          example: "10.0.0.0/16"
     SnapShot:
       type: object
       description: スナップショットオブジェクト
