@@ -15,7 +15,8 @@
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
         "42Crunch.vscode-openapi",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "Prisma.prisma"
       ],
       "settings": {
         "editor.formatOnSave": true,
