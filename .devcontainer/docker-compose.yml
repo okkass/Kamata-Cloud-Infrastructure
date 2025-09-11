@@ -1,0 +1,37 @@
+services:
+  nuxt-app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    volumes:
+      - ..:/workspace:cached
+    command: sleep infinity
+
+    depends_on:
+      - mysql
+
+    environment:
+      - CHOKPOINT_DISABLE=1
+      - DATABASE_HOST=mysql
+      - DATABASE_USER=kci_user
+      - DATABASE_PASSWORD=moimoi1204
+      - DATABASE_NAME=kci_db
+
+  mysql:
+    image: mysql:8.0
+    restart: unless-stopped
+
+    volumes:
+      - mysql-data:/var/lib/mysql
+
+    environment:
+      - MYSQL_ROOT_PASSWORD=bukibuki1204
+      - MYSQL_DATABASE=kci_db
+      - MYSQL_USER=kci_user
+      - MYSQL_PASSWORD=moimoi1204
+
+    ports:
+      - "3306:3306"
+
+volumes:
+  mysql-data:
