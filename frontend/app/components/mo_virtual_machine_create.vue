@@ -63,24 +63,15 @@ const emit = defineEmits(["close"]);
 
 // 1. 各タブの情報を定義
 import TabGeneral from "~/components/vm-tabs/TabGeneral.vue";
+import TabConfig from "~/components/vm-tabs/TabConfig.vue";
 import TabOsMiddleware from "~/components/vm-tabs/TabOsMiddleware.vue";
+import TabNetwork from "~/components/vm-tabs/TabNetwork.vue"; // ★★★新しいタブをインポート
 
 const tabs = [
   { name: "概要", component: markRaw(TabGeneral) },
-  // 「OS/ミドルウェア」タブを2番目に移動
+  { name: "構成", component: markRaw(TabConfig) },
   { name: "OS/ミドルウェア", component: markRaw(TabOsMiddleware) },
-  {
-    name: "構成",
-    component: markRaw({
-      template: "<div>構成タブのコンテンツ (後で実装)</div>",
-    }),
-  },
-  {
-    name: "ネットワーク/セキュリティグループ",
-    component: markRaw({
-      template: "<div>ネットワークタブのコンテンツ (後で実装)</div>",
-    }),
-  },
+  { name: "ネットワーク/セキュリティグループ", component: markRaw(TabNetwork) }, // ★★★タブを差し替え
 ];
 
 // 2. 現在アクティブなタブを管理 (0から始まるインデックス)
