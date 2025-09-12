@@ -26,7 +26,7 @@
           "typescript",
           "typescriptreact"
         ],
-        "terminal.integrated.cwd": "${containerWorkspaceFolder}/frontend",
+        "terminal.integrated.cwd": "${containerWorkspaceFolder}/srcs",
         "editor.quickSuggestions": {
           "strings": true
         }
@@ -40,5 +40,5 @@
 
   "forwardPorts": [3000],
 
-  "postCreateCommand": "cd frontend && npm install && npm run dev"
+  "postCreateCommand": "cd srcs && npm install && npm run dev"
 }
