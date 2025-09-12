@@ -1,11 +1,12 @@
 // For format details, see https://aka.ms/devcontainer.json. For config options, see the
 // README at: https://github.com/devcontainers/templates/tree/main/src/javascript-node
 {
-  "name": "Node.js",
-  // Or use a Dockerfile or Docker Compose file. More info: https://containers.dev/guide/dockerfile
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:1-22-bookworm",
+  "name": "dev-container-kci",
 
-  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "nuxt-app",
+
+  "workspaceFolder": "/workspace",
 
   "customizations": {
     "vscode": {
@@ -14,7 +15,8 @@
         "esbenp.prettier-vscode",
         "dbaeumer.vscode-eslint",
         "42Crunch.vscode-openapi",
-        "bradlc.vscode-tailwindcss"
+        "bradlc.vscode-tailwindcss",
+        "Prisma.prisma"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -26,7 +28,7 @@
           "typescript",
           "typescriptreact"
         ],
-        "terminal.integrated.cwd": "${containerWorkspaceFolder}/frontend",
+        "terminal.integrated.cwd": "srcs",
         "editor.quickSuggestions": {
           "strings": true
         }
@@ -34,11 +36,7 @@
     }
   },
 
-  "containerEnv": {
-    "CHOKIDAR_USEPOLLING": "true"
-  },
+  "forwardPorts": [3000, 3306],
 
-  "forwardPorts": [3000],
-
-  "postCreateCommand": "cd frontend && npm install && npm run dev"
+  "postCreateCommand": "cd srcs && npm install"
 }
