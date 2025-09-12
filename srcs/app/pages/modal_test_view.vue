@@ -1,44 +1,26 @@
 <template>
   <div class="p-8">
-    <h1 class="text-2xl font-bold mb-4">モーダル表示テスト</h1>
+    <h1 class="text-2xl font-bold mb-4">仮想マシン作成モーダルテスト</h1>
 
     <button
-      @click="openModal"
-      class="py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-75"
+      @click="isModalVisible = true"
+      class="py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700"
     >
-      ローカルストレージ追加モーダルを開く
+      仮想マシン作成モーダルを開く
     </button>
 
-    <BaseModal
+    <MoVirtualMachineCreate
       :show="isModalVisible"
-      :title="modalTitle"
-      :content-component="modalContent"
-      @close="closeModal"
+      @close="isModalVisible = false"
     />
   </div>
 </template>
 
 <script setup>
-import { ref, shallowRef } from "vue";
-import BaseModal from "~/components/BaseModal.vue";
-import AddLocalStorageForm from "~/components/mo_local_storage_add.vue";
+import { ref } from "vue";
+// Nuxt3の自動インポート機能のおかげで、下記は書かなくても動作します
+import MoVirtualMachineCreate from "~/components/mo_virtual_machine_create.vue";
 
 // モーダルの表示/非表示を管理
 const isModalVisible = ref(false);
-// モーダルのタイトルを管理
-const modalTitle = ref("");
-// モーダルの「中身」コンポーネントを管理
-const modalContent = shallowRef(null);
-
-// モーダルを開く処理
-const openModal = () => {
-  modalTitle.value = "ローカルストレージ追加";
-  modalContent.value = AddLocalStorageForm;
-  isModalVisible.value = true;
-};
-
-// モーダルを閉じる処理
-const closeModal = () => {
-  isModalVisible.value = false;
-};
 </script>
