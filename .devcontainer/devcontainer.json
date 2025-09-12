@@ -28,7 +28,7 @@
           "typescript",
           "typescriptreact"
         ],
-        "terminal.integrated.cwd": "frontend",
+        "terminal.integrated.cwd": "srcs",
         "editor.quickSuggestions": {
           "strings": true
         }
@@ -38,5 +38,5 @@
 
   "forwardPorts": [3000, 3306],
 
-  "postCreateCommand": "cd frontend && npm install"
+  "postCreateCommand": "cd srcs && npm install"
 }
