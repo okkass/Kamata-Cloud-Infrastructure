@@ -1261,7 +1261,7 @@ components:
         file:
           type: string
           format: binary
-          description: アップロードする仮想マシンイメージファイル
+          description: アップロードする仮想マシンイメージファイル(base64エンコードされたバイナリデータ)
       required:
         - name
         - file
@@ -1355,6 +1355,9 @@ components:
           type: string
           format: password
           description: ユーザのパスワード
+      required:
+        - email
+        - password
     MiddleWare:
       type: object
       description: ミドルウェアオブジェクト
