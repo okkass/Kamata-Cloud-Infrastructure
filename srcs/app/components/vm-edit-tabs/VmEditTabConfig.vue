@@ -73,7 +73,7 @@
                   @click="deleteStorage(storage.id)"
                   class="w-5 h-5 !p-0 flex items-center justify-center !rounded-full"
                 >
-                  &times;
+                  X
                 </SecondaryButton>
               </div>
             </td>
