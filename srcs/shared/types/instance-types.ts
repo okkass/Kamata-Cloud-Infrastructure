@@ -1,7 +1,7 @@
 /**
  * インスタンスタイプ作成リクエストオブジェクト
  */
-export interface InstanceTypeCreateRequest {
+export interface InstanceTypeCreateRequestDTO {
   /**
    * インスタンスタイプの名前
    */
@@ -22,7 +22,7 @@ export interface InstanceTypeCreateRequest {
 /**
  * インスタンスタイプ更新リクエストオブジェクト
  */
-export interface InstanceTypeUpdateRequest {
+export interface InstanceTypeUpdateRequestDTO {
   /**
    * インスタンスタイプの名前
    */
@@ -44,7 +44,7 @@ export interface InstanceTypeUpdateRequest {
 /**
  * 仮想マシンのインスタンスタイプオブジェクト
  */
-export interface ModelInstanceType {
+export interface ModelInstanceTypeDTO {
   /**
    * インスタンスタイプを識別するための一意なID
    */
