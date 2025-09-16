@@ -1,7 +1,7 @@
 /**
  * 物理ノードオブジェクト
  */
-export interface PhysicalNode {
+export interface PhysicalNodeDTO {
   /**
    * 物理ノードを識別するための一意なID
    */
@@ -51,7 +51,7 @@ export type PhysicalNodeStatusEnum =
 /**
  * 物理ノード追加リクエストオブジェクト
  */
-export interface PhysicalNodeAddRequest {
+export interface PhysicalNodeAddRequestDTO {
   /**
    * 物理ノードの名前
    */
@@ -68,7 +68,7 @@ export interface PhysicalNodeAddRequest {
 /**
  * 物理ノード候補オブジェクト
  */
-export interface PhysicalNodeCandiate {
+export interface PhysicalNodeCandiateDTO {
   /**
    * 物理ノードの名前
    */
@@ -81,7 +81,7 @@ export interface PhysicalNodeCandiate {
 /**
  * 物理ノード更新リクエストオブジェクト
  */
-export interface PhysicalNodeUpdateRequest {
+export interface PhysicalNodeUpdateRequestDTO {
   /**
    * 物理ノードが管理ノードかどうかを示すフラグ
    */

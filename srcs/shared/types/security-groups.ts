@@ -1,7 +1,7 @@
 /**
  * セキュリティグループオブジェクト
  */
-export interface SecurityGroup {
+export interface SecurityGroupDTO {
   /**
    * セキュリティグループを識別するための一意なID
    */
@@ -14,7 +14,7 @@ export interface SecurityGroup {
    * セキュリティグループの説明
    */
   description?: string;
-  rules?: Array<SecurityRule>;
+  rules?: Array<SecurityRuleDTO>;
   /**
    * セキュリティグループが作成された日時
    */
@@ -23,7 +23,7 @@ export interface SecurityGroup {
 /**
  * セキュリティグループ作成リクエストオブジェクト
  */
-export interface SecurityGroupCreateRequest {
+export interface SecurityGroupCreateRequestDTO {
   /**
    * セキュリティグループの名前
    */
@@ -32,12 +32,12 @@ export interface SecurityGroupCreateRequest {
    * セキュリティグループの説明
    */
   description?: string;
-  rules?: Array<SecurityRule>;
+  rules?: Array<SecurityRuleDTO>;
 }
 /**
  * セキュリティグループ更新リクエストオブジェクト
  */
-export interface SecurityGroupUpdateRequest {
+export interface SecurityGroupUpdateRequestDTO {
   /**
    * セキュリティグループの名前
    */
@@ -46,12 +46,12 @@ export interface SecurityGroupUpdateRequest {
    * セキュリティグループの説明
    */
   description?: string;
-  rules?: Array<SecurityRule>;
+  rules?: Array<SecurityRuleDTO>;
 }
 /**
  * セキュリティルールオブジェクト
  */
-export interface SecurityRule {
+export interface SecurityRuleDTO {
   /**
    * セキュリティルールを識別するための一意なID
    */
@@ -101,7 +101,7 @@ export type SecurityRuleProtocolEnum =
 /**
  * セキュリティルール作成リクエストオブジェクト
  */
-export interface SecurityRuleCreateRequest {
+export interface SecurityRuleCreateRequestDTO {
   /**
    * セキュリティルールの名前
    */
@@ -143,7 +143,7 @@ export type SecurityRuleCreateRequestProtocolEnum =
 /**
  * セキュリティルール更新リクエストオブジェクト
  */
-export interface SecurityRuleUpdateRequest {
+export interface SecurityRuleUpdateRequestDTO {
   /**
    * セキュリティルールの名前
    */
