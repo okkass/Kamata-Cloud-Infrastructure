@@ -1,10 +1,10 @@
-import type { ModelInstanceType, PhysicalNode } from ".";
+import type { ModelInstanceTypeDTO, PhysicalNodeDTO } from ".";
 
 /**
  * アタッチされたストレージオブジェクト
  */
-export interface AttachedStorage {
-  storage?: VirtualStorage;
+export interface AttachedStorageDTO {
+  storage?: VirtualStorageDTO;
   /**
    * ストレージデバイスのパス
    */
@@ -14,7 +14,7 @@ export interface AttachedStorage {
 /**
  * バックアップオブジェクト
  */
-export interface Backup {
+export interface BackupDTO {
   /**
    * バックアップを識別するための一意なID
    */
@@ -35,12 +35,12 @@ export interface Backup {
    * バックアップのサイズ
    */
   size: number;
-  targetVirtualStorage: VirtualStorage;
+  targetVirtualStorage: VirtualStorageDTO;
 }
 /**
  * バックアップ作成リクエストオブジェクト
  */
-export interface BackupCreateRequest {
+export interface BackupCreateRequestDTO {
   /**
    * バックアップの名前
    */
@@ -53,7 +53,7 @@ export interface BackupCreateRequest {
 /**
  * バックアップ復元リクエストオブジェクト
  */
-export interface BackupRestoreRequest {
+export interface BackupRestoreRequestDTO {
   /**
    * 復元するバックアップのID
    */
@@ -67,7 +67,7 @@ export interface BackupRestoreRequest {
 /**
  * ネットワークインターフェースオブジェクト
  */
-export interface NetworkInterface {
+export interface NetworkInterfaceDTO {
   /**
    * ネットワークインターフェースを識別するための一意なID
    */
@@ -93,7 +93,7 @@ export interface NetworkInterface {
 /**
  * ポートフォリオオブジェクト
  */
-export interface Portfolio {
+export interface PortfolioDTO {
   /**
    * ポートフォリオを識別するための一意なID
    */
@@ -110,7 +110,7 @@ export interface Portfolio {
 /**
  * ポートフォリオ記事オブジェクト
  */
-export interface PortfolioArticle {
+export interface PortfolioArticleDTO {
   /**
    * ポートフォリオ記事を識別するための一意なID
    */
@@ -137,7 +137,7 @@ export type PortfolioArticleStatusEnum =
 /**
  * スナップショットオブジェクト
  */
-export interface SnapShot {
+export interface SnapShotDTO {
   /**
    * スナップショットを識別するための一意なID
    */
@@ -154,12 +154,12 @@ export interface SnapShot {
    * スナップショットが作成された日時
    */
   createdAt: string;
-  targetVirtualMachine: VirtualMachine;
+  targetVirtualMachine: VirtualMachineDTO;
 }
 /**
  * スナップショット作成リクエストオブジェクト
  */
-export interface SnapShotCreateRequest {
+export interface SnapShotCreateRequestDTO {
   /**
    * スナップショットの名前
    */
@@ -176,7 +176,7 @@ export interface SnapShotCreateRequest {
 /**
  * スナップショット復元リクエストオブジェクト
  */
-export interface SnapShotRestoreRequest {
+export interface SnapShotRestoreRequestDTO {
   /**
    * 復元するスナップショットのID
    */
@@ -186,7 +186,7 @@ export interface SnapShotRestoreRequest {
 /**
  * 仮想マシンオブジェクト
  */
-export interface VirtualMachine {
+export interface VirtualMachineDTO {
   /**
    * 仮想マシンを識別するための一意なID
    */
@@ -195,12 +195,12 @@ export interface VirtualMachine {
    * 仮想マシンの名前
    */
   name: string;
-  instanceType: ModelInstanceType;
+  instanceType: ModelInstanceTypeDTO;
   /**
    * 仮想マシンの状態
    */
   status: VirtualMachineStatusEnum;
-  node?: PhysicalNode;
+  node?: PhysicalNodeDTO;
   /**
    * 仮想マシンが作成された日時
    */
@@ -212,11 +212,11 @@ export interface VirtualMachine {
   /**
    * アタッチされたストレージのリスト
    */
-  attachedStorage: Array<AttachedStorage>;
+  attachedStorage: Array<AttachedStorageDTO>;
   /**
    * アタッチされたネットワークインターフェースのリスト
    */
-  attachedNic?: Array<NetworkInterface>;
+  attachedNic?: Array<NetworkInterfaceDTO>;
   /**
    * CPU使用率（0.0から1.0の範囲）
    */
@@ -243,7 +243,7 @@ export type VirtualMachineStatusEnum =
 /**
  * 仮想マシン作成リクエストオブジェクト
  */
-export interface VirtualMachineCreateRequest {
+export interface VirtualMachineCreateRequestDTO {
   /**
    * 仮想マシンの名前
    */
@@ -271,13 +271,13 @@ export interface VirtualMachineCreateRequest {
   /**
    * 仮想マシンにアタッチするストレージのリスト
    */
-  storages: Array<VirtualMachineCreateRequestStoragesInner>;
+  storages: Array<VirtualMachineCreateRequestStoragesInnerDTO>;
   /**
    * 関連付けるセキュリティグループのIDリスト
    */
   securityGroupIds?: Array<string>;
 }
-export interface VirtualMachineCreateRequestStoragesInner {
+export interface VirtualMachineCreateRequestStoragesInnerDTO {
   /**
    * ストレージの名前
    */
@@ -298,13 +298,13 @@ export interface VirtualMachineCreateRequestStoragesInner {
 /**
  * 仮想マシン更新リクエストオブジェクト
  */
-export interface VirtualMachineUpdateRequest {
+export interface VirtualMachineUpdateRequestDTO {
   /**
    * 仮想マシンの名前
    */
   name: string;
-  instanceType?: ModelInstanceType;
-  node?: PhysicalNode;
+  instanceType?: ModelInstanceTypeDTO;
+  node?: PhysicalNodeDTO;
   /**
    * 仮想マシンが作成された日時
    */
@@ -316,17 +316,17 @@ export interface VirtualMachineUpdateRequest {
   /**
    * アタッチされたストレージのリスト
    */
-  attachedStorage?: Array<AttachedStorage>;
+  attachedStorage?: Array<AttachedStorageDTO>;
   /**
    * アタッチされたネットワークインターフェースのリスト
    */
-  attachedNic?: Array<NetworkInterface>;
+  attachedNic?: Array<NetworkInterfaceDTO>;
 }
 
 /**
  * 仮想ストレージオブジェクト
  */
-export interface VirtualStorage {
+export interface VirtualStorageDTO {
   /**
    * 仮想ストレージを識別するための一意なID
    */

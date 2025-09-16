@@ -1,7 +1,7 @@
 /**
  * 仮想マシンイメージオブジェクト
  */
-export interface Image {
+export interface ImageDTO {
   /**
    * 仮想マシンイメージを識別するための一意なID
    */
@@ -26,7 +26,7 @@ export interface Image {
 /**
  * 仮想マシンイメージ作成リクエストオブジェクト
  */
-export interface ImageCreateRequest {
+export interface ImageCreateRequestDTO {
   /**
    * 仮想マシンイメージの名前
    */
@@ -44,7 +44,7 @@ export interface ImageCreateRequest {
 /**
  * 仮想マシンイメージ更新リクエストオブジェクト
  */
-export interface ImageUpdateRequest {
+export interface ImageUpdateRequestDTO {
   /**
    * 仮想マシンイメージの名前
    */
