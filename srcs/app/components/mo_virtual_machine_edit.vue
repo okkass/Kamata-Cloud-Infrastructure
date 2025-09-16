@@ -43,7 +43,7 @@
           @click="createVirtualMachine"
           class="py-2 px-5 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700"
         >
-          作成
+          確定
         </button>
       </div>
     </div>
@@ -62,21 +62,19 @@ const emit = defineEmits(["close"]);
 // --- ここからがこのコンポーネントのロジック ---
 
 // 1. 各タブの情報を定義
-import TabGeneral from "~/components/vm-tabs/TabGeneral.vue";
-import TabConfig from "~/components/vm-tabs/TabConfig.vue";
-import TabOsMiddleware from "~/components/vm-tabs/TabOsMiddleware.vue";
-import TabNetwork from "~/components/vm-tabs/TabNetwork.vue";
+import VmEditTabGeneral from "~/components/vm-edit-tabs/VmEditTabGeneral.vue";
+import VmEditTabConfig from "~/components/vm-edit-tabs/VmEditTabConfig.vue";
+import VmEditTabNetwork from "~/components/vm-edit-tabs/VmEditTabNetwork.vue";
 
 const tabs = [
   { name: "概要", component: markRaw(TabGeneral) },
   { name: "構成", component: markRaw(TabConfig) },
-  { name: "OS/ミドルウェア", component: markRaw(TabOsMiddleware) },
   { name: "ネットワーク/セキュリティグループ", component: markRaw(TabNetwork) },
 ];
 
 // 2. 現在アクティブなタブを管理 (0から始まるインデックス)
 const currentTab = ref(0);
-const modalTitle = ref("仮想マシン作成");
+const modalTitle = ref("仮想マシン編集");
 
 // 3. ナビゲーション関数
 const prevTab = () => {
@@ -92,7 +90,7 @@ const nextTab = () => {
 
 // 4. 作成処理
 const createVirtualMachine = () => {
-  alert("仮想マシンを作成します！");
+  alert("編集を確定します！");
   emit("close");
 };
 </script>
