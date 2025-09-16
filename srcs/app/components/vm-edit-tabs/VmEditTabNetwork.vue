@@ -5,7 +5,11 @@
 
       <div>
         <label for="network-select" class="form-label-sm">ネットワーク</label>
-        <select id="network-select" class="form-input">
+        <select
+          id="network-select"
+          v-model="selectedNetwork"
+          class="form-input"
+        >
           <option>student-net</option>
           <option>teacher-net</option>
         </select>
@@ -13,28 +17,10 @@
 
       <div>
         <label for="subnet-select" class="form-label-sm">サブネット</label>
-        <select id="subnet-select" class="form-input">
+        <select id="subnet-select" v-model="selectedSubnet" class="form-input">
           <option>192.168.10.0/24</option>
           <option>172.16.0.0/24</option>
         </select>
-      </div>
-
-      <div>
-        <label for="public-key" class="form-label-sm">公開鍵</label>
-        <textarea
-          id="public-key"
-          rows="3"
-          placeholder="ssh-rsa AAAAB3..."
-          class="form-input mb-2"
-        ></textarea>
-
-        <div class="flex items-center">
-          <label class="btn-secondary cursor-pointer">
-            <span>ファイルを選択</span>
-            <input type="file" class="hidden" @change="handleFileChange" />
-          </label>
-          <span class="ml-3 text-sm text-gray-600">{{ selectedFileName }}</span>
-        </div>
       </div>
     </div>
 
@@ -85,21 +71,29 @@
 <script setup>
 import { ref } from "vue";
 
-// --- 公開鍵ファイルの状態 ---
-const selectedFileName = ref("選択されていません");
-const handleFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    selectedFileName.value = file.name;
-    // ここでファイル読み込み処理などを追加できる
-  } else {
-    selectedFileName.value = "選択されていません";
-  }
-};
+// 親コンポーネントから渡される、編集対象のVMのネットワークデータ
+const props = defineProps({
+  networkData: {
+    type: Object,
+    required: true,
+    // データが渡されない場合のデフォルト値（テスト用）
+    default: () => ({
+      network: "student-net",
+      subnet: "192.168.10.0/24",
+      securityGroups: [
+        { name: "default", description: "デフォルトのセキュリティグループ" },
+      ],
+    }),
+  },
+});
 
-// --- セキュリティグループの状態 ---
-// 適用されているセキュリティグループのリスト
-const appliedGroups = ref([]);
+// フォームの入力値を、propsで受け取ったデータで初期化
+const selectedNetwork = ref(props.networkData.network);
+const selectedSubnet = ref(props.networkData.subnet);
+const appliedGroups = ref(
+  JSON.parse(JSON.stringify(props.networkData.securityGroups))
+);
+
 // プルダウンに表示する、追加可能なグループのリスト（ダミーデータ）
 const availableGroups = ref([
   { name: "default", description: "デフォルトのセキュリティグループ" },
@@ -112,18 +106,13 @@ const selectedGroupToAdd = ref(null);
 
 // セキュリティグループを追加する関数
 const addGroup = () => {
-  // グループが選択されていない場合は何もしない
   if (!selectedGroupToAdd.value) {
     alert("追加するグループを選択してください。");
     return;
   }
-
-  // 選択されたグループの完全なオブジェクトを探す
   const groupObject = availableGroups.value.find(
     (g) => g.name === selectedGroupToAdd.value
   );
-
-  // 既に追加されていないかチェック
   const isAlreadyAdded = appliedGroups.value.some(
     (g) => g.name === selectedGroupToAdd.value
   );
