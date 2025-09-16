@@ -1,11 +1,36 @@
+<!-- pages/vm/VMs.vue -->
+<template>
+  <div>
+    <DashboardLayout
+      title="仮想マシンダッシュボード"
+      :columns="columns"
+      :rows="rows"
+      rowKey="id"
+      :headerButtons="headerButtons"
+      :rowActions="rowActions"
+      @header-action="onHeader"
+      @row-action="onRow"
+    />
+
+    <!-- 新規作成モーダル -->
+    <MoImageAdd
+      :show="showMoImageAdd"
+      @close="showMoImageAdd = false"
+      @submitted="handleSubmitted"
+    />
+  </div>
+</template>
+
 <script>
-import DashboardLayout from "./../../components/DashboardLayout.vue";
+import DashboardLayout from "@/components/DashboardLayout.vue";
+import MoImageAdd from "@/components/mo_image_add.vue"; // ← コンポーネント配置に合わせて
 
 export default {
   name: "VMs",
-  components: { DashboardLayout },
+  components: { DashboardLayout, MoImageAdd },
   data() {
     return {
+      showMoImageAdd: false,
       columns: [
         { key: "name", label: "仮想マシン名" },
         { key: "network", label: "所属ネットワーク" },
@@ -39,9 +64,7 @@ export default {
           status: "稼働中",
         },
       ],
-      headerButtons: [
-        { label: "仮想マシン新規作成", action: "create-vm" }, // ← ここで制御
-      ],
+      headerButtons: [{ label: "仮想マシン新規作成", action: "create-vm" }],
       rowActions: [
         { label: "詳細", action: "detail" },
         { label: "編集", action: "edit" },
@@ -51,25 +74,15 @@ export default {
   },
   methods: {
     onHeader(action) {
-      if (action === "create-vm")
-        alert("仮想マシン新規作成ボタンが押されました！");
+      if (action === "create-vm") this.showMoImageAdd = true;
     },
     onRow({ action, row }) {
       alert(`${action}: ${row.name}`);
     },
+    handleSubmitted(payload) {
+      console.log("submitted:", payload);
+      this.showMoImageAdd = false;
+    },
   },
 };
 </script>
-
-<template>
-  <DashboardLayout
-    title="仮想マシンダッシュボード"
-    :columns="columns"
-    :rows="rows"
-    rowKey="id"
-    :headerButtons="headerButtons"
-    :rowActions="rowActions"
-    @header-action="onHeader"
-    @row-action="onRow"
-  />
-</template>
