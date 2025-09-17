@@ -12,4 +12,11 @@
 
 <script setup>
 const message = 'Welcome to your Nuxt.js project with Tailwind CSSSSSS!'
+
+const mememe-mememe-mememe = 'mememe'
+
+function PoKa(mememe-mememe-mememe: string) {
+  return mememe-mememe-mememe
+}
+
 </script>
