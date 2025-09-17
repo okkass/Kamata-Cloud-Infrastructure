@@ -1,5 +1,7 @@
 <!-- I want to review in Japanese. -->
 
+## <ここにコメントを記載してください>
+
 ## レビューに関して
 
 必ず日本語でレビューすること。
@@ -8,25 +10,24 @@
 ## コーディングルール
 
 下記の命名規則に従っているかをチェックすること。
-|対象|命名規則|例|
-|:---|:---|:---|
-| ディレクトリ | `小文字` | `composables`, `utils` |
-| コンポーネント (.vue) | `PascalCase` | `AppHeader.vue`, `UiButton.vue` |
-| ページ (.vue) | `kebab-case` | `user-profile.vue`, `contact-us.vue` |
-| レイアウト (.vue) | `kebab-case` | `custom-layout.vue` |
-| Composable (.ts) | `use + CamelCase` | `useAuth.ts`, `useCounter.ts` |
-| サーバー API (.ts) | `kebab-case` | `send-email.post.ts` |
-| 型定義 (.ts) | `PascalCase` | `Product.ts` |
-| 関数・変数 | `camelCase` | `fetchUserData`, `userName` |
-| 定数 | `UPPER_SNAKE_CASE` | `API_KEY`, `TIMEOUT_MS` |
 
 <!-- for Github Copilot review rule -->
 
-[必須]: セキュリティ、バグ、重大な設計問題
-[推奨]: パフォーマンス改善、可読性向上
-[提案]: より良い実装方法の提案
-[質問]: 実装意図の確認
-[Nits]: 細かな修正（typo、フォーマットなど）
+`[必須]`: For security vulnerabilities, bugs, or critical design issues.
+`[推奨]`: For performance improvements or enhancing readability.
+`[提案]`: For suggesting better implementation methods.
+`[質問]`: When you need to confirm the implementation intent.
+`[Nits]`: For minor fixes like typos or formatting.
+
+For directories, use lowercase.
+For components (.vue), use PascalCase.
+For pages (.vue), use kebab-case.
+For layouts (.vue), use kebab-case.
+For composables (.ts), use useCamelCase.
+For server APIs (.ts), use kebab-case.
+For type definitions (.ts), use PascalCase.
+For functions and variables, use camelCase.
+For constants, use UPPER_SNAKE_CASE.
 
 <!-- for Github Copilot review rule -->
 
