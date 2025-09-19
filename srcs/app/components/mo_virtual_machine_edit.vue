@@ -40,10 +40,10 @@
         </button>
         <button
           v-else
-          @click="createVirtualMachine"
-          class="py-2 px-5 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700"
+          @click="saveChanges"
+          class="py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700"
         >
-          作成
+          保存
         </button>
       </div>
     </div>
@@ -61,22 +61,21 @@ const emit = defineEmits(["close"]);
 
 // --- ここからがこのコンポーネントのロジック ---
 
-// 1. 各タブの情報を定義
-import TabGeneral from "~/components/vm-tabs/TabGeneral.vue";
-import TabConfig from "~/components/vm-tabs/TabConfig.vue";
-import TabOsMiddleware from "~/components/vm-tabs/TabOsMiddleware.vue";
-import TabNetwork from "~/components/vm-tabs/TabNetwork.vue";
+// 1. 各タブの情報を定義 (新しいパスとコンポーネント名に変更)
+import VmEditTabGeneral from "~/components/vm-edit-tabs/VmEditTabGeneral.vue";
+import VmEditTabConfig from "~/components/vm-edit-tabs/VmEditTabConfig.vue";
+import VmEditTabNetwork from "~/components/vm-edit-tabs/VmEditTabNetwork.vue";
 
 const tabs = [
-  { name: "概要", component: markRaw(TabGeneral) },
-  { name: "構成", component: markRaw(TabConfig) },
-  { name: "OS/ミドルウェア", component: markRaw(TabOsMiddleware) },
-  { name: "ネットワーク/セキュリティグループ", component: markRaw(TabNetwork) },
+  { name: "概要", component: markRaw(VmEditTabGeneral) },
+  { name: "構成", component: markRaw(VmEditTabConfig) },
+  { name: "ネットワーク", component: markRaw(VmEditTabNetwork) },
 ];
 
-// 2. 現在アクティブなタブを管理 (0から始まるインデックス)
+// 2. 現在アクティブなタブを管理
 const currentTab = ref(0);
-const modalTitle = ref("仮想マシン作成");
+// モーダルタイトルを「編集」に変更
+const modalTitle = ref("仮想マシン編集");
 
 // 3. ナビゲーション関数
 const prevTab = () => {
@@ -90,9 +89,10 @@ const nextTab = () => {
   }
 };
 
-// 4. 作成処理
-const createVirtualMachine = () => {
-  alert("仮想マシンを作成します！");
+// 4. 保存処理 (関数名を変更)
+const saveChanges = () => {
+  alert("変更を保存します！");
+  // ここに全タブのデータを集約して保存するロジックを記述
   emit("close");
 };
 </script>
