@@ -434,6 +434,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  isAdmin:
+                    type: boolean
+                    description: ユーザが管理者かどうか
                   token:
                     type: string
                     description: 認証トークン
