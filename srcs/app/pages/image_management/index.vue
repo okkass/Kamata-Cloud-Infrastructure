@@ -29,14 +29,6 @@ export default {
           status: "停止中",
           protected: false,
         },
-        {
-          id: 3,
-          name: "AlmaLinux 9",
-          size: "1.9GB",
-          createdAt: "2025-07-01",
-          status: "",
-          protected: false,
-        },
       ],
       headerButtons: [{ label: "イメージ追加", action: "add" }],
       rowActions: [
@@ -76,7 +68,7 @@ export default {
     :rows="rows"
     rowKey="id"
     :headerButtons="headerButtons"
-    :rowActions="rowActions"
+    :row-actions="rowActions"
     @header-action="onHeader"
     @row-action="onRow"
   >
@@ -87,30 +79,29 @@ export default {
           'text-emerald-600 font-extrabold text-[18px]':
             row.status === '稼働中',
           'text-red-600 font-extrabold text-[18px]': row.status === '停止中',
-          'text-slate-500 font-bold tracking-wider': row.status === '—',
         }"
       >
-        {{ row.status }}
+        {{ row.status || "—" }}
       </span>
     </template>
 
-    <!-- 行操作スロット -->
+    <!-- 行操作スロット（アクセシビリティ配慮で button を使用） -->
     <template #row-actions="{ row, emit }">
-      <a
-        href="#"
-        @click.prevent="emit('detail')"
-        class="block px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t first:border-t-0 border-slate-200"
+      <button
+        type="button"
+        @click="emit('detail')"
+        class="block w-full text-left px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t first:border-t-0 border-slate-200"
       >
         詳細を表示
-      </a>
-      <a
+      </button>
+      <button
         v-if="!row.protected"
-        href="#"
-        @click.prevent="emit('delete')"
-        class="block px-4 py-3 text-[15px] font-semibold text-red-600 hover:bg-[#fff1f1] border-t border-slate-200"
+        type="button"
+        @click="emit('delete')"
+        class="block w-full text-left px-4 py-3 text-[15px] font-semibold text-red-600 hover:bg-[#fff1f1] border-t border-slate-200"
       >
         削除
-      </a>
+      </button>
       <span
         v-else
         class="block px-4 py-3 text-[15px] font-semibold text-slate-400 bg-[#fafafa] border-t border-slate-200 select-none"
