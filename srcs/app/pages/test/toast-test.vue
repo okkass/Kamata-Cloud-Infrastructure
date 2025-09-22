@@ -39,22 +39,24 @@
 </template>
 
 <script setup lang="ts">
+const { addToast } = useToast();
+
 const success = () => {
-  useToast().addToast({
+  addToast({
     type: "success",
     message: "成功しました！",
     details: "追加の詳細情報",
   });
 };
 const error = () => {
-  useToast().addToast({
+  addToast({
     type: "error",
     message: "エラーが発生しました。",
     details: "追加の詳細情報",
   });
 };
 const info = () => {
-  useToast().addToast({
+  addToast({
     type: "info",
     message: "情報メッセージです。",
     details: "追加の詳細情報",
