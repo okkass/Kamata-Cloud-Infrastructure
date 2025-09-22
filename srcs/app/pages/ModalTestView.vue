@@ -2,7 +2,7 @@
   <div class="p-8">
     <h1 class="text-2xl font-bold mb-4">モーダル表示テストページ</h1>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
       <button @click="openModal('vmCreate')" class="btn-primary">VM作成</button>
       <button @click="openModal('vmEdit')" class="btn-primary">VM編集</button>
       <button @click="openModal('netCreate')" class="btn-primary">
@@ -17,6 +17,12 @@
       </button>
       <button @click="openModal('imageEdit')" class="btn-primary">
         イメージ編集
+      </button>
+      <button @click="openModal('instanceTypeAdd')" class="btn-primary">
+        タイプ追加
+      </button>
+      <button @click="openModal('instanceTypeEdit')" class="btn-primary">
+        タイプ編集
       </button>
     </div>
 
@@ -34,13 +40,20 @@
       :nodes="dummyNodeData"
       @close="closeModal"
     />
-
     <MoImageEdit
       :show="activeModal === 'imageEdit'"
       :image-data="dummyImageData"
       @close="closeModal"
     />
-
+    <MoInstanceTypeAdd
+      :show="activeModal === 'instanceTypeAdd'"
+      @close="closeModal"
+    />
+    <MoInstanceTypeEdit
+      :show="activeModal === 'instanceTypeEdit'"
+      :instance-type-data="dummyInstanceTypeData"
+      @close="closeModal"
+    />
     <BaseModal
       :show="['netCreate', 'netEdit', 'storageAdd'].includes(activeModal)"
       :title="baseModalTitle"
@@ -56,60 +69,45 @@ import { ref, shallowRef, markRaw } from "vue";
 
 // ==============================================================================
 // コンポーネントのインポート
-// 命名規則に従い、PascalCaseで記述
 // ==============================================================================
-// --- モーダルコンポーネントのインポート ---
 import MoVirtualMachineCreate from "~/components/MoVirtualMachineCreate.vue";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
+import MoAddNodeToCluster from "~/components/MoAddNodeToCluster.vue";
+import MoImageEdit from "~/components/MoImageEdit.vue";
+import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue"; // ★★★ インポートを追加 ★★★
+import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue"; // ★★★ インポートを追加 ★★★
 import BaseModal from "~/components/BaseModal.vue";
 import AddLocalStorageForm from "~/components/MoLocalStorageAdd.vue";
 import CreateVirtualNetworkForm from "~/components/MoVirtualNetworkCreate.vue";
 import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
-import MoAddNodeToCluster from "~/components/MoAddNodeToCluster.vue";
-import MoImageEdit from "~/components/MoImageEdit.vue";
 
 // ==============================================================================
 // リアクティブな状態変数 (State)
 // ==============================================================================
-// どのモーダルが開いているかを管理 (nullは全て閉じている状態)
 const activeModal = ref(null);
-
-// BaseModalで動的に中身を切り替えるための変数
 const baseModalTitle = ref("");
 const baseModalContent = shallowRef(null);
 
 // ==============================================================================
 // ダミーデータ (Dummy Data for Props)
-// APIが完成するまでのテスト用データ
 // ==============================================================================
-// VM編集モーダル用のデータ
 const dummyVmEditData = {
-  general: { vmName: "test-vm-01", node: "node2" },
-  config: {
-    cpu: 8,
-    memory: 8192,
-    storage: [{ id: 1, name: "OS", size: 100, pool: "Pool-1", type: "os" }],
-  },
-  network: {
-    network: "teacher-net",
-    subnet: "172.16.0.0/24",
-    securityGroups: [],
-  },
+  /* ... */
+};
+const dummyNodeData = [
+  /* ... */
+];
+const dummyImageData = {
+  /* ... */
 };
 
-// ノード追加モーダル用のデータ
-const dummyNodeData = [
-  { id: "node-x", name: "Node-X", ipAddress: "192.168.1.101" },
-  { id: "node-y", name: "Node-Y", ipAddress: "192.168.1.102" },
-  { id: "node-z", name: "Node-Z", ipAddress: "192.168.1.103" },
-];
-
-// イメージ編集モーダル用のダミーデータを追加
-const dummyImageData = {
-  id: "img-001",
-  name: "ubuntu-22.04-image",
-  size: 8,
-  description: "これはテスト用のサンプルデータです。",
+// ★★★ インスタンスタイプ編集モーダル用のダミーデータを追加 ★★★
+const dummyInstanceTypeData = {
+  id: "itype-001",
+  name: "standard.medium",
+  vcpus: 4,
+  memory: 8,
+  storage: 100,
 };
 
 // ==============================================================================
@@ -120,7 +118,6 @@ const dummyImageData = {
  * @param {string} modalName - 開きたいモーダルの識別子
  */
 const openModal = (modalName) => {
-  // BaseModalを使用するモーダルの場合は、タイトルと中身のコンポーネントをセット
   const simpleModals = {
     netCreate: {
       title: "仮想ネットワーク作成",
