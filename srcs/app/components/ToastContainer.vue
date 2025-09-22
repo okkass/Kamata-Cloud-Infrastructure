@@ -9,7 +9,7 @@
       <div
         v-for="toast in toasts"
         :key="toast.id"
-        class="w-full max-w-sm rounded-lg p-3 text-white shadow-lg"
+        class="w-96 rounded-lg p-3 text-white shadow-lg overflow-hidden break-words"
         :class="toastColors[toast.type || 'info']"
       >
         <p class="font-bold">{{ toast.message }}</p>
@@ -27,8 +27,6 @@
 <script setup lang="ts">
 const { toasts } = useToast();
 
-// クラス名を動的に割り当てるためのオブジェクト
-// ここで色を集中管理すると便利です
 const toastColors = {
   info: "bg-blue-500",
   success: "bg-green-500",

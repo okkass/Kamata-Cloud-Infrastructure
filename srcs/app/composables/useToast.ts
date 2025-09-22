@@ -9,6 +9,7 @@ interface ToastPayload {
   message: string;
   details?: string;
   type?: Toast["type"];
+  duration?: number;
 }
 
 export const useToast = () => {
@@ -18,7 +19,7 @@ export const useToast = () => {
     const id = new Date().getTime();
     const type = payload.type || "info";
     toasts.value.push({ id, ...payload, type });
-    const duration = payload.type === "error" ? 8000 : 4000;
+    const duration = payload.duration || (type === "error" ? 6000 : 3000);
     setTimeout(() => removeToast(id), duration);
   };
 

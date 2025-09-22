@@ -20,6 +20,20 @@
       >
         Show Info Toast
       </button>
+      <button
+        @click="
+          useToast().addToast({
+            type: 'info',
+            message: '自動で消えるトースト',
+            details:
+              '1秒後に自動で消えますgnerguionergnaiergniaerngilufndgiernog;naeirngi;urengiuner;gkgndkfhgm:spermgmgiwmefe;rpgmaeorgnreger',
+            duration: 1000,
+          })
+        "
+        class="rounded bg-gray-500 px-4 py-2 text-white hover:bg-gray-600"
+      >
+        Show Auto Dismiss Toast
+      </button>
     </div>
   </div>
 </template>
