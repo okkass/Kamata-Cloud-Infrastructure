@@ -106,7 +106,7 @@ export default {
         v-else
         class="block px-4 py-3 text-[15px] font-semibold text-slate-400 bg-[#fafafa] border-t border-slate-200 select-none"
       >
-        削除不可（保護）
+        削除不可
       </span>
     </template>
   </DashboardLayout>
