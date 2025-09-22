@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - "docs/api設計/api.yml"
+      - "docs/api_design/api.yml"
   workflow_dispatch:
 
 permissions:
@@ -30,7 +30,7 @@ jobs:
         run: npm install -g @redocly/cli
 
       - name: Build API Documentation
-        run: redocly build-docs docs/api設計/api.yml -o public/index.html
+        run: redocly build-docs docs/api_design/api.yml -o public/index.html
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
