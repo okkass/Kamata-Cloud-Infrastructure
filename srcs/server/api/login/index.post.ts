@@ -12,9 +12,21 @@ export default defineEventHandler(async (event) => {
   if (email.substring(0, 5) === "admin") {
     const payload: KCIJWTPayload = {
       isAdmin: true,
-      userId: "a575c9ea-96fb-4ed3-9d92-d93712d0e2cc",
+      userId: "c201325b-793b-4d06-8b8f-7c397fad27fe",
     };
     const token = await signToken(payload);
     return { token };
+  } else if (email.substring(0, 4) === "user") {
+    const payload: KCIJWTPayload = {
+      isAdmin: false,
+      userId: "e0ee3918-a728-4158-98db-b04f8325fd55",
+    };
+    const token = await signToken(payload);
+    return { token };
+  } else {
+    return createError({
+      statusCode: 401,
+      statusMessage: "Invalid email or password",
+    });
   }
 });
