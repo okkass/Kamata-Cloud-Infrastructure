@@ -15,6 +15,9 @@
       <button @click="openModal('nodeAdd')" class="btn-primary">
         ノード追加
       </button>
+      <button @click="openModal('imageEdit')" class="btn-primary">
+        イメージ編集
+      </button>
     </div>
 
     <MoVirtualMachineCreate
@@ -29,6 +32,12 @@
     <MoAddNodeToCluster
       :show="activeModal === 'nodeAdd'"
       :nodes="dummyNodeData"
+      @close="closeModal"
+    />
+
+    <MoImageEdit
+      :show="activeModal === 'imageEdit'"
+      :image-data="dummyImageData"
       @close="closeModal"
     />
 
@@ -57,6 +66,7 @@ import AddLocalStorageForm from "~/components/MoLocalStorageAdd.vue";
 import CreateVirtualNetworkForm from "~/components/MoVirtualNetworkCreate.vue";
 import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
 import MoAddNodeToCluster from "~/components/MoAddNodeToCluster.vue";
+import MoImageEdit from "~/components/MoImageEdit.vue";
 
 // ==============================================================================
 // リアクティブな状態変数 (State)
@@ -93,6 +103,14 @@ const dummyNodeData = [
   { id: "node-y", name: "Node-Y", ipAddress: "192.168.1.102" },
   { id: "node-z", name: "Node-Z", ipAddress: "192.168.1.103" },
 ];
+
+// イメージ編集モーダル用のダミーデータを追加
+const dummyImageData = {
+  id: "img-001",
+  name: "ubuntu-22.04-image",
+  size: 8,
+  description: "これはテスト用のサンプルデータです。",
+};
 
 // ==============================================================================
 // 関数 (Methods)
