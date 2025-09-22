@@ -2,33 +2,38 @@
   <div class="p-8">
     <h1 class="text-2xl font-bold mb-4">モーダル表示テストページ</h1>
 
-    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
-      <button @click="openModal('vm-create')" class="btn-primary">
-        VM作成
-      </button>
-      <button @click="openModal('vm-edit')" class="btn-primary">VM編集</button>
-      <button @click="openModal('net-create')" class="btn-primary">
+    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+      <button @click="openModal('vmCreate')" class="btn-primary">VM作成</button>
+      <button @click="openModal('vmEdit')" class="btn-primary">VM編集</button>
+      <button @click="openModal('netCreate')" class="btn-primary">
         NW作成
       </button>
-      <button @click="openModal('net-edit')" class="btn-primary">NW編集</button>
-      <button @click="openModal('storage-add')" class="btn-primary">
+      <button @click="openModal('netEdit')" class="btn-primary">NW編集</button>
+      <button @click="openModal('storageAdd')" class="btn-primary">
         ストレージ追加
+      </button>
+      <button @click="openModal('nodeAdd')" class="btn-primary">
+        ノード追加
       </button>
     </div>
 
     <MoVirtualMachineCreate
-      :show="activeModal === 'vm-create'"
+      :show="activeModal === 'vmCreate'"
       @close="closeModal"
     />
-
     <MoVirtualMachineEdit
-      :show="activeModal === 'vm-edit'"
+      :show="activeModal === 'vmEdit'"
       :vm-data="dummyVmEditData"
+      @close="closeModal"
+    />
+    <MoAddNodeToCluster
+      :show="activeModal === 'nodeAdd'"
+      :nodes="dummyNodeData"
       @close="closeModal"
     />
 
     <BaseModal
-      :show="['net-create', 'net-edit', 'storage-add'].includes(activeModal)"
+      :show="['netCreate', 'netEdit', 'storageAdd'].includes(activeModal)"
       :title="baseModalTitle"
       @close="closeModal"
     >
@@ -40,6 +45,10 @@
 <script setup>
 import { ref, shallowRef, markRaw } from "vue";
 
+// ==============================================================================
+// コンポーネントのインポート
+// 命名規則に従い、PascalCaseで記述
+// ==============================================================================
 // --- モーダルコンポーネントのインポート ---
 import MoVirtualMachineCreate from "~/components/MoVirtualMachineCreate.vue";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
@@ -47,15 +56,23 @@ import BaseModal from "~/components/BaseModal.vue";
 import AddLocalStorageForm from "~/components/MoLocalStorageAdd.vue";
 import CreateVirtualNetworkForm from "~/components/MoVirtualNetworkCreate.vue";
 import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
+import MoAddNodeToCluster from "~/components/MoAddNodeToCluster.vue";
 
-// --- 状態管理 ---
-// どのモーダルが開いているかを文字列で管理 (nullは全て閉じている状態)
+// ==============================================================================
+// リアクティブな状態変数 (State)
+// ==============================================================================
+// どのモーダルが開いているかを管理 (nullは全て閉じている状態)
 const activeModal = ref(null);
-// BaseModalで表示するタイトルと中身
+
+// BaseModalで動的に中身を切り替えるための変数
 const baseModalTitle = ref("");
 const baseModalContent = shallowRef(null);
 
-// --- 編集モーダル用のダミーデータ ---
+// ==============================================================================
+// ダミーデータ (Dummy Data for Props)
+// APIが完成するまでのテスト用データ
+// ==============================================================================
+// VM編集モーダル用のデータ
 const dummyVmEditData = {
   general: { vmName: "test-vm-01", node: "node2" },
   config: {
@@ -70,23 +87,45 @@ const dummyVmEditData = {
   },
 };
 
-// --- 関数 ---
+// ノード追加モーダル用のデータ
+const dummyNodeData = [
+  { id: "node-x", name: "Node-X", ipAddress: "192.168.1.101" },
+  { id: "node-y", name: "Node-Y", ipAddress: "192.168.1.102" },
+  { id: "node-z", name: "Node-Z", ipAddress: "192.168.1.103" },
+];
+
+// ==============================================================================
+// 関数 (Methods)
+// ==============================================================================
+/**
+ * モーダルを開く関数
+ * @param {string} modalName - 開きたいモーダルの識別子
+ */
 const openModal = (modalName) => {
-  // 単純なモーダルの場合は、タイトルと中身もセット
-  if (modalName === "net-create") {
-    baseModalTitle.value = "仮想ネットワーク作成";
-    baseModalContent.value = markRaw(CreateVirtualNetworkForm);
-  } else if (modalName === "net-edit") {
-    baseModalTitle.value = "仮想ネットワーク編集";
-    baseModalContent.value = markRaw(MoVirtualNetworkEdit);
-  } else if (modalName === "storage-add") {
-    baseModalTitle.value = "ローカルストレージ追加";
-    baseModalContent.value = markRaw(AddLocalStorageForm);
+  // BaseModalを使用するモーダルの場合は、タイトルと中身のコンポーネントをセット
+  const simpleModals = {
+    netCreate: {
+      title: "仮想ネットワーク作成",
+      component: CreateVirtualNetworkForm,
+    },
+    netEdit: { title: "仮想ネットワーク編集", component: MoVirtualNetworkEdit },
+    storageAdd: {
+      title: "ローカルストレージ追加",
+      component: AddLocalStorageForm,
+    },
+  };
+
+  if (simpleModals[modalName]) {
+    baseModalTitle.value = simpleModals[modalName].title;
+    baseModalContent.value = markRaw(simpleModals[modalName].component);
   }
 
   activeModal.value = modalName;
 };
 
+/**
+ * すべてのモーダルを閉じる関数
+ */
 const closeModal = () => {
   activeModal.value = null;
 };
