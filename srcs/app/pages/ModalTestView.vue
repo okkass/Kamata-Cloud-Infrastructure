@@ -2,7 +2,7 @@
   <div class="p-8">
     <h1 class="text-2xl font-bold mb-4">モーダル表示テストページ</h1>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
       <button @click="openModal('vmCreate')" class="btn-primary">VM作成</button>
       <button @click="openModal('vmEdit')" class="btn-primary">VM編集</button>
       <button @click="openModal('netCreate')" class="btn-primary">
@@ -24,6 +24,8 @@
       <button @click="openModal('instanceTypeEdit')" class="btn-primary">
         タイプ編集
       </button>
+      <button @click="openModal('sgCreate')" class="btn-primary">SG作成</button>
+      <button @click="openModal('sgEdit')" class="btn-primary">SG編集</button>
     </div>
 
     <MoVirtualMachineCreate
@@ -54,6 +56,15 @@
       :instance-type-data="dummyInstanceTypeData"
       @close="closeModal"
     />
+    <MoSecurityGroupCreate
+      :show="activeModal === 'sgCreate'"
+      @close="closeModal"
+    />
+    <MoSecurityGroupEdit
+      :show="activeModal === 'sgEdit'"
+      :security-group-data="dummySecurityGroupData"
+      @close="closeModal"
+    />
     <BaseModal
       :show="['netCreate', 'netEdit', 'storageAdd'].includes(activeModal)"
       :title="baseModalTitle"
@@ -74,8 +85,10 @@ import MoVirtualMachineCreate from "~/components/MoVirtualMachineCreate.vue";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 import MoAddNodeToCluster from "~/components/MoAddNodeToCluster.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
-import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue"; // ★★★ インポートを追加 ★★★
-import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue"; // ★★★ インポートを追加 ★★★
+import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue";
+import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
+import MoSecurityGroupCreate from "~/components/MoSecurityGroupCreate.vue"; // ★★★ インポートを追加 ★★★
+import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue"; // ★★★ インポートを追加 ★★★
 import BaseModal from "~/components/BaseModal.vue";
 import AddLocalStorageForm from "~/components/MoLocalStorageAdd.vue";
 import CreateVirtualNetworkForm from "~/components/MoVirtualNetworkCreate.vue";
@@ -100,14 +113,35 @@ const dummyNodeData = [
 const dummyImageData = {
   /* ... */
 };
-
-// ★★★ インスタンスタイプ編集モーダル用のダミーデータを追加 ★★★
 const dummyInstanceTypeData = {
-  id: "itype-001",
-  name: "standard.medium",
-  vcpus: 4,
-  memory: 8,
-  storage: 100,
+  /* ... */
+};
+
+// ★★★ セキュリティグループ編集モーダル用のダミーデータを追加 ★★★
+const dummySecurityGroupData = {
+  id: "sg-001",
+  name: "web-server-rules-for-edit",
+  description: "編集用のWebサーバーのルールセットです。",
+  inboundRules: [
+    {
+      id: 0,
+      name: "allow-http",
+      port: "80",
+      protocol: "TCP",
+      sourceIp: "0.0.0.0/0",
+      action: "許容",
+    },
+  ],
+  outboundRules: [
+    {
+      id: 1,
+      name: "allow-all-outbound",
+      port: "ALL",
+      protocol: "TCP",
+      sourceIp: "0.0.0.0/0",
+      action: "許容",
+    },
+  ],
 };
 
 // ==============================================================================

@@ -4,7 +4,7 @@
     class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
   >
     <div
-      class="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg flex flex-col max-h-[90vh]"
+      class="bg-white p-6 rounded-lg shadow-xl w-full max-w-3xl flex flex-col max-h-[90vh]"
     >
       <div
         class="flex-shrink-0 flex justify-between items-center border-b border-gray-200 pb-4 mb-4"
