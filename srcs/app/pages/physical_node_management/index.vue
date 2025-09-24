@@ -51,13 +51,19 @@ import { reactive } from "vue";
 
 const columns = [
   { key: "name", label: "ノード名" },
-  { key: "ip", label: "IPアドレス" },
+  { key: "ipAddress", label: "IPアドレス" },
   { key: "status", label: "状態" },
-  { key: "cpu", label: "CPU" },
-  { key: "mem", label: "メモリ" },
-  { key: "storage", label: "ストレージ" },
+  { key: "cpuUtilization", label: "CPU" },
+  { key: "memoryUtilization", label: "メモリ" },
+  { key: "storageUtilization", label: "ストレージ" },
 ];
 
+const { data } = await useFetch("/api/physical-nodes");
+
+console.log(data.value);
+const rows = reactive(data.value || []);
+
+/*
 const rows = reactive([
   {
     id: "node-a",
@@ -90,6 +96,7 @@ const rows = reactive([
     isMgmt: false,
   },
 ]);
+*/
 
 const headerButtons = [{ label: "ノード追加", action: "create-node" }];
 
