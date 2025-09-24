@@ -16,7 +16,7 @@ export default defineEventHandler((event) => {
   } else {
     const mock = [
       {
-        id: "",
+        id: "8874840c-fe85-4eb9-985f-a856eee1faa2",
         name: "vm-01",
         instanceType: {
           id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
@@ -75,8 +75,8 @@ export default defineEventHandler((event) => {
         storageUtilization: 0.2, // 0 to 1
       },
       {
-        id: "",
-        name: "vm-01",
+        id: "671d6880-b0f5-4fcb-827d-aae17536888c",
+        name: "vm-02",
         instanceType: {
           id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
           name: "t2.standard",
@@ -135,9 +135,10 @@ export default defineEventHandler((event) => {
       },
     ];
     // idがなければ404
-    return (
-      mock.find((vm) => vm.id === id) ||
-      createError({ statusCode: 404, statusMessage: "Not Found" })
-    );
+    const ret = mock.find((vm) => vm.id === id);
+    if (!ret) {
+      throw createError({ statusCode: 404, statusMessage: "Not Found" });
+    }
+    return ret;
   }
 });
