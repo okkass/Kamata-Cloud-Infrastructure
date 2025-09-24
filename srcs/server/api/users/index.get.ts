@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import type { User } from "../../../shared/types/index";
+import type { UserDTO } from "../../../shared/types/index";
 
 export default defineEventHandler(async (event) => {
   const user1 = {
@@ -18,6 +18,6 @@ export default defineEventHandler(async (event) => {
     isAdmin: true,
     lastLoginAt: new Date().toISOString(),
   };
-  const users: User[] = [user1, user2];
+  const users: UserDTO[] = [user1, user2];
   return users;
 });
