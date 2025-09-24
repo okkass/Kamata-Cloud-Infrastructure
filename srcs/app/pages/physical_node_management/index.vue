@@ -21,7 +21,7 @@
 
     <!-- 管理ノードは「削除不可」バッジ、他は通常メニュー -->
     <template #row-actions="{ row, emit }">
-      <template v-if="row.isMgmt">
+      <template v-if="row.isAdmin">
         <div
           class="w-full text-center px-4 py-2 text-sm font-bold text-white bg-slate-500 border border-slate-700 rounded-md cursor-not-allowed select-none"
         >
@@ -49,6 +49,7 @@
 <script setup>
 import { reactive } from "vue";
 
+// ここはAPI仕様を踏まえて適宜調整してください
 const columns = [
   { key: "name", label: "ノード名" },
   { key: "ipAddress", label: "IPアドレス" },
@@ -58,45 +59,21 @@ const columns = [
   { key: "storageUtilization", label: "ストレージ" },
 ];
 
+// データの取得
 const { data } = await useFetch("/api/physical-nodes");
 
-console.log(data.value);
-const rows = reactive(data.value || []);
+// データの整形
+let val = data.value;
+for (let i = 0; i < val.length; i++) {
+  val[i].status = "active" ? "稼働中" : "停止中";
+  val[i].cpuUtilization = (val[i].cpuUtilization * 100).toFixed(1) + "%";
+  val[i].memoryUtilization = (val[i].memoryUtilization * 100).toFixed(1) + "%";
+  val[i].storageUtilization =
+    (val[i].storageUtilization * 100).toFixed(1) + "%";
+}
 
-/*
-const rows = reactive([
-  {
-    id: "node-a",
-    name: "Node-A",
-    ip: "192.168.0.10",
-    status: "稼働中",
-    cpu: "70%",
-    mem: "60%",
-    storage: "80%",
-    isMgmt: true,
-  },
-  {
-    id: "node-b",
-    name: "Node-B",
-    ip: "192.168.0.11",
-    status: "停止中",
-    cpu: "—",
-    mem: "—",
-    storage: "—",
-    isMgmt: false,
-  },
-  {
-    id: "node-c",
-    name: "Node-C",
-    ip: "192.168.0.12",
-    status: "稼働中",
-    cpu: "45%",
-    mem: "55%",
-    storage: "30%",
-    isMgmt: false,
-  },
-]);
-*/
+// リアクティブにする
+const rows = reactive(val || []);
 
 const headerButtons = [{ label: "ノード追加", action: "create-node" }];
 
