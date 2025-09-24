@@ -1,17 +1,3 @@
-interface Toast {
-  id: string;
-  message: string;
-  details?: string;
-  type?: "success" | "error" | "info";
-}
-
-interface ToastPayload {
-  message: string;
-  details?: string;
-  type?: Toast["type"];
-  duration?: number;
-}
-
 export const useToast = () => {
   const toasts = useState<Toast[]>("toast", () => []);
 
