@@ -26,6 +26,15 @@
       </button>
       <button @click="openModal('sgCreate')" class="btn-primary">SG作成</button>
       <button @click="openModal('sgEdit')" class="btn-primary">SG編集</button>
+      <button @click="openModal('networkStorageAdd')" class="btn-primary">
+        NWストレージ追加
+      </button>
+      <button @click="openModal('userAdd')" class="btn-primary">
+        利用者追加
+      </button>
+      <button @click="openModal('userEdit')" class="btn-primary">
+        利用者編集
+      </button>
     </div>
 
     <MoVirtualMachineCreate
@@ -65,6 +74,20 @@
       :security-group-data="dummySecurityGroupData"
       @close="closeModal"
     />
+
+    <MoNetworkStorageAdd
+      :show="activeModal === 'networkStorageAdd'"
+      @close="closeModal"
+    />
+
+    <MoUserAdd :show="activeModal === 'userAdd'" @close="closeModal" />
+
+    <MoUserEdit
+      :show="activeModal === 'userEdit'"
+      :user-data="dummyUserData"
+      @close="closeModal"
+    />
+
     <BaseModal
       :show="['netCreate', 'netEdit', 'storageAdd'].includes(activeModal)"
       :title="baseModalTitle"
@@ -87,12 +110,15 @@ import MoAddNodeToCluster from "~/components/MoAddNodeToCluster.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
 import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
-import MoSecurityGroupCreate from "~/components/MoSecurityGroupCreate.vue"; // ★★★ インポートを追加 ★★★
-import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue"; // ★★★ インポートを追加 ★★★
+import MoSecurityGroupCreate from "~/components/MoSecurityGroupCreate.vue";
+import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 import BaseModal from "~/components/BaseModal.vue";
 import AddLocalStorageForm from "~/components/MoLocalStorageAdd.vue";
 import CreateVirtualNetworkForm from "~/components/MoVirtualNetworkCreate.vue";
 import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
+import MoNetworkStorageAdd from "~/components/MoNetworkStorageAdd.vue";
+import MoUserAdd from "~/components/MoUserAdd.vue";
+import MoUserEdit from "~/components/MoUserEdit.vue";
 
 // ==============================================================================
 // リアクティブな状態変数 (State)
@@ -117,7 +143,17 @@ const dummyInstanceTypeData = {
   /* ... */
 };
 
-// ★★★ セキュリティグループ編集モーダル用のダミーデータを追加 ★★★
+//ユーザー編集モーダル用のダミーデータを追加
+const dummyUserData = {
+  id: "user-001",
+  accountName: "tanaka-ichiro",
+  email: "tanaka@example.com",
+  maxCpu: 8,
+  maxMemory: 16,
+  maxStorage: 200,
+};
+
+//セキュリティグループ編集モーダル用のダミーデータを追加
 const dummySecurityGroupData = {
   id: "sg-001",
   name: "web-server-rules-for-edit",
