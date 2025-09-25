@@ -23,9 +23,11 @@ const rowActions    = [
 ]
 
 function onHeaderAction(action: string) {
+  // TODO: Implement proper action handling logic for header actions
   if (action === 'create') console.log('create vnet')
 }
 function onRowAction(e: { action: string; row: VNet }) {
+  // TODO: Implement proper action handling logic for row actions
   console.log(e.action, e.row)
 }
 </script>
