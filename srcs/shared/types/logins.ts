@@ -1,4 +1,4 @@
-export interface LoginPost200Response {
+export interface LoginPost200ResponseDTO {
   /**
    * 認証トークン
    */
@@ -7,7 +7,7 @@ export interface LoginPost200Response {
 /**
  * ログインリクエストオブジェクト
  */
-export interface LoginRequest {
+export interface LoginRequestDTO {
   /**
    * ユーザのメールアドレス
    */
