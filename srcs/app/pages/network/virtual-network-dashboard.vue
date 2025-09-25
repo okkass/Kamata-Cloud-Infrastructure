@@ -25,10 +25,10 @@ const rowActions    = [
 function onHeaderAction(action: string) {
   // TODO: Implement proper action handling logic for header actions
   if (action === 'create') console.log('create vnet')
+  // TODO: Implement creation of a new virtual network when 'create' action is triggered
 }
 function onRowAction(e: { action: string; row: VNet }) {
-  // TODO: Implement proper action handling logic for row actions
-  console.log(e.action, e.row)
+  // TODO: Implement row actions: edit, pause, or delete for the selected virtual network
 }
 </script>
 
