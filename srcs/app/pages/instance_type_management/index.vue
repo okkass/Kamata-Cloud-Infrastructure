@@ -39,7 +39,6 @@ const rows = ref<Row[]>([
   { id: 3, name: "compute.large", vcpu: 8, memory: "16 GB", storage: "200 GB" },
 ]);
 
-/* ---- Toast: 命名リネーム＋clearTimeoutの共通化 ---- */
 type ToastKind = "info" | "success" | "error";
 const toast = ref<{ show: boolean; msg: string; kind: ToastKind }>({
   show: false,
