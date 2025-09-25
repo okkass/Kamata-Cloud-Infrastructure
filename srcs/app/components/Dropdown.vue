@@ -35,8 +35,8 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue'
 const open = ref(false)
-function toggle(){ open.value = !open.value }
-function onDocClick(){ open.value = false }
+function toggle() { open.value = !open.value }
+function onDocClick() { open.value = false }
 onMounted(() => document.addEventListener('click', onDocClick))
 onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
 
