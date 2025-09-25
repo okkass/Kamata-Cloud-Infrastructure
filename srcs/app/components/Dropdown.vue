@@ -41,9 +41,9 @@ onMounted(() => document.addEventListener('click', onDocClick))
 onBeforeUnmount(() => document.removeEventListener('click', onDocClick))
 
 const emit = defineEmits<{
-  (e:'edit'): void
-  (e:'pause'): void
-  (e:'delete'): void
+  (e: 'edit'): void
+  (e: 'pause'): void
+  (e: 'delete'): void
 }>()
 </script>
 
