@@ -39,35 +39,38 @@ const rows = ref<Row[]>([
   { id: 3, name: "compute.large", vcpu: 8, memory: "16 GB", storage: "200 GB" },
 ]);
 
-/* ---- alert/confirm を使わない: Toast + 確認モーダル ---- */
+/* ---- Toast: 命名リネーム＋clearTimeoutの共通化 ---- */
 type ToastKind = "info" | "success" | "error";
 const toast = ref<{ show: boolean; msg: string; kind: ToastKind }>({
   show: false,
   msg: "",
   kind: "info",
 });
-let toastTimer: number | null = null;
+
+let toastTimeoutId: number | null = null;
+function clearToastTimer() {
+  if (toastTimeoutId !== null) {
+    clearTimeout(toastTimeoutId);
+    toastTimeoutId = null;
+  }
+}
 function showToast(msg: string, kind: ToastKind = "info", ms = 2200) {
   toast.value = { show: true, msg, kind };
-  if (toastTimer) clearTimeout(toastTimer as number);
-  toastTimer = window.setTimeout(() => (toast.value.show = false), ms);
+  clearToastTimer();
+  toastTimeoutId = window.setTimeout(() => (toast.value.show = false), ms);
 }
 onUnmounted(() => {
-  if (toastTimer) clearTimeout(toastTimer as number);
+  clearToastTimer();
 });
 
+/* ---- 削除確認 ---- */
 const confirmOpen = ref(false);
 const targetRow = ref<Row | null>(null);
 
 function onHeader(action: string) {
-  if (action === "add") {
-    // ここは後でモーダルやページ遷移に差し替え
-    showToast("インスタンスタイプ追加（仮）", "info");
-  }
+  if (action === "add") showToast("インスタンスタイプ追加（仮）", "info");
 }
-
-function onRow(payload: { action: string; row: Row }) {
-  const { action, row } = payload;
+function onRow({ action, row }: { action: string; row: Row }) {
   if (action === "edit") {
     showToast(`編集（仮）：${row.name}`, "info");
   } else if (action === "delete") {
@@ -88,6 +91,9 @@ function confirmDelete() {
   closeConfirm();
   showToast("削除しました（仮）", "success");
 }
+
+/* 数値列 等幅 */
+const num = "tabular-nums";
 </script>
 
 <template>
@@ -101,19 +107,26 @@ function confirmDelete() {
     @header-action="onHeader"
     @row-action="onRow"
   >
-    <!-- 名前はリンク風。aではなくbuttonでアクセシブルに -->
+    <!-- 名前はbuttonでリンク風 -->
     <template #cell-name="{ row, emit }">
-      <button
-        type="button"
-        class="text-blue-600 hover:underline font-semibold"
-        @click="emit('detail')"
-      >
+      <button type="button" class="link-like" @click="emit('detail')">
         {{ row.name }}
       </button>
     </template>
 
-    <!-- 行操作（aタグではなくbuttonで統一） -->
-    <template #row-actions="{ row, emit }">
+    <!-- 等幅数字 -->
+    <template #cell-vcpu="{ row }"
+      ><span :class="num">{{ row.vcpu }}</span></template
+    >
+    <template #cell-memory="{ row }"
+      ><span :class="num">{{ row.memory }}</span></template
+    >
+    <template #cell-storage="{ row }"
+      ><span :class="num">{{ row.storage }}</span></template
+    >
+
+    <!-- 行操作 -->
+    <template #row-actions="{ emit }">
       <button type="button" class="menu-item" @click="emit('edit')">
         編集
       </button>
@@ -162,6 +175,10 @@ function confirmDelete() {
 </template>
 
 <style scoped>
+.link-like {
+  @apply text-blue-600 hover:underline font-semibold;
+}
+
 /* 行メニュー */
 .menu-item {
   @apply block w-full text-left px-4 py-3 text-[15px] font-semibold hover:bg-[#f5f7fa] border-t first:border-t-0 border-slate-200;
