@@ -36,6 +36,7 @@ const rowActions = [
   { label: "編集", action: "edit" },
   { label: "一時停止", action: "pause" },
   { label: "削除", action: "delete" },
+  { label: "ちんぽを出す", action: "chimpo" },
 ];
 
 function onHeaderAction(action: string) {
@@ -45,15 +46,3 @@ function onRowAction(e: { action: string; row: VNet }) {
   console.log(e.action, e.row);
 }
 </script>
-
-<!-- Tailwindの@layerは使わず、純CSSで“常時表示”を強制 -->
-<!--
-<style>
-.vnet-page .dl-actions-cell .menu-trigger {
-  opacity: 1 !important;
-  visibility: visible !important;
-  pointer-events: auto !important;
-  display: inline-flex !important;
-}
-</style>
--->
