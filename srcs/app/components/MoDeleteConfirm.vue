@@ -9,7 +9,7 @@
         <button @click="$emit('close')" class="btn-secondary">
           {{ cancelText }}
         </button>
-        <button @click="onConfirm" class="btn-danger">
+        <button @click="onConfirm" class="btn-danger" :disabled="isLoading">
           {{ confirmText }}
         </button>
       </div>
@@ -46,6 +46,11 @@ defineProps({
   cancelText: {
     type: String,
     default: "キャンセル",
+  },
+  // 削除処理中かどうか (ボタンの無効化に使用)
+  isLoading: {
+    type: Boolean,
+    default: false,
   },
 });
 
