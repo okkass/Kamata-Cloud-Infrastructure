@@ -14,22 +14,12 @@ export const useResourceDelete = (resourceName: string) => {
   // 削除対象のリソースIDをリアクティブに保持
   const targetId = ref<string | null>(null);
 
-  // --- 共通のAPI設定を追加 ---
-  const authToken = useCookie("auth-token");
-  const {
-    public: { apiBase },
-  } = useRuntimeConfig();
-
   // useFetchを`immediate: false`でセットアップし、任意のタイミングで実行可能にする
   const { execute, status, error } = useFetch<void>(
     // URLはリアクティブなcomputedプロパティとして定義
     () => `/api/${resourceName}/${targetId.value}`,
     {
-      baseURL: apiBase as string,
       method: "DELETE",
-      headers: {
-        ...(authToken.value && { Authorization: `Bearer ${authToken.value}` }),
-      },
       // immediate: false - コンポーネント読み込み時に自動で実行しない
       immediate: false,
       // watch: false - 参照しているリアクティブな値(targetId)が変更されても自動で実行しない
