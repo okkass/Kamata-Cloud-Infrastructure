@@ -14,7 +14,7 @@ export const useResourceDelete = (resourceName: string) => {
   const authToken = useCookie("auth-token");
 
   const { execute, status, error } = useFetch<void>(
-    () => `/api/${resourceName}ddd/${targetId.value}`,
+    () => `/api/${resourceName}/${targetId.value}`,
     {
       method: "DELETE",
       immediate: false,
