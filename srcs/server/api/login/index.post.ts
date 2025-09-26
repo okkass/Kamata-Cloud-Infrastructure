@@ -22,7 +22,10 @@ export default defineEventHandler(async (event) => {
       userId: "e0ee3918-a728-4158-98db-b04f8325fd55",
     };
     const token = await signToken(payload);
-    return { token };
+    return {
+      token: token,
+      refreshToken: "DzGuy2ph9TlHXKWZynPj0YiICe1FVh4t6TZQouMzwBA=",
+    };
   } else {
     return createError({
       statusCode: 401,
