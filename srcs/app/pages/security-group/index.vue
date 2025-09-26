@@ -156,7 +156,7 @@ const handleDelete = async () => {
     useToast().addToast({
       message: `'${targetForDeletion.value?.name}' の削除に失敗しました。`,
       type: "error",
-      details: result.error,
+      details: result,
     });
   }
   targetForDeletion.value = null;
