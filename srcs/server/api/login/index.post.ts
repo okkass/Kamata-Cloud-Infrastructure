@@ -24,7 +24,8 @@ export default defineEventHandler(async (event) => {
     const token = await signToken(payload);
     return {
       token: token,
-      refreshToken: "DzGuy2ph9TlHXKWZynPj0YiICe1FVh4t6TZQouMzwBA=",
+      refreshToken:
+        "1d79ccff-c554-42d8-b643-2a26cf24630f.DzGuy2ph9TlHXKWZynPj0YiICe1FVh4t6TZQouMzwBA=",
     };
   } else {
     return createError({
