@@ -53,7 +53,7 @@ defineProps({
   },
   securityGroupData: {
     type: Object as PropType<SecurityGroupDTO | null>,
-    default: () => null,
+    default: null,
   },
 });
 
