@@ -6,9 +6,9 @@
     rowKey="id"
     :headerButtons="headerButtons"
     @header-action="onHeaderAction"
-    @row-action="onRowAction"
+    @row-action="handleRowAction"
   >
-    <!-- グループ名をクリックで詳細ページへ遷移させるスロット -->
+    <!-- グループ名をクリックで詳細ページへ遷移 -->
     <template #cell-name="{ row }">
       <NuxtLink
         :to="`/security-group/${row.id}`"
@@ -18,7 +18,7 @@
       </NuxtLink>
     </template>
 
-    <!-- In/Outルール数を表示するためのカスタムセルスロット -->
+    <!-- In/Outルール数を表示 -->
     <template #cell-in-out-count="{ row }">
       <div class="flex items-center justify-center gap-2 text-sm">
         <span class="font-semibold">In:</span>
@@ -36,6 +36,7 @@
       </div>
     </template>
 
+    <!-- 操作メニュー -->
     <template #row-actions="{ row, emit }">
       <NuxtLink
         :to="`/security-group/${row.id}`"
@@ -60,133 +61,75 @@
     </template>
   </DashboardLayout>
 
-  <!-- 削除確認モーダル -->
+  <!-- モーダルのイベントハンドラをComposableから受け取った関数に差し替え -->
   <MoDeleteConfirm
-    :show="activeModal === 'deleteSecurityGroup'"
-    title="セキュリティグループの削除"
+    :show="activeModal === 'delete-security-groups'"
     :message="`本当に '${targetForDeletion?.name}' を削除しますか？`"
     :is-loading="isDeleting"
-    @close="cancelDeletion"
+    @close="cancelAction"
     @confirm="handleDelete"
   />
-
-  <!-- 編集モーダル -->
   <MoSecurityGroupEdit
-    :show="activeModal === 'editSecurityGroup'"
+    :show="activeModal === 'edit-security-groups'"
     :security-group-data="targetForEditing"
-    @close="cancelEditing"
+    @close="cancelAction"
     @success="handleEditSuccess"
   />
-
-  <!-- 作成モーダル -->
   <MoSecurityGroupCreate
-    :show="activeModal === 'createSecurityGroup'"
+    :show="activeModal === 'create-security-groups'"
     @close="closeModal"
     @success="handleCreateSuccess"
   />
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
-import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
-
-const { activeModal, openModal, closeModal } = useModal();
+// --- Composables Setup ---
 const { data: securityGroups, refresh } =
   useResourceList<SecurityGroupDTO>("security-groups");
-const { executeDelete, isDeleting } = useResourceDelete("security-groups");
 
-const targetForDeletion = ref<SecurityGroupDTO | null>(null);
-const targetForEditing = ref<SecurityGroupDTO | null>(null);
+// ★ 新しいComposableを呼び出し、必要なstateと関数を受け取る
+const {
+  activeModal,
+  openModal,
+  closeModal,
+  targetForDeletion,
+  targetForEditing,
+  isDeleting,
+  handleRowAction,
+  handleDelete,
+  handleCreateSuccess,
+  handleEditSuccess,
+  cancelAction,
+} = useDashboardActions<SecurityGroupDTO>({
+  resourceName: "security-groups",
+  resourceLabel: "セキュリティグループ",
+  refresh,
+});
 
+// --- UI Configuration ---
 const columns = [
   { key: "name", label: "グループ名" },
   { key: "description", label: "説明" },
   { key: "in-out-count", label: "イン/アウトルール" },
   { key: "createdAt", label: "作成日時" },
 ];
-
 const headerButtons = [{ label: "新規作成", action: "create" }];
 
+// --- Helper Functions ---
+// ページ固有のヘルパー（ルール数計算）はここに残す
 const getRuleCount = (
-  rules: SecurityRuleDTO[] | undefined,
+  rules: SecurityRuleDTO[],
   type: "inbound" | "outbound"
-): number => {
-  if (!Array.isArray(rules)) {
-    return 0;
-  }
+) => {
+  if (!Array.isArray(rules)) return 0;
   return rules.filter((rule) => rule.ruleType === type).length;
 };
 
 // --- Event Handlers ---
+// ページ固有のヘッダーアクションはここに残す
 const onHeaderAction = (action: string) => {
   if (action === "create") {
-    openModal("createSecurityGroup");
+    openModal("create-security-groups");
   }
-};
-
-const onRowAction = ({
-  action,
-  row,
-}: {
-  action: string;
-  row: SecurityGroupDTO;
-}) => {
-  if (action === "delete") {
-    targetForDeletion.value = row;
-    openModal("deleteSecurityGroup");
-  }
-  if (action === "edit") {
-    targetForEditing.value = row;
-    openModal("editSecurityGroup");
-  }
-};
-
-const handleDelete = async () => {
-  if (!targetForDeletion.value) return;
-  const result = await executeDelete(targetForDeletion.value.id);
-  closeModal();
-  if (result.success) {
-    useToast().addToast({
-      message: `'${targetForDeletion.value?.name}' を削除しました。`,
-      type: "success",
-    });
-    await refresh();
-  } else {
-    useToast().addToast({
-      message: `'${targetForDeletion.value?.name}' の削除に失敗しました。`,
-      type: "error",
-      details: result,
-    });
-  }
-  targetForDeletion.value = null;
-};
-
-const cancelDeletion = () => {
-  closeModal();
-  targetForDeletion.value = null;
-};
-
-const handleEditSuccess = async () => {
-  closeModal();
-  targetForEditing.value = null;
-  await refresh();
-  useToast().addToast({
-    message: "セキュリティグループの保存に成功しました。",
-    type: "success",
-  });
-};
-
-const cancelEditing = () => {
-  closeModal();
-  targetForEditing.value = null;
-};
-
-const handleCreateSuccess = async () => {
-  closeModal();
-  await refresh();
-  useToast().addToast({
-    message: "セキュリティグループの作成に成功しました。",
-    type: "success",
-  });
 };
 </script>

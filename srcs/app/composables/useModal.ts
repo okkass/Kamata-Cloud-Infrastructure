@@ -1,36 +1,51 @@
-import { ref, shallowRef, markRaw, type Component } from "vue";
+import { ref, shallowRef, markRaw } from "vue";
 
-const activeModal = ref<null | string>(null);
+// ----------------------------------------------------------------------------
+// State (シングルトン)
+// ----------------------------------------------------------------------------
+// Composable関数の外で定義することで、アプリ全体で単一の状態を共有する
+
+/** 現在アクティブなモーダルのIDを保持する (例: 'delete-security-groups') */
+const activeModal = ref<string | null>(null);
+
+/** BaseModalで使うモーダルのタイトル */
 const baseModalTitle = ref<string>("");
-const baseModalContent = shallowRef<null | Component>(null);
 
+/** BaseModalで表示するコンポーネント本体 (shallowRef/markRawでパフォーマンス最適化) */
+const baseModalContent = shallowRef<Component | null>(null);
+
+// ----------------------------------------------------------------------------
+// Composable
+// ----------------------------------------------------------------------------
+
+/**
+ * アプリケーション全体のモーダル表示状態を管理するComposable
+ */
 export function useModal() {
   /**
    * モーダルを開く
-   * @param {string} modalName - 開きたいモーダルの識別子
-   * @param {object} [options] - BaseModalを使用する場合のオプション
-   * @param {string} [options.title] - BaseModalのタイトル
-   * @param {Component} [options.component] - BaseModalで表示するコンポーネント
+   * @param {string} modalName - 開きたいモーダルのユニークなID
+   * @param {BaseModalOptions} [options] - BaseModalで動的に中身を変える場合のオプション
    */
-  const openModal = (
-    modalName: string,
-    options?: { title?: string; component?: Component }
-  ) => {
+  const openModal = (modalName: string, options?: BaseModalOptions) => {
+    // 最初にBaseModal関連のstateをリセットし、前回表示した情報が残るのを防ぐ
     baseModalTitle.value = "";
     baseModalContent.value = null;
-    if (options) {
-      if (options.title) {
-        baseModalTitle.value = options.title;
-      }
-      if (options.component) {
-        baseModalContent.value = markRaw(options.component);
-      }
+
+    // optionsが渡された場合、BaseModal用のstateを設定
+    if (options?.title) {
+      baseModalTitle.value = options.title;
     }
+    if (options?.component) {
+      baseModalContent.value = markRaw(options.component);
+    }
+
+    // 最後に、指定されたモーダルのIDをアクティブにする
     activeModal.value = modalName;
   };
 
   /**
-   * モーダルを閉じる
+   * 現在開いているすべてのモーダルを閉じる
    */
   const closeModal = () => {
     activeModal.value = null;
@@ -39,9 +54,11 @@ export function useModal() {
   };
 
   return {
+    // State
     activeModal,
     baseModalTitle,
     baseModalContent,
+    // Methods
     openModal,
     closeModal,
   };
