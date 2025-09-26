@@ -8,11 +8,6 @@ import type { FetchError } from "ofetch";
 export const useResourceDelete = (resourceName: string) => {
   const targetId = ref<string | null>(null);
 
-  const {
-    public: { apiBase },
-  } = useRuntimeConfig();
-  const authToken = useCookie("auth-token");
-
   const { execute, status, error } = useFetch<void>(
     () => `/api/${resourceName}/${targetId.value}`,
     {
