@@ -12,9 +12,5 @@ defineProps({
     type: Boolean,
     required: true,
   },
-  securityGroupData: {
-    type: Object as () => SecurityGroupDTO | null,
-    default: null,
-  },
 });
 </script>
