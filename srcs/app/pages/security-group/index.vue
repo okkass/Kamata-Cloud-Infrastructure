@@ -74,7 +74,6 @@
   <MoSecurityGroupEdit
     :show="activeModal === 'editSecurityGroup'"
     :security-group-data="targetForEditing"
-    :all-security-groups="securityGroups"
     @close="cancelEditing"
     @success="handleEditSuccess"
   />
