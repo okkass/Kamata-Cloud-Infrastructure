@@ -18,6 +18,5 @@ export const useResourceList = <T>(
   return useFetch<T[]>(url, {
     params,
     default: () => [],
-    key: `useResourceList-${resourceName}`,
   });
 };
