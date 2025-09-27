@@ -19,5 +19,6 @@ export const useResourceDetail = <T>(
   // useFetch を使い、単一のオブジェクトを取得する
   return useFetch<T>(url, {
     default: () => undefined,
+    key: `useResourceDetail-${resourceName}-${resourceId}`,
   });
 };
