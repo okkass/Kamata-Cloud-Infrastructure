@@ -13,7 +13,7 @@ import { useRoute } from "vue-router";
 
 const route = useRoute();
 const { data, pending, error } = await useResourceDetail<ModelInstanceTypeDTO>(
-  "instance-types",
+  "security-groups",
   route.params.id as string
 );
 </script>
