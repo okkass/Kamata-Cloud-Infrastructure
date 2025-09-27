@@ -13,7 +13,7 @@ export type CreateResult<T> = {
   data?: T;
   error?: {
     type: "validation" | "permission" | "notFound" | "unknown" | "conflict";
-    message: string | Error | any;
+    message: string | Error;
     statusCode: number;
   };
 };
