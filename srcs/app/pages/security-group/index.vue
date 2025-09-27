@@ -88,7 +88,6 @@
 </template>
 
 <script setup lang="ts">
-
 // --- Composables Setup ---
 // APIから表示するデータを取得
 const { data: securityGroups, refresh } =
@@ -108,6 +107,7 @@ const {
   cancelAction,
 } = usePageActions<SecurityGroupDTO>({
   resourceName: "security-groups",
+  resourceLabel: "セキュリティグループ",
   refresh,
 });
 
@@ -123,7 +123,7 @@ const headerButtons = [{ label: "新規作成", action: "create" }];
 // --- Page-Specific Helper Functions ---
 /** 指定されたタイプのルール数を計算する */
 const getRuleCount = (
-  rules: SecurityRule[] | undefined,
+  rules: SecurityRuleDTO[] | undefined,
   type: "inbound" | "outbound"
 ): number => {
   if (!Array.isArray(rules)) return 0;

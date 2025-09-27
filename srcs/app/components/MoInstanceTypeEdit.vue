@@ -61,12 +61,12 @@
           type="button"
           @click="$emit('close')"
           class="btn-secondary"
-          :disabled="isLoading"
+          :disabled="isUpdating"
         >
           キャンセル
         </button>
-        <button type="submit" class="btn-primary" :disabled="isLoading">
-          {{ isLoading ? "保存中..." : "保存" }}
+        <button type="submit" class="btn-primary" :disabled="isUpdating">
+          {{ isUpdating ? "保存中..." : "保存" }}
         </button>
       </div>
     </form>
@@ -78,13 +78,12 @@
 
 <script setup lang="ts">
 import { ref, watch, type PropType } from "vue";
-import type { InstanceTypePayload, InstanceTypeDTO } from "~/types";
 
 const props = defineProps({
   show: { type: Boolean, required: true },
   // 親から渡される、編集対象の現在のデータ
   instanceTypeData: {
-    type: Object as PropType<InstanceTypeDTO | null>,
+    type: Object as PropType<ModelInstanceTypeDTO | null>,
     default: null,
   },
 });
@@ -92,13 +91,13 @@ const emit = defineEmits(["close", "success"]);
 
 // "instance-types"リソースを更新するための専門家を呼び出す
 const { executeUpdate, isUpdating } = useResourceUpdate<
-  InstanceTypePayload,
-  InstanceTypeDTO
+  InstanceTypeUpdateRequestDTO,
+  ModelInstanceTypeDTO
 >("instance-types");
 const toast = useToast();
 
 // フォームの入力値を保持するref。propsのデータを直接変更しないようにコピーして使う
-const formData = ref<InstanceTypePayload | null>(null);
+const formData = ref<InstanceTypeUpdateRequestDTO | null>(null);
 
 // props.instanceTypeDataが変更されたら、フォームのデータを更新する
 watch(
