@@ -1,105 +1,36 @@
 <template>
-  <div class="p-8">
-    <h1 class="text-2xl font-bold mb-4">モーダル表示テストページ</h1>
+  <div class="p-8 space-y-8">
+    <div>
+      <h1 class="text-2xl font-bold mb-4">モーダル表示テストページ</h1>
+      <p class="text-gray-600">
+        各ボタンをクリックして、モーダルの見た目と基本的な動作を確認します。
+      </p>
+    </div>
 
-    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-      <button @click="openModal('vmCreate')" class="btn-primary">VM作成</button>
-      <button @click="openModal('vmEdit')" class="btn-primary">VM編集</button>
-      <button @click="openModal('netCreate')" class="btn-primary">
-        NW作成
-      </button>
-      <button @click="openModal('netEdit')" class="btn-primary">NW編集</button>
-      <button @click="openModal('storageAdd')" class="btn-primary">
-        ストレージ追加
-      </button>
-      <button @click="openModal('nodeAdd')" class="btn-primary">
-        ノード追加
-      </button>
-      <button @click="openModal('imageEdit')" class="btn-primary">
-        イメージ編集
-      </button>
-      <button @click="openModal('instanceTypeAdd')" class="btn-primary">
-        タイプ追加
-      </button>
-      <button @click="openModal('instanceTypeEdit')" class="btn-primary">
-        タイプ編集
-      </button>
-      <button @click="openModal('sgCreate')" class="btn-primary">SG作成</button>
-      <button @click="openModal('sgEdit')" class="btn-primary">SG編集</button>
-      <button @click="openModal('networkStorageAdd')" class="btn-primary">
-        NWストレージ追加
-      </button>
-      <button @click="openModal('userAdd')" class="btn-primary">
-        利用者追加
-      </button>
-      <button @click="openModal('userEdit')" class="btn-primary">
-        利用者編集
+    <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-8 gap-4">
+      <button
+        v-for="modal in modals"
+        :key="modal.id"
+        @click="openModal(modal.id)"
+        class="btn-primary"
+      >
+        {{ modal.buttonText }}
       </button>
     </div>
 
-    <MoVirtualMachineCreate
-      :show="activeModal === 'vmCreate'"
+    <component
+      v-for="modal in modals"
+      :key="modal.id"
+      :is="modal.component"
+      :show="activeModal === modal.id"
+      v-bind="modal.props"
       @close="closeModal"
     />
-    <MoVirtualMachineEdit
-      :show="activeModal === 'vmEdit'"
-      :vm-data="dummyVmEditData"
-      @close="closeModal"
-    />
-    <MoAddNodeToCluster
-      :show="activeModal === 'nodeAdd'"
-      :nodes="dummyNodeData"
-      @close="closeModal"
-    />
-    <MoImageEdit
-      :show="activeModal === 'imageEdit'"
-      :image-data="dummyImageData"
-      @close="closeModal"
-    />
-    <MoInstanceTypeAdd
-      :show="activeModal === 'instanceTypeAdd'"
-      @close="closeModal"
-    />
-    <MoInstanceTypeEdit
-      :show="activeModal === 'instanceTypeEdit'"
-      :instance-type-data="dummyInstanceTypeData"
-      @close="closeModal"
-    />
-    <MoSecurityGroupCreate
-      :show="activeModal === 'sgCreate'"
-      @close="closeModal"
-    />
-    <MoSecurityGroupEdit
-      :show="activeModal === 'sgEdit'"
-      :security-group-data="dummySecurityGroupData"
-      @close="closeModal"
-    />
-
-    <MoNetworkStorageAdd
-      :show="activeModal === 'networkStorageAdd'"
-      @close="closeModal"
-    />
-
-    <MoUserAdd :show="activeModal === 'userAdd'" @close="closeModal" />
-
-    <MoUserEdit
-      :show="activeModal === 'userEdit'"
-      :user-data="dummyUserData"
-      @close="closeModal"
-    />
-
-    <BaseModal
-      :show="['netCreate', 'netEdit', 'storageAdd'].includes(activeModal)"
-      :title="baseModalTitle"
-      @close="closeModal"
-    >
-      <component :is="baseModalContent" @close="closeModal" />
-    </BaseModal>
   </div>
 </template>
 
 <script setup>
-import { ref, shallowRef, markRaw } from "vue";
+import { ref, markRaw, computed } from "vue";
 
 // ==============================================================================
 // コンポーネントのインポート
@@ -112,105 +43,154 @@ import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoSecurityGroupCreate from "~/components/MoSecurityGroupCreate.vue";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
-import BaseModal from "~/components/BaseModal.vue";
-import AddLocalStorageForm from "~/components/MoLocalStorageAdd.vue";
-import CreateVirtualNetworkForm from "~/components/MoVirtualNetworkCreate.vue";
-import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
 import MoNetworkStorageAdd from "~/components/MoNetworkStorageAdd.vue";
 import MoUserAdd from "~/components/MoUserAdd.vue";
 import MoUserEdit from "~/components/MoUserEdit.vue";
+import MoVirtualNetworkCreate from "~/components/MoVirtualNetworkCreate.vue";
+import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
+import MoLocalStorageAdd from "~/components/MoLocalStorageAdd.vue";
 
 // ==============================================================================
-// リアクティブな状態変数 (State)
+// State
 // ==============================================================================
 const activeModal = ref(null);
-const baseModalTitle = ref("");
-const baseModalContent = shallowRef(null);
 
 // ==============================================================================
-// ダミーデータ (Dummy Data for Props)
+// モーダル定義 (ダミーデータもここで管理)
+// ★★★ 'type'が不要になり、すべてのモーダルが同じ構造になりました ★★★
 // ==============================================================================
-const dummyVmEditData = {
-  /* ... */
-};
-const dummyNodeData = [
-  /* ... */
-];
-const dummyImageData = {
-  /* ... */
-};
-const dummyInstanceTypeData = {
-  /* ... */
-};
-
-//ユーザー編集モーダル用のダミーデータを追加
-const dummyUserData = {
-  id: "user-001",
-  accountName: "tanaka-ichiro",
-  email: "tanaka@example.com",
-  maxCpu: 8,
-  maxMemory: 16,
-  maxStorage: 200,
-};
-
-//セキュリティグループ編集モーダル用のダミーデータを追加
-const dummySecurityGroupData = {
-  id: "sg-001",
-  name: "web-server-rules-for-edit",
-  description: "編集用のWebサーバーのルールセットです。",
-  inboundRules: [
-    {
-      id: 0,
-      name: "allow-http",
-      port: "80",
-      protocol: "TCP",
-      sourceIp: "0.0.0.0/0",
-      action: "許容",
+const modals = computed(() => [
+  // --- VM ---
+  {
+    id: "vmCreate",
+    buttonText: "VM作成",
+    component: markRaw(MoVirtualMachineCreate),
+    props: {},
+  },
+  {
+    id: "vmEdit",
+    buttonText: "VM編集",
+    component: markRaw(MoVirtualMachineEdit),
+    props: {
+      vmData: {
+        /* ... */
+      },
     },
-  ],
-  outboundRules: [
-    {
-      id: 1,
-      name: "allow-all-outbound",
-      port: "ALL",
-      protocol: "TCP",
-      sourceIp: "0.0.0.0/0",
-      action: "許容",
+  },
+  // --- Network ---
+  {
+    id: "netCreate",
+    buttonText: "NW作成",
+    component: markRaw(MoVirtualNetworkCreate),
+    props: {},
+  },
+  {
+    id: "netEdit",
+    buttonText: "NW編集",
+    component: markRaw(MoVirtualNetworkEdit),
+    props: { networkData: { name: "edit-net", subnets: [] } },
+  },
+  // --- Storage ---
+  {
+    id: "storageAdd",
+    buttonText: "ストレージ追加",
+    component: markRaw(MoLocalStorageAdd),
+    props: { nodes: [], availableDisks: [] },
+  },
+  {
+    id: "networkStorageAdd",
+    buttonText: "NWストレージ追加",
+    component: markRaw(MoNetworkStorageAdd),
+    props: { nodes: [], localStorages: [] },
+  },
+  // --- Node ---
+  {
+    id: "nodeAdd",
+    buttonText: "ノード追加",
+    component: markRaw(MoAddNodeToCluster),
+    props: {
+      nodes: [{ id: "node-x", name: "Node-X", ipAddress: "192.168.1.101" }],
     },
-  ],
-};
+  },
+  // --- Image ---
+  {
+    id: "imageEdit",
+    buttonText: "イメージ編集",
+    component: markRaw(MoImageEdit),
+    props: {
+      imageData: {
+        id: "img-001",
+        name: "ubuntu-22.04-image",
+        size: 8,
+        description: "サンプル",
+      },
+    },
+  },
+  // --- Instance Type ---
+  {
+    id: "instanceTypeAdd",
+    buttonText: "タイプ追加",
+    component: markRaw(MoInstanceTypeAdd),
+    props: {},
+  },
+  {
+    id: "instanceTypeEdit",
+    buttonText: "タイプ編集",
+    component: markRaw(MoInstanceTypeEdit),
+    props: {
+      instanceTypeData: {
+        id: "itype-001",
+        name: "standard.medium",
+        vcpus: 4,
+        memory: 8,
+        storage: 100,
+      },
+    },
+  },
+  // --- Security Group ---
+  {
+    id: "sgCreate",
+    buttonText: "SG作成",
+    component: markRaw(MoSecurityGroupCreate),
+    props: {},
+  },
+  {
+    id: "sgEdit",
+    buttonText: "SG編集",
+    component: markRaw(MoSecurityGroupEdit),
+    props: {
+      securityGroupData: {
+        id: "sg-001",
+        name: "web-server-rules",
+        inboundRules: [],
+        outboundRules: [],
+      },
+    },
+  },
+  // --- User ---
+  {
+    id: "userAdd",
+    buttonText: "利用者追加",
+    component: markRaw(MoUserAdd),
+    props: {},
+  },
+  {
+    id: "userEdit",
+    buttonText: "利用者編集",
+    component: markRaw(MoUserEdit),
+    props: {
+      userData: { name: "test-user", maxMemorySize: 0, maxStorageSize: 0 },
+    },
+  },
+]);
 
 // ==============================================================================
-// 関数 (Methods)
+// Methods
 // ==============================================================================
-/**
- * モーダルを開く関数
- * @param {string} modalName - 開きたいモーダルの識別子
- */
-const openModal = (modalName) => {
-  const simpleModals = {
-    netCreate: {
-      title: "仮想ネットワーク作成",
-      component: CreateVirtualNetworkForm,
-    },
-    netEdit: { title: "仮想ネットワーク編集", component: MoVirtualNetworkEdit },
-    storageAdd: {
-      title: "ローカルストレージ追加",
-      component: AddLocalStorageForm,
-    },
-  };
-
-  if (simpleModals[modalName]) {
-    baseModalTitle.value = simpleModals[modalName].title;
-    baseModalContent.value = markRaw(simpleModals[modalName].component);
-  }
-
-  activeModal.value = modalName;
+const openModal = (modalId) => {
+  activeModal.value = modalId;
 };
 
-/**
- * すべてのモーダルを閉じる関数
- */
 const closeModal = () => {
   activeModal.value = null;
 };
