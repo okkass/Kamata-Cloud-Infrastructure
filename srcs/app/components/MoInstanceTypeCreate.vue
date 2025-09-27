@@ -59,12 +59,12 @@
           type="button"
           @click="$emit('close')"
           class="btn-secondary"
-          :disabled="isLoading"
+          :disabled="isCreating"
         >
           キャンセル
         </button>
-        <button type="submit" class="btn-primary" :disabled="isLoading">
-          {{ isLoading ? "作成中..." : "作成" }}
+        <button type="submit" class="btn-primary" :disabled="isCreating">
+          {{ isCreating ? "作成中..." : "作成" }}
         </button>
       </div>
     </form>
@@ -80,7 +80,7 @@ defineProps({
 const emit = defineEmits(["close", "success"]);
 
 // "instance-types"リソースを作成するための専門家を呼び出す
-const { executeCreate, isLoading } = useResourceCreate<
+const { executeCreate, isCreating } = useResourceCreate<
   InstanceTypeCreateRequestDTO,
   ModelInstanceTypeDTO
 >("instance-types");
