@@ -9,7 +9,7 @@ import type { FetchError } from "ofetch";
  * 汎用的なリソース削除Composable
  *
  * @param {string} resourceName - APIのエンドポイント名 (例: 'security-groups')
- * @returns {object} - executeDelete関数と、isLoadingリアクティブ状態を含むオブジェクト
+ * @returns {object} - executeDelete関数と、isDeletingリアクティブ状態を含むオブジェクト
  */
 export const useResourceDelete = (resourceName: string) => {
   // 処理の実行中状態を管理するための、このComposable専用のref
