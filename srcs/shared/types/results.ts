@@ -1,4 +1,3 @@
-import type { errors } from "jose";
 
 export type DeleteResult = {
   success: boolean;
