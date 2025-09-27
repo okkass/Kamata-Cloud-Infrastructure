@@ -1,179 +1,77 @@
 <template>
   <BaseModal
     :show="show"
-    title="セキュリティグループ編集"
+    title="セキュリティグループの編集"
     @close="$emit('close')"
   >
-    <div class="space-y-6">
-      <div class="space-y-4">
+    <div class="space-y-4">
+      <form @submit.prevent="submit" class="space-y-4">
         <div>
-          <label for="sg-name-edit" class="form-label"
-            >セキュリティグループ名</label
+          <label for="sg-name" class="block text-sm font-medium text-gray-700"
+            >グループ名</label
           >
+          <!-- `v-if` を使って、データが渡されてから表示する -->
           <input
-            id="sg-name-edit"
+            v-if="securityGroupData"
             type="text"
-            v-model="editableSecurityGroup.name"
-            class="form-input"
+            id="sg-name"
+            :value="securityGroupData.name"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
           />
         </div>
-        <div>
-          <label for="sg-description-edit" class="form-label">説明</label>
-          <textarea
-            id="sg-description-edit"
-            rows="3"
-            v-model="editableSecurityGroup.description"
-            class="form-input"
-          ></textarea>
-        </div>
+      </form>
+
+      <div class="pt-4 border-t">
+        <h3 class="text-lg font-semibold text-gray-800">
+          渡された全グループ一覧（確認用）
+        </h3>
+        <!-- preタグを使うと、オブジェクトを整形して表示できるのでデバッグに便利 -->
+        <pre
+          class="mt-2 p-2 bg-gray-100 rounded-md text-xs overflow-x-auto"
+        ><code>{{ securityGroupData }}</code></pre>
       </div>
 
-      <RuleTable
-        title="インバウンドルール"
-        :rules="editableSecurityGroup.inboundRules"
-        @add-rule="addRule('inbound')"
-        @delete-rule="deleteRule('inbound', $event)"
-      />
-
-      <RuleTable
-        title="アウトバウンドルール"
-        :rules="editableSecurityGroup.outboundRules"
-        @add-rule="addRule('outbound')"
-        @delete-rule="deleteRule('outbound', $event)"
-      />
-    </div>
-
-    <div class="flex justify-end gap-3 mt-8 pt-4 border-t">
-      <SecondaryButton @click="$emit('close')"> キャンセル </SecondaryButton>
-      <button @click="saveChanges" class="btn-primary">保存</button>
+      <!-- 保存/キャンセルボタン -->
+      <div class="flex justify-end items-center gap-4 pt-4 border-t">
+        <button type="button" @click="$emit('close')" class="btn-secondary">
+          キャンセル
+        </button>
+        <button type="submit" @click="submit" class="btn-primary">保存</button>
+      </div>
     </div>
   </BaseModal>
 </template>
 
-<script setup>
-import { ref, watch } from "vue";
-import RuleTable from "~/components/RuleTable.vue"; // 子コンポーネントをインポート
-
-// ==============================================================================
-// Props & Emits
-// ==============================================================================
-const props = defineProps({
-  show: { type: Boolean, required: true },
-  // APIから取得した編集対象のセキュリティグループデータを想定
-  securityGroupData: {
-    type: Object,
+<script setup lang="ts">
+import { type PropType } from "vue";
+defineProps({
+  show: {
+    type: Boolean,
     required: true,
-    // 親からデータが渡されない場合のダミーデータ
-    default: () => ({
-      id: "sg-001",
-      name: "web-server-rules",
-      description: "Webサーバー用の基本的なルールセット",
-      inboundRules: [
-        {
-          id: 0,
-          name: "allow-http",
-          port: "80",
-          protocol: "TCP",
-          sourceIp: "0.0.0.0/0",
-          action: "許容",
-        },
-        {
-          id: 1,
-          name: "allow-https",
-          port: "443",
-          protocol: "TCP",
-          sourceIp: "0.0.0.0/0",
-          action: "許容",
-        },
-      ],
-      outboundRules: [],
-    }),
+  },
+  securityGroupData: {
+    type: Object as PropType<SecurityGroupDTO | null>,
+    default: null,
   },
 });
-const emit = defineEmits(["close", "save"]);
 
-// ==============================================================================
-// State
-// ==============================================================================
-// propsで受け取ったデータを編集するためのローカルコピーを作成
-const editableSecurityGroup = ref(
-  JSON.parse(JSON.stringify(props.securityGroupData))
-);
-let nextRuleId = ref(100); // 既存のルールIDと重複しないように初期値を設定
+const emit = defineEmits(["close", "success"]);
 
-// propsのデータが変更されたら、ローカルコピーも更新する
-watch(
-  () => props.securityGroupData,
-  (newData) => {
-    editableSecurityGroup.value = JSON.parse(JSON.stringify(newData));
-  },
-  { deep: true }
-);
-
-// ==============================================================================
-// Methods
-// ==============================================================================
-/**
- * 新しいルールを追加する
- * @param {'inbound' | 'outbound'} type - ルールの種類
- */
-const addRule = (type) => {
-  const newRule = {
-    id: nextRuleId.value++,
-    name: "",
-    port: "",
-    protocol: "TCP",
-    sourceIp: "",
-    action: "許容",
-  };
-  if (type === "inbound") {
-    editableSecurityGroup.value.inboundRules.push(newRule);
-  } else {
-    editableSecurityGroup.value.outboundRules.push(newRule);
-  }
-};
-
-/**
- * 指定されたルールを削除する
- * @param {'inbound' | 'outbound'} type - ルールの種類
- * @param {number} ruleId - 削除するルールのID
- */
-const deleteRule = (type, ruleId) => {
-  if (type === "inbound") {
-    editableSecurityGroup.value.inboundRules =
-      editableSecurityGroup.value.inboundRules.filter(
-        (rule) => rule.id !== ruleId
-      );
-  } else {
-    editableSecurityGroup.value.outboundRules =
-      editableSecurityGroup.value.outboundRules.filter(
-        (rule) => rule.id !== ruleId
-      );
-  }
-};
-
-/**
- * 変更を保存する
- */
-const saveChanges = () => {
-  console.log("保存データ:", editableSecurityGroup.value);
-  alert(
-    `セキュリティグループ「${editableSecurityGroup.value.name}」の変更を保存しました。`
-  );
-  emit("save", editableSecurityGroup.value);
-  emit("close");
+const submit = () => {
+  useToast().addToast({
+    type: "success",
+    message: "セキュリティグループが更新されました",
+  });
+  emit("success");
 };
 </script>
 
 <style scoped>
-/* 共通スタイルを@applyで定義 */
-.form-label {
-  @apply block mb-1.5 font-semibold text-gray-700;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
+/* ボタンのスタイルはここに定義、または直接クラスを記述 */
+.btn-secondary {
+  @apply py-2 px-4 bg-gray-200 rounded-md;
 }
 .btn-primary {
-  @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
+  @apply py-2 px-4 bg-blue-600 text-white rounded-md;
 }
 </style>

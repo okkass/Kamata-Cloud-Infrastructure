@@ -1,18 +1,45 @@
 <template>
-  <div class="relative flex">
+  <div class="relative flex min-h-screen bg-slate-100">
     <UserSidebar :role="userRole" />
 
-    <main class="flex-1 ml-64 p-8">
+    <main
+      class="flex-1 p-8 transition-all duration-300"
+      :class="{ 'ml-64': isSidebarOpen }"
+    >
+      <button
+        v-if="!isSidebarOpen"
+        @click="open"
+        class="fixed top-4 left-4 z-50 p-2 bg-slate-800 text-white rounded-md hover:bg-slate-700"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="h-6 w-6"
+          fill="none"
+          viewBox="0 0 24 24"
+          stroke="currentColor"
+        >
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M4 6h16M4 12h16M4 18h16"
+          />
+        </svg>
+      </button>
+
       <slot />
     </main>
   </div>
 </template>
-<script setup>
-import { ref } from "vue";
-import UserSidebar from "~/components/UserSidebar.vue"; // コンポーネントのパスは適宜調整
 
-// 本来は認証情報などから動的に取得しますが、ここでは仮のデータを使います。
-// 'admin' または 'user' を切り替えて表示を確認できます。
-//const userRole = ref("admin");
-const userRole = ref("user");
+<script setup lang="ts">
+import { ref } from "vue";
+import { useSidebar } from "~/composables/useSidebar";
+import UserSidebar from "~/components/Sidebar.vue";
+
+// Composableから状態と関数を取得
+const { isSidebarOpen, open } = useSidebar();
+
+// 本来は認証情報から動的に取得
+const userRole = ref("user"); // 'admin' or 'user'
 </script>

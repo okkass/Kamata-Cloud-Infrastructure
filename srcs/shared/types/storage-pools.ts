@@ -1,7 +1,7 @@
 /**
  * ストレージプールオブジェクト
  */
-export interface StoragePool {
+export interface StoragePoolDTO {
   /**
    * ストレージプールを識別するための一意なID
    */
@@ -36,7 +36,7 @@ export type StoragePoolTypeEnum =
 /**
  * ストレージプール作成リクエストオブジェクト
  */
-export interface StoragePoolCreateRequest {
+export interface StoragePoolCreateRequestDTO {
   /**
    * ストレージプールの名前
    */

@@ -3,7 +3,7 @@ import type { TotpInfo } from ".";
 /**
  * User object
  */
-export interface User {
+export interface UserDTO {
   /**
    * ユーザを識別するための一意なID
    */
@@ -33,7 +33,7 @@ export interface User {
 /**
  * ユーザ作成リクエストオブジェクト
  */
-export interface UserCreateRequest {
+export interface UserCreateRequestDTO {
   /**
    * ユーザの名前
    */
@@ -70,7 +70,7 @@ export interface UserCreateRequest {
 /**
  * ユーザ更新リクエストオブジェクト
  */
-export interface UserUpdateRequest {
+export interface UserUpdateRequestDTO {
   /**
    * ユーザの名前
    */
@@ -96,7 +96,7 @@ export interface UserUpdateRequest {
 /**
  * パスワードリセットリクエストオブジェクト
  */
-export interface PasswordResetRequest {
+export interface PasswordResetRequestDTO {
   /**
    * パスワードリセットトークン
    */
