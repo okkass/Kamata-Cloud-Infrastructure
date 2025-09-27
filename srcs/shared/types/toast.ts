@@ -1,4 +1,4 @@
-type ToastType = 'info' | 'success' | 'warning' | 'error';
+type ToastType = "info" | "success" | "warning" | "error";
 
 /** addToastに渡すデータの型 */
 export interface ToastPayload {
