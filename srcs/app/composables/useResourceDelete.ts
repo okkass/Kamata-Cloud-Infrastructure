@@ -1,4 +1,5 @@
-import { computed, ref } from "vue";
+import { ref } from "vue";
+import { $fetch } from "ofetch";
 import type { FetchError } from "ofetch";
 // ----------------------------------------------------------------------------
 // Composable
@@ -8,24 +9,11 @@ import type { FetchError } from "ofetch";
  * 汎用的なリソース削除Composable
  *
  * @param {string} resourceName - APIのエンドポイント名 (例: 'security-groups')
- * @returns {object} - executeDelete関数と、isDeletingリアクティブ状態を含むオブジェクト
+ * @returns {object} - executeDelete関数と、isLoadingリアクティブ状態を含むオブジェクト
  */
 export const useResourceDelete = (resourceName: string) => {
-  // 削除対象のリソースIDをリアクティブに保持
-  const targetId = ref<string | null>(null);
-
-  // useFetchを`immediate: false`でセットアップし、任意のタイミングで実行可能にする
-  const { execute, status, error } = useFetch<void>(
-    // URLはリアクティブなcomputedプロパティとして定義
-    () => `/api/${resourceName}/${targetId.value}`,
-    {
-      method: "DELETE",
-      // immediate: false - コンポーネント読み込み時に自動で実行しない
-      immediate: false,
-      // watch: false - 参照しているリアクティブな値(targetId)が変更されても自動で実行しない
-      watch: false,
-    }
-  );
+  // 処理の実行中状態を管理するための、このComposable専用のref
+  const isLoading = ref(false);
 
   /**
    * 削除を実行し、詳細な結果オブジェクトを返す
@@ -34,7 +22,7 @@ export const useResourceDelete = (resourceName: string) => {
    */
   const executeDelete = async (id: string): Promise<DeleteResult> => {
     // 既に処理が実行中の場合は、二重送信を防止するための安全装置
-    if (status.value === "pending") {
+    if (isLoading.value) {
       console.warn("Delete operation is already in progress.");
       return {
         success: false,
@@ -46,18 +34,24 @@ export const useResourceDelete = (resourceName: string) => {
       };
     }
 
-    targetId.value = id;
-    await execute(); // APIリクエストを実際に実行
+    isLoading.value = true;
 
-    // useFetchから返されたerrorオブジェクトを評価して、結果をレポートとして返す
-    if (!error.value) {
-      // エラーがなければ成功
+    try {
+      // $fetchを直接呼び出してDELETEリクエストを送信
+      // 成功した場合、この行は例外を投げずに完了する
+      await $fetch(`/api/${resourceName}/${id}`, {
+        method: "DELETE",
+        // 注: 認証ヘッダーなどは$fetchのグローバル設定(plugins/api.tsなど)で行うのが望ましい
+      });
+
+      // 例外が発生しなかったので、成功としてレポートを返す
       return { success: true };
-    } else {
-      // エラーがある場合は、ステータスコードに応じて内容を分類
-      const fetchError = error.value as FetchError;
-      const statusCode = fetchError.statusCode || 500;
+    } catch (err: any) {
+      // $fetchが4xx/5xx系のエラーを検知すると、例外が投げられ、このcatchブロックが実行される
+      const error = err as FetchError;
+      const statusCode = error.statusCode || 500;
 
+      // エラーのステータスコードに応じて内容を分類し、レポートとして返す
       switch (statusCode) {
         case 403:
           return {
@@ -87,12 +81,14 @@ export const useResourceDelete = (resourceName: string) => {
             },
           };
       }
+    } finally {
+      // 処理が成功・失敗にかかわらず、必ずローディング状態を解除する
+      isLoading.value = false;
     }
   };
 
   return {
     executeDelete,
-    // isDeletingはuseFetchのstatusプロパティから算出するリアクティブな値
-    isDeleting: computed(() => status.value === "pending"),
+    isDeleting: isLoading, // isDeletingからisLoadingに名前を変更
   };
 };
