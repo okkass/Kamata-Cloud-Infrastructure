@@ -19,6 +19,16 @@ export type CreateResult<T> = {
   };
 };
 
+export type UpdateResult<T> = {
+  success: boolean;
+  data?: T; // 成功時に更新されたリソースのデータ
+  error?: {
+    type: "validation" | "permission" | "notFound" | "conflict" | "unknown";
+    message: string;
+    statusCode: number;
+  };
+};
+
 export interface PageActionsOptions {
   resourceName: string; // APIのエンドポイント名 (例: 'security-groups')
   resourceLabel: string; // UI表示用のリソース名 (例: 'セキュリティグループ')
