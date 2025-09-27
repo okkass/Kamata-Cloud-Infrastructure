@@ -44,8 +44,6 @@
 
 <script setup lang="ts">
 import { type PropType } from "vue";
-
-// propsの定義は変更なし
 defineProps({
   show: {
     type: Boolean,
@@ -60,6 +58,7 @@ defineProps({
 const emit = defineEmits(["close", "success"]);
 
 const submit = () => {
+  useToast().addToast({ type: "success", message: "セキュリティグループが更新されました" });
   emit("success");
 };
 </script>

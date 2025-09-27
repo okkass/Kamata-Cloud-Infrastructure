@@ -1,24 +1,26 @@
-import { ref } from "vue";
-
 /**
- * 汎用的なCRUDダッシュボードのUIアクションを管理するComposable
- * @param options - ダッシュボードの設定オプション
+ * 汎用的なページUIアクションを管理するComposable。
+ * 専門家Composable（useModal, useResourceDeleteなど）を束ねる「管理者」として機能する。
+ *
+ * @template T - 扱うリソースの型。idとnameプロパティを持つ必要がある。
+ * @param {PageActionsOptions} options - ページごとの設定オプション
  */
-export const useDashboardActions = <T extends { id: string; name: string }>(
-  options: DashboardActionsOptions
+export const usePageActions = <T extends { id: string; name: string }>(
+  options: PageActionsOptions
 ) => {
-  const { resourceName, resourceLabel, refresh } = options;
+  const { resourceName, refresh } = options;
 
-  // --- Composables ---
+  // --- Composables Setup (専門家チームの招集) ---
   const { activeModal, openModal, closeModal } = useModal();
-  const { executeDelete, isDeleting } = useResourceDelete(resourceName);
   const { addToast } = useToast();
+  // 削除は汎用モーダルから実行されるため、この管理者が担当する
+  const { executeDelete, isDeleting } = useResourceDelete(resourceName);
 
-  // --- State ---
+  // --- State (管理者が把握すべき情報) ---
   const targetForDeletion = ref<T | null>(null);
   const targetForEditing = ref<T | null>(null);
 
-  // --- Private Helper ---
+  // --- Private Helpers (管理者内部の補助作業) ---
   /** モーダルを閉じ、アクション対象のstateをリセットする */
   const resetActionTargets = () => {
     closeModal();
@@ -26,22 +28,25 @@ export const useDashboardActions = <T extends { id: string; name: string }>(
     targetForEditing.value = null;
   };
 
-  // --- Event Handlers (Public) ---
-  /** 行のアクションを処理する */
+  // --- Public Handlers (外部からの指示を受けて実行する作業) ---
+  /**
+   * 行のアクション（編集/削除）を処理し、適切なモーダルを開く
+   * @param {object} payload - { action: string, row: T }
+   */
   const handleRowAction = ({ action, row }: { action: string; row: T }) => {
     if (action === "delete") {
       targetForDeletion.value = row;
-      // ★ 修正点: 'delete' と resourceName の間にハイフンを追加
       openModal(`delete-${resourceName}`);
     }
     if (action === "edit") {
       targetForEditing.value = row;
-      // ★ 修正点: 'edit' と resourceName の間にハイフンを追加
       openModal(`edit-${resourceName}`);
     }
   };
 
-  /** 削除処理を実行する */
+  /**
+   * 汎用削除モーダルからの確定報告を受け、削除処理と通知を行う
+   */
   const handleDelete = async () => {
     if (!targetForDeletion.value) return;
     const result = await executeDelete(targetForDeletion.value.id);
@@ -62,31 +67,22 @@ export const useDashboardActions = <T extends { id: string; name: string }>(
     resetActionTargets();
   };
 
-  /** 作成モーダルの成功を処理する */
-  const handleCreateSuccess = async () => {
-    addToast({
-      message: `${resourceLabel}の作成に成功しました。`,
-      type: "success",
-    });
+  /**
+   * 特化型モーダル(作成/編集)からの成功報告を受け、後処理（モーダルを閉じる、一覧を更新）を行う
+   */
+  const handleSuccess = async () => {
     resetActionTargets();
     await refresh();
   };
 
-  /** 編集モーダルの成功を処理する */
-  const handleEditSuccess = async () => {
-    addToast({
-      message: `${resourceLabel}の保存に成功しました。`,
-      type: "success",
-    });
-    resetActionTargets();
-    await refresh();
-  };
-
-  /** キャンセル処理（編集・削除モーダルで共通利用） */
+  /**
+   * 編集・削除モーダルのキャンセル処理
+   */
   const cancelAction = () => {
     resetActionTargets();
   };
 
+  // --- Return (外部に公開する機能) ---
   return {
     // State
     activeModal,
@@ -98,8 +94,7 @@ export const useDashboardActions = <T extends { id: string; name: string }>(
     // Handlers
     handleRowAction,
     handleDelete,
-    handleCreateSuccess,
-    handleEditSuccess,
+    handleSuccess,
     cancelAction,
   };
 };

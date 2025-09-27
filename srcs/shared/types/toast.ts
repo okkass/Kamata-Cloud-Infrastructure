@@ -1,4 +1,4 @@
-import type { DeleteResult } from "./error";
+import type { DeleteResult } from "./results";
 
 export interface Toast {
   id: string;

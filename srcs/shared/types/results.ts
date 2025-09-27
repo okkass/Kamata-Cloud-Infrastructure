@@ -1,3 +1,5 @@
+import type { errors } from "jose";
+
 export type DeleteResult = {
   success: boolean;
   error?: {
@@ -7,7 +9,17 @@ export type DeleteResult = {
   };
 };
 
-export interface DashboardActionsOptions {
+export type CreateResult<T> = {
+  success: boolean;
+  data?: T;
+  error?: {
+    type: "validation" | "permission" | "notFound" | "unknown" | "conflict";
+    message: string | Error | any;
+    statusCode: number;
+  };
+};
+
+export interface PageActionsOptions {
   resourceName: string; // APIのエンドポイント名 (例: 'security-groups')
   resourceLabel: string; // UI表示用のリソース名 (例: 'セキュリティグループ')
   refresh: () => Promise<void>; // useResourceListから受け取るリスト更新関数

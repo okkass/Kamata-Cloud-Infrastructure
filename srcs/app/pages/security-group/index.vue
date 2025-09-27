@@ -61,7 +61,8 @@
     </template>
   </DashboardLayout>
 
-  <!-- モーダルのイベントハンドラをComposableから受け取った関数に差し替え -->
+  <!-- モーダル定義エリア -->
+  <!-- 汎用モーダル (削除確認) -->
   <MoDeleteConfirm
     :show="activeModal === 'delete-security-groups'"
     :message="`本当に '${targetForDeletion?.name}' を削除しますか？`"
@@ -69,25 +70,31 @@
     @close="cancelAction"
     @confirm="handleDelete"
   />
+
+  <!-- 特化型モーダル (編集) -->
   <MoSecurityGroupEdit
     :show="activeModal === 'edit-security-groups'"
     :security-group-data="targetForEditing"
     @close="cancelAction"
-    @success="handleEditSuccess"
+    @success="handleSuccess"
   />
+
+  <!-- 特化型モーダル (作成) -->
   <MoSecurityGroupCreate
     :show="activeModal === 'create-security-groups'"
     @close="closeModal"
-    @success="handleCreateSuccess"
+    @success="handleSuccess"
   />
 </template>
 
 <script setup lang="ts">
+
 // --- Composables Setup ---
+// APIから表示するデータを取得
 const { data: securityGroups, refresh } =
   useResourceList<SecurityGroupDTO>("security-groups");
 
-// ★ 新しいComposableを呼び出し、必要なstateと関数を受け取る
+// ページのUIアクションを管理するComposableを呼び出し
 const {
   activeModal,
   openModal,
@@ -97,12 +104,10 @@ const {
   isDeleting,
   handleRowAction,
   handleDelete,
-  handleCreateSuccess,
-  handleEditSuccess,
+  handleSuccess,
   cancelAction,
-} = useDashboardActions<SecurityGroupDTO>({
+} = usePageActions<SecurityGroupDTO>({
   resourceName: "security-groups",
-  resourceLabel: "セキュリティグループ",
   refresh,
 });
 
@@ -115,18 +120,18 @@ const columns = [
 ];
 const headerButtons = [{ label: "新規作成", action: "create" }];
 
-// --- Helper Functions ---
-// ページ固有のヘルパー（ルール数計算）はここに残す
+// --- Page-Specific Helper Functions ---
+/** 指定されたタイプのルール数を計算する */
 const getRuleCount = (
-  rules: SecurityRuleDTO[],
+  rules: SecurityRule[] | undefined,
   type: "inbound" | "outbound"
-) => {
+): number => {
   if (!Array.isArray(rules)) return 0;
   return rules.filter((rule) => rule.ruleType === type).length;
 };
 
-// --- Event Handlers ---
-// ページ固有のヘッダーアクションはここに残す
+// --- Page-Specific Event Handlers ---
+/** ヘッダーボタンのアクションを処理する */
 const onHeaderAction = (action: string) => {
   if (action === "create") {
     openModal("create-security-groups");
