@@ -46,10 +46,17 @@ export const useResourceDelete = (resourceName: string) => {
 
       // 例外が発生しなかったので、成功としてレポートを返す
       return { success: true };
-    } catch (err: any) {
+    } catch (err: unknown) {
       // $fetchが4xx/5xx系のエラーを検知すると、例外が投げられ、このcatchブロックが実行される
-      const error = err as FetchError;
-      const statusCode = error.statusCode || 500;
+      let statusCode = 500;
+      if (
+        typeof err === "object" &&
+        err !== null &&
+        "statusCode" in err &&
+        typeof (err as { statusCode?: unknown }).statusCode === "number"
+      ) {
+        statusCode = (err as FetchError).statusCode || 500;
+      }
 
       // エラーのステータスコードに応じて内容を分類し、レポートとして返す
       switch (statusCode) {
