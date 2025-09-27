@@ -53,6 +53,23 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
+  /api/users/me:
+    get:
+      summary: 自分のユーザ情報取得
+      description: 認証されたユーザの詳細情報を取得します。
+      tags:
+        - Users
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: 認証エラー
+      security:
+        - BearerAuth: []
   /api/users/{userId}:
     get:
       summary: ユーザの詳細取得
@@ -440,6 +457,34 @@ paths:
                   token:
                     type: string
                     description: 認証トークン
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+      security: []
+  /api/login/web:
+    post:
+      summary: ユーザのログイン
+      description: ユーザのメールアドレスとパスワードを使用してログインします。トークンはCookieに保存されます。
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: ログイン成功メッセージ
         "400":
           description: リクエストエラー
         "401":
