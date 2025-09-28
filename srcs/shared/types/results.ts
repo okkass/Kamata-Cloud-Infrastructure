@@ -1,4 +1,3 @@
-import type { errors } from "jose";
 
 export type DeleteResult = {
   success: boolean;
@@ -14,7 +13,7 @@ export type CreateResult<T> = {
   data?: T;
   error?: {
     type: "validation" | "permission" | "notFound" | "unknown" | "conflict";
-    message: string | Error | any;
+    message: string | Error;
     statusCode: number;
   };
 };
