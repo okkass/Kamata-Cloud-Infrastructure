@@ -4,46 +4,50 @@
     title="セキュリティグループ作成"
     @close="$emit('close')"
   >
-    <div class="space-y-6">
-      <div class="space-y-4">
-        <div>
-          <label for="sg-name" class="form-label">セキュリティグループ名</label>
-          <input
-            id="sg-name"
-            type="text"
-            v-model="securityGroup.name"
-            class="form-input"
-          />
+    <form @submit.prevent="handleSubmit">
+      <div class="space-y-6">
+        <div class="space-y-4">
+          <div>
+            <label for="sg-name" class="form-label"
+              >セキュリティグループ名</label
+            >
+            <input
+              id="sg-name"
+              type="text"
+              v-model="securityGroup.name"
+              class="form-input"
+            />
+          </div>
+          <div>
+            <label for="sg-description" class="form-label">説明</label>
+            <textarea
+              id="sg-description"
+              rows="3"
+              v-model="securityGroup.description"
+              class="form-input"
+            ></textarea>
+          </div>
         </div>
-        <div>
-          <label for="sg-description" class="form-label">説明</label>
-          <textarea
-            id="sg-description"
-            rows="3"
-            v-model="securityGroup.description"
-            class="form-input"
-          ></textarea>
-        </div>
+
+        <RuleTable
+          title="インバウンドルール"
+          :rules="securityGroup.inboundRules"
+          @add-rule="addRule('inbound')"
+          @delete-rule="deleteRule('inbound', $event)"
+        />
+
+        <RuleTable
+          title="アウトバウンドルール"
+          :rules="securityGroup.outboundRules"
+          @add-rule="addRule('outbound')"
+          @delete-rule="deleteRule('outbound', $event)"
+        />
       </div>
 
-      <RuleTable
-        title="インバウンドルール"
-        :rules="securityGroup.inboundRules"
-        @add-rule="addRule('inbound')"
-        @delete-rule="deleteRule('inbound', $event)"
-      />
-
-      <RuleTable
-        title="アウトバウンドルール"
-        :rules="securityGroup.outboundRules"
-        @add-rule="addRule('outbound')"
-        @delete-rule="deleteRule('outbound', $event)"
-      />
-    </div>
-
-    <div class="flex justify-end mt-8 pt-4 border-t">
-      <button @click="createSecurityGroup" class="btn-primary">作成</button>
-    </div>
+      <div class="flex justify-end mt-8 pt-4 border-t">
+        <button @click="createSecurityGroup" class="btn-primary">作成</button>
+      </div>
+    </form>
   </BaseModal>
 </template>
 
@@ -114,7 +118,7 @@ const deleteRule = (type, ruleId) => {
 /**
  * セキュリティグループを作成する
  */
-const createSecurityGroup = () => {
+const handleSubmit = () => {
   console.log("作成データ:", securityGroup.value);
   alert(`セキュリティグループ「${securityGroup.value.name}」を作成しました。`);
   emit("create", securityGroup.value);
