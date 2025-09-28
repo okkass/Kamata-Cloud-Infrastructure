@@ -4,59 +4,65 @@
     title="インスタンスタイプの編集"
     @close="$emit('close')"
   >
-    <form v-if="formData" @submit.prevent="handleSubmit" class="space-y-4">
-      <!-- 名前 -->
-      <div>
-        <label for="it-edit-name" class="form-label">名前</label>
-        <input
-          id="it-edit-name"
-          v-model="formData.name"
-          type="text"
-          class="form-input"
-          required
-        />
+    <form v-if="editableInstanceType" @submit.prevent="handleSubmit">
+      <div class="space-y-4">
+        <!-- インスタンスタイプ名-->
+        <div>
+          <label for="instance-type-name-edit" class="form-label"
+            >インスタンスタイプ名</label
+          >
+          <input
+            id="instance-type-name-edit"
+            type="text"
+            v-model="editableInstanceType.name"
+            class="form-input"
+            placeholder="例: standard.xlarge"
+          />
+        </div>
+        <!-- vCPU数 -->
+        <div>
+          <label for="instance-vcpu-edit" class="form-label">CPUコア数</label>
+          <input
+            id="instance-vcpu-edit"
+            type="number"
+            v-model.number="editableInstanceType.cpuCores"
+            class="form-input"
+            placeholder="例: 16"
+          />
+        </div>
+        <!-- メモリ数 -->
+        <div>
+          <label for="instance-memory-edit" class="form-label">メモリ数</label>
+          <div class="flex items-center gap-2">
+            <input
+              id="instance-memory-edit"
+              type="number"
+              v-model.number="editableInstanceType.memorySize"
+              class="form-input"
+              placeholder="例: 32"
+            />
+            <span class="font-semibold text-gray-600">GB</span>
+          </div>
+        </div>
+        <!-- ストレージ数 -->
+        <div>
+          <label for="instance-storage-edit" class="form-label"
+            >ストレージ数</label
+          >
+          <div class="flex items-center gap-2">
+            <input
+              id="instance-storage-edit"
+              type="number"
+              v-model.number="editableInstanceType.storageSize"
+              class="form-input"
+              placeholder="例: 500"
+            />
+            <span class="font-semibold text-gray-600">GB</span>
+          </div>
+        </div>
       </div>
-      <!-- CPUコア数 -->
-      <div>
-        <label for="it-edit-cpu" class="form-label">CPUコア数</label>
-        <input
-          id="it-edit-cpu"
-          v-model.number="formData.cpuCores"
-          type="number"
-          min="0"
-          class="form-input"
-          required
-        />
-      </div>
-      <!-- メモリサイズ(GB) -->
-      <div>
-        <label for="it-edit-memory" class="form-label">メモリサイズ (GB)</label>
-        <input
-          id="it-edit-memory"
-          v-model.number="formData.memorySize"
-          type="number"
-          min="0"
-          class="form-input"
-          required
-        />
-      </div>
-      <!-- ストレージサイズ(GB) -->
-      <div>
-        <label for="it-edit-storage" class="form-label"
-          >ストレージサイズ (GB)</label
-        >
-        <input
-          id="it-edit-storage"
-          v-model.number="formData.storageSize"
-          type="number"
-          min="0"
-          class="form-input"
-          required
-        />
-      </div>
-
       <!-- ボタンエリア -->
-      <div class="flex justify-end items-center gap-4 pt-4 border-t">
+      <div class="flex justify-end gap-3 mt-8 pt-4 border-t">
         <button
           type="button"
           @click="$emit('close')"
@@ -79,46 +85,70 @@
 <script setup lang="ts">
 import { ref, watch, type PropType } from "vue";
 
+// ==============================================================================
+// Props & Emits
+// ==============================================================================
 const props = defineProps({
-  show: { type: Boolean, required: true },
-  // 親から渡される、編集対象の現在のデータ
+  // モーダルの表示状態
+  show: {
+    type: Boolean,
+    required: true,
+  },
+  // APIから取得した編集対象のインスタンスタイプデータ
   instanceTypeData: {
     type: Object as PropType<ModelInstanceTypeDTO | null>,
     default: null,
   },
 });
+
 const emit = defineEmits(["close", "success"]);
 
+// ==============================================================================
+// Composables
+// ==============================================================================
 // "instance-types"リソースを更新するための専門家を呼び出す
 const { executeUpdate, isUpdating } = useResourceUpdate<
   InstanceTypeUpdateRequestDTO,
   ModelInstanceTypeDTO
 >("instance-types");
+// トースト通知用のComposable
 const toast = useToast();
 
-// フォームの入力値を保持するref。propsのデータを直接変更しないようにコピーして使う
-const formData = ref<InstanceTypeUpdateRequestDTO | null>(null);
+// ==============================================================================
+// State
+// ==============================================================================
+// propsで受け取ったデータを編集するためのローカルコピーを作成
+const editableInstanceType = ref<InstanceTypeUpdateRequestDTO | null>(null);
 
-// props.instanceTypeDataが変更されたら、フォームのデータを更新する
+// 親コンポーネントから渡されるデータが変更された場合に、ローカルのデータも追従させる
 watch(
   () => props.instanceTypeData,
   (newData) => {
     if (newData) {
-      // スプレッド構文でオブジェクトをコピーし、リアクティブな関連を切る
-      formData.value = { ...newData };
+      editableInstanceType.value = { ...newData };
     } else {
-      formData.value = null;
+      editableInstanceType.value = null;
     }
   },
   { immediate: true }
-); // immediate: trueでコンポーネント初期化時にも実行
+); // immediate: trueで初期化時にも実行
 
-/** フォーム送信時の処理 */
+// ==============================================================================
+// Methods
+// ==============================================================================
+/**
+ * 変更を保存する処理
+ */
 const handleSubmit = async () => {
-  if (!props.instanceTypeData || !formData.value) return;
-
+  if (!props.instanceTypeData || !editableInstanceType.value) {
+    // 編集対象のデータがない場合は何もしない
+    return;
+  }
   // 専門家(executeUpdate)に更新処理を依頼
-  const result = await executeUpdate(props.instanceTypeData.id, formData.value);
+  const result = await executeUpdate(
+    props.instanceTypeData.id,
+    editableInstanceType.value
+  );
 
   if (result.success) {
     toast.addToast({
@@ -137,16 +167,17 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
+/* 共通スタイルを@applyで定義 */
 .form-label {
-  @apply block text-sm font-medium text-gray-700 mb-1;
+  @apply block mb-1.5 font-semibold text-gray-700;
 }
 .form-input {
-  @apply block w-full rounded-md border-gray-300 shadow-sm;
+  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
+}
+.btn-primary {
+  @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
 }
 .btn-secondary {
   @apply py-2 px-4 bg-gray-200 rounded-md disabled:opacity-50;
-}
-.btn-primary {
-  @apply py-2 px-4 bg-blue-600 text-white rounded-md disabled:opacity-50;
 }
 </style>

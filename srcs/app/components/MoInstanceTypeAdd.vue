@@ -4,67 +4,87 @@
     title="インスタンスタイプの追加"
     @close="$emit('close')"
   >
-    <div class="space-y-4">
-      <div>
-        <label for="instance-type-name" class="form-label"
-          >インスタンスタイプ名</label
+    <form @submit.prevent="handleSubmit">
+      <div class="space-y-4">
+        <!-- インスタンスタイプ名-->
+        <div>
+          <label for="instance-type-name" class="form-label"
+            >インスタンスタイプ名</label
+          >
+          <input
+            id="instance-type-name"
+            type="text"
+            v-model="newInstanceType.name"
+            class="form-input"
+            placeholder="例: standard.xlarge"
+            required
+          />
+        </div>
+        <!-- CPUコア数 -->
+        <div>
+          <label for="instance-vcpu" class="form-label">CPUコア数</label>
+          <input
+            id="instance-vcpu"
+            type="number"
+            v-model.number="newInstanceType.vcpus"
+            class="form-input"
+            placeholder="例: 16"
+            min="1"
+            required
+          />
+        </div>
+        <!-- メモリ数 -->
+        <div>
+          <label for="instance-memory" class="form-label">メモリ数</label>
+          <div class="flex items-center gap-2">
+            <input
+              id="instance-memory"
+              type="number"
+              v-model.number="newInstanceType.memory"
+              class="form-input"
+              placeholder="例: 32"
+              min="1"
+              required
+            />
+            <span class="font-semibold text-gray-600">GB</span>
+          </div>
+        </div>
+        <!-- ストレージ数 -->
+        <div>
+          <label for="instance-storage" class="form-label">ストレージ数</label>
+          <div class="flex items-center gap-2">
+            <input
+              id="instance-storage"
+              type="number"
+              v-model.number="newInstanceType.storage"
+              class="form-input"
+              placeholder="例: 500"
+              min="1"
+              required
+            />
+            <span class="font-semibold text-gray-600">GB</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex justify-end gap-3 mt-8 pt-4 border-t">
+        <button
+          type="button"
+          @click="$emit('close')"
+          class="btn-secondary"
+          :disabled="isCreating"
         >
-        <input
-          id="instance-type-name"
-          type="text"
-          v-model="newInstanceType.name"
-          class="form-input"
-          placeholder="例: standard.xlarge"
-        />
+          キャンセル
+        </button>
+        <button type="submit" class="btn-primary" :disabled="isCreating">
+          {{ isCreating ? "作成中..." : "作成" }}
+        </button>
       </div>
-
-      <div>
-        <label for="instance-vcpu" class="form-label">vCPU数</label>
-        <input
-          id="instance-vcpu"
-          type="number"
-          v-model.number="newInstanceType.vcpus"
-          class="form-input"
-          placeholder="例: 16"
-        />
-      </div>
-
-      <div>
-        <label for="instance-memory" class="form-label">メモリ数</label>
-        <div class="flex items-center gap-2">
-          <input
-            id="instance-memory"
-            type="number"
-            v-model.number="newInstanceType.memory"
-            class="form-input"
-            placeholder="例: 32"
-          />
-          <span class="font-semibold text-gray-600">GB</span>
-        </div>
-      </div>
-
-      <div>
-        <label for="instance-storage" class="form-label">ストレージ数</label>
-        <div class="flex items-center gap-2">
-          <input
-            id="instance-storage"
-            type="number"
-            v-model.number="newInstanceType.storage"
-            class="form-input"
-            placeholder="例: 500"
-          />
-          <span class="font-semibold text-gray-600">GB</span>
-        </div>
-      </div>
-    </div>
-
-    <div class="flex justify-end gap-3 mt-8 pt-4 border-t">
-      <button @click="createInstanceType" class="btn-primary">作成</button>
-    </div>
+    </form>
   </BaseModal>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
 
 // ==============================================================================
@@ -79,7 +99,17 @@ defineProps({
   },
 });
 
-const emit = defineEmits(["close", "create"]);
+const emit = defineEmits(["close", "success"]);
+
+// ==============================================================================
+// executer & toast
+// API通信や通知のためのユーティリティを準備
+// ==============================================================================
+const { executeCreate, isCreating } = useResourceCreate<
+  InstanceTypeCreateRequestDTO,
+  ModelInstanceTypeDTO
+>("instance-types");
+const { addToast } = useToast();
 
 // ==============================================================================
 // State
@@ -100,16 +130,33 @@ const newInstanceType = ref({
 /**
  * インスタンスタイプを作成する処理
  */
-const createInstanceType = () => {
-  // 本来はここでAPIに newInstanceType.value を送信する
-  console.log("作成データ:", newInstanceType.value);
-  alert(`「${newInstanceType.value.name}」を作成しました。`);
+const handleSubmit = async () => {
+  // formのrequiredがあるのでnullは絶対に来ないはず
+  const value: InstanceTypeCreateRequestDTO = {
+    name: newInstanceType.value.name,
+    cpuCores: newInstanceType.value.vcpus!,
+    memorySize: newInstanceType.value.memory!,
+    storageSize: newInstanceType.value.storage!,
+  };
+  // 非同期でインスタンスタイプを作成
+  const result = await executeCreate(value);
 
-  // 親コンポーネントに作成したデータを渡す
-  emit("create", newInstanceType.value);
-
-  // モーダルを閉じる
-  emit("close");
+  // 作成が成功した場合
+  if (result.success) {
+    // 成功したら、親に@successイベントで通知
+    useToast().addToast({
+      type: "success",
+      message: "インスタンスタイプが作成されました",
+    });
+    emit("success");
+  } else {
+    // 失敗したら、このモーダル自身がエラーを通知
+    addToast({
+      type: "error",
+      message: "インスタンスタイプの作成に失敗しました。",
+      details: result.error?.message,
+    });
+  }
 };
 </script>
 
@@ -123,5 +170,8 @@ const createInstanceType = () => {
 }
 .btn-primary {
   @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
+}
+.btn-secondary {
+  @apply py-2 px-4 bg-gray-200 rounded-md disabled:opacity-50;
 }
 </style>
