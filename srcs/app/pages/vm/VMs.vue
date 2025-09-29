@@ -23,7 +23,7 @@
 
 <script>
 import DashboardLayout from "@/components/DashboardLayout.vue";
-import MoImageAdd from "@/components/mo_image_add.vue"; // ← コンポーネント配置に合わせて
+import MoImageAdd from "~/components/MoImageAdd.vue"; // ← コンポーネント配置に合わせて
 
 export default {
   name: "VMs",

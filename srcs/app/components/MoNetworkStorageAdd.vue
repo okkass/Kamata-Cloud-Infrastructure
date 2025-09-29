@@ -6,8 +6,14 @@
   >
     <div class="space-y-4">
       <div>
-        <label for="node-select" class="form-label">作成先物理ノード</label>
-        <select id="node-select" v-model="selectedNode" class="form-input">
+        <label for="node-select-ns-add" class="form-label"
+          >作成先物理ノード</label
+        >
+        <select
+          id="node-select-ns-add"
+          v-model="networkStorageData.nodeId"
+          class="form-input"
+        >
           <option :value="null" disabled>選択してください</option>
           <option v-for="node in nodes" :key="node.id" :value="node.id">
             {{ node.name }}
@@ -16,12 +22,12 @@
       </div>
 
       <div>
-        <label for="local-storage-select" class="form-label"
+        <label for="local-storage-select-ns-add" class="form-label"
           >作成先ローカルストレージ</label
         >
         <select
-          id="local-storage-select"
-          v-model="selectedLocalStorage"
+          id="local-storage-select-ns-add"
+          v-model="networkStorageData.localStorageId"
           class="form-input"
         >
           <option :value="null" disabled>選択してください</option>
@@ -36,19 +42,18 @@
       </div>
 
       <div>
-        <label for="storage-size" class="form-label"
+        <label for="storage-size-ns-add" class="form-label"
           >ストレージサイズ (GB)</label
         >
         <input
-          id="storage-size"
+          id="storage-size-ns-add"
           type="number"
-          v-model.number="storageSize"
+          v-model.number="networkStorageData.size"
           class="form-input"
           placeholder="例: 100"
         />
       </div>
     </div>
-
     <div class="flex justify-end gap-3 mt-8 pt-4 border-t">
       <button @click="createNetworkStorage" class="btn-primary">作成</button>
     </div>
@@ -57,65 +62,75 @@
 
 <script setup>
 import { ref } from "vue";
+import { useToast } from "~/composables/useToast"; // Toast通知用のComposableをインポート
 
 // ==============================================================================
-// Props & Emits
+// 担当者（API実装担当）へのメッセージ:
+// 下記のcreateNetworkStorage関数内に、APIへのデータ送信ロジックを実装してください。
+// このコンポーネントは親から `nodes` と `localStorages` のリストを
+// propsとして受け取ることを想定しています。
 // ==============================================================================
+
+// --- 親コンポーネントとの連携定義 (変更不要) ---
 const props = defineProps({
-  // モーダルの表示状態
-  show: {
-    type: Boolean,
-    required: true,
-  },
-  // APIから取得した物理ノードのリスト
-  nodes: {
-    type: Array,
-    required: true,
-    default: () => [
-      { id: "node-01", name: "kci-node01" },
-      { id: "node-02", name: "kci-node02" },
-      { id: "node-03", name: "kci-node03" },
-    ],
-  },
-  // APIから取得したローカルストレージのリスト
-  localStorages: {
-    type: Array,
-    required: true,
-    default: () => [
-      { id: "ls-01", name: "local-storage-a", path: "/var/lib/storage-a" },
-      { id: "ls-02", name: "local-storage-b", path: "/var/lib/storage-b" },
-    ],
-  },
+  show: { type: Boolean, required: true },
+  nodes: { type: Array, required: true, default: () => [] },
+  localStorages: { type: Array, required: true, default: () => [] },
 });
-
 const emit = defineEmits(["close", "create"]);
 
-// ==============================================================================
-// State
-// ==============================================================================
-const selectedNode = ref(null);
-const selectedLocalStorage = ref(null);
-const storageSize = ref(100);
+// --- フォームの入力データを保持するリアクティブ変数 (変更不要) ---
+const networkStorageData = ref({
+  nodeId: null,
+  localStorageId: null,
+  size: 100, // UI上ではGB単位
+});
+const { addToast } = useToast(); // Toast通知関数を取得
 
-// ==============================================================================
-// Methods
-// ==============================================================================
 /**
- * ネットワークストレージを作成する処理
+ * 「作成」ボタンが押されたときに実行される関数
  */
 const createNetworkStorage = () => {
+  // ============================================================================
+  // ▼▼▼ API実装担当者の方へ: この中にAPI呼び出し処理を実装してください ▼▼▼
+  // ============================================================================
+
+  // 1. ペイロードの作成:
+  //    APIに送信するデータを作成します。
+  //    APIがサイズをバイト単位で要求する場合、ここで変換が必要です。
   const payload = {
-    nodeId: selectedNode.value,
-    localStorageId: selectedLocalStorage.value,
-    size: storageSize.value,
+    nodeId: networkStorageData.value.nodeId,
+    localStorageId: networkStorageData.value.localStorageId,
+    // GBをバイトに変換する例
+    size: (networkStorageData.value.size || 0) * 1024 * 1024 * 1024,
   };
 
-  // 本来はここでAPIに payload を送信する
-  console.log("作成データ:", payload);
-  alert("ネットワークストレージを作成しました。");
+  // 2. API呼び出し (POSTリクエスト):
+  //    const { data, error } = await useApiFetch('/network-storages', {
+  //      method: 'POST',
+  //      body: payload,
+  //    });
 
-  emit("create", payload);
+  // 3. 結果のハンドリング:
+  //    if (error.value) {
+  //      addToast({ message: 'ネットワークストレージの作成に失敗しました。', type: 'error' });
+  //    } else {
+  //      addToast({ message: 'ネットワークストレージを作成しました。', type: 'success' });
+  //      emit('create', data.value);
+  //      emit('close');
+  //    }
+
+  // --- 現在はAPI実装前のダミー動作 ---
+  console.log("APIに送信するデータ:", payload);
+  addToast({
+    message: "【ダミー】ネットワークストレージを作成しました。",
+    type: "success",
+  });
+  emit("create", networkStorageData.value);
   emit("close");
+  // ============================================================================
+  // ▲▲▲ API実装はここまで ▲▲▲
+  // ============================================================================
 };
 </script>
 

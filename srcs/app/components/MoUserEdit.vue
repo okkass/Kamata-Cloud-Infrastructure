@@ -72,6 +72,7 @@
 
 <script setup>
 import { ref, watch } from "vue";
+import { useToast } from "~/composables/useToast"; // Toast通知用のComposableをインポート
 
 // ==============================================================================
 // 担当者（API実装担当）へのメッセージ:
@@ -82,24 +83,21 @@ import { ref, watch } from "vue";
 // --- 親コンポーネントとの連携定義 (変更不要) ---
 const props = defineProps({
   show: { type: Boolean, required: true },
-  // 親から渡される編集対象のユーザーデータ
   userData: { type: Object, required: false },
 });
 const emit = defineEmits(["close", "save"]);
 
 // --- フォームの入力データを保持するリアクティブ変数 (変更不要) ---
 const editableUser = ref(null);
+const { addToast } = useToast(); // Toast通知関数を取得
 
-// --- 親から渡されたデータをフォームに反映させる処理 (変更不要) ---
+// --- 親から渡されたデータをフォームに反映させる処理 ---
 watch(
   () => props.userData,
   (newData) => {
     // ============================================================================
     // ▼▼▼ API実装担当者の方へ: ここはAPIのレスポンス形式に合わせて調整してください ▼▼▼
     // ============================================================================
-    // 親から渡されたデータ(newData)を、フォーム表示用のeditableUserに変換しています。
-    // 特に、メモリとストレージはAPIからはバイト単位で渡される想定のため、
-    // UI表示用にGB単位へ変換しています。
     if (newData) {
       editableUser.value = {
         id: newData.id,
@@ -110,7 +108,7 @@ watch(
         maxStorageSize: (newData.maxStorageSize || 0) / (1024 * 1024 * 1024),
       };
     } else {
-      editableUser.value = null; // データがなければフォームを空にする
+      editableUser.value = null;
     }
     // ============================================================================
     // ▲▲▲ APIのレスポンス形式に合わせた調整はここまで ▲▲▲
@@ -129,9 +127,6 @@ const saveChanges = () => {
   // ▼▼▼ API実装担当者の方へ: この中にAPI呼び出し処理を実装してください ▼▼▼
   // ============================================================================
 
-  // 1. ペイロードの作成:
-  //    APIに送信するデータを作成します。
-  //    メモリとストレージはGB単位からバイト単位への変換が必要です。
   const payload = {
     name: editableUser.value.name,
     email: editableUser.value.email,
@@ -142,18 +137,26 @@ const saveChanges = () => {
   };
 
   // 2. API呼び出し (PUTリクエスト):
-  //    useApiFetchを使って、PUTリクエストを送信します。
   //    const { data, error } = await useApiFetch(`/users/${editableUser.value.id}`, {
   //      method: 'PUT',
   //      body: payload,
   //    });
 
   // 3. 結果のハンドリング:
-  //    if (error.value) { ... } else { ... }
+  //    if (error.value) {
+  //      addToast({ message: 'ユーザー情報の更新に失敗しました。', type: 'error' });
+  //    } else {
+  //      addToast({ message: `利用者「${data.value.name}」の変更を保存しました。`, type: 'success' });
+  //      emit("save", data.value);
+  //      emit("close");
+  //    }
 
   // --- 現在はAPI実装前のダミー動作 ---
   console.log("APIに送信する更新データ:", payload);
-  alert(`【ダミー】利用者「${editableUser.value.name}」の変更を保存しました。`);
+  addToast({
+    message: `【ダミー】利用者「${editableUser.value.name}」の変更を保存しました。`,
+    type: "success",
+  });
   emit("save", editableUser.value);
   emit("close");
   // ============================================================================
@@ -171,9 +174,10 @@ const sendPasswordResetEmail = () => {
   // ============================================================================
 
   // --- 現在はAPI実装前のダミー動作 ---
-  alert(
-    `【ダミー】「${editableUser.value.name}」にパスワードリセットメールを送信します。`
-  );
+  addToast({
+    message: `【ダミー】「${editableUser.value.name}」にパスワードリセットメールを送信します。`,
+    type: "info",
+  });
   // ============================================================================
   // ▲▲▲ API実装はここまで ▲▲▲
   // ============================================================================

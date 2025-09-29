@@ -12,7 +12,6 @@
           class="form-input"
         />
       </div>
-
       <div>
         <label for="user-email-add" class="form-label">メールアドレス</label>
         <input
@@ -22,7 +21,6 @@
           class="form-input"
         />
       </div>
-
       <div>
         <label for="user-password-add" class="form-label">パスワード</label>
         <input
@@ -32,7 +30,6 @@
           class="form-input"
         />
       </div>
-
       <div class="pt-2">
         <label class="form-label">最大リソース制限</label>
         <div class="space-y-2">
@@ -74,6 +71,7 @@
 
 <script setup>
 import { ref } from "vue";
+import { useToast } from "~/composables/useToast"; // Toast通知用のComposableをインポート
 
 // ==============================================================================
 // 担当者（API実装担当）へのメッセージ:
@@ -90,13 +88,13 @@ const newUser = ref({
   name: "",
   email: "",
   password: "",
-  // API仕様に合わせて、useTOTPとisAdminも初期値として定義しておくと親切です
   useTOTP: false,
   isAdmin: false,
   maxCpuCores: null,
-  maxMemorySize: null, // UI上ではGB単位で入力されます
-  maxStorageSize: null, // UI上ではGB単位で入力されます
+  maxMemorySize: null, // UI上ではGB単位
+  maxStorageSize: null, // UI上ではGB単位
 });
+const { addToast } = useToast(); // Toast通知関数を取得
 
 /**
  * 「追加」ボタンが押されたときに実行される関数
@@ -106,13 +104,6 @@ const addUser = () => {
   // ▼▼▼ API実装担当者の方へ: この中にAPI呼び出し処理を実装してください ▼▼▼
   // ============================================================================
 
-  // 1. (任意) バリデーション:
-  //    入力値が正しいかチェックする処理をここに追加できます。
-  //    if (!newUser.value.name) { alert('名前は必須です'); return; }
-
-  // 2. ペイロードの作成:
-  //    APIに送信するデータを作成します。
-  //    特に、メモリとストレージはGB単位からバイト単位への変換が必要です。
   const payload = {
     ...newUser.value,
     maxMemorySize: (newUser.value.maxMemorySize || 0) * 1024 * 1024 * 1024,
@@ -120,25 +111,26 @@ const addUser = () => {
   };
 
   // 3. API呼び出し:
-  //    useApiFetchを使って、POSTリクエストを送信します。
   //    const { data, error } = await useApiFetch('/users', {
   //      method: 'POST',
   //      body: payload,
   //    });
 
   // 4. 結果のハンドリング:
-  //    エラーがあればエラーメッセージを表示し、成功すれば成功メッセージを表示します。
   //    if (error.value) {
-  //      alert('ユーザーの作成に失敗しました。');
+  //      addToast({ message: 'ユーザーの作成に失敗しました。', type: 'error' });
   //    } else {
-  //      alert(`利用者「${data.value.name}」を追加しました。`);
-  //      emit('add', data.value); // 親コンポーネントに成功を通知
-  //      emit('close'); // モーダルを閉じる
+  //      addToast({ message: `利用者「${data.value.name}」を追加しました。`, type: 'success' });
+  //      emit('add', data.value);
+  //      emit('close');
   //    }
 
   // --- 現在はAPI実装前のダミー動作 ---
   console.log("APIに送信するデータ:", payload);
-  alert(`【ダミー】利用者「${newUser.value.name}」を追加しました。`);
+  addToast({
+    message: `【ダミー】利用者「${newUser.value.name}」を追加しました。`,
+    type: "success",
+  });
   emit("add", newUser.value);
   emit("close");
   // ============================================================================

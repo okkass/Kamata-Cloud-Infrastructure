@@ -1,82 +1,70 @@
 <template>
-  <div class="space-y-6">
-    <div class="form-section space-y-4">
-      <h3 class="section-title">ネットワーク</h3>
-
-      <div>
-        <label for="network-select" class="form-label-sm">ネットワーク</label>
-        <select id="network-select" class="form-input">
-          <option>student-net</option>
-          <option>teacher-net</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="subnet-select" class="form-label-sm">サブネット</label>
-        <select id="subnet-select" class="form-input">
-          <option>192.168.10.0/24</option>
-          <option>172.16.0.0/24</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="public-key" class="form-label-sm">公開鍵</label>
-        <textarea
-          id="public-key"
-          rows="3"
-          placeholder="ssh-rsa AAAAB3..."
-          class="form-input mb-2"
-        ></textarea>
-
-        <div class="flex items-center">
-          <label class="btn-secondary cursor-pointer">
-            <span>ファイルを選択</span>
-            <input type="file" class="hidden" @change="handleFileChange" />
-          </label>
-          <span class="ml-3 text-sm text-gray-600">{{ selectedFileName }}</span>
-        </div>
-      </div>
+  <div class="space-y-4">
+    <div>
+      <label for="network-select" class="form-label">ネットワーク</label>
+      <select
+        id="network-select"
+        v-model="formData.networkId"
+        class="form-input"
+      >
+        <option :value="null" disabled>ネットワークを選択してください</option>
+        <option
+          v-for="network in networks"
+          :key="network.id"
+          :value="network.id"
+        >
+          {{ network.name }} ({{ network.cidr }})
+        </option>
+      </select>
     </div>
 
-    <div class="form-section">
-      <h3 class="section-title mb-4">セキュリティグループ</h3>
+    <div>
+      <label for="security-group-select" class="form-label"
+        >セキュリティグループ</label
+      >
+      <select
+        id="security-group-select"
+        v-model="formData.securityGroupId"
+        class="form-input"
+      >
+        <option :value="null" disabled>
+          セキュリティグループを選択してください
+        </option>
+        <option v-for="sg in securityGroups" :key="sg.id" :value="sg.id">
+          {{ sg.name }}
+        </option>
+      </select>
+    </div>
 
-      <table class="w-full text-sm text-left text-gray-700">
-        <thead class="text-xs text-gray-800 uppercase bg-gray-100">
-          <tr>
-            <th class="px-4 py-2">グループ名</th>
-            <th class="px-4 py-2">説明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="appliedGroups.length === 0">
-            <td colspan="2" class="text-center py-4 text-gray-500">
-              適用中のセキュリティグループはありません
-            </td>
-          </tr>
-          <tr
-            v-for="group in appliedGroups"
-            :key="group.name"
-            class="bg-white border-b"
+    <div>
+      <label class="form-label">キーペア (公開鍵)</label>
+      <div
+        class="drop-zone"
+        :class="{ 'is-dragging': isDragging }"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="handleDrop"
+      >
+        <input
+          type="file"
+          ref="fileInput"
+          @change="handleFileSelect"
+          class="hidden"
+          accept=".pub"
+        />
+        <div class="text-center">
+          <p class="text-gray-500">ここにファイルをドラッグ&ドロップ</p>
+          <p class="text-gray-400 text-sm my-2">または</p>
+          <button @click="openFilePicker" class="btn-secondary">
+            ファイルを選択
+          </button>
+          <p
+            v-if="formData.keyPairFile"
+            class="text-green-600 font-semibold mt-4"
           >
-            <td class="px-4 py-2 font-medium">{{ group.name }}</td>
-            <td class="px-4 py-2">{{ group.description }}</td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="flex items-center gap-3 mt-4">
-        <select v-model="selectedGroupToAdd" class="form-input flex-grow">
-          <option :value="null" disabled>追加するグループを選択</option>
-          <option
-            v-for="group in availableGroups"
-            :key="group.name"
-            :value="group.name"
-          >
-            {{ group.name }}
-          </option>
-        </select>
-        <button @click="addGroup" class="btn-secondary">追加</button>
+            選択中のファイル: {{ formData.keyPairFile.name }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
@@ -85,72 +73,94 @@
 <script setup>
 import { ref } from "vue";
 
-// --- 公開鍵ファイルの状態 ---
-const selectedFileName = ref("選択されていません");
-const handleFileChange = (event) => {
-  const file = event.target.files[0];
+// ==============================================================================
+// 担当者（API実装担当）へのメッセージ:
+// このコンポーネントは、ネットワークとセキュリティ情報を入力するためのフォームです。
+// APIから「ネットワーク一覧」「セキュリティグループ一覧」を取得し、
+// `networks`, `securityGroups` のrefを更新する処理を実装してください。
+// ==============================================================================
+
+// --- フォームの入力データを保持するリアクティブ変数 (変更不要) ---
+const formData = ref({
+  networkId: null,
+  securityGroupId: null,
+  keyPairFile: null, // 選択されたファイルオブジェクトを保持
+});
+
+// --- 親コンポーネントがこのタブのデータにアクセスできるように公開 ---
+defineExpose({
+  formData,
+});
+
+// ============================================================================
+// ▼▼▼ API実装担当者の方へ: ここにAPIから各種リストを取得する処理を実装してください ▼▼▼
+// ============================================================================
+
+// --- APIから取得するデータ（現在はダミー） ---
+const networks = ref([
+  { id: "net-1", name: "Public Network", cidr: "10.0.1.0/24" },
+  { id: "net-2", name: "Private Network", cidr: "192.168.10.0/24" },
+]);
+const securityGroups = ref([
+  { id: "sg-1", name: "default" },
+  { id: "sg-2", name: "web-server-rules" },
+]);
+
+// onMounted(async () => {
+//   // コンポーネント表示時にAPIからデータを取得
+//   const { data: netData } = await useApiFetch('/networks');
+//   networks.value = netData.value;
+//
+//   const { data: sgData } = await useApiFetch('/security-groups');
+//   securityGroups.value = sgData.value;
+// });
+
+// ============================================================================
+// ▲▲▲ API実装はここまで ▲▲▲
+// ============================================================================
+
+// --- UI操作のロジック (変更不要) ---
+const fileInput = ref(null);
+const isDragging = ref(false);
+
+const openFilePicker = () => {
+  fileInput.value?.click();
+};
+
+const handleFileSelect = (event) => {
+  const file = event.target.files?.[0];
   if (file) {
-    selectedFileName.value = file.name;
-    // ここでファイル読み込み処理などを追加できる
-  } else {
-    selectedFileName.value = "選択されていません";
+    formData.value.keyPairFile = file;
   }
 };
 
-// --- セキュリティグループの状態 ---
-// 適用されているセキュリティグループのリスト
-const appliedGroups = ref([]);
-// プルダウンに表示する、追加可能なグループのリスト（ダミーデータ）
-const availableGroups = ref([
-  { name: "default", description: "デフォルトのセキュリティグループ" },
-  { name: "web-server", description: "Webサーバー用のセキュリティグループ" },
-  { name: "allow-http", description: "HTTP通信を許可" },
-  { name: "allow-ssh", description: "SSH接続を許可" },
-]);
-// プルダウンで選択されているグループ
-const selectedGroupToAdd = ref(null);
-
-// セキュリティグループを追加する関数
-const addGroup = () => {
-  // グループが選択されていない場合は何もしない
-  if (!selectedGroupToAdd.value) {
-    alert("追加するグループを選択してください。");
-    return;
-  }
-
-  // 選択されたグループの完全なオブジェクトを探す
-  const groupObject = availableGroups.value.find(
-    (g) => g.name === selectedGroupToAdd.value
-  );
-
-  // 既に追加されていないかチェック
-  const isAlreadyAdded = appliedGroups.value.some(
-    (g) => g.name === selectedGroupToAdd.value
-  );
-
-  if (groupObject && !isAlreadyAdded) {
-    appliedGroups.value.push(groupObject);
-  } else if (isAlreadyAdded) {
-    alert("このグループは既に追加されています。");
+const handleDrop = (event) => {
+  isDragging.value = false;
+  const file = event.dataTransfer?.files?.[0];
+  if (file) {
+    formData.value.keyPairFile = file;
   }
 };
 </script>
 
 <style scoped>
-/* 既存のフォームスタイルを再利用 */
-.form-section {
-  @apply p-4 border border-gray-200 rounded-lg;
+/* ラベルの共通スタイル */
+.form-label {
+  @apply block mb-1.5 font-semibold text-gray-700;
 }
-.section-title {
-  @apply font-semibold text-gray-800;
-}
-.form-label-sm {
-  @apply block mb-1.5 text-sm font-medium text-gray-600;
-}
+/* 入力欄（input, select）の共通スタイル */
 .form-input {
   @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
 }
+/* ドラッグ&ドロップエリアのスタイル */
+.drop-zone {
+  @apply w-full p-8 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center transition-colors;
+}
+.drop-zone.is-dragging {
+  @apply border-blue-500 bg-blue-50;
+}
+/* ボタンのスタイル */
 .btn-secondary {
-  @apply py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 whitespace-nowrap;
+  @apply py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300;
 }
 </style>
