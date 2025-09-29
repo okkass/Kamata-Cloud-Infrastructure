@@ -1,6 +1,6 @@
 <template>
   <div class="relative flex min-h-screen bg-slate-100">
-    <UserSidebar :role="userRole" />
+    <Sidebar :role="userRole" />
 
     <main
       class="flex-1 p-8 transition-all duration-300"
@@ -34,8 +34,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useSidebar } from "~/composables/useSidebar";
-import UserSidebar from "~/components/Sidebar.vue";
 
 // Composableから状態と関数を取得
 const { isSidebarOpen, open } = useSidebar();

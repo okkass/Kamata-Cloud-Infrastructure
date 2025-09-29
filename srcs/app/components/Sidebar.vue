@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { ref, computed } from "vue";
 import { useSidebar } from "~/composables/useSidebar";
-import {
-  userSidebarSections,
-  adminSidebarSections,
-} from "~/composables/menuItems";
 
 // --- Props ---
 const props = defineProps({
@@ -61,7 +57,7 @@ function isSectionOpen(title: string) {
       <div
         class="flex justify-between items-center text-lg font-bold bg-slate-900 p-3 rounded-md mb-6"
       >
-        <span>{{ sidebarTitle }}</span>
+        <NuxtLink to="/" class="hover:underline">{{ sidebarTitle }}</NuxtLink>
         <button
           @click="toggleSidebar"
           class="p-1 rounded-full hover:bg-slate-700"
