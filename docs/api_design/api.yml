@@ -434,6 +434,9 @@ paths:
               schema:
                 type: object
                 properties:
+                  refreshToken:
+                    type: string
+                    description: リフレッシュトークン
                   token:
                     type: string
                     description: 認証トークン
@@ -1608,13 +1611,17 @@ components:
           example: 22
         protocol:
           type: string
-          enum: [tcp, udp, icmp]
+          enum: [tcp, udp, icmp, any]
           description: 適用されるプロトコル
         targetIp:
           type: string
           format: ipv4
           description: ターゲットIPアドレス
           example: "192.0.2.0/24"
+        action:
+          type: string
+          enum: [allow, deny]
+          description: ルールのアクション（許可または拒否）
         createdAt:
           type: string
           format: date-time
@@ -1623,7 +1630,6 @@ components:
         - id
         - name
         - ruleType
-        - port
         - protocol
         - targetIp
         - createdAt
@@ -1992,18 +1998,17 @@ components:
           type: string
           format: date-time
           description: 仮想マシンが作成された日時
-        securityGroup:
+        securityGroups:
           type: array
           items:
-            type: string
-            format: uuid
-          description: 仮想マシンに関連付けられたセキュリティグループのIDリスト
-        attachedStorage:
+            $ref: "#/components/schemas/SecurityGroup"
+          description: 仮想マシンに関連付けられたセキュリティグループのリスト
+        attachedStorages:
           type: array
           description: アタッチされたストレージのリスト
           items:
             $ref: "#/components/schemas/AttachedStorage"
-        attachedNic:
+        attachedNics:
           type: array
           description: アタッチされたネットワークインターフェースのリスト
           items:
@@ -2029,7 +2034,7 @@ components:
         - instanceType
         - status
         - createdAt
-        - securityGroup
+        - securityGroups
         - attachedStorage
     VirtualMachineCreateRequest:
       type: object
