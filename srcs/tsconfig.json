@@ -14,5 +14,8 @@
     {
       "path": "./.nuxt/tsconfig.node.json"
     }
-  ]
+  ],
+
+  "include": ["srcs/**/*.ts"],
+  "exclude": ["node_modules"]
 }
