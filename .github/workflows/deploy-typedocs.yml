@@ -7,6 +7,8 @@ on:
       - main
     paths:
       - "srcs/shared/types/**"
+  # 手動でワークフローを実行するためのトリガー
+  workflow_dispatch:
 
 # ワークフローが必要とする権限を設定
 permissions:
@@ -34,7 +36,7 @@ jobs:
       # 4. TypeDocでドキュメントを生成
       # --out オプションで出力先ディレクトリを指定します。ここでは 'docs-types' という一時的なディレクトリに出力します。
       - name: Generate TypeDoc
-        run: npx typedoc --entryPointStrategy expand --out docs-types srcs/shared/types/
+        run: npx typedoc --tsconfig ./srcs/tsconfig.typedoc.json --entryPointStrategy expand --out ./docs-types srcs/shared/types/
 
       # 5. 生成したドキュメントをGitHub Pagesにデプロイ
       - name: Deploy to GitHub Pages

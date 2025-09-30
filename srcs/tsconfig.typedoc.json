@@ -1,0 +1,19 @@
+{
+  // 元のtsconfig.jsonを継承
+  "extends": "./tsconfig.json",
+
+  // 🔽 この compilerOptions を追加または修正
+  "compilerOptions": {
+    // どのバージョンのJavaScriptにコンパイルするか
+    "target": "ES2020",
+    // どの標準ライブラリの型定義を読み込むか
+    "lib": ["DOM", "ES2020"],
+    // モジュールの解決方法
+    "module": "ESNext",
+    // Node.jsのモジュール解決方法を模倣
+    "moduleResolution": "node"
+  },
+
+  // TypeDocでドキュメント化したいファイル
+  "include": ["srcs/shared/types/**/*.ts"]
+}
