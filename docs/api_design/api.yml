@@ -6,12 +6,83 @@ info:
   version: 0.0.1
 
 paths:
-  /api/users:
+  /api/backup:
+    get:
+      summary: バックアップ一覧の取得
+      description: ユーザのバックアップのリストを取得します。
+      tags:
+        - VirtualMachine
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Backup"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: バックアップの作成
+      description: 新しいバックアップを作成します。
+      tags:
+        - VirtualMachine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/BackupCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Backup"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    delete:
+      summary: バックアップの削除
+      description: 指定したIDのバックアップを削除します。
+      tags:
+        - VirtualMachine
+      parameters:
+        - name: backupId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: バックアップの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: バックアップが見つからない
+      security:
+        - BearerAuth: []
+  /api/user:
     get:
       summary: ユーザ一覧の取得
       description: すべてのユーザのリストを取得します。
       tags:
-        - Users
+        - User
       responses:
         "200":
           description: 成功
@@ -31,7 +102,7 @@ paths:
       summary: ユーザの作成
       description: 新しいユーザを作成します。
       tags:
-        - Users
+        - User
       requestBody:
         required: true
         content:
@@ -53,12 +124,12 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/users/{userId}:
+  /api/user/{userId}:
     get:
       summary: ユーザの詳細取得
       description: 指定したIDのユーザの詳細情報を取得します。
       tags:
-        - Users
+        - User
       parameters:
         - name: userId
           in: path
@@ -86,7 +157,7 @@ paths:
       summary: ユーザの更新
       description: 指定したIDのユーザ情報を更新します。
       tags:
-        - Users
+        - User
       parameters:
         - name: userId
           in: path
@@ -122,7 +193,7 @@ paths:
       summary: ユーザの削除
       description: 指定したIDのユーザを削除します。
       tags:
-        - Users
+        - User
       parameters:
         - name: userId
           in: path
@@ -142,12 +213,12 @@ paths:
           description: ユーザが見つからない
       security:
         - BearerAuth: []
-  /api/images:
+  /api/image:
     get:
       summary: 仮想マシンイメージ一覧の取得
       description: すべての仮想マシンイメージのリストを取得します。
       tags:
-        - Images
+        - Image
       responses:
         "200":
           description: 成功
@@ -167,7 +238,7 @@ paths:
       summary: 仮想マシンイメージの作成
       description: 新しい仮想マシンイメージを作成します。
       tags:
-        - Images
+        - Image
       requestBody:
         required: true
         content:
@@ -189,12 +260,12 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/images/{imageId}:
+  /api/image/{imageId}:
     get:
       summary: 仮想マシンイメージの詳細取得
       description: 指定したIDの仮想マシンイメージの詳細情報を取得します。
       tags:
-        - Images
+        - Image
       parameters:
         - name: imageId
           in: path
@@ -222,7 +293,7 @@ paths:
       summary: 仮想マシンイメージの更新
       description: 指定したIDの仮想マシンイメージ情報を更新します。
       tags:
-        - Images
+        - Image
       parameters:
         - name: imageId
           in: path
@@ -258,7 +329,7 @@ paths:
       summary: 仮想マシンイメージの削除
       description: 指定したIDの仮想マシンイメージを削除します。
       tags:
-        - Images
+        - Image
       parameters:
         - name: imageId
           in: path
@@ -278,12 +349,12 @@ paths:
           description: 仮想マシンイメージが見つからない
       security:
         - BearerAuth: []
-  /api/instance-types:
+  /api/instance-type:
     get:
       summary: インスタンスタイプ一覧の取得
       description: すべてのインスタンスタイプのリストを取得します。
       tags:
-        - InstanceTypes
+        - InstanceType
       responses:
         "200":
           description: 成功
@@ -303,7 +374,7 @@ paths:
       summary: インスタンスタイプの作成
       description: 新しいインスタンスタイプを作成します。
       tags:
-        - InstanceTypes
+        - InstanceType
       requestBody:
         required: true
         content:
@@ -325,12 +396,12 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/instance-types/{instanceTypeId}:
+  /api/instance-type/{instanceTypeId}:
     get:
       summary: インスタンスタイプの詳細取得
       description: 指定したIDのインスタンスタイプの詳細情報を取得します。
       tags:
-        - InstanceTypes
+        - InstanceType
       parameters:
         - name: instanceTypeId
           in: path
@@ -358,7 +429,7 @@ paths:
       summary: インスタンスタイプの更新
       description: 指定したIDのインスタンスタイプ情報を更新します。
       tags:
-        - InstanceTypes
+        - InstanceType
       parameters:
         - name: instanceTypeId
           in: path
@@ -394,7 +465,7 @@ paths:
       summary: インスタンスタイプの削除
       description: 指定したIDのインスタンスタイプを削除します。
       tags:
-        - InstanceTypes
+        - InstanceType
       parameters:
         - name: instanceTypeId
           in: path
@@ -445,12 +516,31 @@ paths:
         "401":
           description: 認証エラー
       security: []
-  /api/physical-nodes:
+  /api/middleware:
+    get:
+      summary: ミドルウェア一覧の取得
+      description: すべてのミドルウェアのリストを取得します。
+      tags:
+        - Image
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Middleware"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+  /api/physical-node:
     get:
       summary: 物理ノード一覧の取得
       description: すべての物理ノードのリストを取得します。
       tags:
-        - PhysicalNodes
+        - PhysicalNode
       responses:
         "200":
           description: 成功
@@ -470,7 +560,7 @@ paths:
       summary: 物理ノードの追加
       description: 新しい物理ノードを追加します。
       tags:
-        - PhysicalNodes
+        - PhysicalNode
       requestBody:
         required: true
         content:
@@ -492,12 +582,12 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/physical-nodes/candidates:
+  /api/physical-node/candidates:
     get:
       summary: 物理ノード候補一覧の取得
       description: 物理ノードとして追加可能な候補のリストを取得します。
       tags:
-        - PhysicalNodes
+        - PhysicalNode
       responses:
         "200":
           description: 成功
@@ -513,12 +603,12 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/physical-nodes/{nodeId}:
+  /api/physical-node/{nodeId}:
     get:
       summary: 物理ノードの詳細取得
       description: 指定したIDの物理ノードの詳細情報を取得します。
       tags:
-        - PhysicalNodes
+        - PhysicalNode
       parameters:
         - name: nodeId
           in: path
@@ -546,7 +636,7 @@ paths:
       summary: 物理ノードの更新
       description: 指定したIDの物理ノード情報を更新します。
       tags:
-        - PhysicalNodes
+        - PhysicalNode
       parameters:
         - name: nodeId
           in: path
@@ -582,7 +672,7 @@ paths:
       summary: 物理ノードの削除
       description: 指定したIDの物理ノードを削除します。
       tags:
-        - PhysicalNodes
+        - PhysicalNode
       parameters:
         - name: nodeId
           in: path
@@ -602,12 +692,12 @@ paths:
           description: 物理ノードが見つからない
       security:
         - BearerAuth: []
-  /api/security-groups:
+  /api/security-group:
     get:
       summary: セキュリティグループ一覧の取得
       description: すべてのセキュリティグループのリストを取得します。
       tags:
-        - SecurityGroups
+        - SecurityGroup
       responses:
         "200":
           description: 成功
@@ -627,7 +717,7 @@ paths:
       summary: セキュリティグループの作成
       description: 新しいセキュリティグループを作成します。
       tags:
-        - SecurityGroups
+        - SecurityGroup
       requestBody:
         required: true
         content:
@@ -649,12 +739,12 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/security-groups/{groupId}:
+  /api/security-group/{groupId}:
     get:
       summary: セキュリティグループの詳細取得
       description: 指定したIDのセキュリティグループの詳細情報を取得します。
       tags:
-        - SecurityGroups
+        - SecurityGroup
       parameters:
         - name: groupId
           in: path
@@ -682,7 +772,7 @@ paths:
       summary: セキュリティグループの更新
       description: 指定したIDのセキュリティグループ情報を更新します。
       tags:
-        - SecurityGroups
+        - SecurityGroup
       parameters:
         - name: groupId
           in: path
@@ -718,7 +808,7 @@ paths:
       summary: セキュリティグループの削除
       description: 指定したIDのセキュリティグループを削除します。
       tags:
-        - SecurityGroups
+        - SecurityGroup
       parameters:
         - name: groupId
           in: path
@@ -738,12 +828,12 @@ paths:
           description: セキュリティグループが見つからない
       security:
         - BearerAuth: []
-  /api/security-groups/{groupId}/rules:
+  /api/security-group/{groupId}/rules:
     post:
       summary: セキュリティグループルールの追加
       description: 指定したセキュリティグループに新しいルールを追加します。
       tags:
-        - SecurityGroups
+        - SecurityGroup
       parameters:
         - name: groupId
           in: path
@@ -775,12 +865,83 @@ paths:
           description: セキュリティグループが見つからない
       security:
         - BearerAuth: []
-  /api/storage-pools:
+  /api/snapshot:
+    get:
+      summary: スナップショット一覧の取得
+      description: すべてのスナップショットのリストを取得します。
+      tags:
+        - VirtualMachine
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SnapShot"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: スナップショットの作成
+      description: 新しいスナップショットを作成します。
+      tags:
+        - VirtualMachine
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SnapShotCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SnapShot"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    delete:
+      summary: スナップショットの削除
+      description: 指定したIDのスナップショットを削除します。
+      tags:
+        - VirtualMachine
+      parameters:
+        - name: snapshotId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: スナップショットの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: スナップショットが見つからない
+      security:
+        - BearerAuth: []
+  /api/storage-pool:
     get:
       summary: ストレージプール一覧の取得
       description: すべてのストレージプールのリストを取得します。
       tags:
-        - StoragePools
+        - StoragePool
       responses:
         "200":
           description: 成功
@@ -800,7 +961,7 @@ paths:
       summary: ストレージプールの作成
       description: 新しいストレージプールを作成します。
       tags:
-        - StoragePools
+        - StoragePool
       requestBody:
         required: true
         content:
@@ -822,12 +983,12 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/storage-pools/{poolId}:
+  /api/storage-pool/{poolId}:
     get:
       summary: ストレージプールの詳細取得
       description: 指定したIDのストレージプールの詳細情報を取得します。
       tags:
-        - StoragePools
+        - StoragePool
       parameters:
         - name: poolId
           in: path
@@ -855,7 +1016,7 @@ paths:
       summary: ストレージプールの削除
       description: 指定したIDのストレージプールを削除します。
       tags:
-        - StoragePools
+        - StoragePool
       parameters:
         - name: poolId
           in: path
@@ -875,12 +1036,12 @@ paths:
           description: ストレージプールが見つからない
       security:
         - BearerAuth: []
-  /api/virtual-machines:
+  /api/virtual-machine:
     get:
       summary: 仮想マシン一覧の取得
       description: すべての仮想マシンのリストを取得します。
       tags:
-        - VirtualMachines
+        - VirtualMachine
       responses:
         "200":
           description: 成功
@@ -900,7 +1061,7 @@ paths:
       summary: 仮想マシンの作成
       description: 新しい仮想マシンを作成します。
       tags:
-        - VirtualMachines
+        - VirtualMachine
       requestBody:
         required: true
         content:
@@ -922,12 +1083,12 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/virtual-machines/{vmId}:
+  /api/virtual-machine/{vmId}:
     get:
       summary: 仮想マシンの詳細取得
       description: 指定したIDの仮想マシンの詳細情報を取得します。
       tags:
-        - VirtualMachines
+        - VirtualMachine
       parameters:
         - name: vmId
           in: path
@@ -955,7 +1116,7 @@ paths:
       summary: 仮想マシンの更新
       description: 指定したIDの仮想マシン情報を更新します。
       tags:
-        - VirtualMachines
+        - VirtualMachine
       parameters:
         - name: vmId
           in: path
@@ -991,7 +1152,7 @@ paths:
       summary: 仮想マシンの削除
       description: 指定したIDの仮想マシンを削除します。
       tags:
-        - VirtualMachines
+        - VirtualMachine
       parameters:
         - name: vmId
           in: path
@@ -1011,12 +1172,12 @@ paths:
           description: 仮想マシンが見つからない
       security:
         - BearerAuth: []
-  /api/virtual-networks:
+  /api/virtual-network:
     get:
       summary: 仮想ネットワーク一覧の取得
       description: すべての仮想ネットワークのリストを取得します。
       tags:
-        - VirtualNetworks
+        - VirtualNetwork
       responses:
         "200":
           description: 成功
@@ -1036,7 +1197,7 @@ paths:
       summary: 仮想ネットワークの作成
       description: 新しい仮想ネットワークを作成します。
       tags:
-        - VirtualNetworks
+        - VirtualNetwork
       requestBody:
         required: true
         content:
@@ -1058,12 +1219,12 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/virtual-networks/{networkId}:
+  /api/virtual-network/{networkId}:
     get:
       summary: 仮想ネットワークの詳細取得
       description: 指定したIDの仮想ネットワークの詳細情報を取得します。
       tags:
-        - VirtualNetworks
+        - VirtualNetwork
       parameters:
         - name: networkId
           in: path
@@ -1087,11 +1248,47 @@ paths:
           description: 仮想ネットワークが見つからない
       security:
         - BearerAuth: []
+    put:
+      summary: 仮想ネットワークの更新
+      description: 指定したIDの仮想ネットワーク情報を更新します。
+      tags:
+        - VirtualNetwork
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VirtualNetworkUpdateRequest"
+      parameters:
+        - name: networkId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想ネットワークの一意なID
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VirtualNetwork"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想ネットワークが見つからない
+      security:
+        - BearerAuth: []
     delete:
       summary: 仮想ネットワークの削除
       description: 指定したIDの仮想ネットワークを削除します。
       tags:
-        - VirtualNetworks
+        - VirtualNetwork
       parameters:
         - name: networkId
           in: path
@@ -1111,12 +1308,12 @@ paths:
           description: 仮想ネットワークが見つからない
       security:
         - BearerAuth: []
-  /api/virtual-networks/{networkId}/subnets:
+  /api/virtual-network/{networkId}/subnet:
     post:
       summary: サブネットの追加
       description: 指定した仮想ネットワークに新しいサブネットを追加します。
       tags:
-        - VirtualNetworks
+        - VirtualNetwork
       parameters:
         - name: networkId
           in: path
@@ -1146,6 +1343,73 @@ paths:
           description: 権限エラー
         "404":
           description: 仮想ネットワークが見つからない
+      security:
+        - BearerAuth: []
+    put:
+      summary: サブネットの更新
+      description: 指定した仮想ネットワーク内のサブネット情報を更新します。
+      tags:
+        - VirtualNetwork
+      parameters:
+        - name: networkId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想ネットワークの一意なID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SubnetUpdateRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Subnet"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想ネットワークまたはサブネットが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: サブネットの削除
+      description: 指定した仮想ネットワーク内のサブネットを削除します。
+      tags:
+        - VirtualNetwork
+      parameters:
+        - name: networkId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 仮想ネットワークの一意なID
+        - name: subnetId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: サブネットの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: 仮想ネットワークまたはサブネットが見つからない
       security:
         - BearerAuth: []
 
@@ -1361,7 +1625,7 @@ components:
       required:
         - email
         - password
-    MiddleWare:
+    Middleware:
       type: object
       description: ミドルウェアオブジェクト
       properties:
@@ -2182,6 +2446,13 @@ components:
       required:
         - name
         - cidr
+    VirtualNetworkUpdateRequest:
+      type: object
+      description: 仮想ネットワーク更新リクエストオブジェクト
+      properties:
+        name:
+          type: string
+          description: 仮想ネットワークの名前
     VirtualStorage:
       type: object
       description: 仮想ストレージオブジェクト
