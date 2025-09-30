@@ -1,6 +1,6 @@
 {
   // 元のtsconfig.jsonを継承
-  "extends": "./tsconfig.json",
+  "extends": "./srcs/tsconfig.json",
 
   // 🔽 この compilerOptions を追加または修正
   "compilerOptions": {
