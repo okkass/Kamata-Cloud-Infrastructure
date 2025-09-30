@@ -1,6 +1,6 @@
 {
   // 元のtsconfig.jsonを継承
-  "extends": "./srcs/tsconfig.json",
+  "extends": "./tsconfig.json",
 
   // 🔽 この compilerOptions を追加または修正
   "compilerOptions": {
@@ -15,5 +15,5 @@
   },
 
   // TypeDocでドキュメント化したいファイル
-  "include": ["srcs/shared/types/**/*.ts"]
+  "include": ["shared/types/**/*.ts"]
 }
