@@ -1,0 +1,53 @@
+name: Deploy Type Docs to Github Pages
+
+on:
+  # mainブランチにpushされた時にワークフローを実行
+  push:
+    branches:
+      - main
+    paths:
+      - "srcs/shared/types/**"
+  # 手動でワークフローを実行するためのトリガー
+  workflow_dispatch:
+
+# ワークフローが必要とする権限を設定
+permissions:
+  contents: write
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      # 1. リポジトリのソースコードをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Node.js環境をセットアップ
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20" # プロジェクトに合わせたバージョンを指定
+          cache: "npm"
+
+      # 3. 依存パッケージをインストール
+      - name: Install dependencies
+        run: npm ci
+
+      # 4. TypeDocでドキュメントを生成
+      # --out オプションで出力先ディレクトリを指定します。ここでは 'docs-types' という一時的なディレクトリに出力します。
+      - name: Generate TypeDoc
+        run: npx typedoc --tsconfig ./srcs/tsconfig.typedoc.json --entryPointStrategy expand --out ./docs-types srcs/shared/types/
+
+      # 5. 生成したドキュメントをGitHub Pagesにデプロイ
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          # デプロイに必要なトークン
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          # TypeDocが生成したファイルが含まれるディレクトリ
+          publish_dir: ./docs-types
+          # デプロイ先のgh-pagesブランチ上のディレクトリ名
+          # これにより、既存のAPIリファレンスと共存できます
+          destination_dir: ./types
+          # 既存のgh-pagesブランチのファイルを消さずにデプロイ
+          keep_files: true
