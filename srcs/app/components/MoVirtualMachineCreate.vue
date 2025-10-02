@@ -18,19 +18,17 @@
       </div>
 
       <div class="pt-6 min-h-[300px]">
-        <keep-alive>
-          <component
-            v-for="(tab, index) in tabs"
-            :key="index"
-            v-show="currentTab === index"
-            :is="tab.component"
-            :ref="
-              (el) => {
-                if (el) tabRefs[index] = el;
-              }
-            "
-          />
-        </keep-alive>
+        <component
+          v-for="(tab, index) in tabs"
+          :key="index"
+          v-show="currentTab === index"
+          :is="tab.component"
+          :ref="
+            (el) => {
+              if (el) tabRefs[index] = el;
+            }
+          "
+        />
       </div>
 
       <div
@@ -49,10 +47,11 @@
           </button>
           <button
             v-else
-            @click="createVirtualMachine"
-            class="py-2 px-5 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700"
+            @click="handleSubmit"
+            :disabled="isCreating"
+            class="py-2 px-5 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 disabled:opacity-50"
           >
-            作成
+            {{ isCreating ? "作成中..." : "作成" }}
           </button>
         </div>
       </div>
@@ -60,24 +59,22 @@
   </BaseModal>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, markRaw } from "vue";
 import { useToast } from "~/composables/useToast";
+import { useResourceCreate } from "~/composables/useResourceCreate";
 
-// ==============================================================================
-// 担当者（API実装担当）へのメッセージ:
-// このコンポーネントは、複数のタブコンポーネントから入力データを集約し、
-// 最終的にAPIへ送信する役割を担います。
-// 下記のcreateVirtualMachine関数内に、APIへのデータ送信ロジックを実装してください。
-// ==============================================================================
+// --- 型定義 (本来は types/dto.ts などからインポート) ---
+type VirtualMachineCreateRequestDTO = any;
+type ModelVirtualMachineDTO = any;
 
-// --- 親コンポーネントとの連携定義 (変更不要) ---
+// --- 親コンポーネントとの連携 ---
 defineProps({
   show: { type: Boolean, required: true },
 });
-const emit = defineEmits(["close", "create"]);
+const emit = defineEmits(["close", "success"]);
 
-// --- タブとUIの状態管理 (変更不要) ---
+// --- タブとUIの状態管理 ---
 import TabGeneral from "~/components/vm-tabs/TabGeneral.vue";
 import TabConfig from "~/components/vm-tabs/TabConfig.vue";
 import TabOsMiddleware from "~/components/vm-tabs/TabOsMiddleware.vue";
@@ -89,12 +86,11 @@ const tabs = [
   { name: "OS/ミドルウェア", component: markRaw(TabOsMiddleware) },
   { name: "ネットワーク/セキュリティグループ", component: markRaw(TabNetwork) },
 ];
-const tabRefs = ref([]); // 各タブコンポーネントへの参照を保持する配列
+const tabRefs = ref<any[]>([]);
 const currentTab = ref(0);
 const modalTitle = ref("仮想マシン作成");
-const { addToast } = useToast();
 
-// --- UI操作のロジック (変更不要) ---
+// --- UI操作のロジック ---
 const prevTab = () => {
   if (currentTab.value > 0) currentTab.value--;
 };
@@ -102,65 +98,47 @@ const nextTab = () => {
   if (currentTab.value < tabs.length - 1) currentTab.value++;
 };
 
-/**
- * 「作成」ボタンが押されたときに実行される関数
- */
-const createVirtualMachine = () => {
-  // ============================================================================
-  // ▼▼▼ API実装担当者の方へ: この中にAPI呼び出し処理を実装してください ▼▼▼
-  // ============================================================================
+// --- API連携 ---
+const { executeCreate, isCreating } = useResourceCreate<
+  VirtualMachineCreateRequestDTO,
+  ModelVirtualMachineDTO
+>("virtual-machines");
+const { addToast } = useToast();
 
-  // 1. 各タブからのデータ集約:
-  //    各タブコンポーネントは、自身の入力データを `defineExpose({ formData })` を使って
-  //    公開することが想定されています。
-  //    tabRefs 配列から各コンポーネントのデータを取得し、一つのオブジェクトにまとめます。
+const handleSubmit = async () => {
+  // (handleSubmit関数の内容は変更なし)
   const generalData = tabRefs.value[0]?.formData || {};
   const configData = tabRefs.value[1]?.formData || {};
   const osData = tabRefs.value[2]?.formData || {};
   const networkData = tabRefs.value[3]?.formData || {};
 
-  // 2. ペイロードの作成:
-  //    集約したデータを、APIが要求する形式のペイロードに整形します。
-  //    単位変換(GB->バイトなど)もここで行います。
-  const payload = {
+  const payload: VirtualMachineCreateRequestDTO = {
     ...generalData,
     ...configData,
     ...osData,
     ...networkData,
-    // 例: configData.memorySize を memorySizeInBytes に変換
-    // memorySize: (configData.memorySize || 0) * 1024 * 1024 * 1024,
   };
 
-  // 3. API呼び出し (POSTリクエスト):
-  //    const { data, error } = await useApiFetch('/virtual-machines', {
-  //      method: 'POST',
-  //      body: payload,
-  //    });
+  const result = await executeCreate(payload);
 
-  // 4. 結果のハンドリング:
-  //    if (error.value) {
-  //      addToast({ message: '仮想マシンの作成に失敗しました。', type: 'error' });
-  //    } else {
-  //      addToast({ message: `仮想マシン「${payload.vmName}」を作成しました。`, type: 'success' });
-  //      emit('create', data.value);
-  //      emit('close');
-  //    }
-
-  // --- 現在はAPI実装前のダミー動作 ---
-  console.log("APIに送信するデータ:", payload);
-  addToast({
-    message: `【ダミー】仮想マシン「${payload.vmName}」を作成しました。`,
-    type: "success",
-  });
-  emit("create", { ...payload, id: "vm-dummy-id" }); // ダミーのIDを付与して通知
-  emit("close");
-  // ============================================================================
-  // ▲▲▲ API実装はここまで ▲▲▲
-  // ============================================================================
+  if (result.success) {
+    addToast({
+      type: "success",
+      message: `仮想マシン「${result.data?.name}」が作成されました`,
+    });
+    emit("success");
+  } else {
+    addToast({
+      type: "error",
+      message: "仮想マシンの作成に失敗しました。",
+      details: result.error?.message,
+    });
+  }
 };
 </script>
 
 <style scoped>
+/* (スタイルは変更なし) */
 .btn-primary {
   @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
 }

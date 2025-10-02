@@ -2,7 +2,14 @@
   <div class="space-y-6">
     <div>
       <label for="template-select" class="form-label">テンプレート</label>
+      <div v-if="templatesPending" class="text-gray-500">
+        テンプレート一覧を読み込み中...
+      </div>
+      <div v-else-if="templatesError" class="text-red-500">
+        テンプレート一覧の取得に失敗しました。
+      </div>
       <select
+        v-else
         id="template-select"
         v-model="formData.templateId"
         class="form-input"
@@ -13,7 +20,8 @@
           :key="template.id"
           :value="template.id"
         >
-          {{ template.name }}
+          {{ template.name }} ({{ template.cpuCores }}コア,
+          {{ template.memorySize / 1024 / 1024 / 1024 }}GB)
         </option>
       </select>
     </div>
@@ -42,14 +50,26 @@
 
     <div>
       <label for="backup-select" class="form-label">バックアップ</label>
-      <select id="backup-select" v-model="formData.backupId" class="form-input">
+      <div v-if="backupsPending" class="text-gray-500">
+        バックアップ一覧を読み込み中...
+      </div>
+      <div v-else-if="backupsError" class="text-red-500">
+        バックアップ一覧の取得に失敗しました。
+      </div>
+      <select
+        v-else
+        id="backup-select"
+        v-model="formData.backupId"
+        class="form-input"
+      >
         <option :value="null">使用しない</option>
         <option v-for="backup in backups" :key="backup.id" :value="backup.id">
-          {{ backup.name }} ({{ backup.size }}GB)
+          {{ backup.name }} ({{
+            (backup.size / 1024 / 1024 / 1024).toFixed(1)
+          }}GB)
         </option>
       </select>
     </div>
-
     <div class="form-section">
       <h3 class="section-title mb-4">ストレージ設定</h3>
       <div
@@ -65,8 +85,7 @@
           <input
             type="text"
             v-model="storage.name"
-            :placeholder="storage.type === 'os' ? 'OS' : '例: web-data'"
-            :disabled="storage.type === 'os' || storage.type === 'backup'"
+            :disabled="storage.type !== 'manual'"
             class="form-input"
           />
         </div>
@@ -75,14 +94,20 @@
           <input
             type="number"
             v-model.number="storage.size"
-            :disabled="storage.type === 'os' || storage.type === 'backup'"
+            :disabled="storage.type !== 'manual'"
             class="form-input"
           />
         </div>
         <div class="self-end pb-2">GB</div>
         <div class="col-span-4">
           <label class="input-label-xs">ストレージプール</label>
-          <select v-model="storage.pool" class="form-input">
+          <div v-if="poolsPending" class="text-gray-500 text-sm">
+            読み込み中...
+          </div>
+          <div v-else-if="poolsError" class="text-red-500 text-sm">
+            取得失敗
+          </div>
+          <select v-else v-model="storage.poolId" class="form-input">
             <option
               v-for="pool in storagePools"
               :key="pool.id"
@@ -100,93 +125,102 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref, watch } from "vue";
+import { useResourceList } from "~/composables/useResourceList";
+
+// (型定義は変更なし)
+interface ModelInstanceTypeDTO {
+  id: string;
+  name: string;
+  cpuCores: number;
+  memorySize: number;
+  storageSize: number;
+}
+interface ModelBackupDTO {
+  id: string;
+  name: string;
+  size: number;
+}
+interface ModelStoragePoolDTO {
+  id: string;
+  name: string;
+}
 
 // ==============================================================================
-// 担当者（API実装担当）へのメッセージ:
-// このコンポーネントは、VMの構成情報を入力するためのフォームです。
-// APIから「テンプレート一覧」「バックアップ一覧」「ストレージプール一覧」を取得し、
-// `templates`, `backups`, `storagePools` のrefを更新する処理を実装してください。
+// フォームの入力データ
 // ==============================================================================
-
-// --- フォームの入力データを保持するリアクティブ変数 (変更不要) ---
 const formData = ref({
   templateId: null,
   cpuCores: 2,
-  memorySize: 2, // UI上ではGB単位
+  memorySize: 2,
   backupId: null,
-  storages: [{ id: 1, name: "OS", size: 20, pool: "pool-1", type: "os" }],
+  storages: [
+    { id: 1, name: "OS", size: 20, poolId: "pool-1", type: "os" as const },
+  ],
 });
-let nextStorageId = 2; // 手動追加するストレージ用の一意なID
+let nextStorageId = 2;
 
-// --- 親コンポーネントがこのタブのデータにアクセスできるように公開 ---
-defineExpose({
-  formData,
-});
+// (defineExposeは変更なし)
+defineExpose({ formData });
 
-// ============================================================================
-// ▼▼▼ API実装担当者の方へ: ここにAPIから各種リストを取得する処理を実装してください ▼▼▼
-// ============================================================================
+// ==============================================================================
+// API連携
+// ==============================================================================
+const {
+  data: templates,
+  pending: templatesPending,
+  error: templatesError,
+} = useResourceList<ModelInstanceTypeDTO>("instance-type");
 
-// --- APIから取得するデータ（現在はダミー） ---
-const templates = ref([
-  { id: "web-small", name: "Webサーバー (Small)" },
-  { id: "db-medium", name: "DBサーバー (Medium)" },
-]);
-const backups = ref([
-  { id: "bk01", name: "daily-backup-web01", size: 30 },
-  { id: "bk02", name: "weekly-backup-db01", size: 80 },
-]);
-const storagePools = ref([
-  { id: "pool-1", name: "Pool-1" },
-  { id: "pool-2", name: "Pool-2" },
-]);
+const {
+  data: backups,
+  pending: backupsPending,
+  error: backupsError,
+} = useResourceList<ModelBackupDTO>("backup");
 
-// onMounted(async () => {
-//   // ページが読み込まれたら、APIからデータを取得
-//   const { data: templateData } = await useApiFetch('/templates');
-//   templates.value = templateData.value;
-//
-//   const { data: backupData } = await useApiFetch('/backups');
-//   backups.value = backupData.value;
-// });
+const {
+  data: storagePools,
+  pending: poolsPending,
+  error: poolsError,
+} = useResourceList<ModelStoragePoolDTO>("storage-pools");
 
-// ============================================================================
-// ▲▲▲ API実装はここまで ▲▲▲
-// ============================================================================
-
-// --- UI操作のロジック (変更不要) ---
+// ==============================================================================
+// UI操作のロジック
+// ==============================================================================
 const addStorage = () => {
   formData.value.storages.push({
     id: nextStorageId++,
     name: "",
     size: 10,
-    pool: "pool-1",
-    type: "manual",
+    poolId: "pool-1",
+    type: "manual" as const,
   });
 };
 
+// (バックアップ選択時のロジックは変更なし)
 watch(
   () => formData.value.backupId,
   (newBackupId) => {
     formData.value.storages = formData.value.storages.filter(
       (item) => item.type !== "backup"
     );
-    if (newBackupId) {
+    if (newBackupId && backups.value) {
       const backupData = backups.value.find((b) => b.id === newBackupId);
       if (backupData) {
         formData.value.storages.push({
           id: `backup-${backupData.id}`,
           name: `backup-${backupData.name}`,
-          size: backupData.size,
-          pool: "pool-1",
-          type: "backup",
+          size: Math.round(backupData.size / 1024 / 1024 / 1024),
+          poolId: "pool-1",
+          type: "backup" as const,
         });
       }
     }
   }
 );
+
+// ★★★ テンプレート選択時の自動入力ロジックを削除 ★★★
 </script>
 
 <style scoped>

@@ -2,7 +2,14 @@
   <div class="space-y-4">
     <div>
       <label for="os-image-select" class="form-label">OSイメージ</label>
+      <div v-if="imagesPending" class="text-gray-500">
+        OSイメージ一覧を読み込み中...
+      </div>
+      <div v-else-if="imagesError" class="text-red-500">
+        OSイメージ一覧の取得に失敗しました。
+      </div>
       <select
+        v-else
         id="os-image-select"
         v-model="formData.osImageId"
         class="form-input"
@@ -16,7 +23,14 @@
 
     <div>
       <label for="middleware-select" class="form-label">ミドルウェア選択</label>
+      <div v-if="middlewaresPending" class="text-gray-500">
+        ミドルウェア一覧を読み込み中...
+      </div>
+      <div v-else-if="middlewaresError" class="text-red-500">
+        ミドルウェア一覧の取得に失敗しました。
+      </div>
       <select
+        v-else
         id="middleware-select"
         v-model="formData.middlewareId"
         class="form-input"
@@ -30,65 +44,56 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
+import { useResourceList } from "~/composables/useResourceList";
 
 // ==============================================================================
-// 担当者（API実装担当）へのメッセージ:
-// このコンポーネントは、OSとミドルウェアを選択するためのフォームです。
-// APIから「OSイメージ一覧」「ミドルウェア一覧」を取得し、
-// `osImages`, `middlewares` のrefを更新する処理を実装してください。
+// 型定義 (本来は types/dto.ts などからインポート)
 // ==============================================================================
+interface ModelOsImageDTO {
+  id: string;
+  name: string;
+}
+interface ModelMiddlewareDTO {
+  id: string;
+  name: string;
+}
 
-// --- フォームの入力データを保持するリアクティブ変数 (変更不要) ---
+// ==============================================================================
+// フォームの入力データ
+// ==============================================================================
 const formData = ref({
   osImageId: null,
   middlewareId: null,
 });
 
-// --- 親コンポーネントがこのタブのデータにアクセスできるように公開 ---
-defineExpose({
-  formData,
-});
+// --- 親コンポーネントがこのタブのデータにアクセスできるように公開 (変更不要) ---
+defineExpose({ formData });
 
-// ============================================================================
-// ▼▼▼ API実装担当者の方へ: ここにAPIから各種リストを取得する処理を実装してください ▼▼▼
-// ============================================================================
+// ==============================================================================
+// API連携
+// ==============================================================================
+// --- OSイメージ一覧の取得 ---
+const {
+  data: osImages,
+  pending: imagesPending,
+  error: imagesError,
+} = useResourceList<ModelOsImageDTO>("os-images");
 
-// --- APIから取得するデータ（現在はダミー） ---
-const osImages = ref([
-  { id: "img-ubuntu-2204", name: "Ubuntu 22.04" },
-  { id: "img-ubuntu-2004", name: "Ubuntu 20.04" },
-  { id: "img-centos-9", name: "CentOS Stream 9" },
-  { id: "img-alma-9", name: "AlmaLinux 9" },
-]);
-
-const middlewares = ref([
-  { id: "mw-lamp", name: "LAMP (Apache, MySQL, PHP)" },
-  { id: "mw-nginx", name: "Nginx" },
-  { id: "mw-docker", name: "Docker" },
-]);
-
-// onMounted(async () => {
-//   // ページが読み込まれたら、APIからデータを取得
-//   const { data: imagesData } = await useApiFetch('/os-images');
-//   osImages.value = imagesData.value;
-//
-//   const { data: mwData } = await useApiFetch('/middlewares');
-//   middlewares.value = mwData.value;
-// });
-
-// ============================================================================
-// ▲▲▲ API実装はここまで ▲▲▲
-// ============================================================================
+// --- ミドルウェア一覧の取得 ---
+const {
+  data: middlewares,
+  pending: middlewaresPending,
+  error: middlewaresError,
+} = useResourceList<ModelMiddlewareDTO>("middlewares");
 </script>
 
 <style scoped>
-/* ラベルの共通スタイル */
+/* (スタイルは変更なし) */
 .form-label {
   @apply block mb-1.5 font-semibold text-gray-700;
 }
-/* 入力欄（input, select）の共通スタイル */
 .form-input {
   @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
 }

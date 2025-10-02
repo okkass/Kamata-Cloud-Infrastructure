@@ -5,7 +5,7 @@
       <input
         type="text"
         id="vm-name"
-        v-model="formData.vmName"
+        v-model="formData.name"
         class="form-input"
         placeholder="例: vm-middleware01"
       />
@@ -13,7 +13,16 @@
 
     <div>
       <label for="node-select" class="form-label">ノード選択</label>
-      <select id="node-select" v-model="formData.nodeId" class="form-input">
+      <div v-if="pending" class="text-gray-500">ノード一覧を読み込み中...</div>
+      <div v-else-if="error" class="text-red-500">
+        ノード一覧の取得に失敗しました。
+      </div>
+      <select
+        v-else
+        id="node-select"
+        v-model="formData.nodeId"
+        class="form-input"
+      >
         <option :value="null" disabled>ノードを選択してください</option>
         <option v-for="node in nodes" :key="node.id" :value="node.id">
           {{ node.name }}
@@ -23,56 +32,49 @@
   </div>
 </template>
 
-<script setup>
+<script setup lang="ts">
 import { ref } from "vue";
+import { useResourceList } from "~/composables/useResourceList";
 
 // ==============================================================================
-// 担当者（API実装担当）へのメッセージ:
-// このコンポーネントは、VMの概要情報を入力するためのフォームです。
-// APIから「ノード一覧」を取得し、`nodes` のrefを更新する処理を実装してください。
+// 型定義 (APIのレスポンスに合わせて更新)
 // ==============================================================================
+interface ModelPhysicalNodeDTO {
+  id: string;
+  name: string;
+  ipAddress: string;
+  status: string;
+  // ... 必要に応じて他のプロパティも定義
+}
 
-// --- フォームの入力データを保持するリアクティブ変数 (変更不要) ---
+// ==============================================================================
+// フォームの入力データ
+// ==============================================================================
 const formData = ref({
-  vmName: "",
+  name: "",
   nodeId: null,
 });
 
-// --- 親コンポーネントがこのタブのデータにアクセスできるように公開 ---
+// --- 親コンポーネントがこのタブのデータにアクセスできるように公開 (変更不要) ---
 defineExpose({
   formData,
 });
 
-// ============================================================================
-// ▼▼▼ API実装担当者の方へ: ここにAPIからノード一覧を取得する処理を実装してください ▼▼▼
-// ============================================================================
-
-// --- APIから取得するノード一覧データ（現在はダミー） ---
-const nodes = ref([
-  { id: "node-1", name: "kci-node1" },
-  { id: "node-2", name: "kci-node2" },
-  { id: "node-3", name: "kci-node3" },
-]);
-
-// onMounted(async () => {
-//   // ページが読み込まれたら、APIからノード一覧を取得
-//   const { data, error } = await useApiFetch('/nodes');
-//   if (!error.value) {
-//     nodes.value = data.value;
-//   }
-// });
-
-// ============================================================================
-// ▲▲▲ API実装はここまで ▲▲▲
-// ============================================================================
+// ==============================================================================
+// API連携 (エンドポイントを修正)
+// ==============================================================================
+const {
+  data: nodes,
+  pending,
+  error,
+} = useResourceList<ModelPhysicalNodeDTO>("physical-nodes"); // ★ エンドポイントを 'nodes' から 'physical-nodes' に修正
 </script>
 
 <style scoped>
-/* ラベルの共通スタイル */
+/* (スタイルは変更なし) */
 .form-label {
   @apply block mb-1.5 font-semibold text-gray-700;
 }
-/* 入力欄（input, select）の共通スタイル */
 .form-input {
   @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
 }

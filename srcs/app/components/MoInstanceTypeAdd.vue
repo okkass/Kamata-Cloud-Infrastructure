@@ -68,14 +68,6 @@
       </div>
 
       <div class="flex justify-end gap-3 mt-8 pt-4 border-t">
-        <button
-          type="button"
-          @click="$emit('close')"
-          class="btn-secondary"
-          :disabled="isCreating"
-        >
-          キャンセル
-        </button>
         <button type="submit" class="btn-primary" :disabled="isCreating">
           {{ isCreating ? "作成中..." : "作成" }}
         </button>

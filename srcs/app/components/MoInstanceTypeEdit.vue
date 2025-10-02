@@ -63,14 +63,6 @@
       </div>
       <!-- ボタンエリア -->
       <div class="flex justify-end gap-3 mt-8 pt-4 border-t">
-        <button
-          type="button"
-          @click="$emit('close')"
-          class="btn-secondary"
-          :disabled="isUpdating"
-        >
-          キャンセル
-        </button>
         <button type="submit" class="btn-primary" :disabled="isUpdating">
           {{ isUpdating ? "保存中..." : "保存" }}
         </button>
