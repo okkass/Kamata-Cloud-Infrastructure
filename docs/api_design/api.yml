@@ -1345,6 +1345,7 @@ paths:
           description: 仮想ネットワークが見つからない
       security:
         - BearerAuth: []
+  /api/virtual-network/{networkId}/subnet/{subnetId}:
     put:
       summary: サブネットの更新
       description: 指定した仮想ネットワーク内のサブネット情報を更新します。
@@ -1358,6 +1359,13 @@ paths:
             type: string
             format: uuid
           description: 仮想ネットワークの一意なID
+        - name: subnetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: サブネットの一意なID
       requestBody:
         required: true
         content:
@@ -1395,7 +1403,7 @@ paths:
             format: uuid
           description: 仮想ネットワークの一意なID
         - name: subnetId
-          in: query
+          in: path
           required: true
           schema:
             type: string
