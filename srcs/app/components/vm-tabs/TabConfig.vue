@@ -183,7 +183,7 @@ const {
   data: storagePools,
   pending: poolsPending,
   error: poolsError,
-} = useResourceList<ModelStoragePoolDTO>("storage-pools");
+} = useResourceList<ModelStoragePoolDTO>("storage-pool");
 
 // ==============================================================================
 // UI操作のロジック
@@ -219,8 +219,6 @@ watch(
     }
   }
 );
-
-// ★★★ テンプレート選択時の自動入力ロジックを削除 ★★★
 </script>
 
 <style scoped>

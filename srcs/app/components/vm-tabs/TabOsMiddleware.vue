@@ -79,14 +79,14 @@ const {
   data: osImages,
   pending: imagesPending,
   error: imagesError,
-} = useResourceList<ModelOsImageDTO>("os-images");
+} = useResourceList<ModelOsImageDTO>("image");
 
 // --- ミドルウェア一覧の取得 ---
 const {
   data: middlewares,
   pending: middlewaresPending,
   error: middlewaresError,
-} = useResourceList<ModelMiddlewareDTO>("middlewares");
+} = useResourceList<ModelMiddlewareDTO>("middleware");
 </script>
 
 <style scoped>

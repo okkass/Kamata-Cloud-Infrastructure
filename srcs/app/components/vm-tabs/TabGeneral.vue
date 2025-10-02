@@ -67,7 +67,7 @@ const {
   data: nodes,
   pending,
   error,
-} = useResourceList<ModelPhysicalNodeDTO>("physical-nodes"); // ★ エンドポイントを 'nodes' から 'physical-nodes' に修正
+} = useResourceList<ModelPhysicalNodeDTO>("physical-node");
 </script>
 
 <style scoped>
