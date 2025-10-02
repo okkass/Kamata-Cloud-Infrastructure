@@ -125,14 +125,14 @@ const {
   data: networks,
   pending: networksPending,
   error: networksError,
-} = useResourceList<ModelVirtualNetworkDTO>("virtual-networks"); // ★ エンドポイントを修正
+} = useResourceList<ModelVirtualNetworkDTO>("virtual-network");
 
 // --- セキュリティグループ一覧の取得 ---
 const {
   data: securityGroups,
   pending: sgPending,
   error: sgError,
-} = useResourceList<ModelSecurityGroupDTO>("security-groups"); // ★ エンドポイントを修正
+} = useResourceList<ModelSecurityGroupDTO>("security-group");
 
 // ==============================================================================
 // UI操作のロジック (変更不要)

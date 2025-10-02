@@ -35,6 +35,8 @@
           id="cpu-cores"
           v-model.number="formData.cpuCores"
           class="form-input"
+          min="1"
+          required
         />
       </div>
       <div>
@@ -44,6 +46,8 @@
           id="memory-gb"
           v-model.number="formData.memorySize"
           class="form-input"
+          min="1"
+          required
         />
       </div>
     </div>
@@ -96,6 +100,7 @@
             v-model.number="storage.size"
             :disabled="storage.type !== 'manual'"
             class="form-input"
+            required
           />
         </div>
         <div class="self-end pb-2">GB</div>
