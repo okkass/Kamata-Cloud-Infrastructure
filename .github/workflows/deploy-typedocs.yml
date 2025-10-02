@@ -12,7 +12,7 @@ on:
 
 # ワークフローが必要とする権限を設定
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
