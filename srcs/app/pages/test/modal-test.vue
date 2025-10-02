@@ -65,6 +65,7 @@ const {
   closeModal,
 } = usePageActions<ModelInstanceTypeDTO>({
   resourceName: "instance-types",
+  resourceLabel: "インスタンスタイプ",
   refresh,
 });
 </script>
