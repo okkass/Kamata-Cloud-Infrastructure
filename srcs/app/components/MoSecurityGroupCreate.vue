@@ -30,7 +30,10 @@ const emit = defineEmits<{
 
 const createSG = async () => {
   // セキュリティグループ作成ロジックをここに実装
-  useToast().addToast({ type: "success", message: "セキュリティグループが作成されました" });
+  useToast().addToast({
+    type: "success",
+    message: "セキュリティグループが作成されました",
+  });
   emit("success");
 };
 </script>

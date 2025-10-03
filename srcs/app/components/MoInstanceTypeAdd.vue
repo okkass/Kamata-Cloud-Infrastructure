@@ -1,157 +1,151 @@
 <template>
   <BaseModal
     :show="show"
-    title="インスタンスタイプの編集"
+    title="インスタンスタイプの追加"
     @close="$emit('close')"
   >
-    <form v-if="editableInstanceType" @submit.prevent="handleSubmit">
+    <form @submit.prevent="handleSubmit">
       <div class="space-y-4">
         <!-- インスタンスタイプ名-->
         <div>
-          <label for="instance-type-name-edit" class="form-label"
+          <label for="instance-type-name" class="form-label"
             >インスタンスタイプ名</label
           >
           <input
-            id="instance-type-name-edit"
+            id="instance-type-name"
             type="text"
-            v-model="editableInstanceType.name"
+            v-model="newInstanceType.name"
             class="form-input"
             placeholder="例: standard.xlarge"
+            required
           />
         </div>
-        <!-- vCPU数 -->
+        <!-- CPUコア数 -->
         <div>
-          <label for="instance-vcpu-edit" class="form-label">CPUコア数</label>
+          <label for="instance-vcpu" class="form-label">CPUコア数</label>
           <input
-            id="instance-vcpu-edit"
+            id="instance-vcpu"
             type="number"
-            v-model.number="editableInstanceType.cpuCores"
+            v-model.number="newInstanceType.vcpus"
             class="form-input"
             placeholder="例: 16"
+            min="1"
+            required
           />
         </div>
         <!-- メモリ数 -->
         <div>
-          <label for="instance-memory-edit" class="form-label">メモリ数</label>
+          <label for="instance-memory" class="form-label">メモリ数</label>
           <div class="flex items-center gap-2">
             <input
-              id="instance-memory-edit"
+              id="instance-memory"
               type="number"
-              v-model.number="editableInstanceType.memorySize"
+              v-model.number="newInstanceType.memory"
               class="form-input"
               placeholder="例: 32"
+              min="1"
+              required
             />
             <span class="font-semibold text-gray-600">GB</span>
           </div>
         </div>
         <!-- ストレージ数 -->
         <div>
-          <label for="instance-storage-edit" class="form-label"
-            >ストレージ数</label
-          >
+          <label for="instance-storage" class="form-label">ストレージ数</label>
           <div class="flex items-center gap-2">
             <input
-              id="instance-storage-edit"
+              id="instance-storage"
               type="number"
-              v-model.number="editableInstanceType.storageSize"
+              v-model.number="newInstanceType.storage"
               class="form-input"
               placeholder="例: 500"
+              min="1"
+              required
             />
             <span class="font-semibold text-gray-600">GB</span>
           </div>
         </div>
       </div>
-      <!-- ボタンエリア -->
+
       <div class="flex justify-end gap-3 mt-8 pt-4 border-t">
-        <button type="submit" class="btn-primary" :disabled="isUpdating">
-          {{ isUpdating ? "保存中..." : "保存" }}
+        <button type="submit" class="btn-primary" :disabled="isCreating">
+          {{ isCreating ? "作成中..." : "作成" }}
         </button>
       </div>
     </form>
-    <div v-else class="text-center">
-      <p>編集するデータを読み込めませんでした。</p>
-    </div>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, type PropType } from "vue";
+import { ref } from "vue";
 
 // ==============================================================================
 // Props & Emits
+// 親コンポーネントとの連携を定義
 // ==============================================================================
-const props = defineProps({
+defineProps({
   // モーダルの表示状態
   show: {
     type: Boolean,
     required: true,
-  },
-  // APIから取得した編集対象のインスタンスタイプデータ
-  instanceTypeData: {
-    type: Object as PropType<ModelInstanceTypeDTO | null>,
-    default: null,
   },
 });
 
 const emit = defineEmits(["close", "success"]);
 
 // ==============================================================================
-// Composables
+// executer & toast
+// API通信や通知のためのユーティリティを準備
 // ==============================================================================
-// "instance-types"リソースを更新するための専門家を呼び出す
-const { executeUpdate, isUpdating } = useResourceUpdate<
-  InstanceTypeUpdateRequestDTO,
+const { executeCreate, isCreating } = useResourceCreate<
+  InstanceTypeCreateRequestDTO,
   ModelInstanceTypeDTO
 >("instance-types");
-// トースト通知用のComposable
-const toast = useToast();
+const { addToast } = useToast();
 
 // ==============================================================================
 // State
+// コンポーネント内の状態を管理
 // ==============================================================================
-// propsで受け取ったデータを編集するためのローカルコピーを作成
-const editableInstanceType = ref<InstanceTypeUpdateRequestDTO | null>(null);
-
-// 親コンポーネントから渡されるデータが変更された場合に、ローカルのデータも追従させる
-watch(
-  () => props.instanceTypeData,
-  (newData) => {
-    if (newData) {
-      editableInstanceType.value = { ...newData };
-    } else {
-      editableInstanceType.value = null;
-    }
-  },
-  { immediate: true }
-); // immediate: trueで初期化時にも実行
+// 新しく作成するインスタンスタイプのデータを保持するオブジェクト
+const newInstanceType = ref({
+  name: "",
+  vcpus: null,
+  memory: null,
+  storage: null,
+});
 
 // ==============================================================================
 // Methods
+// コンポーネントの動作を定義
 // ==============================================================================
 /**
- * 変更を保存する処理
+ * インスタンスタイプを作成する処理
  */
 const handleSubmit = async () => {
-  if (!props.instanceTypeData || !editableInstanceType.value) {
-    // 編集対象のデータがない場合は何もしない
-    return;
-  }
-  // 専門家(executeUpdate)に更新処理を依頼
-  const result = await executeUpdate(
-    props.instanceTypeData.id,
-    editableInstanceType.value
-  );
+  // formのrequiredがあるのでnullは絶対に来ないはず
+  const value: InstanceTypeCreateRequestDTO = {
+    name: newInstanceType.value.name,
+    cpuCores: newInstanceType.value.vcpus!,
+    memorySize: newInstanceType.value.memory!,
+    storageSize: newInstanceType.value.storage!,
+  };
+  // 非同期でインスタンスタイプを作成
+  const result = await executeCreate(value);
 
+  // 作成が成功した場合
   if (result.success) {
-    toast.addToast({
+    // 成功したら、親に@successイベントで通知
+    useToast().addToast({
       type: "success",
-      message: `'${result.data?.name}' の更新に成功しました。`,
+      message: "インスタンスタイプが作成されました",
     });
     emit("success");
   } else {
-    toast.addToast({
+    // 失敗したら、このモーダル自身がエラーを通知
+    addToast({
       type: "error",
-      message: "更新に失敗しました。",
+      message: "インスタンスタイプの作成に失敗しました。",
       details: result.error?.message,
     });
   }
