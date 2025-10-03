@@ -259,7 +259,7 @@ export interface VirtualMachineCreateRequestDTO {
   /**
    * 仮想マシンに設定するSSH公開鍵
    */
-  publicKey: string;
+  publicKey?: string;
   /**
    * 使用する仮想マシンイメージのID
    */
