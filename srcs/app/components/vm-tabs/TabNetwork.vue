@@ -93,6 +93,7 @@ import { useResourceList } from "~/composables/useResourceList";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
+import { useToast } from "~/composables/useToast"; // ★ 1. useToastをインポート
 
 // ==============================================================================
 // 型定義 (変更なし)
@@ -108,19 +109,18 @@ interface ModelSecurityGroupDTO {
 }
 
 // ==============================================================================
-// バリデーションスキーマ
+// バリデーションスキーマ (変更なし)
 // ==============================================================================
 const validationSchema = toTypedSchema(
   z.object({
     networkId: z.string({ required_error: "ネットワークを選択してください。" }),
     securityGroupId: z.string().nullable(),
-    // Fileオブジェクトは zod の any() で許容します (必須ではないため)
     keyPairFile: z.any().nullable(),
   })
 );
 
 // ==============================================================================
-// フォーム設定
+// フォーム設定 (変更なし)
 // ==============================================================================
 const { errors, defineField, values, meta, setFieldValue } = useForm({
   validationSchema,
@@ -130,13 +130,9 @@ const { errors, defineField, values, meta, setFieldValue } = useForm({
     keyPairFile: null,
   },
 });
-
 const [networkId, networkIdAttrs] = defineField("networkId");
 const [securityGroupId, securityGroupIdAttrs] = defineField("securityGroupId");
-// keyPairFile は手動で値をセットするため、v-bind用の属性は使いません
 const [keyPairFile] = defineField("keyPairFile");
-
-// --- 親コンポーネントへの公開 ---
 defineExpose({ formData: values, isValid: meta });
 
 // ==============================================================================
@@ -147,7 +143,6 @@ const {
   pending: networksPending,
   error: networksError,
 } = useResourceList<ModelVirtualNetworkDTO>("virtual-network");
-
 const {
   data: securityGroups,
   pending: sgPending,
@@ -159,22 +154,43 @@ const {
 // ==============================================================================
 const fileInput = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
+const { addToast } = useToast(); // ★ 2. addToast関数を取得
 
 const openFilePicker = () => {
   fileInput.value?.click();
 };
 
+// ★★★ 3. ファイル選択時のチェック処理を修正 ★★★
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
   const file = target.files?.[0] || null;
-  // VeeValidateの値を更新
+
+  if (file && !file.name.endsWith(".pub")) {
+    addToast({
+      message: "無効なファイル形式です。.pubファイルを選択してください。",
+      type: "error",
+    });
+    // 選択をリセット
+    target.value = "";
+    setFieldValue("keyPairFile", null);
+    return;
+  }
   setFieldValue("keyPairFile", file);
 };
 
+// ★★★ 4. ドラッグ＆ドロップ時のチェック処理を修正 ★★★
 const handleDrop = (event: DragEvent) => {
   isDragging.value = false;
   const file = event.dataTransfer?.files?.[0] || null;
-  // VeeValidateの値を更新
+
+  if (file && !file.name.endsWith(".pub")) {
+    addToast({
+      message: "無効なファイル形式です。.pubファイルをドロップしてください。",
+      type: "error",
+    });
+    setFieldValue("keyPairFile", null);
+    return;
+  }
   setFieldValue("keyPairFile", file);
 };
 </script>

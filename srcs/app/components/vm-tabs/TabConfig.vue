@@ -132,6 +132,7 @@
             class="form-input"
             :class="{ 'border-red-500': errors[`storages[${index}].poolId`] }"
           >
+            <option :value="null" disabled>選択してください</option>
             <option
               v-for="pool in storagePools"
               :key="pool.id"
@@ -174,7 +175,7 @@ import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 
-// (型定義は変更なし)
+// (型定義、バリデーションスキーマは変更なし)
 interface ModelInstanceTypeDTO {
   id: string;
   name: string;
@@ -191,14 +192,12 @@ interface ModelStoragePoolDTO {
   id: string;
   name: string;
 }
-
-// ★★★ 1. バリデーションスキーマを修正 ★★★
 const validationSchema = toTypedSchema(
   z
     .object({
       templateId: z.string().optional().nullable(),
-      cpuCores: z.number().nullable(), // .nullable() を追加
-      memorySize: z.number().nullable(), // .nullable() を追加
+      cpuCores: z.number().nullable(),
+      memorySize: z.number().nullable(),
       backupId: z.string().nullable(),
       storages: z
         .array(
@@ -217,7 +216,7 @@ const validationSchema = toTypedSchema(
     .superRefine((data, ctx) => {
       if (!data.templateId) {
         if (
-          !data.cpuCores ||
+          data.cpuCores == null ||
           data.cpuCores < 1 ||
           !Number.isInteger(data.cpuCores)
         ) {
@@ -228,7 +227,7 @@ const validationSchema = toTypedSchema(
           });
         }
         if (
-          !data.memorySize ||
+          data.memorySize == null ||
           data.memorySize < 1 ||
           !Number.isInteger(data.memorySize)
         ) {
@@ -246,16 +245,17 @@ const { errors, defineField, values, meta } = useForm({
   validationSchema,
   initialValues: {
     templateId: undefined,
-    cpuCores: null, // 初期値を null に変更
-    memorySize: null, // 初期値を null に変更
+    cpuCores: null,
+    memorySize: null,
     backupId: null,
     storages: [
-      { id: 1, name: "OS", size: 20, poolId: "pool-1", type: "os" as const },
+      // ★★★ 1. `poolId` の初期値を `null` に変更 ★★★
+      { id: 1, name: "OS", size: 20, poolId: null, type: "os" as const },
     ],
   },
 });
 
-// (defineFieldとuseFieldArrayは変更なし)
+// (defineField、useFieldArray、defineExposeは変更なし)
 const [templateId, templateIdAttrs] = defineField("templateId");
 const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
 const [memorySize, memorySizeAttrs] = defineField("memorySize");
@@ -265,7 +265,6 @@ const {
   push: pushStorage,
   remove: removeStorage,
 } = useFieldArray<any>("storages");
-
 defineExpose({ formData: values, isValid: meta });
 
 // (API連携、UI操作のロジックは変更なし)
@@ -339,6 +338,7 @@ watch(backupId, (newBackupId) => {
 .btn-secondary {
   @apply py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300;
 }
+/* ★★★ storage-grid の定義を修正 ★★★ */
 .storage-grid {
   @apply grid grid-cols-12 gap-x-3 gap-y-1 items-start mb-2;
 }

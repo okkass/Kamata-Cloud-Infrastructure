@@ -1,5 +1,5 @@
 <template>
-  <BaseModal :show="show" :title="modalTitle" @close="$emit('close')">
+  <BaseModal :show="show" :title="modalTitle" @close="$emit('close')" size="lg">
     <div class="flex flex-col">
       <div class="flex border-b border-gray-200">
         <button
@@ -117,22 +117,32 @@ const tabValidity = computed(() => {
   return tabRefs.value.map((tab) => tab?.isValid?.valid ?? false);
 });
 
-// (API連携セットアップは変更なし)
+// (API連携セットアップ)
 const { executeCreate, isCreating } = useResourceCreate<
   VirtualMachineCreateRequestDTO,
   ModelVirtualMachineDTO
 >("virtual-machine");
 const { addToast } = useToast();
 
+//　公開鍵ファイル読み込み処理
 const readFileAsText = (file: File): Promise<string> => {
-  /* ... */ return new Promise(() => {});
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = () => {
+      resolve(reader.result as string);
+    };
+    reader.onerror = (error) => {
+      reject(error);
+    };
+    reader.readAsText(file);
+  });
 };
 
 /**
  * 「作成」ボタンが押されたときに実行される関数
  */
 const handleSubmit = async () => {
-  // (バリデーションチェックは変更なし)
+  // (バリデーションチェック)
   const invalidTabs = tabRefs.value.reduce((acc, tab, index) => {
     if (!tab?.isValid?.valid) {
       acc.push(tabs[index].name);
