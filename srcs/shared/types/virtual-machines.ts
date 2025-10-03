@@ -316,6 +316,28 @@ export interface VirtualMachineCreateRequestStoragesInnerDTO {
   backupId?: string;
 }
 /**
+ * 仮想マシン更新リクエストオブジェクト(ベース)
+ */
+export interface VirtualMachineUpdateRequestBase {
+  /**
+   * 仮想マシンの名前
+   */
+  name: string;
+  /**
+   * 仮想マシンに関連付けられたセキュリティグループのIDリスト
+   */
+  securityGroup?: Array<string>;
+  /**
+   * アタッチされたストレージのリスト
+   */
+  attachedStorage?: Array<AttachedStorageDTO>;
+  /**
+   * アタッチされたネットワークインターフェースのリスト
+   */
+  attachedNic?: Array<NetworkInterfaceDTO>;
+}
+
+/**
  * 仮想マシン更新リクエストオブジェクト
  */
 export interface VirtualMachineUpdateRequestDTO {
@@ -323,13 +345,16 @@ export interface VirtualMachineUpdateRequestDTO {
    * 仮想マシンの名前
    */
   name: string;
+  /**
+   * 使用するインスタンスタイプの情報  インスタンスタイプ指定時はcpuCores, memorySizeは無視
+   */
   instanceType?: ModelInstanceTypeDTO;
   /**
-   * CPUコア数
+   * CPUコア数 インスタンスタイプ指定時は無視
    */
   cpuCores?: number;
   /**
-   * メモリサイズ（バイト単位）
+   * メモリサイズ（バイト単位） インスタンスタイプ指定時は無視
    */
   memorySize?: number;
   /**
