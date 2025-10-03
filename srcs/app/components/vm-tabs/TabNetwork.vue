@@ -11,10 +11,14 @@
       <select
         v-else
         id="network-select"
-        v-model="formData.networkId"
+        v-model="networkId"
+        v-bind="networkIdAttrs"
         class="form-input"
+        :class="{ 'border-red-500': errors.networkId }"
       >
-        <option :value="null" disabled>ネットワークを選択してください</option>
+        <option :value="undefined" disabled>
+          ネットワークを選択してください
+        </option>
         <option
           v-for="network in networks"
           :key="network.id"
@@ -23,6 +27,9 @@
           {{ network.name }} ({{ network.cidr }})
         </option>
       </select>
+      <p v-if="errors.networkId" class="text-red-500 text-sm mt-1">
+        {{ errors.networkId }}
+      </p>
     </div>
 
     <div>
@@ -38,12 +45,11 @@
       <select
         v-else
         id="security-group-select"
-        v-model="formData.securityGroupId"
+        v-model="securityGroupId"
+        v-bind="securityGroupIdAttrs"
         class="form-input"
       >
-        <option :value="null" disabled>
-          セキュリティグループを選択してください
-        </option>
+        <option :value="null">なし</option>
         <option v-for="sg in securityGroups" :key="sg.id" :value="sg.id">
           {{ sg.name }}
         </option>
@@ -69,14 +75,11 @@
         <div class="text-center">
           <p class="text-gray-500">ここにファイルをドラッグ&ドロップ</p>
           <p class="text-gray-400 text-sm my-2">または</p>
-          <button @click="openFilePicker" class="btn-secondary">
+          <button type="button" @click="openFilePicker" class="btn-secondary">
             ファイルを選択
           </button>
-          <p
-            v-if="formData.keyPairFile"
-            class="text-green-600 font-semibold mt-4"
-          >
-            選択中のファイル: {{ formData.keyPairFile.name }}
+          <p v-if="keyPairFile" class="text-green-600 font-semibold mt-4">
+            選択中のファイル: {{ keyPairFile.name }}
           </p>
         </div>
       </div>
@@ -87,9 +90,12 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
 
 // ==============================================================================
-// 型定義 (APIのレスポンスに合わせて更新)
+// 型定義 (変更なし)
 // ==============================================================================
 interface ModelVirtualNetworkDTO {
   id: string;
@@ -102,32 +108,46 @@ interface ModelSecurityGroupDTO {
 }
 
 // ==============================================================================
-// フォームの入力データ
+// バリデーションスキーマ
 // ==============================================================================
-const formData = ref<{
-  networkId: string | null;
-  securityGroupId: string | null;
-  keyPairFile: File | null;
-}>({
-  networkId: null,
-  securityGroupId: null,
-  keyPairFile: null,
+const validationSchema = toTypedSchema(
+  z.object({
+    networkId: z.string({ required_error: "ネットワークを選択してください。" }),
+    securityGroupId: z.string().nullable(),
+    // Fileオブジェクトは zod の any() で許容します (必須ではないため)
+    keyPairFile: z.any().nullable(),
+  })
+);
+
+// ==============================================================================
+// フォーム設定
+// ==============================================================================
+const { errors, defineField, values, meta, setFieldValue } = useForm({
+  validationSchema,
+  initialValues: {
+    networkId: undefined,
+    securityGroupId: null,
+    keyPairFile: null,
+  },
 });
 
-// --- 親コンポーネントがこのタブのデータにアクセスできるように公開 (変更不要) ---
-defineExpose({ formData });
+const [networkId, networkIdAttrs] = defineField("networkId");
+const [securityGroupId, securityGroupIdAttrs] = defineField("securityGroupId");
+// keyPairFile は手動で値をセットするため、v-bind用の属性は使いません
+const [keyPairFile] = defineField("keyPairFile");
+
+// --- 親コンポーネントへの公開 ---
+defineExpose({ formData: values, isValid: meta });
 
 // ==============================================================================
-// API連携 (エンドポイントを修正)
+// API連携 (変更なし)
 // ==============================================================================
-// --- ネットワーク一覧の取得 ---
 const {
   data: networks,
   pending: networksPending,
   error: networksError,
 } = useResourceList<ModelVirtualNetworkDTO>("virtual-network");
 
-// --- セキュリティグループ一覧の取得 ---
 const {
   data: securityGroups,
   pending: sgPending,
@@ -135,7 +155,7 @@ const {
 } = useResourceList<ModelSecurityGroupDTO>("security-group");
 
 // ==============================================================================
-// UI操作のロジック (変更不要)
+// UI操作のロジック
 // ==============================================================================
 const fileInput = ref<HTMLInputElement | null>(null);
 const isDragging = ref(false);
@@ -146,14 +166,16 @@ const openFilePicker = () => {
 
 const handleFileSelect = (event: Event) => {
   const target = event.target as HTMLInputElement;
-  const file = target.files?.[0];
-  if (file) formData.value.keyPairFile = file;
+  const file = target.files?.[0] || null;
+  // VeeValidateの値を更新
+  setFieldValue("keyPairFile", file);
 };
 
 const handleDrop = (event: DragEvent) => {
   isDragging.value = false;
-  const file = event.dataTransfer?.files?.[0];
-  if (file) formData.value.keyPairFile = file;
+  const file = event.dataTransfer?.files?.[0] || null;
+  // VeeValidateの値を更新
+  setFieldValue("keyPairFile", file);
 };
 </script>
 

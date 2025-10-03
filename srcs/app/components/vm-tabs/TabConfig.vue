@@ -2,19 +2,16 @@
   <div class="space-y-6">
     <div>
       <label for="template-select" class="form-label">テンプレート</label>
-      <div v-if="templatesPending" class="text-gray-500">
-        テンプレート一覧を読み込み中...
-      </div>
-      <div v-else-if="templatesError" class="text-red-500">
-        テンプレート一覧の取得に失敗しました。
-      </div>
+      <div v-if="templatesPending">...</div>
+      <div v-else-if="templatesError">...</div>
       <select
         v-else
         id="template-select"
-        v-model="formData.templateId"
+        v-model="templateId"
+        v-bind="templateIdAttrs"
         class="form-input"
       >
-        <option :value="null">使用しない</option>
+        <option :value="undefined">使用しない</option>
         <option
           v-for="template in templates"
           :key="template.id"
@@ -25,45 +22,48 @@
         </option>
       </select>
     </div>
-
-    <div v-if="!formData.templateId" class="form-section space-y-4">
+    <div v-if="!values.templateId" class="form-section space-y-4">
       <h3 class="section-title">CPU / メモリ</h3>
       <div>
         <label for="cpu-cores" class="form-label-sm">CPUコア数</label>
         <input
           type="number"
           id="cpu-cores"
-          v-model.number="formData.cpuCores"
+          v-model="cpuCores"
+          v-bind="cpuCoresAttrs"
           class="form-input"
+          :class="{ 'border-red-500': errors.cpuCores }"
           min="1"
-          required
         />
+        <p v-if="errors.cpuCores" class="text-red-500 text-sm mt-1">
+          {{ errors.cpuCores }}
+        </p>
       </div>
       <div>
         <label for="memory-gb" class="form-label-sm">メモリ (GB)</label>
         <input
           type="number"
           id="memory-gb"
-          v-model.number="formData.memorySize"
+          v-model="memorySize"
+          v-bind="memorySizeAttrs"
           class="form-input"
+          :class="{ 'border-red-500': errors.memorySize }"
           min="1"
-          required
         />
+        <p v-if="errors.memorySize" class="text-red-500 text-sm mt-1">
+          {{ errors.memorySize }}
+        </p>
       </div>
     </div>
-
     <div>
       <label for="backup-select" class="form-label">バックアップ</label>
-      <div v-if="backupsPending" class="text-gray-500">
-        バックアップ一覧を読み込み中...
-      </div>
-      <div v-else-if="backupsError" class="text-red-500">
-        バックアップ一覧の取得に失敗しました。
-      </div>
+      <div v-if="backupsPending">...</div>
+      <div v-else-if="backupsError">...</div>
       <select
         v-else
         id="backup-select"
-        v-model="formData.backupId"
+        v-model="backupId"
+        v-bind="backupIdAttrs"
         class="form-input"
       >
         <option :value="null">使用しない</option>
@@ -74,45 +74,64 @@
         </option>
       </select>
     </div>
+
     <div class="form-section">
-      <h3 class="section-title mb-4">ストレージ設定</h3>
+      <h3 class="section-title mb-2">ストレージ設定</h3>
+      <div class="storage-grid text-sm font-semibold text-gray-600 px-2">
+        <div class="col-span-1">#</div>
+        <div class="col-span-4">名前</div>
+        <div class="col-span-3">サイズ</div>
+        <div class="col-span-4">ストレージプール</div>
+      </div>
       <div
-        v-for="(storage, index) in formData.storages"
-        :key="storage.id"
+        v-for="(field, index) in storageFields"
+        :key="field.key"
         class="storage-grid"
       >
-        <div class="col-span-1 text-center text-gray-600 font-medium pt-6">
+        <div class="col-span-1 text-center font-medium text-gray-600">
           {{ index + 1 }}.
         </div>
         <div class="col-span-4">
-          <label class="input-label-xs">名前</label>
           <input
             type="text"
-            v-model="storage.name"
-            :disabled="storage.type !== 'manual'"
+            v-model="field.value.name"
+            :disabled="field.value.type !== 'manual'"
             class="form-input"
+            :class="{ 'border-red-500': errors[`storages[${index}].name`] }"
           />
+          <p
+            v-if="errors[`storages[${index}].name`]"
+            class="text-red-500 text-sm mt-1"
+          >
+            {{ errors[`storages[${index}].name`] }}
+          </p>
         </div>
         <div class="col-span-2">
-          <label class="input-label-xs">サイズ</label>
           <input
             type="number"
-            v-model.number="storage.size"
-            :disabled="storage.type !== 'manual'"
+            v-model.number="field.value.size"
+            :disabled="field.value.type !== 'manual'"
             class="form-input"
-            required
+            :class="{ 'border-red-500': errors[`storages[${index}].size`] }"
+            min="1"
           />
+          <p
+            v-if="errors[`storages[${index}].size`]"
+            class="text-red-500 text-sm mt-1"
+          >
+            {{ errors[`storages[${index}].size`] }}
+          </p>
         </div>
-        <div class="self-end pb-2">GB</div>
-        <div class="col-span-4">
-          <label class="input-label-xs">ストレージプール</label>
-          <div v-if="poolsPending" class="text-gray-500 text-sm">
-            読み込み中...
-          </div>
-          <div v-else-if="poolsError" class="text-red-500 text-sm">
-            取得失敗
-          </div>
-          <select v-else v-model="storage.poolId" class="form-input">
+        <div class="self-center">GB</div>
+        <div class="col-span-3">
+          <div v-if="poolsPending" class="text-sm">...</div>
+          <div v-else-if="poolsError" class="text-sm text-red-500">...</div>
+          <select
+            v-else
+            v-model="field.value.poolId"
+            class="form-input"
+            :class="{ 'border-red-500': errors[`storages[${index}].poolId`] }"
+          >
             <option
               v-for="pool in storagePools"
               :key="pool.id"
@@ -121,18 +140,39 @@
               {{ pool.name }}
             </option>
           </select>
+          <p
+            v-if="errors[`storages[${index}].poolId`]"
+            class="text-red-500 text-sm mt-1"
+          >
+            {{ errors[`storages[${index}].poolId`] }}
+          </p>
+        </div>
+        <div class="col-span-1 flex justify-center">
+          <button
+            v-if="field.value.type !== 'os'"
+            type="button"
+            @click="removeStorage(index)"
+            class="text-red-500 hover:text-red-700 font-bold text-xl"
+          >
+            &times;
+          </button>
         </div>
       </div>
-      <div class="flex justify-end mt-4">
-        <button @click="addStorage" class="btn-secondary">追加</button>
+      <div class="mt-4 flex justify-end">
+        <button type="button" @click="addStorage" class="btn-secondary">
+          追加
+        </button>
       </div>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, watch } from "vue";
+import { watch } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
+import { useForm, useFieldArray } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
 
 // (型定義は変更なし)
 interface ModelInstanceTypeDTO {
@@ -152,49 +192,101 @@ interface ModelStoragePoolDTO {
   name: string;
 }
 
-// ==============================================================================
-// フォームの入力データ
-// ==============================================================================
-const formData = ref({
-  templateId: null,
-  cpuCores: 2,
-  memorySize: 2,
-  backupId: null,
-  storages: [
-    { id: 1, name: "OS", size: 20, poolId: "pool-1", type: "os" as const },
-  ],
+// ★★★ 1. バリデーションスキーマを修正 ★★★
+const validationSchema = toTypedSchema(
+  z
+    .object({
+      templateId: z.string().optional().nullable(),
+      cpuCores: z.number().nullable(), // .nullable() を追加
+      memorySize: z.number().nullable(), // .nullable() を追加
+      backupId: z.string().nullable(),
+      storages: z
+        .array(
+          z.object({
+            name: z.string().min(1, "名前は必須です。"),
+            size: z
+              .number({ invalid_type_error: "サイズは必須です。" })
+              .int("整数で入力してください。")
+              .min(1, "1以上の値を入力してください。"),
+            poolId: z.string({ required_error: "プールを選択してください。" }),
+            type: z.string(),
+          })
+        )
+        .min(1),
+    })
+    .superRefine((data, ctx) => {
+      if (!data.templateId) {
+        if (
+          !data.cpuCores ||
+          data.cpuCores < 1 ||
+          !Number.isInteger(data.cpuCores)
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "1以上の整数を入力してください。",
+            path: ["cpuCores"],
+          });
+        }
+        if (
+          !data.memorySize ||
+          data.memorySize < 1 ||
+          !Number.isInteger(data.memorySize)
+        ) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "1以上の整数を入力してください。",
+            path: ["memorySize"],
+          });
+        }
+      }
+    })
+);
+
+const { errors, defineField, values, meta } = useForm({
+  validationSchema,
+  initialValues: {
+    templateId: undefined,
+    cpuCores: null, // 初期値を null に変更
+    memorySize: null, // 初期値を null に変更
+    backupId: null,
+    storages: [
+      { id: 1, name: "OS", size: 20, poolId: "pool-1", type: "os" as const },
+    ],
+  },
 });
-let nextStorageId = 2;
 
-// (defineExposeは変更なし)
-defineExpose({ formData });
+// (defineFieldとuseFieldArrayは変更なし)
+const [templateId, templateIdAttrs] = defineField("templateId");
+const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
+const [memorySize, memorySizeAttrs] = defineField("memorySize");
+const [backupId, backupIdAttrs] = defineField("backupId");
+const {
+  fields: storageFields,
+  push: pushStorage,
+  remove: removeStorage,
+} = useFieldArray<any>("storages");
 
-// ==============================================================================
-// API連携
-// ==============================================================================
+defineExpose({ formData: values, isValid: meta });
+
+// (API連携、UI操作のロジックは変更なし)
 const {
   data: templates,
   pending: templatesPending,
   error: templatesError,
 } = useResourceList<ModelInstanceTypeDTO>("instance-type");
-
 const {
   data: backups,
   pending: backupsPending,
   error: backupsError,
 } = useResourceList<ModelBackupDTO>("backup");
-
 const {
   data: storagePools,
   pending: poolsPending,
   error: poolsError,
 } = useResourceList<ModelStoragePoolDTO>("storage-pool");
-
-// ==============================================================================
-// UI操作のロジック
-// ==============================================================================
+let nextStorageId = 2;
 const addStorage = () => {
-  formData.value.storages.push({
+  pushStorage({
     id: nextStorageId++,
     name: "",
     size: 10,
@@ -202,32 +294,27 @@ const addStorage = () => {
     type: "manual" as const,
   });
 };
-
-// (バックアップ選択時のロジックは変更なし)
-watch(
-  () => formData.value.backupId,
-  (newBackupId) => {
-    formData.value.storages = formData.value.storages.filter(
-      (item) => item.type !== "backup"
-    );
-    if (newBackupId && backups.value) {
-      const backupData = backups.value.find((b) => b.id === newBackupId);
-      if (backupData) {
-        formData.value.storages.push({
-          id: `backup-${backupData.id}`,
-          name: `backup-${backupData.name}`,
-          size: Math.round(backupData.size / 1024 / 1024 / 1024),
-          poolId: "pool-1",
-          type: "backup" as const,
-        });
-      }
+watch(backupId, (newBackupId) => {
+  const backupIndex = storageFields.value.findIndex(
+    (field) => field.value.type === "backup"
+  );
+  if (backupIndex !== -1) removeStorage(backupIndex);
+  if (newBackupId && backups.value) {
+    const backupData = backups.value.find((b) => b.id === newBackupId);
+    if (backupData) {
+      pushStorage({
+        id: `backup-${backupData.id}`,
+        name: `backup-${backupData.name}`,
+        size: Math.round(backupData.size / 1024 / 1024 / 1024),
+        poolId: "pool-1",
+        type: "backup" as const,
+      });
     }
   }
-);
+});
 </script>
 
 <style scoped>
-/* (スタイルは変更なし) */
 .form-section {
   @apply p-4 border border-gray-200 rounded-lg;
 }
@@ -249,10 +336,10 @@ watch(
 .form-input:disabled {
   @apply bg-gray-100 cursor-not-allowed;
 }
-.storage-grid {
-  @apply grid grid-cols-12 gap-3 items-center mb-3;
-}
 .btn-secondary {
   @apply py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300;
+}
+.storage-grid {
+  @apply grid grid-cols-12 gap-x-3 gap-y-1 items-start mb-2;
 }
 </style>

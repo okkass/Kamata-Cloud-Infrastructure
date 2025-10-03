@@ -11,14 +11,21 @@
       <select
         v-else
         id="os-image-select"
-        v-model="formData.osImageId"
+        v-model="osImageId"
+        v-bind="osImageIdAttrs"
         class="form-input"
+        :class="{ 'border-red-500': errors.osImageId }"
       >
-        <option :value="null" disabled>OSイメージを選択してください</option>
+        <option :value="undefined" disabled>
+          OSイメージを選択してください
+        </option>
         <option v-for="image in osImages" :key="image.id" :value="image.id">
           {{ image.name }}
         </option>
       </select>
+      <p v-if="errors.osImageId" class="text-red-500 text-sm mt-1">
+        {{ errors.osImageId }}
+      </p>
     </div>
 
     <div>
@@ -32,7 +39,8 @@
       <select
         v-else
         id="middleware-select"
-        v-model="formData.middlewareId"
+        v-model="middlewareId"
+        v-bind="middlewareIdAttrs"
         class="form-input"
       >
         <option :value="null">なし</option>
@@ -45,11 +53,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
+// ★ 1. VeeValidateとZod関連の機能をインポート
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
 
 // ==============================================================================
-// 型定義 (本来は types/dto.ts などからインポート)
+// 型定義 (変更なし)
 // ==============================================================================
 interface ModelOsImageDTO {
   id: string;
@@ -60,28 +71,40 @@ interface ModelMiddlewareDTO {
   name: string;
 }
 
-// ==============================================================================
-// フォームの入力データ
-// ==============================================================================
-const formData = ref({
-  osImageId: null,
-  middlewareId: null,
+// ★ 2. Zodでバリデーションスキーマを定義
+const validationSchema = toTypedSchema(
+  z.object({
+    // `osImageId` は文字列であることが必須
+    osImageId: z.string({ required_error: "OSイメージを選択してください。" }),
+    // `middlewareId` は文字列またはnullを許容する（任意項目）
+    middlewareId: z.string().nullable(),
+  })
+);
+
+// ★ 3. `useForm` をセットアップ
+const { errors, defineField, values, meta } = useForm({
+  validationSchema,
+  initialValues: {
+    osImageId: undefined, // 必須項目は undefined で初期化
+    middlewareId: null,
+  },
 });
 
-// --- 親コンポーネントがこのタブのデータにアクセスできるように公開 (変更不要) ---
-defineExpose({ formData });
+const [osImageId, osImageIdAttrs] = defineField("osImageId");
+const [middlewareId, middlewareIdAttrs] = defineField("middlewareId");
+
+// --- 親コンポーネントへの公開 ---
+defineExpose({ formData: values, isValid: meta });
 
 // ==============================================================================
-// API連携
+// API連携 (変更なし)
 // ==============================================================================
-// --- OSイメージ一覧の取得 ---
 const {
   data: osImages,
   pending: imagesPending,
   error: imagesError,
 } = useResourceList<ModelOsImageDTO>("image");
 
-// --- ミドルウェア一覧の取得 ---
 const {
   data: middlewares,
   pending: middlewaresPending,

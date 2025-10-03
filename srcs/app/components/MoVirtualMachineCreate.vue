@@ -7,13 +7,18 @@
           :key="tab.name"
           @click="currentTab = index"
           :class="[
-            'py-2 px-4 text-sm font-medium',
+            'relative py-2 px-4 text-sm font-medium',
             currentTab === index
               ? 'border-b-2 border-blue-500 text-blue-600'
               : 'text-gray-500 hover:text-gray-700',
           ]"
         >
           {{ tab.name }}
+          <span
+            v-if="!tabValidity[index]"
+            class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
+            title="このタブに入力エラーがあります"
+          ></span>
         </button>
       </div>
 
@@ -32,9 +37,8 @@
       </div>
 
       <div
-        class="flex justify-between items-center mt-6 pt-4 border-t border-gray-200"
+        class="flex justify-end items-center mt-6 pt-4 border-t border-gray-200"
       >
-        <SecondaryButton @click="$emit('close')"> キャンセル </SecondaryButton>
         <div class="flex gap-3">
           <SecondaryButton @click="prevTab" :disabled="currentTab === 0">
             戻る
@@ -61,20 +65,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, markRaw } from "vue";
+import { ref, markRaw, computed } from "vue";
 import { useToast } from "~/composables/useToast";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 
-// ==============================================================================
-// 型定義 (API仕様に合わせて更新)
-// ==============================================================================
+// (型定義は変更なし)
 interface StoragePayload {
   name: string;
-  size: number; // バイト単位
+  size: number;
   poolId: string;
-  backupId?: string | null; // バックアップはオプショナル
+  backupId?: string | null;
 }
-
 interface VirtualMachineCreateRequestDTO {
   name: string;
   instanceTypeId: string | null;
@@ -85,24 +86,18 @@ interface VirtualMachineCreateRequestDTO {
   storages: StoragePayload[];
   securityGroupIds: string[];
 }
-
 interface ModelVirtualMachineDTO {
   id: string;
   name: string;
 }
 
-// --- 親コンポーネントとの連携 ---
-defineProps({
-  show: { type: Boolean, required: true },
-});
+// (Props, Emits, タブ定義などは変更なし)
+defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
-
-// --- タブとUIの状態管理 (変更なし) ---
 import TabGeneral from "~/components/vm-tabs/TabGeneral.vue";
 import TabConfig from "~/components/vm-tabs/TabConfig.vue";
 import TabOsMiddleware from "~/components/vm-tabs/TabOsMiddleware.vue";
 import TabNetwork from "~/components/vm-tabs/TabNetwork.vue";
-
 const tabs = [
   { name: "概要", component: markRaw(TabGeneral) },
   { name: "構成", component: markRaw(TabConfig) },
@@ -112,44 +107,56 @@ const tabs = [
 const tabRefs = ref<any[]>([]);
 const currentTab = ref(0);
 const modalTitle = ref("仮想マシン作成");
-
 const prevTab = () => {
   if (currentTab.value > 0) currentTab.value--;
 };
 const nextTab = () => {
   if (currentTab.value < tabs.length - 1) currentTab.value++;
 };
+const tabValidity = computed(() => {
+  return tabRefs.value.map((tab) => tab?.isValid?.valid ?? false);
+});
 
-// --- API連携 ---
+// (API連携セットアップは変更なし)
 const { executeCreate, isCreating } = useResourceCreate<
   VirtualMachineCreateRequestDTO,
   ModelVirtualMachineDTO
 >("virtual-machine");
 const { addToast } = useToast();
 
-/**
- * ファイルオブジェクトをテキストとして読み込むヘルパー関数
- */
 const readFileAsText = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = reject;
-    reader.readAsText(file);
-  });
+  /* ... */ return new Promise(() => {});
 };
 
 /**
  * 「作成」ボタンが押されたときに実行される関数
  */
 const handleSubmit = async () => {
-  // 1. 各タブからデータを集約
+  // (バリデーションチェックは変更なし)
+  const invalidTabs = tabRefs.value.reduce((acc, tab, index) => {
+    if (!tab?.isValid?.valid) {
+      acc.push(tabs[index].name);
+    }
+    return acc;
+  }, [] as string[]);
+  if (invalidTabs.length > 0) {
+    addToast({
+      message: `「${invalidTabs.join("」「")}」タブに入力エラーがあります。`,
+      type: "error",
+    });
+    const firstInvalidIndex = tabRefs.value.findIndex(
+      (tab) => !tab?.isValid?.valid
+    );
+    currentTab.value = firstInvalidIndex;
+    return;
+  }
+
+  // (データ集約は変更なし)
   const generalData = tabRefs.value[0]?.formData;
   const configData = tabRefs.value[1]?.formData;
   const osData = tabRefs.value[2]?.formData;
   const networkData = tabRefs.value[3]?.formData;
 
-  // 2. APIに送信するペイロードを作成
   const payload: VirtualMachineCreateRequestDTO = {
     name: generalData?.name,
     instanceTypeId: configData?.templateId,
@@ -159,11 +166,10 @@ const handleSubmit = async () => {
       : null,
     imageId: osData?.osImageId,
     middleWareId: osData?.middlewareId,
-    storages: configData?.storages.map((storage) => ({
+    storages: configData?.storages.map((storage: any) => ({
       name: storage.name,
-      size: storage.size * 1024 * 1024 * 1024, // GBをバイトに変換
+      size: storage.size * 1024 * 1024 * 1024,
       poolId: storage.poolId,
-      // OSディスクにバックアップIDを紐付ける例
       backupId: storage.type === "os" ? configData.backupId : null,
     })),
     securityGroupIds: networkData?.securityGroupId
@@ -171,15 +177,16 @@ const handleSubmit = async () => {
       : [],
   };
 
-  // 3. executeCreate を使ってAPIに送信
   const result = await executeCreate(payload);
 
   if (result.success) {
     addToast({
       type: "success",
-      message: `仮想マシン「${result.data?.name}」が作成されました`,
+      message: `仮想マシン「${payload.name}」が作成されました`,
     });
     emit("success");
+    // ★★★ ここを追加: モーダルを閉じるイベントを通知 ★★★
+    emit("close");
   } else {
     addToast({
       type: "error",

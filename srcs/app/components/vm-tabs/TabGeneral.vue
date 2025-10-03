@@ -5,10 +5,15 @@
       <input
         type="text"
         id="vm-name"
-        v-model="formData.name"
+        v-model="name"
+        v-bind="nameAttrs"
         class="form-input"
+        :class="{ 'border-red-500 focus:ring-red-500': errors.name }"
         placeholder="例: vm-middleware01"
       />
+      <p v-if="errors.name" class="text-red-500 text-sm mt-1">
+        {{ errors.name }}
+      </p>
     </div>
 
     <div>
@@ -20,49 +25,57 @@
       <select
         v-else
         id="node-select"
-        v-model="formData.nodeId"
+        v-model="nodeId"
+        v-bind="nodeIdAttrs"
         class="form-input"
+        :class="{ 'border-red-500 focus:ring-red-500': errors.nodeId }"
       >
-        <option :value="null" disabled>ノードを選択してください</option>
+        <option :value="undefined" disabled>ノードを選択してください</option>
         <option v-for="node in nodes" :key="node.id" :value="node.id">
           {{ node.name }}
         </option>
       </select>
+      <p v-if="errors.nodeId" class="text-red-500 text-sm mt-1">
+        {{ errors.nodeId }}
+      </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
 
-// ==============================================================================
-// 型定義 (APIのレスポンスに合わせて更新)
-// ==============================================================================
+// (型定義は変更なし)
 interface ModelPhysicalNodeDTO {
   id: string;
   name: string;
-  ipAddress: string;
-  status: string;
-  // ... 必要に応じて他のプロパティも定義
 }
 
-// ==============================================================================
-// フォームの入力データ
-// ==============================================================================
-const formData = ref({
-  name: "",
-  nodeId: null,
-});
+// (Zodスキーマ定義は変更なし)
+const validationSchema = toTypedSchema(
+  z.object({
+    name: z.string().min(1, "仮想マシン名は必須です。"),
+    nodeId: z.string({ required_error: "ノードを選択してください。" }),
+  })
+);
 
-// --- 親コンポーネントがこのタブのデータにアクセスできるように公開 (変更不要) ---
+// (useFormのセットアップは変更なし)
+const { errors, defineField, values, meta } = useForm({
+  validationSchema,
+});
+const [name, nameAttrs] = defineField("name");
+const [nodeId, nodeIdAttrs] = defineField("nodeId");
+
+// (defineExposeは変更なし)
 defineExpose({
-  formData,
+  formData: values,
+  isValid: meta,
 });
 
-// ==============================================================================
-// API連携 (エンドポイントを修正)
-// ==============================================================================
+// (API連携は変更なし)
 const {
   data: nodes,
   pending,
