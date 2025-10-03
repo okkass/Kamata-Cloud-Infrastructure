@@ -78,7 +78,6 @@
     <div class="form-section">
       <h3 class="section-title mb-2">ストレージ設定</h3>
       <div class="storage-grid text-sm font-semibold text-gray-600 px-2">
-        <div class="col-span-1">#</div>
         <div class="col-span-4">名前</div>
         <div class="col-span-3">サイズ</div>
         <div class="col-span-4">ストレージプール</div>
