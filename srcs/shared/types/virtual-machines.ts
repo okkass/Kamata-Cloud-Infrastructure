@@ -206,6 +206,14 @@ export interface VirtualMachineDTO {
    */
   createdAt: string;
   /**
+   * CPUコア数
+   */
+  cpuCores: number;
+  /**
+   * メモリサイズ（バイト単位）
+   */
+  memorySize: number;
+  /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
   securityGroup: Array<string>;
@@ -251,7 +259,7 @@ export interface VirtualMachineCreateRequestDTO {
   /**
    * 使用するインスタンスタイプのID
    */
-  instanceTypeId: string;
+  instanceTypeId?: string;
   /**
    * 仮想マシンを配置するサブネットのID
    */
@@ -268,6 +276,18 @@ export interface VirtualMachineCreateRequestDTO {
    * インストールするミドルウェアのID
    */
   middleWareId?: string;
+  /**
+   * CPUコア数
+   */
+  cpuCores: number;
+  /**
+   * メモリサイズ（バイト単位）
+   */
+  memorySize: number;
+  /**
+   * 仮想マシンを収容する物理ノードのID
+   */
+  nodeId: string;
   /**
    * 仮想マシンにアタッチするストレージのリスト
    */
@@ -304,11 +324,14 @@ export interface VirtualMachineUpdateRequestDTO {
    */
   name: string;
   instanceType?: ModelInstanceTypeDTO;
-  node?: PhysicalNodeDTO;
   /**
-   * 仮想マシンが作成された日時
+   * CPUコア数
    */
-  createdAt?: string;
+  cpuCores?: number;
+  /**
+   * メモリサイズ（バイト単位）
+   */
+  memorySize?: number;
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
