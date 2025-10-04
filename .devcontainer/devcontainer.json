@@ -39,5 +39,5 @@
 
   "forwardPorts": [3000, 3306],
 
-  "postCreateCommand": "cd srcs && npm install"
+  "postCreateCommand": "cd srcs && npm ci && npx prisma migrate dev && npx prisma db seed"
 }

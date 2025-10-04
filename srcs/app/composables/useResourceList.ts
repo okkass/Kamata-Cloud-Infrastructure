@@ -13,20 +13,10 @@ export const useResourceList = <T>(
   // APIのエンドポイントURLを構築
   const url = `/api/${resourceName}`;
 
-  // NuxtのuseFetchを使用して、APIからリソースの一覧を非同期で取得
-  const { data, pending, error, refresh } = useFetch<T[]>(url, {
-    params,
-    // defaultオプション: データ取得中の初期値を空配列に設定。
-    // これにより、UI側でv-forがエラーになるのを防ぎます。
-    default: () => [],
-  });
-
   // 取得したデータ(data)、ローディング状態(pending)、エラー情報(error)、
   // そしてデータを再取得するための関数(refresh)をオブジェクトとして返す。
-  return {
-    data,
-    pending,
-    error,
-    refresh,
-  };
+  return useFetch<T[]>(url, {
+    params,
+    default: () => [],
+  });
 };
