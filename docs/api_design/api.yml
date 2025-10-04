@@ -1345,6 +1345,7 @@ paths:
           description: 仮想ネットワークが見つからない
       security:
         - BearerAuth: []
+  /api/virtual-network/{networkId}/subnet/{subnetId}:
     put:
       summary: サブネットの更新
       description: 指定した仮想ネットワーク内のサブネット情報を更新します。
@@ -1358,6 +1359,13 @@ paths:
             type: string
             format: uuid
           description: 仮想ネットワークの一意なID
+        - name: subnetId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: サブネットの一意なID
       requestBody:
         required: true
         content:
@@ -1395,7 +1403,7 @@ paths:
             format: uuid
           description: 仮想ネットワークの一意なID
         - name: subnetId
-          in: query
+          in: path
           required: true
           schema:
             type: string
@@ -1563,16 +1571,12 @@ components:
         memorySize:
           type: integer
           description: メモリサイズ（バイト単位）
-        storageSize:
-          type: integer
-          description: ストレージサイズ（バイト単位）
       required:
         - id
         - name
         - createdAt
         - cpuCores
         - memorySize
-        - storageSize
     InstanceTypeCreateRequest:
       type: object
       description: インスタンスタイプ作成リクエストオブジェクト
@@ -1586,14 +1590,10 @@ components:
         memorySize:
           type: integer
           description: メモリサイズ（バイト単位）
-        storageSize:
-          type: integer
-          description: ストレージサイズ（バイト単位）
       required:
         - name
         - cpuCores
         - memorySize
-        - storageSize
     InstanceTypeUpdateRequest:
       type: object
       description: インスタンスタイプ更新リクエストオブジェクト
@@ -1607,9 +1607,6 @@ components:
         memorySize:
           type: integer
           description: メモリサイズ（バイト単位）
-        storageSize:
-          type: integer
-          description: ストレージサイズ（バイト単位）
     LoginRequest:
       type: object
       description: ログインリクエストオブジェクト
@@ -2311,6 +2308,12 @@ components:
           type: string
           format: uuid
           description: 使用するインスタンスタイプのID
+        cpuCores:
+          type: integer
+          description: 仮想マシンに割り当てるCPUコア数（instanceTypeIdが指定されていない場合に必須）
+        memorySize:
+          type: integer
+          description: 仮想マシンに割り当てるメモリサイズ（バイト単位、instanceTypeIdが指定されていない場合に必須）
         subnetId:
           type: string
           format: uuid
@@ -2326,6 +2329,10 @@ components:
           type: string
           format: uuid
           description: インストールするミドルウェアのID
+        nodeId:
+          type: string
+          format: uuid
+          description: 仮想マシンを配置する物理ノードのID
         storages:
           type: array
           description: 仮想マシンにアタッチするストレージのリスト
@@ -2350,6 +2357,7 @@ components:
               - name
               - size
               - poolId
+              - nodeId
         securityGroupIds:
           type: array
           items:
@@ -2358,9 +2366,7 @@ components:
           description: 関連付けるセキュリティグループのIDリスト
       required:
         - name
-        - instanceTypeId
         - subnetId
-        - publicKey
         - imageId
         - storages
     VirtualMachineUpdateRequest:
@@ -2370,17 +2376,17 @@ components:
         name:
           type: string
           description: 仮想マシンの名前
-        instanceType:
-          $ref: "#/components/schemas/InstanceType"
-          description: 仮想マシンのインスタンスタイプ
-        node:
-          $ref: "#/components/schemas/PhysicalNode"
-          description: 仮想マシンが配置されている物理ノード
-        createdAt:
+        instanceTypeId:
           type: string
-          format: date-time
-          description: 仮想マシンが作成された日時
-        securityGroup:
+          format: uuid
+          description: 使用するインスタンスタイプのID
+        cpuCores:
+          type: integer
+          description: 仮想マシンに割り当てるCPUコア数
+        memorySize:
+          type: integer
+          description: 仮想マシンに割り当てるメモリサイズ（バイト単位）
+        securityGroupIds:
           type: array
           items:
             type: string
