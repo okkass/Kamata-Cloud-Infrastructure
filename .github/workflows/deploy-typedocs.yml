@@ -1,26 +1,31 @@
+# ワークフローの名前
 name: Deploy Type Docs to Github Pages
 
 on:
-  # mainブランチにpushされた時にワークフローを実行
+  # mainブランチの指定パスにpushされた時にワークフローを実行
   push:
     branches:
       - main
     paths:
       - "srcs/shared/types/**"
-  # 手動でワークフローを実行するためのトリガー
+  # GitHubのUIから手動でワークフローを実行できるようにする
   workflow_dispatch:
 
-# ワークフローが必要とする権限を設定
+# ワークフローの実行に必要な権限を設定
+# GitHub Pagesへのデプロイにはこれらの権限が必要
 permissions:
-  contents: write
-  pages: write
-  id-token: write
+  contents: write # リポジトリへの書き込み権限（チェックアウトや一部アクションで必要）
+  pages: write      # GitHub Pagesへのデプロイ権限
+  id-token: write   # OIDCトークンによる認証のための書き込み権限
 
 jobs:
+  # ビルドとデプロイを行うジョブ
   build-and-deploy:
+    # 実行環境として最新のUbuntuを使用
     runs-on: ubuntu-latest
     steps:
       # 1. リポジトリのソースコードをチェックアウト
+      # これにより、ワークフローがリポジトリのファイルにアクセスできるようになる
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -28,29 +33,40 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: "20" # プロジェクトに合わせたバージョンを指定
+          node-version: "20"
+          # npmのキャッシュを有効にし、依存パッケージのインストールを高速化
           cache: "npm"
 
       # 3. 依存パッケージをインストール
+      # "npm ci" は package-lock.json に基づいてクリーンインストールするため、CI環境で推奨される
       - name: Install dependencies
         run: npm ci
         working-directory: ./srcs
 
       # 4. TypeDocでドキュメントを生成
-      # --out オプションで出力先ディレクトリを指定します。ここでは 'docs-types' という一時的なディレクトリに出力します。
+      # 指定したTypeScriptのソースコードからHTMLドキュメントを生成する
       - name: Generate TypeDoc
-        run: npx typedoc --tsconfig ./srcs/tsconfig.typedoc.json --entryPointStrategy expand --out ./docs-types srcs/shared/types/
+        run: |
+          # 成果物を格納するディレクトリを作成 (例: /types/)
+          mkdir -p ./docs-types/types
+          # TypeDocを実行し、ドキュメントを './docs-types/types' ディレクトリに出力
+          npx typedoc --tsconfig ./srcs/tsconfig.typedoc.json --entryPointStrategy expand --out ./docs-types/types srcs/shared/types/
 
-      # 5. 生成したドキュメントをGitHub Pagesにデプロイ
-      - name: Deploy to GitHub Pages
-        uses: peaceiris/actions-gh-pages@v4
+      # 5. ビルドアセットをアーティファクトとしてアップロード
+      # `deploy-pages`アクションがデプロイできるように、生成された静的ファイルを準備する
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          # デプロイに必要なトークン
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          # TypeDocが生成したファイルが含まれるディレクトリ
-          publish_dir: ./docs-types
-          # デプロイ先のgh-pagesブランチ上のディレクトリ名
-          # これにより、既存のAPIリファレンスと共存できます
-          destination_dir: ./types
-          # 既存のgh-pagesブランチのファイルを消さずにデプロイ
-          keep_files: true
+          # アップロードするディレクトリのパス
+          path: ./docs-types
+
+      # 6. GitHub Pagesにデプロイ
+      # アップロードされたアーティファクトを使ってGitHub Pagesサイトを更新する
+      - name: Deploy to Github Pages
+        id: types # このステップの結果を後で参照するためのID
+        uses: actions/deploy-pages@v4
+
+      # 7. デプロイURLをログに出力
+      # デプロイが完了したページのURLをログに表示し、確認しやすくする
+      - name: Print deployment URL
+        run: echo "✅ Deploy successful! URL ${{ steps.types.outputs.page_url }}"
