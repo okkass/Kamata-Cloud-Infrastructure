@@ -1,5 +1,5 @@
 # ワークフローの名前
-name: Deploy Type Docs to Github Pages
+name: Deploy All Docs to GitHub Pages
 
 on:
   # mainブランチの指定パスにpushされた時にワークフローを実行
@@ -7,25 +7,28 @@ on:
     branches:
       - main
     paths:
+      # APIドキュメントのトリガーパス
+      - "docs/api_design/api.yml"
+      # TypeDocのトリガーパス
       - "srcs/shared/types/**"
+      # このワークフローファイル自体の変更でもトリガー
+      - ".github/workflows/pages-deploy.yml"
   # GitHubのUIから手動でワークフローを実行できるようにする
   workflow_dispatch:
 
 # ワークフローの実行に必要な権限を設定
-# GitHub Pagesへのデプロイにはこれらの権限が必要
 permissions:
-  contents: write # リポジトリへの書き込み権限（チェックアウトや一部アクションで必要）
-  pages: write      # GitHub Pagesへのデプロイ権限
-  id-token: write   # OIDCトークンによる認証のための書き込み権限
+  contents: write
+  pages: write
+  id-token: write
 
 jobs:
-  # ビルドとデプロイを行うジョブ
+  # ビルドとデプロイをまとめて行うジョブ
   build-and-deploy:
     # 実行環境として最新のUbuntuを使用
     runs-on: ubuntu-latest
     steps:
       # 1. リポジトリのソースコードをチェックアウト
-      # これにより、ワークフローがリポジトリのファイルにアクセスできるようになる
       - name: Checkout repository
         uses: actions/checkout@v4
 
@@ -34,39 +37,39 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: "20"
-          # npmのキャッシュを有効にし、依存パッケージのインストールを高速化
           cache: "npm"
+          cache-dependency-path: 'srcs/package-lock.json'
 
-      # 3. 依存パッケージをインストール
-      # "npm ci" は package-lock.json に基づいてクリーンインストールするため、CI環境で推奨される
+      # 3. 必要なパッケージをすべてインストール
       - name: Install dependencies
-        run: npm ci
-        working-directory: ./srcs
-
-      # 4. TypeDocでドキュメントを生成
-      # 指定したTypeScriptのソースコードからHTMLドキュメントを生成する
-      - name: Generate TypeDoc
         run: |
-          # 成果物を格納するディレクトリを作成 (例: /types/)
-          mkdir -p ./docs-types/types
-          # TypeDocを実行し、ドキュメントを './docs-types/types' ディレクトリに出力
-          npx typedoc --tsconfig ./srcs/tsconfig.typedoc.json --entryPointStrategy expand --out ./docs-types/types srcs/shared/types/
+          # APIドキュメント生成用のRedocly CLIをインストール
+          npm install -g @redocly/cli
+          # TypeDoc生成用の依存パッケージをインストール
+          npm ci --prefix ./srcs
 
-      # 5. ビルドアセットをアーティファクトとしてアップロード
-      # `deploy-pages`アクションがデプロイできるように、生成された静的ファイルを準備する
+      # 4. APIドキュメントを生成
+      # 生成物を格納する `public` ディレクトリに直接出力する
+      - name: Build API Docs
+        run: redocly build-docs docs/api_design/api.yml -o public/index.html
+
+      # 5. TypeDocドキュメントを生成
+      - name: Build Type Docs
+        run: npx typedoc --tsconfig ./srcs/tsconfig.typedoc.json --entryPointStrategy expand --out public/types srcs/shared/types/
+
+      # 6. 結合された成果物をアーティファクトとしてアップロード
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # アップロードするディレクトリのパス
-          path: ./docs-types
+          # APIとTypesの両方を含む `public` ディレクトリをアップロード
+          path: ./public
 
-      # 6. GitHub Pagesにデプロイ
-      # アップロードされたアーティファクトを使ってGitHub Pagesサイトを更新する
+      # 7. GitHub Pagesにデプロイ
       - name: Deploy to Github Pages
-        id: types # このステップの結果を後で参照するためのID
+        id: deployment # このステップの結果を後で参照するためのID
         uses: actions/deploy-pages@v4
 
-      # 7. デプロイURLをログに出力
-      # デプロイが完了したページのURLをログに表示し、確認しやすくする
+      # 8. デプロイURLをログに出力
       - name: Print deployment URL
-        run: echo "✅ Deploy successful! URL ${{ steps.types.outputs.page_url }}"
+        run: echo "✅ Deploy successful! URL ${{ steps.deployment.outputs.page_url }}"
+
