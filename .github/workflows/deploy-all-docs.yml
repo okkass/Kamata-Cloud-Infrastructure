@@ -72,7 +72,4 @@ jobs:
         id: deployment # このステップの結果を後で参照するためのID
         uses: actions/deploy-pages@v4
 
-      # 8. デプロイURLをログに出力
-      - name: Print deployment URL
-        run: echo "✅ Deploy successful! URL ${{ steps.deployment.outputs.page_url }}"
 
