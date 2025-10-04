@@ -46,9 +46,10 @@ jobs:
           # APIドキュメント生成用のRedocly CLIをインストール
           npm install -g @redocly/cli
           # TypeDoc生成用の依存パッケージをインストール
-          npm ci --prefix ./srcs
+          npm ci
           # Prisma Clientのスキーマに合わせる
           npx prisma generate
+        working-directory: ./srcs 
 
       # 4. APIドキュメントを生成
       # 生成物を格納する `public` ディレクトリに直接出力する
