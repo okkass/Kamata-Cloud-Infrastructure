@@ -12,7 +12,7 @@ on:
       # TypeDocのトリガーパス
       - "srcs/shared/types/**"
       # このワークフローファイル自体の変更でもトリガー
-      - ".github/workflows/pages-deploy.yml"
+      - ".github/workflows/deploy-all-docs.yml"
   # GitHubのUIから手動でワークフローを実行できるようにする
   workflow_dispatch:
 
