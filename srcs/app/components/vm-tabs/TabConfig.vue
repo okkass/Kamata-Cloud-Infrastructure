@@ -69,7 +69,7 @@
         <option :value="null">使用しない</option>
         <option v-for="backup in backups" :key="backup.id" :value="backup.id">
           {{ backup.name }} ({{
-            (backup.size / 1024 / 1024 / 1024).toFixed(1)
+            (backup.targetVirtualStorage.size / 1024 / 1024 / 1024).toFixed(1)
           }}GB)
         </option>
       </select>
@@ -78,6 +78,7 @@
     <div class="form-section">
       <h3 class="section-title mb-2">ストレージ設定</h3>
       <div class="storage-grid text-sm font-semibold text-gray-600 px-2">
+        <div class="col-span-1">No.</div>
         <div class="col-span-4">名前</div>
         <div class="col-span-3">サイズ</div>
         <div class="col-span-4">ストレージプール</div>
@@ -94,7 +95,7 @@
           <input
             type="text"
             v-model="field.value.name"
-            :disabled="field.value.type !== 'manual'"
+            :disabled="field.value.type === 'backup'"
             class="form-input"
             :class="{ 'border-red-500': errors[`storages[${index}].name`] }"
           />
@@ -109,7 +110,7 @@
           <input
             type="number"
             v-model.number="field.value.size"
-            :disabled="field.value.type !== 'manual'"
+            :disabled="field.value.type === 'backup'"
             class="form-input"
             :class="{ 'border-red-500': errors[`storages[${index}].size`] }"
             min="1"
@@ -174,7 +175,9 @@ import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 
-// (型定義、バリデーションスキーマは変更なし)
+// ==============================================================================
+// 型定義
+// ==============================================================================
 interface ModelInstanceTypeDTO {
   id: string;
   name: string;
@@ -182,15 +185,26 @@ interface ModelInstanceTypeDTO {
   memorySize: number;
   storageSize: number;
 }
+
+//1. ModelBackupDTO の型定義をAPIレスポンスに合わせて修正
 interface ModelBackupDTO {
   id: string;
   name: string;
-  size: number;
+  size: number; // バックアップファイル自体のサイズ
+  targetVirtualStorage: {
+    // バックアップ対象のストレージ情報
+    id: string;
+    name: string;
+    size: number; // ← 我々が必要なのはこのディスクサイズ
+  };
 }
+
 interface ModelStoragePoolDTO {
   id: string;
   name: string;
 }
+
+// (バリデーションスキーマは変更なし)
 const validationSchema = toTypedSchema(
   z
     .object({
@@ -240,6 +254,7 @@ const validationSchema = toTypedSchema(
     })
 );
 
+// (useFormは変更なし)
 const { errors, defineField, values, meta } = useForm({
   validationSchema,
   initialValues: {
@@ -248,13 +263,12 @@ const { errors, defineField, values, meta } = useForm({
     memorySize: null,
     backupId: null,
     storages: [
-      // ★★★ 1. `poolId` の初期値を `null` に変更 ★★★
       { id: 1, name: "OS", size: 20, poolId: null, type: "os" as const },
     ],
   },
 });
 
-// (defineField、useFieldArray、defineExposeは変更なし)
+// (defineField, useFieldArray, defineExposeは変更なし)
 const [templateId, templateIdAttrs] = defineField("templateId");
 const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
 const [memorySize, memorySizeAttrs] = defineField("memorySize");
@@ -266,7 +280,7 @@ const {
 } = useFieldArray<any>("storages");
 defineExpose({ formData: values, isValid: meta });
 
-// (API連携、UI操作のロジックは変更なし)
+// (API連携は変更なし)
 const {
   data: templates,
   pending: templatesPending,
@@ -292,18 +306,24 @@ const addStorage = () => {
     type: "manual" as const,
   });
 };
+
+//2. バックアップ選択時のロジック
 watch(backupId, (newBackupId) => {
   const backupIndex = storageFields.value.findIndex(
     (field) => field.value.type === "backup"
   );
   if (backupIndex !== -1) removeStorage(backupIndex);
+
   if (newBackupId && backups.value) {
     const backupData = backups.value.find((b) => b.id === newBackupId);
     if (backupData) {
       pushStorage({
         id: `backup-${backupData.id}`,
         name: `backup-${backupData.name}`,
-        size: Math.round(backupData.size / 1024 / 1024 / 1024),
+        // `size` を `targetVirtualStorage.size` から取得するように変更
+        size: Math.round(
+          backupData.targetVirtualStorage.size / 1024 / 1024 / 1024
+        ),
         poolId: "pool-1",
         type: "backup" as const,
       });
