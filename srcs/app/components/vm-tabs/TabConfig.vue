@@ -18,7 +18,7 @@
           :value="template.id"
         >
           {{ template.name }} ({{ template.cpuCores }}コア,
-          {{ template.memorySize / 1024 / 1024 / 1024 }}GB)
+          {{ template.memorySize / 1024 / 1024 / 1024 }}MB)
         </option>
       </select>
     </div>
@@ -40,7 +40,7 @@
         </p>
       </div>
       <div>
-        <label for="memory-gb" class="form-label-sm">メモリ (GB)</label>
+        <label for="memory-gb" class="form-label-sm">メモリ (MB)</label>
         <input
           type="number"
           id="memory-gb"
@@ -357,7 +357,6 @@ watch(backupId, (newBackupId) => {
 .btn-secondary {
   @apply py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300;
 }
-/* ★★★ storage-grid の定義を修正 ★★★ */
 .storage-grid {
   @apply grid grid-cols-12 gap-x-3 gap-y-1 items-start mb-2;
 }

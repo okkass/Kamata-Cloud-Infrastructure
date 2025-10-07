@@ -69,7 +69,7 @@ import { ref, markRaw, computed } from "vue";
 import { useToast } from "~/composables/useToast";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 
-// (型定義は変更なし)
+// (型定義、Props, Emits, タブ定義などは変更なし)
 interface StoragePayload {
   name: string;
   size: number;
@@ -78,7 +78,10 @@ interface StoragePayload {
 }
 interface VirtualMachineCreateRequestDTO {
   name: string;
+  nodeId: string | null;
   instanceTypeId: string | null;
+  cpuCores?: number;
+  memorySize?: number;
   subnetId: string | null;
   publicKey: string | null;
   imageId: string | null;
@@ -90,8 +93,6 @@ interface ModelVirtualMachineDTO {
   id: string;
   name: string;
 }
-
-// (Props, Emits, タブ定義などは変更なし)
 defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 import TabGeneral from "~/components/vm-tabs/TabGeneral.vue";
@@ -117,23 +118,17 @@ const tabValidity = computed(() => {
   return tabRefs.value.map((tab) => tab?.isValid?.valid ?? false);
 });
 
-// (API連携セットアップ)
 const { executeCreate, isCreating } = useResourceCreate<
   VirtualMachineCreateRequestDTO,
   ModelVirtualMachineDTO
 >("virtual-machine");
 const { addToast } = useToast();
 
-//　公開鍵ファイル読み込み処理
 const readFileAsText = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
-    reader.onload = () => {
-      resolve(reader.result as string);
-    };
-    reader.onerror = (error) => {
-      reject(error);
-    };
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = reject;
     reader.readAsText(file);
   });
 };
@@ -142,7 +137,7 @@ const readFileAsText = (file: File): Promise<string> => {
  * 「作成」ボタンが押されたときに実行される関数
  */
 const handleSubmit = async () => {
-  // (バリデーションチェック)
+  // (バリデーションチェックは変更なし)
   const invalidTabs = tabRefs.value.reduce((acc, tab, index) => {
     if (!tab?.isValid?.valid) {
       acc.push(tabs[index].name);
@@ -161,7 +156,6 @@ const handleSubmit = async () => {
     return;
   }
 
-  // (データ集約は変更なし)
   const generalData = tabRefs.value[0]?.formData;
   const configData = tabRefs.value[1]?.formData;
   const osData = tabRefs.value[2]?.formData;
@@ -169,22 +163,28 @@ const handleSubmit = async () => {
 
   const payload: VirtualMachineCreateRequestDTO = {
     name: generalData?.name,
+    nodeId: generalData?.nodeId,
     instanceTypeId: configData?.templateId,
+    cpuCores: !configData?.templateId ? configData?.cpuCores : undefined,
+    memorySize: !configData?.templateId
+      ? configData?.memorySize * 1024 * 1024 * 1024
+      : undefined,
     subnetId: networkData?.networkId,
     publicKey: networkData?.keyPairFile
       ? await readFileAsText(networkData.keyPairFile)
       : null,
+    securityGroupIds: networkData?.securityGroupId
+      ? [networkData.securityGroupId]
+      : [],
     imageId: osData?.osImageId,
     middleWareId: osData?.middlewareId,
     storages: configData?.storages.map((storage: any) => ({
       name: storage.name,
       size: storage.size * 1024 * 1024 * 1024,
       poolId: storage.poolId,
-      backupId: storage.type === "os" ? configData.backupId : null,
+      // ★★★ ここを修正: "os" から "backup" に変更 ★★★
+      backupId: storage.type === "backup" ? configData.backupId : null,
     })),
-    securityGroupIds: networkData?.securityGroupId
-      ? [networkData.securityGroupId]
-      : [],
   };
 
   const result = await executeCreate(payload);
@@ -195,7 +195,6 @@ const handleSubmit = async () => {
       message: `仮想マシン「${payload.name}」が作成されました`,
     });
     emit("success");
-    // ★★★ ここを追加: モーダルを閉じるイベントを通知 ★★★
     emit("close");
   } else {
     addToast({
