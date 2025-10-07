@@ -3,7 +3,7 @@
   <DashboardLayout
     title="物理ノードダッシュボード"
     :columns="columns"
-    :rows="rows"
+    :rows="nodesUi || []"
     rowKey="id"
     :headerButtons="headerButtons"
     :rowActions="rowActions"
@@ -44,11 +44,107 @@
       </template>
     </template>
   </DashboardLayout>
+
+  <!-- 削除確認 -->
+  <!-- 削除確認（そのまま） -->
+  <MoDeleteConfirm
+    :show="activeModal === 'delete-physical-nodes'"
+    :message="`本当に '${targetForDeletion?.name}' を削除しますか？`"
+    :is-loading="isDeleting"
+    @close="cancelAction"
+    @confirm="confirmDelete"
+  />
+
+  <!-- ノード追加（候補一覧; 明示的に閉じタグを付ける） -->
+  <MoAddNodeToCluster
+    :show="activeModal === 'create-physical-nodes'"
+    :nodes="candidateNodes"
+    @close="closeModal"
+    @submit="handleCreateFromCandidate"
+  ></MoAddNodeToCluster>
 </template>
 
-<script setup>
-import { reactive } from "vue";
+<script setup lang="ts">
+import { ref, computed, watchEffect } from "vue";
+import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
+import MoAddNodeToCluster from "@/components/MoAddNodeToCluster.vue";
+import { useToast } from "@/composables/useToast";
 
+/* ===== 型 ===== */
+type RawNode = {
+  id: string;
+  name: string;
+  ipAddress: string;
+  status: "active" | "inactive";
+  isAdmin: boolean;
+  createdAt: string;
+  cpuUtilization: number;
+  memoryUtilization: number;
+  storageUtilization: number;
+};
+
+type UiNode = {
+  id: string;
+  name: string;
+  ip: string;
+  status: "稼働中" | "停止中";
+  cpu: string;
+  mem: string;
+  storage: string;
+  isMgmt: boolean;
+  createdAt: string;
+};
+
+type CandidateDTO = { id: string; name: string; ipAddress: string };
+
+const { showToast } = useToast();
+
+/* ===== 変換 util ===== */
+const pct = (v?: number) =>
+  typeof v === "number" ? `${Math.round(v * 100)}%` : "—";
+const toUi = (n: RawNode): UiNode => ({
+  id: n.id,
+  name: n.name,
+  ip: n.ipAddress,
+  status: n.status === "active" ? "稼働中" : "停止中",
+  cpu: pct(n.cpuUtilization),
+  mem: pct(n.memoryUtilization),
+  storage: pct(n.storageUtilization),
+  isMgmt: !!n.isAdmin,
+  createdAt: n.createdAt,
+});
+
+/* ===== 一覧（SSRで安定取得） ===== */
+const {
+  data: nodesRaw,
+  error,
+  refresh: refreshNodes,
+} = await useFetch<RawNode[]>("/api/physical-nodes");
+
+const nodesUi = computed<UiNode[]>(() => (nodesRaw.value ?? []).map(toUi));
+
+watchEffect(() => {
+  if (error.value) {
+    console.error("[physical-nodes] GET failed:", error.value);
+    showToast("物理ノード一覧の取得に失敗しました。", "error");
+  }
+});
+
+/* ===== 候補：モーダルを開くタイミングで都度取得 ===== */
+const candidateNodes = ref<CandidateDTO[]>([]);
+async function loadCandidates() {
+  try {
+    candidateNodes.value = await $fetch<CandidateDTO[]>(
+      "/api/physical-nodes/candiates"
+    );
+  } catch (e) {
+    console.error(e);
+    candidateNodes.value = [];
+    showToast("候補ノードの取得に失敗しました。", "error");
+  }
+}
+
+/* ===== UI設定 ===== */
 const columns = [
   { key: "name", label: "ノード名" },
   { key: "ip", label: "IPアドレス" },
@@ -57,48 +153,11 @@ const columns = [
   { key: "mem", label: "メモリ" },
   { key: "storage", label: "ストレージ" },
 ];
-
-const rows = reactive([
-  {
-    id: "node-a",
-    name: "Node-A",
-    ip: "192.168.0.10",
-    status: "稼働中",
-    cpu: "70%",
-    mem: "60%",
-    storage: "80%",
-    isMgmt: true,
-  },
-  {
-    id: "node-b",
-    name: "Node-B",
-    ip: "192.168.0.11",
-    status: "停止中",
-    cpu: "—",
-    mem: "—",
-    storage: "—",
-    isMgmt: false,
-  },
-  {
-    id: "node-c",
-    name: "Node-C",
-    ip: "192.168.0.12",
-    status: "稼働中",
-    cpu: "45%",
-    mem: "55%",
-    storage: "30%",
-    isMgmt: false,
-  },
-]);
-
-const headerButtons = [{ label: "ノード追加", action: "create-node" }];
-
-// フォールバック（slot未使用時）
+const headerButtons = [{ label: "ノード追加", action: "create" }];
 const rowActions = [
   { label: "削除", action: "delete" },
   { label: "管理ノードに設定", action: "set-mgmt" },
 ];
-
 const valueClassMap = {
   status: {
     稼働中: "text-emerald-600 font-extrabold text-[18px]",
@@ -106,12 +165,91 @@ const valueClassMap = {
   },
 };
 
-function onHeaderAction(action) {
-  if (action === "create-node") alert("ノード追加を実行します");
+/* ===== ページ内モーダル状態 ===== */
+const activeModal = ref<"" | "create-physical-nodes" | "delete-physical-nodes">(
+  ""
+);
+const targetForDeletion = ref<UiNode | null>(null);
+const isDeleting = ref(false);
+const openModal = (k: typeof activeModal.value) => (activeModal.value = k);
+const closeModal = () => (activeModal.value = "");
+const cancelAction = () => {
+  targetForDeletion.value = null;
+  closeModal();
+};
+
+/* ===== ヘッダー操作 ===== */
+async function onHeaderAction(action: string) {
+  if (action === "create") {
+    await loadCandidates(); // 最新候補を取得
+    openModal("create-physical-nodes"); // モーダル表示
+  }
 }
 
-function onRowAction({ action, row }) {
-  if (action === "delete") alert(`${row.name} を削除します`);
-  if (action === "set-mgmt") alert(`${row.name} を管理ノードに設定します`);
+/* ===== 行操作 ===== */
+async function onRowAction({ action, row }: { action: string; row: UiNode }) {
+  if (action === "delete") {
+    targetForDeletion.value = row;
+    openModal("delete-physical-nodes");
+    return;
+  }
+  if (action === "set-mgmt") {
+    try {
+      await $fetch(`/api/physical-nodes/${row.id}`, {
+        method: "PUT",
+        body: { isAdmin: true, isMgmt: true }, // どちらのキーでも受ける
+      });
+      await refreshNodes();
+      showToast(`'${row.name}' を管理ノードに設定しました。`, "success");
+    } catch (e) {
+      console.error(e);
+      showToast("管理ノードの設定に失敗しました。", "error");
+    }
+  }
+}
+
+/* ===== 削除確定 ===== */
+async function confirmDelete() {
+  if (!targetForDeletion.value) return;
+  try {
+    isDeleting.value = true;
+    await $fetch(`/api/physical-nodes/${targetForDeletion.value.id}`, {
+      method: "DELETE",
+    });
+    await refreshNodes();
+    showToast(`'${targetForDeletion.value.name}' を削除しました。`, "success");
+  } catch (e) {
+    console.error(e);
+    showToast("削除に失敗しました。", "error");
+  } finally {
+    isDeleting.value = false;
+    targetForDeletion.value = null;
+    closeModal();
+  }
+}
+
+/* ===== 追加（モーダルの submit を受け取る／モーダルは改変しない） ===== */
+async function handleCreateFromCandidate(c: CandidateDTO) {
+  try {
+    await $fetch("/api/physical-nodes", {
+      method: "POST",
+      body: {
+        name: c.name,
+        ip: c.ipAddress,
+        status: "稼働中",
+        cpu: "0%",
+        mem: "0%",
+        storage: "0%",
+        isMgmt: false,
+      },
+    });
+    await refreshNodes(); // 一覧更新
+    showToast(`ノード '${c.name}' を追加しました。`, "success"); // トースト
+  } catch (e) {
+    console.error(e);
+    showToast("ノードの追加に失敗しました。", "error");
+  } finally {
+    closeModal();
+  }
 }
 </script>
