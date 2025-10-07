@@ -14,6 +14,7 @@
     "@types/uuid": "^10.0.0",
     "@vee-validate/zod": "^4.15.1",
     "jose": "^6.1.0",
+    "jwt-decode": "^4.0.0",
     "nuxt": "^4.1.0",
     "uuid": "^13.0.0",
     "vee-validate": "^4.15.1",
@@ -23,9 +24,10 @@
   },
   "devDependencies": {
     "@nuxtjs/tailwindcss": "^6.14.0",
-    "@types/node": "^24.3.1",
+    "@types/node": "^24.5.2",
     "prisma": "^6.16.0",
-    "tsx": "^4.20.5"
+    "tsx": "^4.20.5",
+    "typedoc": "^0.28.13"
   },
   "prisma": {
     "seed": "tsx ./prisma/seed.ts"
