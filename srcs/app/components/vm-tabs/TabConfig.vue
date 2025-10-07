@@ -18,7 +18,7 @@
           :value="template.id"
         >
           {{ template.name }} ({{ template.cpuCores }}コア,
-          {{ template.memorySize / 1024 / 1024 / 1024 }}MB)
+          {{ template.memorySize / 1024 / 1024 }}MB)
         </option>
       </select>
     </div>
@@ -175,9 +175,7 @@ import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 
-// ==============================================================================
-// 型定義
-// ==============================================================================
+// (型定義とバリデーションスキーマは変更なし)
 interface ModelInstanceTypeDTO {
   id: string;
   name: string;
@@ -185,26 +183,20 @@ interface ModelInstanceTypeDTO {
   memorySize: number;
   storageSize: number;
 }
-
-//1. ModelBackupDTO の型定義をAPIレスポンスに合わせて修正
 interface ModelBackupDTO {
   id: string;
   name: string;
-  size: number; // バックアップファイル自体のサイズ
+  size: number;
   targetVirtualStorage: {
-    // バックアップ対象のストレージ情報
     id: string;
     name: string;
-    size: number; // ← 我々が必要なのはこのディスクサイズ
+    size: number;
   };
 }
-
 interface ModelStoragePoolDTO {
   id: string;
   name: string;
 }
-
-// (バリデーションスキーマは変更なし)
 const validationSchema = toTypedSchema(
   z
     .object({
@@ -297,17 +289,19 @@ const {
   error: poolsError,
 } = useResourceList<ModelStoragePoolDTO>("storage-pool");
 let nextStorageId = 2;
+
+// ★★★ 1. `addStorage` 関数を修正 ★★★
 const addStorage = () => {
   pushStorage({
     id: nextStorageId++,
     name: "",
     size: 10,
-    poolId: "pool-1",
+    poolId: null, // "pool-1" から null に変更
     type: "manual" as const,
   });
 };
 
-//2. バックアップ選択時のロジック
+// ★★★ 2. `watch` 関数を修正 ★★★
 watch(backupId, (newBackupId) => {
   const backupIndex = storageFields.value.findIndex(
     (field) => field.value.type === "backup"
@@ -320,11 +314,10 @@ watch(backupId, (newBackupId) => {
       pushStorage({
         id: `backup-${backupData.id}`,
         name: `backup-${backupData.name}`,
-        // `size` を `targetVirtualStorage.size` から取得するように変更
         size: Math.round(
           backupData.targetVirtualStorage.size / 1024 / 1024 / 1024
         ),
-        poolId: "pool-1",
+        poolId: null, // "pool-1" から null に変更
         type: "backup" as const,
       });
     }
