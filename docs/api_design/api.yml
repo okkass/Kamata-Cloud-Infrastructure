@@ -124,7 +124,24 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/user/{userId}:
+  /api/users/me:
+    get:
+      summary: 自分のユーザ情報取得
+      description: 認証されたユーザの詳細情報を取得します。
+      tags:
+        - Users
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: 認証エラー
+      security:
+        - BearerAuth: []
+  /api/users/{userId}:
     get:
       summary: ユーザの詳細取得
       description: 指定したIDのユーザの詳細情報を取得します。
@@ -516,6 +533,34 @@ paths:
         "401":
           description: 認証エラー
       security: []
+  /api/login/web:
+    post:
+      summary: ユーザのログイン
+      description: ユーザのメールアドレスとパスワードを使用してログインします。トークンはCookieに保存されます。
+      tags:
+        - Auth
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginRequest"
+      responses:
+        "200":
+          description: ログイン成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: ログイン成功メッセージ
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+      security: []
   /api/middleware:
     get:
       summary: ミドルウェア一覧の取得
@@ -582,7 +627,7 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/physical-node/candidates:
+  /api/physical-node/candidate:
     get:
       summary: 物理ノード候補一覧の取得
       description: 物理ノードとして追加可能な候補のリストを取得します。
@@ -1571,16 +1616,12 @@ components:
         memorySize:
           type: integer
           description: メモリサイズ（バイト単位）
-        storageSize:
-          type: integer
-          description: ストレージサイズ（バイト単位）
       required:
         - id
         - name
         - createdAt
         - cpuCores
         - memorySize
-        - storageSize
     InstanceTypeCreateRequest:
       type: object
       description: インスタンスタイプ作成リクエストオブジェクト
@@ -1594,14 +1635,10 @@ components:
         memorySize:
           type: integer
           description: メモリサイズ（バイト単位）
-        storageSize:
-          type: integer
-          description: ストレージサイズ（バイト単位）
       required:
         - name
         - cpuCores
         - memorySize
-        - storageSize
     InstanceTypeUpdateRequest:
       type: object
       description: インスタンスタイプ更新リクエストオブジェクト
@@ -1615,9 +1652,6 @@ components:
         memorySize:
           type: integer
           description: メモリサイズ（バイト単位）
-        storageSize:
-          type: integer
-          description: ストレージサイズ（バイト単位）
     LoginRequest:
       type: object
       description: ログインリクエストオブジェクト
@@ -2319,6 +2353,12 @@ components:
           type: string
           format: uuid
           description: 使用するインスタンスタイプのID
+        cpuCores:
+          type: integer
+          description: 仮想マシンに割り当てるCPUコア数（instanceTypeIdが指定されていない場合に必須）
+        memorySize:
+          type: integer
+          description: 仮想マシンに割り当てるメモリサイズ（バイト単位、instanceTypeIdが指定されていない場合に必須）
         subnetId:
           type: string
           format: uuid
@@ -2334,6 +2374,10 @@ components:
           type: string
           format: uuid
           description: インストールするミドルウェアのID
+        nodeId:
+          type: string
+          format: uuid
+          description: 仮想マシンを配置する物理ノードのID
         storages:
           type: array
           description: 仮想マシンにアタッチするストレージのリスト
@@ -2358,6 +2402,7 @@ components:
               - name
               - size
               - poolId
+              - nodeId
         securityGroupIds:
           type: array
           items:
@@ -2366,7 +2411,6 @@ components:
           description: 関連付けるセキュリティグループのIDリスト
       required:
         - name
-        - instanceTypeId
         - subnetId
         - imageId
         - storages
@@ -2377,17 +2421,17 @@ components:
         name:
           type: string
           description: 仮想マシンの名前
-        instanceType:
-          $ref: "#/components/schemas/InstanceType"
-          description: 仮想マシンのインスタンスタイプ
-        node:
-          $ref: "#/components/schemas/PhysicalNode"
-          description: 仮想マシンが配置されている物理ノード
-        createdAt:
+        instanceTypeId:
           type: string
-          format: date-time
-          description: 仮想マシンが作成された日時
-        securityGroup:
+          format: uuid
+          description: 使用するインスタンスタイプのID
+        cpuCores:
+          type: integer
+          description: 仮想マシンに割り当てるCPUコア数
+        memorySize:
+          type: integer
+          description: 仮想マシンに割り当てるメモリサイズ（バイト単位）
+        securityGroupIds:
           type: array
           items:
             type: string

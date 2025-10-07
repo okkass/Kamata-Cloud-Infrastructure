@@ -1,6 +1,6 @@
 <template>
   <div class="relative flex min-h-screen bg-slate-100">
-    <UserSidebar :role="userRole" />
+    <UserSidebar :isAdmin="isAdmin" />
 
     <main
       class="flex-1 p-8 transition-all duration-300"
@@ -40,6 +40,7 @@ import UserSidebar from "~/components/Sidebar.vue";
 // Composableから状態と関数を取得
 const { isSidebarOpen, open } = useSidebar();
 
-// 本来は認証情報から動的に取得
-const userRole = ref("user"); // 'admin' or 'user'
+// ユーザー情報を取得してisAdminを設定
+const { data } = await useFetch("/api/users/me", { method: "GET" });
+const isAdmin = ref(data.value?.isAdmin ?? false);
 </script>
