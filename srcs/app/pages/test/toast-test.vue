@@ -34,6 +34,12 @@
       >
         Show Auto Dismiss Toast
       </button>
+      <button
+        @click="warning"
+        class="rounded bg-yellow-500 px-4 py-2 text-white hover:bg-yellow-600"
+      >
+        Show Warning Toast
+      </button>
     </div>
   </div>
 </template>
@@ -59,6 +65,13 @@ const info = () => {
   addToast({
     type: "info",
     message: "情報メッセージです。",
+    details: "追加の詳細情報",
+  });
+};
+const warning = () => {
+  addToast({
+    type: "warning",
+    message: "警告メッセージです。",
     details: "追加の詳細情報",
   });
 };
