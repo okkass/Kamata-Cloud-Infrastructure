@@ -15,7 +15,11 @@ export default defineEventHandler(async (event) => {
       userId: "c201325b-793b-4d06-8b8f-7c397fad27fe",
     };
     const token = await signToken(payload);
-    return { token };
+    return {
+      token: token,
+      refreshToken:
+        "1d79ccff-c554-42d8-b643-2a26cf24630f.DzGuy2ph9TlHXKWZynPj0YiICe1FVh4t6TZQouMzwBA=",
+    };
   } else if (email.substring(0, 4) === "user") {
     const payload: KCIJWTPayload = {
       isAdmin: false,
