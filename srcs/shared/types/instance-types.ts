@@ -14,10 +14,6 @@ export interface InstanceTypeCreateRequestDTO {
    * メモリサイズ（バイト単位）
    */
   memorySize: number;
-  /**
-   * ストレージサイズ（バイト単位）
-   */
-  storageSize: number;
 }
 /**
  * インスタンスタイプ更新リクエストオブジェクト
@@ -35,10 +31,6 @@ export interface InstanceTypeUpdateRequestDTO {
    * メモリサイズ（バイト単位）
    */
   memorySize?: number;
-  /**
-   * ストレージサイズ（バイト単位）
-   */
-  storageSize?: number;
 }
 
 /**
@@ -65,8 +57,4 @@ export interface ModelInstanceTypeDTO {
    * メモリサイズ（バイト単位）
    */
   memorySize: number;
-  /**
-   * ストレージサイズ（バイト単位）
-   */
-  storageSize: number;
 }

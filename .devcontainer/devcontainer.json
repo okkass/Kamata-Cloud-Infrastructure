@@ -31,7 +31,8 @@
         "terminal.integrated.cwd": "srcs",
         "editor.quickSuggestions": {
           "strings": true
-        }
+        },
+        "css.lint.unknownAtRules": "ignore"
       }
     }
   },
