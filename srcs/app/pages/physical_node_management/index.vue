@@ -5,19 +5,16 @@
     :rows="nodesUi"
     rowKey="id"
     :headerButtons="headerButtons"
-    :rowActions="rowActions"
     @header-action="onHeaderAction"
-    @row-action="onRowAction"
   >
+    <!-- ノード名（詳細へ） -->
     <template #cell-name="{ row }">
-      <NuxtLink
-        :to="`/physical-node/${row.id}`"
-        class="text-sky-600 hover:text-sky-800 hover:underline font-semibold"
-      >
-        {{ row.name }}
+      <NuxtLink :to="`/physical-node/${row.id}`">
+        {{ row.name }} <span v-if="row.isMgmt">（管理ノード）</span>
       </NuxtLink>
     </template>
 
+    <!-- 素の表示 -->
     <template #cell-ip="{ row }"
       ><span>{{ row.ip }}</span></template
     >
@@ -36,8 +33,47 @@
     <template #cell-createdAt="{ row }"
       ><span>{{ fmt(row.createdAt) }}</span></template
     >
+
+    <!-- 行メニュー（この文字スタイルは維持） -->
+    <template #row-actions="{ row }">
+      <NuxtLink
+        :to="`/physical-node/${row.id}`"
+        class="block px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t first:border-t-0 border-slate-200"
+      >
+        詳細
+      </NuxtLink>
+
+      <button
+        type="button"
+        class="block w-full text-left px-4 py-3 text-[15px] font-semibold border-t border-slate-200"
+        :class="
+          row.isMgmt || settingMgmtId === row.id
+            ? 'text-slate-400 cursor-not-allowed'
+            : 'text-slate-900 hover:bg-[#f5f7fa]'
+        "
+        :disabled="row.isMgmt || settingMgmtId === row.id"
+        @click.stop.prevent="switchToAdmin(row)"
+      >
+        管理ノードに設定
+      </button>
+
+      <button
+        type="button"
+        class="block w-full text-left px-4 py-3 text-[15px] font-semibold border-t border-slate-200"
+        :class="
+          row.isMgmt
+            ? 'text-slate-300 cursor-not-allowed'
+            : 'text-red-600 hover:bg-red-50'
+        "
+        :disabled="row.isMgmt"
+        @click.stop.prevent="onDelete(row)"
+      >
+        削除
+      </button>
+    </template>
   </DashboardLayout>
 
+  <!-- モーダル -->
   <MoDeleteConfirm
     :show="activeModal === 'delete-physical-nodes'"
     :message="`本当に '${targetForDeletion?.name}' を削除しますか？`"
@@ -58,6 +94,7 @@ import { ref, computed } from "vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
 import MoAddNodeToCluster from "@/components/MoAddNodeToCluster.vue";
 
+/* ===== 型 ===== */
 type PhysicalNodeDTO = {
   id: string;
   name: string;
@@ -82,6 +119,7 @@ type UiNode = {
 };
 type CandidateDTO = { id: string; name: string; ipAddress: string };
 
+/* ===== データ取得 / ページアクション ===== */
 const { data: nodesRaw, refresh } =
   useResourceList<PhysicalNodeDTO>("physical-nodes");
 const {
@@ -100,6 +138,7 @@ const {
   refresh,
 });
 
+/* ===== テーブル設定 ===== */
 const columns = [
   { key: "name", label: "ノード名" },
   { key: "ip", label: "IPアドレス" },
@@ -110,12 +149,8 @@ const columns = [
   { key: "createdAt", label: "作成日時" },
 ];
 const headerButtons = [{ label: "ノード追加", action: "create" }];
-const rowActions = [
-  { label: "詳細", action: "detail" },
-  { label: "管理ノードに設定", action: "set-mgmt" },
-  { label: "削除", action: "delete" },
-];
 
+/* ===== 表示整形 ===== */
 const pct = (v?: number) =>
   typeof v === "number" ? `${Math.round(v * 100)}%` : "—";
 const nodesUi = computed<UiNode[]>(() =>
@@ -132,19 +167,61 @@ const nodesUi = computed<UiNode[]>(() =>
   }))
 );
 
-const candidateNodes = ref<CandidateDTO[]>([]);
-const loadCandidates = async () => {
+/* ===== 管理ノード切替（常に1台） ===== */
+const settingMgmtId = ref<string | null>(null);
+
+async function switchToAdmin(row: UiNode) {
+  if (row.isMgmt || settingMgmtId.value === row.id) return;
+  settingMgmtId.value = row.id;
+
+  const targetId = row.id;
+  const currentAdmins = (nodesRaw.value ?? [])
+    .filter((n) => n.isAdmin && n.id !== targetId)
+    .map((n) => n.id);
+
   try {
-    candidateNodes.value = await $fetch("/api/physical-nodes/candidates");
+    // 既存の管理ノードをOFF（APIが無ければスキップ）
+    for (const id of currentAdmins) {
+      try {
+        await $fetch(
+          `/api/physical-nodes/${encodeURIComponent(id)}/unset-admin`,
+          { method: "PUT" }
+        );
+      } catch {
+        /* サーバ側が排他化していれば不要 */
+      }
+    }
+    // 対象をON
+    await $fetch(
+      `/api/physical-nodes/${encodeURIComponent(targetId)}/set-admin`,
+      { method: "PUT" }
+    );
+
+    await refresh();
+    handleSuccess();
+  } finally {
+    settingMgmtId.value = null;
+  }
+}
+
+/* ===== 削除（管理ノードは不可） ===== */
+function onDelete(row: UiNode) {
+  if (row.isMgmt) return;
+  baseHandleRowAction({ action: "delete", row });
+}
+
+/* ===== 追加 ===== */
+const candidateNodes = ref<CandidateDTO[]>([]);
+const onHeaderAction = async (a: string) => {
+  if (a !== "create") return;
+  try {
+    candidateNodes.value = await $fetch<CandidateDTO[]>(
+      "/api/physical-nodes/candidates"
+    );
   } catch {
     candidateNodes.value = [];
   }
-};
-const onHeaderAction = async (a: string) => {
-  if (a === "create") {
-    await loadCandidates();
-    openModal("create-physical-nodes");
-  }
+  openModal("create-physical-nodes");
 };
 async function handleCreateFromCandidate(c: CandidateDTO) {
   await $fetch("/api/physical-nodes", {
@@ -156,24 +233,7 @@ async function handleCreateFromCandidate(c: CandidateDTO) {
   closeModal();
 }
 
-const onRowAction = async ({
-  action,
-  row,
-}: {
-  action: string;
-  row: UiNode;
-}) => {
-  if (action === "detail") return navigateTo(`/physical-node/${row.id}`);
-  if (action === "set-mgmt") {
-    if (row.isMgmt) return;
-    await $fetch(`/api/physical-nodes/${row.id}/set-admin`, { method: "PUT" });
-    await refresh();
-    handleSuccess();
-    return;
-  }
-  baseHandleRowAction({ action, row });
-};
-
+/* ===== util ===== */
 const fmt = (iso: string) => {
   const d = new Date(iso);
   if (isNaN(d as any)) return iso;
@@ -183,34 +243,3 @@ const fmt = (iso: string) => {
   )}:${p(d.getMinutes())}`;
 };
 </script>
-
-<style scoped>
-:deep(th:last-child),
-:deep(td:last-child) {
-  width: 6.5rem;
-  max-width: 6.5rem;
-  text-align: right;
-  padding-right: 0.75rem;
-  white-space: nowrap;
-}
-:deep(td:last-child button),
-:deep(td:last-child a[role="button"]),
-:deep(td:last-child .btn),
-:deep(td:last-child .dropdown-trigger),
-:deep(td:last-child .row-actions-trigger) {
-  min-width: 0 !important;
-  width: auto !important;
-  padding: 0.375rem 0.625rem !important;
-  border-radius: 0.5rem !important;
-  line-height: 1.5 !important;
-}
-:deep(td:last-child > div) {
-  max-width: 100%;
-}
-:deep(td:last-child .dropdown-menu),
-:deep(td:last-child .menu),
-:deep(td:last-child .row-actions-menu) {
-  right: 0;
-  left: auto;
-}
-</style>
