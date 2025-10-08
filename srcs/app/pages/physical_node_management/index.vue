@@ -7,7 +7,7 @@
     :headerButtons="headerButtons"
     @header-action="onHeaderAction"
   >
-    <!-- 名称（詳細へ） -->
+    <!-- ノード名（詳細へ） -->
     <template #cell-name="{ row }">
       <NuxtLink :to="`/physical-node/${row.id}`">
         {{ row.name }} <span v-if="row.isMgmt">（管理ノード）</span>
@@ -39,9 +39,8 @@
       <NuxtLink
         :to="`/physical-node/${row.id}`"
         class="block px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t first:border-t-0 border-slate-200"
+        >詳細</NuxtLink
       >
-        詳細
-      </NuxtLink>
 
       <button
         type="button"
@@ -93,8 +92,9 @@
 import { ref, computed } from "vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
 import MoAddNodeToCluster from "@/components/MoAddNodeToCluster.vue";
+import { useToast } from "@/composables/useToast";
 
-/* ====== 型 ====== */
+/* ===== 型 ===== */
 type PhysicalNodeDTO = {
   id: string;
   name: string;
@@ -106,7 +106,6 @@ type PhysicalNodeDTO = {
   memoryUtilization?: number;
   storageUtilization?: number;
 };
-/* ====== 型====== */
 type UiNode = {
   id: string;
   name: string;
@@ -120,7 +119,7 @@ type UiNode = {
 };
 type CandidateDTO = { id: string; name: string; ipAddress: string };
 
-/* ====== 定数 ====== */
+/* ===== 定数 ===== */
 const API = {
   base: "/api/physical-nodes",
   candidates: "/api/physical-nodes/candidates",
@@ -128,12 +127,11 @@ const API = {
     `/api/physical-nodes/${encodeURIComponent(id)}/set-admin`,
   unsetAdmin: (id: string) =>
     `/api/physical-nodes/${encodeURIComponent(id)}/unset-admin`,
-  node: (id: string) => `/api/physical-nodes/${encodeURIComponent(id)}`,
 } as const;
 
-/* ====== データ取得 / ページアクション ====== */
+/* ===== データ取得 / ページアクション ===== */
 const { data: nodesRaw, refresh } =
-  useResourceList<PhysicalNodeDTO>("physical-nodes");
+  useResourceList<PhysicalNodeDTO>("physical-nodes"); // Wiki流:contentReference[oaicite:2]{index=2}
 const {
   activeModal,
   openModal,
@@ -148,9 +146,10 @@ const {
   resourceName: "physical-nodes",
   resourceLabel: "物理ノード",
   refresh,
-});
+}); // Wiki流:contentReference[oaicite:3]{index=3}
+const { addToast } = useToast();
 
-/* ====== テーブル設定 ====== */
+/* ===== テーブル設定 ===== */
 const columns = [
   { key: "name", label: "ノード名" },
   { key: "ip", label: "IPアドレス" },
@@ -162,7 +161,7 @@ const columns = [
 ];
 const headerButtons = [{ label: "ノード追加", action: "create" }];
 
-/* ====== 整形 ====== */
+/* ===== 整形 ===== */
 const pct = (v?: number) =>
   typeof v === "number" ? `${Math.round(v * 100)}%` : "—";
 const nodesUi = computed<UiNode[]>(() =>
@@ -179,49 +178,51 @@ const nodesUi = computed<UiNode[]>(() =>
   }))
 );
 
-/* ====== 管理ノード切替（解除は並列） ====== */
+/* ===== 管理ノード切替（解除は並列、最後に必ず ON） ===== */
 const switchingId = ref<string | null>(null);
-
-/** 既存の管理ノードを全て解除（並列）。 */
-async function unsetAdminsExcept(targetId: string): Promise<void> {
-  const ids = (nodesRaw.value ?? [])
-    .filter((n) => n.isAdmin && n.id !== targetId)
-    .map((n) => n.id);
-  if (ids.length === 0) return;
-
-  await Promise.allSettled(
-    ids.map((id) => $fetch(API.unsetAdmin(id), { method: "PUT" }))
-  );
-}
-
-/** 対象を管理ノードに（最後に必ずON） */
-async function setAdmin(id: string): Promise<void> {
-  await $fetch(API.setAdmin(id), { method: "PUT" });
-}
 
 async function switchToAdmin(targetId: string): Promise<void> {
   if (switchingId.value === targetId) return;
-  const target = (nodesUi.value ?? []).find((n) => n.id === targetId);
+  const target = nodesUi.value.find((n) => n.id === targetId);
   if (!target || target.isMgmt) return;
 
   switchingId.value = targetId;
   try {
-    await unsetAdminsExcept(targetId); // 並列で一掃
-    await setAdmin(targetId); // 最後に必ず ON
+    // 既存の管理ノードを並列で解除
+    const currentAdminIds = (nodesRaw.value ?? [])
+      .filter((n) => n.isAdmin && n.id !== targetId)
+      .map((n) => n.id);
+
+    await Promise.allSettled(
+      currentAdminIds.map((id) =>
+        $fetch(API.unsetAdmin(id), { method: "PUT" }).catch(() => {})
+      )
+    );
+
+    // 対象ノードを管理ノードに
+    await $fetch(API.setAdmin(targetId), { method: "PUT" });
+
     await refresh();
     handleSuccess();
+    addToast({ type: "success", message: "管理ノードを切り替えました。" });
+  } catch (e: any) {
+    addToast({
+      type: "error",
+      message: "管理ノードの切替に失敗しました。",
+      details: e?.message,
+    });
   } finally {
     switchingId.value = null;
   }
 }
 
-/* ====== 削除（管理ノードは不可） ====== */
+/* ===== 削除（管理ノードは不可） ===== */
 function onDelete(row: UiNode): void {
   if (row.isMgmt) return;
   baseHandleRowAction({ action: "delete", row });
 }
 
-/* ====== 追加 ====== */
+/* ===== 追加 ===== */
 const candidateNodes = ref<CandidateDTO[]>([]);
 async function onHeaderAction(action: string): Promise<void> {
   if (action !== "create") return;
@@ -232,7 +233,6 @@ async function onHeaderAction(action: string): Promise<void> {
   }
   openModal("create-physical-nodes");
 }
-
 async function handleCreateFromCandidate(c: CandidateDTO): Promise<void> {
   await $fetch(API.base, {
     method: "POST",
@@ -241,9 +241,10 @@ async function handleCreateFromCandidate(c: CandidateDTO): Promise<void> {
   await refresh();
   handleSuccess();
   closeModal();
+  addToast({ type: "success", message: `ノード '${c.name}' を追加しました。` });
 }
 
-/* ====== util（日付判定の型安全化） ====== */
+/* ===== util（日付: isNaN(d.getTime()) で判定） ===== */
 function fmt(iso: string): string {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
