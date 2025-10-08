@@ -101,6 +101,9 @@
         </table>
       </div>
     </section>
+
+    <!-- 任意のカスタムブロック（説明やテーブルの後） -->
+    <slot name="after-content" />
   </section>
 </template>
 
