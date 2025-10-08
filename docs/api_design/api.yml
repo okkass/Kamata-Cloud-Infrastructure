@@ -1479,7 +1479,7 @@ components:
           description: ストレージデバイスのパス
           example: "/dev/sda"
       required:
-        - id
+        - storage
         - path
     Backup:
       type: object
