@@ -190,7 +190,7 @@ const validationSchema = toTypedSchema(
               .number({ invalid_type_error: "サイズは必須です。" })
               .int("整数で入力してください。")
               .min(1, "1以上の値を入力してください。"),
-            poolId: z.string().min(1, "ストレージプールを選択してください。"), // poolIdはnull不可
+            poolId: z.string().min(1, "プールを選択してください。"), // poolIdはnull不可
             type: z.string(),
           })
         )
