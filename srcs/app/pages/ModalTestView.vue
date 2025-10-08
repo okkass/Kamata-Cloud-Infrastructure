@@ -106,7 +106,7 @@ const modals = computed(() => [
   // --- Node ---
   {
     id: "nodeAdd",
-    buttonText: "ノード追加",
+    buttonText: "クラスターにノード追加",
     component: markRaw(MoAddNodeToCluster),
     props: {
       nodes: [{ id: "node-x", name: "Node-X", ipAddress: "192.168.1.101" }],
