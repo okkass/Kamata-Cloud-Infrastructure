@@ -34,7 +34,7 @@
       ><span>{{ fmt(row.createdAt) }}</span></template
     >
 
-    <!-- 行メニュー（この文字スタイルは維持） -->
+    <!-- 行メニュー（文字スタイルは維持） -->
     <template #row-actions="{ row }">
       <NuxtLink
         :to="`/physical-node/${row.id}`"
@@ -94,7 +94,6 @@ import { ref, computed } from "vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
 import MoAddNodeToCluster from "@/components/MoAddNodeToCluster.vue";
 
-/* ===== 型 ===== */
 type PhysicalNodeDTO = {
   id: string;
   name: string;
@@ -119,7 +118,6 @@ type UiNode = {
 };
 type CandidateDTO = { id: string; name: string; ipAddress: string };
 
-/* ===== データ取得 / ページアクション ===== */
 const { data: nodesRaw, refresh } =
   useResourceList<PhysicalNodeDTO>("physical-nodes");
 const {
@@ -138,7 +136,6 @@ const {
   refresh,
 });
 
-/* ===== テーブル設定 ===== */
 const columns = [
   { key: "name", label: "ノード名" },
   { key: "ip", label: "IPアドレス" },
@@ -150,7 +147,6 @@ const columns = [
 ];
 const headerButtons = [{ label: "ノード追加", action: "create" }];
 
-/* ===== 表示整形 ===== */
 const pct = (v?: number) =>
   typeof v === "number" ? `${Math.round(v * 100)}%` : "—";
 const nodesUi = computed<UiNode[]>(() =>
@@ -167,7 +163,7 @@ const nodesUi = computed<UiNode[]>(() =>
   }))
 );
 
-/* ===== 管理ノード切替（常に1台） ===== */
+/* 管理ノード切替（解除は並列） */
 const settingMgmtId = ref<string | null>(null);
 
 async function switchToAdmin(row: UiNode) {
@@ -180,17 +176,16 @@ async function switchToAdmin(row: UiNode) {
     .map((n) => n.id);
 
   try {
-    // 既存の管理ノードをOFF（APIが無ければスキップ）
-    for (const id of currentAdmins) {
-      try {
-        await $fetch(
-          `/api/physical-nodes/${encodeURIComponent(id)}/unset-admin`,
-          { method: "PUT" }
-        );
-      } catch {
-        /* サーバ側が排他化していれば不要 */
-      }
-    }
+    // 既存管理ノードを並列でOFF
+    await Promise.all(
+      currentAdmins.map(
+        (id) =>
+          $fetch(`/api/physical-nodes/${encodeURIComponent(id)}/unset-admin`, {
+            method: "PUT",
+          }).catch(() => {}) // 個別失敗は握りつぶし（サーバ排他に任せる）
+      )
+    );
+
     // 対象をON
     await $fetch(
       `/api/physical-nodes/${encodeURIComponent(targetId)}/set-admin`,
@@ -204,13 +199,13 @@ async function switchToAdmin(row: UiNode) {
   }
 }
 
-/* ===== 削除（管理ノードは不可） ===== */
+/* 削除（管理ノードは不可） */
 function onDelete(row: UiNode) {
   if (row.isMgmt) return;
   baseHandleRowAction({ action: "delete", row });
 }
 
-/* ===== 追加 ===== */
+/* 追加 */
 const candidateNodes = ref<CandidateDTO[]>([]);
 const onHeaderAction = async (a: string) => {
   if (a !== "create") return;
@@ -233,10 +228,10 @@ async function handleCreateFromCandidate(c: CandidateDTO) {
   closeModal();
 }
 
-/* ===== util ===== */
+/* util（日付: isNaN(d.getTime()) で判定） */
 const fmt = (iso: string) => {
   const d = new Date(iso);
-  if (isNaN(d as any)) return iso;
+  if (isNaN(d.getTime())) return iso;
   const p = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())} ${p(
     d.getHours()
