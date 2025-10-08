@@ -18,7 +18,7 @@
           :value="template.id"
         >
           {{ template.name }} ({{ template.cpuCores }}コア,
-          {{ template.memorySize / 1024 / 1024 }}MB)
+          {{ convertByteToUnit(template.memorySize, 'MB') }}MB)
         </option>
       </select>
     </div>
@@ -68,9 +68,7 @@
       >
         <option :value="null">使用しない</option>
         <option v-for="backup in backups" :key="backup.id" :value="backup.id">
-          {{ backup.name }} ({{
-            (backup.targetVirtualStorage.size / 1024 / 1024 / 1024).toFixed(1)
-          }}GB)
+          {{ backup.name }} ({{ convertByteToUnit(backup.targetVirtualStorage.size ?? 0, 'GB') }}GB)
         </option>
       </select>
     </div>
@@ -170,33 +168,12 @@
 
 <script setup lang="ts">
 import { watch } from "vue";
-import { useResourceList } from "~/composables/useResourceList";
 import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 
-// (型定義とバリデーションスキーマは変更なし)
-interface ModelInstanceTypeDTO {
-  id: string;
-  name: string;
-  cpuCores: number;
-  memorySize: number;
-  storageSize: number;
-}
-interface ModelBackupDTO {
-  id: string;
-  name: string;
-  size: number;
-  targetVirtualStorage: {
-    id: string;
-    name: string;
-    size: number;
-  };
-}
-interface ModelStoragePoolDTO {
-  id: string;
-  name: string;
-}
+const { convertByteToUnit } = useByteConvert();
+
 const validationSchema = toTypedSchema(
   z
     .object({
@@ -207,12 +184,13 @@ const validationSchema = toTypedSchema(
       storages: z
         .array(
           z.object({
+            id: z.union([z.string(), z.number()]), // idプロパティを追加
             name: z.string().min(1, "名前は必須です。"),
             size: z
               .number({ invalid_type_error: "サイズは必須です。" })
               .int("整数で入力してください。")
               .min(1, "1以上の値を入力してください。"),
-            poolId: z.string({ required_error: "プールを選択してください。" }),
+            poolId: z.string().min(1, "プールを選択してください。"), // poolIdはnull不可
             type: z.string(),
           })
         )
@@ -255,7 +233,7 @@ const { errors, defineField, values, meta } = useForm({
     memorySize: null,
     backupId: null,
     storages: [
-      { id: 1, name: "OS", size: 20, poolId: null, type: "os" as const },
+      { id: 1, name: "OS", size: 20, poolId: "", type: "os" as const },
     ],
   },
 });
@@ -282,12 +260,12 @@ const {
   data: backups,
   pending: backupsPending,
   error: backupsError,
-} = useResourceList<ModelBackupDTO>("backup");
+} = useResourceList<BackupDTO>("backup");
 const {
   data: storagePools,
   pending: poolsPending,
   error: poolsError,
-} = useResourceList<ModelStoragePoolDTO>("storage-pool");
+} = useResourceList<StoragePoolDTO>("storage-pool");
 let nextStorageId = 2;
 
 // ★★★ 1. `addStorage` 関数を修正 ★★★
@@ -296,7 +274,7 @@ const addStorage = () => {
     id: nextStorageId++,
     name: "",
     size: 10,
-    poolId: null, // "pool-1" から null に変更
+    poolId: "", // "pool-1" から "" に変更
     type: "manual" as const,
   });
 };
@@ -314,10 +292,8 @@ watch(backupId, (newBackupId) => {
       pushStorage({
         id: `backup-${backupData.id}`,
         name: `backup-${backupData.name}`,
-        size: Math.round(
-          backupData.targetVirtualStorage.size / 1024 / 1024 / 1024
-        ),
-        poolId: null, // "pool-1" から null に変更
+        size: convertByteToUnit(backupData.targetVirtualStorage?.size ?? 0, "GB"),
+        poolId: "", // "pool-1" から "" に変更
         type: "backup" as const,
       });
     }
