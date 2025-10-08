@@ -1,4 +1,5 @@
 ```mermaid
+
 erDiagram
 users {
     bigint id PK
@@ -20,29 +21,70 @@ backups {
     bigint virtual_storage_id FK
 }
 
+virtual_storages ||--o{ backups : "has many"
+
 attached_storages {
     bigint id PK
     bigint virtual_storage_id FK
     varchar(255) path
 }
 
-images {
+virtual_storages ||--o{ attached_storages : "has many"
 
+images {
+    bigint id PK
+    binary(16) uuid
+    varchar(256) name
+    text description
+    datetime created_at
+    int size
 }
 
 instance_types {
-
+    bigint id PK
+    binary(16) uuid
+    varchar(256) name
+    int cpu_core
+    int memory_size
+    datetime created_at
 }
 
-middlewares {}
+middlewares {
+    bigint id PK
+    binary(16) uuid
+    varchar(256) name
+    datetime created_at
+}
 
-network_interfaces {}
+network_interfaces {
+    bigint id PK
+    binary(16) uuid
+    varchar(256) name
+    varchar(15) ip_address
+    varchar(15) mac_address
+    bigint subnet_id FK
+    bigint virtual_machine_id FK
+}
 
-phycal_nodes {}
+physical_nodes {
+    bigint id PK
+    binary(16) uuid
+    datetime created_at
+    varchar(256) name
+    varchar(15) ip_address
+    boolean is_admin
+}
 
-portfolios {}
+portfolios {
+    bigint id PK
+    binary(16) uuid
+}
 
-portfolio_articles {}
+portfolio_articles {
+    bigint id PK
+    binary(16) uuid
+    varchar(256) title
+}
 
 security_groups {}
 
@@ -52,9 +94,19 @@ snapshots {}
 
 storage_pools {}
 
-subnets {}
+subnets {
+    bigint id PK
+    binary(16) uuid
+    varchar(256) name
+    varchar(15) cidr
+    datetime created_at
+}
+
+subnets ||--o{ network_interfaces : "belongs to"
 
 virtual_machines {}
+
+virtual_machines ||--o{ network_interfaces : "has"
 
 virtual_networks {}
 
