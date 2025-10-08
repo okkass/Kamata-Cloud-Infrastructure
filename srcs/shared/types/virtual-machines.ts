@@ -263,7 +263,7 @@ interface VirtualMachineCreateBaseRequest {
   /**
    * 仮想マシンを配置するサブネットのID
    */
-  subnetId: string | null;
+  subnetId: string;
   /**
    * 仮想マシンに設定するSSH公開鍵
    */
