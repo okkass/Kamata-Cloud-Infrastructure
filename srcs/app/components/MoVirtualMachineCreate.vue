@@ -123,6 +123,7 @@ const { executeCreate, isCreating } = useResourceCreate<
   ModelVirtualMachineDTO
 >("virtual-machine");
 const { addToast } = useToast();
+const { convertByteToUnit } = useByteConvert();
 
 const readFileAsText = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -140,7 +141,9 @@ const handleSubmit = async () => {
   // (バリデーションチェックは変更なし)
   const invalidTabs = tabRefs.value.reduce((acc, tab, index) => {
     if (!tab?.isValid?.valid) {
-      acc.push(tabs[index].name);
+      if (tabs[index]) {
+        acc.push(tabs[index].name);
+      }
     }
     return acc;
   }, [] as string[]);
@@ -167,7 +170,7 @@ const handleSubmit = async () => {
     instanceTypeId: configData?.templateId,
     cpuCores: !configData?.templateId ? configData?.cpuCores : undefined,
     memorySize: !configData?.templateId
-      ? configData?.memorySize * 1024 * 1024 * 1024
+      ? configData?.convertUnitToByte(configData?.memorySize, "MB")
       : undefined,
     subnetId: networkData?.networkId,
     publicKey: networkData?.keyPairFile
@@ -180,7 +183,7 @@ const handleSubmit = async () => {
     middleWareId: osData?.middlewareId,
     storages: configData?.storages.map((storage: any) => ({
       name: storage.name,
-      size: storage.size * 1024 * 1024 * 1024,
+      size: convertByteToUnit(storage.size, "GB"),
       poolId: storage.poolId,
       // ★★★ ここを修正: "os" から "backup" に変更 ★★★
       backupId: storage.type === "backup" ? configData.backupId : null,
