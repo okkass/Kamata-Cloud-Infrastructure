@@ -283,7 +283,7 @@ interface VirtualMachineCreateBaseRequest {
   /**
    * 関連付けるセキュリティグループのIDリスト
    */
-  securityGroupIds: string[];
+  securityGroupIds?: Array<string>;
 }
 
 /**
