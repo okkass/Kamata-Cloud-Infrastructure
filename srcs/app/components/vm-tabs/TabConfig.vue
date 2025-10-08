@@ -18,7 +18,7 @@
           :value="template.id"
         >
           {{ template.name }} ({{ template.cpuCores }}コア,
-          {{ convertByteToUnit(template.memorySize, 'MB') }}MB)
+          {{ convertByteToUnit(template.memorySize, "MB") }}MB)
         </option>
       </select>
     </div>
@@ -68,7 +68,9 @@
       >
         <option :value="null">使用しない</option>
         <option v-for="backup in backups" :key="backup.id" :value="backup.id">
-          {{ backup.name }} ({{ convertByteToUnit(backup.targetVirtualStorage.size ?? 0, 'GB') }}GB)
+          {{ backup.name }} ({{
+            convertByteToUnit(backup.targetVirtualStorage.size ?? 0, "GB")
+          }}GB)
         </option>
       </select>
     </div>
@@ -171,8 +173,6 @@ import { watch } from "vue";
 import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-
-const { convertByteToUnit } = useByteConvert();
 
 const validationSchema = toTypedSchema(
   z
@@ -292,7 +292,10 @@ watch(backupId, (newBackupId) => {
       pushStorage({
         id: `backup-${backupData.id}`,
         name: `backup-${backupData.name}`,
-        size: convertByteToUnit(backupData.targetVirtualStorage?.size ?? 0, "GB"),
+        size: convertByteToUnit(
+          backupData.targetVirtualStorage?.size ?? 0,
+          "GB"
+        ),
         poolId: "", // "pool-1" から "" に変更
         type: "backup" as const,
       });

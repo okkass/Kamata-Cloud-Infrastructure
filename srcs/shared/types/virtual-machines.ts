@@ -249,33 +249,69 @@ export type VirtualMachineStatusEnum =
   (typeof VirtualMachineStatusEnum)[keyof typeof VirtualMachineStatusEnum];
 
 /**
- * 仮想マシン作成リクエストオブジェクト
+ * 仮想マシン作成リクエストの共通ベースオブジェクト
  */
-export interface VirtualMachineCreateRequestDTO {
+interface VMCreateBase {
   /**
    * 仮想マシンの名前
    */
   name: string;
   /**
-   * 使用するインスタンスタイプのID
+   * 仮想マシンを収容する物理ノードのID
    */
-  instanceTypeId?: string;
+  nodeId: string | null;
   /**
    * 仮想マシンを配置するサブネットのID
    */
-  subnetId: string;
+  subnetId: string | null;
   /**
    * 仮想マシンに設定するSSH公開鍵
    */
-  publicKey?: string;
+  publicKey: string | null;
   /**
    * 使用する仮想マシンイメージのID
    */
-  imageId: string;
+  imageId: string | null;
   /**
    * インストールするミドルウェアのID
    */
-  middleWareId?: string;
+  middleWareId?: string | null;
+  /**
+   * 仮想マシンにアタッチするストレージのリスト
+   */
+  storages: Array<VirtualMachineCreateRequestStoragesInnerDTO>;
+  /**
+   * 関連付けるセキュリティグループのIDリスト
+   */
+  securityGroupIds: string[];
+}
+
+/**
+ * パターンA: インスタンスタイプIDを指定してVMを作成する場合のオブジェクト
+ */
+interface VMWithInstanceType extends VMCreateBase {
+  /**
+   * 使用するインスタンスタイプのID
+   */
+  instanceTypeId: string;
+  /**
+   * cpuCoresは存在してはならない
+   */
+  cpuCores?: never;
+  /**
+   * memorySizeは存在してはならない
+   */
+  memorySize?: never;
+}
+
+/**
+ * パターンB: CPUとメモリをカスタム指定してVMを作成する場合のオブジェクト
+ */
+interface VMWithCustomConfig extends VMCreateBase {
+  /**
+   * instanceTypeIdは存在してはならない
+   */
+  instanceTypeId?: never;
   /**
    * CPUコア数
    */
@@ -284,19 +320,13 @@ export interface VirtualMachineCreateRequestDTO {
    * メモリサイズ（バイト単位）
    */
   memorySize: number;
-  /**
-   * 仮想マシンを収容する物理ノードのID
-   */
-  nodeId: string;
-  /**
-   * 仮想マシンにアタッチするストレージのリスト
-   */
-  storages: Array<VirtualMachineCreateRequestStoragesInnerDTO>;
-  /**
-   * 関連付けるセキュリティグループのIDリスト
-   */
-  securityGroupIds?: Array<string>;
 }
+
+/**
+ * 仮想マシン作成リクエストオブジェクト (パターンAまたはパターンBのどちらか)
+ */
+type VirtualMachineCreateRequestDTO = VMWithInstanceType | VMWithCustomConfig;
+
 export interface VirtualMachineCreateRequestStoragesInnerDTO {
   /**
    * ストレージの名前

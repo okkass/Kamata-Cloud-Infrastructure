@@ -66,33 +66,7 @@
 
 <script setup lang="ts">
 import { ref, markRaw, computed } from "vue";
-import { useToast } from "~/composables/useToast";
-import { useResourceCreate } from "~/composables/useResourceCreate";
 
-// (型定義、Props, Emits, タブ定義などは変更なし)
-interface StoragePayload {
-  name: string;
-  size: number;
-  poolId: string;
-  backupId?: string | null;
-}
-interface VirtualMachineCreateRequestDTO {
-  name: string;
-  nodeId: string | null;
-  instanceTypeId: string | null;
-  cpuCores?: number;
-  memorySize?: number;
-  subnetId: string | null;
-  publicKey: string | null;
-  imageId: string | null;
-  middleWareId?: string | null;
-  storages: StoragePayload[];
-  securityGroupIds: string[];
-}
-interface ModelVirtualMachineDTO {
-  id: string;
-  name: string;
-}
 defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 import TabGeneral from "~/components/vm-tabs/TabGeneral.vue";
@@ -108,6 +82,13 @@ const tabs = [
 const tabRefs = ref<any[]>([]);
 const currentTab = ref(0);
 const modalTitle = ref("仮想マシン作成");
+
+const { executeCreate, isCreating } = useResourceCreate<
+  VirtualMachineCreateRequestDTO,
+  VirtualMachineDTO
+>("virtual-machine");
+const { addToast } = useToast();
+
 const prevTab = () => {
   if (currentTab.value > 0) currentTab.value--;
 };
@@ -117,14 +98,6 @@ const nextTab = () => {
 const tabValidity = computed(() => {
   return tabRefs.value.map((tab) => tab?.isValid?.valid ?? false);
 });
-
-const { executeCreate, isCreating } = useResourceCreate<
-  VirtualMachineCreateRequestDTO,
-  ModelVirtualMachineDTO
->("virtual-machine");
-const { addToast } = useToast();
-const { convertByteToUnit } = useByteConvert();
-
 const readFileAsText = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -134,16 +107,10 @@ const readFileAsText = (file: File): Promise<string> => {
   });
 };
 
-/**
- * 「作成」ボタンが押されたときに実行される関数
- */
 const handleSubmit = async () => {
-  // (バリデーションチェックは変更なし)
   const invalidTabs = tabRefs.value.reduce((acc, tab, index) => {
     if (!tab?.isValid?.valid) {
-      if (tabs[index]) {
-        acc.push(tabs[index].name);
-      }
+      if (tabs[index]) acc.push(tabs[index].name);
     }
     return acc;
   }, [] as string[]);
@@ -170,12 +137,12 @@ const handleSubmit = async () => {
     instanceTypeId: configData?.templateId,
     cpuCores: !configData?.templateId ? configData?.cpuCores : undefined,
     memorySize: !configData?.templateId
-      ? configData?.convertUnitToByte(configData?.memorySize, "MB")
+      ? convertUnitToByte(configData?.memorySize ?? 0, "MB")
       : undefined,
     subnetId: networkData?.networkId,
     publicKey: networkData?.keyPairFile
       ? await readFileAsText(networkData.keyPairFile)
-      : null,
+      : undefined,
     securityGroupIds: networkData?.securityGroupId
       ? [networkData.securityGroupId]
       : [],
@@ -183,9 +150,8 @@ const handleSubmit = async () => {
     middleWareId: osData?.middlewareId,
     storages: configData?.storages.map((storage: any) => ({
       name: storage.name,
-      size: convertByteToUnit(storage.size, "GB"),
+      size: convertUnitToByte(storage.size, "GB"),
       poolId: storage.poolId,
-      // ★★★ ここを修正: "os" から "backup" に変更 ★★★
       backupId: storage.type === "backup" ? configData.backupId : null,
     })),
   };
@@ -210,7 +176,6 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-/* (スタイルは変更なし) */
 .btn-primary {
   @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
 }
