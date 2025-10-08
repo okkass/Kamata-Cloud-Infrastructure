@@ -95,7 +95,7 @@ const { addToast } = useToast();
 
 // --- Computed ---
 const tabValidity = computed(() => {
-  return tabRefs.value.map((tab) => tab?.isValid?.valid ?? true); // デフォルトをtrueに
+  return tabRefs.value.map((tab) => tab?.isValid?.valid ?? false); // デフォルトをfalseに
 });
 
 // --- Methods ---
