@@ -259,7 +259,7 @@ interface VirtualMachineCreateBaseRequest {
   /**
    * 仮想マシンを収容する物理ノードのID
    */
-  nodeId: string | null;
+  nodeId: string;
   /**
    * 仮想マシンを配置するサブネットのID
    */
