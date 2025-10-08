@@ -89,47 +89,32 @@ import { useResourceList } from "~/composables/useResourceList";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
 
-// ==============================================================================
-// 型定義
-// ==============================================================================
+// (型定義、Props, Emitsは変更なし)
 interface NodeDTO {
   id: string;
   name: string;
   ipAddress: string;
   isAdmin?: boolean;
 }
-
-// --- 親コンポーネントとの連携 ---
 defineProps({
   show: { type: Boolean, required: true },
 });
 const emit = defineEmits(["close", "success"]);
 
-// ==============================================================================
-// API連携
-// ==============================================================================
-// --- ノード候補一覧の取得 ---
+// (API連携のセットアップは変更なし)
 const {
   data: nodes,
   pending,
   error,
 } = useResourceList<NodeDTO>("physical-node");
-
-// --- ノード追加処理 ---
 const { executeCreate, isCreating } = useResourceCreate<NodeDTO, NodeDTO>(
   "physical-node"
 );
 const { addToast } = useToast();
 
-// ==============================================================================
-// UIロジック
-// ==============================================================================
-// --- 確認ポップアップ用の状態管理 ---
+// (UIロジックの状態管理は変更なし)
 const nodeToConfirm = ref<NodeDTO | null>(null);
 
-/**
- * 「追加」ボタンが押されたときに確認ポップアップを表示する
- */
 const openConfirmation = (node: NodeDTO) => {
   nodeToConfirm.value = node;
 };
@@ -143,7 +128,7 @@ const confirmAddNode = async () => {
   const payload: NodeDTO = {
     name: nodeToConfirm.value.name,
     ipAddress: nodeToConfirm.value.ipAddress,
-    isAdmin: false, // API仕様に基づき、デフォルト値を設定
+    isAdmin: false,
   };
 
   const result = await executeCreate(payload);
@@ -151,10 +136,10 @@ const confirmAddNode = async () => {
   if (result.success) {
     addToast({
       type: "success",
-      message: `ノード「${result.data?.name}」が追加されました`,
+      message: `ノード「${payload.name}」が追加されました`,
     });
-    emit("success"); // 親コンポーネントに成功を通知 (リストの再取得など)
-    emit("close"); // モーダルを閉じる
+    emit("success");
+    emit("close");
   } else {
     addToast({
       type: "error",
@@ -163,7 +148,6 @@ const confirmAddNode = async () => {
     });
   }
 
-  // 処理完了後、確認ポップアップを閉じる
   nodeToConfirm.value = null;
 };
 </script>
