@@ -7,7 +7,6 @@
     :headerButtons="headerButtons"
     @header-action="onHeaderAction"
   >
-    <!-- ノード名（詳細へ） -->
     <template #cell-name="{ row }">
       <NuxtLink :to="`/physical-node/${row.id}`">
         {{ row.name }} <span v-if="row.isMgmt">（管理ノード）</span>
