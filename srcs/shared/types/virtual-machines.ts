@@ -251,7 +251,7 @@ export type VirtualMachineStatusEnum =
 /**
  * 仮想マシン作成リクエストの共通ベースオブジェクト
  */
-interface VMCreateBase {
+interface VirtualMachineCreateBaseRequest {
   /**
    * 仮想マシンの名前
    */
@@ -289,7 +289,7 @@ interface VMCreateBase {
 /**
  * パターンA: インスタンスタイプIDを指定してVMを作成する場合のオブジェクト
  */
-interface VMWithInstanceType extends VMCreateBase {
+interface VirtualMachineCreateWithInstanceTypeRequest extends VirtualMachineCreateBaseRequest {
   /**
    * 使用するインスタンスタイプのID
    */
@@ -307,7 +307,7 @@ interface VMWithInstanceType extends VMCreateBase {
 /**
  * パターンB: CPUとメモリをカスタム指定してVMを作成する場合のオブジェクト
  */
-interface VMWithCustomConfig extends VMCreateBase {
+interface VirtualMachineCreateWithCustomConfigRequest extends VirtualMachineCreateBaseRequest {
   /**
    * instanceTypeIdは存在してはならない
    */
@@ -325,7 +325,7 @@ interface VMWithCustomConfig extends VMCreateBase {
 /**
  * 仮想マシン作成リクエストオブジェクト (パターンAまたはパターンBのどちらか)
  */
-type VirtualMachineCreateRequestDTO = VMWithInstanceType | VMWithCustomConfig;
+export type VirtualMachineCreateRequestDTO = VirtualMachineCreateWithInstanceTypeRequest | VirtualMachineCreateWithCustomConfigRequest;
 
 export interface VirtualMachineCreateRequestStoragesInnerDTO {
   /**

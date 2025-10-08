@@ -66,38 +66,46 @@
 
 <script setup lang="ts">
 import { ref, markRaw, computed } from "vue";
-
-defineProps({ show: { type: Boolean, required: true } });
-const emit = defineEmits(["close", "success"]);
 import TabGeneral from "~/components/vm-tabs/TabGeneral.vue";
 import TabConfig from "~/components/vm-tabs/TabConfig.vue";
 import TabOsMiddleware from "~/components/vm-tabs/TabOsMiddleware.vue";
 import TabNetwork from "~/components/vm-tabs/TabNetwork.vue";
+
+// --- defineProps & defineEmits ---
+defineProps({ show: { type: Boolean, required: true } });
+const emit = defineEmits(["close", "success"]);
+
+// --- State ---
+const currentTab = ref(0);
+const modalTitle = ref("仮想マシン作成");
+const tabRefs = ref<any[]>([]);
 const tabs = [
   { name: "概要", component: markRaw(TabGeneral) },
   { name: "構成", component: markRaw(TabConfig) },
   { name: "OS/ミドルウェア", component: markRaw(TabOsMiddleware) },
-  { name: "ネットワーク/セキュリティグループ", component: markRaw(TabNetwork) },
+  { name: "ネットワーク/セキュリティ", component: markRaw(TabNetwork) },
 ];
-const tabRefs = ref<any[]>([]);
-const currentTab = ref(0);
-const modalTitle = ref("仮想マシン作成");
 
+// --- Composables ---
 const { executeCreate, isCreating } = useResourceCreate<
   VirtualMachineCreateRequestDTO,
   VirtualMachineDTO
 >("virtual-machine");
 const { addToast } = useToast();
 
+// --- Computed ---
+const tabValidity = computed(() => {
+  return tabRefs.value.map((tab) => tab?.isValid?.valid ?? true); // デフォルトをtrueに
+});
+
+// --- Methods ---
 const prevTab = () => {
   if (currentTab.value > 0) currentTab.value--;
 };
 const nextTab = () => {
   if (currentTab.value < tabs.length - 1) currentTab.value++;
 };
-const tabValidity = computed(() => {
-  return tabRefs.value.map((tab) => tab?.isValid?.valid ?? false);
-});
+
 const readFileAsText = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -114,6 +122,7 @@ const handleSubmit = async () => {
     }
     return acc;
   }, [] as string[]);
+
   if (invalidTabs.length > 0) {
     addToast({
       message: `「${invalidTabs.join("」「")}」タブに入力エラーがあります。`,
@@ -122,7 +131,7 @@ const handleSubmit = async () => {
     const firstInvalidIndex = tabRefs.value.findIndex(
       (tab) => !tab?.isValid?.valid
     );
-    currentTab.value = firstInvalidIndex;
+    if (firstInvalidIndex !== -1) currentTab.value = firstInvalidIndex;
     return;
   }
 
@@ -131,30 +140,41 @@ const handleSubmit = async () => {
   const osData = tabRefs.value[2]?.formData;
   const networkData = tabRefs.value[3]?.formData;
 
-  const payload: VirtualMachineCreateRequestDTO = {
-    name: generalData?.name,
-    nodeId: generalData?.nodeId,
-    instanceTypeId: configData?.templateId,
-    cpuCores: !configData?.templateId ? configData?.cpuCores : undefined,
-    memorySize: !configData?.templateId
-      ? convertUnitToByte(configData?.memorySize ?? 0, "MB")
-      : undefined,
-    subnetId: networkData?.networkId,
+  const basePayload = {
+    name: generalData?.name ?? "",
+    nodeId: generalData?.nodeId ?? null,
+    subnetId: networkData?.networkId ?? null,
     publicKey: networkData?.keyPairFile
       ? await readFileAsText(networkData.keyPairFile)
-      : undefined,
-    securityGroupIds: networkData?.securityGroupId
-      ? [networkData.securityGroupId]
-      : [],
-    imageId: osData?.osImageId,
+      : null,
+    securityGroupIds: networkData?.securityGroupIds ?? [],
+    imageId: osData?.osImageId ?? null,
     middleWareId: osData?.middlewareId,
-    storages: configData?.storages.map((storage: any) => ({
-      name: storage.name,
-      size: convertUnitToByte(storage.size, "GB"),
-      poolId: storage.poolId,
-      backupId: storage.type === "backup" ? configData.backupId : null,
-    })),
+    storages:
+      configData?.storages.map((storage: any) => ({
+        name: storage.name,
+        size: convertUnitToByte(storage.size, "GB"),
+        poolId: storage.poolId,
+        backupId: storage.type === "backup" ? configData.backupId : null,
+      })) ?? [],
   };
+
+  let payload: VirtualMachineCreateRequestDTO;
+
+  if (configData?.templateId) {
+    // パターンA: インスタンスタイプIDがある場合
+    payload = {
+      ...basePayload,
+      instanceTypeId: configData.templateId,
+    };
+  } else {
+    // パターンB: CPUとメモリをカスタム指定する場合
+    payload = {
+      ...basePayload,
+      cpuCores: configData?.cpuCores,
+      memorySize: convertUnitToByte(configData?.memorySize, "MB"),
+    };
+  }
 
   const result = await executeCreate(payload);
 
@@ -164,7 +184,6 @@ const handleSubmit = async () => {
       message: `仮想マシン「${payload.name}」が作成されました`,
     });
     emit("success");
-    emit("close");
   } else {
     addToast({
       type: "error",
