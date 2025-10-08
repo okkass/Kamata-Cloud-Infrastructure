@@ -1501,8 +1501,8 @@ components:
           description: バックアップが作成された日時
         size:
           type: number
-          format: double
-          description: バックアップのサイズ
+          format: integer
+          description: バックアップのサイズ(バイト単位)
         targetVirtualStorage:
           $ref: "#/components/schemas/VirtualStorage"
           description: バックアップ対象の仮想ストレージ
