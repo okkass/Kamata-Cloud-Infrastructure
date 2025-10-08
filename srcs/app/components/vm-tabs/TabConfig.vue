@@ -293,7 +293,7 @@ watch(backupId, (newBackupId) => {
         id: `backup-${backupData.id}`,
         name: `backup-${backupData.name}`,
         size: convertByteToUnit(backupData.targetVirtualStorage?.size ?? 0, "GB"),
-        poolId: null, // "pool-1" から null に変更
+        poolId: "", // "pool-1" から "" に変更
         type: "backup" as const,
       });
     }
