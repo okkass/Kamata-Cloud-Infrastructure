@@ -106,6 +106,7 @@ type PhysicalNodeDTO = {
   memoryUtilization?: number;
   storageUtilization?: number;
 };
+/* ====== 型====== */
 type UiNode = {
   id: string;
   name: string;
