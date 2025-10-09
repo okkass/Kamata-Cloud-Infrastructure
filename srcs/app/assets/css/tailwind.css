@@ -190,6 +190,47 @@
   .table-empty-state {
     @apply px-6 py-4 text-center text-gray-500;
   }
+  /** ==================================================================
+   * Dashboard Styles (ダッシュボードスタイル)
+   * ==================================================================
+   *
+    */
+  /* アクションアイテム（ドロップダウンメニューの項目など） */
+  .action-item {
+    @apply block px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t border-slate-200;
+  }
+
+  /* 無効化されたアクションアイテム */
+  .action-item-disabled {
+    @apply w-full text-center px-4 py-2 text-sm font-bold text-white bg-slate-500 border border-slate-700 rounded-md cursor-not-allowed select-none;
+  }
+
+  /* 危険な操作（削除など）を表すアクションアイテム */
+  .action-item-danger {
+    @apply text-red-600 hover:bg-red-50;
+  }
+  /* テーブル内などで使用する主要なリンク */
+  .table-link {
+    @apply text-sky-600 hover:text-sky-800 hover:underline font-semibold;
+  }
+
+  /** =================================================
+     * Count Badge (カウントバッジ)
+     * ==================================================
+     */
+  /* カウント数を表示するバッジの基本スタイル */
+  .count-badge {
+    @apply inline-block text-center font-bold rounded-full px-2.5 py-0.5;
+  }
+  /* skyカラーのバッジ */
+  .count-badge-sky {
+    @apply text-sky-800 bg-sky-100;
+  }
+  /* indigoカラーのバッジ */
+  .count-badge-indigo {
+    @apply text-indigo-800 bg-indigo-100;
+  }
+
   /**
    * ==================================================================
    * Else (その他)
