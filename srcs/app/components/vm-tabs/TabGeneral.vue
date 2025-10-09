@@ -5,6 +5,7 @@
       name="vm-name"
       type="text"
       placeholder="例: vm-middleware01"
+      :required=true
       :error="errors.name"
       v-model="name"
       v-model:attrs="nameAttrs"

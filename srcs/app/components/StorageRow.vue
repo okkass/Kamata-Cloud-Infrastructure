@@ -1,33 +1,35 @@
 <template>
-  <div class="storage-grid">
-    <div class="col-span-1 text-center font-medium text-gray-600">
+  <tr class="align-top">
+    <td class="px-1 py-2 text-center font-medium text-gray-600 pt-5">
       {{ index + 1 }}.
-    </div>
-    <div class="col-span-4">
+    </td>
+    <td class="px-1 py-2">
       <FormInput
         label=""
-        :name="`storages[${index}].name`"
-        type="text"
+        name="storage-name"
         :disabled="storage.type === 'backup'"
         :error="errors[`storages[${index}].name`]"
         v-model="storage.name"
       />
-    </div>
-    <div class="col-span-2">
-      <FormInput
-        label=""
-        :name="`storages[${index}].size`"
-        type="number"
-        :disabled="storage.type === 'backup'"
-        :error="errors[`storages[${index}].size`]"
-        v-model.number="storage.size"
-      />
-    </div>
-    <div class="self-center">GB</div>
-    <div class="col-span-3">
+    </td>
+    <td class="px-1 py-2">
+      <div class="flex items-start">
+        <FormInput
+          label=""
+          name="storage-size"
+          type="number"
+          class="rounded-r-none"
+          :disabled="storage.type === 'backup'"
+          :error="errors[`storages[${index}].size`]"
+          v-model.number="storage.size"
+        />
+        <div class="form-unit-label">GB</div>
+      </div>
+    </td>
+    <td class="px-1 py-2">
       <FormSelect
         label=""
-        :name="`storages[${index}].poolId`"
+        name="storage-pool"
         :options="pools ?? []"
         placeholder="選択してください"
         :required="true"
@@ -37,27 +39,23 @@
         :error-message="errors[`storages[${index}].poolId`]"
         v-model="storage.poolId"
       />
-    </div>
-    <div class="col-span-1 flex mt-4 items-center">
+    </td>
+    <td class="px-1 py-2 pt-5">
       <button
         v-if="storage.type !== 'os'"
         type="button"
         @click="$emit('remove')"
         class="btn-cross-delete"
       >
-        <icon-cross
-          customClass="text-red-400 hover:text-red-600"
-        />
+        <IconCross custom-class="h-5 w-5" />
       </button>
-    </div>
-  </div>
+    </td>
+  </tr>
 </template>
 
 <script setup lang="ts">
-// 親から受け取るデータ
-defineProps(['index', 'pools', 'errors', 'poolsPending', 'poolsError']);
-// v-modelで双方向バインディング
+// script部分は変更なし
+defineProps(["index", "pools", "errors", "poolsPending", "poolsError"]);
 const storage = defineModel<any>();
-// 削除イベント
-defineEmits(['remove']);
+defineEmits(["remove"]);
 </script>

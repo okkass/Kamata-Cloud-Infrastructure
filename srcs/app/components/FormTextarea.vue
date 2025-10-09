@@ -1,6 +1,9 @@
 <template>
   <div>
-    <label v-if="label" :for="name" class="form-label">{{ label }}</label>
+    <label v-if="label" :for="name" class="form-label"
+      >{{ label }}
+      <span v-if="required" class="required-asterisk">*</span>
+    </label>
     <textarea
       :id="name"
       v-model="model"
@@ -21,8 +24,14 @@ defineProps<{
   name: string;
   error?: string;
   rows?: number;
+  required?: boolean;
 }>();
 
 const model = defineModel<string | null | undefined>();
-const attrs = defineModel("attrs");
+const validationAttrs = defineModel("attrs");
+
+const allAttrs = computed(() => ({
+  ...(validationAttrs.value || {}), // vee-validateの属性
+  ...useAttrs(), // step, placeholderなどの汎用属性
+}));
 </script>

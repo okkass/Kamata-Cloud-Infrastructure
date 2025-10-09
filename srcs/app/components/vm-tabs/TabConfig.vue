@@ -24,16 +24,25 @@
         v-model="cpuCores"
         v-model:attrs="cpuCoresAttrs"
         :error="errors.cpuCores"
-      />
+      >
+        <template #suffix>
+          <span class="form-unit-label">vCPU</span>
+        </template>
+      </FormInput>
 
       <FormInput
         label="メモリ (MB)"
         name="memory-gb"
         type="number"
+        :step="1024"
         v-model="memorySize"
         v-model:attrs="memorySizeAttrs"
         :error="errors.memorySize"
-      />
+      >
+        <template #suffix>
+          <span class="form-unit-label">MB</span>
+        </template>
+      </FormInput>
     </FormSection>
     <FormSelect
       label="バックアップ"
@@ -54,23 +63,30 @@
     </FormSelect>
 
     <FormSection title="ストレージ設定">
-      <div class="storage-grid text-sm font-semibold text-gray-600 px-2">
-        <div class="col-span-1">No.</div>
-        <div class="col-span-4">名前</div>
-        <div class="col-span-3">サイズ</div>
-        <div class="col-span-4">ストレージプール</div>
-      </div>
-      <StorageRow
-        v-for="(field, index) in storageFields"
-        :key="field.key"
-        :index="index"
-        :pools="storagePools"
-        :errors="errors"
-        :pools-pending="poolsPending"
-        :pools-error="poolsError"
-        v-model="field.value"
-        @remove="removeStorage(index)"
-      />
+      <table class="w-full">
+        <thead>
+          <tr class="text-sm font-semibold text-gray-600">
+            <th class="w-[5%] px-1 py-2 text-center">No.</th>
+            <th class="w-[33%] px-1 py-2">名前</th>
+            <th class="w-[25%] px-1 py-2">サイズ</th>
+            <th class="w-[37%] px-1 py-2">ストレージプール</th>
+            <th class="w-8"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <StorageRow
+            v-for="(field, index) in storageFields"
+            :key="field.key"
+            :index="index"
+            :pools="storagePools"
+            :errors="errors"
+            :pools-pending="poolsPending"
+            :pools-error="poolsError"
+            v-model="field.value"
+            @remove="removeStorage(index)"
+          />
+        </tbody>
+      </table>
 
       <div class="section-btn">
         <button type="button" @click="addStorage" class="btn btn-add">
@@ -92,8 +108,14 @@ const validationSchema = toTypedSchema(
   z
     .object({
       templateId: z.string().optional().nullable(),
-      cpuCores: z.number().nullable(),
-      memorySize: z.number().nullable(),
+      cpuCores: z.preprocess(
+        (val) => (val === "" ? null : val), // 空文字をnullに変換
+        z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
+      ),
+      memorySize: z.preprocess(
+        (val) => (val === "" ? null : val), // 空文字をnullに変換
+        z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
+      ),
       backupId: z.string().nullable(),
       storages: z
         .array(

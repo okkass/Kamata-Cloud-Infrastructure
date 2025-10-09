@@ -1,6 +1,9 @@
 <template>
   <div>
-    <label :for="name" class="form-label-sm">{{ label }}</label>
+    <label v-if="label" :for="name" class="form-label-sm">
+      {{ label }}
+      <span v-if="required" class="required-asterisk">*</span>
+    </label>
 
     <div v-if="pending" class="text-loading">
       {{ label }}一覧を読み込み中...
@@ -14,7 +17,7 @@
       <select
         :id="name"
         v-model="model"
-        v-bind="attrs || {}"
+        v-bind=allAttrs
         class="form-input"
         :class="{ 'form-border-error': errorMessage }"
       >
@@ -51,7 +54,11 @@ defineProps<{
   placeholderValue: string | null | undefined; // プレースホルダーに対応する値
 }>();
 
-// v-model と v-bind を親コンポーネントと双方向バインディング
 const model = defineModel();
-const attrs = defineModel("attrs");
+const validationAttrs = defineModel("attrs");
+
+const allAttrs = computed(() => ({
+  ...(validationAttrs.value || {}), // vee-validateの属性
+  ...useAttrs(), // step, placeholderなどの汎用属性
+}));
 </script>

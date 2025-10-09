@@ -1,14 +1,17 @@
 <template>
   <div>
-    <label v-if="label" :for="name" class="form-label-sm">{{ label }}</label>
-    <div class="flex items-center gap-2">
+    <label v-if="label" :for="name" class="form-label-sm">
+      {{ label }}
+      <span v-if="required" class="required-asterisk">*</span>
+    </label>
+    <div class="flex items-center">
       <input
         :id="name"
         :type="type"
         :placeholder="placeholder"
         v-model="model"
-        v-bind="attrs || {}"
-        class="form-input"
+        v-bind="allAttrs"
+        class="form-input rounded-r-none"
         :class="{ 'form-border-error': error }"
         :disabled="disabled"
       />
@@ -21,6 +24,9 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+defineOptions({ inheritAttrs: false });
+
 defineProps<{
   label: string;
   name: string;
@@ -28,8 +34,14 @@ defineProps<{
   error?: string;
   disabled?: boolean;
   placeholder?: string;
+  required?: boolean;
 }>();
 
 const model = defineModel();
-const attrs = defineModel("attrs");
+const validationAttrs = defineModel("attrs");
+
+const allAttrs = computed(() => ({
+  ...(validationAttrs.value || {}), // vee-validateの属性
+  ...useAttrs(), // step, placeholderなどの汎用属性
+}));
 </script>
