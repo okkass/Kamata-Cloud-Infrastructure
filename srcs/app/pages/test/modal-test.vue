@@ -1,10 +1,10 @@
 <template>
-  <h1>仮想マシン作成モーダルテスト</h1>
+  <p>mo-daru test</p>
   <div>
     <button class="btn-primary" @click="openModal('create')">
       モーダルを開く
     </button>
-    <MoVirtualMachineCreate
+    <MoImageAdd
       :show="activeModal === 'create'"
       @close="closeModal"
       @success="handleSuccess"

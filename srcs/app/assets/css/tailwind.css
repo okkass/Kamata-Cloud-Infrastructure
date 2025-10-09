@@ -1,0 +1,120 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /* button */
+  .btn {
+    @apply py-2 px-5 font-semibold rounded-lg shadow-md transition-colors disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+  .btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700;
+  }
+  .btn-add {
+    @apply bg-gray-200 text-gray-700 hover:bg-gray-300;
+  }
+  .btn-submit {
+    @apply bg-green-500 text-white hover:bg-green-600;
+  }
+  .btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700;
+  }
+  .btn-back {
+    @apply bg-gray-500 text-white hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-400;
+  }
+  /* form */
+  .form-label {
+    @apply block mb-1.5 font-semibold text-gray-700;
+  }
+  .form-input {
+    @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
+  }
+  .form-label-sm {
+    @apply block mb-1.5 text-sm font-medium text-gray-600;
+  }
+  .form-input:disabled {
+    @apply bg-gray-100 cursor-not-allowed;
+  }
+  .form-border-error {
+    @apply border-red-500;
+  }
+  /* section */
+  .section-title {
+    @apply font-semibold text-gray-800;
+  }
+  .section-form {
+    @apply p-4 border border-gray-200 rounded-lg;
+  }
+  .section-btn {
+    @apply mt-4 flex justify-end;
+  }
+  /* storage */
+  .storage-grid {
+    @apply grid grid-cols-12 gap-x-3 gap-y-1 items-start mb-2;
+  }
+
+  /* text */
+  .text-loading {
+    @apply text-gray-500 text-sm;
+  }
+  .text-error {
+    @apply text-red-500 text-sm;
+  }
+
+  /* modal */
+  .modal-space {
+    @apply space-y-4;
+  }
+  .modal-footer {
+    @apply flex justify-end items-center mt-6 pt-4 border-t border-gray-200;
+  }
+  .modal-section-title {
+    @apply text-base font-semibold text-gray-800;
+  }
+  /* tab */
+  .tab-button {
+    @apply relative py-2 px-5 text-sm font-medium text-gray-500 hover:text-gray-700;
+  }
+  .tab-button-active {
+    @apply border-b-2 border-blue-500 text-blue-600;
+  }
+  .tab-error-indicator {
+    @apply absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full;
+  }
+  /* confirm dialog */
+  .confirmation-overlay {
+    @apply absolute inset-0 bg-black bg-opacity-40 flex justify-center items-center;
+  }
+  .confirmation-dialog {
+    @apply bg-white p-6 rounded-lg shadow-xl border text-center space-y-4;
+  }
+  .confirmation-text {
+    @apply font-semibold;
+  }
+  /* table */
+  .table-header {
+    @apply text-xs text-gray-700 uppercase bg-gray-100;
+  }
+  .table-row {
+    @apply bg-white border-b last:border-b-0;
+  }
+  .table-header-cell {
+    @apply px-6 py-2 text-left font-medium text-gray-900;
+  }
+  .table-cell {
+    @apply px-5 py-2;
+  }
+  .table-cell-title {
+    @apply font-medium text-gray-900;
+  }
+  .table-empty-state {
+    @apply px-6 py-2 text-center text-gray-500;
+  }
+}
+
+@layer base {
+  body {
+    @apply bg-gray-50 text-gray-800 font-sans;
+  }
+}

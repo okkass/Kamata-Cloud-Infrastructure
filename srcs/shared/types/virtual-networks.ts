@@ -90,19 +90,19 @@ export interface VirtualNetwork {
   /**
    * 仮想ネットワークを識別するための一意なID
    */
-  id?: string;
+  id: string;
   /**
    * 仮想ネットワークの名前
    */
-  name?: string;
+  name: string;
   /**
    * CIDR形式のネットワークアドレス
    */
-  cidr?: string;
+  cidr: string;
   /**
    * 仮想ネットワークが作成された日時
    */
-  createdAt?: string;
+  createdAt: string;
   subnets?: Array<Subnet>;
   /**
    * 仮想ネットワークのインバウンドトラフィック（bps単位）
