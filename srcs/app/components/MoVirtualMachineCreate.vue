@@ -66,63 +66,45 @@
 
 <script setup lang="ts">
 import { ref, markRaw, computed } from "vue";
-import { useToast } from "~/composables/useToast";
-import { useResourceCreate } from "~/composables/useResourceCreate";
-
-// (型定義、Props, Emits, タブ定義などは変更なし)
-interface StoragePayload {
-  name: string;
-  size: number;
-  poolId: string;
-  backupId?: string | null;
-}
-interface VirtualMachineCreateRequestDTO {
-  name: string;
-  nodeId: string | null;
-  instanceTypeId: string | null;
-  cpuCores?: number;
-  memorySize?: number;
-  subnetId: string | null;
-  publicKey: string | null;
-  imageId: string | null;
-  middleWareId?: string | null;
-  storages: StoragePayload[];
-  securityGroupIds: string[];
-}
-interface ModelVirtualMachineDTO {
-  id: string;
-  name: string;
-}
-defineProps({ show: { type: Boolean, required: true } });
-const emit = defineEmits(["close", "success"]);
 import TabGeneral from "~/components/vm-tabs/TabGeneral.vue";
 import TabConfig from "~/components/vm-tabs/TabConfig.vue";
 import TabOsMiddleware from "~/components/vm-tabs/TabOsMiddleware.vue";
 import TabNetwork from "~/components/vm-tabs/TabNetwork.vue";
+
+// --- defineProps & defineEmits ---
+defineProps({ show: { type: Boolean, required: true } });
+const emit = defineEmits(["close", "success"]);
+
+// --- State ---
+const currentTab = ref(0);
+const modalTitle = ref("仮想マシン作成");
+const tabRefs = ref<any[]>([]);
 const tabs = [
   { name: "概要", component: markRaw(TabGeneral) },
   { name: "構成", component: markRaw(TabConfig) },
   { name: "OS/ミドルウェア", component: markRaw(TabOsMiddleware) },
-  { name: "ネットワーク/セキュリティグループ", component: markRaw(TabNetwork) },
+  { name: "ネットワーク/セキュリティ", component: markRaw(TabNetwork) },
 ];
-const tabRefs = ref<any[]>([]);
-const currentTab = ref(0);
-const modalTitle = ref("仮想マシン作成");
+
+// --- Composables ---
+const { executeCreate, isCreating } = useResourceCreate<
+  VirtualMachineCreateRequestDTO,
+  VirtualMachineDTO
+>("virtual-machine");
+const { addToast } = useToast();
+
+// --- Computed ---
+const tabValidity = computed(() => {
+  return tabRefs.value.map((tab) => tab?.isValid?.valid ?? false); // デフォルトをfalseに
+});
+
+// --- Methods ---
 const prevTab = () => {
   if (currentTab.value > 0) currentTab.value--;
 };
 const nextTab = () => {
   if (currentTab.value < tabs.length - 1) currentTab.value++;
 };
-const tabValidity = computed(() => {
-  return tabRefs.value.map((tab) => tab?.isValid?.valid ?? false);
-});
-
-const { executeCreate, isCreating } = useResourceCreate<
-  VirtualMachineCreateRequestDTO,
-  ModelVirtualMachineDTO
->("virtual-machine");
-const { addToast } = useToast();
 
 const readFileAsText = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -133,17 +115,14 @@ const readFileAsText = (file: File): Promise<string> => {
   });
 };
 
-/**
- * 「作成」ボタンが押されたときに実行される関数
- */
 const handleSubmit = async () => {
-  // (バリデーションチェックは変更なし)
   const invalidTabs = tabRefs.value.reduce((acc, tab, index) => {
     if (!tab?.isValid?.valid) {
-      acc.push(tabs[index].name);
+      if (tabs[index]) acc.push(tabs[index].name);
     }
     return acc;
   }, [] as string[]);
+
   if (invalidTabs.length > 0) {
     addToast({
       message: `「${invalidTabs.join("」「")}」タブに入力エラーがあります。`,
@@ -152,7 +131,7 @@ const handleSubmit = async () => {
     const firstInvalidIndex = tabRefs.value.findIndex(
       (tab) => !tab?.isValid?.valid
     );
-    currentTab.value = firstInvalidIndex;
+    if (firstInvalidIndex !== -1) currentTab.value = firstInvalidIndex;
     return;
   }
 
@@ -161,31 +140,41 @@ const handleSubmit = async () => {
   const osData = tabRefs.value[2]?.formData;
   const networkData = tabRefs.value[3]?.formData;
 
-  const payload: VirtualMachineCreateRequestDTO = {
-    name: generalData?.name,
-    nodeId: generalData?.nodeId,
-    instanceTypeId: configData?.templateId,
-    cpuCores: !configData?.templateId ? configData?.cpuCores : undefined,
-    memorySize: !configData?.templateId
-      ? configData?.memorySize * 1024 * 1024 * 1024
-      : undefined,
-    subnetId: networkData?.networkId,
+  const basePayload = {
+    name: generalData?.name ?? "",
+    nodeId: generalData?.nodeId ?? null,
+    subnetId: networkData?.networkId ?? null,
     publicKey: networkData?.keyPairFile
       ? await readFileAsText(networkData.keyPairFile)
       : null,
-    securityGroupIds: networkData?.securityGroupId
-      ? [networkData.securityGroupId]
-      : [],
-    imageId: osData?.osImageId,
+    securityGroupIds: networkData?.securityGroupIds ?? [],
+    imageId: osData?.osImageId ?? null,
     middleWareId: osData?.middlewareId,
-    storages: configData?.storages.map((storage: any) => ({
-      name: storage.name,
-      size: storage.size * 1024 * 1024 * 1024,
-      poolId: storage.poolId,
-      // ★★★ ここを修正: "os" から "backup" に変更 ★★★
-      backupId: storage.type === "backup" ? configData.backupId : null,
-    })),
+    storages:
+      configData?.storages.map((storage: any) => ({
+        name: storage.name,
+        size: convertUnitToByte(storage.size, "GB"),
+        poolId: storage.poolId,
+        backupId: storage.type === "backup" ? configData.backupId : null,
+      })) ?? [],
   };
+
+  let payload: VirtualMachineCreateRequestDTO;
+
+  if (configData?.templateId) {
+    // パターンA: インスタンスタイプIDがある場合
+    payload = {
+      ...basePayload,
+      instanceTypeId: configData.templateId,
+    };
+  } else {
+    // パターンB: CPUとメモリをカスタム指定する場合
+    payload = {
+      ...basePayload,
+      cpuCores: configData?.cpuCores,
+      memorySize: convertUnitToByte(configData?.memorySize, "MB"),
+    };
+  }
 
   const result = await executeCreate(payload);
 
@@ -195,7 +184,6 @@ const handleSubmit = async () => {
       message: `仮想マシン「${payload.name}」が作成されました`,
     });
     emit("success");
-    emit("close");
   } else {
     addToast({
       type: "error",
@@ -207,7 +195,6 @@ const handleSubmit = async () => {
 </script>
 
 <style scoped>
-/* (スタイルは変更なし) */
 .btn-primary {
   @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
 }
