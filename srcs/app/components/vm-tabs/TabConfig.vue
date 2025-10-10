@@ -1,191 +1,275 @@
 <template>
-  <div class="space-y-6">
-    <div>
-      <label for="template-select" class="form-label">テンプレート</label>
-      <select
-        id="template-select"
-        v-model="selectedTemplate"
-        class="form-input"
+  <div class="modal-space">
+    <FormSelect
+      label="テンプレート"
+      name="template-select"
+      :pending="templatesPending"
+      :error="templatesError"
+      :options="templates ?? []"
+      placeholder="使用しない"
+      :placeholder-value="undefined"
+      v-model="templateId"
+      v-model:attrs="templateIdAttrs"
+    >
+      <template #option="{ option }">
+        {{ option.name }} ({{ option.cpuCores }}コア,
+        {{ convertByteToUnit(option.memorySize, "MB") }}MB)
+      </template>
+    </FormSelect>
+
+    <FormSection title="CPU / メモリ" v-if="!values.templateId">
+      <FormInput
+        label="CPUコア数"
+        name="cpu-cores"
+        type="number"
+        v-model="cpuCores"
+        v-model:attrs="cpuCoresAttrs"
+        :error="errors.cpuCores"
       >
-        <option value="none">使用しない</option>
-        <option value="web-small">Webサーバー (Small)</option>
-        <option value="db-medium">DBサーバー (Medium)</option>
-      </select>
-    </div>
+        <template #suffix>
+          <span class="form-unit-label">vCPU</span>
+        </template>
+      </FormInput>
 
-    <div v-if="selectedTemplate === 'none'" class="form-section space-y-4">
-      <h3 class="section-title">CPU / メモリ</h3>
-      <div>
-        <label for="cpu-cores" class="form-label-sm">CPUコア数</label>
-        <input
-          type="number"
-          id="cpu-cores"
-          v-model="cpuCores"
-          class="form-input"
-        />
-      </div>
-      <div>
-        <label for="memory-mb" class="form-label-sm">メモリ (MB)</label>
-        <input
-          type="number"
-          id="memory-mb"
-          v-model="memoryMb"
-          class="form-input"
-        />
-      </div>
-    </div>
-
-    <div>
-      <label for="backup-select" class="form-label">バックアップ</label>
-      <select id="backup-select" v-model="selectedBackup" class="form-input">
-        <option value="none">使用しない</option>
-        <option v-for="backup in backups" :key="backup.id" :value="backup.id">
-          {{ backup.name }} ({{ backup.size }}GB)
-        </option>
-      </select>
-    </div>
-
-    <div class="form-section">
-      <h3 class="section-title mb-4">ストレージ設定</h3>
-
-      <div
-        v-for="(storage, index) in storageList"
-        :key="storage.id"
-        class="storage-grid"
+      <FormInput
+        label="メモリ (MB)"
+        name="memory-gb"
+        type="number"
+        :step="1024"
+        v-model="memorySize"
+        v-model:attrs="memorySizeAttrs"
+        :error="errors.memorySize"
       >
-        <div class="col-span-1 text-center text-gray-600 font-medium">
-          {{ index + 1 }}.
-        </div>
+        <template #suffix>
+          <span class="form-unit-label">MB</span>
+        </template>
+      </FormInput>
+    </FormSection>
 
-        <div class="col-span-4">
-          <label class="input-label-xs">名前</label>
-          <input
-            type="text"
-            v-model="storage.name"
-            :placeholder="storage.type === 'os' ? 'OS' : '例: web-data'"
-            :disabled="storage.type === 'os' || storage.type === 'backup'"
-            class="form-input"
+    <FormSelect
+      label="バックアップ"
+      name="backup-select"
+      :pending="backupsPending"
+      :error="backupsError"
+      :options="backups ?? []"
+      placeholder="使用しない"
+      :placeholder-value="null"
+      v-model="backupId"
+      v-model:attrs="backupIdAttrs"
+    >
+      <template #option="{ option }">
+        {{ option.name }} ({{
+          convertByteToUnit(option.targetVirtualStorage.size ?? 0, "GB")
+        }}GB)
+      </template>
+    </FormSelect>
+
+    <FormSection title="ストレージ設定">
+      <table class="w-full">
+        <thead>
+          <tr class="text-sm font-semibold text-gray-600">
+            <th class="w-[5%] px-1 py-2 text-center">No.</th>
+            <th class="w-[33%] px-1 py-2">名前</th>
+            <th class="w-[25%] px-1 py-2">サイズ</th>
+            <th class="w-[37%] px-1 py-2">ストレージプール</th>
+            <th class="w-8"></th>
+          </tr>
+        </thead>
+        <tbody>
+          <StorageRow
+            v-for="(field, index) in storageFields"
+            :key="field.key"
+            :index="index"
+            :pools="storagePools"
+            :errors="errors"
+            :pools-pending="poolsPending"
+            :pools-error="poolsError"
+            v-model="field.value"
+            @remove="removeStorageRow(index)"
           />
-        </div>
+        </tbody>
+      </table>
 
-        <div class="col-span-2">
-          <label class="input-label-xs">サイズ</label>
-          <input
-            type="number"
-            v-model="storage.size"
-            :disabled="storage.type === 'os' || storage.type === 'backup'"
-            class="form-input"
-          />
-        </div>
-        <div class="col-span-1 self-end pb-2">GB</div>
-
-        <div class="col-span-4">
-          <label class="input-label-xs">ストレージプール</label>
-          <select v-model="storage.pool" class="form-input">
-            <option>Pool-1</option>
-            <option>Pool-2</option>
-          </select>
-        </div>
+      <div class="section-btn">
+        <button type="button" @click="addNewStorageRow" class="btn btn-add">
+          追加
+        </button>
       </div>
-
-      <div class="flex justify-end mt-4">
-        <button @click="addStorage" class="btn-secondary">追加</button>
-      </div>
-    </div>
+    </FormSection>
   </div>
 </template>
 
-<script setup>
-import { ref, watch } from "vue";
+<script setup lang="ts">
+import { watch } from "vue";
+import { useForm, useFieldArray } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
+import FormSection from "../FormSection.vue"; // セクション用の共通コンポーネント
 
-// テンプレート選択の状態
-const selectedTemplate = ref("none");
+// ==============================================================================
+// Validation Schema
+// フォームのバリデーションルールをZodで定義します。
+// ==============================================================================
+const validationSchema = toTypedSchema(
+  z
+    .object({
+      templateId: z.string().optional().nullable(),
+      // preprocessを使って、入力が空文字の場合にバリデーション前にnullに変換します
+      cpuCores: z.preprocess(
+        (val) => (val === "" ? null : val),
+        z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
+      ),
+      memorySize: z.preprocess(
+        (val) => (val === "" ? null : val),
+        z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
+      ),
+      backupId: z.string().nullable(),
+      // ストレージ設定は、オブジェクトの配列として定義します
+      storages: z
+        .array(
+          z.object({
+            id: z.union([z.string(), z.number()]),
+            name: z.string().min(1, "名前は必須です。"),
+            size: z
+              .number({ invalid_type_error: "サイズは必須です。" })
+              .int("整数で入力してください。")
+              .min(1, "1以上の値を入力してください。"),
+            poolId: z
+              .string({ required_error: "プールを選択してください。" })
+              .min(1, "プールを選択してください。"), // 空文字でないこともチェック
+            type: z.string(),
+          })
+        )
+        .min(1), // ストレージは最低1行必要です
+    })
+    // superRefineを使って、複数のフィールドにまたがる複雑なバリデーションを定義します
+    .superRefine((data, context) => {
+      // テンプレートが選択されていない場合のみ、CPUとメモリのバリデーションを実行します
+      if (!data.templateId) {
+        if (
+          data.cpuCores == null ||
+          data.cpuCores < 1 ||
+          !Number.isInteger(data.cpuCores)
+        ) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "1以上の整数を入力してください。",
+            path: ["cpuCores"],
+          });
+        }
+        if (
+          data.memorySize == null ||
+          data.memorySize < 1 ||
+          !Number.isInteger(data.memorySize)
+        ) {
+          context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "1以上の整数を入力してください。",
+            path: ["memorySize"],
+          });
+        }
+      }
+    })
+);
 
-// CPUとメモリの値
-const cpuCores = ref(2);
-const memoryMb = ref(2048);
+// ==============================================================================
+// Form Setup
+// VeeValidateのuseFormを使って、フォーム全体を管理します。
+// ==============================================================================
+const { errors, defineField, values, meta } = useForm({
+  validationSchema,
+  initialValues: {
+    cpuCores: 2,
+    memorySize: 2048,
+    backupId: null,
+    storages: [
+      { id: 1, name: "OS", size: 20, poolId: "", type: "os" as const },
+    ],
+  },
+});
 
-// ダミーのバックアップデータ
-const backups = ref([
-  { id: "bk01", name: "daily-backup-web01", size: 30 },
-  { id: "bk02", name: "weekly-backup-db01", size: 80 },
-]);
+// 各フォームフィールドとVeeValidateを連携させます
+const [templateId, templateIdAttrs] = defineField("templateId");
+const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
+const [memorySize, memorySizeAttrs] = defineField("memorySize");
+const [backupId, backupIdAttrs] = defineField("backupId");
 
-// 選択されたバックアップの状態
-const selectedBackup = ref("none");
+// useFieldArrayを使って、動的なストレージ行の配列を管理します
+const {
+  fields: storageFields,
+  push: addStorageRow,
+  remove: removeStorageRow,
+} = useFieldArray<any>("storages");
 
-// ストレージリストの状態
-const storageList = ref([
-  { id: 1, name: "OS", size: 20, pool: "Pool-1", type: "os" },
-]);
-let nextStorageId = 2;
+// 親コンポーネントにフォームデータと状態を公開します
+defineExpose({ formData: values, isValid: meta });
 
-// ストレージを手動で追加する関数
-const addStorage = () => {
-  storageList.value.push({
+// ==============================================================================
+// API Data Fetching
+// 各種プルダウンの選択肢をAPIから取得します。
+// ==============================================================================
+const {
+  data: templates,
+  pending: templatesPending,
+  error: templatesError,
+} = useResourceList<ModelInstanceTypeDTO>("instance-type");
+const {
+  data: backups,
+  pending: backupsPending,
+  error: backupsError,
+} = useResourceList<BackupDTO>("backup");
+const {
+  data: storagePools,
+  pending: poolsPending,
+  error: poolsError,
+} = useResourceList<StoragePoolDTO>("storage-pool");
+
+// ==============================================================================
+// UI Logic
+// ユーザー操作に応じた挙動を定義します。
+// ==============================================================================
+let nextStorageId = 2; // 手動追加するストレージ行の一意なIDを管理
+
+/**
+ * 新しい空のストレージ行を追加します。
+ */
+const addNewStorageRow = () => {
+  addStorageRow({
     id: nextStorageId++,
     name: "",
     size: 10,
-    pool: "Pool-1",
-    type: "manual",
+    poolId: "",
+    type: "manual" as const,
   });
 };
 
-// selectedBackup の変更を監視する
-watch(selectedBackup, (newBackupId) => {
-  storageList.value = storageList.value.filter(
-    (item) => item.type !== "backup"
+/**
+ * バックアップの選択状態を監視し、ストレージ行を自動的に追加・削除します。
+ */
+watch(backupId, (newBackupId) => {
+  // 既存のバックアップ行があれば削除
+  const existingBackupRowIndex = storageFields.value.findIndex(
+    (field) => field.value.type === "backup"
   );
-  if (newBackupId !== "none") {
-    const backupData = backups.value.find((b) => b.id === newBackupId);
-    if (backupData) {
-      storageList.value.push({
-        id: nextStorageId++,
-        name: `backup-${backupData.name}`,
-        size: backupData.size,
-        pool: "Pool-1",
-        type: "backup",
+  if (existingBackupRowIndex !== -1) {
+    removeStorageRow(existingBackupRowIndex);
+  }
+
+  // 新しいバックアップが選択された場合、対応するストレージ行を追加
+  if (newBackupId && backups.value) {
+    const selectedBackupData = backups.value.find((b) => b.id === newBackupId);
+    if (selectedBackupData) {
+      addStorageRow({
+        id: `backup-${selectedBackupData.id}`,
+        name: `backup-${selectedBackupData.name}`,
+        size: convertByteToUnit(
+          selectedBackupData.targetVirtualStorage?.size ?? 0,
+          "GB"
+        ),
+        poolId: "", // プールはユーザーに選択させる
+        type: "backup" as const,
       });
     }
   }
 });
 </script>
-
-<style scoped>
-/* フォームセクションの共通スタイル */
-.form-section {
-  @apply p-4 border border-gray-200 rounded-lg;
-}
-.section-title {
-  @apply font-semibold text-gray-800;
-}
-
-/* ラベルの共通スタイル */
-.form-label {
-  @apply block mb-1.5 font-semibold text-gray-700;
-}
-.form-label-sm {
-  @apply block mb-1.5 text-sm font-medium text-gray-600;
-}
-.input-label-xs {
-  @apply block text-xs text-gray-500 mb-1;
-}
-
-/* 入力欄（input, select）の共通スタイル */
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
-}
-.form-input:disabled {
-  @apply bg-gray-100 cursor-not-allowed;
-}
-
-/* ストレージ設定のグリッドレイアウト */
-.storage-grid {
-  @apply grid grid-cols-12 gap-3 items-center mb-3;
-}
-
-/* ボタンのスタイル */
-.btn-secondary {
-  @apply py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300;
-}
-</style>

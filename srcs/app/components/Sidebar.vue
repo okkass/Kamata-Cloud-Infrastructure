@@ -8,10 +8,9 @@ import {
 
 // --- Props ---
 const props = defineProps({
-  role: {
-    type: String,
+  isAdmin: {
+    type: Boolean,
     required: true,
-    validator: (value: string) => ["admin", "user"].includes(value),
   },
 });
 
@@ -20,11 +19,11 @@ const { isSidebarOpen, toggleSidebar } = useSidebar();
 
 // --- Data ---
 const sidebarSections = computed(() => {
-  return props.role === "admin" ? adminSidebarSections : userSidebarSections;
+  return props.isAdmin ? adminSidebarSections : userSidebarSections;
 });
 
 const sidebarTitle = computed(() => {
-  return props.role === "admin" ? "管理者メニュー" : "利用者メニュー";
+  return props.isAdmin ? "管理者メニュー" : "利用者メニュー";
 });
 
 // --- State ---

@@ -1,156 +1,293 @@
 <template>
-  <div class="space-y-6">
-    <div class="form-section space-y-4">
-      <h3 class="section-title">ネットワーク</h3>
-
-      <div>
-        <label for="network-select" class="form-label-sm">ネットワーク</label>
-        <select id="network-select" class="form-input">
-          <option>student-net</option>
-          <option>teacher-net</option>
-        </select>
+  <div class="modal-space">
+    <!-- 1. 仮想ネットワーク(VPC)選択 -->
+    <div>
+      <label for="vpc-select" class="form-label">
+        仮想ネットワーク <span class="required-asterisk">*</span>
+      </label>
+      <div v-if="networksPending" class="text-loading">読み込み中...</div>
+      <div v-else-if="networksError" class="text-error">
+        取得に失敗しました。
       </div>
-
-      <div>
-        <label for="subnet-select" class="form-label-sm">サブネット</label>
-        <select id="subnet-select" class="form-input">
-          <option>192.168.10.0/24</option>
-          <option>172.16.0.0/24</option>
-        </select>
-      </div>
-
-      <div>
-        <label for="public-key" class="form-label-sm">公開鍵</label>
-        <textarea
-          id="public-key"
-          rows="3"
-          placeholder="ssh-rsa AAAAB3..."
-          class="form-input mb-2"
-        ></textarea>
-
-        <div class="flex items-center">
-          <label class="btn-secondary cursor-pointer">
-            <span>ファイルを選択</span>
-            <input type="file" class="hidden" @change="handleFileChange" />
-          </label>
-          <span class="ml-3 text-sm text-gray-600">{{ selectedFileName }}</span>
-        </div>
-      </div>
+      <select
+        v-else
+        id="vpc-select"
+        v-model="selectedVpcId"
+        class="form-input"
+        :class="{ 'form-border-error': errors.subnetId && !selectedVpcId }"
+      >
+        <option :value="undefined" disabled>VPCを選択してください</option>
+        <option v-for="vpc in networks" :key="vpc.id" :value="vpc.id">
+          {{ vpc.name }}
+        </option>
+      </select>
     </div>
 
-    <div class="form-section">
-      <h3 class="section-title mb-4">セキュリティグループ</h3>
+    <!-- 2. サブネット選択 -->
+    <div>
+      <label for="subnet-select" class="form-label">
+        サブネット <span class="required-asterisk">*</span>
+      </label>
+      <select
+        id="subnet-select"
+        v-model="subnetId"
+        v-bind="subnetIdAttrs"
+        class="form-input"
+        :class="{ 'form-border-error': errors.subnetId }"
+        :disabled="!selectedVpcId"
+      >
+        <option :value="undefined" disabled>
+          サブネットを選択してください
+        </option>
+        <option
+          v-for="subnet in availableSubnets"
+          :key="subnet.id"
+          :value="subnet.id"
+        >
+          {{ subnet.name }} ({{ subnet.cidr }})
+        </option>
+      </select>
+      <p v-if="errors.subnetId" class="text-error mt-1">
+        {{ errors.subnetId }}
+      </p>
+    </div>
 
-      <table class="w-full text-sm text-left text-gray-700">
-        <thead class="text-xs text-gray-800 uppercase bg-gray-100">
-          <tr>
-            <th class="px-4 py-2">グループ名</th>
-            <th class="px-4 py-2">説明</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="appliedGroups.length === 0">
-            <td colspan="2" class="text-center py-4 text-gray-500">
-              適用中のセキュリティグループはありません
-            </td>
-          </tr>
-          <tr
-            v-for="group in appliedGroups"
-            :key="group.name"
-            class="bg-white border-b"
-          >
-            <td class="px-4 py-2 font-medium">{{ group.name }}</td>
-            <td class="px-4 py-2">{{ group.description }}</td>
-          </tr>
-        </tbody>
-      </table>
+    <!-- 3. セキュリティグループ選択 -->
+    <div>
+      <label for="security-group-select" class="form-label"
+        >セキュリティグループ</label
+      >
+      <div v-if="sgPending" class="text-loading">読み込み中...</div>
+      <div v-else-if="sgError" class="text-error">取得に失敗しました。</div>
+      <select
+        v-else
+        id="security-group-select"
+        v-model="securityGroupId"
+        v-bind="securityGroupIdAttrs"
+        class="form-input"
+      >
+        <option :value="null">なし</option>
+        <option v-for="sg in securityGroups" :key="sg.id" :value="sg.id">
+          {{ sg.name }}
+        </option>
+      </select>
+    </div>
 
-      <div class="flex items-center gap-3 mt-4">
-        <select v-model="selectedGroupToAdd" class="form-input flex-grow">
-          <option :value="null" disabled>追加するグループを選択</option>
-          <option
-            v-for="group in availableGroups"
-            :key="group.name"
-            :value="group.name"
+    <!-- 4. 公開鍵ファイルアップロードUI -->
+    <div>
+      <label class="form-label">公開鍵ファイル</label>
+      <div
+        class="mt-1 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10"
+        :class="{ 'bg-blue-50': isDragging }"
+        @dragover.prevent="isDragging = true"
+        @dragleave.prevent="isDragging = false"
+        @drop.prevent="handleFileDrop"
+      >
+        <div class="text-center">
+          <!-- Upload Icon -->
+          <svg
+            class="mx-auto mb-3 h-10 w-10 text-gray-400"
+            viewBox="0 0 24 24"
+            fill="none"
           >
-            {{ group.name }}
-          </option>
-        </select>
-        <button @click="addGroup" class="btn-secondary">追加</button>
+            <path
+              d="M12 16V4m0 0l-4 4m4-4l4 4"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+            <path
+              d="M20 16v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2"
+              stroke="currentColor"
+              stroke-width="1.5"
+            />
+          </svg>
+          <!-- Upload Text and Button -->
+          <div class="mt-4 flex text-sm leading-6 text-gray-600">
+            <label
+              for="file-upload"
+              class="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 focus-within:outline-none focus-within:ring-2 focus-within:ring-blue-600 focus-within:ring-offset-2 hover:text-blue-500"
+            >
+              <span>クリックして選択</span>
+              <input
+                id="file-upload"
+                ref="fileInput"
+                type="file"
+                class="sr-only"
+                @change="handleFileSelection"
+                accept=".pub"
+              />
+            </label>
+            <p class="pl-1">、またはドラッグ＆ドロップ</p>
+          </div>
+          <p class="text-xs leading-5 text-gray-600">対応 : pub</p>
+          <!-- Selected File Name -->
+          <p
+            v-if="keyPairFile"
+            class="text-sm font-semibold text-green-600 mt-2"
+          >
+            選択中のファイル: {{ (keyPairFile as File).name }}
+          </p>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+import { ref, computed, watch } from "vue";
+import { useResourceList } from "~/composables/useResourceList";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
 
-// --- 公開鍵ファイルの状態 ---
-const selectedFileName = ref("選択されていません");
-const handleFileChange = (event) => {
-  const file = event.target.files[0];
-  if (file) {
-    selectedFileName.value = file.name;
-    // ここでファイル読み込み処理などを追加できる
-  } else {
-    selectedFileName.value = "選択されていません";
-  }
+// ==============================================================================
+// Type Definitions
+// APIのレスポンスに合わせて型を定義
+// ==============================================================================
+interface Subnet {
+  id: string;
+  name: string;
+  cidr: string;
+}
+interface VirtualNetwork {
+  id: string;
+  name: string;
+  subnets: Subnet[];
+}
+interface SecurityGroupDTO {
+  id: string;
+  name: string;
+}
+
+// ==============================================================================
+// Validation Schema
+// フォームのバリデーションルールをZodで定義
+// ==============================================================================
+const validationSchema = toTypedSchema(
+  z.object({
+    // サブネットIDは必須
+    subnetId: z.string({ required_error: "サブネットを選択してください。" }),
+    // 他は任意項目
+    securityGroupId: z.string().nullable(),
+    keyPairFile: z.any().nullable(),
+  })
+);
+
+// ==============================================================================
+// Form Setup
+// VeeValidateのuseFormを使ってフォーム全体を管理
+// ==============================================================================
+const { errors, defineField, values, meta, setFieldValue } = useForm({
+  validationSchema,
+  initialValues: {
+    subnetId: undefined,
+    securityGroupId: null,
+    keyPairFile: null,
+  },
+});
+
+// VPC選択用のローカルstate。VeeValidateの管理下には置かない
+const selectedVpcId = ref<string | undefined>(undefined);
+
+// VeeValidateが管理するフォームフィールドを定義
+const [subnetId, subnetIdAttrs] = defineField("subnetId");
+const [securityGroupId, securityGroupIdAttrs] = defineField("securityGroupId");
+const [keyPairFile] = defineField("keyPairFile"); // v-modelを使わないため、attrsは不要
+
+// 親コンポーネントにフォームのデータとバリデーション状態を公開
+defineExpose({ formData: values, isValid: meta });
+
+// ==============================================================================
+// API Data Fetching
+// useResourceListを使って、プルダウンメニューの選択肢をAPIから取得
+// ==============================================================================
+const {
+  data: networks,
+  pending: networksPending,
+  error: networksError,
+} = useResourceList<VirtualNetwork>("virtual-network");
+const {
+  data: securityGroups,
+  pending: sgPending,
+  error: sgError,
+} = useResourceList<SecurityGroupDTO>("security-group");
+
+// ==============================================================================
+// UI Logic
+// ユーザーの操作に応じたコンポーネントの挙動を定義
+// ==============================================================================
+
+/**
+ * 選択されたVPCに属するサブネットのリストを動的に計算するComputedプロパティ
+ */
+const availableSubnets = computed(() => {
+  // VPCが選択されていない、またはネットワーク一覧がまだ読み込まれていない場合は空配列を返す
+  if (!selectedVpcId.value || !networks.value) return [];
+  // 選択されたVPCのオブジェクトを検索
+  const selectedVPC = networks.value.find(
+    (net) => net.id === selectedVpcId.value
+  );
+  // 見つかったVPCのサブネットリストを返す（なければ空配列）
+  return selectedVPC?.subnets || [];
+});
+
+/**
+ * VPCの選択が変更されたことを監視し、サブネットの選択をリセットする
+ */
+watch(selectedVpcId, () => {
+  setFieldValue("subnetId", undefined);
+});
+
+// --- File Upload Logic ---
+const fileInput = ref<HTMLInputElement | null>(null); // ファイル選択ダイアログを開くための参照
+const isDragging = ref(false); // ドラッグ中かどうかの状態
+
+/**
+ * ファイル選択ダイアログを開く
+ */
+const triggerFilePicker = () => {
+  fileInput.value?.click();
 };
 
-// --- セキュリティグループの状態 ---
-// 適用されているセキュリティグループのリスト
-const appliedGroups = ref([]);
-// プルダウンに表示する、追加可能なグループのリスト（ダミーデータ）
-const availableGroups = ref([
-  { name: "default", description: "デフォルトのセキュリティグループ" },
-  { name: "web-server", description: "Webサーバー用のセキュリティグループ" },
-  { name: "allow-http", description: "HTTP通信を許可" },
-  { name: "allow-ssh", description: "SSH接続を許可" },
-]);
-// プルダウンで選択されているグループ
-const selectedGroupToAdd = ref(null);
+/**
+ * ファイルが選択された（またはドロップされた）後の共通処理
+ * @param {File | null} file - 選択またはドロップされたファイル
+ */
+const handleFileChange = (file: File | null) => {
+  if (!file) return;
 
-// セキュリティグループを追加する関数
-const addGroup = () => {
-  // グループが選択されていない場合は何もしない
-  if (!selectedGroupToAdd.value) {
-    alert("追加するグループを選択してください。");
+  // ★ 2. ファイル形式のチェック処理を追加
+  if (!file.name.endsWith(".pub")) {
+    addToast({
+      type: "error",
+      message: "無効なファイル形式です。.pubファイルを選択してください。",
+    });
+    // ファイル選択をリセット
+    if (fileInput.value) {
+      fileInput.value.value = "";
+    }
+    setFieldValue("keyPairFile", null);
     return;
   }
 
-  // 選択されたグループの完全なオブジェクトを探す
-  const groupObject = availableGroups.value.find(
-    (g) => g.name === selectedGroupToAdd.value
-  );
+  setFieldValue("keyPairFile", file);
+};
 
-  // 既に追加されていないかチェック
-  const isAlreadyAdded = appliedGroups.value.some(
-    (g) => g.name === selectedGroupToAdd.value
-  );
+/**
+ * ファイル選択ダイアログでファイルが選ばれたときのハンドラ
+ * @param {Event} event - input要素のchangeイベント
+ */
+const handleFileSelection = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  handleFileChange(target.files?.[0] || null);
+};
 
-  if (groupObject && !isAlreadyAdded) {
-    appliedGroups.value.push(groupObject);
-  } else if (isAlreadyAdded) {
-    alert("このグループは既に追加されています。");
-  }
+/**
+ * ファイルがドロップされたときのハンドラ
+ * @param {DragEvent} event - dropイベント
+ */
+const handleFileDrop = (event: DragEvent) => {
+  isDragging.value = false;
+  handleFileChange(event.dataTransfer?.files?.[0] || null);
 };
 </script>
-
-<style scoped>
-/* 既存のフォームスタイルを再利用 */
-.form-section {
-  @apply p-4 border border-gray-200 rounded-lg;
-}
-.section-title {
-  @apply font-semibold text-gray-800;
-}
-.form-label-sm {
-  @apply block mb-1.5 text-sm font-medium text-gray-600;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
-}
-.btn-secondary {
-  @apply py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 whitespace-nowrap;
-}
-</style>

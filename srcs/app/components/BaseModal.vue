@@ -4,7 +4,7 @@
     class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50"
   >
     <div
-      class="bg-white p-6 rounded-lg shadow-xl w-full max-w-lg flex flex-col max-h-[90vh]"
+      class="bg-white p-6 rounded-lg shadow-xl w-full max-w-3xl flex flex-col max-h-[90vh]"
     >
       <div
         class="flex-shrink-0 flex justify-between items-center border-b border-gray-200 pb-4 mb-4"
@@ -14,11 +14,11 @@
           @click="$emit('close')"
           class="text-3xl text-gray-500 hover:text-gray-800"
         >
-          &times;
+          <IconCross />
         </button>
       </div>
 
-      <div class="modal-body overflow-y-auto">
+      <div class="modal-body overflow-y-auto p-3" :class="modalBodyClass">
         <slot />
       </div>
     </div>
@@ -26,9 +26,23 @@
 </template>
 
 <script setup>
-defineProps({
+import { computed } from "vue";
+
+const props = defineProps({
   show: { type: Boolean, required: true },
   title: { type: String, default: "モーダル" },
+  size: { type: String, default: "md" },
 });
 defineEmits(["close"]);
+
+const modalBodyClass = computed(() => {
+  switch (props.size) {
+    case "lg":
+      return "h-[450px]";
+    case "md":
+      return "h-[300px]";
+    default:
+      return "";
+  }
+});
 </script>

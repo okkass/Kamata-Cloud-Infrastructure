@@ -14,41 +14,19 @@
       </NuxtLink>
     </template>
 
-    <!-- 行メニュー（この文字スタイルは維持） -->
-    <template #row-actions="{ row }">
-      <NuxtLink
-        :to="`/physical-node/${row.id}`"
-        class="block px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t first:border-t-0 border-slate-200"
-        >詳細</NuxtLink
-      >
-
-      <button
-        type="button"
-        class="block w-full text-left px-4 py-3 text-[15px] font-semibold border-t border-slate-200"
-        :class="
-          row.isMgmt || switchingId === row.id
-            ? 'text-slate-400 cursor-not-allowed'
-            : 'text-slate-900 hover:bg-[#f5f7fa]'
-        "
-        :disabled="row.isMgmt || switchingId === row.id"
-        @click.stop.prevent="switchManagementNodeToTarget(row.id)"
-      >
-        管理ノードに設定
-      </button>
-
-      <button
-        type="button"
-        class="block w-full text-left px-4 py-3 text-[15px] font-semibold border-t border-slate-200"
-        :class="
-          row.isMgmt
-            ? 'text-slate-300 cursor-not-allowed'
-            : 'text-red-600 hover:bg-red-50'
-        "
-        :disabled="row.isMgmt"
-        @click.stop.prevent="handleDeleteRowClick(row)"
-      >
-        削除
-      </button>
+    <!-- 管理ノードは「削除不可」バッジ、他は通常メニュー -->
+    <template #row-actions="{ row, emit }">
+      <template v-if="row.isMgmt">
+        <div class="action-item-disabled">削除不可</div>
+      </template>
+      <template v-else>
+        <a href="#" class="action-item" @click.prevent="emit('delete')">
+          削除
+        </a>
+        <a href="#" class="action-item" @click.prevent="emit('set-mgmt')">
+          管理ノードに設定
+        </a>
+      </template>
     </template>
   </DashboardLayout>
 

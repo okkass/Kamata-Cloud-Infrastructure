@@ -1,98 +1,144 @@
 <template>
-  <BaseModal :show="show" :title="modalTitle" @close="$emit('close')">
-    <div class="flex flex-col">
+  <BaseModal :show="show" :title="modalTitle" @close="$emit('close')" size="lg">
+    <div>
       <div class="flex border-b border-gray-200">
         <button
           v-for="(tab, index) in tabs"
           :key="tab.name"
           @click="currentTab = index"
           :class="[
-            'py-2 px-4 text-sm font-medium',
-            currentTab === index
-              ? 'border-b-2 border-blue-500 text-blue-600' // アクティブなタブ
-              : 'text-gray-500 hover:text-gray-700', // 非アクティブなタブ
+            'relative py-2 px-4 text-sm font-medium',
+            currentTab === index ? 'tab-button-active' : 'tab-button',
           ]"
         >
           {{ tab.name }}
+          <span
+            v-if="!tabValidity[index]"
+            class="tab-error-indicator"
+            title="このタブに入力エラーがあります"
+          ></span>
         </button>
       </div>
 
-      <div class="pt-6">
-        <keep-alive>
-          <component :is="tabs[currentTab].component" />
-        </keep-alive>
+      <div class="pt-6 min-h-[300px]">
+        <component
+          v-for="(tab, index) in tabs"
+          :key="index"
+          v-show="currentTab === index"
+          :is="tab.component"
+          :ref="
+            (el) => {
+              if (el) tabRefs[index] = el;
+            }
+          "
+        />
       </div>
 
-      <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-        <button
-          @click="prevTab"
-          :disabled="currentTab === 0"
-          class="py-2 px-5 bg-gray-500 text-white font-semibold rounded-lg shadow-md hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          戻る
-        </button>
-        <button
-          v-if="currentTab < tabs.length - 1"
-          @click="nextTab"
-          class="py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700"
-        >
-          次へ
-        </button>
-        <button
-          v-else
-          @click="createVirtualMachine"
-          class="py-2 px-5 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700"
-        >
-          作成
-        </button>
+      <div class="modal-footer">
+        <div class="flex gap-3">
+          <SecondaryButton @click="prevTab" :disabled="currentTab === 0">
+            戻る
+          </SecondaryButton>
+
+          <button
+            v-if="currentTab < tabs.length - 1"
+            @click="nextTab"
+            class="btn btn-primary"
+          >
+            次へ
+          </button>
+
+          <button
+            v-else
+            @click="handleFinalSubmit"
+            :disabled="isCreating"
+            class="btn btn-submit"
+          >
+            {{ isCreating ? "作成中..." : "作成" }}
+          </button>
+        </div>
       </div>
     </div>
   </BaseModal>
 </template>
 
-<script setup>
-import { ref, markRaw } from "vue";
+<script setup lang="ts">
+/**
+ * =================================================================================
+ * 仮想マシン作成モーダル (MoVirtualMachineCreate.vue)
+ * ---------------------------------------------------------------------------------
+ * このコンポーネントは、複数のタブコンポーネントを内包するウィザード形式のモーダルです。
+ * 各タブの管理、バリデーションの集約、最終的なAPIへのデータ送信といった、
+ * 全体を統括する役割を担います。
+ * =================================================================================
+ */
 
 // --- 親コンポーネントとの連携 ---
-defineProps({
-  show: { type: Boolean, required: true },
-});
-const emit = defineEmits(["close"]);
+// `show` prop を受け取り、`close` と `success` イベントを通知します。
+defineProps({ show: { type: Boolean, required: true } });
+const emit = defineEmits(["close", "success"]);
 
-// --- ここからがこのコンポーネントのロジック ---
+// --- Composableのセットアップ ---
 
-// 1. 各タブの情報を定義
-import TabGeneral from "~/components/vm-tabs/TabGeneral.vue";
-import TabConfig from "~/components/vm-tabs/TabConfig.vue";
-import TabOsMiddleware from "~/components/vm-tabs/TabOsMiddleware.vue";
-import TabNetwork from "~/components/vm-tabs/TabNetwork.vue";
+// 1. ウィザードフォーム管理 (useVmWizardForm)
+//    - タブの状態（現在のタブ、各タブの参照など）とロジックを管理します。
+//    - 全タブのデータを集約し、API送信用データ（ペイロード）を構築する責務も持ちます。
+const {
+  currentTab,
+  tabRefs,
+  tabs,
+  tabValidity,
+  prevTab, // 関数名をより具体的に
+  nextTab, // 関数名をより具体的に
+  buildPayloadAndValidate,
+} = useVmWizardForm();
 
-const tabs = [
-  { name: "概要", component: markRaw(TabGeneral) },
-  { name: "構成", component: markRaw(TabConfig) },
-  { name: "OS/ミドルウェア", component: markRaw(TabOsMiddleware) },
-  { name: "ネットワーク/セキュリティグループ", component: markRaw(TabNetwork) },
-];
+// 2. APIリソース作成 (useResourceCreate)
+//    - 指定されたリソース（ここでは 'virtual-machines'）の作成処理を抽象化します。
+const {
+  executeCreate: executeVirtualMachineCreation, // 関数名をより具体的に
+  isCreating,
+} = useResourceCreate<VirtualMachineCreateRequestDTO, VirtualMachineDTO>(
+  "virtual-machines"
+);
 
-// 2. 現在アクティブなタブを管理 (0から始まるインデックス)
-const currentTab = ref(0);
+// 3. トースト通知 (useToast)
+//    - ユーザーへのフィードバック（成功・エラー通知）を表示します。
+const { addToast } = useToast();
+
+// --- コンポーネントのローカルState ---
 const modalTitle = ref("仮想マシン作成");
 
-// 3. ナビゲーション関数
-const prevTab = () => {
-  if (currentTab.value > 0) {
-    currentTab.value--;
-  }
-};
-const nextTab = () => {
-  if (currentTab.value < tabs.length - 1) {
-    currentTab.value++;
-  }
-};
+// ==============================================================================
+// イベントハンドラ
+// ==============================================================================
 
-// 4. 作成処理
-const createVirtualMachine = () => {
-  alert("仮想マシンを作成します！");
-  emit("close");
+/**
+ * 最終的な「作成」ボタンがクリックされたときの処理
+ */
+const handleFinalSubmit = async () => {
+  // 1. 全てのタブのバリデーションを実行し、API送信用データを構築
+  //    - エラーがある場合は `buildPayloadAndValidate` がnullを返し、内部でトースト通知を出す
+  const payload = await buildPayloadAndValidate();
+  if (!payload) return; // バリデーションエラーがあればここで処理を中断
+
+  // 2. APIリクエストを実行
+  const result = await executeVirtualMachineCreation(payload);
+
+  // 3. 結果に応じてトースト通知を表示
+  if (result.success) {
+    addToast({
+      type: "success",
+      message: `仮想マシン「${payload.name}」が作成されました`,
+    });
+    emit("success"); // 親コンポーネントに成功を通知
+    emit("close"); // モーダルを閉じる
+  } else {
+    addToast({
+      type: "error",
+      message: "仮想マシンの作成に失敗しました。",
+      details: result.error?.message,
+    });
+  }
 };
 </script>
