@@ -5,33 +5,14 @@
     :rows="nodesUi"
     rowKey="id"
     :headerButtons="headerButtons"
-    @header-action="onHeaderAction"
+    @header-action="handleHeaderAction"
   >
+    <!-- name はリンク化（その他は汎用列：slot未定義） -->
     <template #cell-name="{ row }">
       <NuxtLink :to="`/physical-node/${row.id}`">
         {{ row.name }} <span v-if="row.isMgmt">（管理ノード）</span>
       </NuxtLink>
     </template>
-
-    <!-- 素の表示 -->
-    <template #cell-ip="{ row }"
-      ><span>{{ row.ip }}</span></template
-    >
-    <template #cell-status="{ row }"
-      ><span>{{ row.status }}</span></template
-    >
-    <template #cell-cpu="{ row }"
-      ><span>{{ row.cpu }}</span></template
-    >
-    <template #cell-mem="{ row }"
-      ><span>{{ row.mem }}</span></template
-    >
-    <template #cell-storage="{ row }"
-      ><span>{{ row.storage }}</span></template
-    >
-    <template #cell-createdAt="{ row }"
-      ><span>{{ formatDateTime(row.createdAt) }}</span></template
-    >
 
     <!-- 行メニュー（この文字スタイルは維持） -->
     <template #row-actions="{ row }">
@@ -64,7 +45,7 @@
             : 'text-red-600 hover:bg-red-50'
         "
         :disabled="row.isMgmt"
-        @click.stop.prevent="onDelete(row)"
+        @click.stop.prevent="handleDeleteRowClick(row)"
       >
         削除
       </button>
@@ -93,7 +74,9 @@ import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
 import MoAddNodeToCluster from "@/components/MoAddNodeToCluster.vue";
 import { useToast } from "@/composables/useToast";
 
-/* ===== 型 ===== */
+/* =========================
+ * 型定義（Composition API型安全）
+ * ========================= */
 type PhysicalNodeDTO = {
   id: string;
   name: string;
@@ -105,6 +88,7 @@ type PhysicalNodeDTO = {
   memoryUtilization?: number;
   storageUtilization?: number;
 };
+
 type UiNode = {
   id: string;
   name: string;
@@ -114,17 +98,25 @@ type UiNode = {
   mem: string;
   storage: string;
   isMgmt: boolean;
-  createdAt: string;
+  /** 表示用に整形済み（列側で特定キーをハードコーディングしない） */
+  createdAtText: string;
 };
+
 type CandidateDTO = { id: string; name: string; ipAddress: string };
+
 type TableColumn = {
-  key: string;
+  key: keyof UiNode | string;
   label: string;
-  width?: string | number;
+  /** 固定幅 or 比率（%）or auto */
+  width?: number | string;
+  /** レイアウト崩れ防止の最大幅 */
+  maxWidth?: number | string;
   align?: "left" | "center" | "right";
 };
 
-/* ===== 定数 ===== */
+/* =========================
+ * APIエンドポイント
+ * ========================= */
 const API = {
   base: "/api/physical-nodes",
   candidates: "/api/physical-nodes/candidates",
@@ -134,9 +126,12 @@ const API = {
     `/api/physical-nodes/${encodeURIComponent(id)}/unset-admin`,
 } as const;
 
-/* ===== データ取得 / ページアクション ===== */
+/* =========================
+ * データ取得 / ページアクション
+ * ========================= */
 const { data: nodesRaw, refresh } =
   useResourceList<PhysicalNodeDTO>("physical-nodes");
+
 const {
   activeModal,
   openModal,
@@ -152,24 +147,44 @@ const {
   resourceLabel: "物理ノード",
   refresh,
 });
+
 const { addToast } = useToast();
 
-/* ===== テーブル設定（列幅/整列を汎用化） ===== */
-const columns: TableColumn[] = [
-  { key: "name", label: "ノード名", width: 240 },
-  { key: "ip", label: "IPアドレス", width: 180 },
+/* =========================
+ * 列設定（width / maxWidth を汎用プロパティ化）
+ * ========================= */
+const columns = ref<TableColumn[]>([
+  { key: "name", label: "ノード名", width: 260, maxWidth: 360 },
+  { key: "ip", label: "IPアドレス", width: 180, maxWidth: 220 },
   { key: "status", label: "状態", width: 120, align: "center" },
   { key: "cpu", label: "CPU", width: 120, align: "right" },
   { key: "mem", label: "メモリ", width: 120, align: "right" },
   { key: "storage", label: "ストレージ", width: 140, align: "right" },
-  { key: "createdAt", label: "作成日時", width: 200 },
-];
-const headerButtons = [{ label: "ノード追加", action: "create" }];
+  // 特定キー createdAt を直接使わず、整形済みキー createdAtText を参照
+  { key: "createdAtText", label: "作成日時", width: 200, maxWidth: 220 },
+]);
 
-/* ===== 整形 ===== */
-const formatAsPercent = (v?: number) =>
-  typeof v === "number" && isFinite(v) ? `${Math.round(v * 100)}%` : "—";
+const headerButtons = ref([{ label: "ノード追加", action: "create" }] as const);
 
+/* =========================
+ * 整形ユーティリティ（index内で完結）
+ * ========================= */
+function formatAsPercent(v?: number): string {
+  return typeof v === "number" && isFinite(v) ? `${Math.round(v * 100)}%` : "—";
+}
+
+function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())} ${p(
+    d.getHours()
+  )}:${p(d.getMinutes())}`;
+}
+
+/* =========================
+ * UIノード（createdAt は createdAtText に変換）
+ * ========================= */
 const nodesUi = computed<UiNode[]>(() =>
   (nodesRaw.value ?? []).map((n) => ({
     id: n.id,
@@ -180,21 +195,23 @@ const nodesUi = computed<UiNode[]>(() =>
     mem: formatAsPercent(n.memoryUtilization),
     storage: formatAsPercent(n.storageUtilization),
     isMgmt: Boolean(n.isAdmin),
-    createdAt: n.createdAt,
+    createdAtText: formatDateTime(n.createdAt),
   }))
 );
 
-/* ===== 管理ノード切替（解除は並列、ログ付きで安全化） ===== */
+/* =========================
+ * 管理ノード切替（解除は並列）
+ * ========================= */
 const switchingId = ref<string | null>(null);
 
 async function switchManagementNodeToTarget(targetId: string): Promise<void> {
   if (switchingId.value === targetId) return;
+
   const target = nodesUi.value.find((n) => n.id === targetId);
   if (!target || target.isMgmt) return;
 
   switchingId.value = targetId;
   try {
-    // 既存の管理ノードを並列で解除
     const currentAdminIds = (nodesRaw.value ?? [])
       .filter((n) => n.isAdmin && n.id !== targetId)
       .map((n) => n.id);
@@ -211,7 +228,6 @@ async function switchManagementNodeToTarget(targetId: string): Promise<void> {
       });
     }
 
-    // 対象ノードを管理ノードに
     await $fetch(API.setAdmin(targetId), { method: "PUT" });
 
     await refresh();
@@ -230,16 +246,20 @@ async function switchManagementNodeToTarget(targetId: string): Promise<void> {
   }
 }
 
-/* ===== 削除（管理ノードは不可） ===== */
-function onDelete(row: UiNode): void {
+/* =========================
+ * 削除（管理ノードは不可）
+ * ========================= */
+function handleDeleteRowClick(row: UiNode): void {
   if (row.isMgmt) return;
   baseHandleRowAction({ action: "delete", row });
 }
 
-/* ===== 追加 ===== */
+/* =========================
+ * 追加（候補取得 → モーダル）
+ * ========================= */
 const candidateNodes = ref<CandidateDTO[]>([]);
 
-async function onHeaderAction(action: string): Promise<void> {
+async function handleHeaderAction(action: string): Promise<void> {
   if (action !== "create") return;
   try {
     candidateNodes.value = await $fetch<CandidateDTO[]>(API.candidates);
@@ -273,15 +293,5 @@ async function handleCreateFromCandidate(c: CandidateDTO): Promise<void> {
       details: msg,
     });
   }
-}
-
-/* ===== util（日付: isNaN(d.getTime()) で判定 / 共通化せず index 内で完結） ===== */
-function formatDateTime(iso: string): string {
-  const d = new Date(iso);
-  if (isNaN(d.getTime())) return iso;
-  const p = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}/${p(d.getMonth() + 1)}/${p(d.getDate())} ${p(
-    d.getHours()
-  )}:${p(d.getMinutes())}`;
 }
 </script>
