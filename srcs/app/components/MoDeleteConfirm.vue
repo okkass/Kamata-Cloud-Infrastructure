@@ -6,10 +6,10 @@
       </p>
 
       <div class="flex justify-end items-center gap-4 pt-4 border-t">
-        <button @click="$emit('close')" class="btn-secondary">
+        <button @click="$emit('close')" class="btn btn-back">
           {{ cancelText }}
         </button>
-        <button @click="onConfirm" class="btn-danger" :disabled="isLoading">
+        <button @click="onConfirm" class="btn btn-danger" :disabled="isLoading">
           {{ confirmText }}
         </button>
       </div>
@@ -60,12 +60,3 @@ const onConfirm = () => {
   emit("confirm");
 };
 </script>
-
-<style scoped>
-.btn-secondary {
-  @apply py-2 px-5 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-sm hover:bg-gray-300;
-}
-.btn-danger {
-  @apply py-2 px-5 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700;
-}
-</style>

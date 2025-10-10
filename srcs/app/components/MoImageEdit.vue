@@ -1,145 +1,107 @@
 <template>
   <BaseModal :show="show" title="イメージ編集" @close="$emit('close')">
-    <div v-if="editableImage" class="space-y-4">
-      <div>
-        <label for="image-name-edit" class="form-label">イメージ名</label>
-        <input
-          id="image-name-edit"
-          type="text"
-          v-model="editableImage.name"
-          class="form-input"
-        />
-      </div>
+    <div class="modal-space">
+      <FormInput
+        label="イメージ名"
+        name="image-name-edit"
+        type="text"
+        v-model="name"
+        v-model:attrs="nameAttrs"
+        :error="errors.name"
+      />
 
-      <div>
-        <label for="image-size-edit" class="form-label">サイズ (GB)</label>
-        <input
-          id="image-size-edit"
-          type="number"
-          v-model.number="editableImage.size"
-          class="form-input"
-          disabled
-        />
-      </div>
+      <FormInput
+        label="サイズ (GB)"
+        name="image-size-edit"
+        type="number"
+        :model-value="size"
+        disabled
+      />
 
-      <div>
-        <label for="image-description-edit" class="form-label">説明</label>
-        <textarea
-          id="image-description-edit"
-          rows="4"
-          v-model="editableImage.description"
-          class="form-input"
-        ></textarea>
-      </div>
+      <FormTextarea
+        label="説明"
+        name="image-description-edit"
+        :rows="4"
+        v-model="description"
+        v-model:attrs="descriptionAttrs"
+        :error="errors.description"
+      />
     </div>
-    <div class="flex justify-end gap-3 mt-8 pt-4 border-t">
-      <button @click="saveChanges" class="btn-primary">保存</button>
+    <div class="modal-footer">
+      <button @click="onSubmit" class="btn btn-primary">保存</button>
     </div>
   </BaseModal>
 </template>
 
-<script setup>
-import { ref, watch } from "vue";
-import { useToast } from "~/composables/useToast"; // Toast通知用のComposableをインポート
+<script setup lang="ts">
+import { watch } from "vue";
+import { useToast } from "~/composables/useToast";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
 
-// ==============================================================================
-// 担当者（API実装担当）へのメッセージ:
-// 下記のsaveChanges関数内に、APIへのデータ送信ロジックを実装してください。
-// watch内のコメント箇所は、APIのレスポンス形式に合わせて調整が必要です。
-// ==============================================================================
-
-// --- 親コンポーネントとの連携定義 (変更不要) ---
+// --- 親コンポーネントとの連携 ---
 const props = defineProps({
   show: { type: Boolean, required: true },
-  imageData: { type: Object, required: false },
+  imageData: { type: Object, default: null },
 });
 const emit = defineEmits(["close", "save"]);
 
-// --- フォームの入力データを保持するリアクティブ変数 (変更不要) ---
-const editableImage = ref(null);
-const { addToast } = useToast(); // Toast通知関数を取得
+// ★ 1. Zodでバリデーションスキーマを定義
+const validationSchema = toTypedSchema(
+  z.object({
+    id: z.string(),
+    name: z.string().min(1, "イメージ名は必須です。"),
+    description: z.string().nullable(),
+    size: z.number(),
+  })
+);
 
-// --- 親から渡されたデータをフォームに反映させる処理 ---
+// ★ 2. vee-validateのuseFormをセットアップ
+const { errors, defineField, values, meta, resetForm, handleSubmit } = useForm({
+  validationSchema,
+});
+const [id] = defineField("id");
+const [name, nameAttrs] = defineField("name");
+const [description, descriptionAttrs] = defineField("description");
+const [size] = defineField("size");
+
+const { addToast } = useToast();
+
+// ★ 3. 親からデータが渡されたら、vee-validateのフォームをリセットして値をセット
 watch(
   () => props.imageData,
   (newData) => {
-    // ============================================================================
-    // ▼▼▼ API実装担当者の方へ: ここはAPIのレスポンス形式に合わせて調整してください ▼▼▼
-    // ============================================================================
-    // 親から渡されたデータ(newData)を、フォーム表示用のeditableImageに変換しています。
-    // サイズはAPIからはバイト単位で渡される想定のため、UI表示用にGB単位へ変換しています。
     if (newData) {
-      editableImage.value = {
-        id: newData.id,
-        name: newData.name,
-        description: newData.description,
-        // APIのキーが 'size' でバイト単位の場合の例
-        size: (newData.size || 0) / (1024 * 1024 * 1024),
-      };
-    } else {
-      editableImage.value = null;
+      resetForm({
+        values: {
+          id: newData.id,
+          name: newData.name,
+          description: newData.description,
+          size: (newData.size || 0) / 1024 ** 3, // バイト to GB
+        },
+      });
     }
-    // ============================================================================
-    // ▲▲▲ APIのレスポンス形式に合わせた調整はここまで ▲▲▲
-    // ============================================================================
   },
-  { immediate: true, deep: true }
+  { immediate: true }
 );
 
-/**
- * 「保存」ボタンが押されたときに実行される関数
- */
-const saveChanges = () => {
-  if (!editableImage.value) return;
-  // ============================================================================
-  // ▼▼▼ API実装担当者の方へ: この中にAPI呼び出し処理を実装してください ▼▼▼
-  // ============================================================================
-
-  // 1. ペイロードの作成:
-  //    APIに送信するデータを作成します。
+// ★ 4. handleSubmitでラップして、バリデーション通過時のみAPIを呼ぶ
+const onSubmit = handleSubmit(async (updatedValues) => {
   const payload = {
-    name: editableImage.value.name,
-    description: editableImage.value.description,
+    name: updatedValues.name,
+    description: updatedValues.description,
   };
 
-  // 2. API呼び出し (PUTリクエスト):
-  //    const { data, error } = await useApiFetch(`/images/${editableImage.value.id}`, {
-  //      method: 'PUT',
-  //      body: payload,
-  //    });
-
-  // 3. 結果のハンドリング:
-  //    if (error.value) {
-  //      addToast({ message: 'イメージの更新に失敗しました。', type: 'error' });
-  //    } else {
-  //      addToast({ message: `イメージ「${data.value.name}」を更新しました。`, type: 'success' });
-  //      emit('save', data.value);
-  //      emit('close');
-  //    }
-
-  // --- 現在はAPI実装前のダミー動作 ---
   console.log("APIに送信する更新データ:", payload);
+  // --- ここに実際のAPI呼び出しロジックを実装 ---
+  // const { data, error } = await useApiFetch(...)
+
   addToast({
-    message: `【ダミー】イメージ「${editableImage.value.name}」を更新しました。`,
+    message: `【ダミー】イメージ「${updatedValues.name}」を更新しました。`,
     type: "success",
   });
-  emit("save", editableImage.value);
+  emit("save", updatedValues);
   emit("close");
-  // ============================================================================
-  // ▲▲▲ API実装はここまで ▲▲▲
-  // ============================================================================
-};
+});
 </script>
-
-<style scoped>
-/* 共通スタイルを@applyで定義 */
-.form-label {
-  @apply block mb-1.5 font-semibold text-gray-700;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed;
-}
-.btn-primary {
-  @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
-}
-</style>
