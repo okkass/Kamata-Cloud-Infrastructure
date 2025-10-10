@@ -127,14 +127,14 @@ const {
   data: candidateNodes, // 変数名をより具体的に
   pending,
   error,
-} = useResourceList<PhysicalNodeCandiateDTO>("physical-node");
+} = useResourceList<PhysicalNodeCandiateDTO>("physical-nodes");
 
 // --- ノード追加処理 ---
 const {
   executeCreate: executeAddNodeToCluster, // 関数名をより具体的に
   isCreating,
 } = useResourceCreate<PhysicalNodeAddRequestDTO, PhysicalNodeDTO>(
-  "physical-node"
+  "physical-nodes"
 );
 
 // --- トースト通知 ---

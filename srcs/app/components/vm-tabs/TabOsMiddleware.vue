@@ -111,11 +111,11 @@ const {
   data: osImages,
   pending: imagesPending,
   error: imagesError,
-} = useResourceList<ImageDTO>("image");
+} = useResourceList<ImageDTO>("images");
 
 const {
   data: middlewares,
   pending: middlewaresPending,
   error: middlewaresError,
-} = useResourceList<MiddleWareDTO>("middleware");
+} = useResourceList<MiddleWareDTO>("middlewares");
 </script>

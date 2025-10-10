@@ -120,7 +120,7 @@ const [cidr, cidrAttrs] = defineField("cidr");
 // ==============================================================================
 const { executeCreate: executeVirtualNetworkCreation, isCreating } =
   useResourceCreate<VirtualNetworkCreateRequestDTO, VirtualNetworkDTO>(
-    "virtual-network"
+    "virtual-networks"
   );
 
 const { addToast } = useToast();

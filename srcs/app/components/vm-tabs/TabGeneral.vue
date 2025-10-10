@@ -95,5 +95,5 @@ const {
   data: nodes,
   pending,
   error,
-} = useResourceList<PhysicalNodeDTO>("physical-node");
+} = useResourceList<PhysicalNodeDTO>("physical-nodes");
 </script>
