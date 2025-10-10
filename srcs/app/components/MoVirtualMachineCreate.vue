@@ -36,19 +36,24 @@
 
       <div class="modal-footer">
         <div class="flex gap-3">
-          <SecondaryButton @click="prevTab" :disabled="currentTab === 0">
+          <SecondaryButton
+            @click="goToPreviousTab"
+            :disabled="currentTab === 0"
+          >
             戻る
           </SecondaryButton>
+
           <button
             v-if="currentTab < tabs.length - 1"
-            @click="nextTab"
+            @click="goToNextTab"
             class="btn btn-primary"
           >
             次へ
           </button>
+
           <button
             v-else
-            @click="handleSubmit"
+            @click="handleFinalSubmit"
             :disabled="isCreating"
             class="btn btn-submit"
           >
@@ -61,40 +66,76 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * =================================================================================
+ * 仮想マシン作成モーダル (MoVirtualMachineCreate.vue)
+ * ---------------------------------------------------------------------------------
+ * このコンポーネントは、複数のタブコンポーネントを内包するウィザード形式のモーダルです。
+ * 各タブの管理、バリデーションの集約、最終的なAPIへのデータ送信といった、
+ * 全体を統括する役割を担います。
+ * =================================================================================
+ */
+
+// --- 親コンポーネントとの連携 ---
+// `show` prop を受け取り、`close` と `success` イベントを通知します。
+defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
+
+// --- Composableのセットアップ ---
+
+// 1. ウィザードフォーム管理 (useVmWizardForm)
+//    - タブの状態（現在のタブ、各タブの参照など）とロジックを管理します。
+//    - 全タブのデータを集約し、API送信用データ（ペイロード）を構築する責務も持ちます。
 const {
   currentTab,
   tabRefs,
   tabs,
   tabValidity,
-  prevTab,
-  nextTab,
+  goToPreviousTab, // 関数名をより具体的に
+  goToNextTab, // 関数名をより具体的に
   buildPayloadAndValidate,
 } = useVmWizardForm();
-const { executeCreate, isCreating } = useResourceCreate<
-  VirtualMachineCreateRequestDTO,
-  VirtualMachineDTO
->("virtual-machine");
+
+// 2. APIリソース作成 (useResourceCreate)
+//    - 指定されたリソース（ここでは 'virtual-machine'）の作成処理を抽象化します。
+const {
+  executeCreate: executeVirtualMachineCreation, // 関数名をより具体的に
+  isCreating,
+} = useResourceCreate<VirtualMachineCreateRequestDTO, VirtualMachineDTO>(
+  "virtual-machine"
+);
+
+// 3. トースト通知 (useToast)
+//    - ユーザーへのフィードバック（成功・エラー通知）を表示します。
 const { addToast } = useToast();
 
-defineProps({ show: { type: Boolean, required: true } });
-
-// モーダルタイトルを定義
+// --- コンポーネントのローカルState ---
 const modalTitle = ref("仮想マシン作成");
 
-const handleSubmit = async () => {
+// ==============================================================================
+// イベントハンドラ
+// ==============================================================================
+
+/**
+ * 最終的な「作成」ボタンがクリックされたときの処理
+ */
+const handleFinalSubmit = async () => {
+  // 1. 全てのタブのバリデーションを実行し、API送信用データを構築
+  //    - エラーがある場合は `buildPayloadAndValidate` がnullを返し、内部でトースト通知を出す
   const payload = await buildPayloadAndValidate();
+  if (!payload) return; // バリデーションエラーがあればここで処理を中断
 
-  if (!payload) return;
+  // 2. APIリクエストを実行
+  const result = await executeVirtualMachineCreation(payload);
 
-  const result = await executeCreate(payload);
-
+  // 3. 結果に応じてトースト通知を表示
   if (result.success) {
     addToast({
       type: "success",
       message: `仮想マシン「${payload.name}」が作成されました`,
     });
-    emit("success");
+    emit("success"); // 親コンポーネントに成功を通知
+    emit("close"); // モーダルを閉じる
   } else {
     addToast({
       type: "error",

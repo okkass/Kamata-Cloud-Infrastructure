@@ -16,6 +16,7 @@
         {{ convertByteToUnit(option.memorySize, "MB") }}MB)
       </template>
     </FormSelect>
+
     <FormSection title="CPU / メモリ" v-if="!values.templateId">
       <FormInput
         label="CPUコア数"
@@ -44,6 +45,7 @@
         </template>
       </FormInput>
     </FormSection>
+
     <FormSelect
       label="バックアップ"
       name="backup-select"
@@ -83,13 +85,13 @@
             :pools-pending="poolsPending"
             :pools-error="poolsError"
             v-model="field.value"
-            @remove="removeStorage(index)"
+            @remove="removeStorageRow(index)"
           />
         </tbody>
       </table>
 
       <div class="section-btn">
-        <button type="button" @click="addStorage" class="btn btn-add">
+        <button type="button" @click="addNewStorageRow" class="btn btn-add">
           追加
         </button>
       </div>
@@ -102,49 +104,54 @@ import { watch } from "vue";
 import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import FormSection from "../FormSection.vue";
+import FormSection from "../FormSection.vue"; // セクション用の共通コンポーネント
 
+// ==============================================================================
+// Validation Schema
+// フォームのバリデーションルールをZodで定義します。
+// ==============================================================================
 const validationSchema = toTypedSchema(
   z
     .object({
       templateId: z.string().optional().nullable(),
+      // preprocessを使って、入力が空文字の場合にバリデーション前にnullに変換します
       cpuCores: z.preprocess(
-        (val) => (val === "" ? null : val), // 空文字をnullに変換
+        (val) => (val === "" ? null : val),
         z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
       ),
       memorySize: z.preprocess(
-        (val) => (val === "" ? null : val), // 空文字をnullに変換
+        (val) => (val === "" ? null : val),
         z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
       ),
       backupId: z.string().nullable(),
+      // ストレージ設定は、オブジェクトの配列として定義します
       storages: z
         .array(
           z.object({
-            id: z.union([z.string(), z.number()]), // idプロパティを追加
+            id: z.union([z.string(), z.number()]),
             name: z.string().min(1, "名前は必須です。"),
             size: z
               .number({ invalid_type_error: "サイズは必須です。" })
               .int("整数で入力してください。")
               .min(1, "1以上の値を入力してください。"),
             poolId: z
-              .string({
-                required_error: "プールを選択してください。",
-                invalid_type_error: "プールを選択してください。",
-              })
-              .min(1, "プールを選択してください。"),
+              .string({ required_error: "プールを選択してください。" })
+              .min(1, "プールを選択してください。"), // 空文字でないこともチェック
             type: z.string(),
           })
         )
-        .min(1),
+        .min(1), // ストレージは最低1行必要です
     })
-    .superRefine((data, ctx) => {
+    // superRefineを使って、複数のフィールドにまたがる複雑なバリデーションを定義します
+    .superRefine((data, context) => {
+      // テンプレートが選択されていない場合のみ、CPUとメモリのバリデーションを実行します
       if (!data.templateId) {
         if (
           data.cpuCores == null ||
           data.cpuCores < 1 ||
           !Number.isInteger(data.cpuCores)
         ) {
-          ctx.addIssue({
+          context.addIssue({
             code: z.ZodIssueCode.custom,
             message: "1以上の整数を入力してください。",
             path: ["cpuCores"],
@@ -155,7 +162,7 @@ const validationSchema = toTypedSchema(
           data.memorySize < 1 ||
           !Number.isInteger(data.memorySize)
         ) {
-          ctx.addIssue({
+          context.addIssue({
             code: z.ZodIssueCode.custom,
             message: "1以上の整数を入力してください。",
             path: ["memorySize"],
@@ -165,7 +172,10 @@ const validationSchema = toTypedSchema(
     })
 );
 
-// (useFormは変更なし)
+// ==============================================================================
+// Form Setup
+// VeeValidateのuseFormを使って、フォーム全体を管理します。
+// ==============================================================================
 const { errors, defineField, values, meta } = useForm({
   validationSchema,
   initialValues: {
@@ -178,19 +188,26 @@ const { errors, defineField, values, meta } = useForm({
   },
 });
 
-// (defineField, useFieldArray, defineExposeは変更なし)
+// 各フォームフィールドとVeeValidateを連携させます
 const [templateId, templateIdAttrs] = defineField("templateId");
 const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
 const [memorySize, memorySizeAttrs] = defineField("memorySize");
 const [backupId, backupIdAttrs] = defineField("backupId");
+
+// useFieldArrayを使って、動的なストレージ行の配列を管理します
 const {
   fields: storageFields,
-  push: pushStorage,
-  remove: removeStorage,
+  push: addStorageRow,
+  remove: removeStorageRow,
 } = useFieldArray<any>("storages");
+
+// 親コンポーネントにフォームデータと状態を公開します
 defineExpose({ formData: values, isValid: meta });
 
-// (API連携は変更なし)
+// ==============================================================================
+// API Data Fetching
+// 各種プルダウンの選択肢をAPIから取得します。
+// ==============================================================================
 const {
   data: templates,
   pending: templatesPending,
@@ -206,37 +223,50 @@ const {
   pending: poolsPending,
   error: poolsError,
 } = useResourceList<StoragePoolDTO>("storage-pool");
-let nextStorageId = 2;
 
-// ★★★ 1. `addStorage` 関数を修正 ★★★
-const addStorage = () => {
-  pushStorage({
+// ==============================================================================
+// UI Logic
+// ユーザー操作に応じた挙動を定義します。
+// ==============================================================================
+let nextStorageId = 2; // 手動追加するストレージ行の一意なIDを管理
+
+/**
+ * 新しい空のストレージ行を追加します。
+ */
+const addNewStorageRow = () => {
+  addStorageRow({
     id: nextStorageId++,
     name: "",
     size: 10,
-    poolId: "", // "pool-1" から "" に変更
+    poolId: "",
     type: "manual" as const,
   });
 };
 
-// ★★★ 2. `watch` 関数を修正 ★★★
+/**
+ * バックアップの選択状態を監視し、ストレージ行を自動的に追加・削除します。
+ */
 watch(backupId, (newBackupId) => {
-  const backupIndex = storageFields.value.findIndex(
+  // 既存のバックアップ行があれば削除
+  const existingBackupRowIndex = storageFields.value.findIndex(
     (field) => field.value.type === "backup"
   );
-  if (backupIndex !== -1) removeStorage(backupIndex);
+  if (existingBackupRowIndex !== -1) {
+    removeStorageRow(existingBackupRowIndex);
+  }
 
+  // 新しいバックアップが選択された場合、対応するストレージ行を追加
   if (newBackupId && backups.value) {
-    const backupData = backups.value.find((b) => b.id === newBackupId);
-    if (backupData) {
-      pushStorage({
-        id: `backup-${backupData.id}`,
-        name: `backup-${backupData.name}`,
+    const selectedBackupData = backups.value.find((b) => b.id === newBackupId);
+    if (selectedBackupData) {
+      addStorageRow({
+        id: `backup-${selectedBackupData.id}`,
+        name: `backup-${selectedBackupData.name}`,
         size: convertByteToUnit(
-          backupData.targetVirtualStorage?.size ?? 0,
+          selectedBackupData.targetVirtualStorage?.size ?? 0,
           "GB"
         ),
-        poolId: "", // "pool-1" から "" に変更
+        poolId: "", // プールはユーザーに選択させる
         type: "backup" as const,
       });
     }
