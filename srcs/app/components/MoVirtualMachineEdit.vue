@@ -101,7 +101,7 @@ interface VmDetailDTO {
   securityGroups: { id: string; name: string }[];
 }
 const fetchUrl = computed(() =>
-  props.vmId ? `/api/virtual-machine/${props.vmId}` : null
+  props.vmId ? `/api/virtual-machines/${props.vmId}` : null
 );
 const {
   data: vmData,

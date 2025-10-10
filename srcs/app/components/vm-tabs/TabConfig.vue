@@ -212,17 +212,17 @@ const {
   data: templates,
   pending: templatesPending,
   error: templatesError,
-} = useResourceList<ModelInstanceTypeDTO>("instance-type");
+} = useResourceList<ModelInstanceTypeDTO>("instance-types");
 const {
   data: backups,
   pending: backupsPending,
   error: backupsError,
-} = useResourceList<BackupDTO>("backup");
+} = useResourceList<BackupDTO>("backups");
 const {
   data: storagePools,
   pending: poolsPending,
   error: poolsError,
-} = useResourceList<StoragePoolDTO>("storage-pool");
+} = useResourceList<StoragePoolDTO>("storage-pools");
 
 // ==============================================================================
 // UI Logic

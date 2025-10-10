@@ -36,10 +36,7 @@
 
       <div class="modal-footer">
         <div class="flex gap-3">
-          <SecondaryButton
-            @click="prevTab"
-            :disabled="currentTab === 0"
-          >
+          <SecondaryButton @click="prevTab" :disabled="currentTab === 0">
             戻る
           </SecondaryButton>
 
@@ -97,12 +94,12 @@ const {
 } = useVmWizardForm();
 
 // 2. APIリソース作成 (useResourceCreate)
-//    - 指定されたリソース（ここでは 'virtual-machine'）の作成処理を抽象化します。
+//    - 指定されたリソース（ここでは 'virtual-machines'）の作成処理を抽象化します。
 const {
   executeCreate: executeVirtualMachineCreation, // 関数名をより具体的に
   isCreating,
 } = useResourceCreate<VirtualMachineCreateRequestDTO, VirtualMachineDTO>(
-  "virtual-machine"
+  "virtual-machines"
 );
 
 // 3. トースト通知 (useToast)

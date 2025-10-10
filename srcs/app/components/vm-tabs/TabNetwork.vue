@@ -198,12 +198,12 @@ const {
   data: networks,
   pending: networksPending,
   error: networksError,
-} = useResourceList<VirtualNetwork>("virtual-network");
+} = useResourceList<VirtualNetwork>("virtual-networks");
 const {
   data: securityGroups,
   pending: sgPending,
   error: sgError,
-} = useResourceList<SecurityGroupDTO>("security-group");
+} = useResourceList<SecurityGroupDTO>("security-groups");
 
 // ==============================================================================
 // UI Logic
