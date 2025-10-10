@@ -37,7 +37,7 @@
       <div class="modal-footer">
         <div class="flex gap-3">
           <SecondaryButton
-            @click="goToPreviousTab"
+            @click="prevTab"
             :disabled="currentTab === 0"
           >
             戻る
@@ -45,7 +45,7 @@
 
           <button
             v-if="currentTab < tabs.length - 1"
-            @click="goToNextTab"
+            @click="nextTab"
             class="btn btn-primary"
           >
             次へ
@@ -91,8 +91,8 @@ const {
   tabRefs,
   tabs,
   tabValidity,
-  goToPreviousTab, // 関数名をより具体的に
-  goToNextTab, // 関数名をより具体的に
+  prevTab, // 関数名をより具体的に
+  nextTab, // 関数名をより具体的に
   buildPayloadAndValidate,
 } = useVmWizardForm();
 
