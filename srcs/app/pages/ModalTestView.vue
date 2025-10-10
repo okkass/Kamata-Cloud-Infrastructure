@@ -11,7 +11,7 @@
         v-for="modal in modals"
         :key="modal.id"
         @click="openModal(modal.id)"
-        class="btn-primary"
+        class="btn btn-primary"
       >
         {{ modal.buttonText }}
       </button>
@@ -175,8 +175,8 @@ const modals = computed(() => [
       imageData: {
         id: "img-001",
         name: "ubuntu-22.04-image",
-        size: 8,
-        description: "サンプル",
+        cpuCores: 2,
+        memorySize: 2048,
       },
     },
   },
@@ -194,8 +194,8 @@ const modals = computed(() => [
       instanceTypeData: {
         id: "itype-001",
         name: "standard.medium",
-        vcpus: 4,
-        memory: 8,
+        cpuCores: 4,
+        memorySize: 8,
         storage: 100,
       },
     },
@@ -264,13 +264,3 @@ const handleSuccess = () => {
   refresh(); // 一覧を再取得して表示を更新
 };
 </script>
-
-<style scoped>
-/* (スタイルは変更なし) */
-.btn-primary {
-  @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
-}
-.btn-secondary {
-  @apply py-1 px-3 bg-gray-200 text-gray-800 font-semibold rounded-md shadow-sm hover:bg-gray-300;
-}
-</style>

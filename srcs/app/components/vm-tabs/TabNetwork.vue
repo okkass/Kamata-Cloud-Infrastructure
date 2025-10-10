@@ -1,112 +1,41 @@
 <template>
-  <div class="space-y-4">
-    <div>
-      <label for="network-select" class="form-label">ネットワーク</label>
-      <div v-if="networksPending" class="text-gray-500">
-        ネットワーク一覧を読み込み中...
-      </div>
-      <div v-else-if="networksError" class="text-red-500">
-        ネットワーク一覧の取得に失敗しました。
-      </div>
-      <select
-        v-else
-        id="network-select"
-        v-model="networkId"
-        v-bind="networkIdAttrs"
-        class="form-input"
-        :class="{ 'border-red-500': errors.networkId }"
-      >
-        <option :value="undefined" disabled>
-          ネットワークを選択してください
-        </option>
-        <option
-          v-for="network in networks"
-          :key="network.id"
-          :value="network.id"
-        >
-          {{ network.name }} ({{ network.cidr }})
-        </option>
-      </select>
-      <p v-if="errors.networkId" class="text-red-500 text-sm mt-1">
-        {{ errors.networkId }}
-      </p>
-    </div>
+  <div class="modal-space">
+    <FormSelect
+      label="ネットワーク"
+      name="network-select"
+      :pending="networksPending"
+      :error="networksError"
+      :options="networks ?? []"
+      placeholder="ネットワークを選択してください"
+      :error-message="errors.networkId"
+      :required="true"
+      :placeholder-value="undefined"
+      v-model="networkId"
+      v-model:attrs="networkIdAttrs"
+    />
 
-    <div>
-      <label for="security-group-select" class="form-label"
-        >セキュリティグループ</label
-      >
-      <div v-if="sgPending" class="text-gray-500">
-        セキュリティグループ一覧を読み込み中...
-      </div>
-      <div v-else-if="sgError" class="text-red-500">
-        セキュリティグループ一覧の取得に失敗しました。
-      </div>
-      <select
-        v-else
-        id="security-group-select"
-        v-model="securityGroupId"
-        v-bind="securityGroupIdAttrs"
-        class="form-input"
-      >
-        <option :value="null">なし</option>
-        <option v-for="sg in securityGroups" :key="sg.id" :value="sg.id">
-          {{ sg.name }}
-        </option>
-      </select>
-    </div>
+    <FormSelect
+      label="セキュリティグループ"
+      name="security-group-select"
+      :pending="sgPending"
+      :error="sgError"
+      :options="securityGroups ?? []"
+      placeholder="なし"
+      :error-message="errors.securityGroupId"
+      :placeholder-value="null"
+      v-model="securityGroupId"
+      v-model:attrs="securityGroupIdAttrs"
+    />
 
-    <div>
-      <label class="form-label">キーペア (公開鍵)</label>
-      <div
-        class="drop-zone"
-        :class="{ 'is-dragging': isDragging }"
-        @dragover.prevent="isDragging = true"
-        @dragleave.prevent="isDragging = false"
-        @drop.prevent="handleDrop"
-      >
-        <input
-          type="file"
-          ref="fileInput"
-          @change="handleFileSelect"
-          class="hidden"
-          accept=".pub"
-        />
-        <div class="text-center">
-          <p class="text-gray-500">ここにファイルをドラッグ&ドロップ</p>
-          <p class="text-gray-400 text-sm my-2">または</p>
-          <button type="button" @click="openFilePicker" class="btn-secondary">
-            ファイルを選択
-          </button>
-          <p v-if="keyPairFile" class="text-green-600 font-semibold mt-4">
-            選択中のファイル: {{ keyPairFile.name }}
-          </p>
-        </div>
-      </div>
-    </div>
+    <FormDropZone v-model="keyPairFile" />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import { useToast } from "~/composables/useToast"; // ★ 1. useToastをインポート
-
-// ==============================================================================
-// 型定義 (変更なし)
-// ==============================================================================
-interface ModelVirtualNetworkDTO {
-  id: string;
-  name: string;
-  cidr: string;
-}
-interface ModelSecurityGroupDTO {
-  id: string;
-  name: string;
-}
 
 // ==============================================================================
 // バリデーションスキーマ (変更なし)
@@ -142,74 +71,10 @@ const {
   data: networks,
   pending: networksPending,
   error: networksError,
-} = useResourceList<ModelVirtualNetworkDTO>("virtual-network");
+} = useResourceList<VirtualNetwork>("virtual-network");
 const {
   data: securityGroups,
   pending: sgPending,
   error: sgError,
-} = useResourceList<ModelSecurityGroupDTO>("security-group");
-
-// ==============================================================================
-// UI操作のロジック
-// ==============================================================================
-const fileInput = ref<HTMLInputElement | null>(null);
-const isDragging = ref(false);
-const { addToast } = useToast(); // ★ 2. addToast関数を取得
-
-const openFilePicker = () => {
-  fileInput.value?.click();
-};
-
-// ★★★ 3. ファイル選択時のチェック処理を修正 ★★★
-const handleFileSelect = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  const file = target.files?.[0] || null;
-
-  if (file && !file.name.endsWith(".pub")) {
-    addToast({
-      message: "無効なファイル形式です。.pubファイルを選択してください。",
-      type: "error",
-    });
-    // 選択をリセット
-    target.value = "";
-    setFieldValue("keyPairFile", null);
-    return;
-  }
-  setFieldValue("keyPairFile", file);
-};
-
-// ★★★ 4. ドラッグ＆ドロップ時のチェック処理を修正 ★★★
-const handleDrop = (event: DragEvent) => {
-  isDragging.value = false;
-  const file = event.dataTransfer?.files?.[0] || null;
-
-  if (file && !file.name.endsWith(".pub")) {
-    addToast({
-      message: "無効なファイル形式です。.pubファイルをドロップしてください。",
-      type: "error",
-    });
-    setFieldValue("keyPairFile", null);
-    return;
-  }
-  setFieldValue("keyPairFile", file);
-};
+} = useResourceList<SecurityGroupDTO>("security-group");
 </script>
-
-<style scoped>
-/* (スタイルは変更なし) */
-.form-label {
-  @apply block mb-1.5 font-semibold text-gray-700;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
-}
-.drop-zone {
-  @apply w-full p-8 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center transition-colors;
-}
-.drop-zone.is-dragging {
-  @apply border-blue-500 bg-blue-50;
-}
-.btn-secondary {
-  @apply py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300;
-}
-</style>

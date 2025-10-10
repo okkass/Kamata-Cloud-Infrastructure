@@ -283,13 +283,14 @@ interface VirtualMachineCreateBaseRequest {
   /**
    * 関連付けるセキュリティグループのIDリスト
    */
-  securityGroupIds?: Array<string>;
+  securityGroupId?: string | null;
 }
 
 /**
  * パターンA: インスタンスタイプIDを指定してVMを作成する場合のオブジェクト
  */
-interface VirtualMachineCreateWithInstanceTypeRequest extends VirtualMachineCreateBaseRequest {
+interface VirtualMachineCreateWithInstanceTypeRequest
+  extends VirtualMachineCreateBaseRequest {
   /**
    * 使用するインスタンスタイプのID
    */
@@ -307,7 +308,8 @@ interface VirtualMachineCreateWithInstanceTypeRequest extends VirtualMachineCrea
 /**
  * パターンB: CPUとメモリをカスタム指定してVMを作成する場合のオブジェクト
  */
-interface VirtualMachineCreateWithCustomConfigRequest extends VirtualMachineCreateBaseRequest {
+interface VirtualMachineCreateWithCustomConfigRequest
+  extends VirtualMachineCreateBaseRequest {
   /**
    * instanceTypeIdは存在してはならない
    */
@@ -325,7 +327,9 @@ interface VirtualMachineCreateWithCustomConfigRequest extends VirtualMachineCrea
 /**
  * 仮想マシン作成リクエストオブジェクト (パターンAまたはパターンBのどちらか)
  */
-export type VirtualMachineCreateRequestDTO = VirtualMachineCreateWithInstanceTypeRequest | VirtualMachineCreateWithCustomConfigRequest;
+export type VirtualMachineCreateRequestDTO =
+  | VirtualMachineCreateWithInstanceTypeRequest
+  | VirtualMachineCreateWithCustomConfigRequest;
 
 export interface VirtualMachineCreateRequestStoragesInnerDTO {
   /**

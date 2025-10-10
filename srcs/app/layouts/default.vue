@@ -10,20 +10,7 @@
         @click="open"
         class="fixed top-4 left-4 z-50 p-2 bg-slate-800 text-white rounded-md hover:bg-slate-700"
       >
-        <svg
-          xmlns="http://www.w3.org/2000/svg"
-          class="h-6 w-6"
-          fill="none"
-          viewBox="0 0 24 24"
-          stroke="currentColor"
-        >
-          <path
-            stroke-linecap="round"
-            stroke-linejoin="round"
-            stroke-width="2"
-            d="M4 6h16M4 12h16M4 18h16"
-          />
-        </svg>
+        <IconMenu />
       </button>
       <slot />
     </main>
@@ -43,7 +30,14 @@ const { isSidebarOpen, open } = useSidebar();
 
 // ユーザー情報を取得してisAdminを設定
 
-const { data } = await useFetch("/api/users/me", { method: "GET" });
+const { data } = await useFetch("/api/user/me", { method: "GET" });
 
-const isAdmin = ref(data.value?.isAdmin ?? false);
+// レスポンスがエラーの場合はfalse
+const isAdmin = ref(
+  data.value &&
+    "isAdmin" in data.value &&
+    typeof (data.value as any).isAdmin === "boolean"
+    ? (data.value as any).isAdmin
+    : false
+);
 </script>
