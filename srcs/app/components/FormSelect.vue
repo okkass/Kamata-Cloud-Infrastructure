@@ -24,9 +24,11 @@
         <option :value="placeholderValue" :disabled="required">
           {{ placeholder }}
         </option>
-        <option v-for="option in options" :key="option.id" :value="option.id">
-          {{ option.name }}
-        </option>
+        <template v-if="options?.length">
+          <option v-for="option in options" :key="option.id" :value="option.id">
+            {{ option.name }}
+          </option>
+        </template>
       </select>
       <p v-if="errorMessage" class="text-error">
         {{ errorMessage }}

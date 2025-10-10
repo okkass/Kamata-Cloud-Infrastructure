@@ -7,7 +7,7 @@
     <textarea
       :id="name"
       v-model="model"
-      v-bind="attrs || {}"
+      v-bind=allAttrs
       class="form-input"
       :class="{ 'form-border-error': error }"
       :rows="rows"
