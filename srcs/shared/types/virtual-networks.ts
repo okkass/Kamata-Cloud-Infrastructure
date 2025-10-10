@@ -17,7 +17,7 @@ export interface Subnet {
   /**
    * 外部接続が可能かどうかを示すフラグ
    */
-  possibleExternalConnections: boolean;
+  possibleExternalConnection: boolean;
   /**
    * サブネットが作成された日時
    */
@@ -38,7 +38,7 @@ export interface SubnetCreateRequest {
   /**
    * 外部接続が可能かどうかを示すフラグ
    */
-  possibleExternalConnections: boolean;
+  possibleExternalConnection: boolean;
 }
 /**
  * サブネット更新リクエストオブジェクト
@@ -55,7 +55,7 @@ export interface SubnetUpdateRequest {
   /**
    * 外部接続が可能かどうかを示すフラグ
    */
-  possibleExternalConnections?: boolean;
+  possibleExternalConnection?: boolean;
 }
 /**
  * TOTP情報オブジェクト
@@ -103,7 +103,7 @@ export interface VirtualNetwork {
    * 仮想ネットワークが作成された日時
    */
   createdAt: string;
-  subnets?: Array<Subnet>;
+  subnet?: Array<Subnet>;
   /**
    * 仮想ネットワークのインバウンドトラフィック（bps単位）
    */

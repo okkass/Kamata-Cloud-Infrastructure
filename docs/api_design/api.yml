@@ -2121,7 +2121,7 @@ components:
           type: string
           description: CIDR形式のサブネットアドレス
           example: "10.0.0.0/24"
-        possibleExternalConnections:
+        possibleExternalConnection:
           type: boolean
           description: 外部接続が可能かどうかを示すフラグ
         createdAt:
@@ -2133,7 +2133,7 @@ components:
         - name
         - cidr
         - createdAt
-        - possibleExternalConnections
+        - possibleExternalConnection
     SubnetCreateRequest:
       type: object
       description: サブネット作成リクエストオブジェクト
@@ -2145,13 +2145,13 @@ components:
           type: string
           description: CIDR形式のサブネットアドレス
           example: "10.0.0.0/16"
-        possibleExternalConnections:
+        possibleExternalConnection:
           type: boolean
           description: 外部接続が可能かどうかを示すフラグ
       required:
         - name
         - cidr
-        - possibleExternalConnections
+        - possibleExternalConnection
     SubnetUpdateRequest:
       type: object
       description: サブネット更新リクエストオブジェクト
@@ -2163,7 +2163,7 @@ components:
           type: string
           description: CIDR形式のサブネットアドレス
           example: "10.0.0.0/16"
-        possibleExternalConnections:
+        possibleExternalConnection:
           type: boolean
           description: 外部接続が可能かどうかを示すフラグ
     TotpInfo:

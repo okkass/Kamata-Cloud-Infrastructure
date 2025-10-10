@@ -208,7 +208,7 @@ export interface VirtualMachineDTO {
   /**
    * CPUコア数
    */
-  cpuCores: number;
+  cpuCore: number;
   /**
    * メモリサイズ（バイト単位）
    */
@@ -279,7 +279,7 @@ interface VirtualMachineCreateBaseRequest {
   /**
    * 仮想マシンにアタッチするストレージのリスト
    */
-  storages: Array<VirtualMachineCreateRequestStoragesInnerDTO>;
+  storage: Array<VirtualMachineCreateRequestStoragesInnerDTO>;
   /**
    * 関連付けるセキュリティグループのIDリスト
    */
@@ -296,9 +296,9 @@ interface VirtualMachineCreateWithInstanceTypeRequest
    */
   instanceTypeId: string;
   /**
-   * cpuCoresは存在してはならない
+   * cpuCoreは存在してはならない
    */
-  cpuCores?: never;
+  cpuCore?: never;
   /**
    * memorySizeは存在してはならない
    */
@@ -317,7 +317,7 @@ interface VirtualMachineCreateWithCustomConfigRequest
   /**
    * CPUコア数
    */
-  cpuCores: number;
+  cpuCore: number;
   /**
    * メモリサイズ（バイト単位）
    */
@@ -361,7 +361,7 @@ export interface VirtualMachineUpdateRequestDTO {
   /**
    * CPUコア数
    */
-  cpuCores?: number;
+  cpuCore?: number;
   /**
    * メモリサイズ（バイト単位）
    */

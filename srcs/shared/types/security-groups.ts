@@ -14,7 +14,7 @@ export interface SecurityGroupDTO {
    * セキュリティグループの説明
    */
   description?: string;
-  rules?: Array<SecurityRuleDTO>;
+  rule?: Array<SecurityRuleDTO>;
   /**
    * セキュリティグループが作成された日時
    */
@@ -32,7 +32,7 @@ export interface SecurityGroupCreateRequestDTO {
    * セキュリティグループの説明
    */
   description?: string;
-  rules?: Array<SecurityRuleDTO>;
+  rule?: Array<SecurityRuleDTO>;
 }
 /**
  * セキュリティグループ更新リクエストオブジェクト
@@ -46,7 +46,7 @@ export interface SecurityGroupUpdateRequestDTO {
    * セキュリティグループの説明
    */
   description?: string;
-  rules?: Array<SecurityRuleDTO>;
+  rule?: Array<SecurityRuleDTO>;
 }
 /**
  * セキュリティルールオブジェクト

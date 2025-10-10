@@ -9,7 +9,7 @@ export interface InstanceTypeCreateRequestDTO {
   /**
    * CPUコア数
    */
-  cpuCores: number;
+  cpuCore: number;
   /**
    * メモリサイズ（バイト単位）
    */
@@ -26,7 +26,7 @@ export interface InstanceTypeUpdateRequestDTO {
   /**
    * CPUコア数
    */
-  cpuCores?: number;
+  cpuCore?: number;
   /**
    * メモリサイズ（バイト単位）
    */
@@ -52,7 +52,7 @@ export interface ModelInstanceTypeDTO {
   /**
    * CPUコア数
    */
-  cpuCores: number;
+  cpuCore: number;
   /**
    * メモリサイズ（バイト単位）
    */
