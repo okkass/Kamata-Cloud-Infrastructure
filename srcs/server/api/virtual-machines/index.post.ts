@@ -1,9 +1,4 @@
 export default defineEventHandler(async (event) => {
-<<<<<<< HEAD
-  const body = await readBody(event);
-  console.log("Received body:", body);
-  return { message: "Data received", data: body };
-=======
   // リクエストのボディをJSONとして読み込む
   const body = await readBody(event);
 
@@ -20,5 +15,4 @@ export default defineEventHandler(async (event) => {
       name: body.name, // 受け取った名前をそのまま返す
     },
   };
->>>>>>> origin/main
 });
