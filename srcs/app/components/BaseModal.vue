@@ -14,11 +14,11 @@
           @click="$emit('close')"
           class="text-3xl text-gray-500 hover:text-gray-800"
         >
-          &times;
+          <IconCross />
         </button>
       </div>
 
-      <div class="modal-body overflow-y-auto" :class="modalBodyClass">
+      <div class="modal-body overflow-y-auto p-3" :class="modalBodyClass">
         <slot />
       </div>
     </div>

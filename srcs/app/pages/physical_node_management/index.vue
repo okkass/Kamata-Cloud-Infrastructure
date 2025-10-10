@@ -22,25 +22,15 @@
     <!-- 管理ノードは「削除不可」バッジ、他は通常メニュー -->
     <template #row-actions="{ row, emit }">
       <template v-if="row.isMgmt">
-        <div
-          class="w-full text-center px-4 py-2 text-sm font-bold text-white bg-slate-500 border border-slate-700 rounded-md cursor-not-allowed select-none"
-        >
-          削除不可
-        </div>
+        <div class="action-item-disabled">削除不可</div>
       </template>
       <template v-else>
-        <a
-          href="#"
-          class="block px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t first:border-t-0 border-slate-200"
-          @click.prevent="emit('delete')"
-          >削除</a
-        >
-        <a
-          href="#"
-          class="block px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t first:border-t-0 border-slate-200"
-          @click.prevent="emit('set-mgmt')"
-          >管理ノードに設定</a
-        >
+        <a href="#" class="action-item" @click.prevent="emit('delete')">
+          削除
+        </a>
+        <a href="#" class="action-item" @click.prevent="emit('set-mgmt')">
+          管理ノードに設定
+        </a>
       </template>
     </template>
   </DashboardLayout>
