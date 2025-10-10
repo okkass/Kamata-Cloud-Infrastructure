@@ -1,77 +1,69 @@
 <template>
   <div class="modal-space">
     <!-- 1. 仮想ネットワーク(VPC)選択 -->
-    <div>
-      <label for="vpc-select" class="form-label">
-        仮想ネットワーク <span class="required-asterisk">*</span>
-      </label>
-      <div v-if="networksPending" class="text-loading">読み込み中...</div>
-      <div v-else-if="networksError" class="text-error">
-        取得に失敗しました。
-      </div>
-      <select
-        v-else
-        id="vpc-select"
-        v-model="selectedVpcId"
-        class="form-input"
-        :class="{ 'form-border-error': errors.subnetId && !selectedVpcId }"
-      >
-        <option :value="undefined" disabled>VPCを選択してください</option>
-        <option v-for="vpc in networks" :key="vpc.id" :value="vpc.id">
-          {{ vpc.name }}
-        </option>
-      </select>
-    </div>
+    <FormSelect
+      label="仮想ネットワーク (VPC)"
+      name="vpcId"
+      :options="
+        networks?.map((net) => ({
+          id: net.id,
+          name: net.name,
+          label:
+            net.name + (net.subnets[0] ? ' (' + net.subnets[0].cidr + ')' : ''),
+          value: net.id,
+        })) || []
+      "
+      v-model="selectedVpcId"
+      :pending="networksPending"
+      :error="networksError ? '取得に失敗しました。' : undefined"
+      :class="{ 'form-border-error': errors.subnetId }"
+      :placeholderValue="undefined"
+      :required="true"
+      placeholder="VPCを選択してください"
+    />
 
     <!-- 2. サブネット選択 -->
-    <div>
-      <label for="subnet-select" class="form-label">
-        サブネット <span class="required-asterisk">*</span>
-      </label>
-      <select
-        id="subnet-select"
-        v-model="subnetId"
-        v-bind="subnetIdAttrs"
-        class="form-input"
-        :class="{ 'form-border-error': errors.subnetId }"
-        :disabled="!selectedVpcId"
-      >
-        <option :value="undefined" disabled>
-          サブネットを選択してください
-        </option>
-        <option
-          v-for="subnet in availableSubnets"
-          :key="subnet.id"
-          :value="subnet.id"
-        >
-          {{ subnet.name }} ({{ subnet.cidr }})
-        </option>
-      </select>
-      <p v-if="errors.subnetId" class="text-error mt-1">
-        {{ errors.subnetId }}
-      </p>
-    </div>
+    <FormSelect
+      label="サブネット"
+      name="subnetId"
+      :options="
+        availableSubnets.map((subnet) => ({
+          id: subnet.id,
+          name: subnet.name,
+          label: subnet.name + ' (' + subnet.cidr + ')',
+          value: subnet.id,
+        }))
+      "
+      v-model="subnetId"
+      :pending="networksPending"
+      :error="networksError ? '取得に失敗しました。' : undefined"
+      :class="{ 'form-border-error': errors.subnetId }"
+      :placeholderValue="undefined"
+      :required="true"
+      placeholder="サブネットを選択してください"
+      v-bind="subnetIdAttrs"
+    />
 
     <!-- 3. セキュリティグループ選択 -->
-    <div>
-      <label for="security-group-select" class="form-label"
-        >セキュリティグループ</label
-      >
-      <div v-if="sgPending" class="text-loading">読み込み中...</div>
-      <div v-else-if="sgError" class="text-error">取得に失敗しました。</div>
-      <select
-        v-else
-        id="security-group-select"
-        v-model="securityGroupId"
-        v-bind="securityGroupIdAttrs"
-        class="form-input"
-      >
-        <option :value="null">なし</option>
-        <option v-for="sg in securityGroups" :key="sg.id" :value="sg.id">
-          {{ sg.name }}
-        </option>
-      </select>
-    </div>
+    <FormSelect
+      label="セキュリティグループ"
+      name="securityGroupId"
+      :options="
+        securityGroups?.map((sg) => ({
+          id: sg.id,
+          name: sg.name,
+          label: sg.name,
+          value: sg.id,
+        })) || []
+      "
+      v-model="securityGroupId"
+      :pending="sgPending"
+      :error="sgError ? '取得に失敗しました。' : undefined"
+      :class="{ 'form-border-error': errors.securityGroupId }"
+      :placeholderValue="null"
+      placeholder="なし"
+      v-bind="securityGroupIdAttrs"
+    />
 
     <!-- 4. 公開鍵ファイルアップロードUI -->
     <div>
@@ -139,6 +131,7 @@ import { useResourceList } from "~/composables/useResourceList";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
+import FormSelect from "../FormSelect.vue";
 
 // ==============================================================================
 // Type Definitions
@@ -237,10 +230,10 @@ const availableSubnets = computed(() => {
 watch(selectedVpcId, () => {
   setFieldValue("subnetId", undefined);
 });
-
 // --- File Upload Logic ---
 const fileInput = ref<HTMLInputElement | null>(null); // ファイル選択ダイアログを開くための参照
 const isDragging = ref(false); // ドラッグ中かどうかの状態
+const { addToast } = useToast(); // トースト通知用関数を取得
 
 /**
  * ファイル選択ダイアログを開く
