@@ -30,7 +30,7 @@
       ><span>{{ row.storage }}</span></template
     >
     <template #cell-createdAt="{ row }"
-      ><span>{{ fmt(row.createdAt) }}</span></template
+      ><span>{{ formatDateTime(row.createdAt) }}</span></template
     >
 
     <!-- 行メニュー（この文字スタイルは維持） -->
@@ -50,7 +50,7 @@
             : 'text-slate-900 hover:bg-[#f5f7fa]'
         "
         :disabled="row.isMgmt || switchingId === row.id"
-        @click.stop.prevent="switchToAdmin(row.id)"
+        @click.stop.prevent="switchManagementNodeToTarget(row.id)"
       >
         管理ノードに設定
       </button>
@@ -117,6 +117,12 @@ type UiNode = {
   createdAt: string;
 };
 type CandidateDTO = { id: string; name: string; ipAddress: string };
+type TableColumn = {
+  key: string;
+  label: string;
+  width?: string | number;
+  align?: "left" | "center" | "right";
+};
 
 /* ===== 定数 ===== */
 const API = {
@@ -130,7 +136,7 @@ const API = {
 
 /* ===== データ取得 / ページアクション ===== */
 const { data: nodesRaw, refresh } =
-  useResourceList<PhysicalNodeDTO>("physical-nodes"); // Wiki流:contentReference[oaicite:2]{index=2}
+  useResourceList<PhysicalNodeDTO>("physical-nodes");
 const {
   activeModal,
   openModal,
@@ -145,42 +151,43 @@ const {
   resourceName: "physical-nodes",
   resourceLabel: "物理ノード",
   refresh,
-}); // Wiki流:contentReference[oaicite:3]{index=3}
+});
 const { addToast } = useToast();
 
-/* ===== テーブル設定 ===== */
-const columns = [
-  { key: "name", label: "ノード名" },
-  { key: "ip", label: "IPアドレス" },
-  { key: "status", label: "状態" },
-  { key: "cpu", label: "CPU" },
-  { key: "mem", label: "メモリ" },
-  { key: "storage", label: "ストレージ" },
-  { key: "createdAt", label: "作成日時" },
+/* ===== テーブル設定（列幅/整列を汎用化） ===== */
+const columns: TableColumn[] = [
+  { key: "name", label: "ノード名", width: 240 },
+  { key: "ip", label: "IPアドレス", width: 180 },
+  { key: "status", label: "状態", width: 120, align: "center" },
+  { key: "cpu", label: "CPU", width: 120, align: "right" },
+  { key: "mem", label: "メモリ", width: 120, align: "right" },
+  { key: "storage", label: "ストレージ", width: 140, align: "right" },
+  { key: "createdAt", label: "作成日時", width: 200 },
 ];
 const headerButtons = [{ label: "ノード追加", action: "create" }];
 
 /* ===== 整形 ===== */
-const pct = (v?: number) =>
-  typeof v === "number" ? `${Math.round(v * 100)}%` : "—";
+const formatAsPercent = (v?: number) =>
+  typeof v === "number" && isFinite(v) ? `${Math.round(v * 100)}%` : "—";
+
 const nodesUi = computed<UiNode[]>(() =>
   (nodesRaw.value ?? []).map((n) => ({
     id: n.id,
     name: n.name,
     ip: n.ipAddress,
     status: n.status === "active" ? "稼働中" : "停止中",
-    cpu: pct(n.cpuUtilization),
-    mem: pct(n.memoryUtilization),
-    storage: pct(n.storageUtilization),
+    cpu: formatAsPercent(n.cpuUtilization),
+    mem: formatAsPercent(n.memoryUtilization),
+    storage: formatAsPercent(n.storageUtilization),
     isMgmt: Boolean(n.isAdmin),
     createdAt: n.createdAt,
   }))
 );
 
-/* ===== 管理ノード切替（解除は並列、最後に必ず ON） ===== */
+/* ===== 管理ノード切替（解除は並列、ログ付きで安全化） ===== */
 const switchingId = ref<string | null>(null);
 
-async function switchToAdmin(targetId: string): Promise<void> {
+async function switchManagementNodeToTarget(targetId: string): Promise<void> {
   if (switchingId.value === targetId) return;
   const target = nodesUi.value.find((n) => n.id === targetId);
   if (!target || target.isMgmt) return;
@@ -192,11 +199,17 @@ async function switchToAdmin(targetId: string): Promise<void> {
       .filter((n) => n.isAdmin && n.id !== targetId)
       .map((n) => n.id);
 
-    await Promise.allSettled(
-      currentAdminIds.map((id) =>
-        $fetch(API.unsetAdmin(id), { method: "PUT" }).catch(() => {})
-      )
+    const unsetResults = await Promise.allSettled(
+      currentAdminIds.map((id) => $fetch(API.unsetAdmin(id), { method: "PUT" }))
     );
+    const failedUnsets = unsetResults.filter((r) => r.status === "rejected");
+    if (failedUnsets.length > 0) {
+      console.error("管理ノード解除に失敗:", failedUnsets);
+      addToast({
+        type: "warning",
+        message: `一部の既存管理ノード解除に失敗しました（${failedUnsets.length}件）。続行します。`,
+      });
+    }
 
     // 対象ノードを管理ノードに
     await $fetch(API.setAdmin(targetId), { method: "PUT" });
@@ -204,11 +217,13 @@ async function switchToAdmin(targetId: string): Promise<void> {
     await refresh();
     handleSuccess();
     addToast({ type: "success", message: "管理ノードを切り替えました。" });
-  } catch (e: any) {
+  } catch (e: unknown) {
+    console.error("管理ノード切替エラー:", e);
+    const msg = e instanceof Error ? e.message : String(e);
     addToast({
       type: "error",
       message: "管理ノードの切替に失敗しました。",
-      details: e?.message,
+      details: msg,
     });
   } finally {
     switchingId.value = null;
@@ -223,28 +238,45 @@ function onDelete(row: UiNode): void {
 
 /* ===== 追加 ===== */
 const candidateNodes = ref<CandidateDTO[]>([]);
+
 async function onHeaderAction(action: string): Promise<void> {
   if (action !== "create") return;
   try {
     candidateNodes.value = await $fetch<CandidateDTO[]>(API.candidates);
-  } catch {
+  } catch (e: unknown) {
+    console.error("候補ノード取得エラー:", e);
     candidateNodes.value = [];
+    addToast({ type: "error", message: "候補ノードの取得に失敗しました。" });
   }
   openModal("create-physical-nodes");
 }
+
 async function handleCreateFromCandidate(c: CandidateDTO): Promise<void> {
-  await $fetch(API.base, {
-    method: "POST",
-    body: { name: c.name, ipAddress: c.ipAddress },
-  });
-  await refresh();
-  handleSuccess();
-  closeModal();
-  addToast({ type: "success", message: `ノード '${c.name}' を追加しました。` });
+  try {
+    await $fetch(API.base, {
+      method: "POST",
+      body: { name: c.name, ipAddress: c.ipAddress },
+    });
+    await refresh();
+    handleSuccess();
+    closeModal();
+    addToast({
+      type: "success",
+      message: `ノード '${c.name}' を追加しました。`,
+    });
+  } catch (e: unknown) {
+    console.error("ノード追加エラー:", e);
+    const msg = e instanceof Error ? e.message : String(e);
+    addToast({
+      type: "error",
+      message: "ノードの追加に失敗しました。",
+      details: msg,
+    });
+  }
 }
 
-/* ===== util（日付: isNaN(d.getTime()) で判定） ===== */
-function fmt(iso: string): string {
+/* ===== util（日付: isNaN(d.getTime()) で判定 / 共通化せず index 内で完結） ===== */
+function formatDateTime(iso: string): string {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
   const p = (n: number) => String(n).padStart(2, "0");
