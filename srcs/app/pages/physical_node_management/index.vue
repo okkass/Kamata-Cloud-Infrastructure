@@ -7,14 +7,14 @@
     :headerButtons="headerButtons"
     @header-action="handleHeaderAction"
   >
-    <!-- name はリンク化（その他は汎用列：slot未定義でそのまま表示） -->
+    <!-- name だけリンク化（他の列は汎用表示。列名を一切ハードコーディングしない） -->
     <template #cell-name="{ row }">
       <NuxtLink :to="`/physical-node/${row.id}`">
         {{ row.name }} <span v-if="row.isMgmt">（管理ノード）</span>
       </NuxtLink>
     </template>
 
-    <!-- 行メニュー（この文字スタイルは維持） -->
+    <!-- 行メニュー -->
     <template #row-actions="{ row }">
       <NuxtLink
         :to="`/physical-node/${row.id}`"
@@ -69,7 +69,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, type Ref } from "vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
 import MoAddNodeToCluster from "@/components/MoAddNodeToCluster.vue";
 import { useToast } from "@/composables/useToast";
@@ -98,7 +98,7 @@ type UiNode = {
   mem: string;
   storage: string;
   isMgmt: boolean;
-  /** 表示用に整形済み（列側のキー名ハードコーディング回避） */
+  /** 表示用に整形済み */
   createdAtText: string;
 };
 
@@ -107,10 +107,8 @@ type CandidateDTO = { id: string; name: string; ipAddress: string };
 type TableColumn = {
   key: keyof UiNode | string;
   label: string;
-  /** 幅（px / % / auto） */
-  width?: number | string;
-  /** 最大幅（px / %） */
-  maxWidth?: number | string;
+  width?: number | string; // px / % / auto
+  maxWidth?: number | string; // px / %
   align?: "left" | "center" | "right";
 };
 
@@ -136,7 +134,7 @@ type UsePageActionsReturn<Row> = {
 const { addToast } = useToast();
 
 /* =========================
- * APIエンドポイント
+ * API
  * ========================= */
 const API = {
   base: "/api/physical-nodes",
@@ -161,8 +159,7 @@ const actions = usePageActions<UiNode>({
 }) as UsePageActionsReturn<UiNode>;
 
 /* =========================
- * 列設定（width / maxWidth を汎用プロパティ化）
- * createdAt のような生キーを直接参照せず、整形済み createdAtText を表示
+ * 列設定（列名をハードコーディングしない／createdAtText を使用）
  * ========================= */
 const columns = ref<TableColumn[]>([
   { key: "name", label: "ノード名", width: 260, maxWidth: 360 },
@@ -177,12 +174,11 @@ const columns = ref<TableColumn[]>([
 const headerButtons = ref([{ label: "ノード追加", action: "create" }] as const);
 
 /* =========================
- * 整形ユーティリティ（index内で完結）
+ * 整形ユーティリティ
  * ========================= */
 function formatAsPercent(v?: number): string {
   return typeof v === "number" && isFinite(v) ? `${Math.round(v * 100)}%` : "—";
 }
-
 function formatDateTime(iso: string): string {
   const d = new Date(iso);
   if (isNaN(d.getTime())) return iso;
@@ -191,15 +187,14 @@ function formatDateTime(iso: string): string {
     d.getHours()
   )}:${p(d.getMinutes())}`;
 }
-
-/** allSettled のエラー詳細抽出（トースト/ログに載せる） */
+/** allSettled の失敗理由を抽出（ログ/トーストに載せる） */
 function extractErrorMessages(
   results: PromiseSettledResult<unknown>[]
 ): string[] {
   return results
     .filter((r): r is PromiseRejectedResult => r.status === "rejected")
     .map((r) => {
-      const reason = (r as PromiseRejectedResult).reason;
+      const reason = r.reason;
       if (reason instanceof Error) return reason.message;
       try {
         return typeof reason === "string" ? reason : JSON.stringify(reason);
@@ -210,7 +205,7 @@ function extractErrorMessages(
 }
 
 /* =========================
- * UIノード（createdAt → createdAtText に変換）
+ * UIノード（createdAt → createdAtText）
  * ========================= */
 const nodesUi = computed<UiNode[]>(() =>
   (nodesRaw.value ?? []).map((n) => ({
@@ -246,14 +241,12 @@ async function switchManagementNodeToTarget(targetId: string): Promise<void> {
     const unsetResults = await Promise.allSettled(
       currentAdminIds.map((id) => $fetch(API.unsetAdmin(id), { method: "PUT" }))
     );
-
     const failedMessages = extractErrorMessages(unsetResults);
     if (failedMessages.length > 0) {
       console.error("管理ノード解除エラー詳細:", failedMessages);
       addToast({
         type: "warning",
         message: `一部の既存管理ノード解除に失敗（${failedMessages.length}件）。続行します。`,
-        // 最多3件まで詳細を表示（長すぎ防止）
         details: failedMessages.slice(0, 3).join(" | "),
       });
     }
