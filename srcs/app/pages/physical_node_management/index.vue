@@ -7,7 +7,7 @@
     :headerButtons="headerButtons"
     @header-action="handleHeaderAction"
   >
-    <!-- name だけリンク化（他の列は汎用表示。列名を一切ハードコーディングしない） -->
+    <!-- name だけリンク化 -->
     <template #cell-name="{ row }">
       <NuxtLink :to="`/physical-node/${row.id}`">
         {{ row.name }} <span v-if="row.isMgmt">（管理ノード）</span>
@@ -54,16 +54,16 @@
 
   <!-- モーダル -->
   <MoDeleteConfirm
-    :show="actions.activeModal === 'delete-physical-nodes'"
-    :message="`本当に '${actions.targetForDeletion?.name}' を削除しますか？`"
-    :is-loading="actions.isDeleting"
-    @close="actions.cancelAction"
-    @confirm="actions.handleDelete"
+    :show="activeModal === 'delete-physical-nodes'"
+    :message="`本当に '${targetForDeletion?.name}' を削除しますか？`"
+    :is-loading="isDeleting"
+    @close="cancelAction"
+    @confirm="handleDelete"
   />
   <MoAddNodeToCluster
-    :show="actions.activeModal === 'create-physical-nodes'"
+    :show="activeModal === 'create-physical-nodes'"
     :nodes="candidateNodes"
-    @close="actions.closeModal"
+    @close="closeModal"
     @submit="handleCreateFromCandidate"
   />
 </template>
@@ -74,9 +74,7 @@ import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
 import MoAddNodeToCluster from "@/components/MoAddNodeToCluster.vue";
 import { useToast } from "@/composables/useToast";
 
-/* =========================
- * 型定義（Composition APIの型安全性）
- * ========================= */
+/* ========= 型 ========= */
 type PhysicalNodeDTO = {
   id: string;
   name: string;
@@ -88,7 +86,6 @@ type PhysicalNodeDTO = {
   memoryUtilization?: number;
   storageUtilization?: number;
 };
-
 type UiNode = {
   id: string;
   name: string;
@@ -98,12 +95,9 @@ type UiNode = {
   mem: string;
   storage: string;
   isMgmt: boolean;
-  /** 表示用に整形済み */
-  createdAtText: string;
+  createdAtText: string; // ← 表示用。createdAt をここで整形
 };
-
 type CandidateDTO = { id: string; name: string; ipAddress: string };
-
 type TableColumn = {
   key: keyof UiNode | string;
   label: string;
@@ -111,14 +105,10 @@ type TableColumn = {
   maxWidth?: number | string; // px / %
   align?: "left" | "center" | "right";
 };
-
-/** useResourceList 戻り値の型（簡易） */
 type UseResourceListReturn<T> = {
   data: Ref<T[] | null | undefined>;
   refresh: () => Promise<void>;
 };
-
-/** usePageActions 戻り値の型を明示（IDE補完向上） */
 type UsePageActionsReturn<Row> = {
   activeModal: string | null;
   openModal: (name: string) => void;
@@ -133,9 +123,7 @@ type UsePageActionsReturn<Row> = {
 
 const { addToast } = useToast();
 
-/* =========================
- * API
- * ========================= */
+/* ========= API ========= */
 const API = {
   base: "/api/physical-nodes",
   candidates: "/api/physical-nodes/candidates",
@@ -145,22 +133,29 @@ const API = {
     `/api/physical-nodes/${encodeURIComponent(id)}/unset-admin`,
 } as const;
 
-/* =========================
- * データ取得 / ページアクション
- * ========================= */
+/* ========= データ取得 / ページアクション（index内で完結・赤線回避） ========= */
 const { data: nodesRaw, refresh } = useResourceList<PhysicalNodeDTO>(
   "physical-nodes"
 ) as UseResourceListReturn<PhysicalNodeDTO>;
 
-const actions = usePageActions<UiNode>({
+// 分割代入に型を直接当てる（actions オブジェクトを持たないので赤線が出ない）
+const {
+  activeModal,
+  openModal,
+  closeModal,
+  targetForDeletion,
+  isDeleting,
+  handleRowAction,
+  handleDelete,
+  handleSuccess,
+  cancelAction,
+}: UsePageActionsReturn<UiNode> = usePageActions<UiNode>({
   resourceName: "physical-nodes",
   resourceLabel: "物理ノード",
   refresh,
-}) as UsePageActionsReturn<UiNode>;
+});
 
-/* =========================
- * 列設定（列名をハードコーディングしない／createdAtText を使用）
- * ========================= */
+/* ========= 列（createdAtText を正規キーとして使用・幅/最大幅を汎用制御） ========= */
 const columns = ref<TableColumn[]>([
   { key: "name", label: "ノード名", width: 260, maxWidth: 360 },
   { key: "ip", label: "IPアドレス", width: 180, maxWidth: 220 },
@@ -169,13 +164,11 @@ const columns = ref<TableColumn[]>([
   { key: "mem", label: "メモリ", width: 120, align: "right" },
   { key: "storage", label: "ストレージ", width: 140, align: "right" },
   { key: "createdAtText", label: "作成日時", width: 200, maxWidth: 220 },
-]);
+] satisfies TableColumn[]);
 
 const headerButtons = ref([{ label: "ノード追加", action: "create" }] as const);
 
-/* =========================
- * 整形ユーティリティ
- * ========================= */
+/* ========= 整形 ========= */
 function formatAsPercent(v?: number): string {
   return typeof v === "number" && isFinite(v) ? `${Math.round(v * 100)}%` : "—";
 }
@@ -187,7 +180,6 @@ function formatDateTime(iso: string): string {
     d.getHours()
   )}:${p(d.getMinutes())}`;
 }
-/** allSettled の失敗理由を抽出（ログ/トーストに載せる） */
 function extractErrorMessages(
   results: PromiseSettledResult<unknown>[]
 ): string[] {
@@ -204,9 +196,7 @@ function extractErrorMessages(
     });
 }
 
-/* =========================
- * UIノード（createdAt → createdAtText）
- * ========================= */
+/* ========= UIノード（createdAt → createdAtText） ========= */
 const nodesUi = computed<UiNode[]>(() =>
   (nodesRaw.value ?? []).map((n) => ({
     id: n.id,
@@ -221,9 +211,7 @@ const nodesUi = computed<UiNode[]>(() =>
   }))
 );
 
-/* =========================
- * 管理ノード切替（解除は並列・詳細な失敗理由を提示）
- * ========================= */
+/* ========= 管理ノード切替（解除は並列・詳細理由を提示） ========= */
 const switchingId = ref<string | null>(null);
 
 async function switchManagementNodeToTarget(targetId: string): Promise<void> {
@@ -254,7 +242,7 @@ async function switchManagementNodeToTarget(targetId: string): Promise<void> {
     await $fetch(API.setAdmin(targetId), { method: "PUT" });
 
     await refresh();
-    actions.handleSuccess();
+    handleSuccess();
     addToast({ type: "success", message: "管理ノードを切り替えました。" });
   } catch (e: unknown) {
     const msg = e instanceof Error ? e.message : String(e);
@@ -269,17 +257,13 @@ async function switchManagementNodeToTarget(targetId: string): Promise<void> {
   }
 }
 
-/* =========================
- * 削除（管理ノードは不可）
- * ========================= */
+/* ========= 削除 ========= */
 function handleDeleteRowClick(row: UiNode): void {
   if (row.isMgmt) return;
-  actions.handleRowAction({ action: "delete", row });
+  handleRowAction({ action: "delete", row });
 }
 
-/* =========================
- * 追加（候補取得 → モーダル）
- * ========================= */
+/* ========= 追加 ========= */
 const candidateNodes = ref<CandidateDTO[]>([]);
 
 async function handleHeaderAction(action: string): Promise<void> {
@@ -296,7 +280,7 @@ async function handleHeaderAction(action: string): Promise<void> {
       details: msg,
     });
   }
-  actions.openModal("create-physical-nodes");
+  openModal("create-physical-nodes");
 }
 
 async function handleCreateFromCandidate(c: CandidateDTO): Promise<void> {
@@ -306,8 +290,8 @@ async function handleCreateFromCandidate(c: CandidateDTO): Promise<void> {
       body: { name: c.name, ipAddress: c.ipAddress },
     });
     await refresh();
-    actions.handleSuccess();
-    actions.closeModal();
+    handleSuccess();
+    closeModal();
     addToast({
       type: "success",
       message: `ノード '${c.name}' を追加しました。`,
