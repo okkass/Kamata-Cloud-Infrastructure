@@ -208,7 +208,7 @@ export interface VirtualMachineDTO {
   /**
    * CPUコア数
    */
-  cpuCores: number;
+  cpuCore: number;
   /**
    * メモリサイズ（バイト単位）
    */
@@ -216,15 +216,15 @@ export interface VirtualMachineDTO {
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroup: Array<string>;
+  securityGroups: Array<string>;
   /**
    * アタッチされたストレージのリスト
    */
-  attachedStorage: Array<AttachedStorageDTO>;
+  attachedStorages: Array<AttachedStorageDTO>;
   /**
    * アタッチされたネットワークインターフェースのリスト
    */
-  attachedNic?: Array<NetworkInterfaceDTO>;
+  attachedNics?: Array<NetworkInterfaceDTO>;
   /**
    * CPU使用率（0.0から1.0の範囲）
    */
@@ -283,7 +283,7 @@ interface VirtualMachineCreateBaseRequest {
   /**
    * 関連付けるセキュリティグループのIDリスト
    */
-  securityGroupId?: string | null;
+  securityGroupIds?: Array<string> | null;
 }
 
 /**
@@ -296,9 +296,9 @@ interface VirtualMachineCreateWithInstanceTypeRequest
    */
   instanceTypeId: string;
   /**
-   * cpuCoresは存在してはならない
+   * cpuCoreは存在してはならない
    */
-  cpuCores?: never;
+  cpuCore?: never;
   /**
    * memorySizeは存在してはならない
    */
@@ -317,7 +317,7 @@ interface VirtualMachineCreateWithCustomConfigRequest
   /**
    * CPUコア数
    */
-  cpuCores: number;
+  cpuCore: number;
   /**
    * メモリサイズ（バイト単位）
    */
@@ -361,7 +361,7 @@ export interface VirtualMachineUpdateRequestDTO {
   /**
    * CPUコア数
    */
-  cpuCores?: number;
+  cpuCore?: number;
   /**
    * メモリサイズ（バイト単位）
    */
@@ -369,15 +369,15 @@ export interface VirtualMachineUpdateRequestDTO {
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroup?: Array<string>;
+  securityGroups?: Array<string>;
   /**
    * アタッチされたストレージのリスト
    */
-  attachedStorage?: Array<AttachedStorageDTO>;
+  attachedStorages?: Array<AttachedStorageDTO>;
   /**
    * アタッチされたネットワークインターフェースのリスト
    */
-  attachedNic?: Array<NetworkInterfaceDTO>;
+  attachedNics?: Array<NetworkInterfaceDTO>;
 }
 
 /**
