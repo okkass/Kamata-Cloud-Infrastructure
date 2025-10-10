@@ -103,7 +103,7 @@ export interface VirtualNetwork {
    * 仮想ネットワークが作成された日時
    */
   createdAt: string;
-  subnet?: Array<Subnet>;
+  subnets?: Array<Subnet>;
   /**
    * 仮想ネットワークのインバウンドトラフィック（bps単位）
    */

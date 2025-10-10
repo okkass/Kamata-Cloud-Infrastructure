@@ -216,15 +216,15 @@ export interface VirtualMachineDTO {
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroup: Array<string>;
+  securityGroups: Array<string>;
   /**
    * アタッチされたストレージのリスト
    */
-  attachedStorage: Array<AttachedStorageDTO>;
+  attachedStorages: Array<AttachedStorageDTO>;
   /**
    * アタッチされたネットワークインターフェースのリスト
    */
-  attachedNic?: Array<NetworkInterfaceDTO>;
+  attachedNics?: Array<NetworkInterfaceDTO>;
   /**
    * CPU使用率（0.0から1.0の範囲）
    */
@@ -279,11 +279,11 @@ interface VirtualMachineCreateBaseRequest {
   /**
    * 仮想マシンにアタッチするストレージのリスト
    */
-  storage: Array<VirtualMachineCreateRequestStoragesInnerDTO>;
+  storages: Array<VirtualMachineCreateRequestStoragesInnerDTO>;
   /**
    * 関連付けるセキュリティグループのIDリスト
    */
-  securityGroupId?: string | null;
+  securityGroupIds?: Array<string> | null;
 }
 
 /**
@@ -369,15 +369,15 @@ export interface VirtualMachineUpdateRequestDTO {
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroup?: Array<string>;
+  securityGroups?: Array<string>;
   /**
    * アタッチされたストレージのリスト
    */
-  attachedStorage?: Array<AttachedStorageDTO>;
+  attachedStorages?: Array<AttachedStorageDTO>;
   /**
    * アタッチされたネットワークインターフェースのリスト
    */
-  attachedNic?: Array<NetworkInterfaceDTO>;
+  attachedNics?: Array<NetworkInterfaceDTO>;
 }
 
 /**
