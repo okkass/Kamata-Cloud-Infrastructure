@@ -95,7 +95,7 @@ type UiNode = {
   mem: string;
   storage: string;
   isMgmt: boolean;
-  createdAtText: string; // ← 表示用。createdAt をここで整形
+  createdAtText: string;
 };
 type CandidateDTO = { id: string; name: string; ipAddress: string };
 type TableColumn = {
@@ -109,12 +109,13 @@ type UseResourceListReturn<T> = {
   data: Ref<T[] | null | undefined>;
   refresh: () => Promise<void>;
 };
+/* usePageActions の実体に合わせて Ref を明示 */
 type UsePageActionsReturn<Row> = {
-  activeModal: string | null;
+  activeModal: Ref<string | null>;
   openModal: (name: string) => void;
   closeModal: () => void;
-  targetForDeletion: Row | null;
-  isDeleting: boolean;
+  targetForDeletion: Ref<Row | null>;
+  isDeleting: Ref<boolean>;
   handleRowAction: (p: { action: string; row: Row }) => void;
   handleDelete: () => Promise<void>;
   handleSuccess: () => void;
@@ -133,12 +134,12 @@ const API = {
     `/api/physical-nodes/${encodeURIComponent(id)}/unset-admin`,
 } as const;
 
-/* ========= データ取得 / ページアクション（index内で完結・赤線回避） ========= */
+/* ========= データ取得 ========= */
 const { data: nodesRaw, refresh } = useResourceList<PhysicalNodeDTO>(
   "physical-nodes"
 ) as UseResourceListReturn<PhysicalNodeDTO>;
 
-// 分割代入に型を直接当てる（actions オブジェクトを持たないので赤線が出ない）
+/* actions は分割代入＋ Ref 型で受ける（テンプレでは自動unref） */
 const {
   activeModal,
   openModal,
@@ -153,9 +154,9 @@ const {
   resourceName: "physical-nodes",
   resourceLabel: "物理ノード",
   refresh,
-});
+}) as unknown as UsePageActionsReturn<UiNode>;
 
-/* ========= 列（createdAtText を正規キーとして使用・幅/最大幅を汎用制御） ========= */
+/* ========= 列（createdAtText を使用・幅/最大幅を汎用制御） ========= */
 const columns = ref<TableColumn[]>([
   { key: "name", label: "ノード名", width: 260, maxWidth: 360 },
   { key: "ip", label: "IPアドレス", width: 180, maxWidth: 220 },
@@ -164,9 +165,12 @@ const columns = ref<TableColumn[]>([
   { key: "mem", label: "メモリ", width: 120, align: "right" },
   { key: "storage", label: "ストレージ", width: 140, align: "right" },
   { key: "createdAtText", label: "作成日時", width: 200, maxWidth: 220 },
-] satisfies TableColumn[]);
+]);
 
-const headerButtons = ref([{ label: "ノード追加", action: "create" }] as const);
+/* ここを readonly にしない（as const は外す） */
+const headerButtons = ref<{ label: string; action: string }[]>([
+  { label: "ノード追加", action: "create" },
+]);
 
 /* ========= 整形 ========= */
 function formatAsPercent(v?: number): string {
@@ -196,7 +200,7 @@ function extractErrorMessages(
     });
 }
 
-/* ========= UIノード（createdAt → createdAtText） ========= */
+/* ========= UIノード ========= */
 const nodesUi = computed<UiNode[]>(() =>
   (nodesRaw.value ?? []).map((n) => ({
     id: n.id,
@@ -211,7 +215,7 @@ const nodesUi = computed<UiNode[]>(() =>
   }))
 );
 
-/* ========= 管理ノード切替（解除は並列・詳細理由を提示） ========= */
+/* ========= 管理ノード切替 ========= */
 const switchingId = ref<string | null>(null);
 
 async function switchManagementNodeToTarget(targetId: string): Promise<void> {
