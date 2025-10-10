@@ -1,14 +1,10 @@
 <template>
-   
   <div class="relative flex min-h-screen bg-slate-100">
-        <UserSidebar :isAdmin="isAdmin" />
-
-       
+    <UserSidebar :isAdmin="isAdmin" />
     <main
       class="flex-1 p-8 transition-all duration-300"
       :class="{ 'ml-64': isSidebarOpen }"
     >
-           
       <button
         v-if="!isSidebarOpen"
         @click="open"
@@ -16,13 +12,8 @@
       >
         <IconMenu />
       </button>
-
-            <slot />
-
-         
+      <slot />
     </main>
-
-     
   </div>
 </template>
 
@@ -43,7 +34,9 @@ const { data } = await useFetch("/api/user/me", { method: "GET" });
 
 // レスポンスがエラーの場合はfalse
 const isAdmin = ref(
-  data.value && "isAdmin" in data.value && typeof (data.value as any).isAdmin === "boolean"
+  data.value &&
+    "isAdmin" in data.value &&
+    typeof (data.value as any).isAdmin === "boolean"
     ? (data.value as any).isAdmin
     : false
 );

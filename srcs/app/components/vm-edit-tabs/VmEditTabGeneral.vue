@@ -5,46 +5,95 @@
       <input
         type="text"
         id="vm-name"
-        v-model="vmName"
+        v-model="name"
+        v-bind="nameAttrs"
         class="form-input"
+        :class="{ 'border-red-500': errors.name }"
         placeholder="例: vm-middleware01"
       />
+      <p v-if="errors.name" class="text-red-500 text-sm mt-1">
+        {{ errors.name }}
+      </p>
     </div>
 
-    *ここは審議次第であとで消すかも
     <div>
       <label for="node-select" class="form-label">ノード選択</label>
-      <select id="node-select" v-model="selectedNode" class="form-input">
-        <option value="node1">kci-node1</option>
-        <option value="node2">kci-node2</option>
-        <option value="node3">kci-node3</option>
+      <div v-if="pending" class="text-gray-500">ノード一覧を読み込み中...</div>
+      <div v-else-if="error" class="text-red-500">
+        ノード一覧の取得に失敗しました。
+      </div>
+      <select
+        v-else
+        id="node-select"
+        v-model="nodeId"
+        v-bind="nodeIdAttrs"
+        class="form-input"
+        :class="{ 'border-red-500': errors.nodeId }"
+      >
+        <option :value="undefined" disabled>ノードを選択してください</option>
+        <option v-for="node in nodes" :key="node.id" :value="node.id">
+          {{ node.name }}
+        </option>
       </select>
+      <p v-if="errors.nodeId" class="text-red-500 text-sm mt-1">
+        {{ errors.nodeId }}
+      </p>
     </div>
   </div>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+import { useResourceList } from "~/composables/useResourceList";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
 
-// 親コンポーネントから渡される、編集対象のVMの概要データ
-const props = defineProps({
-  generalData: {
-    type: Object,
-    required: true,
-    // データが渡されない場合のデフォルト値（テスト用）
-    default: () => ({
-      vmName: "existing-vm-01",
-      node: "node2",
-    }),
-  },
+// ==============================================================================
+// 型定義
+// ==============================================================================
+interface ModelPhysicalNodeDTO {
+  id: string;
+  name: string;
+}
+
+// ==============================================================================
+// バリデーション
+// ==============================================================================
+const validationSchema = toTypedSchema(
+  z.object({
+    name: z.string().min(1, "仮想マシン名は必須です。"),
+    nodeId: z.string({ required_error: "ノードを選択してください。" }),
+  })
+);
+
+// useFormをセットアップ (初期値は空でOK。親が後からセットします)
+const { errors, defineField, values, meta, resetForm } = useForm({
+  validationSchema,
 });
 
-// フォームの入力値を、propsで受け取ったデータで初期化
-const vmName = ref(props.generalData.vmName);
-const selectedNode = ref(props.generalData.node);
+const [name, nameAttrs] = defineField("name");
+const [nodeId, nodeIdAttrs] = defineField("nodeId");
+
+// --- 親コンポーネントへの公開 ---
+// resetFormも公開することで、親がこのフォームの値をリセットできるようになる
+defineExpose({
+  formData: values,
+  isValid: meta,
+  resetForm,
+});
+
+// ==============================================================================
+// API連携
+// ==============================================================================
+const {
+  data: nodes,
+  pending,
+  error,
+} = useResourceList<ModelPhysicalNodeDTO>("physical-node");
 </script>
 
 <style scoped>
+/* (スタイルは変更なし) */
 .form-label {
   @apply block mb-1.5 font-semibold text-gray-700;
 }
