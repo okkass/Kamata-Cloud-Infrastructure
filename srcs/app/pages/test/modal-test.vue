@@ -1,12 +1,49 @@
 <template>
-  <p>mo-daru test</p>
-  <div>
-    <button class="btn-primary" @click="openModal('create')">
-      モーダルを開く
+  <div class="p-8">
+    <h1 class="text-2xl font-bold mb-4">インスタンスタイプ管理テスト</h1>
+
+    <!-- 作成モーダルを開くボタン -->
+    <button @click="openModal('create-instance-types')" class="btn-primary">
+      新規作成モーダルを開く
     </button>
-    <MoImageAdd
-      :show="activeModal === 'create'"
+
+    <!-- インスタンスタイプ一覧表示エリア -->
+    <div class="mt-8">
+      <h2 class="font-semibold text-lg">現在のインスタンスタイプ一覧:</h2>
+      <ul class="mt-2 space-y-2">
+        <li
+          v-for="item in instanceTypes"
+          :key="item.id"
+          class="flex items-center justify-between rounded-md border bg-white p-3 shadow-sm"
+        >
+          <!-- アイテム情報 -->
+          <span>
+            {{ item.name }} (CPU: {{ item.cpuCores }}, Mem:
+            {{ item.memorySize }}GB, Storage: {{ item.storageSize }}GB)
+          </span>
+          <!-- 編集ボタン -->
+          <button
+            @click="handleRowAction({ action: 'edit', row: item })"
+            class="btn-secondary"
+          >
+            編集
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- 作成モーダル -->
+    <MoInstanceTypeCreate
+      :show="activeModal === 'create-instance-types'"
       @close="closeModal"
+      @success="handleSuccess"
+    />
+
+    <!-- 編集モーダル -->
+    <MoInstanceTypeEdit
+      :show="activeModal === 'edit-instance-types'"
+      :instance-type-data="targetForEditing"
+      @close="cancelAction"
       @success="handleSuccess"
     />
   </div>
@@ -14,8 +51,8 @@
 
 <script setup lang="ts">
 // --- Composables Setup ---
-const { data: virtualMachines, refresh } =
-  useResourceList<VirtualMachineDTO>("virtual-machine");
+const { data: instanceTypes, refresh } =
+  useResourceList<ModelInstanceTypeDTO>("instance-types");
 
 // ページアクション用のComposableを呼び出し、必要な関数とstateをすべて受け取る
 const {
@@ -26,9 +63,9 @@ const {
   activeModal,
   openModal,
   closeModal,
-} = usePageActions<VirtualMachineDTO>({
-  resourceName: "virtual-machine",
-  resourceLabel: "仮想マシン",
+} = usePageActions<ModelInstanceTypeDTO>({
+  resourceName: "instance-types",
+  resourceLabel: "インスタンスタイプ",
   refresh,
 });
 </script>

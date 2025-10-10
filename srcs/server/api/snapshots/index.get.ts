@@ -1,10 +1,21 @@
-export default defineEventHandler(async (event) => {
-  return [
-    {
-      id: "9799c8f8-a040-466e-92fd-d1fc0d8e0d83",
-      name: "snapshot-1",
-      createdAt: new Date().toISOString(),
-      targetVirtualMachine: {
+import { validate } from "uuid";
+
+export default defineEventHandler((event) => {
+  const id = event.context.params?.id;
+
+  if (!id) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Error",
+    });
+  } else if (!validate(id)) {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid format",
+    });
+  } else {
+    const mock = [
+      {
         id: "8874840c-fe85-4eb9-985f-a856eee1faa2",
         name: "vm-01",
         instanceType: {
@@ -63,14 +74,9 @@ export default defineEventHandler(async (event) => {
         memoryUtilization: 0.4, // 0 to 1
         storageUtilization: 0.2, // 0 to 1
       },
-    },
-    {
-      id: "5c578f1a-3a68-4d54-b156-a421aa53ce52",
-      name: "snapshot-2",
-      createdAt: new Date().toISOString(),
-      targetVirtualMachine: {
-        id: "8874840c-fe85-4eb9-985f-a856eee1faa2",
-        name: "vm-01",
+      {
+        id: "671d6880-b0f5-4fcb-827d-aae17536888c",
+        name: "vm-02",
         instanceType: {
           id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
           name: "t2.standard",
@@ -127,6 +133,12 @@ export default defineEventHandler(async (event) => {
         memoryUtilization: 0.4, // 0 to 1
         storageUtilization: 0.2, // 0 to 1
       },
-    },
-  ];
+    ];
+    // idがなければ404
+    const ret = mock.find((vm) => vm.id === id);
+    if (!ret) {
+      throw createError({ statusCode: 404, statusMessage: "Not Found" });
+    }
+    return ret;
+  }
 });

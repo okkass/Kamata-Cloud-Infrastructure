@@ -12,7 +12,7 @@
     <template #cell-name="{ row }">
       <NuxtLink
         :to="`/security-group/${row.id}`"
-        class="table-link"
+        class="text-sky-600 hover:text-sky-800 hover:underline font-semibold"
       >
         {{ row.name }}
       </NuxtLink>
@@ -23,13 +23,13 @@
       <div class="flex items-center justify-center gap-2 text-sm">
         <span class="font-semibold">In:</span>
         <span
-          class="count-badge-sky count-badge"
+          class="inline-block text-center font-bold text-sky-800 bg-sky-100 rounded-full px-2.5 py-0.5"
         >
           {{ getRuleCount(row.rules, "inbound") }}
         </span>
         <span class="font-semibold ml-2">Out:</span>
         <span
-          class="count-badge-indigo count-badge"
+          class="inline-block text-center font-bold text-indigo-800 bg-indigo-100 rounded-full px-2.5 py-0.5"
         >
           {{ getRuleCount(row.rules, "outbound") }}
         </span>
@@ -40,20 +40,20 @@
     <template #row-actions="{ row, emit }">
       <NuxtLink
         :to="`/security-group/${row.id}`"
-        class="action-item"
+        class="block px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t first:border-t-0 border-slate-200"
       >
         詳細
       </NuxtLink>
       <a
         href="#"
-        class="action-item"
+        class="block px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t border-slate-200"
         @click.prevent="emit('edit')"
       >
         編集
       </a>
       <a
         href="#"
-        class="action-item action-item-danger"
+        class="block px-4 py-3 text-[15px] font-semibold text-red-600 hover:bg-red-50 border-t border-slate-200"
         @click.prevent="emit('delete')"
       >
         削除
@@ -64,7 +64,7 @@
   <!-- モーダル定義エリア -->
   <!-- 汎用モーダル (削除確認) -->
   <MoDeleteConfirm
-    :show="activeModal === 'delete-security-group'"
+    :show="activeModal === 'delete-security-groups'"
     :message="`本当に '${targetForDeletion?.name}' を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
@@ -73,7 +73,7 @@
 
   <!-- 特化型モーダル (編集) -->
   <MoSecurityGroupEdit
-    :show="activeModal === 'edit-security-group'"
+    :show="activeModal === 'edit-security-groups'"
     :security-group-data="targetForEditing"
     @close="cancelAction"
     @success="handleSuccess"
@@ -81,7 +81,7 @@
 
   <!-- 特化型モーダル (作成) -->
   <MoSecurityGroupCreate
-    :show="activeModal === 'create-security-group'"
+    :show="activeModal === 'create-security-groups'"
     @close="closeModal"
     @success="handleSuccess"
   />
@@ -91,7 +91,7 @@
 // --- Composables Setup ---
 // APIから表示するデータを取得
 const { data: securityGroups, refresh } =
-  useResourceList<SecurityGroupDTO>("security-group");
+  useResourceList<SecurityGroupDTO>("security-groups");
 
 // ページのUIアクションを管理するComposableを呼び出し
 const {
@@ -106,7 +106,7 @@ const {
   handleSuccess,
   cancelAction,
 } = usePageActions<SecurityGroupDTO>({
-  resourceName: "security-group",
+  resourceName: "security-groups",
   resourceLabel: "セキュリティグループ",
   refresh,
 });
@@ -134,7 +134,7 @@ const getRuleCount = (
 /** ヘッダーボタンのアクションを処理する */
 const onHeaderAction = (action: string) => {
   if (action === "create") {
-    openModal("create-security-group");
+    openModal("create-security-groups");
   }
 };
 </script>

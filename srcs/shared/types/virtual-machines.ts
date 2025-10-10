@@ -206,25 +206,17 @@ export interface VirtualMachineDTO {
    */
   createdAt: string;
   /**
-   * CPUコア数
-   */
-  cpuCore: number;
-  /**
-   * メモリサイズ（バイト単位）
-   */
-  memorySize: number;
-  /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroups: Array<string>;
+  securityGroup: Array<string>;
   /**
    * アタッチされたストレージのリスト
    */
-  attachedStorages: Array<AttachedStorageDTO>;
+  attachedStorage: Array<AttachedStorageDTO>;
   /**
    * アタッチされたネットワークインターフェースのリスト
    */
-  attachedNics?: Array<NetworkInterfaceDTO>;
+  attachedNic?: Array<NetworkInterfaceDTO>;
   /**
    * CPU使用率（0.0から1.0の範囲）
    */
@@ -249,17 +241,17 @@ export type VirtualMachineStatusEnum =
   (typeof VirtualMachineStatusEnum)[keyof typeof VirtualMachineStatusEnum];
 
 /**
- * 仮想マシン作成リクエストの共通ベースオブジェクト
+ * 仮想マシン作成リクエストオブジェクト
  */
-interface VirtualMachineCreateBaseRequest {
+export interface VirtualMachineCreateRequestDTO {
   /**
    * 仮想マシンの名前
    */
   name: string;
   /**
-   * 仮想マシンを収容する物理ノードのID
+   * 使用するインスタンスタイプのID
    */
-  nodeId: string;
+  instanceTypeId: string;
   /**
    * 仮想マシンを配置するサブネットのID
    */
@@ -267,15 +259,15 @@ interface VirtualMachineCreateBaseRequest {
   /**
    * 仮想マシンに設定するSSH公開鍵
    */
-  publicKey: string | null;
+  publicKey: string;
   /**
    * 使用する仮想マシンイメージのID
    */
-  imageId: string | null;
+  imageId: string;
   /**
    * インストールするミドルウェアのID
    */
-  middleWareId?: string | null;
+  middleWareId?: string;
   /**
    * 仮想マシンにアタッチするストレージのリスト
    */
@@ -283,54 +275,8 @@ interface VirtualMachineCreateBaseRequest {
   /**
    * 関連付けるセキュリティグループのIDリスト
    */
-  securityGroupIds?: Array<string> | null;
+  securityGroupIds?: Array<string>;
 }
-
-/**
- * パターンA: インスタンスタイプIDを指定してVMを作成する場合のオブジェクト
- */
-interface VirtualMachineCreateWithInstanceTypeRequest
-  extends VirtualMachineCreateBaseRequest {
-  /**
-   * 使用するインスタンスタイプのID
-   */
-  instanceTypeId: string;
-  /**
-   * cpuCoreは存在してはならない
-   */
-  cpuCore?: never;
-  /**
-   * memorySizeは存在してはならない
-   */
-  memorySize?: never;
-}
-
-/**
- * パターンB: CPUとメモリをカスタム指定してVMを作成する場合のオブジェクト
- */
-interface VirtualMachineCreateWithCustomConfigRequest
-  extends VirtualMachineCreateBaseRequest {
-  /**
-   * instanceTypeIdは存在してはならない
-   */
-  instanceTypeId?: never;
-  /**
-   * CPUコア数
-   */
-  cpuCore: number;
-  /**
-   * メモリサイズ（バイト単位）
-   */
-  memorySize: number;
-}
-
-/**
- * 仮想マシン作成リクエストオブジェクト (パターンAまたはパターンBのどちらか)
- */
-export type VirtualMachineCreateRequestDTO =
-  | VirtualMachineCreateWithInstanceTypeRequest
-  | VirtualMachineCreateWithCustomConfigRequest;
-
 export interface VirtualMachineCreateRequestStoragesInnerDTO {
   /**
    * ストレージの名前
@@ -358,26 +304,23 @@ export interface VirtualMachineUpdateRequestDTO {
    */
   name: string;
   instanceType?: ModelInstanceTypeDTO;
+  node?: PhysicalNodeDTO;
   /**
-   * CPUコア数
+   * 仮想マシンが作成された日時
    */
-  cpuCore?: number;
-  /**
-   * メモリサイズ（バイト単位）
-   */
-  memorySize?: number;
+  createdAt?: string;
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroups?: Array<string>;
+  securityGroup?: Array<string>;
   /**
    * アタッチされたストレージのリスト
    */
-  attachedStorages?: Array<AttachedStorageDTO>;
+  attachedStorage?: Array<AttachedStorageDTO>;
   /**
    * アタッチされたネットワークインターフェースのリスト
    */
-  attachedNics?: Array<NetworkInterfaceDTO>;
+  attachedNic?: Array<NetworkInterfaceDTO>;
 }
 
 /**

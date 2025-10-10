@@ -9,11 +9,15 @@ export interface InstanceTypeCreateRequestDTO {
   /**
    * CPUコア数
    */
-  cpuCore: number;
+  cpuCores: number;
   /**
    * メモリサイズ（バイト単位）
    */
   memorySize: number;
+  /**
+   * ストレージサイズ（バイト単位）
+   */
+  storageSize: number;
 }
 /**
  * インスタンスタイプ更新リクエストオブジェクト
@@ -26,11 +30,15 @@ export interface InstanceTypeUpdateRequestDTO {
   /**
    * CPUコア数
    */
-  cpuCore?: number;
+  cpuCores?: number;
   /**
    * メモリサイズ（バイト単位）
    */
   memorySize?: number;
+  /**
+   * ストレージサイズ（バイト単位）
+   */
+  storageSize?: number;
 }
 
 /**
@@ -52,9 +60,13 @@ export interface ModelInstanceTypeDTO {
   /**
    * CPUコア数
    */
-  cpuCore: number;
+  cpuCores: number;
   /**
    * メモリサイズ（バイト単位）
    */
   memorySize: number;
+  /**
+   * ストレージサイズ（バイト単位）
+   */
+  storageSize: number;
 }

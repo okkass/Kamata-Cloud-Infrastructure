@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
-  console.log(body);
-  return { message: "Backup created", body };
+  console.log("Received body:", body);
+  return { message: "Data received", data: body };
 });

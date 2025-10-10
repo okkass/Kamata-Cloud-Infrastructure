@@ -31,7 +31,7 @@ export const useToast = () => {
     const duration = payload.duration ?? defaultDuration;
 
     // 新しいトーストをリストの末尾に追加
-    toasts.value.push({ id, ...payload, type, duration });
+    toasts.value.push({ id, ...payload, type });
 
     // 指定時間が経過したら自動的にトーストを削除
     setTimeout(() => removeToast(id), duration);
