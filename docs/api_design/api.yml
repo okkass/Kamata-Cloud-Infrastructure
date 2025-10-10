@@ -2449,7 +2449,7 @@ components:
             $ref: "#/components/schemas/NetworkInterface"
       required:
         - name
-        - securityGroupId
+        - securityGroupIds
     VirtualNetwork:
       type: object
       description: 仮想ネットワークオブジェクト
