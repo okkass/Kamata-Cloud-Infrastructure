@@ -873,7 +873,7 @@ paths:
           description: セキュリティグループが見つからない
       security:
         - BearerAuth: []
-  /api/security-group/{groupId}/rules:
+  /api/security-group/{groupId}/rule:
     post:
       summary: セキュリティグループルールの追加
       description: 指定したセキュリティグループに新しいルールを追加します。
@@ -1610,7 +1610,7 @@ components:
           type: string
           format: date-time
           description: インスタンスタイプが作成された日時
-        cpuCores:
+        cpuCore:
           type: integer
           description: CPUコア数
         memorySize:
@@ -1620,7 +1620,7 @@ components:
         - id
         - name
         - createdAt
-        - cpuCores
+        - cpuCore
         - memorySize
     InstanceTypeCreateRequest:
       type: object
@@ -1629,7 +1629,7 @@ components:
         name:
           type: string
           description: インスタンスタイプの名前
-        cpuCores:
+        cpuCore:
           type: integer
           description: CPUコア数
         memorySize:
@@ -1637,7 +1637,7 @@ components:
           description: メモリサイズ（バイト単位）
       required:
         - name
-        - cpuCores
+        - cpuCore
         - memorySize
     InstanceTypeUpdateRequest:
       type: object
@@ -1646,7 +1646,7 @@ components:
         name:
           type: string
           description: インスタンスタイプの名前
-        cpuCores:
+        cpuCore:
           type: integer
           description: CPUコア数
         memorySize:
@@ -1854,7 +1854,7 @@ components:
         description:
           type: string
           description: セキュリティグループの説明
-        rules:
+        rule:
           type: array
           items:
             $ref: "#/components/schemas/SecurityRule"
@@ -1876,7 +1876,7 @@ components:
         description:
           type: string
           description: セキュリティグループの説明
-        rules:
+        rule:
           type: array
           items:
             $ref: "#/components/schemas/SecurityRule"
@@ -1892,7 +1892,7 @@ components:
         description:
           type: string
           description: セキュリティグループの説明
-        rules:
+        rule:
           type: array
           items:
             $ref: "#/components/schemas/SecurityRule"
@@ -2244,7 +2244,7 @@ components:
         isAdmin:
           type: boolean
           description: ユーザが管理者かどうかを示すフラグ
-        maxCpuCores:
+        maxCpuCore:
           type: integer
           description: ユーザが使用できる最大CPUコア数
         maxMemorySize:
@@ -2270,7 +2270,7 @@ components:
           type: string
           format: email
           description: ユーザのメールアドレス
-        maxCpuCores:
+        maxCpuCore:
           type: integer
           description: ユーザが使用できる最大CPUコア数
         maxMemorySize:
@@ -2304,17 +2304,17 @@ components:
           type: string
           format: date-time
           description: 仮想マシンが作成された日時
-        securityGroups:
+        securityGroup:
           type: array
           items:
             $ref: "#/components/schemas/SecurityGroup"
           description: 仮想マシンに関連付けられたセキュリティグループのリスト
-        attachedStorages:
+        attachedStorage:
           type: array
           description: アタッチされたストレージのリスト
           items:
             $ref: "#/components/schemas/AttachedStorage"
-        attachedNics:
+        attachedNic:
           type: array
           description: アタッチされたネットワークインターフェースのリスト
           items:
@@ -2340,7 +2340,7 @@ components:
         - instanceType
         - status
         - createdAt
-        - securityGroups
+        - securityGroup
         - attachedStorage
     VirtualMachineCreateRequest:
       type: object
@@ -2378,7 +2378,7 @@ components:
           type: string
           format: uuid
           description: 仮想マシンを配置する物理ノードのID
-        storages:
+        storage:
           type: array
           description: 仮想マシンにアタッチするストレージのリスト
           items:
@@ -2403,7 +2403,7 @@ components:
               - size
               - poolId
               - nodeId
-        securityGroupIds:
+        securityGroupId:
           type: array
           items:
             type: string
@@ -2413,7 +2413,7 @@ components:
         - name
         - subnetId
         - imageId
-        - storages
+        - storage
     VirtualMachineUpdateRequest:
       type: object
       description: 仮想マシン更新リクエストオブジェクト
@@ -2425,13 +2425,13 @@ components:
           type: string
           format: uuid
           description: 使用するインスタンスタイプのID
-        cpuCores:
+        cpuCore:
           type: integer
           description: 仮想マシンに割り当てるCPUコア数
         memorySize:
           type: integer
           description: 仮想マシンに割り当てるメモリサイズ（バイト単位）
-        securityGroupIds:
+        securityGroupId:
           type: array
           items:
             type: string
@@ -2449,7 +2449,7 @@ components:
             $ref: "#/components/schemas/NetworkInterface"
       required:
         - name
-        - securityGroupIds
+        - securityGroupId
     VirtualNetwork:
       type: object
       description: 仮想ネットワークオブジェクト
@@ -2469,7 +2469,7 @@ components:
           type: string
           format: date-time
           description: 仮想ネットワークが作成された日時
-        subnets:
+        subnet:
           type: array
           items:
             $ref: "#/components/schemas/Subnet"
