@@ -2413,7 +2413,7 @@ components:
         - name
         - subnetId
         - imageId
-        - storage
+        - storages
     VirtualMachineUpdateRequest:
       type: object
       description: 仮想マシン更新リクエストオブジェクト
