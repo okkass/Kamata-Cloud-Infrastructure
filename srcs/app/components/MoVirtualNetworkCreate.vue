@@ -1,113 +1,165 @@
 <template>
-  <!-- BaseModalで全体を囲み、「完成品のモーダル」にする -->
   <BaseModal :show="show" title="仮想ネットワーク作成" @close="$emit('close')">
-    <!-- ======== フォームの見た目 (ここから) ======== -->
-    <div class="space-y-4">
+    <div class="modal-space">
       <div>
-        <label for="network-name-create" class="form-label"
-          >ネットワーク名</label
-        >
+        <label for="network-name-create" class="form-label">
+          ネットワーク名 <span class="required-asterisk">*</span>
+        </label>
         <input
           id="network-name-create"
           type="text"
-          v-model="networkData.name"
+          v-model="name"
+          v-bind="nameAttrs"
           class="form-input"
+          :class="{ 'form-border-error': errors.name }"
+          placeholder="例: vpc-frontend"
         />
+        <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
       </div>
 
       <div>
-        <label for="ip-address-create" class="form-label"
-          >IPアドレス / CIDR</label
-        >
+        <label for="ip-address-create" class="form-label">
+          IPアドレス / CIDR <span class="required-asterisk">*</span>
+        </label>
         <input
           id="ip-address-create"
           type="text"
-          v-model="networkData.cidr"
+          v-model="cidr"
+          v-bind="cidrAttrs"
           class="form-input"
+          :class="{ 'form-border-error': errors.cidr }"
           placeholder="例: 192.168.0.0/16"
         />
+        <p v-if="errors.cidr" class="text-error mt-1">{{ errors.cidr }}</p>
       </div>
     </div>
-    <!-- ======== フォームの見た目 (ここまで) ======== -->
 
-    <!-- フッターのアクションボタン -->
-    <div class="flex justify-end mt-8 pt-4 border-t">
-      <button @click="createNetwork" class="btn-primary">作成</button>
+    <div class="modal-footer">
+      <button
+        @click="handleSubmit"
+        class="btn btn-primary"
+        :disabled="isCreating"
+      >
+        {{ isCreating ? "作成中..." : "作成" }}
+      </button>
     </div>
   </BaseModal>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+/**
+ * =================================================================================
+ * 仮想ネットワーク作成モーダル (MoVirtualNetworkCreate.vue)
+ * ---------------------------------------------------------------------------------
+ * このコンポーネントは、新しい仮想ネットワーク（VPC）を作成するための
+ * 情報をユーザーから受け取り、APIを介してリソースを作成する機能を提供します。
+ * =================================================================================
+ */
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
+import { useResourceCreate } from "~/composables/useResourceCreate";
+import { useToast } from "~/composables/useToast";
 
-// ==============================================================================
-// 担当者（API実装担当）へのメッセージ:
-// 下記のcreateNetwork関数内に、APIへのデータ送信ロジックを実装してください。
-// フォームの入力データは `networkData.value` に格納されています。
-// ==============================================================================
-
-// --- 親コンポーネントとの連携定義 (変更不要) ---
+// --- 親コンポーネントとの連携 ---
 defineProps({
   show: { type: Boolean, required: true },
 });
-const emit = defineEmits(["close", "create"]);
+const emit = defineEmits(["close", "success"]);
 
-// --- フォームの入力データを保持するリアクティブ変数 (変更不要) ---
-const networkData = ref({
-  name: "",
-  cidr: "",
+// ==============================================================================
+// Type Definitions
+// APIとの通信で使用するデータの型を定義します。
+// ==============================================================================
+// POST /api/virtual-networks で送信するリクエストボディの型
+interface VirtualNetworkCreateRequestDTO {
+  name: string;
+  cidr: string;
+}
+// POST成功後に返される、作成済み仮想ネットワークの型
+interface VirtualNetworkDTO {
+  id: string;
+  name: string;
+  cidr: string;
+}
+
+// ==============================================================================
+// Validation Schema
+// フォームのバリデーションルールをZodで定義します。
+// ==============================================================================
+const validationSchema = toTypedSchema(
+  z.object({
+    // nameは1文字以上の文字列であることが必須です。
+    name: z.string().min(1, "ネットワーク名は必須です。"),
+    // cidrはCIDR形式に一致する文字列であることが必須です。
+    cidr: z
+      .string()
+      .min(1, "CIDRは必須です。")
+      .regex(
+        /^([0-9]{1,3}\.){3}[0-9]{1,3}\/([0-9]|[1-2][0-9]|3[0-2])$/,
+        "有効なCIDR形式で入力してください (例: 192.168.0.0/16)。"
+      ),
+  })
+);
+
+// ==============================================================================
+// Form Setup
+// VeeValidateのuseFormを使って、フォームの状態管理をセットアップします。
+// ==============================================================================
+const { errors, defineField, values, meta, validate } = useForm({
+  validationSchema,
 });
 
+// `defineField`を使って、各フォームフィールドとVeeValidateを連携させます。
+const [name, nameAttrs] = defineField("name");
+const [cidr, cidrAttrs] = defineField("cidr");
+
+// ==============================================================================
+// API Submission
+// Composableを使ってAPIとの通信を管理します。
+// ==============================================================================
+const { executeCreate: executeVirtualNetworkCreation, isCreating } =
+  useResourceCreate<VirtualNetworkCreateRequestDTO, VirtualNetworkDTO>(
+    "virtual-network"
+  );
+
+const { addToast } = useToast();
+
+// ==============================================================================
+// Event Handler
+// ==============================================================================
+
 /**
- * 「作成」ボタンが押されたときに実行される関数
+ * 「作成」ボタンがクリックされたときに実行されるハンドラ
  */
-const createNetwork = () => {
-  // ============================================================================
-  // ▼▼▼ API実装担当者の方へ: この中にAPI呼び出し処理を実装してください ▼▼▼
-  // ============================================================================
+const handleSubmit = async () => {
+  // 1. フォーム全体のバリデーションを実行
+  const validationResult = await validate();
+  if (!validationResult.valid) {
+    // バリデーションエラーがある場合は処理を中断
+    return;
+  }
 
-  // 1. ペイロードの作成:
-  //    APIに送信するデータは `networkData.value` に格納されています。
-  //    必要に応じて、ここからペイロードを構築してください。
-  const payload = networkData.value;
+  // 2. APIに送信するデータ（ペイロード）をフォームの入力値から取得
+  const payload: VirtualNetworkCreateRequestDTO = values;
 
-  // 2. API呼び出し:
-  //    useApiFetchを使って、POSTリクエストを送信します。
-  //    (APIのパスはopenapi.jsonなどを参考に、正しいパスを指定してください)
-  //    const { data, error } = await useApiFetch('/virtual-networks', {
-  //      method: 'POST',
-  //      body: payload,
-  //    });
+  // 3. APIリクエストを実行
+  const result = await executeVirtualNetworkCreation(payload);
 
-  // 3. 結果のハンドリング:
-  //    if (error.value) {
-  //      alert('ネットワークの作成に失敗しました。');
-  //    } else {
-  //      alert(`ネットワーク「${data.value.name}」を作成しました。`);
-  //      emit('create', data.value); // 親コンポーネントに成功を通知
-  //      emit('close'); // モーダルを閉じる
-  //    }
-
-  // --- 現在はAPI実装前のダミー動作 ---
-  console.log("APIに送信するデータ:", payload);
-  alert(`【ダミー】ネットワーク「${networkData.value.name}」を作成しました。`);
-  emit("create", networkData.value);
-  emit("close");
-  // ============================================================================
-  // ▲▲▲ API実装はここまで ▲▲▲
-  // ============================================================================
+  // 4. 結果に応じてトースト通知を表示
+  if (result.success) {
+    addToast({
+      type: "success",
+      message: `仮想ネットワーク「${payload.name}」が作成されました`,
+    });
+    emit("success"); // 親コンポーネントに成功を通知
+    emit("close"); // モーダルを閉じる
+  } else {
+    addToast({
+      type: "error",
+      message: "仮想ネットワークの作成に失敗しました。",
+      details: result.error?.message,
+    });
+  }
 };
 </script>
-
-<style scoped>
-/* 共通スタイルを@applyで定義 */
-.form-label {
-  @apply block mb-1.5 font-semibold text-gray-700;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
-}
-.btn-primary {
-  @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
-}
-</style>
