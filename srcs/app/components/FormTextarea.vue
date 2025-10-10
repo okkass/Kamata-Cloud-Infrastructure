@@ -9,7 +9,7 @@
       v-model="model"
       v-bind=allAttrs
       class="form-input"
-      :class="{ 'form-border-error': error }"
+      :class="[$attrs.class, { 'form-border-error': error }]"
       :rows="rows"
     ></textarea>
     <p v-if="error" class="text-error">

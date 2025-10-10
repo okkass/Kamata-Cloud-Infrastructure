@@ -11,8 +11,8 @@
         :placeholder="placeholder"
         v-model="model"
         v-bind="allAttrs"
-        class="form-input rounded-r-none"
-        :class="{ 'form-border-error': error }"
+        class="form-input"
+        :class="[$attrs.class, { 'form-border-error': error }]"
         :disabled="disabled"
       />
       <slot name="suffix" />
