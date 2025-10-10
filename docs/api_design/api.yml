@@ -2340,7 +2340,7 @@ components:
         - instanceType
         - status
         - createdAt
-        - securityGroup
+        - securityGroups
         - attachedStorage
     VirtualMachineCreateRequest:
       type: object
