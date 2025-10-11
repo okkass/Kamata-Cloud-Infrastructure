@@ -12,7 +12,7 @@
       v-model:attrs="templateIdAttrs"
     >
       <template #option="{ option }">
-        {{ option.name }} ({{ option.cpuCores }}コア,
+        {{ option.name }} ({{ option.cpuCore }}コア,
         {{ convertByteToUnit(option.memorySize, "MB") }}MB)
       </template>
     </FormSelect>
@@ -22,28 +22,20 @@
         label="CPUコア数"
         name="cpu-cores"
         type="number"
-        v-model="cpuCores"
-        v-model:attrs="cpuCoresAttrs"
-        :error="errors.cpuCores"
-      >
-        <template #suffix>
-          <span class="form-unit-label">vCPU</span>
-        </template>
-      </FormInput>
+        v-model.number="cpuCore"
+        v-model:attrs="cpuCoreAttrs"
+        :error="errors.cpuCore"
+      />
 
       <FormInput
         label="メモリ (MB)"
         name="memory-gb"
         type="number"
         :step="1024"
-        v-model="memorySize"
+        v-model.number="memorySize"
         v-model:attrs="memorySizeAttrs"
         :error="errors.memorySize"
-      >
-        <template #suffix>
-          <span class="form-unit-label">MB</span>
-        </template>
-      </FormInput>
+      />
     </FormSection>
 
     <FormSelect
@@ -85,13 +77,13 @@
             :pools-pending="poolsPending"
             :pools-error="poolsError"
             v-model="field.value"
-            @remove="removeStorageRow(index)"
+            @remove="removeStorage(index)"
           />
         </tbody>
       </table>
 
       <div class="section-btn">
-        <button type="button" @click="addNewStorageRow" class="btn btn-add">
+        <button type="button" @click="addStorage" class="btn btn-add">
           追加
         </button>
       </div>
@@ -104,82 +96,101 @@ import { watch } from "vue";
 import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import FormSection from "../FormSection.vue"; // セクション用の共通コンポーネント
+import { useResourceList } from "~/composables/useResourceList";
 
-// ==============================================================================
-// Validation Schema
-// フォームのバリデーションルールをZodで定義します。
-// ==============================================================================
-const validationSchema = toTypedSchema(
-  z
-    .object({
-      templateId: z.string().optional().nullable(),
-      // preprocessを使って、入力が空文字の場合にバリデーション前にnullに変換します
-      cpuCores: z.preprocess(
-        (val) => (val === "" ? null : val),
-        z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
-      ),
-      memorySize: z.preprocess(
-        (val) => (val === "" ? null : val),
-        z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
-      ),
-      backupId: z.string().nullable(),
-      // ストレージ設定は、オブジェクトの配列として定義します
-      storages: z
-        .array(
-          z.object({
-            id: z.union([z.string(), z.number()]),
-            name: z.string().min(1, "名前は必須です。"),
-            size: z
-              .number({ invalid_type_error: "サイズは必須です。" })
-              .int("整数で入力してください。")
-              .min(1, "1以上の値を入力してください。"),
-            poolId: z
-              .string({ required_error: "プールを選択してください。" })
-              .min(1, "プールを選択してください。"), // 空文字でないこともチェック
-            type: z.string(),
-          })
-        )
-        .min(1), // ストレージは最低1行必要です
-    })
-    // superRefineを使って、複数のフィールドにまたがる複雑なバリデーションを定義します
-    .superRefine((data, context) => {
-      // テンプレートが選択されていない場合のみ、CPUとメモリのバリデーションを実行します
-      if (!data.templateId) {
-        if (
-          data.cpuCores == null ||
-          data.cpuCores < 1 ||
-          !Number.isInteger(data.cpuCores)
-        ) {
-          context.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "1以上の整数を入力してください。",
-            path: ["cpuCores"],
-          });
-        }
-        if (
-          data.memorySize == null ||
-          data.memorySize < 1 ||
-          !Number.isInteger(data.memorySize)
-        ) {
-          context.addIssue({
-            code: z.ZodIssueCode.custom,
-            message: "1以上の整数を入力してください。",
-            path: ["memorySize"],
-          });
-        }
-      }
-    })
-);
+/**
+ * ==============================================================================
+ * Validation Schema (バリデーションスキーマ)
+ * ------------------------------------------------------------------------------
+ * このフォームの入力ルールをZodで定義します。
+ * vee-validateと連携するために`toTypedSchema`でラップします。
+ * ==============================================================================
+ */
+const baseSchema = z
+  .object({
+    templateId: z.string().optional().nullable(),
+    cpuCore: z.preprocess(
+      (val) => (val === "" ? null : val),
+      z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
+    ),
+    memorySize: z.preprocess(
+      (val) => (val === "" ? null : val),
+      z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
+    ),
+    backupId: z.string().optional().nullable(),
+    storages: z.array(
+      z.object({
+        id: z.number().or(z.string()),
+        name: z.string().min(1, "名前は必須です。"),
+        size: z.preprocess(
+          (val) => (val === "" ? undefined : val),
+          z
+            .number({
+              required_error: "サイズは必須です。",
+              invalid_type_error: "数値を入力してください。",
+            })
+            .int("整数で入力してください。")
+            .min(1, "1以上の値を入力してください。")
+        ),
+        poolId: z
+          .string({ required_error: "プールを選択してください。" })
+          .min(1, "プールを選択してください。"),
+        type: z.string().optional(),
+      })
+    ),
+  })
+  .superRefine((data, context) => {
+    // テンプレートが選択されている場合は、以降のチェックは不要
+    if (data.templateId) {
+      return;
+    }
 
-// ==============================================================================
-// Form Setup
-// VeeValidateのuseFormを使って、フォーム全体を管理します。
-// ==============================================================================
+    // --- CPUコア数のチェック ---
+    if (data.cpuCore == null) {
+      // まず、nullまたはundefinedでないことを確認
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "CPUコア数は必須です。",
+        path: ["cpuCore"],
+      });
+    } else if (!Number.isInteger(data.cpuCore) || data.cpuCore < 1) {
+      // 次に、1以上の整数であるかを確認
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "1以上の整数を入力してください。",
+        path: ["cpuCore"],
+      });
+    }
+
+    // --- メモリサイズのチェック ---
+    if (data.memorySize == null) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "メモリサイズは必須です。",
+        path: ["memorySize"],
+      });
+    } else if (!Number.isInteger(data.memorySize) || data.memorySize < 1) {
+      context.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: "1MB以上の整数を入力してください。",
+        path: ["memorySize"],
+      });
+    }
+  });
+
+const validationSchema = toTypedSchema(baseSchema);
+
+/**
+ * ==============================================================================
+ * Form State Management (フォーム状態管理)
+ * ------------------------------------------------------------------------------
+ * VeeValidateのuseFormを使って、フォーム全体をリアクティブに管理します。
+ * ==============================================================================
+ */
 const { errors, defineField, values, meta } = useForm({
   validationSchema,
   initialValues: {
-    cpuCores: 2,
+    cpuCore: 2, // ★ cpuCoreに修正
     memorySize: 2048,
     backupId: null,
     storages: [
@@ -188,26 +199,29 @@ const { errors, defineField, values, meta } = useForm({
   },
 });
 
-// 各フォームフィールドとVeeValidateを連携させます
+// 各フォームフィールドとVeeValidateを連携
 const [templateId, templateIdAttrs] = defineField("templateId");
-const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
+const [cpuCore, cpuCoreAttrs] = defineField("cpuCore"); // ★ cpuCoreに修正
 const [memorySize, memorySizeAttrs] = defineField("memorySize");
 const [backupId, backupIdAttrs] = defineField("backupId");
 
-// useFieldArrayを使って、動的なストレージ行の配列を管理します
+// useFieldArrayで動的なストレージ行を管理
 const {
   fields: storageFields,
-  push: addStorageRow,
-  remove: removeStorageRow,
+  push: pushStorage,
+  remove: removeStorage,
 } = useFieldArray<any>("storages");
 
-// 親コンポーネントにフォームデータと状態を公開します
+// 親コンポーネントにフォームデータとバリデーション状態を公開
 defineExpose({ formData: values, isValid: meta });
 
-// ==============================================================================
-// API Data Fetching
-// 各種プルダウンの選択肢をAPIから取得します。
-// ==============================================================================
+/**
+ * ==============================================================================
+ * API Data Fetching (APIデータ取得)
+ * ------------------------------------------------------------------------------
+ * 各種プルダウンの選択肢をAPIから非同期で取得します。
+ * ==============================================================================
+ */
 const {
   data: templates,
   pending: templatesPending,
@@ -224,49 +238,53 @@ const {
   error: poolsError,
 } = useResourceList<StoragePoolDTO>("storage-pools");
 
-// ==============================================================================
-// UI Logic
-// ユーザー操作に応じた挙動を定義します。
-// ==============================================================================
-let nextStorageId = 2; // 手動追加するストレージ行の一意なIDを管理
+/**
+ * ==============================================================================
+ * UI Logic (UIロジック)
+ * ------------------------------------------------------------------------------
+ * ユーザー操作に応じたインタラクティブな挙動を定義します。
+ * ==============================================================================
+ */
+let nextStorageId = 2; // 手動追加するストレージ行のための一意なID
 
 /**
- * 新しい空のストレージ行を追加します。
+ * 新しい空のストレージ行をフォームに追加します。
  */
-const addNewStorageRow = () => {
-  addStorageRow({
+const addStorage = () => {
+  pushStorage({
     id: nextStorageId++,
     name: "",
     size: 10,
-    poolId: "",
+    poolId: undefined,
     type: "manual" as const,
   });
 };
 
 /**
  * バックアップの選択状態を監視し、ストレージ行を自動的に追加・削除します。
+ * @param {string | } newBackupId - 新しく選択されたバックアップのID
  */
 watch(backupId, (newBackupId) => {
-  // 既存のバックアップ行があれば削除
+  // 既存のバックアップ行があれば先に削除
   const existingBackupRowIndex = storageFields.value.findIndex(
     (field) => field.value.type === "backup"
   );
   if (existingBackupRowIndex !== -1) {
-    removeStorageRow(existingBackupRowIndex);
+    removeStorage(existingBackupRowIndex);
   }
 
   // 新しいバックアップが選択された場合、対応するストレージ行を追加
   if (newBackupId && backups.value) {
     const selectedBackupData = backups.value.find((b) => b.id === newBackupId);
     if (selectedBackupData) {
-      addStorageRow({
+      pushStorage({
         id: `backup-${selectedBackupData.id}`,
         name: `backup-${selectedBackupData.name}`,
         size: convertByteToUnit(
           selectedBackupData.targetVirtualStorage?.size ?? 0,
           "GB"
         ),
-        poolId: "", // プールはユーザーに選択させる
+        poolId: undefined, // プールはユーザーに選択させる
         type: "backup" as const,
       });
     }

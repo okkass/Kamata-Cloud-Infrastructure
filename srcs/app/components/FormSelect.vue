@@ -5,31 +5,28 @@
       <span v-if="required" class="required-asterisk">*</span>
     </label>
 
-    <div v-if="pending" class="text-loading">
-      {{ label }}一覧を読み込み中...
-    </div>
-
-    <div v-else-if="error" class="text-error">
-      {{ label }}一覧の取得に失敗しました。
-    </div>
+    <div v-if="pending" class="text-loading">...</div>
+    <div v-else-if="error" class="text-error">...</div>
 
     <div v-else>
       <select
         :id="name"
         v-model="model"
-        v-bind=allAttrs
+        v-bind="allAttrs"
         class="form-input"
         :class="{ 'form-border-error': errorMessage }"
       >
         <option :value="placeholderValue" :disabled="required">
           {{ placeholder }}
         </option>
-        <template v-if="options?.length">
-          <option v-for="option in options" :key="option.id" :value="option.id">
+
+        <option v-for="option in options" :key="option.id" :value="option.id">
+          <slot name="option" :option="option">
             {{ option.name }}
-          </option>
-        </template>
+          </slot>
+        </option>
       </select>
+
       <p v-if="errorMessage" class="text-error">
         {{ errorMessage }}
       </p>
@@ -41,6 +38,7 @@
 interface Option {
   id: string;
   name: string;
+  [key: string]: any; // その他の任意のプロパティ
 }
 
 // 親コンポーネントから受け取る値を定義

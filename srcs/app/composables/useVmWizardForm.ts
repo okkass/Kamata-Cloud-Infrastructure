@@ -72,7 +72,7 @@ export function useVmWizardForm() {
     const basePayload = {
       name: generalData?.name ?? "",
       nodeId: generalData?.nodeId ?? null,
-      subnetId: networkData?.networkId ?? null,
+      subnetId: networkData?.subnetId ?? null,
       publicKey: networkData?.keyPairFile
         ? await readFileAsText(networkData.keyPairFile)
         : null,
@@ -100,7 +100,7 @@ export function useVmWizardForm() {
       // パターンB: CPUとメモリをカスタム指定する場合
       payload = {
         ...basePayload,
-        cpuCores: configData?.cpuCores,
+        cpuCore: configData?.cpuCore,
         memorySize: convertUnitToByte(configData?.memorySize, "MB"),
       };
     }

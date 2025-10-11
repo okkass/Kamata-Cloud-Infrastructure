@@ -1,27 +1,33 @@
 <template>
   <div>
-    <label class="form-label">キーペア (公開鍵)</label>
+    <label class="form-label">公開鍵ファイル</label>
     <div
       class="drop-zone"
       :class="{ 'is-dragging': isDragging }"
       @dragover.prevent="isDragging = true"
       @dragleave.prevent="isDragging = false"
       @drop.prevent="handleDrop"
+      @click="openFilePicker"
     >
       <input
-        type="file"
         ref="fileInput"
+        type="file"
+        class="sr-only"
         @change="handleFileSelect"
-        class="hidden"
         accept=".pub"
       />
       <div class="text-center">
-        <p class="text-gray-500">ここにファイルをドラッグ&ドロップ</p>
-        <p class="text-gray-400 text-sm my-2">または</p>
-        <button type="button" @click="openFilePicker" class="btn btn-add">
-          ファイルを選択
-        </button>
-        <p v-if="modelValue" class="text-green-600 font-semibold mt-4">
+        <IconUpload />
+        <div class="mt-4 flex text-sm text-gray-600">
+          <p
+            class="relative cursor-pointer rounded-md bg-white font-semibold text-blue-600 hover:text-blue-500"
+          >
+            ファイルを選択
+          </p>
+          <p class="pl-1">、またはドラッグ＆ドロップ</p>
+        </div>
+        <p class="text-xs text-gray-500 mt-1">対応形式: .pub</p>
+        <p v-if="modelValue" class="text-sm font-semibold text-green-600 mt-2">
           選択中のファイル: {{ modelValue.name }}
         </p>
       </div>
@@ -31,8 +37,6 @@
 
 <script setup lang="ts">
 import { ref } from "vue";
-import { useToast } from "~/composables/useToast";
-
 // v-modelで親コンポーネントとFileオブジェクトを同期
 const modelValue = defineModel<File | null>();
 
@@ -51,7 +55,7 @@ const validateAndSetFile = (file: File | null) => {
       type: "error",
     });
     modelValue.value = null;
-    if (fileInput.value) fileInput.value.value = ""; // inputの選択をリセット
+    if (fileInput.value) fileInput.value.value = "";
     return;
   }
   modelValue.value = file;
@@ -70,9 +74,10 @@ const handleDrop = (event: DragEvent) => {
 
 <style scoped>
 .drop-zone {
-  @apply w-full p-8 border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center transition-colors;
+  @apply mt-1 flex justify-center rounded-lg border border-dashed border-gray-900/25 px-6 py-10 
+         cursor-pointer transition-colors hover:border-gray-400;
 }
 .drop-zone.is-dragging {
-  @apply border-blue-500 bg-blue-50;
+  @apply border-blue-500 bg-blue-50/60;
 }
 </style>
