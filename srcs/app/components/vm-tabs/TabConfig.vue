@@ -268,7 +268,7 @@ const addStorage = () => {
 
 /**
  * バックアップの選択状態を監視し、ストレージ行を自動的に追加・削除します。
- * @param {string | } newBackupId - 新しく選択されたバックアップのID
+ * @param {string | null} newBackupId - 新しく選択されたバックアップのID
  */
 watch(backupId, (newBackupId) => {
   // 既存のバックアップ行があれば先に削除
