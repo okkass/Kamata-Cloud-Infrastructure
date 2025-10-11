@@ -106,6 +106,25 @@ import { useResourceList } from "~/composables/useResourceList";
  * vee-validateと連携するために`toTypedSchema`でラップします。
  * ==============================================================================
  */
+const storageSchema = z.object({
+  id: z.number().or(z.string()),
+  name: z.string().min(1, "名前は必須です。"),
+  size: z.preprocess(
+    (val) => (val === "" ? undefined : val),
+    z
+      .number({
+        required_error: "サイズは必須です。",
+        invalid_type_error: "数値を入力してください。",
+      })
+      .int("整数で入力してください。")
+      .min(1, "1以上の値を入力してください。")
+  ),
+  poolId: z
+    .string({ required_error: "プールを選択してください。" })
+    .min(1, "プールを選択してください。"),
+  type: z.string().optional(),
+});
+
 const baseSchema = z
   .object({
     templateId: z.string().optional().nullable(),
@@ -118,26 +137,7 @@ const baseSchema = z
       z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
     ),
     backupId: z.string().optional().nullable(),
-    storages: z.array(
-      z.object({
-        id: z.number().or(z.string()),
-        name: z.string().min(1, "名前は必須です。"),
-        size: z.preprocess(
-          (val) => (val === "" ? undefined : val),
-          z
-            .number({
-              required_error: "サイズは必須です。",
-              invalid_type_error: "数値を入力してください。",
-            })
-            .int("整数で入力してください。")
-            .min(1, "1以上の値を入力してください。")
-        ),
-        poolId: z
-          .string({ required_error: "プールを選択してください。" })
-          .min(1, "プールを選択してください。"),
-        type: z.string().optional(),
-      })
-    ),
+    storages: z.array(storageSchema),
   })
   .superRefine((data, context) => {
     // テンプレートが選択されている場合は、以降のチェックは不要
@@ -178,6 +178,12 @@ const baseSchema = z
     }
   });
 
+/**
+ * 型の生成
+ */
+type Storage = z.infer<typeof storageSchema>;
+type FormValues = z.infer<typeof baseSchema>;
+
 const validationSchema = toTypedSchema(baseSchema);
 
 /**
@@ -187,21 +193,21 @@ const validationSchema = toTypedSchema(baseSchema);
  * VeeValidateのuseFormを使って、フォーム全体をリアクティブに管理します。
  * ==============================================================================
  */
-const { errors, defineField, values, meta } = useForm({
+const { errors, defineField, values, meta } = useForm<FormValues>({
   validationSchema,
   initialValues: {
     cpuCore: 2, // ★ cpuCoreに修正
     memorySize: 2048,
     backupId: null,
     storages: [
-      { id: 1, name: "OS", size: 20, poolId: "", type: "os" as const },
+      { id: 1, name: "OS", size: 32, poolId: "", type: "os" as const },
     ],
   },
 });
 
 // 各フォームフィールドとVeeValidateを連携
 const [templateId, templateIdAttrs] = defineField("templateId");
-const [cpuCore, cpuCoreAttrs] = defineField("cpuCore"); // ★ cpuCoreに修正
+const [cpuCore, cpuCoreAttrs] = defineField("cpuCore");
 const [memorySize, memorySizeAttrs] = defineField("memorySize");
 const [backupId, backupIdAttrs] = defineField("backupId");
 
@@ -210,7 +216,7 @@ const {
   fields: storageFields,
   push: pushStorage,
   remove: removeStorage,
-} = useFieldArray<any>("storages");
+} = useFieldArray<Storage>("storages");
 
 // 親コンポーネントにフォームデータとバリデーション状態を公開
 defineExpose({ formData: values, isValid: meta });
@@ -255,7 +261,7 @@ const addStorage = () => {
     id: nextStorageId++,
     name: "",
     size: 10,
-    poolId: undefined,
+    poolId: "",
     type: "manual" as const,
   });
 };
@@ -284,7 +290,7 @@ watch(backupId, (newBackupId) => {
           selectedBackupData.targetVirtualStorage?.size ?? 0,
           "GB"
         ),
-        poolId: undefined, // プールはユーザーに選択させる
+        poolId: "", // プールはユーザーに選択させる
         type: "backup" as const,
       });
     }
