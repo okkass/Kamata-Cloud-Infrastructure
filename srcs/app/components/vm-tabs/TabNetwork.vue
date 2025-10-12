@@ -127,12 +127,12 @@ const {
   data: networks,
   pending: networksPending,
   error: networksError,
-} = useResourceList<any>("virtual-networks");
+} = useResourceList<VirtualNetwork>("virtual-networks");
 const {
   data: securityGroups,
   pending: sgPending,
   error: sgError,
-} = useResourceList<any>("security-groups");
+} = useResourceList<SecurityGroupDTO>("security-groups");
 
 /**
  * ==============================================================================
