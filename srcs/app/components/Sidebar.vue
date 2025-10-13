@@ -26,20 +26,17 @@ const sidebarTitle = computed(() => {
 });
 const openSections = ref(new Set<string>());
 
-// ▼▼▼ この関数を修正 ▼▼▼
-// 複数のセクションを同時に開閉できるように修正
-function toggleSection(title: string) {
+const toggleSection = (title: string) => {
   if (openSections.value.has(title)) {
     openSections.value.delete(title);
   } else {
     openSections.value.add(title);
   }
-}
-// ▲▲▲ ここまで修正 ▲▲▲
+};
 
-function isSectionOpen(title: string) {
+const isSectionOpen = (title: string) => {
   return openSections.value.has(title);
-}
+};
 </script>
 
 <template>
