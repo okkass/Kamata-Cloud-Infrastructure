@@ -1,5 +1,5 @@
 <template>
-  <div class="relative min-h-screen bg-white">
+  <div class="relative min-h-screen">
     <DefaultHeader />
     <div class="flex">
       <UserSidebar :isAdmin="isAdmin" />
