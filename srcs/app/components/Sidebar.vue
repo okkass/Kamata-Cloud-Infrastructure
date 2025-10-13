@@ -41,7 +41,7 @@ const isSectionOpen = (title: string) => {
 
 <template>
   <aside
-    class="top-0 left-0 bottom-0 h-screen bg-white text-slate-800 shadow-lg z-40 transition-all duration-300 ease-in-out"
+    class="fixed top-16 left-0 bottom-0 bg-white text-slate-800 shadow-lg z-40 transition-all duration-300 ease-in-out select-none border-t border-gray-200"
     :class="isSidebarOpen ? 'w-64' : 'w-16'"
   >
     <div v-if="!isSidebarOpen" class="flex flex-col items-center h-full">
@@ -77,9 +77,7 @@ const isSectionOpen = (title: string) => {
             @click="toggleSection(section.title)"
             class="flex justify-between items-center p-3 rounded-md cursor-pointer hover:bg-gray-100 transition-colors"
           >
-            <span class="font-semibold text-sm select-none">{{
-              section.title
-            }}</span>
+            <span class="font-semibold text-sm">{{ section.title }}</span>
             <span
               class="transform transition-transform duration-100"
               :class="{ 'rotate-180': isSectionOpen(section.title) }"
