@@ -17,19 +17,22 @@
       <select
         :id="name"
         v-model="model"
-        v-bind=allAttrs
+        v-bind="allAttrs"
         class="form-input"
-        :class="{ 'form-border-error': errorMessage }"
+        :class="[$attrs.class, { 'form-border-error': errorMessage }]"
+        :disabled="disabled"
       >
         <option :value="placeholderValue" :disabled="required">
           {{ placeholder }}
         </option>
-        <template v-if="options?.length">
-          <option v-for="option in options" :key="option.id" :value="option.id">
+
+        <option v-for="option in options" :key="option.id" :value="option.id">
+          <slot name="option" :option="option">
             {{ option.name }}
-          </option>
-        </template>
+          </slot>
+        </option>
       </select>
+
       <p v-if="errorMessage" class="text-error">
         {{ errorMessage }}
       </p>
@@ -38,29 +41,78 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * =================================================================================
+ * 汎用Selectフォームコンポーネント (FormSelect.vue)
+ * ---------------------------------------------------------------------------------
+ * アプリケーション全体で使われる標準的な<select>要素をカプセル化したコンポーネント。
+ * APIからの非同期データ取得（ローディング・エラー状態）や、vee-validateとの連携、
+ * 選択肢表示のカスタマイズ（スロット）などの機能を持つ。
+ * =================================================================================
+ */
+import { computed, useAttrs } from "vue";
+
+// defineOptionsを使用して、親から渡された属性のデフォルトの挙動を制御します。
+defineOptions({
+  inheritAttrs: false,
+});
+
+/**
+ * ==============================================================================
+ * Type Definitions (型定義)
+ * ==============================================================================
+ */
 interface Option {
   id: string;
   name: string;
+  [key: string]: any; // その他の任意のプロパティを許容
 }
 
-// 親コンポーネントから受け取る値を定義
+/**
+ * ==============================================================================
+ * Props (親からの受け取りデータ)
+ * ==============================================================================
+ */
 defineProps<{
-  label: string; // ラベル
-  name: string; // id, for属性用
-  pending: boolean; // ローディング状態
-  error: any; // エラー状態
-  options: Option[]; // selectの選択肢
-  placeholder: string; // プレースホルダーのテキスト
-  errorMessage?: string; // バリデーションエラーメッセージ
-  required?: boolean; // 必須項目かどうか
-  placeholderValue: string | null | undefined; // プレースホルダーに対応する値
+  /** ラベルとして表示するテキスト。指定されなければラベルは表示されない。 */
+  label?: string;
+  /** select要素のid属性とlabel要素のfor属性を結びつけるための名前。 */
+  name: string;
+  /** データをローディング中かどうか。trueの場合、ローディング表示になる。 */
+  pending?: boolean;
+  /** データの取得に失敗したかどうか。trueの場合、エラー表示になる。 */
+  error?: any;
+  /** selectの選択肢となるオブジェクトの配列。 */
+  options?: Option[];
+  /** プレースホルダー（未選択時の項目）のテキスト。 */
+  placeholder?: string;
+  /** バリデーションエラーメッセージ。存在する場合にエラー表示を行う。 */
+  errorMessage?: string;
+  /** 必須項目かどうか。アスタリスク表示やプレースホルダーの無効化に使用。 */
+  required?: boolean;
+  /** プレースホルダーに対応する値。v-modelの初期値と一致させる必要がある。 */
+  placeholderValue?: string | null | undefined;
+  /** select要素を無効化するかどうか。 */
+  disabled?: boolean;
 }>();
 
-const model = defineModel();
+/**
+ * ==============================================================================
+ * v-model & Attributes (双方向バインディングと属性)
+ * ==============================================================================
+ */
+// v-model（選択された値）の双方向バインディング
+const model = defineModel<string | number | null | undefined>();
+
+// v-model:attrs（vee-validateからの属性）の双方向バインディング
 const validationAttrs = defineModel("attrs");
 
-const allAttrs = computed(() => ({
-  ...(validationAttrs.value || {}), // vee-validateの属性
-  ...useAttrs(), // step, placeholderなどの汎用属性
-}));
+// VeeValidate用の属性と、親から渡されたその他の汎用属性をマージする
+const allAttrs = computed(() => {
+  const fallthroughAttrs = useAttrs();
+  return {
+    ...(validationAttrs.value || {}),
+    ...fallthroughAttrs,
+  };
+});
 </script>
