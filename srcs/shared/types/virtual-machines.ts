@@ -220,7 +220,7 @@ export interface VirtualMachineDTO {
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroups: Array<string>;
+  securityGroups: Array<SecurityGroupDTO>;
   /**
    * アタッチされたストレージのリスト
    */
@@ -373,7 +373,7 @@ export interface VirtualMachineUpdateRequestDTO {
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroups?: Array<SecurityGroupDTO>;
+  securityGroupIds?: Array<string>;
   /**
    * アタッチされたストレージのリスト
    */
