@@ -181,13 +181,3 @@ const extraTables = ref([]); // 何もない場合は空配列
   transform-origin: center;
 }
 </style>
-
-<BaseDetail
-  title="test 詳細"
-  :descriptions="[{ title: '説明', text: model.description }]"
-  :extraTables="extraTables"
-  :tables="[
-    { title: 'test テーブルA', columns: tableACols, rows: tableARows },
-    { title: 'test テーブルB', columns: tableBCols, rows: tableBRows },
-  ]"
-/>
