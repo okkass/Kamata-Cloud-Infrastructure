@@ -69,9 +69,6 @@
 /**
  * =================================================================================
  * セキュリティグループ作成モーダル (MoSecurityGroupCreate.vue)
- * ---------------------------------------------------------------------------------
- * このコンポーネントは、新しいセキュリティグループ（ファイアウォールルールセット）を
- * 作成するためのUIと機能を提供します。
  * =================================================================================
  */
 import { useForm, useFieldArray } from "vee-validate";
@@ -86,33 +83,38 @@ const emit = defineEmits(["close", "success"]);
 
 // ==============================================================================
 // Type Definitions
-// APIとの通信で使用するデータの型を定義します。
 // ==============================================================================
-// APIに送信するルール一行分の型
 interface SecurityGroupRuleForRequest {
   ruleType: "inbound" | "outbound";
-  protocol: "tcp" | "udp" | "icmp"; // API仕様に合わせて小文字
+  protocol: "tcp" | "udp" | "icmp";
   port: number | null;
   targetIp: string;
-  action: "allow"; // 'allow'で固定
+  action: "allow";
 }
-// POST /api/security-groups で送信するリクエストボディの型
 interface SecurityGroupCreateRequestDTO {
   name: string;
   description?: string;
   rules: SecurityGroupRuleForRequest[];
 }
-// POST成功後に返される、作成済みセキュリティグループの型
 interface SecurityGroupDTO {
   id: string;
   name: string;
-  // ...
 }
 
 // ==============================================================================
 // Validation Schema
-// フォームのバリデーションルールをZodで定義します。
 // ==============================================================================
+
+/**
+ * 文字列が有効なIPv4アドレスであるかをチェックするヘルパー関数
+ * @param ip - チェックする文字列
+ */
+const isIPv4 = (ip: string): boolean => {
+  const ipv4Regex =
+    /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
+  return ipv4Regex.test(ip);
+};
+
 // --- ルール一行分のスキーマ ---
 const ruleSchema = z.object({
   protocol: z.enum(["TCP", "UDP", "ICMP"]),
@@ -125,12 +127,35 @@ const ruleSchema = z.object({
       .max(65535, "1-65535")
       .nullable()
   ),
+  // --- 送信元IPのバリデーションを .refine() を使ったカスタム方式に変更 ---
   targetIp: z
     .string()
     .min(1, "入力必須")
-    .regex(
-      /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/,
-      "有効なIPアドレスまたはCIDR形式で入力してください。"
+    .refine(
+      (value) => {
+        const [ip, mask] = value.split("/");
+        // 1. IPアドレス部分が有効かチェック
+        if (!isIPv4(ip)) {
+          return false;
+        }
+        // 2. マスク部分が存在する場合、有効かチェック
+        if (mask !== undefined) {
+          const maskNumber = Number(mask);
+          if (
+            isNaN(maskNumber) ||
+            maskNumber < 0 ||
+            maskNumber > 32 ||
+            !Number.isInteger(maskNumber)
+          ) {
+            return false;
+          }
+        }
+        // すべてのチェックを通過
+        return true;
+      },
+      {
+        message: "有効なIPアドレスまたはCIDR形式で入力してください。",
+      }
     ),
 });
 
@@ -146,7 +171,6 @@ const validationSchema = toTypedSchema(
 
 // ==============================================================================
 // Form Setup
-// VeeValidateのuseFormとuseFieldArrayを使ってフォームを管理します。
 // ==============================================================================
 const { errors, defineField, handleSubmit } = useForm({
   validationSchema,
@@ -178,33 +202,23 @@ const {
 const { executeCreate: executeSecurityGroupCreation, isCreating } =
   useResourceCreate<SecurityGroupCreateRequestDTO, SecurityGroupDTO>(
     "security-groups"
-  ); // APIエンドポイントに合わせる
-
+  );
 const { addToast } = useToast();
 
 // ==============================================================================
 // Event Handlers
 // ==============================================================================
-
-/**
- * フォームが送信されたときに実行されるハンドラ。
- * VeeValidateの`handleSubmit`でラップされており、バリデーションが通過した場合のみ呼び出されます。
- * @param {object} formValues - バリデーション済みのフォーム入力値
- */
 const onFormSubmit = handleSubmit(async (formValues) => {
-  // 1. APIに送信するデータ（ペイロード）を構築
   const payload: SecurityGroupCreateRequestDTO = {
     name: formValues.name,
     description: formValues.description,
     rules: [
-      // inboundRulesに 'ruleType: "inbound"' を追加してマージ
       ...formValues.inboundRules.map((rule) => ({
         ...rule,
         ruleType: "inbound" as const,
         protocol: rule.protocol.toLowerCase() as "tcp" | "udp" | "icmp",
         action: "allow" as const,
       })),
-      // outboundRulesに 'ruleType: "outbound"' を追加してマージ
       ...formValues.outboundRules.map((rule) => ({
         ...rule,
         ruleType: "outbound" as const,
@@ -214,10 +228,8 @@ const onFormSubmit = handleSubmit(async (formValues) => {
     ],
   };
 
-  // 2. APIリクエストを実行
   const result = await executeSecurityGroupCreation(payload);
 
-  // 3. 結果に応じてトースト通知を表示
   if (result.success) {
     addToast({
       type: "success",
