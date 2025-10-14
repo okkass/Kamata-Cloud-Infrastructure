@@ -13,27 +13,6 @@ import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
 
 // ==============================================================================
-// Type Definitions
-// ==============================================================================
-interface SecurityGroupRuleForRequest {
-  name: string;
-  ruleType: "inbound" | "outbound";
-  protocol: "tcp" | "udp" | "icmp" | "any";
-  port: number | null;
-  targetIp: string;
-  action: "allow";
-}
-interface SecurityGroupCreateRequestDTO {
-  name: string;
-  description?: string;
-  rules: SecurityGroupRuleForRequest[];
-}
-interface SecurityGroupDTO {
-  id: string;
-  name: string;
-}
-
-// ==============================================================================
 // Validation Schema
 // ==============================================================================
 const ruleSchema = z
