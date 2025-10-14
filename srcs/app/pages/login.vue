@@ -1,8 +1,12 @@
 <template>
   <div class="flex min-h-screen items-center justify-center bg-gray-100 px-4">
     <div class="w-full max-w-md rounded-lg bg-white p-8 shadow-lg">
-      <div class="flex justify-center">
-        <Icon name="images:logo" size="120" class="text-blue-600" />
+      <div class="flex flex-col items-center justify-center mb-6">
+        <p class="text-xl font-semibold text-gray-800">
+          Kamata-Cloud-Infrastrucuture
+        </p>
+        <Icon name="images:logo" size="200" class="text-blue-600" />
+        <p class="mb-1 text-xl font-semibold text-gray-800">ログイン</p>
       </div>
       <form class="space-y-6" @submit.prevent="onSubmit">
         <FormInput
