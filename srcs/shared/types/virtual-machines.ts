@@ -188,9 +188,9 @@ export interface SnapShotRestoreRequestDTO {
 }
 
 /**
- * 仮想マシンオブジェクト
+ * 仮想マシンオブジェクト(ベース)
  */
-export interface VirtualMachineDTO {
+export interface VirtualMachineBaseDTO {
   /**
    * 仮想マシンを識別するための一意なID
    */
@@ -199,7 +199,6 @@ export interface VirtualMachineDTO {
    * 仮想マシンの名前
    */
   name: string;
-  instanceType: ModelInstanceTypeDTO;
   /**
    * 仮想マシンの状態
    */
@@ -209,14 +208,6 @@ export interface VirtualMachineDTO {
    * 仮想マシンが作成された日時
    */
   createdAt: string;
-  /**
-   * CPUコア数
-   */
-  cpuCore: number;
-  /**
-   * メモリサイズ（バイト単位）
-   */
-  memorySize: number;
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
@@ -242,6 +233,42 @@ export interface VirtualMachineDTO {
    */
   storageUtilization?: number;
 }
+
+/**
+ * パターンA: インスタンスタイプを持ってる場合のオブジェクト
+ */
+export interface VirtualMachineWithInstanceTypeDTO
+  extends VirtualMachineBaseDTO {
+  instanceType: ModelInstanceTypeDTO;
+  /**
+   * CPUコア数
+   */
+  cpuCore?: never;
+  /**
+   * メモリサイズ（バイト単位）
+   */
+  memorySize?: never;
+}
+
+/**
+ * パターンB: CPUとメモリをカスタム指定している場合のオブジェクト
+ */
+export interface VirtualMachineWithCustomConfigDTO
+  extends VirtualMachineBaseDTO {
+  instanceType?: never;
+  /**
+   * CPUコア数
+   */
+  cpuCore: number;
+  /**
+   * メモリサイズ（バイト単位）
+   */
+  memorySize: number;
+}
+
+export type VirtualMachineDTO =
+  | VirtualMachineWithInstanceTypeDTO
+  | VirtualMachineWithCustomConfigDTO;
 
 export const VirtualMachineStatusEnum = {
   Running: "running",

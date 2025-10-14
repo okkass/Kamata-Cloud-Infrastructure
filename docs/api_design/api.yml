@@ -2334,10 +2334,15 @@ components:
           format: float
           description: ストレージ使用率（0.0から1.0の範囲）
           example: 0.40
+        cpuCore:
+          type: integer
+          description: 仮想マシンに割り当てられたCPUコア数
+        memorySize:
+          type: integer
+          description: 仮想マシンに割り当てられたメモリサイズ（バイト単位）
       required:
         - id
         - name
-        - instanceType
         - status
         - createdAt
         - securityGroups
@@ -2353,7 +2358,7 @@ components:
           type: string
           format: uuid
           description: 使用するインスタンスタイプのID
-        cpuCores:
+        cpuCore:
           type: integer
           description: 仮想マシンに割り当てるCPUコア数（instanceTypeIdが指定されていない場合に必須）
         memorySize:
