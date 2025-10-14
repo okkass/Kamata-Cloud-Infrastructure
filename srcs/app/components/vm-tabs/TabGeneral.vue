@@ -1,43 +1,41 @@
 <template>
-  <div class="space-y-4">
+  <div class="modal-space">
     <div>
-      <label for="vm-name" class="form-label">仮想マシン名</label>
+      <label for="vm-name" class="form-label">
+        仮想マシン名 <span class="required-asterisk">*</span>
+      </label>
       <input
         type="text"
         id="vm-name"
         v-model="name"
         v-bind="nameAttrs"
         class="form-input"
-        :class="{ 'border-red-500 focus:ring-red-500': errors.name }"
+        :class="{ 'form-border-error': errors.name }"
         placeholder="例: vm-middleware01"
       />
-      <p v-if="errors.name" class="text-red-500 text-sm mt-1">
-        {{ errors.name }}
-      </p>
+      <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
     </div>
 
     <div>
-      <label for="node-select" class="form-label">ノード選択</label>
-      <div v-if="pending" class="text-gray-500">ノード一覧を読み込み中...</div>
-      <div v-else-if="error" class="text-red-500">
-        ノード一覧の取得に失敗しました。
-      </div>
+      <label for="node-select" class="form-label">
+        ノード <span class="required-asterisk">*</span>
+      </label>
+      <div v-if="pending" class="text-loading">読み込み中...</div>
+      <div v-else-if="error" class="text-error">取得に失敗しました。</div>
       <select
         v-else
         id="node-select"
         v-model="nodeId"
         v-bind="nodeIdAttrs"
         class="form-input"
-        :class="{ 'border-red-500 focus:ring-red-500': errors.nodeId }"
+        :class="{ 'form-border-error': errors.nodeId }"
       >
         <option :value="undefined" disabled>ノードを選択してください</option>
         <option v-for="node in nodes" :key="node.id" :value="node.id">
           {{ node.name }}
         </option>
       </select>
-      <p v-if="errors.nodeId" class="text-red-500 text-sm mt-1">
-        {{ errors.nodeId }}
-      </p>
+      <p v-if="errors.nodeId" class="text-error mt-1">{{ errors.nodeId }}</p>
     </div>
   </div>
 </template>
@@ -48,47 +46,54 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 
-// (型定義は変更なし)
-interface ModelPhysicalNodeDTO {
+// ==============================================================================
+// Type Definitions
+// APIから取得するデータの型を定義します。
+// ==============================================================================
+interface PhysicalNodeDTO {
   id: string;
   name: string;
 }
 
-// (Zodスキーマ定義は変更なし)
+// ==============================================================================
+// Validation Schema
+// フォームのバリデーションルールをZodで定義します。
+// ==============================================================================
 const validationSchema = toTypedSchema(
   z.object({
+    // `name` (仮想マシン名) は1文字以上の文字列であることが必須です。
     name: z.string().min(1, "仮想マシン名は必須です。"),
+    // `nodeId` (ノードID) は文字列であり、選択が必須です。
     nodeId: z.string({ required_error: "ノードを選択してください。" }),
   })
 );
 
-// (useFormのセットアップは変更なし)
+// ==============================================================================
+// Form Setup
+// VeeValidateのuseFormを使って、フォームの状態管理をセットアップします。
+// ==============================================================================
 const { errors, defineField, values, meta } = useForm({
   validationSchema,
+  // initialValuesは親コンポーネントからセットされるため、ここでは空にしておきます。
 });
+
+// `defineField`を使って、各フォームフィールドとVeeValidateを連携させます。
 const [name, nameAttrs] = defineField("name");
 const [nodeId, nodeIdAttrs] = defineField("nodeId");
 
-// (defineExposeは変更なし)
+// 親コンポーネント(MoVirtualMachineCreate)がこのタブのデータと状態を参照できるように公開します。
 defineExpose({
   formData: values,
   isValid: meta,
 });
 
-// (API連携は変更なし)
+// ==============================================================================
+// API Data Fetching
+// `useResourceList` Composableを使って、プルダウンの選択肢をAPIから取得します。
+// ==============================================================================
 const {
   data: nodes,
   pending,
   error,
-} = useResourceList<ModelPhysicalNodeDTO>("physical-node");
+} = useResourceList<PhysicalNodeDTO>("physical-node");
 </script>
-
-<style scoped>
-/* (スタイルは変更なし) */
-.form-label {
-  @apply block mb-1.5 font-semibold text-gray-700;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
-}
-</style>

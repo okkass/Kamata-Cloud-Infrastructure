@@ -1,0 +1,255 @@
+@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;500;700&display=swap");
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer components {
+  /**
+   * ==================================================================
+   * Button Styles (ボタンスタイル)
+   * ==================================================================
+   */
+  /* 全てのボタンの基本となる形状、サイズ、状態を定義 */
+  .btn {
+    @apply py-2 px-5 font-semibold rounded-lg shadow-md transition-colors 
+           disabled:opacity-50 disabled:cursor-not-allowed
+           focus:outline-none focus:ring-2 focus:ring-offset-2; /* ★フォーカススタイルを共通化 */
+  }
+
+  /* プライマリ（主要な）アクション用のボタンスタイル */
+  .btn-primary {
+    @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+  }
+  /* 項目追加など、補助的なアクション用のボタンスタイル */
+  .btn-add {
+    @apply bg-gray-200 text-gray-700 hover:bg-gray-300 focus:ring-gray-400;
+  }
+  /* フォーム送信など、成功を表すアクション用のボタンスタイル */
+  .btn-submit {
+    @apply bg-green-500 text-white hover:bg-green-600 focus:ring-green-500;
+  }
+  /* 削除など、危険な操作用のボタンスタイル */
+  .btn-danger {
+    @apply bg-red-600 text-white hover:bg-red-700 focus:ring-red-500;
+  }
+  /* 「戻る」「キャンセル」など、否定的なアクション用のボタンスタイル */
+  .btn-back {
+    @apply bg-gray-500 text-white hover:bg-gray-600 focus:ring-gray-400;
+  }
+  /* アイコンのみの削除ボタン（×印など） */
+  .btn-cross-delete {
+    @apply text-gray-400 hover:text-red-600 transition-colors;
+  }
+
+  /**
+   * ==================================================================
+   * Form Styles (フォームスタイル)
+   * ==================================================================
+   */
+  /* 標準的なフォームラベル */
+  .form-label {
+    @apply block mb-1.5 font-semibold text-gray-700;
+  }
+  /* 小さめのフォームラベル */
+  .form-label-sm {
+    @apply block mb-1 text-sm font-medium text-gray-600;
+  }
+  /* 標準的な入力フォーム（input, select, textarea） */
+  .form-input {
+    @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+  }
+  /* 無効化された入力フォーム */
+  .form-input:disabled {
+    @apply bg-gray-100 cursor-not-allowed;
+  }
+  /* バリデーションエラー時の赤枠線 */
+  .form-border-error {
+    @apply border-red-500 focus:ring-red-500 focus:border-red-500;
+  }
+  /* フォームのユニット（ラベル＋入力フィールド）を横並びにする */
+  .form-unit-label {
+    @apply bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-r-md border border-l-0 border-gray-300;
+  }
+
+  /**
+   * ==================================================================
+   * Layout Styles (レイアウトスタイル)
+   * ==================================================================
+   */
+  /* フォーム内のセクションタイトル */
+  .section-title {
+    @apply font-semibold text-gray-800;
+  }
+  /* フォーム内のセクションを囲む枠 */
+  .section-form {
+    @apply p-4 border border-gray-200 rounded-lg;
+  }
+  /* セクション内の右寄せボタンエリア */
+  .section-btn {
+    @apply mt-4 flex justify-end;
+  }
+  /* ストレージ設定で使うグリッドレイアウト */
+  .storage-grid {
+    @apply grid grid-cols-12 gap-x-4 items-start mb-2;
+  }
+
+  /**
+   * ==================================================================
+   * Text Styles (テキストスタイル)
+   * ==================================================================
+   */
+  /* API通信中などのローディングテキスト */
+  .text-loading {
+    @apply text-gray-500 text-sm;
+  }
+  /* バリデーションエラーメッセージのテキスト */
+  .text-error {
+    @apply text-red-500 text-sm;
+  }
+
+  /**
+   * ==================================================================
+   * Modal & Dialog Styles (モーダル・ダイアログスタイル)
+   * ==================================================================
+   */
+  /* モーダル内の要素間のスペース */
+  .modal-space {
+    @apply space-y-4;
+  }
+  /* モーダルのフッターエリア */
+  .modal-footer {
+    @apply flex justify-end items-center mt-6 pt-4 border-t border-gray-200;
+  }
+  /* モーダル内のセクションタイトル */
+  .modal-section-title {
+    @apply text-base font-semibold text-gray-800;
+  }
+
+  /**
+   * ==================================================================
+   * Tab Styles (タブスタイル)
+   * ==================================================================
+   */
+  /* 非アクティブなタブボタン */
+  .tab-button {
+    @apply relative py-2 px-5 text-sm font-medium text-gray-500 hover:text-gray-700;
+  }
+  /* アクティブなタブボタン */
+  .tab-button-active {
+    @apply border-b-2 border-blue-500 text-blue-600;
+  }
+  /* タブのエラーを示すインジケーター（赤い丸） */
+  .tab-error-indicator {
+    @apply absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full;
+  }
+
+  /**
+   * ==================================================================
+   * Confirmation Dialog Styles (確認ダイアログスタイル)
+   * ==================================================================
+   */
+  /* 確認ダイアログの背景オーバーレイ */
+  .confirmation-overlay {
+    @apply absolute inset-0 bg-black bg-opacity-40 flex justify-center items-center;
+  }
+  /* 確認ダイアログ本体のカード */
+  .confirmation-dialog {
+    @apply bg-white p-6 rounded-lg shadow-xl border text-center space-y-4;
+  }
+  /* 確認ダイアログのテキスト */
+  .confirmation-text {
+    @apply font-semibold;
+  }
+
+  /**
+   * ==================================================================
+   * Table Styles (テーブルスタイル)
+   * ==================================================================
+   */
+  /* テーブルのヘッダー */
+  .table-header {
+    @apply text-xs text-gray-700 uppercase bg-gray-100;
+  }
+  /* テーブルの行 */
+  .table-row {
+    @apply bg-white border-b last:border-b-0;
+  }
+  /* テーブルのヘッダーセル */
+  .table-header-cell {
+    @apply px-6 py-3;
+  }
+  /* テーブルのデータセル */
+  .table-cell {
+    @apply px-6 py-4;
+  }
+  /* テーブルのタイトルなど強調したいセル */
+  .table-cell-title {
+    @apply font-medium text-gray-900;
+  }
+  /* テーブルが空の時の表示 */
+  .table-empty-state {
+    @apply px-6 py-4 text-center text-gray-500;
+  }
+  /** ==================================================================
+   * Dashboard Styles (ダッシュボードスタイル)
+   * ==================================================================
+   *
+    */
+  /* アクションアイテム（ドロップダウンメニューの項目など） */
+  .action-item {
+    @apply block px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t border-slate-200;
+  }
+
+  /* 無効化されたアクションアイテム */
+  .action-item-disabled {
+    @apply w-full text-center px-4 py-2 text-sm font-bold text-white bg-slate-500 border border-slate-700 rounded-md cursor-not-allowed select-none;
+  }
+
+  /* 危険な操作（削除など）を表すアクションアイテム */
+  .action-item-danger {
+    @apply text-red-600 hover:bg-red-50;
+  }
+  /* テーブル内などで使用する主要なリンク */
+  .table-link {
+    @apply text-sky-600 hover:text-sky-800 hover:underline font-semibold;
+  }
+
+  /** =================================================
+     * Count Badge (カウントバッジ)
+     * ==================================================
+     */
+  /* カウント数を表示するバッジの基本スタイル */
+  .count-badge {
+    @apply inline-block text-center font-bold rounded-full px-2.5 py-0.5;
+  }
+  /* skyカラーのバッジ */
+  .count-badge-sky {
+    @apply text-sky-800 bg-sky-100;
+  }
+  /* indigoカラーのバッジ */
+  .count-badge-indigo {
+    @apply text-indigo-800 bg-indigo-100;
+  }
+
+  /**
+   * ==================================================================
+   * Else (その他)
+   * ==================================================================
+    */
+  /* 入力必須フィールドのアスタリスク */
+  .required-asterisk {
+    @apply text-rose-600;
+  }
+}
+
+/**
+ * ==================================================================
+ * Base Layer (ベースレイヤー)
+ * ==================================================================
+ */
+@layer base {
+  /* ページ全体の基本スタイル */
+  body {
+    @apply bg-gray-50 text-gray-800 font-sans;
+  }
+}
