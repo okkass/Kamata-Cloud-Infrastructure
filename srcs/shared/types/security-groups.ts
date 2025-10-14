@@ -93,6 +93,7 @@ export const SecurityRuleProtocolEnum = {
   Tcp: "tcp",
   Udp: "udp",
   Icmp: "icmp",
+  Any: "any",
 } as const;
 
 export type SecurityRuleProtocolEnum =
@@ -135,6 +136,7 @@ export const SecurityRuleCreateRequestProtocolEnum = {
   Tcp: "tcp",
   Udp: "udp",
   Icmp: "icmp",
+  Any: "any",
 } as const;
 
 export type SecurityRuleCreateRequestProtocolEnum =
@@ -177,6 +179,7 @@ export const SecurityRuleUpdateRequestProtocolEnum = {
   Tcp: "tcp",
   Udp: "udp",
   Icmp: "icmp",
+  Any: "any",
 } as const;
 
 export type SecurityRuleUpdateRequestProtocolEnum =
