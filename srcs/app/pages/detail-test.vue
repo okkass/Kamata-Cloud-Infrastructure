@@ -1,85 +1,86 @@
 <template>
-  <BaseDetail
-    title="（画面タイトル）"
-    :descriptions="descriptions"
-    :tables="tables"
-    :summary="summaryStats"
-    :headerButtons="headerButtons"
-    @header-action="onHeaderAction"
-  >
-    <!-- ヘッダー右側に自由配置 -->
-    <template #header-right>
-      <!-- 例：状態バッジ等 -->
-      <span class="ml-2 inline-flex items-center rounded-full border px-2 py-0.5 text-xs">Draft</span>
-    </template>
-
-    <!-- サマリーの中身を差し替えたい場合 -->
-    <!--
-    <template #summary>
-      <div class="grid grid-cols-2 md:grid-cols-4 gap-4 px-4 pb-4">
-        <div class="rounded-xl border p-4">
-          <p class="text-xs text-gray-500 mb-1">任意のKPI</p>
-          <p class="text-xl font-semibold">123</p>
+  <div class="relative">
+    <!-- 右上に編集ボタン（ドロップダウン） -->
+    <div class="absolute top-4 right-4 z-10">
+      <div class="relative" @mouseleave="showMenu = false">
+        <button
+          class="px-5 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 focus:ring-blue-500"
+          @click="showMenu = !showMenu"
+        >
+          編集 ▼
+        </button>
+        <div
+          v-if="showMenu"
+          class="absolute right-0 mt-2 w-32 bg-white border rounded shadow-lg"
+        >
+          <ul>
+            <li>
+              <button class="w-full text-left px-4 py-2 hover:bg-gray-100" @click="onEdit">編集</button>
+            </li>
+            <li>
+              <button class="w-full text-left px-4 py-2 hover:bg-gray-100" @click="onDelete">削除</button>
+            </li>
+          </ul>
         </div>
       </div>
-    </template>
-    -->
-
-    <!-- 説明/テーブルの前に入れたい場合 -->
-    <!-- <template #before-content>任意のカスタムブロック</template> -->
-
-    <!-- 説明/テーブルの後に入れたい場合 -->
-    <!-- <template #after-content>任意のカスタムブロック</template> -->
-  </BaseDetail>
+    </div>
+    <!-- 既存の詳細表示 -->
+    <BaseDetail
+      title="test 詳細"
+      :descriptions="[
+        { title: '説明', text: model.description }
+      ]"
+      :tables="[
+        { title:'test テーブルA', columns: tableACols, rows: tableARows },
+        { title:'test テーブルB', columns: tableBCols, rows: tableBRows }
+      ]"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { reactive } from 'vue'
+import { reactive, ref } from 'vue'
 import BaseDetail from '@/components/BaseDetail.vue'
 
-// サマリーのダミー値
-const summaryStats = reactive({
-  cpu: 0, memory: 0, storage: 0, network: 0
+const model = reactive({
+  name: 'test-resource-001',
+  description: '動作確認用テキストです。'
 })
 
-// 説明のダミー
-const descriptions = reactive([
-  { title: '説明', text: 'ここに説明テキスト' }
-])
-
-// テーブルのダミー
-const tables = reactive([
-  {
-    title:'テーブルA',
-    columns: [
-      { key:'name', label:'名前' },
-      { key:'value', label:'値' },
-    ],
-    rows: [
-      { name:'例1', value:'123' },
-      { name:'例2', value:'456' },
-    ]
-  }
-])
-
-// ヘッダーのボタン群（index.vueに合わせた形）
-const headerButtons = [
-  { label: '新規作成', action: 'create' },
-  {
-    label: '編集',
-    type: 'menu',
-    items: [
-      { label: 'ダッシュボードレイアウトの新規作成', action: 'create-layout' },
-      { label: '複製', action: 'duplicate' },
-      { label: '名前変更', action: 'rename' },
-      { label: '削除', action: 'delete' },
-      { label: '共有…', action: 'share' }
-    ]
-  }
+const tableACols = [
+  { key:'name', label:'ルール名' },
+  { key:'port', label:'ポート番号' },
+  { key:'protocol', label:'プロトコル' },
+  { key:'cidr', label:'IP/CIDR' },
+  { key:'effect', label:'許可/拒否' },
 ]
+const tableARows = reactive([
+  { name:'allow-http', port:'80', protocol:'TCP', cidr:'0.0.0.0/0', effect:'許可' },
+  { name:'deny-ftp',   port:'21', protocol:'TCP', cidr:'0.0.0.0/0', effect:'拒否' },
+])
 
-function onHeaderAction(action: string) {
-  // TODO: 実処理は後で（今はUIのみ）
-  console.log('[detail header]', action)
+const tableBCols = [
+  { key:'name', label:'サブネット名' },
+  { key:'cidr', label:'アドレス範囲' },
+  { key:'external', label:'外部接続' },
+]
+const tableBRows = reactive([
+  { name:'subnet-a', cidr:'192.168.1.0/24', external:'Yes' },
+  { name:'subnet-b', cidr:'192.168.2.0/24', external:'No'  },
+])
+
+// ドロップダウン表示制御
+const showMenu = ref(false)
+
+// 編集ボタンのクリック処理
+function onEdit() {
+  showMenu.value = false
+  alert('編集ボタンがクリックされました')
+}
+
+// 削除ボタンのクリック処理（例）
+function onDelete() {
+  showMenu.value = false
+  alert('削除ボタンがクリックされました')
 }
 </script>
