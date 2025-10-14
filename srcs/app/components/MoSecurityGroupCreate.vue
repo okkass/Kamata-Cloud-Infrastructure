@@ -83,8 +83,10 @@ const emit = defineEmits(["close", "success"]);
 
 // ==============================================================================
 // Type Definitions
+// APIとの通信で使用するデータの型を定義します。
 // ==============================================================================
 interface SecurityGroupRuleForRequest {
+  name: string; // ★ API仕様に合わせて`name`を追加
   ruleType: "inbound" | "outbound";
   protocol: "tcp" | "udp" | "icmp";
   port: number | null;
@@ -105,18 +107,9 @@ interface SecurityGroupDTO {
 // Validation Schema
 // ==============================================================================
 
-/**
- * 文字列が有効なIPv4アドレスであるかをチェックするヘルパー関数
- * @param ip - チェックする文字列
- */
-const isIPv4 = (ip: string): boolean => {
-  const ipv4Regex =
-    /^(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)$/;
-  return ipv4Regex.test(ip);
-};
-
 // --- ルール一行分のスキーマ ---
 const ruleSchema = z.object({
+  name: z.string().min(1, "ルール名は必須です。"), // ★ ルール名も必須項目として追加
   protocol: z.enum(["TCP", "UDP", "ICMP"]),
   port: z.preprocess(
     (val) => (val === "" || val === null ? null : Number(val)),
@@ -127,35 +120,12 @@ const ruleSchema = z.object({
       .max(65535, "1-65535")
       .nullable()
   ),
-  // --- 送信元IPのバリデーションを .refine() を使ったカスタム方式に変更 ---
   targetIp: z
     .string()
     .min(1, "入力必須")
-    .refine(
-      (value) => {
-        const [ip, mask] = value.split("/");
-        // 1. IPアドレス部分が有効かチェック
-        if (!isIPv4(ip)) {
-          return false;
-        }
-        // 2. マスク部分が存在する場合、有効かチェック
-        if (mask !== undefined) {
-          const maskNumber = Number(mask);
-          if (
-            isNaN(maskNumber) ||
-            maskNumber < 0 ||
-            maskNumber > 32 ||
-            !Number.isInteger(maskNumber)
-          ) {
-            return false;
-          }
-        }
-        // すべてのチェックを通過
-        return true;
-      },
-      {
-        message: "有効なIPアドレスまたはCIDR形式で入力してください。",
-      }
+    .regex(
+      /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/,
+      "有効なIPアドレスまたはCIDR形式で入力してください。"
     ),
 });
 
@@ -187,14 +157,27 @@ const [description, descriptionAttrs] = defineField("description");
 
 const {
   fields: inboundRuleFields,
-  push: addInboundRule,
+  push: pushInbound,
   remove: removeInboundRule,
 } = useFieldArray("inboundRules");
 const {
   fields: outboundRuleFields,
-  push: addOutboundRule,
+  push: pushOutbound,
   remove: removeOutboundRule,
 } = useFieldArray("outboundRules");
+
+// ★ ルール追加時に`name`の初期値も設定
+const addInboundRule = () => {
+  pushInbound({ name: "", protocol: "TCP", port: null, targetIp: "0.0.0.0/0" });
+};
+const addOutboundRule = () => {
+  pushOutbound({
+    name: "",
+    protocol: "TCP",
+    port: null,
+    targetIp: "0.0.0.0/0",
+  });
+};
 
 // ==============================================================================
 // API Submission
@@ -209,20 +192,25 @@ const { addToast } = useToast();
 // Event Handlers
 // ==============================================================================
 const onFormSubmit = handleSubmit(async (formValues) => {
+  // ★★★ ペイロードの構築ロジックをAPI仕様に完全に一致させる ★★★
   const payload: SecurityGroupCreateRequestDTO = {
     name: formValues.name,
     description: formValues.description,
     rules: [
       ...formValues.inboundRules.map((rule) => ({
-        ...rule,
+        name: rule.name,
         ruleType: "inbound" as const,
         protocol: rule.protocol.toLowerCase() as "tcp" | "udp" | "icmp",
+        port: rule.port,
+        targetIp: rule.targetIp,
         action: "allow" as const,
       })),
       ...formValues.outboundRules.map((rule) => ({
-        ...rule,
+        name: rule.name,
         ruleType: "outbound" as const,
         protocol: rule.protocol.toLowerCase() as "tcp" | "udp" | "icmp",
+        port: rule.port,
+        targetIp: rule.targetIp,
         action: "allow" as const,
       })),
     ],
