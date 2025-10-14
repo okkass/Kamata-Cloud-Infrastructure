@@ -1,3 +1,4 @@
+<!-- components/layouts/DashboardLayout.vue -->
 <script>
 export default {
   name: "DashboardLayout",
@@ -99,10 +100,10 @@ export default {
       </div>
     </div>
 
-    <!-- Table wrapper: 横スクロール許可 -->
+    <!-- Table wrapper: この中だけ横スクロールを許可（省略せずフル表示） -->
     <div class="overflow-x-auto">
       <table
-        class="w-full table-fixed border border-slate-200 rounded-[14px] shadow-md bg-white"
+        class="min-w-full w-max table-auto border border-slate-200 rounded-[14px] shadow-md bg-white"
       >
         <thead>
           <tr class="bg-[#e6ebf1] border-b border-[#d0d7de]">
@@ -132,10 +133,8 @@ export default {
               v-for="c in columns"
               :key="c.key"
               :class="[
-                // 固定テーブル＋省略で“はみ出し”を矯正
-                'px-6 py-4 align-middle text-[16px] whitespace-nowrap overflow-hidden text-ellipsis',
-                // “作成日時”など長文が来ても列幅に収める
-                c.key === 'createdAt' ? 'max-w-[10rem]' : '',
+                // 省略（ellipsis）しない。横スクロールで全表示
+                'px-6 py-4 align-middle text-[16px] whitespace-nowrap',
                 cellClass(c.key, row[c.key]),
               ]"
               :title="String(row[c.key] ?? '')"
@@ -193,16 +192,13 @@ export default {
 </template>
 
 <style scoped>
-/* 操作列：幅固定・折り返し禁止で“膨張”を矯正 */
+/* 操作列：幅固定・折り返し禁止で“膨張”を矯正（※本文は省略しない） */
 :deep(.dl-actions-head),
 :deep(.dl-actions-cell) {
   width: 6.5rem;
   max-width: 6.5rem;
   white-space: nowrap;
 }
-
-/* 作成日時（データ列の末尾想定）の見切れ対策：すでに td 内で max-w を付与
-   さらに table-fixed により省略（ellipsis）が効くように */
 
 /* 青いピルの横幅暴走を抑える */
 :deep(.dl-actions-cell .menu-trigger) {
