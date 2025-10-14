@@ -4,110 +4,99 @@
     title="セキュリティグループ作成"
     @close="$emit('close')"
   >
-    <form @submit.prevent="onSubmit" class="space-y-6">
+    <form @submit.prevent="submitForm" class="space-y-6">
       <div class="space-y-4">
-        <FormInput
-          label="セキュリティグループ名"
-          name="sg-name"
-          v-model="name"
-          v-model:attrs="nameAttrs"
-          :error="errors.name"
-        />
-        <FormTextarea
-          label="説明"
-          name="sg-description"
-          :rows="3"
-          v-model="description"
-          v-model:attrs="descriptionAttrs"
-          :error="errors.description"
-        />
+        <div>
+          <label for="sg-name" class="form-label">
+            セキュリティグループ名 <span class="required-asterisk">*</span>
+          </label>
+          <input
+            id="sg-name"
+            type="text"
+            v-model="name"
+            v-bind="nameAttrs"
+            class="form-input"
+            :class="{ 'form-border-error': errors.name }"
+            placeholder="例: web-server-sg"
+          />
+          <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
+        </div>
+        <div>
+          <label for="sg-description" class="form-label">説明</label>
+          <textarea
+            id="sg-description"
+            :rows="3"
+            v-model="description"
+            v-bind="descriptionAttrs"
+            class="form-input"
+            :class="{ 'form-border-error': errors.description }"
+            placeholder="例: Webサーバー用のHTTP/HTTPS通信を許可するグループ"
+          ></textarea>
+          <p v-if="errors.description" class="text-error mt-1">
+            {{ errors.description }}
+          </p>
+        </div>
       </div>
 
       <RuleTable
         title="インバウンドルール"
-        :rules="inboundFields"
+        :rules="inboundRuleFields"
         :errors="errors"
         field-name-prefix="inboundRules"
         @add-rule="addInboundRule"
-        @delete-rule="removeInbound"
+        @delete-rule="removeInboundRule"
       />
 
       <RuleTable
         title="アウトバウンドルール"
-        :rules="outboundFields"
+        :rules="outboundRuleFields"
         :errors="errors"
         field-name-prefix="outboundRules"
         @add-rule="addOutboundRule"
-        @delete-rule="removeOutbound"
+        @delete-rule="removeOutboundRule"
       />
-    </form>
 
-    <template #footer>
-      <div class="flex justify-end w-full">
-        <button @click="onSubmit" class="btn btn-primary">作成</button>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" :disabled="isCreating">
+          {{ isCreating ? "作成中..." : "作成" }}
+        </button>
       </div>
-    </template>
+    </form>
   </BaseModal>
 </template>
 
-<script setup>
-import { useForm, useFieldArray } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
+<script setup lang="ts">
+/**
+ * =================================================================================
+ * セキュリティグループ作成モーダル (MoSecurityGroupCreate.vue)
+ * ---------------------------------------------------------------------------------
+ * UIの表示に特化したコンポーネントです。
+ * 実際のフォームロジックは `useSecurityGroupForm` Composable に分離されています。
+ * =================================================================================
+ */
+import { useSecurityGroupForm } from "~/composables/useSecurityGroupForm";
 
-// --- Props & Emits ---
+// --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
-const emit = defineEmits(["close", "create"]);
+const emit = defineEmits(["close", "success"]);
 
-// ★ 1. Zodでルール一行のスキーマを定義
-const ruleSchema = z.object({
-  protocol: z.enum(["TCP", "UDP", "ICMP"]),
-  port: z.string().optional().nullable(), // ポートは文字列として扱い、後で数値に変換
-  sourceIp: z.string().ip({ message: "有効なIPアドレスを入力してください。" }),
-});
+// --- Composableからフォームロジックを取得 ---
+const {
+  errors,
+  name,
+  nameAttrs,
+  description,
+  descriptionAttrs,
+  inboundRuleFields,
+  outboundRuleFields,
+  addInboundRule,
+  removeInboundRule,
+  addOutboundRule,
+  removeOutboundRule,
+  isCreating,
+  onFormSubmit,
+} = useSecurityGroupForm();
 
-// ★ 2. Zodでフォーム全体のスキーマを定義
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "セキュリティグループ名は必須です。"),
-    description: z.string().optional(),
-    inboundRules: z.array(ruleSchema),
-    outboundRules: z.array(ruleSchema),
-  })
-);
-
-// ★ 3. vee-validateのuseFormをセットアップ
-const { errors, defineField, handleSubmit } = useForm({
-  validationSchema,
-  initialValues: {
-    name: "",
-    description: "",
-    inboundRules: [],
-    outboundRules: [],
-  },
-});
-
-// 静的なフィールドを定義
-const [name, nameAttrs] = defineField("name");
-const [description, descriptionAttrs] = defineField("description");
-
-// ★ 4. useFieldArrayで動的なルールリストを管理
-const { fields: inboundFields, push: pushInbound, remove: removeInbound } = useFieldArray("inboundRules");
-const { fields: outboundFields, push: pushOutbound, remove: removeOutbound } = useFieldArray("outboundRules");
-
-// ★ 5. ルール追加・削除のメソッドをvee-validateの関数に置き換え
-const addInboundRule = () => {
-  pushInbound({ protocol: "TCP", port: "", sourceIp: "0.0.0.0/0" });
-};
-const addOutboundRule = () => {
-  pushOutbound({ protocol: "TCP", port: "", sourceIp: "0.0.0.0/0" });
-};
-
-// ★ 6. handleSubmitで送信処理をラップ
-const onSubmit = handleSubmit((values) => {
-  console.log("作成データ:", values);
-  alert(`セキュリティグループ「${values.name}」を作成しました。`);
-  emit("create", values);
-  emit("close");
-});
+// Composableから受け取った onFormSubmit 関数に、このコンポーネントの emit を渡して実行する
+const submitForm = onFormSubmit(emit);
 </script>

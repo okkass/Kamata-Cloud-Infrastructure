@@ -97,28 +97,30 @@ const { executeCreate, isCreating } = useResourceCreate<any, any>("users");
 const { addToast } = useToast();
 
 // ★ 1. Zodでバリデーションスキーマを定義
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "アカウント名は必須です。"),
-    email: z.string().email("有効なメールアドレスを入力してください。"),
-    password: z.string().min(8, "パスワードは8文字以上で入力してください。"),
-    maxCpuCores: z.preprocess(
-      (val) => (val === "" ? null : val),
-      z.number().int().min(1).nullable()
-    ),
-    maxMemorySize: z.preprocess(
-      (val) => (val === "" ? null : val),
-      z.number().int().min(1).nullable()
-    ),
-    maxStorageSize: z.preprocess(
-      (val) => (val === "" ? null : val),
-      z.number().int().min(1).nullable()
-    ),
-  })
-);
+const zodSchema = z.object({
+  name: z.string().min(1, "アカウント名は必須です。"),
+  email: z.string().email("有効なメールアドレスを入力してください。"),
+  password: z.string().min(8, "パスワードは8文字以上で入力してください。"),
+  maxCpuCores: z.preprocess(
+    (val) => (val === "" ? null : val),
+    z.number().int().min(1).nullable()
+  ),
+  maxMemorySize: z.preprocess(
+    (val) => (val === "" ? null : val),
+    z.number().int().min(1).nullable()
+  ),
+  maxStorageSize: z.preprocess(
+    (val) => (val === "" ? null : val),
+    z.number().int().min(1).nullable()
+  ),
+});
+
+const validationSchema = toTypedSchema(zodSchema);
+
+type FormValues = z.infer<typeof zodSchema>;
 
 // ★ 2. vee-validateのuseFormをセットアップ
-const { errors, defineField, handleSubmit } = useForm({
+const { errors, defineField, handleSubmit } = useForm<FormValues>({
   validationSchema,
   initialValues: {
     name: "",
