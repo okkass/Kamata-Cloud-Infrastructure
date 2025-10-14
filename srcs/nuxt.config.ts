@@ -13,6 +13,15 @@ export default defineNuxtConfig({
     },
   },
 
-  modules: ["@nuxtjs/tailwindcss"],
+  modules: ["@nuxtjs/tailwindcss", "@nuxt/icon"],
+  icon: {
+    customCollections: [
+      {
+        prefix: "images",
+        dir: "./app/assets/images",
+      },
+    ],
+  },
+
   css: ["~/assets/css/tailwind.css"],
 });

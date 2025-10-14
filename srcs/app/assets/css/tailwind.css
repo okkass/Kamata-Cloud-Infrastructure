@@ -250,6 +250,6 @@
 @layer base {
   /* ページ全体の基本スタイル */
   body {
-    @apply bg-gray-50 text-gray-800 font-sans;
+    @apply bg-white text-gray-800 font-sans;
   }
 }
