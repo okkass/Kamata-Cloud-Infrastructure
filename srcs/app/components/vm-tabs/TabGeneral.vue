@@ -1,99 +1,106 @@
 <template>
   <div class="modal-space">
-    <div>
-      <label for="vm-name" class="form-label">
-        仮想マシン名 <span class="required-asterisk">*</span>
-      </label>
-      <input
-        type="text"
-        id="vm-name"
-        v-model="name"
-        v-bind="nameAttrs"
-        class="form-input"
-        :class="{ 'form-border-error': errors.name }"
-        placeholder="例: vm-middleware01"
-      />
-      <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
-    </div>
+    <FormInput
+      label="仮想マシン名"
+      name="vm-name"
+      type="text"
+      placeholder="例: vm-middleware01"
+      :required="true"
+      :error="errors.name"
+      v-model="name"
+      v-model:attrs="nameAttrs"
+    />
 
-    <div>
-      <label for="node-select" class="form-label">
-        ノード <span class="required-asterisk">*</span>
-      </label>
-      <div v-if="pending" class="text-loading">読み込み中...</div>
-      <div v-else-if="error" class="text-error">取得に失敗しました。</div>
-      <select
-        v-else
-        id="node-select"
-        v-model="nodeId"
-        v-bind="nodeIdAttrs"
-        class="form-input"
-        :class="{ 'form-border-error': errors.nodeId }"
-      >
-        <option :value="undefined" disabled>ノードを選択してください</option>
-        <option v-for="node in nodes" :key="node.id" :value="node.id">
-          {{ node.name }}
-        </option>
-      </select>
-      <p v-if="errors.nodeId" class="text-error mt-1">{{ errors.nodeId }}</p>
-    </div>
+    <FormSelect
+      label="ノード"
+      name="node-select"
+      :pending="pending"
+      :error="error"
+      :options="nodes ?? []"
+      placeholder="ノードを選択してください"
+      :required="true"
+      :error-message="errors.nodeId"
+      :placeholder-value="undefined"
+      v-model="nodeId"
+      v-model:attrs="nodeIdAttrs"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+/**
+ * =================================================================================
+ * 概要タブ (TabGeneral.vue)
+ * ---------------------------------------------------------------------------------
+ * 仮想マシン作成ウィザードの最初のタブ。
+ * 主に仮想マシン名や配置先ノードといった、基本的な情報を入力する役割を担います。
+ * =================================================================================
+ */
 import { useResourceList } from "~/composables/useResourceList";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 
-// ==============================================================================
-// Type Definitions
-// APIから取得するデータの型を定義します。
-// ==============================================================================
-interface PhysicalNodeDTO {
-  id: string;
-  name: string;
-}
-
-// ==============================================================================
-// Validation Schema
-// フォームのバリデーションルールをZodで定義します。
-// ==============================================================================
+/**
+ * ==============================================================================
+ * Validation Schema (バリデーションスキーマ)
+ * ------------------------------------------------------------------------------
+ * このフォームの入力ルールをZodで定義します。
+ * `name`と`nodeId`が必須項目であることを指定しています。
+ * ==============================================================================
+ */
 const validationSchema = toTypedSchema(
   z.object({
-    // `name` (仮想マシン名) は1文字以上の文字列であることが必須です。
     name: z.string().min(1, "仮想マシン名は必須です。"),
-    // `nodeId` (ノードID) は文字列であり、選択が必須です。
     nodeId: z.string({ required_error: "ノードを選択してください。" }),
   })
 );
 
-// ==============================================================================
-// Form Setup
-// VeeValidateのuseFormを使って、フォームの状態管理をセットアップします。
-// ==============================================================================
+/**
+ * ==============================================================================
+ * Form State Management (フォーム状態管理)
+ * ------------------------------------------------------------------------------
+ * VeeValidateのuseFormを使って、フォーム全体の状態を管理します。
+ * これにより、入力値、エラー、バリデーション状態などがリアクティブに扱えます。
+ * ==============================================================================
+ */
 const { errors, defineField, values, meta } = useForm({
   validationSchema,
-  // initialValuesは親コンポーネントからセットされるため、ここでは空にしておきます。
+  initialValues: {
+    name: "",
+    nodeId: undefined,
+  },
 });
 
-// `defineField`を使って、各フォームフィールドとVeeValidateを連携させます。
+// `defineField`を使い、各フォームフィールドとVeeValidateを連携させます。
+// 戻り値の配列: [リアクティブな値(v-model用), 属性(v-bind用)]
 const [name, nameAttrs] = defineField("name");
 const [nodeId, nodeIdAttrs] = defineField("nodeId");
 
-// 親コンポーネント(MoVirtualMachineCreate)がこのタブのデータと状態を参照できるように公開します。
+/**
+ * ==============================================================================
+ * Expose to Parent (親コンポーネントへの公開)
+ * ------------------------------------------------------------------------------
+ * `defineExpose`を使い、このコンポーネントのデータと状態を親から参照できるようにします。
+ * 親は`tabRefs`を通じて`formData`や`isValid`にアクセスできます。
+ * ==============================================================================
+ */
 defineExpose({
   formData: values,
   isValid: meta,
 });
 
-// ==============================================================================
-// API Data Fetching
-// `useResourceList` Composableを使って、プルダウンの選択肢をAPIから取得します。
-// ==============================================================================
+/**
+ * ==============================================================================
+ * API Data Fetching (APIデータ取得)
+ * ------------------------------------------------------------------------------
+ * `useResourceList` Composableを使い、「ノード選択」プルダウンの選択肢を
+ * APIから非同期で取得します。
+ * ==============================================================================
+ */
 const {
   data: nodes,
   pending,
   error,
-} = useResourceList<PhysicalNodeDTO>("physical-node");
+} = useResourceList<PhysicalNodeDTO>("physical-nodes");
 </script>

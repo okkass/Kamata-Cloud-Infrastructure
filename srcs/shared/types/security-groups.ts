@@ -67,7 +67,7 @@ export interface SecurityRuleDTO {
   /**
    * 適用されるポート番号
    */
-  port: number;
+  port: number | null;
   /**
    * 適用されるプロトコル
    */
@@ -113,7 +113,7 @@ export interface SecurityRuleCreateRequestDTO {
   /**
    * 適用されるポート番号
    */
-  port: number;
+  port: number | null;
   /**
    * 適用されるプロトコル
    */

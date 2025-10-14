@@ -88,7 +88,7 @@ const {
   pending,
   error,
   refresh,
-} = useResourceList<ModelVirtualMachineDTO>("virtual-machine");
+} = useResourceList<ModelVirtualMachineDTO>("virtual-machines");
 
 // ==============================================================================
 // 既存のコンポーネントインポート (変更なし)

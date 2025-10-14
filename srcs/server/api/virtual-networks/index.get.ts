@@ -34,14 +34,14 @@ export default defineEventHandler(() => {
       subnets: [
         {
           id: "84d6e21a-8e71-4efc-88ad-5d425f3646c9",
-          name: "subnet-1",
+          name: "subnet-3",
           cidr: "10.19.0.0/24",
           possivleExternalConnections: true,
           createdAt: new Date().toISOString(),
         },
         {
           id: "56c483f3-1817-4656-bc5f-f0836af0e796",
-          name: "subnet-2",
+          name: "subnet-4",
           cidr: "10.19.0.1/24",
           possivleExternalConnections: false,
           createdAt: new Date().toISOString(),
