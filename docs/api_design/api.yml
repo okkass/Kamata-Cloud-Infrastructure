@@ -1879,7 +1879,7 @@ components:
         rules:
           type: array
           items:
-            $ref: "#/components/schemas/SecurityRule"
+            $ref: "#/components/schemas/SecurityRuleCreateRequest"
       required:
         - name
     SecurityGroupUpdateRequest:

@@ -1,4 +1,8 @@
-import type { ModelInstanceTypeDTO, PhysicalNodeDTO } from ".";
+import type {
+  ModelInstanceTypeDTO,
+  PhysicalNodeDTO,
+  SecurityGroupDTO,
+} from ".";
 
 /**
  * アタッチされたストレージオブジェクト
@@ -216,7 +220,7 @@ export interface VirtualMachineDTO {
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroups: Array<string>;
+  securityGroups: Array<SecurityGroupDTO>;
   /**
    * アタッチされたストレージのリスト
    */
@@ -369,7 +373,7 @@ export interface VirtualMachineUpdateRequestDTO {
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroups?: Array<string>;
+  securityGroupIds?: Array<string>;
   /**
    * アタッチされたストレージのリスト
    */

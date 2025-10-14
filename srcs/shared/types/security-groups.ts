@@ -32,7 +32,7 @@ export interface SecurityGroupCreateRequestDTO {
    * セキュリティグループの説明
    */
   description?: string;
-  rules?: Array<SecurityRuleDTO>;
+  rules?: Array<SecurityRuleCreateRequestDTO>;
 }
 /**
  * セキュリティグループ更新リクエストオブジェクト
