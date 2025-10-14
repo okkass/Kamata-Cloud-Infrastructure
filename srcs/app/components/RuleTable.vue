@@ -42,6 +42,7 @@
               <option>TCP</option>
               <option>UDP</option>
               <option>ICMP</option>
+              <option>Any</option>
             </select>
           </td>
 
@@ -55,6 +56,9 @@
                   errors[`${fieldNamePrefix}[${index}].port`],
               }"
               placeholder="例: 80"
+              :disabled="
+                rule.value.protocol === 'Any' || rule.value.protocol === 'ICMP'
+              "
             />
             <p
               v-if="errors[`${fieldNamePrefix}[${index}].port`]"
@@ -115,25 +119,15 @@
  * ---------------------------------------------------------------------------------
  * このコンポーネントは、セキュリティグループのルール（インバウンド/アウトバウンド）を
  * 一覧表示し、編集するためのUI部品です。
- *
- * このコンポーネント自身は状態を持たず（Stateless/Dumb Component）、
- * 親コンポーネントから渡されたデータを表示し、ユーザー操作のイベントを
- * 親に通知する責務のみを持ちます。
  * =================================================================================
  */
 
-// --- 親コンポーネントとの連携 ---
 defineProps({
-  // "インバウンドルール" or "アウトバウンドルール" といったタイトル
   title: String,
-  // VeeValidateの `useFieldArray` から渡されるルールの配列
   rules: Array,
-  // VeeValidateの `errors` オブジェクト全体
   errors: Object,
-  // エラーメッセージを特定するためのプレフィックス ("inboundRules" or "outboundRules")
   fieldNamePrefix: String,
 });
 
-// 親コンポーネントに通知するイベントを定義
 defineEmits(["add-rule", "delete-rule"]);
 </script>
