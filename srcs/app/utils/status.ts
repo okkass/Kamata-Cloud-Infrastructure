@@ -62,11 +62,11 @@ export const formatVmSpec = (vm: VirtualMachineDTO): string => {
   // 型ガードを使い、VMのパターンに応じて適切なプロパティから値を取得
   if ("instanceType" in vm && vm.instanceType) {
     // パターンA: instanceType を持つVM
-    cores = vm.instanceType.cpuCore; // ✨ 'cpuCore' から 'cpuCores' (複数形) に修正
+    cores = vm.instanceType.cpuCores; // ✨ 'cpuCore' から 'cpuCores' (複数形) に修正
     memorySize = vm.instanceType.memorySize;
   } else {
     // パターンB: カスタムスペックを持つVM
-    cores = vm.cpuCore;
+    cores = vm.cpuCores;
     memorySize = vm.memorySize;
   }
 
