@@ -1,18 +1,22 @@
 <template>
-  <BaseModal :show="show" title="確認" @close="$emit('close')" size="sm">
+  <BaseModal :show="show" title="確認" size="sm" @close="$emit('close')">
     <div class="space-y-6 text-center">
       <p class="text-base text-gray-700">
         {{ message }}
       </p>
 
       <div class="flex justify-center gap-4">
-        <button @click="$emit('close')" class="btn btn-back">キャンセル</button>
+        <button type="button" class="btn btn-back" @click="$emit('close')">
+          キャンセル
+        </button>
         <button
-          @click="$emit('confirm')"
+          type="button"
           class="btn btn-danger"
           :disabled="isLoading"
+          @click="$emit('confirm')"
         >
-          {{ isLoading ? "削除中..." : "削除する" }}
+          <span v-if="isLoading">削除中...</span>
+          <span v-else>削除する</span>
         </button>
       </div>
     </div>
@@ -22,24 +26,27 @@
 <script setup lang="ts">
 /**
  * =================================================================================
- * 汎用削除確認モーダル (DeleteConfirm.vue)
+ * 汎用削除確認モーダル (MoDeleteConfirm.vue)
  * ---------------------------------------------------------------------------------
  * 削除などの破壊的な操作の前に、ユーザーに最終確認を促すためのモーダルです。
- * 表示するメッセージやローディング状態をPropsとして受け取り、
- * ユーザーの選択結果（confirm / close）をイベントとして親に通知します。
+ * BaseModalを土台として利用し、確認メッセージとアクションボタンの表示に特化しています。
  * =================================================================================
  */
 
 // --- 親コンポーネントとの連携（Props & Emits） ---
+
 defineProps({
-  // モーダルの表示/非表示を制御
+  /** モーダルの表示/非表示を制御します */
   show: { type: Boolean, required: true },
-  // モーダル内に表示する確認メッセージ
+  /** モーダル内に表示する確認メッセージです */
   message: { type: String, required: true },
-  // 削除処理中のローディング状態
+  /** 削除処理中のローディング状態を示します */
   isLoading: { type: Boolean, default: false },
 });
 
-// 親コンポーネントに通知するイベントを定義
-defineEmits(["close", "confirm"]);
+/** 親コンポーネントに通知するイベントを定義します（'close'はキャンセル、'confirm'は実行） */
+defineEmits<{
+  (e: "close"): void;
+  (e: "confirm"): void;
+}>();
 </script>
