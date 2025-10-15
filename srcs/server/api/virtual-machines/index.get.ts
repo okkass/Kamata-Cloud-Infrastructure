@@ -1,113 +1,76 @@
+import { VirtualMachineDTO } from "~~/shared/types";
+
 export default defineEventHandler((event) => {
-  return [
+  const mock1: Array<VirtualMachineDTO> = [];
+  const mock2: Array<VirtualMachineDTO> = [
     {
-      id: "8874840c-fe85-4eb9-985f-a856eee1faa2",
-      name: "vm-01 (フル構成)",
-      instanceType: {
-        id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
-        name: "t2.standard",
-        createdAt: new Date().toISOString(),
-        cpuCores: 4,
-        memorySize: 4 * 1024 * 1024 * 1024, // 4 GB
-      },
+      id: "68eecf22-4eb2-4522-9b00-5940f150cd4e",
+      name: "web-server",
       status: "running",
-      node: {
-        id: "ba49196a-dfa7-4ce2-99c0-e4c4767f7b39",
-        name: "Node 2",
-      },
       createdAt: new Date().toISOString(),
+      node: {
+        id: "2cd60316-dbfe-4c94-bb24-6664efcc0645",
+        name: "Node 1",
+        ipAddress: "192.168.1.100",
+        status: "active",
+        isAdmin: true,
+        createdAt: "2024-01-01T12:00:00Z",
+      },
       securityGroups: [
         {
-          id: "399f4fd6-8335-46f7-bd80-4e53eb0fbe9b",
-          name: "default",
+          id: "402e9dee-46de-4a44-b380-834edf24328a",
+          name: "web-server-sg",
+          rules: [
+            {
+              id: "e2aee93e-8ac6-4ffa-a132-4d13b934bedc",
+              name: "Allow HTTP",
+              ruleType: "inbound",
+              port: 80,
+              protocol: "tcp",
+              targetIp: "0,0,0,0/0",
+              createdAt: new Date().toISOString(),
+            },
+            {
+              id: "88a34c4d-a9c0-4856-8a1f-36af011e2d7c",
+              name: "Allow SSH",
+              ruleType: "inbound",
+              port: 22,
+              protocol: "tcp",
+              targetIp: "0,0,0,0/0",
+              createdAt: new Date().toISOString(),
+            },
+            {
+              id: "8b796a42-78c0-468e-9fbd-f7f237095ef9",
+              name: "Allow All Outbound",
+              ruleType: "outbound",
+              port: null,
+              protocol: "any",
+              targetIp: "0,0,0,0/0",
+              createdAt: new Date().toISOString(),
+            },
+          ],
+          createdAt: new Date().toISOString(),
         },
       ],
       attachedStorages: [
         {
           storage: {
-            id: "storage-os-01",
-            name: "vm-01-os",
-            size: 50 * 1024 * 1024 * 1024, // 50GB
-            pool: "532ca711-42e0-449c-bd1c-51af16f333b6",
-          },
-          path: "/dev/sda", // OSディスク
-        },
-        {
-          storage: {
-            id: "storage-data-01",
-            name: "vm-01-data",
-            size: 100 * 1024 * 1024 * 1024, // 100GB
-            pool: "93061a02-e35d-4055-8bcd-a0002440fb89",
-          },
-          path: "/dev/sdb", // データディスク
-        },
-      ],
-      attachedNics: [
-        {
-          id: "nic-01",
-          subnetId: "9653a4bb-3c60-4950-abf0-2702023696c2",
-        },
-      ],
-    },
-    {
-      id: "671d6880-b0f5-4fcb-827d-aae17536888c",
-      name: "vm-02 ",
-      instanceType: {
-        id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
-        name: "t2.standard",
-        createdAt: new Date().toISOString(),
-        cpuCores: 2,
-        memorySize: 2 * 1024 * 1024 * 1024, // 2 GB
-      },
-      status: "stopped",
-      node: {
-        id: "d898bae4-0a05-48aa-846e-aca5bbfd72c6",
-        name: "Node 1",
-      },
-      createdAt: new Date().toISOString(),
-      securityGroups: [],
-      attachedStorages: [
-        {
-          storage: {
-            id: "storage-os-02",
-            name: "vm-02-os",
+            id: "299ee1b9-de55-4513-9aa0-62c82ce9fc17",
+            name: "web-server-disk",
             size: 20 * 1024 * 1024 * 1024, // 20GB
-            pool: "532ca711-42e0-449c-bd1c-51af16f333b6",
+            pool: "7e0485cf-be53-41be-a57b-d047437395ee",
           },
-          path: "/dev/sda", // OSディスク
+          path: "/dev/sda",
         },
       ],
-      attachedNics: [],
-    },
-    {
-      id: "11223344-5566-7788-99aa-bbccddeeff00",
-      name: "vm-03 (最小構成)",
       instanceType: {
-        id: "7b6fb312-8c89-44d2-a417-4665a4a9be83",
-        name: "t2.micro",
-        cpuCores: 1,
-        memorySize: 1 * 1024 * 1024 * 1024,
-      },
-      status: "running",
-      node: {
-        id: "d898bae4-0a05-48aa-846e-aca5bbfd72c6",
-        name: "Node 1",
-      },
-    },
-    {
-      id: "ffeeddcc-bbaa-9988-7766-554433221100",
-      name: "vm-04 (複数SG)",
-      instanceType: {
-        id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
-        name: "t2.standard",
-        cpuCores: 8,
-        memorySize: 16 * 1024 * 1024 * 1024,
-      },
-      status: "error",
-      node: {
-        id: "ba49196a-dfa7-4ce2-99c0-e4c4767f7b39",
-        name: "Node 2",
+        id: "f0e4ab04-e811-439b-9336-fa482e175b1b",
+        name: "small",
+        createdAt: "2025-10-10T12:00:00Z",
+        cpuCore: 1,
+        memorySize: 1 * 1024 * 1024 * 1024, // 1GB
       },
     },
   ];
+  return mock2;
 });

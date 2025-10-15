@@ -16,7 +16,7 @@
 
     <template #cell-instanceType="{ row }">
       <span class="text-sm">
-        {{ row.instanceType.cpuCores }} cores /
+        {{ row.instanceType.cpuCore }} cores /
         {{ convertByteToUnit(row.instanceType.memorySize, "GB") }} GB
       </span>
     </template>

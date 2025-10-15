@@ -3,6 +3,40 @@ import { create } from "domain";
 export default defineEventHandler(() => {
   return [
     {
+      id: "402e9dee-46de-4a44-b380-834edf24328a",
+      name: "web-server-sg",
+      rules: [
+        {
+          id: "e2aee93e-8ac6-4ffa-a132-4d13b934bedc",
+          name: "Allow HTTP",
+          ruleType: "inbound",
+          port: 80,
+          protocol: "tcp",
+          targetIp: "0,0,0,0/0",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: "88a34c4d-a9c0-4856-8a1f-36af011e2d7c",
+          name: "Allow SSH",
+          ruleType: "inbound",
+          port: 22,
+          protocol: "tcp",
+          targetIp: "0,0,0,0/0",
+          createdAt: new Date().toISOString(),
+        },
+        {
+          id: "8b796a42-78c0-468e-9fbd-f7f237095ef9",
+          name: "Allow All Outbound",
+          ruleType: "outbound",
+          port: null,
+          protocol: "any",
+          targetIp: "0,0,0,0/0",
+          createdAt: new Date().toISOString(),
+        },
+      ],
+      createdAt: new Date().toISOString(),
+    },
+    {
       id: "399f4fd6-8335-46f7-bd80-4e53eb0fbe9b",
       name: "default",
       description: "Default security group",

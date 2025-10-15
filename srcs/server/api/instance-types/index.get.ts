@@ -1,6 +1,13 @@
 export default defineEventHandler((event) => {
   return [
     {
+      id: "f0e4ab04-e811-439b-9336-fa482e175b1b",
+      name: "small",
+      createdAt: "2025-10-10T12:00:00Z",
+      cpuCore: 1,
+      memorySize: 1 * 1024 * 1024 * 1024, // 1GB
+    },
+    {
       id: "7b6fb312-8c89-44d2-a417-4665a4a9be83",
       name: "t2.micro",
       createdAt: new Date().toISOString(),
