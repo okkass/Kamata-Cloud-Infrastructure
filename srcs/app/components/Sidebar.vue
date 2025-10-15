@@ -41,7 +41,7 @@ const isSectionOpen = (title: string) => {
 
 <template>
   <aside
-    class="fixed top-16 left-0 bottom-0 bg-white text-slate-800 z-42 transition-all duration-300 ease-in-out select-none border-r border-gray-200"
+    class="fixed top-16 left-0 bottom-0 bg-white text-slate-800 transition-all duration-300 ease-in-out select-none border-r border-gray-200"
     :class="isSidebarOpen ? 'w-64' : 'w-16'"
   >
     <div v-if="!isSidebarOpen" class="flex flex-col items-center h-full">
