@@ -4,8 +4,8 @@
     <div>
       <UserSidebar :isAdmin="isAdmin" />
       <main
-        class="p-8 transition-all duration-300 mt-16"
-        :class="isSidebarOpen ? 'ml-64' : 'ml-16'"
+        class="p-8 transition-all duration-300 mt-8"
+        :class="isSidebarOpen ? 'ml-56' : 'ml-8'"
       >
         <slot />
       </main>

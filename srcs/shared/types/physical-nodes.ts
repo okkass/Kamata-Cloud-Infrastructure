@@ -113,10 +113,9 @@ export type UiNode = {
   ip: string;
 
   /**
-   * 物理ノードの状態 (UI表示用の日本語文字列)
-   * (例: PhysicalNodeDTO.status の 'active' を '稼働中' に変換)
+   * 物理ノードの状態
    */
-  status: "稼働中" | "停止中";
+  status: PhysicalNodeStatusEnum;
 
   /**
    * CPU使用率 (UI表示用のパーセント文字列)

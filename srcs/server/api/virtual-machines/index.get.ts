@@ -71,6 +71,39 @@ export default defineEventHandler((event) => {
         memorySize: 1 * 1024 * 1024 * 1024, // 1GB
       },
     },
+    {
+      id: "12345678-90ab-cdef-1234-567890abcdef",
+      name: "vm-05(テスト用)",
+      cpuCore: 2,
+      memorySize: 2 * 1024 * 1024 * 1024,
+      status: "pending",
+      node: {
+        id: "d898bae4-0a05-48aa-846e-aca5bbfd72c6",
+        name: "Node 1",
+      },
+      createdAt: new Date().toISOString(),
+      securityGroups: [],
+      attachedStorages: [
+        {
+          storage: {
+            id: "storage-os-05",
+            name: "vm-05-os",
+            size: 30 * 1024 * 1024 * 1024, // 30GB
+            pool: "532ca711-42e0-449c-bd1c-51af16f333b6",
+          },
+          path: "/dev/sda",
+        },
+      ],
+      attachedNics: [
+        {
+          id: "dddddd-dddd-dddd-dddd-dddddddddddd",
+          subnetId: "9653a4bb-3c60-4950-abf0-2702023696c2",
+        },
+      ],
+      cpuUtilization: 0.15,
+      memoryUtilization: 0.6,
+      storageUtilization: 0.3,
+    },
   ];
   return mock2;
 });

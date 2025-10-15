@@ -203,7 +203,7 @@ export interface VirtualMachineBaseDTO {
    * 仮想マシンの状態
    */
   status: VirtualMachineStatusEnum;
-  node?: PhysicalNodeDTO;
+  node: PhysicalNodeDTO;
   /**
    * 仮想マシンが作成された日時
    */

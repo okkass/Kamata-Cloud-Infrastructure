@@ -1,7 +1,5 @@
 <template>
-  <header
-    class="fixed top-0 w-full bg-white text-sm text-gray-700 z-40 shadow-md px-4"
-  >
+  <header class="fixed top-0 w-full bg-white text-sm text-gray-700 z-40 px-4 border-b border-gray-200">
     <div class="flex items-center justify-between h-16">
       <div class="flex items-center">
         <nuxt-link to="/" class="text-lg font-bold flex items-center">
