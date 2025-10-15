@@ -7,7 +7,7 @@ export default defineEventHandler((event) => {
         id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
         name: "t2.standard",
         createdAt: new Date().toISOString(),
-        cpuCores: 4,
+        cpuCore: 4,
         memorySize: 4 * 1024 * 1024 * 1024, // 4 GB
       },
       status: "running",
@@ -56,7 +56,7 @@ export default defineEventHandler((event) => {
         id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
         name: "t2.standard",
         createdAt: new Date().toISOString(),
-        cpuCores: 2,
+        cpuCore: 2,
         memorySize: 2 * 1024 * 1024 * 1024, // 2 GB
       },
       status: "stopped",
@@ -85,7 +85,7 @@ export default defineEventHandler((event) => {
       instanceType: {
         id: "7b6fb312-8c89-44d2-a417-4665a4a9be83",
         name: "t2.micro",
-        cpuCores: 1,
+        cpuCore: 1,
         memorySize: 1 * 1024 * 1024 * 1024,
       },
       status: "running",
@@ -100,7 +100,7 @@ export default defineEventHandler((event) => {
       instanceType: {
         id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
         name: "t2.standard",
-        cpuCores: 8,
+        cpuCore: 8,
         memorySize: 16 * 1024 * 1024 * 1024,
       },
       status: "error",
@@ -108,6 +108,38 @@ export default defineEventHandler((event) => {
         id: "ba49196a-dfa7-4ce2-99c0-e4c4767f7b39",
         name: "Node 2",
       },
+    },
+    {
+      id: "12345678-90ab-cdef-1234-567890abcdef",
+      name: "vm-05(テスト用)",
+      cpuCore: 2,
+      memorySize: 2 * 1024 * 1024 * 1024,
+      status: "pending",
+      node: {
+        id: "d898bae4-0a05-48aa-846e-aca5bbfd72c6",
+        name: "Node 1",
+      },
+      createdAt: new Date().toISOString(),
+      securityGroups: [],
+      attachedStorages: [
+        {
+          storage: {
+            id: "storage-os-05",
+            name: "vm-05-os",
+            size: 30 * 1024 * 1024 * 1024, // 30GB
+            pool: "532ca711-42e0-449c-bd1c-51af16f333b6",
+          },
+        },
+      ],
+      attachedNics: [
+        {
+          id: "dddddd-dddd-dddd-dddd-dddddddddddd",
+          subnetId: "9653a4bb-3c60-4950-abf0-2702023696c2",
+        },
+      ],
+      cpuUtilization: 0.15,
+      memoryUtilization: 0.6,
+      storageUtilization: 0.3,
     },
   ];
 });
