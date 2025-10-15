@@ -57,7 +57,7 @@
           <button
             type="button"
             class="action-item action-item-danger"
-            :class="{ 'action-item-disabled': row.isMgmt }"
+            :class="{ 'action-item-disabled hover:bg-slate-500': row.isMgmt }"
             :disabled="row.isMgmt"
             @click.stop.prevent="promptForNodeDeletion(row)"
           >
