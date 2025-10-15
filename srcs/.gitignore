@@ -23,4 +23,7 @@ logs
 .env.*
 !.env.example
 
+# PNPM store
+.pnpm-store
+
 /app/generated/prisma
