@@ -95,7 +95,6 @@ import { useToast } from "~/composables/useToast";
 defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 
-
 // ==============================================================================
 // API Data Fetching & Submission
 // Composableを使ってAPIとの通信を管理します。
@@ -106,7 +105,7 @@ const {
   data: candidateNodes, // 変数名をより具体的に
   pending,
   error,
-} = useResourceList<PhysicalNodeCandiateDTO>("physical-nodes");
+} = useResourceList<PhysicalNodeCandidateDTO>("physical-nodes/candidates");
 
 // --- ノード追加処理 ---
 const {
@@ -125,13 +124,13 @@ const { addToast } = useToast();
 // ==============================================================================
 
 // 確認ダイアログで選択されているノードの情報を保持するstate
-const nodePendingConfirmation = ref<PhysicalNodeCandiateDTO | null>(null);
+const nodePendingConfirmation = ref<PhysicalNodeCandidateDTO | null>(null);
 
 /**
  * 「追加」ボタンがクリックされたときに、確認ダイアログを表示します。
- * @param {PhysicalNodeCandiateDTO} node - ユーザーが選択したノードのデータ
+ * @param {PhysicalNodeCandidateDTO} node - ユーザーが選択したノードのデータ
  */
-const promptForNodeAdditionConfirmation = (node: PhysicalNodeCandiateDTO) => {
+const promptForNodeAdditionConfirmation = (node: PhysicalNodeCandidateDTO) => {
   nodePendingConfirmation.value = node;
 };
 
