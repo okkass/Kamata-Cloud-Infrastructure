@@ -60,18 +60,18 @@
   </DashboardLayout>
 
   <MoVirtualMachineCreate
-    :show="activeModal === `create-${RESOURCE}`"
+    :show="activeModal === `create-${RESOURCE_NAME}`"
     @close="cancelAction"
     @success="handleSuccess"
   />
   <MoVirtualMachineEdit
-    :show="activeModal === `edit-${RESOURCE}`"
+    :show="activeModal === `edit-${RESOURCE_NAME}`"
     :virtual-machine="targetForEditing"
     @close="cancelAction"
     @success="handleSuccess"
   />
   <MoDeleteConfirm
-    :show="activeModal === `delete-${RESOURCE}`"
+    :show="activeModal === `delete-${RESOURCE_NAME}`"
     :is-loading="isDeleting"
     :resource-label="resourceLabel"
     :resource-name="targetForDeletion?.name"
@@ -88,9 +88,9 @@ import { computed } from "vue";
 // ==============================================================================
 
 /**
- * @constant RESOURCE APIのエンドポイント名。useResourceListやusePageActionsで利用。
+ * @constant RESOURCE_NAME APIのエンドポイント名。useResourceListやusePageActionsで利用。
  */
-const RESOURCE = "virtual-machines";
+const RESOURCE_NAME = "virtual-machines";
 
 /**
  * @constant resourceLabel ユーザーに表示するリソースの名称（日本語）。モーダルなどで使用。
@@ -106,7 +106,7 @@ const resourceLabel = "仮想マシン";
  * `data` (virtualMachines) と `refresh` 関数を提供します。
  */
 const { data: virtualMachines, refresh } =
-  useResourceList<VirtualMachineDTO>(RESOURCE);
+  useResourceList<VirtualMachineDTO>(RESOURCE_NAME);
 
 /**
  * テーブルコンポーネントに渡すためのリアクティブな行データ。
@@ -131,7 +131,7 @@ const {
   handleSuccess, // 作成/編集モーダルの成功イベントを処理
   cancelAction, // モーダルを閉じるアクション
 } = usePageActions<VirtualMachineDTO>({
-  resourceName: RESOURCE,
+  resourceName: RESOURCE_NAME,
   resourceLabel,
   refresh, // データ操作成功時に一覧を再読み込みさせるため
 });
@@ -169,7 +169,7 @@ const headerButtons = [{ label: "新規作成", action: "create" }];
 const onHeaderAction = (action: string) => {
   if (action === "create") {
     // `usePageActions` を使って作成モーダルを開く
-    openModal(`create-${RESOURCE}`);
+    openModal(`create-${RESOURCE_NAME}`);
   }
 };
 </script>
