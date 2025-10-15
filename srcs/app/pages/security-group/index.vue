@@ -64,7 +64,7 @@
   <!-- モーダル定義エリア -->
   <!-- 汎用モーダル (削除確認) -->
   <MoDeleteConfirm
-    :show="activeModal === 'delete-security-group'"
+    :show="activeModal === `delete-${RESOURCE_NAME}`"
     :message="`本当に '${targetForDeletion?.name}' を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
@@ -73,7 +73,7 @@
 
   <!-- 特化型モーダル (編集) -->
   <MoSecurityGroupEdit
-    :show="activeModal === 'edit-security-group'"
+    :show="activeModal === `edit-${RESOURCE_NAME}`"
     :security-group-data="targetForEditing"
     @close="cancelAction"
     @success="handleSuccess"
@@ -81,17 +81,20 @@
 
   <!-- 特化型モーダル (作成) -->
   <MoSecurityGroupCreate
-    :show="activeModal === 'create-security-group'"
+    :show="activeModal === `create-${RESOURCE_NAME}`"
     @close="closeModal"
     @success="handleSuccess"
   />
 </template>
 
 <script setup lang="ts">
+
+const RESOURCE_NAME = "security-groups";
+const resourceLabel = "セキュリティグループ";
 // --- Composables Setup ---
 // APIから表示するデータを取得
 const { data: securityGroups, refresh } =
-  useResourceList<SecurityGroupDTO>("security-group");
+  useResourceList<SecurityGroupDTO>(RESOURCE_NAME);
 
 // ページのUIアクションを管理するComposableを呼び出し
 const {
@@ -106,8 +109,8 @@ const {
   handleSuccess,
   cancelAction,
 } = usePageActions<SecurityGroupDTO>({
-  resourceName: "security-group",
-  resourceLabel: "セキュリティグループ",
+  resourceName: RESOURCE_NAME,
+  resourceLabel,
   refresh,
 });
 
@@ -134,7 +137,7 @@ const getRuleCount = (
 /** ヘッダーボタンのアクションを処理する */
 const onHeaderAction = (action: string) => {
   if (action === "create") {
-    openModal("create-security-group");
+    openModal(`create-${RESOURCE_NAME}`);
   }
 };
 </script>
