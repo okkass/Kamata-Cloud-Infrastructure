@@ -1,7 +1,7 @@
 <template>
   <div>
     <DashboardLayout
-      title="物理ノード管理"
+      title="物理ノード"
       :columns="columns"
       :rows="displayNodes"
       rowKey="id"

@@ -168,7 +168,7 @@
    */
   /* テーブルのヘッダー */
   .table-header {
-    @apply text-xs text-gray-700 uppercase bg-gray-100;
+    @apply text-xs text-gray-700 uppercase bg-gray-100 whitespace-nowrap;
   }
   /* テーブルの行 */
   .table-row {
