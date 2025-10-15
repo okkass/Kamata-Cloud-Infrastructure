@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout
-    title="仮想マシンダッシュボード"
+    title="仮想マシン"
     :columns="columns"
     :rows="rowsForTable"
     rowKey="id"
