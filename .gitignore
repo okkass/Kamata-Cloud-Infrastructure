@@ -1,3 +1,4 @@
 *.asta.lock
 *.tmp
 ~$*
+.pnpm-store
