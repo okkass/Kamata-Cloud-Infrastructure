@@ -13,7 +13,7 @@ import { useRoute } from "vue-router";
 const RESOURCE_NAME = "virtual-machines";
 
 const route = useRoute();
-const { data, pending, error } = await useResourceDetail<VirtualMachineDTO>(
+const { data, pending, error } = useResourceDetail<VirtualMachineDTO>(
   RESOURCE_NAME,
   route.params.id as string
 );
