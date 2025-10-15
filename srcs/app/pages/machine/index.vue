@@ -26,7 +26,7 @@
       </span>
     </template>
     <template #cell-node="{ row }">
-      <span class="text-sm">{{ row.node?.name ?? "-" }}</span>
+      <span class="text-sm">{{ row.node.name }}</span>
     </template>
     <template #cell-status="{ row }">
       <span
@@ -118,8 +118,6 @@ const {
   resourceLabel,
   refresh,
 });
-
-
 
 /**
  * テーブルのカラム定義。
