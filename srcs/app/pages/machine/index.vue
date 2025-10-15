@@ -29,10 +29,7 @@
       <span class="text-sm">{{ row.node.name }}</span>
     </template>
     <template #cell-status="{ row }">
-      <span
-        class="inline-flex select-none items-center rounded-md px-2 py-0.5 text-xs font-bold"
-        :class="getVmStatusDisplay(row.status).class"
-      >
+      <span class="table-status" :class="getVmStatusDisplay(row.status).class">
         {{ getVmStatusDisplay(row.status).text }}
       </span>
     </template>
@@ -79,6 +76,7 @@
     :is-loading="isDeleting"
     :resource-label="resourceLabel"
     :resource-name="targetForDeletion?.name"
+    :message="`本当に「${targetForDeletion?.name ?? ''}」を削除しますか？`"
     @close="cancelAction"
     @confirm="handleDelete"
   />

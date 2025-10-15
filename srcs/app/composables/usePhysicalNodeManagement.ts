@@ -14,30 +14,8 @@ import { usePageActions } from "@/composables/usePageActions";
 // ==============================================================================
 // Type Definitions
 // ==============================================================================
-type PhysicalNodeDto = {
-  id: string;
-  name: string;
-  ipAddress: string;
-  status: "active" | "inactive";
-  isAdmin: boolean;
-  createdAt: string;
-  cpuUtilization?: number;
-  memoryUtilization?: number;
-  storageUtilization?: number;
-};
-type DisplayNode = {
-  id: string;
-  name: string;
-  ip: string;
-  status: "稼働中" | "停止中";
-  cpu: string;
-  mem: string;
-  storage: string;
-  isMgmt: boolean;
-  createdAtText: string;
-};
 type TableColumn = {
-  key: keyof DisplayNode | string;
+  key: keyof UiNode | string;
   label: string;
   align?: "left" | "center" | "right";
 };
@@ -51,7 +29,11 @@ export function usePhysicalNodeManagement() {
   // ============================================================================
   const { addToast } = useToast();
   const { data: rawNodes, refresh: refreshNodeList } =
-    useResourceList<PhysicalNodeDto>("physical-nodes");
+    useResourceList<PhysicalNodeDTO>("physical-nodes");
+  const { executeUpdate: updateNode } = useResourceUpdate<
+    PhysicalNodeUpdateRequestDTO,
+    PhysicalNodeDTO
+  >("physical-nodes");
   const {
     activeModal,
     openModal,
@@ -62,7 +44,7 @@ export function usePhysicalNodeManagement() {
     handleDelete,
     handleSuccess,
     cancelAction,
-  } = usePageActions<DisplayNode>({
+  } = usePageActions<UiNode>({
     resourceName: "physical-nodes",
     resourceLabel: "物理ノード",
     refresh: refreshNodeList,
@@ -78,7 +60,7 @@ export function usePhysicalNodeManagement() {
     { key: "cpu", label: "CPU", align: "right" },
     { key: "mem", label: "メモリ", align: "right" },
     { key: "storage", label: "ストレージ", align: "right" },
-    { key: "createdAtText", label: "作成日時", align: "left" },
+    { key: "createdAt", label: "作成日時", align: "left" },
   ]);
   const headerButtons = ref([{ label: "ノード追加", action: "add" }]);
   const switchingNodeId = ref<string | null>(null);
@@ -86,73 +68,66 @@ export function usePhysicalNodeManagement() {
   // ============================================================================
   // Computed Properties
   // ============================================================================
-  const displayNodes = computed<DisplayNode[]>(() =>
+  const displayNodes = computed<UiNode[]>(() =>
     (rawNodes.value ?? []).map((node) => ({
       id: node.id,
       name: node.name,
       ip: node.ipAddress,
-      status: node.status === "active" ? "稼働中" : "停止中",
+      status: node.status,
       cpu: formatAsPercent(node.cpuUtilization),
       mem: formatAsPercent(node.memoryUtilization),
       storage: formatAsPercent(node.storageUtilization),
       isMgmt: Boolean(node.isAdmin),
-      createdAtText: formatDateTime(node.createdAt),
+      createdAt: formatDateTime(node.createdAt),
     }))
   );
-
-  // ============================================================================
-  // Helper Functions
-  // ============================================================================
-  function formatAsPercent(value?: number): string {
-    return typeof value === "number" && isFinite(value)
-      ? `${Math.round(value * 100)}%`
-      : "—";
-  }
-  function formatDateTime(isoString: string): string {
-    const date = new Date(isoString);
-    if (isNaN(date.getTime())) return isoString;
-    const p = (n: number) => String(n).padStart(2, "0");
-    return `${date.getFullYear()}/${p(date.getMonth() + 1)}/${p(
-      date.getDate()
-    )} ${p(date.getHours())}:${p(date.getMinutes())}`;
-  }
-
   // ============================================================================
   // Event Handlers
   // ============================================================================
+  /**
+   * [ページ固有アクション] 指定されたノードを管理ノードとして設定します。
+   * @param {string} targetId - 新しい管理ノードのID
+   */
   async function handleSetAsManagementNode(targetId: string) {
-    if (switchingNodeId.value === targetId) return;
-
+    if (switchingNodeId.value) return; // 処理中の重複実行を防止
     switchingNodeId.value = targetId;
+
     try {
-      const currentAdminNode = (rawNodes.value ?? []).find(
-        (n) => n.isAdmin && n.id !== targetId
-      );
-      if (currentAdminNode) {
-        await $fetch(`/api/physical-nodes/${currentAdminNode.id}`, {
-          method: "PUT",
-          body: { isAdmin: false },
+      const currentAdminNode = (rawNodes.value ?? []).find((n) => n.isAdmin);
+
+      if (currentAdminNode && currentAdminNode.id !== targetId) {
+        const unsetResult = await updateNode(currentAdminNode.id, {
+          isAdmin: false,
+        });
+
+        // もし解除に失敗したら、エラー通知を出して処理を中断
+        if (!unsetResult.success) {
+          addToast({
+            type: "error",
+            message: "既存管理ノードの解除に失敗しました。",
+            details: unsetResult.error?.message,
+          });
+          return;
+        }
+      }
+
+      const setResult = await updateNode(targetId, { isAdmin: true });
+
+      if (setResult.success) {
+        addToast({ type: "success", message: "管理ノードを切り替えました。" });
+        await refreshNodeList();
+      } else {
+        addToast({
+          type: "error",
+          message: "管理ノードの設定に失敗しました。",
+          details: setResult.error?.message,
         });
       }
-      await $fetch(`/api/physical-nodes/${targetId}`, {
-        method: "PUT",
-        body: { isAdmin: true },
-      });
-
-      await refreshNodeList();
-      addToast({ type: "success", message: "管理ノードを切り替えました。" });
-    } catch (e: any) {
-      addToast({
-        type: "error",
-        message: "管理ノードの切替に失敗しました。",
-        details: e?.message ?? String(e),
-      });
     } finally {
       switchingNodeId.value = null;
     }
   }
-
-  function promptForNodeDeletion(row: DisplayNode) {
+  function promptForNodeDeletion(row: UiNode) {
     if (row.isMgmt) return;
     handleRowAction({ action: "delete", row });
   }

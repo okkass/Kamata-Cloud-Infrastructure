@@ -23,14 +23,28 @@
         <span v-if="row" class="font-mono">{{ row.ip }}</span>
       </template>
 
+      <template #cell-status="{ row }">
+        <span
+          v-if="row"
+          class="table-status"
+          :class="getNodeStatusDisplay(row.status).class"
+        >
+          {{ getNodeStatusDisplay(row.status).text }}
+        </span>
+      </template>
+
       <template #row-actions="{ row }">
-        <div v-if="row" class="flex items-center justify-end">
-          <NuxtLink :to="`/physical-node/${row.id}`" class="action-item">
+        <div v-if="row">
+          <NuxtLink
+            :to="`/physical-node/${row.id}`"
+            class="action-item first:border-t-0"
+          >
             詳細
           </NuxtLink>
+
           <button
             type="button"
-            class="action-item"
+            class="action-item w-full text-left"
             :class="{
               'action-item-disabled': row.isMgmt || switchingNodeId === row.id,
             }"
@@ -39,6 +53,7 @@
           >
             管理ノードに設定
           </button>
+
           <button
             type="button"
             class="action-item action-item-danger"
