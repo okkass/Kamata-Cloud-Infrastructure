@@ -96,28 +96,6 @@ defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 
 // ==============================================================================
-// Type Definitions
-// APIのレスポンスやリクエストの型を定義します。
-// ==============================================================================
-// GET /api/physical-node で返される「ノード候補」の型
-interface PhysicalNodeCandidateDTO {
-  name: string;
-  ipAddress: string;
-}
-// POST /api/physical-node で送信するリクエストボディの型
-interface PhysicalNodeAddRequestDTO {
-  name: string;
-  ipAddress: string;
-  isAdmin: boolean;
-}
-// POST成功後に返される、作成済みノードの型
-interface PhysicalNodeDTO {
-  id: string;
-  name: string;
-  // ...
-}
-
-// ==============================================================================
 // API Data Fetching & Submission
 // Composableを使ってAPIとの通信を管理します。
 // ==============================================================================
