@@ -14,7 +14,6 @@ interface HeaderButton {
   label: string;
   action: string;
 }
-// type RowData = Record<string, any>; // ✨ RowDataは不要になる
 
 // ==============================================================================
 // Props & Emits
