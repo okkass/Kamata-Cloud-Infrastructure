@@ -64,7 +64,7 @@ const toggleMenu = (event: MouseEvent, row: T, index: number) => {
   const target = event.currentTarget as HTMLElement;
   const rect = target.getBoundingClientRect();
   menuPos.value = {
-    top: rect.bottom + window.scrollY + 8,
+    top: rect.bottom + 8,
     left: rect.left + rect.width / 2,
   };
   openKey.value = key;
@@ -109,7 +109,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="p-6 text-slate-900 font-sans bg-white">
+  <div class="p-3 text-slate-900 font-sans bg-white">
     <div class="flex items-center justify-between gap-2 flex-wrap mb-4">
       <h1 class="m-0 text-[26px] font-extrabold tracking-[0.02em]">
         {{ title }}
@@ -160,10 +160,10 @@ onBeforeUnmount(() => {
 
             <td v-if="hasRowActions" class="table-cell text-center">
               <button
-                class="menu-trigger btn py-1 px-3 text-sm bg-[#7fb2e1] text-white border border-[#5b8eb8] hover:bg-[#6aa3d8]"
+                class="py-1 px-3 text-sm text-[#5b8eb8] hover:bg-slate-100 rounded-full"
                 @click.stop="toggleMenu($event, row, rIdx)"
               >
-                操作 ▼
+                <IconKebabMenu />
               </button>
             </td>
           </tr>
