@@ -127,7 +127,7 @@ const {
   data: candidateNodes, // 変数名をより具体的に
   pending,
   error,
-} = useResourceList<PhysicalNodeCandidateDTO>("physical-nodes");
+} = useResourceList<PhysicalNodeCandidateDTO>("physical-nodes/candidates");
 
 // --- ノード追加処理 ---
 const {
