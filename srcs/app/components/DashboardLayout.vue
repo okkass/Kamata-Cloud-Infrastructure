@@ -110,7 +110,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="p-6 text-slate-900 font-sans bg-black">
+  <div class="p-6 text-slate-900 font-sans bg-white">
     <div class="flex items-center justify-between gap-2 flex-wrap mb-4">
       <h1 class="m-0 text-[26px] font-extrabold tracking-[0.02em]">
         {{ title }}
