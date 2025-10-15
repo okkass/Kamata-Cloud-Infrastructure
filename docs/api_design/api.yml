@@ -641,7 +641,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/PhysicalNodeCandiate"
+                  $ref: "#/components/schemas/PhysicalNodeCandidate"
         "401":
           description: 認証エラー
         "403":
@@ -1785,7 +1785,7 @@ components:
         - name
         - ipAddress
         - isAdmin
-    PhysicalNodeCandiate:
+    PhysicalNodeCandidate:
       type: object
       description: 物理ノード候補オブジェクト
       properties:
