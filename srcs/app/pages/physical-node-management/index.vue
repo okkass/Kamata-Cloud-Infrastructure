@@ -9,40 +9,46 @@
       @header-action="handleDashboardHeaderAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink :to="`/physical-node/${row.id}`" class="table-link">
-          {{ row.name }}
-          <span v-if="row.isMgmt" class="text-sm text-gray-500"
-            >（管理ノード）</span
-          >
-        </NuxtLink>
+        <div v-if="row">
+          <NuxtLink :to="`/physical-node/${row.id}`" class="table-link">
+            {{ row.name }}
+            <span v-if="row.isMgmt" class="text-sm text-gray-500"
+              >（管理ノード）</span
+            >
+          </NuxtLink>
+        </div>
       </template>
+
       <template #cell-ip="{ row }">
-        <span class="font-mono">{{ row.ip }}</span>
+        <span v-if="row" class="font-mono">{{ row.ip }}</span>
       </template>
+
       <template #row-actions="{ row }">
-        <NuxtLink :to="`/physical-node/${row.id}`" class="action-item">
-          詳細
-        </NuxtLink>
-        <button
-          type="button"
-          class="action-item"
-          :class="{
-            'action-item-disabled': row.isMgmt || switchingNodeId === row.id,
-          }"
-          :disabled="row.isMgmt || switchingNodeId === row.id"
-          @click.stop.prevent="handleSetAsManagementNode(row.id)"
-        >
-          管理ノードに設定
-        </button>
-        <button
-          type="button"
-          class="action-item action-item-danger"
-          :class="{ 'action-item-disabled': row.isMgmt }"
-          :disabled="row.isMgmt"
-          @click.stop.prevent="promptForNodeDeletion(row)"
-        >
-          削除
-        </button>
+        <div v-if="row" class="flex items-center justify-end">
+          <NuxtLink :to="`/physical-node/${row.id}`" class="action-item">
+            詳細
+          </NuxtLink>
+          <button
+            type="button"
+            class="action-item"
+            :class="{
+              'action-item-disabled': row.isMgmt || switchingNodeId === row.id,
+            }"
+            :disabled="row.isMgmt || switchingNodeId === row.id"
+            @click.stop.prevent="handleSetAsManagementNode(row.id)"
+          >
+            管理ノードに設定
+          </button>
+          <button
+            type="button"
+            class="action-item action-item-danger"
+            :class="{ 'action-item-disabled': row.isMgmt }"
+            :disabled="row.isMgmt"
+            @click.stop.prevent="promptForNodeDeletion(row)"
+          >
+            削除
+          </button>
+        </div>
       </template>
     </DashboardLayout>
   </div>
@@ -54,7 +60,6 @@
     @close="cancelAction"
     @confirm="handleDelete"
   />
-
   <MoAddNodeToCluster
     :show="activeModal === 'add-physical-node'"
     @close="closeModal"
@@ -72,9 +77,6 @@
  * =================================================================================
  */
 import { usePhysicalNodeManagement } from "~/composables/usePhysicalNodeManagement";
-// ★ 新しく作成したコンポーネントをインポート
-import MoDeleteConfirm from "~/components/DeleteConfirm.vue";
-import MoAddNodeToCluster from "~/components/MoAddNodeToCluster.vue";
 
 // --- Composableからページ全体のロジックを取得 ---
 const {
