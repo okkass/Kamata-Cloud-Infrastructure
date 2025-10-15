@@ -2,9 +2,15 @@
 import DoughnutChart from "~/components/user-dashboard/DoughnutChart.vue";
 import StatsCard from "~/components/user-dashboard/StatsCard.vue";
 
-// ダミーデータ（実装時にAPIへ差し替え）
+// ダミーデータ（実装時にAPIへ置き換え）
 const vmMetrics = { cpu: 45, mem: 60, stor: 50 };
-const netMetrics = { in: 70, out: 40 };
+
+// ネットワーク（Mbps単位）
+const netSummary = [
+  { label: "受信トラフィック", value: "150 Mbps" },
+  { label: "送信トラフィック", value: "90 Mbps" },
+];
+
 const pvSummary = [
   { label: "過去24時間", value: "150回" },
   { label: "過去7日間", value: "1,200回" },
@@ -36,7 +42,7 @@ const quickLinks = [
       </div>
     </section>
 
-    <!-- サマリー：上2つ＝円グラフ、下1つ＝数値カード -->
+    <!-- サマリー -->
     <section>
       <h2 class="text-xl font-bold mb-3">サマリー</h2>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -52,16 +58,8 @@ const quickLinks = [
           </div>
         </div>
 
-        <!-- ネットワークの状態（円グラフ2枚） -->
-        <div class="bg-white rounded-xl shadow p-5">
-          <h3 class="pl-3 border-l-4 border-sky-500 text-lg font-bold mb-4">
-            ネットワークの状態
-          </h3>
-          <div class="flex justify-center gap-6 flex-wrap">
-            <DoughnutChart :used="netMetrics.in" label="受信トラフィック" />
-            <DoughnutChart :used="netMetrics.out" label="送信トラフィック" />
-          </div>
-        </div>
+        <!-- ネットワークの状態（数値カード） -->
+        <StatsCard title="ネットワークの状態" :items="netSummary" />
 
         <!-- ポートフォリオページのビュー数（数値カード） -->
         <StatsCard title="ポートフォリオページのビュー数" :items="pvSummary" />
