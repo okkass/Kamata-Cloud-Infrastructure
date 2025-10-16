@@ -188,8 +188,18 @@ onBeforeUnmount(() => {
       >
         <slot
           name="row-actions"
-          :row="rows.find((r, i) => getKeyForRow(r, i) === openKey)"
-          :emit="(action: string) => emit('row-action', { action, row: rows.find((r, i) => getKeyForRow(r, i) === openKey)! })"
+          v-bind="{
+            row: (() => {
+              const openRow = rows.find((r, i) => getKeyForRow(r, i) === openKey);
+              return openRow;
+            })(),
+            emit: (action: string) => {
+              const openRow = rows.find((r, i) => getKeyForRow(r, i) === openKey);
+              if (openRow) {
+                emit('row-action', { action, row: openRow });
+              }
+            }
+          }"
         />
       </div>
     </teleport>
