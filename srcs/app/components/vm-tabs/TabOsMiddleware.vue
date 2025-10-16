@@ -1,39 +1,98 @@
 <template>
-  <div class="space-y-4">
-    <div>
-      <label for="os-image" class="block mb-1.5 font-semibold text-gray-700"
-        >OSイメージ</label
-      >
-      <select
-        id="os-image"
-        class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-      >
-        <option>Ubuntu 22.04</option>
-        <option>Ubuntu 20.04</option>
-        <option>CentOS Stream 9</option>
-        <option>AlmaLinux 9</option>
-      </select>
-    </div>
+  <div class="modal-space">
+    <FormSelect
+      label="OSイメージ"
+      name="os-image-select"
+      :pending="imagesPending"
+      :error="imagesError"
+      :options="osImages ?? []"
+      placeholder="OSイメージを選択してください"
+      :required="true"
+      :error-message="errors.osImageId"
+      :placeholder-value="undefined"
+      v-model="osImageId"
+      v-model:attrs="osImageIdAttrs"
+    />
 
-    <div>
-      <label
-        for="middleware-select"
-        class="block mb-1.5 font-semibold text-gray-700"
-        >ミドルウェア選択</label
-      >
-      <select
-        id="middleware-select"
-        class="w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500"
-      >
-        <option value="none">なし</option>
-        <option value="lamp">LAMP (Apache, MySQL, PHP)</option>
-        <option value="nginx">Nginx</option>
-        <option value="docker">Docker</option>
-      </select>
-    </div>
+    <FormSelect
+      label="ミドルウェア"
+      name="middleware-select"
+      :pending="middlewaresPending"
+      :error="middlewaresError"
+      :options="middlewares ?? []"
+      placeholder="なし"
+      :error-message="errors.middlewareId"
+      :placeholder-value="null"
+      v-model="middlewareId"
+      v-model:attrs="middlewareIdAttrs"
+    />
   </div>
 </template>
 
-<script setup>
-// このコンポーネントは今のところ状態やロジックを持たないため、script部分は空です
+<script setup lang="ts">
+/**
+ * =================================================================================
+ * OS/ミドルウェア タブ (TabOsMiddleware.vue)
+ * ---------------------------------------------------------------------------------
+ * 仮想マシン作成ウィザードのOSとミドルウェアを選択するタブ。
+ * =================================================================================
+ */
+import { useResourceList } from "~/composables/useResourceList";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
+
+/**
+ * ==============================================================================
+ * Validation Schema (バリデーションスキーマ)
+ * ------------------------------------------------------------------------------
+ * このフォームの入力ルールをZodで定義します。
+ * ==============================================================================
+ */
+const validationSchema = toTypedSchema(
+  z.object({
+    osImageId: z.string({ required_error: "OSイメージを選択してください。" }),
+    middlewareId: z.string().nullable(),
+  })
+);
+
+/**
+ * ==============================================================================
+ * Form State Management (フォーム状態管理)
+ * ------------------------------------------------------------------------------
+ * VeeValidateのuseFormを使い、このタブのフォーム状態を管理します。
+ * ==============================================================================
+ */
+const { errors, defineField, values, meta } = useForm({
+  validationSchema,
+  initialValues: {
+    osImageId: undefined, // 必須項目はundefinedで初期化し、プレースホルダーを表示
+    middlewareId: null, // 任意項目はnullで初期化し、「なし」を選択状態に
+  },
+});
+
+// 各フォームフィールドとVeeValidateを連携
+const [osImageId, osImageIdAttrs] = defineField("osImageId");
+const [middlewareId, middlewareIdAttrs] = defineField("middlewareId");
+
+// 親コンポーネントにフォームデータと状態を公開
+defineExpose({ formData: values, isValid: meta });
+
+/**
+ * ==============================================================================
+ * API Data Fetching (APIデータ取得)
+ * ------------------------------------------------------------------------------
+ * プルダウンの選択肢をAPIから非同期で取得します。
+ * ==============================================================================
+ */
+const {
+  data: osImages,
+  pending: imagesPending,
+  error: imagesError,
+} = useResourceList<ImageDTO>("images");
+const {
+  data: middlewares,
+  pending: middlewaresPending,
+  error: middlewaresError,
+} = useResourceList<MiddleWareDTO>("middlewares");
 </script>

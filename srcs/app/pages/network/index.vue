@@ -1,7 +1,7 @@
 <template>
   <div class="vnet-page min-h-screen bg-slate-100 p-8">
     <DashboardLayout
-      title="仮想ネットワークダッシュボード"
+      title="仮想ネットワーク"
       :columns="columns"
       :rows="rows"
       row-key="name"

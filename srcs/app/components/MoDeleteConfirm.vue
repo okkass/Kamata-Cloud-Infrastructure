@@ -1,16 +1,22 @@
 <template>
-  <BaseModal :show="show" :title="title" @close="$emit('close')">
-    <div class="space-y-6">
-      <p class="text-gray-700">
+  <BaseModal :show="show" title="確認" size="sm" @close="$emit('close')">
+    <div class="space-y-6 text-center">
+      <p class="text-base text-gray-700">
         {{ message }}
       </p>
 
-      <div class="flex justify-end items-center gap-4 pt-4 border-t">
-        <button @click="$emit('close')" class="btn-secondary">
-          {{ cancelText }}
+      <div class="flex justify-center gap-4">
+        <button type="button" class="btn btn-back" @click="$emit('close')">
+          キャンセル
         </button>
-        <button @click="onConfirm" class="btn-danger" :disabled="isLoading">
-          {{ confirmText }}
+        <button
+          type="button"
+          class="btn btn-danger"
+          :disabled="isLoading"
+          @click="$emit('confirm')"
+        >
+          <span v-if="isLoading">削除中...</span>
+          <span v-else>削除する</span>
         </button>
       </div>
     </div>
@@ -18,54 +24,29 @@
 </template>
 
 <script setup lang="ts">
-// ==============================================================================
-// Props (親から渡されるデータ)
-// ==============================================================================
+/**
+ * =================================================================================
+ * 汎用削除確認モーダル (MoDeleteConfirm.vue)
+ * ---------------------------------------------------------------------------------
+ * 削除などの破壊的な操作の前に、ユーザーに最終確認を促すためのモーダルです。
+ * BaseModalを土台として利用し、確認メッセージとアクションボタンの表示に特化しています。
+ * =================================================================================
+ */
+
+// --- 親コンポーネントとの連携（Props & Emits） ---
+
 defineProps({
-  // 表示/非表示を制御 (useModalのactiveModalと連携)
-  show: {
-    type: Boolean,
-    required: true,
-  },
-  // モーダルのタイトル
-  title: {
-    type: String,
-    default: "削除の確認",
-  },
-  // 表示する確認メッセージ
-  message: {
-    type: String,
-    default: "この操作は取り消せません。本当に削除しますか？",
-  },
-  // 削除ボタンのテキスト
-  confirmText: {
-    type: String,
-    default: "削除",
-  },
-  // キャンセルボタンのテキスト
-  cancelText: {
-    type: String,
-    default: "キャンセル",
-  },
-  // 削除処理中かどうか (ボタンの無効化に使用)
-  isLoading: {
-    type: Boolean,
-    default: false,
-  },
+  /** モーダルの表示/非表示を制御します */
+  show: { type: Boolean, required: true },
+  /** モーダル内に表示する確認メッセージです */
+  message: { type: String, required: true },
+  /** 削除処理中のローディング状態を示します */
+  isLoading: { type: Boolean, default: false },
 });
 
-const emit = defineEmits(["close", "confirm"]);
-
-const onConfirm = () => {
-  emit("confirm");
-};
+/** 親コンポーネントに通知するイベントを定義します（'close'はキャンセル、'confirm'は実行） */
+defineEmits<{
+  (e: "close"): void;
+  (e: "confirm"): void;
+}>();
 </script>
-
-<style scoped>
-.btn-secondary {
-  @apply py-2 px-5 bg-gray-200 text-gray-800 font-semibold rounded-lg shadow-sm hover:bg-gray-300;
-}
-.btn-danger {
-  @apply py-2 px-5 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700;
-}
-</style>

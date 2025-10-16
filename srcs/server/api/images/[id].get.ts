@@ -20,7 +20,7 @@ export default defineEventHandler((event) => {
         name: "Ubuntu 22.04",
         description: "Setumei",
         createdAt: new Date().toISOString(),
-        size: 19.19,
+        size: 19190 * 1024 * 1024, // 19190MB(19.19GB)をバイトで表現
       };
     } else {
       return {
@@ -28,7 +28,7 @@ export default defineEventHandler((event) => {
         name: "Debian bookwarm",
         description: "Setumei",
         createdAt: new Date().toISOString(),
-        size: 45.45,
+        size: 45450 * 1024 * 1024, // 45450MB(45.45GB)をバイトで表現
       };
     }
   }

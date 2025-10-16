@@ -1,4 +1,8 @@
-import type { ModelInstanceTypeDTO, PhysicalNodeDTO } from ".";
+import type {
+  ModelInstanceTypeDTO,
+  PhysicalNodeDTO,
+  SecurityGroupDTO,
+} from ".";
 
 /**
  * アタッチされたストレージオブジェクト
@@ -184,9 +188,9 @@ export interface SnapShotRestoreRequestDTO {
 }
 
 /**
- * 仮想マシンオブジェクト
+ * 仮想マシンオブジェクト(ベース)
  */
-export interface VirtualMachineDTO {
+export interface VirtualMachineBaseDTO {
   /**
    * 仮想マシンを識別するための一意なID
    */
@@ -195,12 +199,11 @@ export interface VirtualMachineDTO {
    * 仮想マシンの名前
    */
   name: string;
-  instanceType: ModelInstanceTypeDTO;
   /**
    * 仮想マシンの状態
    */
   status: VirtualMachineStatusEnum;
-  node?: PhysicalNodeDTO;
+  node: PhysicalNodeDTO;
   /**
    * 仮想マシンが作成された日時
    */
@@ -208,15 +211,15 @@ export interface VirtualMachineDTO {
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroup: Array<string>;
+  securityGroups: Array<SecurityGroupDTO>;
   /**
    * アタッチされたストレージのリスト
    */
-  attachedStorage: Array<AttachedStorageDTO>;
+  attachedStorages: Array<AttachedStorageDTO>;
   /**
    * アタッチされたネットワークインターフェースのリスト
    */
-  attachedNic?: Array<NetworkInterfaceDTO>;
+  attachedNics?: Array<NetworkInterfaceDTO>;
   /**
    * CPU使用率（0.0から1.0の範囲）
    */
@@ -231,6 +234,42 @@ export interface VirtualMachineDTO {
   storageUtilization?: number;
 }
 
+/**
+ * パターンA: インスタンスタイプを持ってる場合のオブジェクト
+ */
+export interface VirtualMachineWithInstanceTypeDTO
+  extends VirtualMachineBaseDTO {
+  instanceType: ModelInstanceTypeDTO;
+  /**
+   * CPUコア数
+   */
+  cpuCore?: never;
+  /**
+   * メモリサイズ（バイト単位）
+   */
+  memorySize?: never;
+}
+
+/**
+ * パターンB: CPUとメモリをカスタム指定している場合のオブジェクト
+ */
+export interface VirtualMachineWithCustomConfigDTO
+  extends VirtualMachineBaseDTO {
+  instanceType?: never;
+  /**
+   * CPUコア数
+   */
+  cpuCore: number;
+  /**
+   * メモリサイズ（バイト単位）
+   */
+  memorySize: number;
+}
+
+export type VirtualMachineDTO =
+  | VirtualMachineWithInstanceTypeDTO
+  | VirtualMachineWithCustomConfigDTO;
+
 export const VirtualMachineStatusEnum = {
   Running: "running",
   Stopped: "stopped",
@@ -241,17 +280,17 @@ export type VirtualMachineStatusEnum =
   (typeof VirtualMachineStatusEnum)[keyof typeof VirtualMachineStatusEnum];
 
 /**
- * 仮想マシン作成リクエストオブジェクト
+ * 仮想マシン作成リクエストの共通ベースオブジェクト
  */
-export interface VirtualMachineCreateRequestDTO {
+interface VirtualMachineCreateBaseRequest {
   /**
    * 仮想マシンの名前
    */
   name: string;
   /**
-   * 使用するインスタンスタイプのID
+   * 仮想マシンを収容する物理ノードのID
    */
-  instanceTypeId: string;
+  nodeId: string;
   /**
    * 仮想マシンを配置するサブネットのID
    */
@@ -259,15 +298,15 @@ export interface VirtualMachineCreateRequestDTO {
   /**
    * 仮想マシンに設定するSSH公開鍵
    */
-  publicKey: string;
+  publicKey: string | null;
   /**
    * 使用する仮想マシンイメージのID
    */
-  imageId: string;
+  imageId: string | null;
   /**
    * インストールするミドルウェアのID
    */
-  middleWareId?: string;
+  middleWareId?: string | null;
   /**
    * 仮想マシンにアタッチするストレージのリスト
    */
@@ -275,8 +314,54 @@ export interface VirtualMachineCreateRequestDTO {
   /**
    * 関連付けるセキュリティグループのIDリスト
    */
-  securityGroupIds?: Array<string>;
+  securityGroupIds?: Array<string> | null;
 }
+
+/**
+ * パターンA: インスタンスタイプIDを指定してVMを作成する場合のオブジェクト
+ */
+interface VirtualMachineCreateWithInstanceTypeRequest
+  extends VirtualMachineCreateBaseRequest {
+  /**
+   * 使用するインスタンスタイプのID
+   */
+  instanceTypeId: string;
+  /**
+   * cpuCoreは存在してはならない
+   */
+  cpuCore?: never;
+  /**
+   * memorySizeは存在してはならない
+   */
+  memorySize?: never;
+}
+
+/**
+ * パターンB: CPUとメモリをカスタム指定してVMを作成する場合のオブジェクト
+ */
+interface VirtualMachineCreateWithCustomConfigRequest
+  extends VirtualMachineCreateBaseRequest {
+  /**
+   * instanceTypeIdは存在してはならない
+   */
+  instanceTypeId?: never;
+  /**
+   * CPUコア数
+   */
+  cpuCore: number;
+  /**
+   * メモリサイズ（バイト単位）
+   */
+  memorySize: number;
+}
+
+/**
+ * 仮想マシン作成リクエストオブジェクト (パターンAまたはパターンBのどちらか)
+ */
+export type VirtualMachineCreateRequestDTO =
+  | VirtualMachineCreateWithInstanceTypeRequest
+  | VirtualMachineCreateWithCustomConfigRequest;
+
 export interface VirtualMachineCreateRequestStoragesInnerDTO {
   /**
    * ストレージの名前
@@ -304,23 +389,26 @@ export interface VirtualMachineUpdateRequestDTO {
    */
   name: string;
   instanceType?: ModelInstanceTypeDTO;
-  node?: PhysicalNodeDTO;
   /**
-   * 仮想マシンが作成された日時
+   * CPUコア数
    */
-  createdAt?: string;
+  cpuCore?: number;
+  /**
+   * メモリサイズ（バイト単位）
+   */
+  memorySize?: number;
   /**
    * 仮想マシンに関連付けられたセキュリティグループのIDリスト
    */
-  securityGroup?: Array<string>;
+  securityGroupIds?: Array<string>;
   /**
    * アタッチされたストレージのリスト
    */
-  attachedStorage?: Array<AttachedStorageDTO>;
+  attachedStorages?: Array<AttachedStorageDTO>;
   /**
    * アタッチされたネットワークインターフェースのリスト
    */
-  attachedNic?: Array<NetworkInterfaceDTO>;
+  attachedNics?: Array<NetworkInterfaceDTO>;
 }
 
 /**

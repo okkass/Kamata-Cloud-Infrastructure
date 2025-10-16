@@ -32,7 +32,7 @@ export interface SecurityGroupCreateRequestDTO {
    * セキュリティグループの説明
    */
   description?: string;
-  rules?: Array<SecurityRuleDTO>;
+  rules?: Array<SecurityRuleCreateRequestDTO>;
 }
 /**
  * セキュリティグループ更新リクエストオブジェクト
@@ -67,7 +67,7 @@ export interface SecurityRuleDTO {
   /**
    * 適用されるポート番号
    */
-  port: number;
+  port: number | null;
   /**
    * 適用されるプロトコル
    */
@@ -93,6 +93,7 @@ export const SecurityRuleProtocolEnum = {
   Tcp: "tcp",
   Udp: "udp",
   Icmp: "icmp",
+  Any: "any",
 } as const;
 
 export type SecurityRuleProtocolEnum =
@@ -113,7 +114,7 @@ export interface SecurityRuleCreateRequestDTO {
   /**
    * 適用されるポート番号
    */
-  port: number;
+  port: number | null;
   /**
    * 適用されるプロトコル
    */
@@ -135,6 +136,7 @@ export const SecurityRuleCreateRequestProtocolEnum = {
   Tcp: "tcp",
   Udp: "udp",
   Icmp: "icmp",
+  Any: "any",
 } as const;
 
 export type SecurityRuleCreateRequestProtocolEnum =
@@ -177,6 +179,7 @@ export const SecurityRuleUpdateRequestProtocolEnum = {
   Tcp: "tcp",
   Udp: "udp",
   Icmp: "icmp",
+  Any: "any",
 } as const;
 
 export type SecurityRuleUpdateRequestProtocolEnum =

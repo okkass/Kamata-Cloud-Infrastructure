@@ -1,0 +1,73 @@
+# ワークフローの名前
+name: Deploy All Docs to GitHub Pages
+
+on:
+  # mainブランチの指定パスにpushされた時にワークフローを実行
+  push:
+    branches:
+      - main
+    paths:
+      # APIドキュメントのトリガーパス
+      - "docs/api_design/api.yml"
+      # TypeDocのトリガーパス
+      - "srcs/shared/types/**"
+      # このワークフローファイル自体の変更でもトリガー
+      - ".github/workflows/deploy-all-docs.yml"
+  # GitHubのUIから手動でワークフローを実行できるようにする
+  workflow_dispatch:
+
+# ワークフローの実行に必要な権限を設定
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+jobs:
+  # ビルドとデプロイをまとめて行うジョブ
+  build-and-deploy:
+    # 実行環境として最新のUbuntuを使用
+    runs-on: ubuntu-latest
+    steps:
+      # 1. リポジトリのソースコードをチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. Node.js環境をセットアップ
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: 'srcs/package-lock.json'
+
+      # 3. 必要なパッケージをすべてインストール
+      - name: Install dependencies
+        run: |
+          # APIドキュメント生成用のRedocly CLIをインストール
+          npm install -g @redocly/cli
+          # TypeDoc生成用の依存パッケージをインストール
+          npm ci
+          # Prisma Clientのスキーマに合わせる
+          npx prisma generate
+        working-directory: ./srcs 
+
+      # 4. APIドキュメントを生成
+      # 生成物を格納する `public` ディレクトリに直接出力する
+      - name: Build API Docs
+        run: redocly build-docs docs/api_design/api.yml -o public/index.html
+
+      # 5. TypeDocドキュメントを生成
+      - name: Build Type Docs
+        run: npx typedoc --tsconfig ./srcs/tsconfig.typedoc.json --entryPointStrategy expand --out public/types srcs/shared/types/
+
+      # 6. 結合された成果物をアーティファクトとしてアップロード
+      - name: Upload Artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # APIとTypesの両方を含む `public` ディレクトリをアップロード
+          path: ./public
+
+      # 7. GitHub Pagesにデプロイ
+      - name: Deploy to Github Pages
+        id: deployment # このステップの結果を後で参照するためのID
+        uses: actions/deploy-pages@v4

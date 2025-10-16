@@ -1,74 +1,204 @@
 <template>
   <BaseModal
     :show="show"
-    title="セキュリティグループの編集"
+    title="セキュリティグループ編集"
     @close="$emit('close')"
   >
-    <div class="space-y-4">
-      <form @submit.prevent="submit" class="space-y-4">
-        <div>
-          <label for="sg-name" class="block text-sm font-medium text-gray-700"
-            >グループ名</label
-          >
-          <!-- `v-if` を使って、データが渡されてから表示する -->
-          <input
-            v-if="securityGroupData"
-            type="text"
-            id="sg-name"
-            :value="securityGroupData.name"
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm"
-          />
-        </div>
-      </form>
-
-      <div class="pt-4 border-t">
-        <h3 class="text-lg font-semibold text-gray-800">
-          渡された全グループ一覧（確認用）
-        </h3>
-        <!-- preタグを使うと、オブジェクトを整形して表示できるのでデバッグに便利 -->
-        <pre
-          class="mt-2 p-2 bg-gray-100 rounded-md text-xs overflow-x-auto"
-        ><code>{{ securityGroupData }}</code></pre>
+    <form v-if="values" @submit.prevent="onSubmit" class="space-y-6">
+      <div class="space-y-4">
+        <FormInput
+          label="セキュリティグループ名"
+          name="sg-name-edit"
+          v-model="name"
+          v-model:attrs="nameAttrs"
+          :error="errors.name"
+          :required="true"
+        />
+        <FormTextarea
+          label="説明"
+          name="sg-description-edit"
+          :rows="3"
+          v-model="description"
+          v-model:attrs="descriptionAttrs"
+          :error="errors.description"
+        />
       </div>
 
-      <!-- 保存/キャンセルボタン -->
-      <div class="flex justify-end items-center gap-4 pt-4 border-t">
-        <button type="button" @click="$emit('close')" class="btn-secondary">
+      <RuleTable
+        title="インバウンドルール"
+        :rules="inboundFields"
+        :errors="errors"
+        field-name-prefix="inboundRules"
+        @add-rule="addInboundRule"
+        @delete-rule="removeInbound"
+      />
+
+      <RuleTable
+        title="アウトバウンドルール"
+        :rules="outboundFields"
+        :errors="errors"
+        field-name-prefix="outboundRules"
+        @add-rule="addOutboundRule"
+        @delete-rule="removeOutbound"
+      />
+    </form>
+    <div v-else class="text-center text-gray-500">
+      編集するデータを読み込んでいます...
+    </div>
+
+    <template #footer>
+      <div class="flex justify-end gap-3 w-full">
+        <button type="button" class="btn btn-back" @click="$emit('close')">
           キャンセル
         </button>
-        <button type="submit" @click="submit" class="btn-primary">保存</button>
+        <button type="button" @click="onSubmit" class="btn btn-primary">
+          保存
+        </button>
       </div>
-    </div>
+    </template>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { type PropType } from "vue";
-defineProps({
-  show: {
-    type: Boolean,
-    required: true,
-  },
+import { watch, type PropType } from "vue";
+import { useForm, useFieldArray } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
+import RuleTable from "~/components/RuleTable.vue";
+
+// --- Props & Emits ---
+const props = defineProps({
+  show: { type: Boolean, required: true },
   securityGroupData: {
     type: Object as PropType<SecurityGroupDTO | null>,
     default: null,
   },
 });
+const emit = defineEmits(["close", "save"]);
 
-const emit = defineEmits(["close", "success"]);
+// ★ 1. Zodスキーマを定義（作成時と共通）
+const ruleSchema = z.object({
+  id: z.string().optional(),
+  protocol: z.string(),
+  port: z.string().optional(),
+  portRange: z.string().optional(),
+  sourceIp: z.string().optional(),
+  sourceType: z.string().optional(),
+  source: z.string().optional(),
+  destinationType: z.string().optional(),
+  destination: z.string().optional(),
+  description: z.string().optional(),
+});
+const validationSchema = toTypedSchema(
+  z.object({
+    name: z.string().min(1, "セキュリティグループ名は必須です。"),
+    description: z.string().optional(),
+    inboundRules: z.array(ruleSchema),
+    outboundRules: z.array(ruleSchema),
+  })
+);
 
-const submit = () => {
-  useToast().addToast({ type: "success", message: "セキュリティグループが更新されました" });
-  emit("success");
+// ★ 2. vee-validateのuseFormをセットアップ（initialValuesはここでは設定しない）
+const { errors, defineField, values, resetForm, handleSubmit } = useForm({
+  validationSchema,
+});
+
+// 静的フィールドと動的配列フィールドを定義
+const [name, nameAttrs] = defineField("name");
+const [description, descriptionAttrs] = defineField("description");
+const {
+  fields: inboundFields,
+  push: pushInbound,
+  remove: removeInbound,
+} = useFieldArray("inboundRules");
+const {
+  fields: outboundFields,
+  push: pushOutbound,
+  remove: removeOutbound,
+} = useFieldArray("outboundRules");
+
+watch(
+  () => props.securityGroupData,
+  (newData) => {
+    if (newData && newData.rules) {
+      // フォーム用のデータ構造を作成
+      const formValues = {
+        ...newData,
+        // 'inbound'のルールだけを抽出・変換
+        inboundRules: newData.rules
+          .filter((rule) => rule.ruleType === "inbound")
+          .map((rule) => ({
+            id: rule.id, // ★ APIとフォームで共通のキー
+            protocol: rule.protocol.toUpperCase(), // 'tcp' -> 'TCP'
+            port: rule.port !== undefined && rule.port !== null ? String(rule.port) : "",
+            sourceIp: rule.targetIp, // ★ targetIp -> sourceIp
+          })),
+        // 'outbound'のルールだけを抽出・変換
+        outboundRules: newData.rules
+          .filter((rule) => rule.ruleType === "outbound")
+          .map((rule) => ({
+            id: rule.id,
+            protocol: rule.protocol.toUpperCase(),
+            port: rule.port !== undefined && rule.port !== null ? String(rule.port) : "",
+            sourceIp: rule.targetIp,
+          })),
+      };
+
+      // 変換したデータをフォームにセット
+      resetForm({
+        values: formValues,
+      });
+    }
+  },
+  { immediate: true, deep: true }
+);
+
+// ルール追加・削除のメソッド
+const addInboundRule = () => {
+  pushInbound({
+    protocol: "TCP",
+    portRange: "",
+    sourceType: "cidr",
+    source: "",
+    description: "",
+  });
 };
-</script>
+const addOutboundRule = () => {
+  pushOutbound({
+    protocol: "TCP",
+    portRange: "",
+    destinationType: "cidr",
+    destination: "",
+    description: "",
+  });
+};
 
-<style scoped>
-/* ボタンのスタイルはここに定義、または直接クラスを記述 */
-.btn-secondary {
-  @apply py-2 px-4 bg-gray-200 rounded-md;
-}
-.btn-primary {
-  @apply py-2 px-4 bg-blue-600 text-white rounded-md;
-}
-</style>
+const onSubmit = handleSubmit((formValues) => {
+  // フォームのデータをAPIの形式に再変換
+  const payload = {
+    name: formValues.name,
+    description: formValues.description,
+    rules: [
+      ...formValues.inboundRules.map((rule) => ({
+        ...rule,
+        ruleType: "inbound",
+        targetIP: rule.sourceIp, // ★ sourceIp -> targetIP
+        protocol: rule.protocol.toLowerCase(), // 'TCP' -> 'tcp'
+      })),
+      ...formValues.outboundRules.map((rule) => ({
+        ...rule,
+        ruleType: "outbound",
+        targetIP: rule.sourceIp,
+        protocol: rule.protocol.toLowerCase(),
+      })),
+    ],
+  };
+
+  console.log("APIに送信するデータ:", payload);
+  // ここでAPI呼び出しを実行
+  // executeUpdate(props.securityGroupData.id, payload);
+
+  emit("save", payload);
+  emit("close");
+});
+</script>
