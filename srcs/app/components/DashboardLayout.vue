@@ -179,5 +179,19 @@ onBeforeUnmount(() => {
         </tbody>
       </table>
     </div>
+    <teleport to="body">
+      <div
+        v-if="openKey !== null"
+        class="dl-menu-floating fixed -translate-x-1/2 bg-white border border-slate-300 shadow-xl rounded-xl min-w-[180px] max-h-[50vh] overflow-y-auto z-[4000]"
+        :style="{ top: `${menuPos.top}px`, left: `${menuPos.left}px` }"
+        @click.stop
+      >
+        <slot
+          name="row-actions"
+          :row="rows.find((r, i) => getKeyForRow(r, i) === openKey)"
+          :emit="(action: string) => emit('row-action', { action, row: rows.find((r, i) => getKeyForRow(r, i) === openKey)! })"
+        />
+      </div>
+    </teleport>
   </div>
 </template>
