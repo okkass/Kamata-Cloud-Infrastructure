@@ -12,6 +12,10 @@ import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate"; // パスはプロジェクト構成に合わせて調整
 import { useToast } from "~/composables/useToast"; // パスはプロジェクト構成に合わせて調整
+import type {
+  VirtualNetworkCreateRequestDTO,
+  VirtualNetworkDTO,
+} from "~~/shared/types";
 
 // ==============================================================================
 // Validation Schema (バリデーションスキーマ)
@@ -61,7 +65,7 @@ export function useVirtualNetworkCreateForm() {
   // DTOの型はanyを使用します (バックエンドで型定義する前提のため)
   // ============================================================================
   const { executeCreate: executeVirtualNetworkCreation, isCreating } =
-    useResourceCreate<VirtualNetworkCreateRequest, VirtualNetwork>( // 型定義はanyを使用
+    useResourceCreate<VirtualNetworkCreateRequestDTO, VirtualNetworkDTO>( // 型定義はanyを使用
       "virtual-networks" // APIエンドポイントのパス
     );
   const { addToast } = useToast();
