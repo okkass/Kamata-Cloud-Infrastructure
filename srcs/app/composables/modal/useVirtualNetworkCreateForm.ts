@@ -61,7 +61,7 @@ export function useVirtualNetworkCreateForm() {
   // DTOの型はanyを使用します (バックエンドで型定義する前提のため)
   // ============================================================================
   const { executeCreate: executeVirtualNetworkCreation, isCreating } =
-    useResourceCreate<any, any>( // 型定義はanyを使用
+    useResourceCreate<VirtualNetworkCreateRequest, VirtualNetwork>( // 型定義はanyを使用
       "virtual-networks" // APIエンドポイントのパス
     );
   const { addToast } = useToast();
