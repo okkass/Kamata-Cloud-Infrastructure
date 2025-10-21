@@ -86,13 +86,42 @@ portfolio_articles {
     varchar(256) title
 }
 
-security_groups {}
+security_groups {
+    bigint id PK
+    binary(16) uuid
+    text description
+    datetime created_at
+}
 
-security_rules {}
+security_rules {
+    bigint id PK
+    bigint security_group_id FK
+    binary(16) uuid
+    varchar(256) name
+    enum('inbound', 'outbound') rule_type
+    int port
+    enum('tcp', 'udp', 'icmp', 'any') protcol
+    varchar(15) target_ip
+    enum('allow', 'deny') action
+    datetime
+}
 
-snapshots {}
+snapshots {
+    bigint id PK
+    binary(16) uuid
+    text description
+    datetime created_at
+    bigint target_virtual_machine_id
+}
 
-storage_pools {}
+storage_pools {
+    bigint id PK
+    binary(16) uuid
+    varchar(256) name
+    enum('local', 'network') type
+    datetime created_at
+    bigint total_size
+}
 
 subnets {
     bigint id PK
@@ -104,12 +133,42 @@ subnets {
 
 subnets ||--o{ network_interfaces : "belongs to"
 
-virtual_machines {}
+virtual_machines {
+    bigint id PK
+    binary(16) uuid
+    bigint instance_type_id FK
+    enum('running', 'stoped', 'suspended') status
+    bigint physical_node_id FK
+    datetime created_at
+}
+
+virtual_machine_attached_storage {
+    bigint virtual_machine_id FK PK
+    bigint virtual_storage_id FK PK
+}
+
+virtual_machine_attached_nic {
+    bigint virtual_machine_id FK PK
+    bigint network_interface_id FK PK
+}
 
 virtual_machines ||--o{ network_interfaces : "has"
 
-virtual_networks {}
+virtual_networks {
+    bigint id PK
+    binary(16) uuid
+    varchar(256) name
+    varchar(15) cidr
+    datetime created_at
 
-virtual_storages {}
+}
+
+virtual_storages {
+    bigint id PK
+    binary(16) uuid
+    varchar(256) name
+    bigint size
+    bigint storage_pool_id
+}
 
 ```
