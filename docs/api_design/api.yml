@@ -2543,6 +2543,7 @@ components:
         - name
         - size
         - pool
+        - createdAt
   securitySchemes:
     BearerAuth:
       type: http
