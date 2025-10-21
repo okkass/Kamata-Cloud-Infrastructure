@@ -63,6 +63,8 @@
 </template>
 
 <script setup lang="ts">
+import useVmWizardForm from "~/composables/modal/useVmWizardForm";
+
 /**
  * =================================================================================
  * 仮想マシン作成モーダル (MoVirtualMachineCreate.vue)
