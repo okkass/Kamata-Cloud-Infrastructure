@@ -2499,6 +2499,8 @@ components:
         - name
         - cidr
         - createdAt
+        - inboundTraffic
+        - outboundTraffic
     VirtualNetworkCreateRequest:
       type: object
       description: 仮想ネットワーク作成リクエストオブジェクト
