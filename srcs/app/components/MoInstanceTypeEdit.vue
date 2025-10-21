@@ -4,172 +4,135 @@
     title="インスタンスタイプの編集"
     @close="$emit('close')"
   >
-    <form v-if="editableInstanceType" @submit.prevent="handleSubmit">
-      <div class="space-y-4">
-        <!-- インスタンスタイプ名-->
-        <div>
-          <label for="instance-type-name-edit" class="form-label"
-            >インスタンスタイプ名</label
-          >
-          <input
-            id="instance-type-name-edit"
-            type="text"
-            v-model="editableInstanceType.name"
-            class="form-input"
-            placeholder="例: standard.xlarge"
-          />
-        </div>
-        <!-- vCPU数 -->
-        <div>
-          <label for="instance-vcpu-edit" class="form-label">CPUコア数</label>
-          <input
-            id="instance-vcpu-edit"
-            type="number"
-            v-model.number="editableInstanceType.cpuCores"
-            class="form-input"
-            placeholder="例: 16"
-          />
-        </div>
-        <!-- メモリ数 -->
-        <div>
-          <label for="instance-memory-edit" class="form-label">メモリ数</label>
-          <div class="flex items-center gap-2">
-            <input
-              id="instance-memory-edit"
-              type="number"
-              v-model.number="editableInstanceType.memorySize"
-              class="form-input"
-              placeholder="例: 32"
-            />
-            <span class="font-semibold text-gray-600">GB</span>
-          </div>
-        </div>
-        <!-- ストレージ数 -->
-        <div>
-          <label for="instance-storage-edit" class="form-label"
-            >ストレージ数</label
-          >
-          <div class="flex items-center gap-2">
-            <input
-              id="instance-storage-edit"
-              type="number"
-              v-model.number="editableInstanceType.storageSize"
-              class="form-input"
-              placeholder="例: 500"
-            />
-            <span class="font-semibold text-gray-600">GB</span>
-          </div>
-        </div>
-      </div>
-      <!-- ボタンエリア -->
-      <div class="flex justify-end gap-3 mt-8 pt-4 border-t">
-        <button type="submit" class="btn-primary" :disabled="isUpdating">
-          {{ isUpdating ? "保存中..." : "保存" }}
-        </button>
-      </div>
+    <form v-if="values" @submit.prevent="onSubmit" class="modal-space">
+      <FormInput
+        label="インスタンスタイプ名"
+        name="instance-type-name-edit"
+        type="text"
+        placeholder="例: standard.xlarge"
+        v-model="name"
+        v-model:attrs="nameAttrs"
+        :error="errors.name"
+      />
+
+      <FormInput
+        label="CPUコア数"
+        name="instance-vcpu-edit"
+        type="number"
+        placeholder="例: 16"
+        v-model.number="cpuCores"
+        v-model:attrs="cpuCoresAttrs"
+        :error="errors.cpuCores"
+      />
+
+      <FormInput
+        label="メモリ数"
+        name="instance-memory-edit"
+        type="number"
+        placeholder="例: 32"
+        v-model.number="memorySize"
+        v-model:attrs="memorySizeAttrs"
+        :error="errors.memorySize"
+      >
+        <template #suffix>
+          <span class="font-semibold text-gray-600">GB</span>
+        </template>
+      </FormInput>
     </form>
     <div v-else class="text-center">
       <p>編集するデータを読み込めませんでした。</p>
     </div>
+
+    <template #footer>
+      <div class="flex justify-end w-full">
+        <button
+          @click="onSubmit"
+          class="btn btn-primary"
+          :disabled="isUpdating"
+        >
+          {{ isUpdating ? "保存中..." : "保存" }}
+        </button>
+      </div>
+    </template>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { ref, watch, type PropType } from "vue";
+import { watch, type PropType } from "vue";
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
 
-// ==============================================================================
-// Props & Emits
-// ==============================================================================
+// --- Props & Emits ---
 const props = defineProps({
-  // モーダルの表示状態
-  show: {
-    type: Boolean,
-    required: true,
-  },
-  // APIから取得した編集対象のインスタンスタイプデータ
+  show: { type: Boolean, required: true },
   instanceTypeData: {
     type: Object as PropType<ModelInstanceTypeDTO | null>,
     default: null,
   },
 });
-
 const emit = defineEmits(["close", "success"]);
 
-// ==============================================================================
-// Composables
-// ==============================================================================
-// "instance-types"リソースを更新するための専門家を呼び出す
-const { executeUpdate, isUpdating } = useResourceUpdate<
-  InstanceTypeUpdateRequestDTO,
-  ModelInstanceTypeDTO
->("instance-types");
-// トースト通知用のComposable
-const toast = useToast();
+// --- Composables ---
+const { executeUpdate, isUpdating } = useResourceUpdate<any, any>(
+  "instance-types"
+);
+const { addToast } = useToast();
 
-// ==============================================================================
-// State
-// ==============================================================================
-// propsで受け取ったデータを編集するためのローカルコピーを作成
-const editableInstanceType = ref<InstanceTypeUpdateRequestDTO | null>(null);
+// ★ 1. Zodでバリデーションスキーマを定義
+const validationSchema = toTypedSchema(
+  z.object({
+    name: z.string().min(1, "インスタンスタイプ名は必須です。"),
+    cpuCores: z
+      .number({ required_error: "CPUコア数は必須です。" })
+      .int()
+      .min(1),
+    memorySize: z
+      .number({ required_error: "メモリ数は必須です。" })
+      .int()
+      .min(1),
+  })
+);
 
-// 親コンポーネントから渡されるデータが変更された場合に、ローカルのデータも追従させる
+// ★ 2. vee-validateのuseFormをセットアップ
+const { errors, defineField, values, resetForm, handleSubmit } = useForm({
+  validationSchema,
+});
+const [name, nameAttrs] = defineField("name");
+const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
+const [memorySize, memorySizeAttrs] = defineField("memorySize");
+
+// ★ 3. 親から渡されるデータが変更されたら、vee-validateのフォームをリセットして値を反映
 watch(
   () => props.instanceTypeData,
   (newData) => {
     if (newData) {
-      editableInstanceType.value = { ...newData };
-    } else {
-      editableInstanceType.value = null;
+      resetForm({
+        values: { ...newData },
+      });
     }
   },
   { immediate: true }
-); // immediate: trueで初期化時にも実行
+);
 
-// ==============================================================================
-// Methods
-// ==============================================================================
-/**
- * 変更を保存する処理
- */
-const handleSubmit = async () => {
-  if (!props.instanceTypeData || !editableInstanceType.value) {
-    // 編集対象のデータがない場合は何もしない
-    return;
-  }
-  // 専門家(executeUpdate)に更新処理を依頼
-  const result = await executeUpdate(
-    props.instanceTypeData.id,
-    editableInstanceType.value
-  );
+// ★ 4. handleSubmitでラップして、バリデーション通過時のみAPIを呼ぶ
+const onSubmit = handleSubmit(async (formValues) => {
+  if (!props.instanceTypeData) return;
+
+  const result = await executeUpdate(props.instanceTypeData.id, formValues);
 
   if (result.success) {
-    toast.addToast({
+    addToast({
       type: "success",
       message: `'${result.data?.name}' の更新に成功しました。`,
     });
     emit("success");
   } else {
-    toast.addToast({
+    addToast({
       type: "error",
       message: "更新に失敗しました。",
       details: result.error?.message,
     });
   }
-};
+});
 </script>
-
-<style scoped>
-/* 共通スタイルを@applyで定義 */
-.form-label {
-  @apply block mb-1.5 font-semibold text-gray-700;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
-}
-.btn-primary {
-  @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
-}
-.btn-secondary {
-  @apply py-2 px-4 bg-gray-200 rounded-md disabled:opacity-50;
-}
-</style>

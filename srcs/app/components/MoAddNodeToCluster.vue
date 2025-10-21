@@ -5,46 +5,45 @@
     @close="$emit('close')"
   >
     <div class="space-y-4">
-      <h3 class="text-base font-semibold text-gray-800">
-        自動検知されたノード一覧
-      </h3>
+      <h3 class="modal-section-title">自動検知されたノード一覧</h3>
 
-      <div v-if="pending" class="text-center text-gray-500 py-4">
+      <div v-if="pending" class="text-center text-loading py-4">
         ノード一覧を読み込み中...
       </div>
-      <div v-else-if="error" class="text-center text-red-500 py-4">
+      <div v-else-if="error" class="text-center text-error py-4">
         ノード一覧の取得に失敗しました。
       </div>
+
       <div v-else class="border rounded-lg overflow-hidden">
         <table class="w-full text-sm text-left">
-          <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <thead class="table-header">
             <tr>
-              <th class="px-6 py-3">ノード名</th>
-              <th class="px-6 py-3">IPアドレス</th>
-              <th class="px-6 py-3 text-center">操作</th>
+              <th class="table-header-cell">ノード名</th>
+              <th class="table-header-cell">IPアドレス</th>
+              <th class="table-header-cell text-center">操作</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-if="nodes.length === 0">
-              <td colspan="3" class="px-6 py-4 text-center text-gray-500">
+            <tr v-if="candidateNodes.length === 0">
+              <td colspan="3" class="table-empty-state">
                 検知されたノードはありません。
               </td>
             </tr>
             <tr
-              v-for="node in nodes"
-              :key="node.id"
-              class="bg-white border-b last:border-b-0"
+              v-for="node in candidateNodes"
+              :key="node.name"
+              class="table-row"
             >
-              <td class="px-6 py-4 font-medium text-gray-900">
+              <td class="table-cell table-cell-title">
                 {{ node.name }}
               </td>
-              <td class="px-6 py-4 text-gray-600">
+              <td class="table-cell text-gray-600">
                 {{ node.ipAddress }}
               </td>
-              <td class="px-6 py-4 text-center">
+              <td class="table-cell text-center">
                 <button
-                  @click="openConfirmation(node)"
-                  class="btn-primary"
+                  @click="promptForNodeAdditionConfirmation(node)"
+                  class="btn btn-submit"
                   :disabled="isCreating"
                 >
                   追加
@@ -56,23 +55,18 @@
       </div>
     </div>
 
-    <div
-      v-if="nodeToConfirm"
-      class="absolute inset-0 bg-white bg-opacity-80 flex justify-center items-center"
-    >
-      <div
-        class="bg-white p-6 rounded-lg shadow-xl border text-center space-y-4"
-      >
-        <p class="font-semibold">
-          ノード「{{ nodeToConfirm.name }}」を追加しますか？
+    <div v-if="nodePendingConfirmation" class="confirmation-overlay">
+      <div class="confirmation-dialog">
+        <p class="confirmation-text">
+          ノード「{{ nodePendingConfirmation.name }}」を追加しますか？
         </p>
         <div class="flex justify-center gap-4">
-          <button @click="nodeToConfirm = null" class="btn-secondary">
+          <button @click="nodePendingConfirmation = null" class="btn btn-back">
             いいえ
           </button>
           <button
-            @click="confirmAddNode"
-            class="btn-primary"
+            @click="executeAddNodeAfterConfirmation"
+            class="btn btn-submit"
             :disabled="isCreating"
           >
             {{ isCreating ? "追加中..." : "はい" }}
@@ -84,62 +78,86 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * =================================================================================
+ * クラスターへのノード追加モーダル (MoAddNodeToCluster.vue)
+ * ---------------------------------------------------------------------------------
+ * このコンポーネントは、自動検知された物理ノードの一覧を表示し、
+ * ユーザーが選択したノードをクラスターに追加する機能を提供します。
+ * =================================================================================
+ */
 import { ref } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
 
-// (型定義、Props, Emitsは変更なし)
-interface NodeDTO {
-  id: string;
-  name: string;
-  ipAddress: string;
-  isAdmin?: boolean;
-}
-defineProps({
-  show: { type: Boolean, required: true },
-});
+// --- 親コンポーネントとの連携 ---
+defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 
-// (API連携のセットアップは変更なし)
+// ==============================================================================
+// API Data Fetching & Submission
+// Composableを使ってAPIとの通信を管理します。
+// ==============================================================================
+
+// --- ノード候補一覧の取得 ---
 const {
-  data: nodes,
+  data: candidateNodes, // 変数名をより具体的に
   pending,
   error,
-} = useResourceList<NodeDTO>("physical-node");
-const { executeCreate, isCreating } = useResourceCreate<NodeDTO, NodeDTO>(
-  "physical-node"
+} = useResourceList<PhysicalNodeCandidateDTO>("physical-nodes/candidates");
+
+// --- ノード追加処理 ---
+const {
+  executeCreate: executeAddNodeToCluster, // 関数名をより具体的に
+  isCreating,
+} = useResourceCreate<PhysicalNodeAddRequestDTO, PhysicalNodeDTO>(
+  "physical-nodes"
 );
+
+// --- トースト通知 ---
 const { addToast } = useToast();
 
-// (UIロジックの状態管理は変更なし)
-const nodeToConfirm = ref<NodeDTO | null>(null);
+// ==============================================================================
+// UI Logic
+// ユーザーの操作に応じたコンポーネントの内部状態と挙動を定義します。
+// ==============================================================================
 
-const openConfirmation = (node: NodeDTO) => {
-  nodeToConfirm.value = node;
+// 確認ダイアログで選択されているノードの情報を保持するstate
+const nodePendingConfirmation = ref<PhysicalNodeCandidateDTO | null>(null);
+
+/**
+ * 「追加」ボタンがクリックされたときに、確認ダイアログを表示します。
+ * @param {PhysicalNodeCandidateDTO} node - ユーザーが選択したノードのデータ
+ */
+const promptForNodeAdditionConfirmation = (node: PhysicalNodeCandidateDTO) => {
+  nodePendingConfirmation.value = node;
 };
 
 /**
- * 確認ポップアップで「はい」が押されたときにノード追加APIを実行する
+ * 確認ダイアログで「はい」がクリックされたときに、ノード追加APIを実行します。
  */
-const confirmAddNode = async () => {
-  if (!nodeToConfirm.value) return;
+const executeAddNodeAfterConfirmation = async () => {
+  if (!nodePendingConfirmation.value) return;
 
-  const payload: NodeDTO = {
-    name: nodeToConfirm.value.name,
-    ipAddress: nodeToConfirm.value.ipAddress,
-    isAdmin: false,
+  // APIに送信するデータ（ペイロード）を構築
+  const payload: PhysicalNodeAddRequestDTO = {
+    name: nodePendingConfirmation.value.name,
+    ipAddress: nodePendingConfirmation.value.ipAddress,
+    isAdmin: false, // 仕様に基づき、isAdminはfalseで固定
   };
 
-  const result = await executeCreate(payload);
+  // APIリクエストを実行
+  const result = await executeAddNodeToCluster(payload);
 
+  // 結果に応じてトースト通知を表示
   if (result.success) {
     addToast({
       type: "success",
       message: `ノード「${payload.name}」が追加されました`,
     });
-    emit("success");
-    emit("close");
+    emit("success"); // 親コンポーネントに成功を通知（一覧の再取得などを促す）
+    emit("close"); // モーダルを閉じる
   } else {
     addToast({
       type: "error",
@@ -148,15 +166,7 @@ const confirmAddNode = async () => {
     });
   }
 
-  nodeToConfirm.value = null;
+  // 処理完了後、確認ダイアログを閉じる
+  nodePendingConfirmation.value = null;
 };
 </script>
-
-<style scoped>
-.btn-primary {
-  @apply bg-green-500 text-white font-bold py-1 px-4 rounded-md hover:bg-green-600 transition-colors disabled:opacity-50;
-}
-.btn-secondary {
-  @apply bg-gray-200 text-gray-700 font-semibold py-1 px-4 rounded-md hover:bg-gray-300;
-}
-</style>

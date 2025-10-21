@@ -4,71 +4,64 @@
     title="インスタンスタイプの追加"
     @close="$emit('close')"
   >
-    <form @submit.prevent="handleSubmit">
-      <div class="space-y-4">
-        <!-- インスタンスタイプ名-->
-        <div>
-          <label for="instance-type-name" class="form-label"
-            >インスタンスタイプ名</label
-          >
-          <input
-            id="instance-type-name"
-            type="text"
-            v-model="newInstanceType.name"
-            class="form-input"
-            placeholder="例: standard.xlarge"
-            required
-          />
-        </div>
-        <!-- CPUコア数 -->
-        <div>
-          <label for="instance-vcpu" class="form-label">CPUコア数</label>
-          <input
-            id="instance-vcpu"
-            type="number"
-            v-model.number="newInstanceType.vcpus"
-            class="form-input"
-            placeholder="例: 16"
-            min="1"
-            required
-          />
-        </div>
-        <!-- メモリ数 -->
-        <div>
-          <label for="instance-memory" class="form-label">メモリ数</label>
-          <div class="flex items-center gap-2">
-            <input
-              id="instance-memory"
-              type="number"
-              v-model.number="newInstanceType.memory"
-              class="form-input"
-              placeholder="例: 32"
-              min="1"
-              required
-            />
-            <span class="font-semibold text-gray-600">GB</span>
-          </div>
-        </div>
-        <!-- ストレージ数 -->
-        <div>
-          <label for="instance-storage" class="form-label">ストレージ数</label>
-          <div class="flex items-center gap-2">
-            <input
-              id="instance-storage"
-              type="number"
-              v-model.number="newInstanceType.storage"
-              class="form-input"
-              placeholder="例: 500"
-              min="1"
-              required
-            />
-            <span class="font-semibold text-gray-600">GB</span>
-          </div>
-        </div>
+    <form @submit.prevent="onFormSubmit" class="modal-space">
+      <div>
+        <label for="instance-type-name" class="form-label">
+          インスタンスタイプ名 <span class="required-asterisk">*</span>
+        </label>
+        <input
+          id="instance-type-name"
+          type="text"
+          placeholder="例: standard.xlarge"
+          v-model="name"
+          v-bind="nameAttrs"
+          class="form-input"
+          :class="{ 'form-border-error': errors.name }"
+        />
+        <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
       </div>
 
-      <div class="flex justify-end gap-3 mt-8 pt-4 border-t">
-        <button type="submit" class="btn-primary" :disabled="isCreating">
+      <div>
+        <label for="instance-cpu-cores" class="form-label">
+          CPUコア数 <span class="required-asterisk">*</span>
+        </label>
+        <input
+          id="instance-cpu-cores"
+          type="number"
+          placeholder="例: 16"
+          v-model.number="cpuCores"
+          v-bind="cpuCoresAttrs"
+          class="form-input"
+          :class="{ 'form-border-error': errors.cpuCores }"
+        />
+        <p v-if="errors.cpuCores" class="text-error mt-1">
+          {{ errors.cpuCores }}
+        </p>
+      </div>
+
+      <div>
+        <label for="instance-memory" class="form-label">
+          メモリサイズ <span class="required-asterisk">*</span>
+        </label>
+        <div class="flex">
+          <input
+            id="instance-memory"
+            type="number"
+            placeholder="例: 32768"
+            v-model.number="memorySizeInMb"
+            v-bind="memorySizeInMbAttrs"
+            class="form-input rounded-r-none"
+            :class="{ 'form-border-error': errors.memorySizeInMb }"
+          />
+          <span class="form-unit-label">MB</span>
+        </div>
+        <p v-if="errors.memorySizeInMb" class="text-error mt-1">
+          {{ errors.memorySizeInMb }}
+        </p>
+      </div>
+
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" :disabled="isCreating">
           {{ isCreating ? "作成中..." : "作成" }}
         </button>
       </div>
@@ -77,93 +70,127 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+/**
+ * =================================================================================
+ * インスタンスタイプ追加モーダル (MoInstanceTypeAdd.vue)
+ * ---------------------------------------------------------------------------------
+ * このコンポーネントは、新しいインスタンスタイプ（CPU、メモリの組み合わせ）を
+ * 作成するためのUIと機能を提供します。
+ * =================================================================================
+ */
+import { useForm } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
+import * as z from "zod";
+import { useResourceCreate } from "~/composables/useResourceCreate";
+import { useToast } from "~/composables/useToast";
 
-// ==============================================================================
-// Props & Emits
-// 親コンポーネントとの連携を定義
-// ==============================================================================
-defineProps({
-  // モーダルの表示状態
-  show: {
-    type: Boolean,
-    required: true,
-  },
-});
-
+// --- 親コンポーネントとの連携 ---
+defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 
 // ==============================================================================
-// executer & toast
-// API通信や通知のためのユーティリティを準備
+// Type Definitions
+// APIとの通信で使用するデータの型を定義します。
 // ==============================================================================
-const { executeCreate, isCreating } = useResourceCreate<
-  InstanceTypeCreateRequestDTO,
-  ModelInstanceTypeDTO
->("instance-types");
+// POST /api/instance-type で送信するリクエストボディの型
+interface InstanceTypeCreateRequestDTO {
+  name: string;
+  cpuCores: number;
+  memorySize: number; // APIへはバイト単位で送信
+}
+// POST成功後に返される、作成済みインスタンスタイプの型
+interface ModelInstanceTypeDTO {
+  id: string;
+  name: string;
+  // ...
+}
+
+// ==============================================================================
+// Validation Schema
+// フォームのバリデーションルールをZodで定義します。
+// ==============================================================================
+const validationSchema = toTypedSchema(
+  z.object({
+    name: z.string().min(1, "インスタンスタイプ名は必須です。"),
+    cpuCores: z
+      .number({
+        required_error: "CPUコア数は必須です。",
+        invalid_type_error: "数値を入力してください。",
+      })
+      .int("整数で入力してください。")
+      .min(1, "1以上の値を入力してください。"),
+    memorySizeInMb: z
+      .number({
+        required_error: "メモリサイズは必須です。",
+        invalid_type_error: "数値を入力してください。",
+      })
+      .int("整数で入力してください。")
+      .min(1, "1MB以上の値を入力してください。"),
+  })
+);
+
+// ==============================================================================
+// Form Setup
+// VeeValidateのuseFormを使って、フォームの状態管理をセットアップします。
+// `handleSubmit` を利用することで、バリデーション通過時のみ実行される関数を安全に定義できます。
+// ==============================================================================
+const { errors, defineField, handleSubmit } = useForm({
+  validationSchema,
+  initialValues: {
+    cpuCores: 1,
+    memorySizeInMb: 1024,
+  },
+});
+
+const [name, nameAttrs] = defineField("name");
+const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
+const [memorySizeInMb, memorySizeInMbAttrs] = defineField("memorySizeInMb");
+
+// ==============================================================================
+// API Submission
+// ==============================================================================
+const { executeCreate: executeInstanceTypeCreation, isCreating } =
+  useResourceCreate<InstanceTypeCreateRequestDTO, ModelInstanceTypeDTO>(
+    "instance-types"
+  );
+
 const { addToast } = useToast();
 
 // ==============================================================================
-// State
-// コンポーネント内の状態を管理
+// Event Handler
 // ==============================================================================
-// 新しく作成するインスタンスタイプのデータを保持するオブジェクト
-const newInstanceType = ref({
-  name: "",
-  vcpus: null,
-  memory: null,
-  storage: null,
-});
 
-// ==============================================================================
-// Methods
-// コンポーネントの動作を定義
-// ==============================================================================
 /**
- * インスタンスタイプを作成する処理
+ * フォームが送信されたときに実行されるハンドラ。
+ * VeeValidateの`handleSubmit`でラップされており、バリデーションが通過した場合のみ呼び出されます。
+ * @param {object} formValues - バリデーション済みのフォーム入力値
  */
-const handleSubmit = async () => {
-  // formのrequiredがあるのでnullは絶対に来ないはず
-  const value: InstanceTypeCreateRequestDTO = {
-    name: newInstanceType.value.name,
-    cpuCores: newInstanceType.value.vcpus!,
-    memorySize: newInstanceType.value.memory!,
-    storageSize: newInstanceType.value.storage!,
+const onFormSubmit = handleSubmit(async (formValues) => {
+  // APIに送信するデータ（ペイロード）を構築します。
+  // メモリサイズはMBからByteに変換します。
+  const payload: InstanceTypeCreateRequestDTO = {
+    name: formValues.name,
+    cpuCores: formValues.cpuCores,
+    memorySize: formValues.memorySizeInMb * 1024 * 1024, // MB to Bytes
   };
-  // 非同期でインスタンスタイプを作成
-  const result = await executeCreate(value);
 
-  // 作成が成功した場合
+  // APIリクエストを実行します。
+  const result = await executeInstanceTypeCreation(payload);
+
+  // 結果に応じてトースト通知を表示します。
   if (result.success) {
-    // 成功したら、親に@successイベントで通知
-    useToast().addToast({
+    addToast({
       type: "success",
-      message: "インスタンスタイプが作成されました",
+      message: `インスタンスタイプ「${payload.name}」が作成されました`,
     });
-    emit("success");
+    emit("success"); // 親コンポーネントに成功を通知
+    emit("close"); // モーダルを閉じる
   } else {
-    // 失敗したら、このモーダル自身がエラーを通知
     addToast({
       type: "error",
-      message: "インスタンスタイプの作成に失敗しました。",
+      message: "作成に失敗しました。",
       details: result.error?.message,
     });
   }
-};
+});
 </script>
-
-<style scoped>
-/* 共通スタイルを@applyで定義 */
-.form-label {
-  @apply block mb-1.5 font-semibold text-gray-700;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
-}
-.btn-primary {
-  @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
-}
-.btn-secondary {
-  @apply py-2 px-4 bg-gray-200 rounded-md disabled:opacity-50;
-}
-</style>

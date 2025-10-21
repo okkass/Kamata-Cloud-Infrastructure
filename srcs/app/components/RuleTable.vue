@@ -1,83 +1,133 @@
 <template>
-  <div class="p-4 border border-gray-200 rounded-lg">
+  <div class="section-form">
     <h3 class="section-title mb-4">{{ title }}</h3>
 
     <table class="w-full">
       <thead class="text-xs text-gray-600 text-left">
         <tr>
-          <th class="pb-2 w-40">ルール名</th>
-          <th class="pb-2 w-32">ポート番号</th>
-          <th class="pb-2 w-28">プロトコル</th>
-          <th class="pb-2">送信元IP</th>
-          <th class="pb-2 w-28">許可/拒否</th>
+          <th class="pb-2 w-[25%]">ルール名</th>
+          <th class="pb-2 w-[18%]">プロトコル</th>
+          <th class="pb-2 w-[18%]">ポート番号</th>
+          <th class="pb-2 w-[39%]">送信元IP</th>
           <th class="pb-2 w-12"></th>
         </tr>
       </thead>
       <tbody>
         <tr
-          v-for="rule in rules"
-          :key="rule.id"
+          v-for="(rule, index) in rules"
+          :key="rule.key"
           class="border-t border-gray-200"
         >
-          <td class="py-2 align-middle">
-            <input type="text" v-model="rule.name" class="table-input" />
+          <td class="py-2 align-top">
+            <input
+              type="text"
+              v-model="rule.value.name"
+              class="form-input"
+              :class="{
+                'form-border-error':
+                  errors[`${fieldNamePrefix}[${index}].name`],
+              }"
+              placeholder="例: allow-http"
+            />
+            <p
+              v-if="errors[`${fieldNamePrefix}[${index}].name`]"
+              class="text-error mt-1"
+            >
+              {{ errors[`${fieldNamePrefix}[${index}].name`] }}
+            </p>
           </td>
-          <td class="py-2 align-middle">
-            <input type="text" v-model="rule.port" class="table-input" />
-          </td>
-          <td class="py-2 align-middle">
-            <select v-model="rule.protocol" class="table-input">
+
+          <td class="py-2 align-top">
+            <select v-model="rule.value.protocol" class="form-input">
               <option>TCP</option>
               <option>UDP</option>
               <option>ICMP</option>
+              <option>Any</option>
             </select>
           </td>
-          <td class="py-2 align-middle">
-            <input type="text" v-model="rule.sourceIp" class="table-input" />
+
+          <td class="py-2 align-top">
+            <input
+              type="text"
+              v-model="rule.value.port"
+              class="form-input"
+              :class="{
+                'form-border-error':
+                  errors[`${fieldNamePrefix}[${index}].port`],
+              }"
+              placeholder="例: 80"
+              :disabled="
+                rule.value.protocol === 'Any' || rule.value.protocol === 'ICMP'
+              "
+            />
+            <p
+              v-if="errors[`${fieldNamePrefix}[${index}].port`]"
+              class="text-error mt-1"
+            >
+              {{ errors[`${fieldNamePrefix}[${index}].port`] }}
+            </p>
           </td>
-          <td class="w-3 h-3 py-2 align-middle">
-            <select v-model="rule.action" class="table-input">
-              <option>許容</option>
-              <option>拒否</option>
-            </select>
+
+          <td class="py-2 align-top">
+            <input
+              type="text"
+              v-model="rule.value.targetIp"
+              class="form-input"
+              :class="{
+                'form-border-error':
+                  errors[`${fieldNamePrefix}[${index}].targetIp`],
+              }"
+              placeholder="例: 0.0.0.0/0"
+            />
+            <p
+              v-if="errors[`${fieldNamePrefix}[${index}].targetIp`]"
+              class="text-error mt-1"
+            >
+              {{ errors[`${fieldNamePrefix}[${index}].targetIp`] }}
+            </p>
           </td>
+
           <td class="py-2 text-center align-middle">
-            <SecondaryButton
-              @click="$emit('delete-rule', rule.id)"
-              class="w-8 h-8 !p-0 flex items-center justify-center !rounded-full"
+            <button
+              type="button"
+              @click="$emit('delete-rule', index)"
+              class="btn-cross-delete text-xl font-bold"
             >
               &times;
-            </SecondaryButton>
+            </button>
           </td>
         </tr>
       </tbody>
     </table>
 
     <div class="mt-4">
-      <button @click="$emit('add-rule')" class="btn-add-rule">
+      <button
+        type="button"
+        @click="$emit('add-rule')"
+        class="btn btn-add text-sm"
+      >
         + ルールを追加
       </button>
     </div>
   </div>
 </template>
 
-<script setup>
-// このコンポーネントは受け取ったデータを表示・編集し、イベントを親に通知するだけ
+<script setup lang="ts">
+/**
+ * =================================================================================
+ * セキュリティグループルールテーブル (RuleTable.vue)
+ * ---------------------------------------------------------------------------------
+ * このコンポーネントは、セキュリティグループのルール（インバウンド/アウトバウンド）を
+ * 一覧表示し、編集するためのUI部品です。
+ * =================================================================================
+ */
+
 defineProps({
   title: String,
   rules: Array,
+  errors: Object,
+  fieldNamePrefix: String,
 });
+
 defineEmits(["add-rule", "delete-rule"]);
 </script>
-
-<style scoped>
-.section-title {
-  @apply font-semibold text-gray-800;
-}
-.table-input {
-  @apply w-full p-2 border border-gray-300 rounded-md;
-}
-.btn-add-rule {
-  @apply text-sm bg-blue-500 text-white font-semibold py-2 px-4 rounded-md hover:bg-blue-600;
-}
-</style>

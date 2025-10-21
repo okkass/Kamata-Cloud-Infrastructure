@@ -6,7 +6,7 @@ info:
   version: 0.0.1
 
 paths:
-  /api/backup:
+  /api/backups:
     get:
       summary: バックアップ一覧の取得
       description: ユーザのバックアップのリストを取得します。
@@ -77,7 +77,7 @@ paths:
           description: バックアップが見つからない
       security:
         - BearerAuth: []
-  /api/user:
+  /api/users:
     get:
       summary: ユーザ一覧の取得
       description: すべてのユーザのリストを取得します。
@@ -230,7 +230,7 @@ paths:
           description: ユーザが見つからない
       security:
         - BearerAuth: []
-  /api/image:
+  /api/images:
     get:
       summary: 仮想マシンイメージ一覧の取得
       description: すべての仮想マシンイメージのリストを取得します。
@@ -277,7 +277,7 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/image/{imageId}:
+  /api/images/{imageId}:
     get:
       summary: 仮想マシンイメージの詳細取得
       description: 指定したIDの仮想マシンイメージの詳細情報を取得します。
@@ -366,7 +366,7 @@ paths:
           description: 仮想マシンイメージが見つからない
       security:
         - BearerAuth: []
-  /api/instance-type:
+  /api/instance-types:
     get:
       summary: インスタンスタイプ一覧の取得
       description: すべてのインスタンスタイプのリストを取得します。
@@ -413,7 +413,7 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/instance-type/{instanceTypeId}:
+  /api/instance-types/{instanceTypeId}:
     get:
       summary: インスタンスタイプの詳細取得
       description: 指定したIDのインスタンスタイプの詳細情報を取得します。
@@ -561,7 +561,7 @@ paths:
         "401":
           description: 認証エラー
       security: []
-  /api/middleware:
+  /api/middlewares:
     get:
       summary: ミドルウェア一覧の取得
       description: すべてのミドルウェアのリストを取得します。
@@ -580,7 +580,7 @@ paths:
           description: 認証エラー
         "403":
           description: 権限エラー
-  /api/physical-node:
+  /api/physical-nodes:
     get:
       summary: 物理ノード一覧の取得
       description: すべての物理ノードのリストを取得します。
@@ -627,7 +627,7 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/physical-node/candidate:
+  /api/physical-nodes/candidates:
     get:
       summary: 物理ノード候補一覧の取得
       description: 物理ノードとして追加可能な候補のリストを取得します。
@@ -641,14 +641,14 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/PhysicalNodeCandiate"
+                  $ref: "#/components/schemas/PhysicalNodeCandidate"
         "401":
           description: 認証エラー
         "403":
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/physical-node/{nodeId}:
+  /api/physical-nodes/{nodeId}:
     get:
       summary: 物理ノードの詳細取得
       description: 指定したIDの物理ノードの詳細情報を取得します。
@@ -737,7 +737,7 @@ paths:
           description: 物理ノードが見つからない
       security:
         - BearerAuth: []
-  /api/security-group:
+  /api/security-groups:
     get:
       summary: セキュリティグループ一覧の取得
       description: すべてのセキュリティグループのリストを取得します。
@@ -784,7 +784,7 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/security-group/{groupId}:
+  /api/security-groups/{groupId}:
     get:
       summary: セキュリティグループの詳細取得
       description: 指定したIDのセキュリティグループの詳細情報を取得します。
@@ -873,7 +873,7 @@ paths:
           description: セキュリティグループが見つからない
       security:
         - BearerAuth: []
-  /api/security-group/{groupId}/rules:
+  /api/security-groups/{groupId}/rules:
     post:
       summary: セキュリティグループルールの追加
       description: 指定したセキュリティグループに新しいルールを追加します。
@@ -910,7 +910,7 @@ paths:
           description: セキュリティグループが見つからない
       security:
         - BearerAuth: []
-  /api/snapshot:
+  /api/snapshots:
     get:
       summary: スナップショット一覧の取得
       description: すべてのスナップショットのリストを取得します。
@@ -981,7 +981,7 @@ paths:
           description: スナップショットが見つからない
       security:
         - BearerAuth: []
-  /api/storage-pool:
+  /api/storage-pools:
     get:
       summary: ストレージプール一覧の取得
       description: すべてのストレージプールのリストを取得します。
@@ -1028,7 +1028,7 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/storage-pool/{poolId}:
+  /api/storage-pools/{poolId}:
     get:
       summary: ストレージプールの詳細取得
       description: 指定したIDのストレージプールの詳細情報を取得します。
@@ -1081,7 +1081,7 @@ paths:
           description: ストレージプールが見つからない
       security:
         - BearerAuth: []
-  /api/virtual-machine:
+  /api/virtual-machines:
     get:
       summary: 仮想マシン一覧の取得
       description: すべての仮想マシンのリストを取得します。
@@ -1128,7 +1128,7 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/virtual-machine/{vmId}:
+  /api/virtual-machines/{vmId}:
     get:
       summary: 仮想マシンの詳細取得
       description: 指定したIDの仮想マシンの詳細情報を取得します。
@@ -1217,7 +1217,7 @@ paths:
           description: 仮想マシンが見つからない
       security:
         - BearerAuth: []
-  /api/virtual-network:
+  /api/virtual-networks:
     get:
       summary: 仮想ネットワーク一覧の取得
       description: すべての仮想ネットワークのリストを取得します。
@@ -1264,7 +1264,7 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/virtual-network/{networkId}:
+  /api/virtual-networks/{networkId}:
     get:
       summary: 仮想ネットワークの詳細取得
       description: 指定したIDの仮想ネットワークの詳細情報を取得します。
@@ -1353,7 +1353,7 @@ paths:
           description: 仮想ネットワークが見つからない
       security:
         - BearerAuth: []
-  /api/virtual-network/{networkId}/subnet:
+  /api/virtual-networks/{networkId}/subnets:
     post:
       summary: サブネットの追加
       description: 指定した仮想ネットワークに新しいサブネットを追加します。
@@ -1390,7 +1390,7 @@ paths:
           description: 仮想ネットワークが見つからない
       security:
         - BearerAuth: []
-  /api/virtual-network/{networkId}/subnet/{subnetId}:
+  /api/virtual-networks/{networkId}/subnets/{subnetId}:
     put:
       summary: サブネットの更新
       description: 指定した仮想ネットワーク内のサブネット情報を更新します。
@@ -1610,7 +1610,7 @@ components:
           type: string
           format: date-time
           description: インスタンスタイプが作成された日時
-        cpuCores:
+        cpuCore:
           type: integer
           description: CPUコア数
         memorySize:
@@ -1620,7 +1620,7 @@ components:
         - id
         - name
         - createdAt
-        - cpuCores
+        - cpuCore
         - memorySize
     InstanceTypeCreateRequest:
       type: object
@@ -1629,7 +1629,7 @@ components:
         name:
           type: string
           description: インスタンスタイプの名前
-        cpuCores:
+        cpuCore:
           type: integer
           description: CPUコア数
         memorySize:
@@ -1637,7 +1637,7 @@ components:
           description: メモリサイズ（バイト単位）
       required:
         - name
-        - cpuCores
+        - cpuCore
         - memorySize
     InstanceTypeUpdateRequest:
       type: object
@@ -1646,7 +1646,7 @@ components:
         name:
           type: string
           description: インスタンスタイプの名前
-        cpuCores:
+        cpuCore:
           type: integer
           description: CPUコア数
         memorySize:
@@ -1785,7 +1785,7 @@ components:
         - name
         - ipAddress
         - isAdmin
-    PhysicalNodeCandiate:
+    PhysicalNodeCandidate:
       type: object
       description: 物理ノード候補オブジェクト
       properties:
@@ -1879,7 +1879,7 @@ components:
         rules:
           type: array
           items:
-            $ref: "#/components/schemas/SecurityRule"
+            $ref: "#/components/schemas/SecurityRuleCreateRequest"
       required:
         - name
     SecurityGroupUpdateRequest:
@@ -2121,7 +2121,7 @@ components:
           type: string
           description: CIDR形式のサブネットアドレス
           example: "10.0.0.0/24"
-        possibleExternalConnections:
+        possibleExternalConnection:
           type: boolean
           description: 外部接続が可能かどうかを示すフラグ
         createdAt:
@@ -2133,7 +2133,7 @@ components:
         - name
         - cidr
         - createdAt
-        - possibleExternalConnections
+        - possibleExternalConnection
     SubnetCreateRequest:
       type: object
       description: サブネット作成リクエストオブジェクト
@@ -2145,13 +2145,13 @@ components:
           type: string
           description: CIDR形式のサブネットアドレス
           example: "10.0.0.0/16"
-        possibleExternalConnections:
+        possibleExternalConnection:
           type: boolean
           description: 外部接続が可能かどうかを示すフラグ
       required:
         - name
         - cidr
-        - possibleExternalConnections
+        - possibleExternalConnection
     SubnetUpdateRequest:
       type: object
       description: サブネット更新リクエストオブジェクト
@@ -2163,7 +2163,7 @@ components:
           type: string
           description: CIDR形式のサブネットアドレス
           example: "10.0.0.0/16"
-        possibleExternalConnections:
+        possibleExternalConnection:
           type: boolean
           description: 外部接続が可能かどうかを示すフラグ
     TotpInfo:
@@ -2244,7 +2244,7 @@ components:
         isAdmin:
           type: boolean
           description: ユーザが管理者かどうかを示すフラグ
-        maxCpuCores:
+        maxCpuCore:
           type: integer
           description: ユーザが使用できる最大CPUコア数
         maxMemorySize:
@@ -2270,7 +2270,7 @@ components:
           type: string
           format: email
           description: ユーザのメールアドレス
-        maxCpuCores:
+        maxCpuCore:
           type: integer
           description: ユーザが使用できる最大CPUコア数
         maxMemorySize:
@@ -2334,10 +2334,15 @@ components:
           format: float
           description: ストレージ使用率（0.0から1.0の範囲）
           example: 0.40
+        cpuCore:
+          type: integer
+          description: 仮想マシンに割り当てられたCPUコア数
+        memorySize:
+          type: integer
+          description: 仮想マシンに割り当てられたメモリサイズ（バイト単位）
       required:
         - id
         - name
-        - instanceType
         - status
         - createdAt
         - securityGroups
@@ -2353,7 +2358,7 @@ components:
           type: string
           format: uuid
           description: 使用するインスタンスタイプのID
-        cpuCores:
+        cpuCore:
           type: integer
           description: 仮想マシンに割り当てるCPUコア数（instanceTypeIdが指定されていない場合に必須）
         memorySize:
@@ -2425,7 +2430,7 @@ components:
           type: string
           format: uuid
           description: 使用するインスタンスタイプのID
-        cpuCores:
+        cpuCore:
           type: integer
           description: 仮想マシンに割り当てるCPUコア数
         memorySize:
@@ -2437,12 +2442,12 @@ components:
             type: string
             format: uuid
           description: 仮想マシンに関連付けられたセキュリティグループのIDリスト
-        attachedStorage:
+        attachedStorages:
           type: array
           description: アタッチされたストレージのリスト
           items:
             $ref: "#/components/schemas/AttachedStorage"
-        attachedNic:
+        attachedNics:
           type: array
           description: アタッチされたネットワークインターフェースのリスト
           items:

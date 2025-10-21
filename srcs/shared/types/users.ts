@@ -57,7 +57,7 @@ export interface UserCreateRequestDTO {
   /**
    * ユーザが使用できる最大CPUコア数
    */
-  maxCpuCores?: number;
+  maxCpuCore?: number;
   /**
    * ユーザが使用できる最大メモリサイズ（バイト単位）
    */
@@ -82,7 +82,7 @@ export interface UserUpdateRequestDTO {
   /**
    * ユーザが使用できる最大CPUコア数
    */
-  maxCpuCores?: number;
+  maxCpuCore?: number;
   /**
    * ユーザが使用できる最大メモリサイズ（バイト単位）
    */

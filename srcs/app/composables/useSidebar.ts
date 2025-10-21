@@ -1,6 +1,9 @@
-export const useSidebar = () => {
-  const isSidebarOpen = useState("isSidebarOpen", () => true);
+import { ref, readonly } from "vue";
 
+// デフォルトは閉じている
+const isSidebarOpen = ref(false);
+
+export function useSidebar() {
   const toggleSidebar = () => {
     isSidebarOpen.value = !isSidebarOpen.value;
   };
@@ -14,9 +17,9 @@ export const useSidebar = () => {
   };
 
   return {
-    isSidebarOpen,
+    isSidebarOpen: readonly(isSidebarOpen),
     toggleSidebar,
     open,
     close,
   };
-};
+}
