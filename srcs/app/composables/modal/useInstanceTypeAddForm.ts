@@ -13,23 +13,6 @@ import { useResourceCreate } from "~/composables/useResourceCreate"; // パス�
 import { useToast } from "~/composables/useToast"; // パスはプロジェクト構成に合わせて調整
 
 // ==============================================================================
-// Type Definitions (型定義)
-// APIとの通信で使用するデータの型を定義します。
-// ==============================================================================
-// POST /api/instance-types で送信するリクエストボディの型
-interface InstanceTypeCreateRequestDTO {
-  name: string;
-  cpuCores: number;
-  memorySize: number; // APIへはバイト単位で送信
-}
-// POST成功後に返される、作成済みインスタンスタイプの型
-interface ModelInstanceTypeDTO {
-  id: string;
-  name: string;
-  // ... 他のプロパティ
-}
-
-// ==============================================================================
 // Validation Schema (バリデーションスキーマ)
 // フォームのバリデーションルールをZodで定義します。
 // ==============================================================================
@@ -97,7 +80,7 @@ export function useInstanceTypeAddForm() {
       // メモリサイズはMBからByteに変換します。
       const payload: InstanceTypeCreateRequestDTO = {
         name: formValues.name,
-        cpuCores: formValues.cpuCores,
+        cpuCore: formValues.cpuCores,
         memorySize: formValues.memorySizeInMb * 1024 * 1024, // MB to Bytes
       };
 
