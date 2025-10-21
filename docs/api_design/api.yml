@@ -2176,6 +2176,9 @@ components:
         uri:
           type: string
           description: TOTP URI（QRコード生成用）
+      required:
+        - secret
+        - uri
     TotpLoginRequest:
       type: object
       description: TOTPログインリクエストオブジェクト
@@ -2347,6 +2350,7 @@ components:
         - createdAt
         - securityGroups
         - attachedStorage
+        - node
     VirtualMachineCreateRequest:
       type: object
       description: 仮想マシン作成リクエストオブジェクト
@@ -2419,6 +2423,8 @@ components:
         - subnetId
         - imageId
         - storages
+        - nodeId
+        - securityGroupIds
     VirtualMachineUpdateRequest:
       type: object
       description: 仮想マシン更新リクエストオブジェクト
@@ -2488,6 +2494,11 @@ components:
           format: float
           description: 仮想ネットワークのアウトバウンドトラフィック（bps単位）
           example: 98000.0
+      required:
+        - id
+        - name
+        - cidr
+        - createdAt
     VirtualNetworkCreateRequest:
       type: object
       description: 仮想ネットワーク作成リクエストオブジェクト
@@ -2527,6 +2538,11 @@ components:
           type: string
           format: uuid
           description: 仮想ストレージが属するストレージプールのID
+      required:
+        - id
+        - name
+        - size
+        - pool
   securitySchemes:
     BearerAuth:
       type: http
