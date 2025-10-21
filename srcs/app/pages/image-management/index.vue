@@ -1,250 +1,216 @@
 <!-- pages/image-management/index.vue -->
+<template>
+  <div>
+    <DashboardLayout
+      title="仮想マシンイメージ"
+      :columns="columns"
+      :rows="displayImages"
+      rowKey="id"
+      :headerButtons="headerButtons"
+      @header-action="handleDashboardHeaderAction"
+    >
+      <template #cell-name="{ row }">
+        <div v-if="row">
+          <span class="table-link">{{ row.name }}</span>
+          <span
+            v-if="row.description"
+            class="text-sm text-gray-500 block mt-0.5"
+            >{{ row.description }}</span
+          >
+        </div>
+      </template>
+
+      <template #cell-size="{ row }"
+        ><span v-if="row" class="font-mono">{{ row.size }}</span></template
+      >
+      <template #cell-createdAt="{ row }"
+        ><span v-if="row">{{ row.createdAt }}</span></template
+      >
+
+      <template #row-actions="{ row }">
+        <div v-if="row">
+          <button
+            type="button"
+            class="action-item first:border-t-0 w-full text-left"
+            @click.stop.prevent="handleShowDetail(row.id)"
+          >
+            詳細
+          </button>
+          <button
+            type="button"
+            class="action-item action-item-danger"
+            :class="{ 'action-item-disabled': deletingImageId === row.id }"
+            :disabled="deletingImageId === row.id"
+            @click.stop.prevent="promptForImageDeletion(row)"
+          >
+            削除
+          </button>
+        </div>
+      </template>
+    </DashboardLayout>
+  </div>
+
+  <MoDeleteConfirm
+    :show="activeModal === 'delete-images'"
+    :message="`本当にイメージ「${
+      targetForDeletion?.name ?? ''
+    }」を削除しますか？`"
+    :is-loading="isDeleting"
+    @close="cancelAction"
+    @confirm="handleDelete"
+  />
+  <MoImageAdd
+    :show="activeModal === 'add-image'"
+    @close="closeModal"
+    @success="handleSuccess"
+  />
+</template>
+
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref, computed, onMounted } from "vue";
 import DashboardLayout from "~/components/DashboardLayout.vue";
+import MoDeleteConfirm from "~/components/MoDeleteConfirm.vue";
 import MoImageAdd from "~/components/MoImageAdd.vue";
 
-/* ===== 型 ===== */
-type ImageId = string;
-interface VirtualMachineImage {
-  id: ImageId;
+type Id = string;
+type ApiImage = {
+  id: Id;
   name: string;
   description?: string;
-  createdAt: string; // ISO8601
-  size: number; // bytes
-}
-interface TableRow {
-  id: ImageId;
+  createdAt: string;
+  size: number;
+};
+type Row = {
+  id: Id;
   name: string;
-  size: string; // human readable
-  createdAt: string; // YYYY-MM-DD
-}
+  description?: string;
+  createdAt: string;
+  size: string;
+};
 
-/* ===== テーブル定義（ケバブ＝row-actions を使う） ===== */
 const columns = [
   { key: "name", label: "イメージ名" },
   { key: "size", label: "サイズ" },
   { key: "createdAt", label: "登録日" },
-  { key: "actions", label: "操作" }, // DashboardLayout 側でケバブが出る列
 ] as const;
+const headerButtons = [{ label: "イメージ追加", action: "add-image" }] as const;
 
-const HEADER_BUTTONS = [{ label: "イメージ追加", action: "add" }] as const;
-const ROW_ACTIONS = [
-  { label: "詳細", action: "detail" },
-  { label: "削除", action: "delete" },
-] as const;
+const images = ref<Row[]>([]);
+const displayImages = computed(() => images.value);
+const activeModal = ref<"" | "add-image" | "delete-images">("");
+const targetForDeletion = ref<Row | null>(null);
+const isDeleting = ref(false);
+const deletingImageId = ref<Id | null>(null);
 
-/* ===== 状態 ===== */
-const rows = ref<TableRow[]>([]);
-const isLoading = ref(false);
-
-/* MoImageAdd（どの実装でも確実に開くよう両対応） */
-const isAddOpen = ref(false);
-const addModalRef = ref<any>(null);
-
-/* ===== Util ===== */
-function getAuthHeaders(): HeadersInit {
-  const token = localStorage.getItem("token") || "";
-  return { Authorization: `Bearer ${token}` };
-}
-function toHumanSize(bytes: number): string {
-  if (!Number.isFinite(bytes)) return "—";
-  const units = ["B", "KB", "MB", "GB", "TB"];
+const auth = () => ({
+  Authorization: `Bearer ${localStorage.getItem("token") || ""}`,
+});
+const toSize = (b: number) => {
+  if (!Number.isFinite(b)) return "—";
+  const u = ["B", "KB", "MB", "GB", "TB"];
   let i = 0,
-    v = bytes;
-  while (v >= 1024 && i < units.length - 1) {
+    v = b;
+  while (v >= 1024 && i < u.length - 1) {
     v /= 1024;
     i++;
   }
   return `${v >= 10 || Number.isInteger(v) ? v.toFixed(0) : v.toFixed(1)}${
-    units[i]
+    u[i]
   }`;
-}
-function toYMD(iso: string): string {
+};
+const toDate = (iso: string) => {
   const d = new Date(iso);
   if (Number.isNaN(d.getTime())) return "—";
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(
     2,
     "0"
   )}-${String(d.getDate()).padStart(2, "0")}`;
-}
+};
 
-/* ===== API ===== */
-async function reloadImages() {
-  isLoading.value = true;
+async function fetchImages() {
   try {
-    const data = await $fetch<VirtualMachineImage[]>("/api/images", {
-      method: "GET",
-      headers: getAuthHeaders(),
-    });
-    rows.value = (data || []).map((x) => ({
+    const data = await $fetch<ApiImage[]>("/api/images", { headers: auth() });
+    images.value = (data || []).map((x) => ({
       id: x.id,
       name: x.name,
-      size: toHumanSize(x.size),
-      createdAt: toYMD(x.createdAt),
+      description: x.description,
+      createdAt: toDate(x.createdAt),
+      size: toSize(x.size),
     }));
   } catch (e: any) {
-    alert(
-      `イメージ一覧の取得に失敗しました：${e?.data?.message ?? e?.message ?? e}`
-    );
-  } finally {
-    isLoading.value = false;
+    alert(`イメージ一覧の取得に失敗：${e?.data?.message ?? e?.message ?? e}`);
   }
 }
-async function showDetail(id: ImageId) {
+onMounted(fetchImages);
+
+async function handleShowDetail(id: Id) {
   try {
-    const img = await $fetch<VirtualMachineImage>(`/api/images/${id}`, {
-      method: "GET",
-      headers: getAuthHeaders(),
-    });
+    const x = await $fetch<ApiImage>(`/api/images/${id}`, { headers: auth() });
     alert(
-      `ID: ${img.id}\n名前: ${img.name}\n説明: ${img.description ?? "—"}\n` +
-        `サイズ: ${toHumanSize(img.size)} (${img.size} bytes)\n登録日: ${toYMD(
-          img.createdAt
-        )}`
+      `ID: ${x.id}\n名前: ${x.name}\n説明: ${
+        x.description ?? "—"
+      }\nサイズ: ${toSize(x.size)} (${x.size} bytes)\n登録日: ${toDate(
+        x.createdAt
+      )}`
     );
   } catch (e: any) {
-    alert(`詳細取得に失敗しました：${e?.data?.message ?? e?.message ?? e}`);
+    alert(`詳細取得に失敗：${e?.data?.message ?? e?.message ?? e}`);
   }
 }
-async function deleteImage(id: ImageId, name: string) {
-  if (!confirm(`${name} を削除しますか？`)) return;
+
+function promptForImageDeletion(row: Row) {
+  targetForDeletion.value = row;
+  activeModal.value = "delete-images";
+}
+
+async function handleDelete() {
+  if (!targetForDeletion.value) return;
+  const id = targetForDeletion.value.id;
+  isDeleting.value = true;
+  deletingImageId.value = id;
   try {
     await $fetch<void>(`/api/images/${id}`, {
       method: "DELETE",
-      headers: getAuthHeaders(),
+      headers: auth(),
     });
+    await fetchImages();
+    cancelAction();
     alert("削除しました。");
-    await reloadImages();
   } catch (e: any) {
-    alert(`削除に失敗しました：${e?.data?.message ?? e?.message ?? e}`);
-  }
-}
-async function createImage(payload: {
-  name: string;
-  description?: string;
-  fileBase64: string;
-}) {
-  try {
-    const form = new FormData();
-    form.append("name", payload.name);
-    if (payload.description) form.append("description", payload.description);
-    // 仕様：base64 文字列を file フィールドに格納
-    form.append("file", payload.fileBase64);
-
-    await $fetch<VirtualMachineImage>("/api/images", {
-      method: "POST",
-      headers: getAuthHeaders(), // Content-Type は FormData に任せる
-      body: form,
-    });
-    alert("イメージを作成しました。");
-    isAddOpen.value = false;
-    addModalRef.value?.close?.();
-    await reloadImages();
-  } catch (e: any) {
-    alert(`イメージ作成に失敗しました：${e?.data?.message ?? e?.message ?? e}`);
+    alert(`削除に失敗：${e?.data?.message ?? e?.message ?? e}`);
+  } finally {
+    isDeleting.value = false;
+    deletingImageId.value = null;
   }
 }
 
-/* ===== イベント（両表記対応＋stop 修飾で確実に届く） ===== */
-function onHeaderAction(action: string) {
-  if (action !== "add") return;
-  // どの実装でも開く：v-model系/メソッド系 両対応
-  isAddOpen.value = true;
-  addModalRef.value?.open?.();
+function handleDashboardHeaderAction(action: string) {
+  if (action === "add-image") activeModal.value = "add-image";
 }
-function onRowAction(payload: { action: string; row: TableRow }) {
-  const { action, row } = payload || ({} as any);
-  if (!row) return;
-  if (action === "detail") showDetail(row.id);
-  if (action === "delete") deleteImage(row.id, row.name);
+function cancelAction() {
+  targetForDeletion.value = null;
+  activeModal.value = "";
 }
-function onAddSubmit(e: {
-  name: string;
-  description?: string;
-  fileBase64: string;
-}) {
-  createImage(e);
+function closeModal() {
+  activeModal.value = "";
 }
-
-onMounted(reloadImages);
+async function handleSuccess() {
+  activeModal.value = "";
+  await fetchImages();
+}
 </script>
 
-<template>
-  <div class="image-page-root">
-    <DashboardLayout
-      title="イメージ管理ダッシュボード"
-      :columns="columns"
-      :rows="rows"
-      rowKey="id"
-      :headerButtons="HEADER_BUTTONS"
-      :rowActions="ROW_ACTIONS"
-      @header-action.stop="onHeaderAction"
-      @headerAction.stop="onHeaderAction"
-      @row-action.stop="onRowAction"
-      @rowAction.stop="onRowAction"
-    >
-      <!-- ケバブメニューに差し込む中身。emit は DashboardLayout 側が渡す想定 -->
-      <template #row-actions="{ emit }">
-        <button type="button" class="menu-item" @click.stop="emit('detail')">
-          詳細を表示
-        </button>
-        <button
-          type="button"
-          class="menu-item--danger"
-          @click.stop="emit('delete')"
-        >
-          削除
-        </button>
-      </template>
-
-      <!-- 読み込み表示（任意） -->
-      <template v-if="isLoading" #footer>
-        <div class="px-4 py-3 text-slate-500">読み込み中…</div>
-      </template>
-    </DashboardLayout>
-
-    <!-- 追加モーダル：あらゆる開閉方式に対応 -->
-    <MoImageAdd
-      ref="addModalRef"
-      v-model:open="isAddOpen"
-      :model-value="isAddOpen"
-      :open="isAddOpen"
-      :is-open="isAddOpen"
-      @update:modelValue="(v:boolean)=>isAddOpen=v"
-      @update:open="(v:boolean)=>isAddOpen=v"
-      @update:isOpen="(v:boolean)=>isAddOpen=v"
-      @close="isAddOpen = false"
-      @cancel="isAddOpen = false"
-      @submit="onAddSubmit"
-    />
-  </div>
-</template>
-
 <style scoped>
-/* --- ケバブのポップオーバーがスクロール領域に切られないよう保険 --- */
-.image-page-root {
-  overflow: visible;
+.table-link {
+  @apply font-semibold hover:underline;
 }
-
-/* DashboardLayout 内部のスクロールラッパを想定した緩めの対策 */
-:deep(.overflow-x-auto) {
-  overflow-y: visible;
-}
-
-/* 代表的なポップオーバークラス名への z-index ブースト（存在すれば効く） */
-:deep(.menu-popover),
-:deep(.dropdown-menu),
-:deep(.context-menu),
-:deep(.row-actions-popover) {
-  z-index: 70 !important;
-}
-
-/* メニュー項目の見た目（あなたの既存テーマに寄せた最小） */
-.menu-item {
+.action-item {
   @apply block w-full text-left px-4 py-3 text-[15px] font-semibold hover:bg-[#f5f7fa] border-t first:border-t-0 border-slate-200;
 }
-.menu-item--danger {
-  @apply block w-full text-left px-4 py-3 text-[15px] font-semibold text-red-600 hover:bg-[#fff1f1] border-t border-slate-200;
+.action-item-danger {
+  @apply text-red-600 hover:bg-[#fff1f1];
+}
+.action-item-disabled {
+  @apply opacity-60 pointer-events-none;
 }
 </style>
