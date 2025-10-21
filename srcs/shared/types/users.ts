@@ -28,7 +28,7 @@ export interface UserDTO {
    * ユーザが最後にログインした日時
    */
   lastLoginAt?: string;
-  TotpInfo?: TotpInfoDTO;
+  totpInfo?: TotpInfoDTO;
 }
 /**
  * ユーザ作成リクエストオブジェクト
