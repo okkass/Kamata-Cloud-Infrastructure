@@ -74,7 +74,7 @@
  * 実際のフォームロジックは `useSecurityGroupForm` Composable に分離されています。
  * =================================================================================
  */
-import { useSecurityGroupForm } from "~/composables/modal-composables/useSecurityGroupForm";
+import { useSecurityGroupForm } from "~/composables/modal/useSecurityGroupForm";
 
 // --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
