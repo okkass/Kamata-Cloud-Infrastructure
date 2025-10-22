@@ -91,6 +91,10 @@ export interface UserUpdateRequestDTO {
    * ユーザが使用できる最大ストレージサイズ（バイト単位）
    */
   maxStorageSize?: number;
+  /**
+   * ユーザが管理者かどうかを示すフラグ
+   */
+  isAdmin?: boolean;
 }
 
 /**
