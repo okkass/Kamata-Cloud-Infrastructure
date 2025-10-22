@@ -2278,7 +2278,7 @@ components:
           description: ストレージプールのサイズ（バイト単位）
         devFile:
           type: string
-          description: ストレージデバイスのパス（ローカルストレージの場合）
+          description: ストレージデバイスのパス
           example: "/dev/sdb"
       required:
         - name
