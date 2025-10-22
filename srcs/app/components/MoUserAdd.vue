@@ -1,32 +1,52 @@
 <template>
   <BaseModal :show="show" title="利用者の追加" @close="$emit('close')">
-    <form @submit.prevent="onSubmit" class="modal-space">
-      <FormInput
-        label="アカウント名"
-        name="user-account-name-add"
-        type="text"
-        v-model="name"
-        v-model:attrs="nameAttrs"
-        :error="errors.name"
-      />
+    <form @submit.prevent="submitForm" class="modal-space">
+      <div>
+        <label for="user-account-name-add" class="form-label">
+          アカウント名 <span class="required-asterisk">*</span>
+        </label>
+        <input
+          id="user-account-name-add"
+          type="text"
+          v-model="name"
+          v-bind="nameAttrs"
+          class="form-input"
+          :class="{ 'form-border-error': errors.name }"
+        />
+        <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
+      </div>
 
-      <FormInput
-        label="メールアドレス"
-        name="user-email-add"
-        type="email"
-        v-model="email"
-        v-model:attrs="emailAttrs"
-        :error="errors.email"
-      />
+      <div>
+        <label for="user-email-add" class="form-label">
+          メールアドレス <span class="required-asterisk">*</span>
+        </label>
+        <input
+          id="user-email-add"
+          type="email"
+          v-model="email"
+          v-bind="emailAttrs"
+          class="form-input"
+          :class="{ 'form-border-error': errors.email }"
+        />
+        <p v-if="errors.email" class="text-error mt-1">{{ errors.email }}</p>
+      </div>
 
-      <FormInput
-        label="パスワード"
-        name="user-password-add"
-        type="password"
-        v-model="password"
-        v-model:attrs="passwordAttrs"
-        :error="errors.password"
-      />
+      <div>
+        <label for="user-password-add" class="form-label">
+          パスワード <span class="required-asterisk">*</span>
+        </label>
+        <input
+          id="user-password-add"
+          type="password"
+          v-model="password"
+          v-bind="passwordAttrs"
+          class="form-input"
+          :class="{ 'form-border-error': errors.password }"
+        />
+        <p v-if="errors.password" class="text-error mt-1">
+          {{ errors.password }}
+        </p>
+      </div>
 
       <FormSection title="リソース制限">
         <div class="space-y-2">
@@ -34,7 +54,7 @@
             name="user-max-cpu"
             label="CPUコア数"
             type="number"
-            placeholder="最大CPU数"
+            placeholder="無制限"
             v-model.number="maxCpuCores"
             v-model:attrs="maxCpuCoresAttrs"
             :error="errors.maxCpuCores"
@@ -48,10 +68,10 @@
             name="user-max-memory"
             label="メモリ (MB)"
             type="number"
-            placeholder="最大メモリ数"
-            v-model.number="maxMemorySize"
-            v-model:attrs="maxMemorySizeAttrs"
-            :error="errors.maxMemorySize"
+            placeholder="無制限"
+            v-model.number="maxMemorySizeInMb"
+            v-model:attrs="maxMemorySizeInMbAttrs"
+            :error="errors.maxMemorySizeInMb"
           >
             <template #suffix>
               <span class="form-unit-label">MB</span>
@@ -62,10 +82,10 @@
             name="user-max-storage"
             label="ストレージ (GB)"
             type="number"
-            placeholder="最大ストレージ数"
-            v-model.number="maxStorageSize"
-            v-model:attrs="maxStorageSizeAttrs"
-            :error="errors.maxStorageSize"
+            placeholder="無制限"
+            v-model.number="maxStorageSizeInGb"
+            v-model:attrs="maxStorageSizeInGbAttrs"
+            :error="errors.maxStorageSizeInGb"
           >
             <template #suffix>
               <span class="form-unit-label">GB</span>
@@ -73,100 +93,55 @@
           </FormInput>
         </div>
       </FormSection>
-    </form>
 
-    <template #footer>
-      <div class="flex justify-end w-full">
-        <button @click="onSubmit" class="btn btn-primary">追加</button>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" :disabled="isCreating">
+          {{ isCreating ? "追加中..." : "追加" }}
+        </button>
       </div>
-    </template>
+    </form>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
+/**
+ * =================================================================================
+ * 利用者追加モーダル (MoUserAdd.vue)
+ * ---------------------------------------------------------------------------------
+ * UIの表示に特化したコンポーネントです。
+ * 実際のフォームの状態管理やAPI送信ロジックは `useUserAddForm` Composable に
+ * 分離されています。
+ * =================================================================================
+ */
+// Composable をインポート
+import { useUserAddForm } from "~/composables/modal/useUserAddForm"; // パスを確認
 
-// --- Props & Emits ---
+// --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
-const emit = defineEmits(["close", "add"]);
+const emit = defineEmits(["close", "success"]);
 
-// --- Composables ---
-const { executeCreate, isCreating } = useResourceCreate<any, any>("users");
-const { addToast } = useToast();
+// --- Composable からフォームロジックと状態を取得 ---
+const {
+  errors,
+  name,
+  nameAttrs,
+  email,
+  emailAttrs,
+  password,
+  passwordAttrs,
+  maxCpuCores,
+  maxCpuCoresAttrs,
+  maxMemorySizeInMb,
+  maxMemorySizeInMbAttrs,
+  maxStorageSizeInGb,
+  maxStorageSizeInGbAttrs,
+  isCreating,
+  onFormSubmit, // Composable が提供する送信ハンドラ
+} = useUserAddForm();
 
-// ★ 1. Zodでバリデーションスキーマを定義
-const zodSchema = z.object({
-  name: z.string().min(1, "アカウント名は必須です。"),
-  email: z.string().email("有効なメールアドレスを入力してください。"),
-  password: z.string().min(8, "パスワードは8文字以上で入力してください。"),
-  maxCpuCores: z.preprocess(
-    (val) => (val === "" ? null : val),
-    z.number().int().min(1).nullable()
-  ),
-  maxMemorySize: z.preprocess(
-    (val) => (val === "" ? null : val),
-    z.number().int().min(1).nullable()
-  ),
-  maxStorageSize: z.preprocess(
-    (val) => (val === "" ? null : val),
-    z.number().int().min(1).nullable()
-  ),
-});
-
-const validationSchema = toTypedSchema(zodSchema);
-
-type FormValues = z.infer<typeof zodSchema>;
-
-// ★ 2. vee-validateのuseFormをセットアップ
-const { errors, defineField, handleSubmit } = useForm<FormValues>({
-  validationSchema,
-  initialValues: {
-    name: "",
-    email: "",
-    password: "",
-    maxCpuCores: null,
-    maxMemorySize: null,
-    maxStorageSize: null,
-  },
-});
-const [name, nameAttrs] = defineField("name");
-const [email, emailAttrs] = defineField("email");
-const [password, passwordAttrs] = defineField("password");
-const [maxCpuCores, maxCpuCoresAttrs] = defineField("maxCpuCores");
-const [maxMemorySize, maxMemorySizeAttrs] = defineField("maxMemorySize");
-const [maxStorageSize, maxStorageSizeAttrs] = defineField("maxStorageSize");
-
-// ★ 3. handleSubmitでラップして、バリデーション通過時のみAPIを呼ぶ
-const onSubmit = handleSubmit(async (values) => {
-  const payload = {
-    ...values,
-    useTOTP: false,
-    isAdmin: false,
-    maxMemorySize: values.maxMemorySize
-      ? convertUnitToByte(values.maxMemorySize, "GB")
-      : null,
-    maxStorageSize: values.maxStorageSize
-      ? convertUnitToByte(values.maxStorageSize, "GB")
-      : null,
-  };
-
-  const result = await executeCreate(payload);
-
-  if (result.success) {
-    addToast({
-      message: `利用者「${result.data?.name}」を追加しました。`,
-      type: "success",
-    });
-    emit("add", result.data);
-    emit("close");
-  } else {
-    addToast({
-      message: "ユーザーの作成に失敗しました。",
-      type: "error",
-      details: result.error?.message,
-    });
-  }
-});
+// --- イベントハンドラ ---
+// Composable から受け取った `onFormSubmit` 関数に、
+// このコンポーネントの `emit` 関数を渡して実行するラッパー関数。
+// これにより、Composable 側でフォーム送信成功時に `emit('success')` や `emit('close')` を呼び出せる。
+const submitForm = onFormSubmit(emit);
 </script>

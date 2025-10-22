@@ -77,6 +77,10 @@ export interface SecurityRuleDTO {
    */
   targetIp: string;
   /**
+   * アクション（許可または拒否）
+   */
+  action: SecurityRuleActionEnum;
+  /**
    * セキュリティルールが作成された日時
    */
   createdAt: string;
@@ -99,6 +103,14 @@ export const SecurityRuleProtocolEnum = {
 export type SecurityRuleProtocolEnum =
   (typeof SecurityRuleProtocolEnum)[keyof typeof SecurityRuleProtocolEnum];
 
+export const SecurityRuleActionEnum = {
+  Allow: "allow",
+  Deny: "deny",
+} as const;
+
+export type SecurityRuleActionEnum =
+  (typeof SecurityRuleActionEnum)[keyof typeof SecurityRuleActionEnum];
+
 /**
  * セキュリティルール作成リクエストオブジェクト
  */
@@ -110,7 +122,7 @@ export interface SecurityRuleCreateRequestDTO {
   /**
    * ルールのタイプ（インバウンドまたはアウトバウンド）
    */
-  ruleType: SecurityRuleCreateRequestRuleTypeEnum;
+  ruleType: SecurityRuleRuleTypeEnum;
   /**
    * 適用されるポート番号
    */
@@ -118,30 +130,16 @@ export interface SecurityRuleCreateRequestDTO {
   /**
    * 適用されるプロトコル
    */
-  protocol: SecurityRuleCreateRequestProtocolEnum;
+  protocol: SecurityRuleProtocolEnum;
   /**
    * ターゲットIPアドレス
    */
   targetIp: string;
+  /**
+   * アクション（許可または拒否）
+   */
+  action: SecurityRuleActionEnum;
 }
-
-export const SecurityRuleCreateRequestRuleTypeEnum = {
-  Inbound: "inbound",
-  Outbound: "outbound",
-} as const;
-
-export type SecurityRuleCreateRequestRuleTypeEnum =
-  (typeof SecurityRuleCreateRequestRuleTypeEnum)[keyof typeof SecurityRuleCreateRequestRuleTypeEnum];
-export const SecurityRuleCreateRequestProtocolEnum = {
-  Tcp: "tcp",
-  Udp: "udp",
-  Icmp: "icmp",
-  Any: "any",
-} as const;
-
-export type SecurityRuleCreateRequestProtocolEnum =
-  (typeof SecurityRuleCreateRequestProtocolEnum)[keyof typeof SecurityRuleCreateRequestProtocolEnum];
-
 /**
  * セキュリティルール更新リクエストオブジェクト
  */
@@ -153,7 +151,7 @@ export interface SecurityRuleUpdateRequestDTO {
   /**
    * ルールのタイプ（インバウンドまたはアウトバウンド）
    */
-  ruleType?: SecurityRuleUpdateRequestRuleTypeEnum;
+  ruleType?: SecurityRuleRuleTypeEnum;
   /**
    * 適用されるポート番号
    */
@@ -161,26 +159,13 @@ export interface SecurityRuleUpdateRequestDTO {
   /**
    * 適用されるプロトコル
    */
-  protocol?: SecurityRuleUpdateRequestProtocolEnum;
+  protocol?: SecurityRuleProtocolEnum;
   /**
    * ターゲットIPアドレス
    */
   targetIp?: string;
+  /**
+   * アクション（許可または拒否）
+   */
+  action?: SecurityRuleActionEnum;
 }
-
-export const SecurityRuleUpdateRequestRuleTypeEnum = {
-  Inbound: "inbound",
-  Outbound: "outbound",
-} as const;
-
-export type SecurityRuleUpdateRequestRuleTypeEnum =
-  (typeof SecurityRuleUpdateRequestRuleTypeEnum)[keyof typeof SecurityRuleUpdateRequestRuleTypeEnum];
-export const SecurityRuleUpdateRequestProtocolEnum = {
-  Tcp: "tcp",
-  Udp: "udp",
-  Icmp: "icmp",
-  Any: "any",
-} as const;
-
-export type SecurityRuleUpdateRequestProtocolEnum =
-  (typeof SecurityRuleUpdateRequestProtocolEnum)[keyof typeof SecurityRuleUpdateRequestProtocolEnum];
