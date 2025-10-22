@@ -1,12 +1,7 @@
 /**
- * =================================================================================
- * 仮想マシンイメージ管理ページ Composable (useImageManagement.ts)
- * ---------------------------------------------------------------------------------
- * UI に特化した状態・API連携・イベントハンドラを提供します。
- * =================================================================================
+ * 仮想マシンイメージ管理ページ Composable
  */
 import { ref, computed } from "vue";
-import { useToast } from "@/composables/useToast";
 import { useResourceList } from "@/composables/useResourceList";
 import { usePageActions } from "@/composables/usePageActions";
 
@@ -30,12 +25,11 @@ type UiImage = {
   size: string;
 };
 
-/** バイト数を読みやすく変換 */
 const toSize = (b: number) => {
   if (!Number.isFinite(b)) return "—";
   const units = ["B", "KB", "MB", "GB", "TB"];
-  let i = 0;
-  let v = b;
+  let i = 0,
+    v = b;
   while (v >= 1024 && i < units.length - 1) {
     v /= 1024;
     i++;
@@ -45,8 +39,18 @@ const toSize = (b: number) => {
   }`;
 };
 
+const formatDateTime = (iso: string) => {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "—";
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, "0");
+  const day = String(d.getDate()).padStart(2, "0");
+  const hh = String(d.getHours()).padStart(2, "0");
+  const mm = String(d.getMinutes()).padStart(2, "0");
+  return `${y}-${m}-${day} ${hh}:${mm}`;
+};
+
 export function useImageManagement() {
-  const { addToast } = useToast();
   const { data: rawImages, refresh: refreshImageList } =
     useResourceList<ImageDto>("images");
   const {
@@ -56,8 +60,8 @@ export function useImageManagement() {
     targetForDeletion,
     isDeleting,
     handleRowAction,
-    handleDelete,
-    handleSuccess,
+    handleDelete: handleDeleteAction,
+    handleSuccess: handleSuccessAction,
     cancelAction,
   } = usePageActions<UiImage>({
     resourceName: "images",
@@ -77,10 +81,12 @@ export function useImageManagement() {
       id: r.id,
       name: r.name,
       description: r.description,
-      createdAt: formatDateTime?.(r.createdAt) ?? r.createdAt,
+      createdAt: formatDateTime(r.createdAt),
       size: toSize(r.size),
     }))
   );
+
+  const deletingImageId = ref<string | null>(null);
 
   function promptForImageDeletion(row: UiImage) {
     handleRowAction({ action: "delete", row });
@@ -91,10 +97,21 @@ export function useImageManagement() {
     openModal("add-image");
   }
 
-  // 簡易な成功トースト（必要なら usePageActions 側で処理しているため二重通知に注意）
-  async function handleSuccessWrapper() {
-    addToast?.({ type: "success", message: "追加しました。" });
-    await handleSuccess();
+  // usePageActions の handleDelete をラップして削除中の id を追跡する
+  async function handleDelete() {
+    const row = targetForDeletion.value;
+    if (!row) return;
+    deletingImageId.value = row.id;
+    try {
+      await handleDeleteAction();
+    } finally {
+      deletingImageId.value = null;
+    }
+  }
+
+  // handleSuccess をそのまま呼ぶ（通知は usePageActions 側で統一する想定）
+  async function handleSuccess() {
+    await handleSuccessAction();
   }
 
   return {
@@ -104,14 +121,12 @@ export function useImageManagement() {
     activeModal,
     targetForDeletion,
     isDeleting,
-    // ページ固有の UI 状態
-    deletingImageId: ref<string | null>(null),
-    // ハンドラ
+    deletingImageId,
     handleDashboardHeaderAction,
     promptForImageDeletion,
     cancelAction,
     handleDelete,
     closeModal,
-    handleSuccess: handleSuccessWrapper,
+    handleSuccess,
   } as const;
 }
