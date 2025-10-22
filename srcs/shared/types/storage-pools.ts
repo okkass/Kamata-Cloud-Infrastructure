@@ -97,7 +97,7 @@ export interface DeviceFileDTO {
   size: number;
   /**
    * ストレージデバイスのベンダー情報
-   * /
+   */
   vendor: string;
   /**
    * ストレージデバイスのモデル情報
