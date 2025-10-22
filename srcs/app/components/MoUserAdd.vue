@@ -1,6 +1,13 @@
 <template>
   <BaseModal :show="show" title="利用者の追加" @close="$emit('close')">
+    <!--
+      @submit.prevent="submitForm" でフォーム送信時のデフォルト動作を抑制し、
+      代わりに submitForm メソッドを呼び出します。
+    -->
     <form @submit.prevent="submitForm" class="modal-space">
+      <!-- =================================================================== -->
+      <!-- 1. 基本情報                                                       -->
+      <!-- =================================================================== -->
       <div>
         <label for="user-account-name-add" class="form-label">
           アカウント名 <span class="required-asterisk">*</span>
@@ -13,6 +20,7 @@
           class="form-input"
           :class="{ 'form-border-error': errors.name }"
         />
+        <!-- バリデーションエラーメッセージを表示 -->
         <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
       </div>
 
@@ -48,8 +56,12 @@
         </p>
       </div>
 
+      <!-- =================================================================== -->
+      <!-- 2. リソース制限                                                   -->
+      <!-- =================================================================== -->
       <FormSection title="リソース制限">
         <div class="space-y-2">
+          <!-- CPUコア数 -->
           <FormInput
             name="user-max-cpu"
             label="CPUコア数"
@@ -64,6 +76,7 @@
             </template>
           </FormInput>
 
+          <!-- メモリサイズ (MB) -->
           <FormInput
             name="user-max-memory"
             label="メモリ (MB)"
@@ -78,6 +91,7 @@
             </template>
           </FormInput>
 
+          <!-- ストレージサイズ (GB) -->
           <FormInput
             name="user-max-storage"
             label="ストレージ (GB)"
@@ -94,8 +108,12 @@
         </div>
       </FormSection>
 
+      <!-- =================================================================== -->
+      <!-- 3. フッター (追加ボタン)                                          -->
+      <!-- =================================================================== -->
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" :disabled="isCreating">
+        <!-- isCreating が true の間 (API通信中) はボタンを無効化 -->
+        <button typeS="submit" class="btn btn-primary" :disabled="isCreating">
           {{ isCreating ? "追加中..." : "追加" }}
         </button>
       </div>
@@ -114,7 +132,7 @@
  * =================================================================================
  */
 // Composable をインポート
-import { useUserAddForm } from "~/composables/modal/useUserAddForm"; // パスを確認
+import { useUserAddForm } from "~/composables/modal/useUserAddForm";
 
 // --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
@@ -122,7 +140,8 @@ const emit = defineEmits(["close", "success"]);
 
 // --- Composable からフォームロジックと状態を取得 ---
 const {
-  errors,
+  errors, // エラーオブジェクト
+  // フォームフィールド
   name,
   nameAttrs,
   email,
@@ -135,6 +154,7 @@ const {
   maxMemorySizeInMbAttrs,
   maxStorageSizeInGb,
   maxStorageSizeInGbAttrs,
+  // 状態とアクション
   isCreating,
   onFormSubmit, // Composable が提供する送信ハンドラ
 } = useUserAddForm();
@@ -142,6 +162,5 @@ const {
 // --- イベントハンドラ ---
 // Composable から受け取った `onFormSubmit` 関数に、
 // このコンポーネントの `emit` 関数を渡して実行するラッパー関数。
-// これにより、Composable 側でフォーム送信成功時に `emit('success')` や `emit('close')` を呼び出せる。
 const submitForm = onFormSubmit(emit);
 </script>

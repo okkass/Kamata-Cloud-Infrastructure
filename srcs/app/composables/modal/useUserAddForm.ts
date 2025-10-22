@@ -9,30 +9,10 @@
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import { useResourceCreate } from "~/composables/useResourceCreate"; // パスはプロジェクト構成に合わせて調整
-import { useToast } from "~/composables/useToast"; // パスはプロジェクト構成に合わせて調整
-
-// ==============================================================================
-// Type Definitions (型定義)
-// APIとの通信で使用するデータの型を定義します。
-// ==============================================================================
-// POST /api/users で送信するリクエストボディの型
-interface UserCreateRequestDTO {
-  name: string;
-  email: string;
-  password: string;
-  useTOTP: boolean;
-  isAdmin: boolean;
-  maxCpuCore: number | null;
-  maxMemorySize: number | null; // バイト単位
-  maxStorageSize: number | null; // バイト単位
-}
-// POST成功後に返される、作成済みユーザーの型
-interface UserDTO {
-  id: string;
-  name: string;
-  // ... 他のプロパティ
-}
+import { useResourceCreate } from "~/composables/useResourceCreate";
+import { useToast } from "~/composables/useToast";
+// 共有型定義ファイルから型をインポート
+import type { UserCreateRequestDTO, UserDTO } from "~/shared/types/users";
 
 // ==============================================================================
 // Validation Schema (バリデーションスキーマ)
@@ -42,18 +22,30 @@ const zodSchema = z.object({
   name: z.string().min(1, "アカウント名は必須です。"),
   email: z.string().email("有効なメールアドレスを入力してください。"),
   password: z.string().min(8, "パスワードは8文字以上で入力してください。"),
-  // preprocessを使って、入力が空文字の場合にバリデーション前にnullに変換します
+  // preprocessで空文字をnullに変換します
   maxCpuCores: z.preprocess(
-    (val) => (val === "" ? null : val),
-    z.number().int("整数で入力").min(1, "1以上の値を入力").nullable()
+    (val) => (val === "" ? null : Number(val)), // 数値に変換
+    z
+      .number()
+      .int("整数で入力してください")
+      .min(1, "1以上の値を入力してください")
+      .nullable()
   ),
   maxMemorySizeInMb: z.preprocess(
-    (val) => (val === "" ? null : val),
-    z.number().int("整数で入力").min(1, "1以上の値を入力").nullable()
+    (val) => (val === "" ? null : Number(val)), // 数値に変換
+    z
+      .number()
+      .int("整数で入力してください")
+      .min(1, "1以上の値を入力してください")
+      .nullable()
   ),
   maxStorageSizeInGb: z.preprocess(
-    (val) => (val === "" ? null : val),
-    z.number().int("整数で入力").min(1, "1以上の値を入力").nullable()
+    (val) => (val === "" ? null : Number(val)), // 数値に変換
+    z
+      .number()
+      .int("整数で入力してください")
+      .min(1, "1以上の値を入力してください")
+      .nullable()
   ),
 });
 
@@ -86,7 +78,6 @@ export function useUserAddForm() {
   const [name, nameAttrs] = defineField("name");
   const [email, emailAttrs] = defineField("email");
   const [password, passwordAttrs] = defineField("password");
-  // フォームのフィールド名はAPIと異なっていてもOK (後で送信時にマッピングするため)
   const [maxCpuCores, maxCpuCoresAttrs] = defineField("maxCpuCores");
   const [maxMemorySizeInMb, maxMemorySizeInMbAttrs] =
     defineField("maxMemorySizeInMb");
@@ -97,7 +88,7 @@ export function useUserAddForm() {
   // API Submission (API送信処理)
   // useResourceCreate Composableを使ってAPIへのPOSTリクエストを管理します。
   // ============================================================================
-  const { executeCreate, isCreating } = useResourceCreate<
+  const { executeCreate: executeUserCreation, isCreating } = useResourceCreate<
     UserCreateRequestDTO,
     UserDTO
   >("users");
@@ -109,27 +100,27 @@ export function useUserAddForm() {
    * @param emit - 親コンポーネントへイベントを通知するための関数 ('success', 'close')
    */
   const onFormSubmit = (emit: (event: "success" | "close") => void) =>
-    handleSubmit(async (values) => {
+    handleSubmit(async (formValues) => {
       // APIに送信するデータ（ペイロード）を構築します
       const payload: UserCreateRequestDTO = {
-        name: values.name,
-        email: values.email,
-        password: values.password,
+        name: formValues.name,
+        email: formValues.email,
+        password: formValues.password,
         useTOTP: false, // このフォームではTOTPは使用しない想定
         isAdmin: false, // このフォームでは管理者権限は付与しない想定
-        maxCpuCore: values.maxCpuCores, // フォームの値 `maxCpuCores` をAPIの `maxCpuCore` にマッピング
+        maxCpuCore: formValues.maxCpuCores, // フォームの `maxCpuCores` をAPIの `maxCpuCore` にマッピング
         // メモリサイズを MB から Byte に変換します
-        maxMemorySize: values.maxMemorySizeInMb
-          ? values.maxMemorySizeInMb * 1024 * 1024 // MB to Bytes
+        maxMemorySize: formValues.maxMemorySizeInMb
+          ? formValues.maxMemorySizeInMb * 1024 * 1024 // MB to Bytes
           : null, // 入力がない場合は null (無制限)
         // ストレージサイズを GB から Byte に変換します
-        maxStorageSize: values.maxStorageSizeInGb
-          ? values.maxStorageSizeInGb * 1024 * 1024 * 1024 // GB to Bytes
+        maxStorageSize: formValues.maxStorageSizeInGb
+          ? formValues.maxStorageSizeInGb * 1024 * 1024 * 1024 // GB to Bytes
           : null, // 入力がない場合は null (無制限)
       };
 
       // APIリクエストを実行します
-      const result = await executeCreate(payload);
+      const result = await executeUserCreation(payload);
 
       // 結果に応じてトースト通知を表示し、親コンポーネントにイベントを通知します
       if (result.success) {
@@ -163,9 +154,9 @@ export function useUserAddForm() {
     passwordAttrs,
     maxCpuCores,
     maxCpuCoresAttrs,
-    maxMemorySizeInMb,
+    maxMemorySizeInMb, // UIはMB単位
     maxMemorySizeInMbAttrs,
-    maxStorageSizeInGb,
+    maxStorageSizeInGb, // UIはGB単位
     maxStorageSizeInGbAttrs,
     isCreating, // API通信中のローディング状態
     onFormSubmit, // フォーム送信ハンドラ
