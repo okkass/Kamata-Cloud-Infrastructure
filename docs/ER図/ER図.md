@@ -1,6 +1,20 @@
 ```mermaid
-
 erDiagram
+
+portfolios {
+    bigint id PK
+    binary(16) uuid
+    bigint user_id FK
+}
+
+portfolio_articles {
+    bigint id PK
+    binary(16) uuid
+    varchar(256) title
+    bigint portfolio_id FK
+}
+
+
 users {
     bigint id PK
     binary(16) uuid
@@ -9,6 +23,34 @@ users {
     datetime created_at
     boolean is_admin
     datetime last_login_at
+    int cpu_limit_cores "0 for unlimited"
+    int memory_limit_mb "0 for unlimited"
+    int storage_limit_gb "0 for unlimited"
+}
+
+user_credentials {
+    bigint id PK
+    varchar(256) hashed_password
+}
+
+permissions {
+    int id PK
+    varchar name
+}
+
+roles {
+    int id PK
+    varchar(256) name
+}
+
+role_permissions {
+    int role_id FK, PK
+    int permission_id FK, PK
+}
+
+user_roles {
+    bigint user_id FK, PK
+    int role_id FK, PK
 }
 
 backups {
@@ -21,15 +63,13 @@ backups {
     bigint virtual_storage_id FK
 }
 
-virtual_storages ||--o{ backups : "has many"
-
-attached_storages {
+snapshots {
     bigint id PK
-    bigint virtual_storage_id FK
-    varchar(255) path
+    binary(16) uuid
+    text description
+    datetime created_at
+    bigint target_virtual_machine_id FK
 }
-
-virtual_storages ||--o{ attached_storages : "has many"
 
 images {
     bigint id PK
@@ -46,6 +86,7 @@ instance_types {
     varchar(256) name
     int cpu_core
     int memory_size
+    is_template boolean ""
     datetime created_at
 }
 
@@ -75,17 +116,6 @@ physical_nodes {
     boolean is_admin
 }
 
-portfolios {
-    bigint id PK
-    binary(16) uuid
-}
-
-portfolio_articles {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) title
-}
-
 security_groups {
     bigint id PK
     binary(16) uuid
@@ -98,29 +128,50 @@ security_rules {
     bigint security_group_id FK
     binary(16) uuid
     varchar(256) name
-    enum('inbound', 'outbound') rule_type
+    varchar role_type "enum('inbound', 'outbound')"
     int port
-    enum('tcp', 'udp', 'icmp', 'any') protcol
+    varchar protocol "enum('tcp', 'udp', 'icmp', 'any')"
     varchar(15) target_ip
-    enum('allow', 'deny') action
-    datetime
+    varchar action "enum('allow', 'deny')"
+    datetime created_at
 }
 
-snapshots {
-    bigint id PK
-    binary(16) uuid
-    text description
-    datetime created_at
-    bigint target_virtual_machine_id
-}
+
 
 storage_pools {
     bigint id PK
     binary(16) uuid
     varchar(256) name
-    enum('local', 'network') type
+    varchar type "enum('local', 'network')"
     datetime created_at
     bigint total_size
+}
+
+virtual_storages {
+    bigint id PK
+    binary(16) uuid
+    varchar(256) name
+    bigint size
+    bigint storage_pool_id
+}
+
+attached_storages {
+    bigint id PK
+    bigint virtual_storage_id FK
+    varchar(255) path
+}
+
+virtual_machine_attached_storage {
+        bigint virtual_machine_id FK, PK
+        bigint virtual_storage_id FK, PK
+}
+
+virtual_networks {
+    bigint id PK
+    binary(16) uuid
+    varchar(256) name
+    varchar(15) cidr
+    datetime created_at
 }
 
 subnets {
@@ -131,44 +182,50 @@ subnets {
     datetime created_at
 }
 
-subnets ||--o{ network_interfaces : "belongs to"
+virtual_machine_security_groups {
+        bigint virtual_machine_id FK, PK
+        bigint security_group_id FK, PK
+}
 
 virtual_machines {
     bigint id PK
     binary(16) uuid
-    bigint instance_type_id FK
-    enum('running', 'stoped', 'suspended') status
+    varchar status "enum('running', 'stopped', 'suspended')"
     bigint physical_node_id FK
+    bigint image_id FK
+    bigint instance_type_id FK
     datetime created_at
 }
 
-virtual_machine_attached_storage {
-    bigint virtual_machine_id FK PK
-    bigint virtual_storage_id FK PK
-}
+physical_nodes ||--o{ virtual_machines : "has many"
 
-virtual_machine_attached_nic {
-    bigint virtual_machine_id FK PK
-    bigint network_interface_id FK PK
-}
+images ||--o{ virtual_machines : "has"
+instance_types ||--o{ virtual_machines : "has"
 
+virtual_machines }o--o{ virtual_machine_attached_storage : "attaches"
+virtual_storages }o--o{ virtual_machine_attached_storage : "is attached to"
+virtual_storages ||--o{ backups : "has many"
+virtual_storages ||--o{ attached_storages : "has many"
+storage_pools ||--o{ virtual_storages : "many"
+
+%% virtual_machine_attached_nic {
+%%     bigint virtual_machine_id FK, PK
+%%     bigint network_interface_id FK, PK
+%% }
+subnets ||--o{ network_interfaces : "belongs to"
 virtual_machines ||--o{ network_interfaces : "has"
+virtual_networks ||--o{ subnets : "many"
 
-virtual_networks {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    varchar(15) cidr
-    datetime created_at
+security_groups ||--o{ security_rules : "many"
+virtual_machines }o--o{ virtual_machine_security_groups : "applies"
+security_groups }o--o{ virtual_machine_security_groups : "is applied to"
 
-}
-
-virtual_storages {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    bigint size
-    bigint storage_pool_id
-}
+users ||--o{ portfolios : "owns"
+portfolios ||--o{ portfolio_articles : "contains"
+users |o--|| user_credentials : "has"
+users }o--o{ user_roles : "has"
+roles }o--o{ user_roles : "is assigned to"
+roles }o--o{ role_permissions : "has"
+permissions }o--o{ role_permissions : "is granted to"
 
 ```

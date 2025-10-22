@@ -1466,6 +1466,78 @@ paths:
       security:
         - BearerAuth: []
 
+  /api/portfolios:
+    get:
+      summary: ポートフォリオ一覧の取得
+      description: すべてのポートフォリオのリストを取得します。
+      tags:
+        - Portfolio
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Portfolio"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: ポートフォリオの作成
+      description: 新しいポートフォリオを作成します。
+      tags:
+        - Portfolio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PortfolioCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Portfolio"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    delete:
+      summary: ポートフォリオの削除
+      description: 指定したIDのポートフォリオを削除します。
+      tags:
+        - Portfolio
+      parameters:
+        - name: portfolioId
+          in: query
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ポートフォリオの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ポートフォリオが見つからない
+      security:
+        - BearerAuth: []
+
 components:
   schemas:
     AttachedStorage:
