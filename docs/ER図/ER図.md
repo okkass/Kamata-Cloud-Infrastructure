@@ -29,7 +29,7 @@ users {
 }
 
 user_credentials {
-    bigint id PK
+    bigint user_id PK, FK
     varchar(256) hashed_password
 }
 
@@ -130,7 +130,7 @@ security_rules {
     varchar(256) name
     varchar role_type "enum('inbound', 'outbound')"
     int port
-    varchar protocol "enum('tcp', 'udp', 'icmp', 'any')"
+    varchar rule_protocol "enum('tcp', 'udp', 'icmp', 'any')"
     varchar(15) target_ip
     varchar action "enum('allow', 'deny')"
     datetime created_at
@@ -152,7 +152,7 @@ virtual_storages {
     binary(16) uuid
     varchar(256) name
     bigint size
-    bigint storage_pool_id
+    bigint storage_pool_id FK
 }
 
 attached_storages {
@@ -180,6 +180,7 @@ subnets {
     varchar(256) name
     varchar(15) cidr
     datetime created_at
+    bigint virtual_network_id FK
 }
 
 virtual_machine_security_groups {
@@ -190,10 +191,12 @@ virtual_machine_security_groups {
 virtual_machines {
     bigint id PK
     binary(16) uuid
+    varchar(256) name
     varchar status "enum('running', 'stopped', 'suspended')"
     bigint physical_node_id FK
     bigint image_id FK
     bigint instance_type_id FK
+    bigint user_id FK
     datetime created_at
 }
 
@@ -227,5 +230,4 @@ users }o--o{ user_roles : "has"
 roles }o--o{ user_roles : "is assigned to"
 roles }o--o{ role_permissions : "has"
 permissions }o--o{ role_permissions : "is granted to"
-
 ```
