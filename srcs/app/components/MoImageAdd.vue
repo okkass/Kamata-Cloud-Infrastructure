@@ -24,7 +24,7 @@
         <FormDropZone
           id="image-file-add"
           v-model="file"
-          accept=".img,.qcow2,.raw,.iso,.vhd,.vhdx,.vmdk,.zip,.gz,.xz"
+          accept=".img,.qcow2,.zip,.gz,.xz"
           :error-message="errors.file"
         />
       </div>
