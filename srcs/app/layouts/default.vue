@@ -1,18 +1,28 @@
 <template>
-  <div class="relative flex">
-    <UserSidebar :role="userRole" />
-
-    <main class="flex-1 ml-64 p-8">
-      <slot />
-    </main>
+  <div class="relative min-h-screen">
+    <DefaultHeader />
+    <div>
+      <UserSidebar :isAdmin="isAdmin" />
+      <main
+        class="p-8 transition-all duration-300 mt-8"
+        :class="isSidebarOpen ? 'ml-56' : 'ml-8'"
+      >
+        <slot />
+      </main>
+    </div>
   </div>
 </template>
-<script setup>
-import { ref } from "vue";
-import UserSidebar from "~/components/UserSidebar.vue"; // コンポーネントのパスは適宜調整
 
-// 本来は認証情報などから動的に取得しますが、ここでは仮のデータを使います。
-// 'admin' または 'user' を切り替えて表示を確認できます。
-//const userRole = ref("admin");
-const userRole = ref("user");
+<script setup lang="ts">
+import { useUser } from "~/composables/useUser";
+import { useSidebar } from "~/composables/useSidebar"; // useSidebarをインポート
+import UserSidebar from "~/components/Sidebar.vue";
+import DefaultHeader from "~/components/DefaultHeader.vue";
+
+const { isAdmin, fetchUser } = useUser();
+const { isSidebarOpen } = useSidebar(); // サイドバーの開閉状態を取得
+
+onMounted(() => {
+  fetchUser();
+});
 </script>
