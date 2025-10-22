@@ -1081,6 +1081,129 @@ paths:
           description: ストレージプールが見つからない
       security:
         - BearerAuth: []
+  /api/storage-pools/local/{nodeId}/devices:
+    get:
+      summary: デバイス一覧の取得
+      description: 指定した物理ノードのローカルストレージプールに使用可能なデバイスのリストを取得します。
+      tags:
+        - StoragePool
+      parameters:
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 物理ノードの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DeviceFile"
+  /api/storage-pools/network:
+    get:
+      summary: ネットワークストレージプール一覧の取得
+      description: すべてのネットワークストレージプールのリストを取得します。
+      tags:
+        - StoragePool
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/NetworkStoragePool"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: ストレージプールの作成
+      description: 新しいストレージプールを作成します。
+      tags:
+        - StoragePool
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NetworkStoragePoolCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkStoragePool"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /api/storage-pools/network/{poolId}:
+    get:
+      summary: ストレージプールの詳細取得
+      description: 指定したIDのストレージプールの詳細情報を取得します。
+      tags:
+        - StoragePool
+      parameters:
+        - name: poolId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ストレージプールの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NetworkStoragePool"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ストレージプールが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: ストレージプールの削除
+      description: 指定したIDのストレージプールを削除します。
+      tags:
+        - StoragePool
+      parameters:
+        - name: poolId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ストレージプールの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ストレージプールが見つからない
+      security:
+        - BearerAuth: []
   /api/virtual-machines:
     get:
       summary: 仮想マシン一覧の取得
@@ -2161,6 +2284,29 @@ components:
         - nodeId
         - devFile
         - size
+    DeviceFile:
+      type: object
+      description: ストレージデバイスファイルオブジェクト
+      properties:
+        file:
+          type: string
+          description: ストレージデバイスのパス
+          example: "/dev/sdb"
+        size:
+          type: integer
+          description: ストレージデバイスのサイズ（バイト単位）
+        vendor:
+          type: string
+          description: ストレージデバイスのベンダー情報
+        model:
+          type: string
+          description: ストレージデバイスのモデル情報
+      required:
+        - file
+        - size
+        - vendor
+        - model
+
     NetworkStoragePoolCreateRequest:
       type: object
       description: ネットワークストレージプール作成リクエストオブジェクト
