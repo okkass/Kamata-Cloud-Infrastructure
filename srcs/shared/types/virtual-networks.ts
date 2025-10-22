@@ -1,7 +1,7 @@
 /**
  * サブネットオブジェクト
  */
-export interface Subnet {
+export interface SubnetDTO {
   /**
    * サブネットを識別するための一意なID
    */
@@ -26,7 +26,7 @@ export interface Subnet {
 /**
  * サブネット作成リクエストオブジェクト
  */
-export interface SubnetCreateRequest {
+export interface SubnetCreateRequestDTO {
   /**
    * サブネットの名前
    */
@@ -43,7 +43,7 @@ export interface SubnetCreateRequest {
 /**
  * サブネット更新リクエストオブジェクト
  */
-export interface SubnetUpdateRequest {
+export interface SubnetUpdateRequestDTO {
   /**
    * サブネットの名前
    */
@@ -57,36 +57,11 @@ export interface SubnetUpdateRequest {
    */
   possibleExternalConnection?: boolean;
 }
-/**
- * TOTP情報オブジェクト
- */
-export interface TotpInfo {
-  /**
-   * TOTPシークレットキー
-   */
-  secret?: string;
-  /**
-   * TOTP URI（QRコード生成用）
-   */
-  uri?: string;
-}
-/**
- * TOTPログインリクエストオブジェクト
- */
-export interface TotpLoginRequest {
-  /**
-   * ユーザのメールアドレス
-   */
-  email: string;
-  /**
-   * TOTPコード
-   */
-  totpCode: string;
-}
+
 /**
  * 仮想ネットワークオブジェクト
  */
-export interface VirtualNetwork {
+export interface VirtualNetworkDTO {
   /**
    * 仮想ネットワークを識別するための一意なID
    */
@@ -103,20 +78,20 @@ export interface VirtualNetwork {
    * 仮想ネットワークが作成された日時
    */
   createdAt: string;
-  subnets?: Array<Subnet>;
+  subnets?: Array<SubnetDTO>;
   /**
    * 仮想ネットワークのインバウンドトラフィック（bps単位）
    */
-  inboundTraffic?: number;
+  inboundTraffic: number;
   /**
    * 仮想ネットワークのアウトバウンドトラフィック（bps単位）
    */
-  outboundTraffic?: number;
+  outboundTraffic: number;
 }
 /**
  * 仮想ネットワーク作成リクエストオブジェクト
  */
-export interface VirtualNetworkCreateRequest {
+export interface VirtualNetworkCreateRequestDTO {
   /**
    * 仮想ネットワークの名前
    */
@@ -125,4 +100,13 @@ export interface VirtualNetworkCreateRequest {
    * CIDR形式のネットワークアドレス
    */
   cidr: string;
+}
+/**
+ * 仮想ネットワーク更新リクエストオブジェクト
+ */
+export interface VirtualNetworkUpdateRequestDTO {
+  /**
+   * 仮想ネットワークの名前
+   */
+  name?: string;
 }
