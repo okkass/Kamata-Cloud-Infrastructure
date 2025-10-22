@@ -57,32 +57,7 @@ export interface SubnetUpdateRequestDTO {
    */
   possibleExternalConnection?: boolean;
 }
-/**
- * TOTP情報オブジェクト
- */
-export interface TotpInfoDTO {
-  /**
-   * TOTPシークレットキー
-   */
-  secret?: string;
-  /**
-   * TOTP URI（QRコード生成用）
-   */
-  uri?: string;
-}
-/**
- * TOTPログインリクエストオブジェクト
- */
-export interface TotpLoginRequestDTO {
-  /**
-   * ユーザのメールアドレス
-   */
-  email: string;
-  /**
-   * TOTPコード
-   */
-  totpCode: string;
-}
+
 /**
  * 仮想ネットワークオブジェクト
  */
@@ -107,11 +82,11 @@ export interface VirtualNetworkDTO {
   /**
    * 仮想ネットワークのインバウンドトラフィック（bps単位）
    */
-  inboundTraffic?: number;
+  inboundTraffic: number;
   /**
    * 仮想ネットワークのアウトバウンドトラフィック（bps単位）
    */
-  outboundTraffic?: number;
+  outboundTraffic: number;
 }
 /**
  * 仮想ネットワーク作成リクエストオブジェクト
@@ -125,4 +100,13 @@ export interface VirtualNetworkCreateRequestDTO {
    * CIDR形式のネットワークアドレス
    */
   cidr: string;
+}
+/**
+ * 仮想ネットワーク更新リクエストオブジェクト
+ */
+export interface VirtualNetworkUpdateRequestDTO {
+  /**
+   * 仮想ネットワークの名前
+   */
+  name?: string;
 }
