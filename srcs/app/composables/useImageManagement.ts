@@ -5,19 +5,7 @@ import { ref, computed } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 import { usePageActions } from "@/composables/usePageActions";
 
-type TableColumn = {
-  key: string;
-  label: string;
-  align?: "left" | "center" | "right";
-};
-type ImageDto = {
-  id: string;
-  name: string;
-  description?: string;
-  createdAt: string;
-  size: number;
-};
-type UiImage = {
+interface UiImage {
   id: string;
   name: string;
   description?: string;
@@ -25,34 +13,19 @@ type UiImage = {
   size: string;
 };
 
-const toSize = (b: number) => {
-  if (!Number.isFinite(b)) return "—";
-  const units = ["B", "KB", "MB", "GB", "TB"];
-  let unitIndex = 0,
-    value = b;
-  while (value >= 1024 && unitIndex < units.length - 1) {
-    value /= 1024;
-    unitIndex++;
-  }
-  return `${
-    value >= 10 || Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1)
-  }${units[unitIndex]}`;
-};
-
-const formatDateTime = (iso: string) => {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "—";
-  const y = d.getFullYear();
-  const m = String(d.getMonth() + 1).padStart(2, "0");
-  const day = String(d.getDate()).padStart(2, "0");
-  const hh = String(d.getHours()).padStart(2, "0");
-  const mm = String(d.getMinutes()).padStart(2, "0");
-  return `${y}-${m}-${day} ${hh}:${mm}`;
-};
-
+/**
+ * 仮想マシンイメージ管理ページのUIロジックと状態を管理するComposable
+ *
+ * @returns {object} - Vueコンポーネントで利用するプロパティとメソッド
+ */
 export function useImageManagement() {
-  const { data: rawImages, refresh: refreshImageList } =
-    useResourceList<ImageDto>("images");
+  // --- 状態管理 (State Management) ---
+
+  // useResourceList: APIから取得した生のDTOリストを管理
+  const { data: imageDTOs, refresh: refreshImageList } =
+    useResourceList<ImageDTO>("images");
+
+  // usePageActions: モーダル表示、削除確認などの共通UIアクションを管理
   const {
     activeModal,
     openModal,
@@ -60,8 +33,8 @@ export function useImageManagement() {
     targetForDeletion,
     isDeleting,
     handleRowAction,
-    handleDelete: handleDeleteAction,
-    handleSuccess: handleSuccessAction,
+    handleDelete: executeDelete, // 元の関数を別名で受け取る
+    handleSuccess: notifySuccess, // 元の関数を別名で受け取る
     cancelAction,
   } = usePageActions<UiImage>({
     resourceName: "images",
@@ -69,64 +42,90 @@ export function useImageManagement() {
     refresh: refreshImageList,
   });
 
+  /** 削除処理中のイメージID。対象行のボタンを無効化するために使用 */
+  const deletingImageId = ref<string | null>(null);
+
+  // --- UIデータ定義 (UI Definitions) ---
+
+  /** テーブルのカラム定義 */
   const columns = ref<TableColumn[]>([
     { key: "name", label: "イメージ名", align: "left" },
     { key: "size", label: "サイズ", align: "right" },
     { key: "createdAt", label: "登録日", align: "left" },
   ]);
+
+  /** ダッシュボードヘッダーのボタン定義 */
   const headerButtons = ref([{ label: "イメージ追加", action: "add-image" }]);
 
-  const displayImages = computed<UiImage[]>(() =>
-    (rawImages.value ?? []).map((r) => ({
-      id: r.id,
-      name: r.name,
-      description: r.description,
-      createdAt: formatDateTime(r.createdAt),
-      size: toSize(r.size),
+  /**
+   * 画面表示用にフォーマットされたイメージのリスト
+   * APIから取得したDTOをUIに適した形式 (UiImage) に変換する
+   */
+  const images = computed<UiImage[]>(() =>
+    (imageDTOs.value ?? []).map((dto) => ({
+      id: dto.id,
+      name: dto.name,
+      description: dto.description,
+      createdAt: formatDateTime(dto.createdAt),
+      size: toSize(dto.size),
     }))
   );
 
-  const deletingImageId = ref<string | null>(null);
+  // --- アクションハンドラ (Action Handlers) ---
 
-  function promptForImageDeletion(row: UiImage) {
-    handleRowAction({ action: "delete", row });
+  /**
+   * ヘッダーのボタンがクリックされたときのアクションを処理
+   * @param action - 実行するアクション名
+   */
+  function handleHeaderAction(action: string) {
+    if (action === "add-image") {
+      openModal("add-image");
+    }
+  }
+  
+  /**
+   * イメージ削除の確認モーダルを表示する
+   * @param image - 削除対象のイメージデータ
+   */
+  function promptForDeletion(image: UiImage) {
+    handleRowAction({ action: "delete", row: image });
   }
 
-  function handleDashboardHeaderAction(action: string) {
-    if (action !== "add-image") return;
-    openModal("add-image");
-  }
-
-  // usePageActions の handleDelete をラップして削除中の id を追跡する
+  /**
+   * 削除処理を実行する
+   * usePageActionsの削除処理をラップし、UIの状態（deletingImageId）を管理する
+   */
   async function handleDelete() {
-    const row = targetForDeletion.value;
-    if (!row) return;
-    deletingImageId.value = row.id;
+    const imageToDelete = targetForDeletion.value;
+    if (!imageToDelete) return;
+
+    deletingImageId.value = imageToDelete.id;
     try {
-      await handleDeleteAction();
+      await executeDelete(); // 実際の削除処理を実行
     } finally {
+      // 成功・失敗にかかわらず、ローディング状態を解除
       deletingImageId.value = null;
     }
   }
 
-  // handleSuccess をそのまま呼ぶ（通知は usePageActions 側で統一する想定）
-  async function handleSuccess() {
-    await handleSuccessAction();
-  }
-
   return {
+    // データ
     columns,
-    displayImages,
+    images,
     headerButtons,
+
+    // モーダルと状態
     activeModal,
+    closeModal,
     targetForDeletion,
-    isDeleting,
-    deletingImageId,
-    handleDashboardHeaderAction,
-    promptForImageDeletion,
+    isDeleting, // 削除処理中かどうかの全体的な状態
+    deletingImageId, // どのイメージが削除処理中かの個別状態
+
+    // アクション
+    handleHeaderAction, // 'handleDashboardHeaderAction' から改名
+    promptForDeletion, // 'promptForImageDeletion' から改名
     cancelAction,
     handleDelete,
-    closeModal,
-    handleSuccess,
+    notifySuccess, // 'handleSuccess' から改名
   } as const;
 }
