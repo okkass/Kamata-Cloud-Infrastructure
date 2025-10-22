@@ -2224,6 +2224,7 @@ components:
         - createdAt
         - totalSize
         - usedSize
+        - localStoragePoolId
     LocalStoragePool:
       type: object
       description: ローカルストレージプールオブジェクト
