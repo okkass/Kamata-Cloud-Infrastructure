@@ -28,15 +28,15 @@ type UiImage = {
 const toSize = (b: number) => {
   if (!Number.isFinite(b)) return "—";
   const units = ["B", "KB", "MB", "GB", "TB"];
-  let i = 0,
-    v = b;
-  while (v >= 1024 && i < units.length - 1) {
-    v /= 1024;
-    i++;
+  let unitIndex = 0,
+    value = b;
+  while (value >= 1024 && unitIndex < units.length - 1) {
+    value /= 1024;
+    unitIndex++;
   }
-  return `${v >= 10 || Number.isInteger(v) ? v.toFixed(0) : v.toFixed(1)}${
-    units[i]
-  }`;
+  return `${
+    value >= 10 || Number.isInteger(value) ? value.toFixed(0) : value.toFixed(1)
+  }${units[unitIndex]}`;
 };
 
 const formatDateTime = (iso: string) => {
