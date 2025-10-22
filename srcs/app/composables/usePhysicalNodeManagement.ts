@@ -11,14 +11,6 @@ import { useToast } from "@/composables/useToast";
 import { useResourceList } from "@/composables/useResourceList";
 import { usePageActions } from "@/composables/usePageActions";
 
-// ==============================================================================
-// Type Definitions
-// ==============================================================================
-type TableColumn = {
-  key: keyof UiNode | string;
-  label: string;
-  align?: "left" | "center" | "right";
-};
 
 /**
  * メインのComposable関数
