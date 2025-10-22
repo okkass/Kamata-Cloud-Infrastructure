@@ -2224,6 +2224,7 @@ components:
         - createdAt
         - totalSize
         - usedSize
+        - localStoragePoolId
     LocalStoragePool:
       type: object
       description: ローカルストレージプールオブジェクト
@@ -2306,7 +2307,6 @@ components:
         - size
         - vendor
         - model
-
     NetworkStoragePoolCreateRequest:
       type: object
       description: ネットワークストレージプール作成リクエストオブジェクト

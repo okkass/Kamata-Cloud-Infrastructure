@@ -108,15 +108,11 @@ export interface DeviceFileDTO {
 /**
  * ネットワークストレージプール作成リクエストオブジェクト
  */
-export interface StoragePoolCreateRequestDTO {
+export interface NetworkStoragePoolCreateRequestDTO {
   /**
    * ストレージプールの名前
    */
   name: string;
-  /**
-   * ストレージプールを作成する物理ノードのID
-   */
-  nodeId: string;
   /**
    * ストレージプールのサイズ（バイト単位）
    */
