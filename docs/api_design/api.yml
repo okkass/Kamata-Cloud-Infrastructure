@@ -1544,6 +1544,10 @@ components:
       type: object
       description: アタッチされたストレージオブジェクト
       properties:
+        id:
+          type: string
+          format: uuid
+          description: アタッチされたストレージを識別するための一意なID
         storage:
           $ref: "#/components/schemas/VirtualStorage"
         path:
@@ -1777,6 +1781,12 @@ components:
           type: string
           format: uuid
           description: ネットワークインターフェースが属するサブネットのID
+      required:
+        - id
+        - name
+        - macAddress
+        - ipAddress
+        - subnetId
     PasswordResetRequest:
       type: object
       description: パスワードリセットリクエストオブジェクト
@@ -1894,6 +1904,10 @@ components:
           type: number
           format: integer
           description: 過去7日間のビュー数
+      required:
+        - id
+        - viewCount24Hour
+        - viewCount7Day
     PortfolioArticle:
       type: object
       description: ポートフォリオ記事オブジェクト
@@ -1912,6 +1926,11 @@ components:
         status:
           type: string
           enum: [published, draft]
+      required:
+        - id
+        - title
+        - createdAt
+        - status
     SecurityGroup:
       type: object
       description: セキュリティグループオブジェクト
@@ -2035,12 +2054,17 @@ components:
           format: ipv4
           description: ターゲットIPアドレス
           example: "10.0.0.0/16"
+        action:
+          type: string
+          enum: [allow, deny]
+          description: ルールのアクション（許可または拒否）
       required:
         - name
         - ruleType
         - port
         - protocol
         - targetIp
+        - action
     SecurityRuleUpdateRequest:
       type: object
       description: セキュリティルール更新リクエストオブジェクト
@@ -2248,6 +2272,9 @@ components:
         uri:
           type: string
           description: TOTP URI（QRコード生成用）
+      required:
+        - secret
+        - uri
     TotpLoginRequest:
       type: object
       description: TOTPログインリクエストオブジェクト
@@ -2351,6 +2378,9 @@ components:
         maxStorageSize:
           type: integer
           description: ユーザが使用できる最大ストレージサイズ（バイト単位）
+        isAdmin:
+          type: boolean
+          description: ユーザが管理者かどうかを示すフラグ
     VirtualMachine:
       type: object
       description: 仮想マシンオブジェクト
@@ -2419,6 +2449,7 @@ components:
         - createdAt
         - securityGroups
         - attachedStorage
+        - node
     VirtualMachineCreateRequest:
       type: object
       description: 仮想マシン作成リクエストオブジェクト
@@ -2491,6 +2522,8 @@ components:
         - subnetId
         - imageId
         - storages
+        - nodeId
+        - securityGroupIds
     VirtualMachineUpdateRequest:
       type: object
       description: 仮想マシン更新リクエストオブジェクト
@@ -2524,9 +2557,6 @@ components:
           description: アタッチされたネットワークインターフェースのリスト
           items:
             $ref: "#/components/schemas/NetworkInterface"
-      required:
-        - name
-        - securityGroupIds
     VirtualNetwork:
       type: object
       description: 仮想ネットワークオブジェクト
@@ -2560,6 +2590,13 @@ components:
           format: float
           description: 仮想ネットワークのアウトバウンドトラフィック（bps単位）
           example: 98000.0
+      required:
+        - id
+        - name
+        - cidr
+        - createdAt
+        - inboundTraffic
+        - outboundTraffic
     VirtualNetworkCreateRequest:
       type: object
       description: 仮想ネットワーク作成リクエストオブジェクト
@@ -2595,10 +2632,16 @@ components:
         size:
           type: integer
           description: 仮想ストレージのサイズ（バイト単位）
-        pool:
+        poolId:
           type: string
           format: uuid
           description: 仮想ストレージが属するストレージプールのID
+      required:
+        - id
+        - name
+        - size
+        - pool
+        - createdAt
   securitySchemes:
     BearerAuth:
       type: http
