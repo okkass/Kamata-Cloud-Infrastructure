@@ -2260,6 +2260,7 @@ components:
         - createdAt
         - totalSize
         - usedSize
+        - nodeId
         - devFile
     LocalStoragePoolCreateRequest:
       type: object
@@ -2281,7 +2282,6 @@ components:
           example: "/dev/sdb"
       required:
         - name
-        - type
         - nodeId
         - devFile
         - size
