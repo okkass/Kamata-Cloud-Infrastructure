@@ -2282,7 +2282,6 @@ components:
           example: "/dev/sdb"
       required:
         - name
-        - type
         - nodeId
         - devFile
         - size
