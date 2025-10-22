@@ -98,6 +98,7 @@ import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 // (他のモーダルコンポーネントのインポートも同様)
 import MoAddNodeToCluster from "~/components/MoAddNodeToCluster.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
+import MoImageAdd from "~/components/MoImageAdd.vue";
 import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoSecurityGroupCreate from "~/components/MoSecurityGroupCreate.vue";
@@ -179,6 +180,12 @@ const modals = computed(() => [
         memorySize: 2048,
       },
     },
+  },
+  {
+    id: "imageAdd",
+    buttonText: "イメージ追加",
+    component: markRaw(MoImageAdd),
+    props: {},
   },
   {
     id: "instanceTypeAdd",
