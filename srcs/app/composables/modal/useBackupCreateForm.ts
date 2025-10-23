@@ -73,25 +73,20 @@ export function useBackupCreateForm() {
   } = useResourceList<VirtualMachineDTO>("virtual-machines"); // VM一覧APIのエンドポイント
 
   // --- 選択されたVMに紐づくストレージ一覧 (Computed) ---
-  // 404エラー修正: 別のAPIを叩かず、取得済みのVMリストからストレージを計算する
+  // 取得済みのVMリストからストレージを計算します
   const availableStorages = computed(() => {
-    // 1. 選択中のVM IDを取得
     const selectedVmId = values.targetVmId;
     if (!selectedVmId || !virtualMachines.value) {
-      return []; // VMが未選択、またはVMリストが未ロードの場合は空
+      return [];
     }
-
-    // 2. VMリストから選択中のVMオブジェクトを検索
     const selectedVm = virtualMachines.value.find(
       (vm) => vm.id === selectedVmId
     );
     if (!selectedVm || !selectedVm.attachedStorages) {
-      return []; // VMが見つからない、またはストレージがない場合は空
+      return [];
     }
-
-    // 3. API仕様に基づき、`attachedStorages` 配列から `storage` オブジェクトを抽出します。
-    //    `FormSelect` は `options` として `{ id: '...', name: '...' }` の配列を期待しているため、
-    //    `attachment.storage` オブジェクト (これが期待される形式) をそのまま返します。
+    // FormSelectが { id, name } のオブジェクト配列を期待しているため、
+    // attachment.storage オブジェクトをそのまま返す
     return selectedVm.attachedStorages
       .map((attachment) => attachment.storage) // attachment.storage ({ id, name, ... }) を抽出
       .filter((storage) => !!storage); // storage が null や undefined の場合を除外
@@ -99,7 +94,6 @@ export function useBackupCreateForm() {
 
   // targetVmId が変更されたら、ストレージのプルダウン選択をリセットする
   watch(targetVmId, (newVmId, oldVmId) => {
-    // 選択肢が変更された場合のみリセット
     if (newVmId !== oldVmId) {
       setFieldValue("targetStorageId", undefined); // ストレージ選択をリセット
     }
@@ -122,10 +116,16 @@ export function useBackupCreateForm() {
    */
   const onFormSubmit = (emit: (event: "success" | "close") => void) =>
     handleSubmit(async (formValues) => {
+      // ★★★ 修正箇所 ★★★
+      // FormSelect.vue は v-model に id を返すことが確認されているため、
+      // 以前追加した name から id への逆引きロジックを削除します。
+      // formValues.targetStorageId には選択されたストレージのIDが直接入っています。
+      // ★★★ 修正ここまで ★★★
+
       // APIに送信するデータ（ペイロード）を構築します
       const payload: BackupCreateRequestDTO = {
         name: formValues.name,
-        targetStorageId: formValues.targetStorageId, // UIで選択された「バックアップ対象のストレージ」ID
+        targetStorageId: formValues.targetStorageId, // ★ FormSelectから受け取ったIDをそのまま使用
       };
 
       // APIリクエスト (`POST /api/backups`) を実行します
@@ -164,7 +164,6 @@ export function useBackupCreateForm() {
     vmsPending, // VMリスト読み込み中か (ref<boolean>)
     vmsError, // VMリスト読み込みエラー (ref<Error | null>)
     availableStorages, // 選択中VMのストレージリスト (computed<StorageDTO[]>)
-    // ★ ストレージのPending/Errorは、VMのPending/Errorと連動させる
     storagesPending: vmsPending, // VM読み込み中 = ストレージもまだ不明
     storagesError: vmsError, // VM読み込みエラー = ストレージも取得不可
     // 状態とアクション
