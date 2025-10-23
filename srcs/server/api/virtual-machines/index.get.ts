@@ -32,7 +32,7 @@ export default defineEventHandler((event) => {
       attachedStorages: [
         {
           storage: {
-            id: "storage-os-01",
+            id: "rgedfghjk67890-6b02-4c99-bb05-cf8487411d1f",
             name: "vm-01-os",
             size: 50 * 1024 * 1024 * 1024, // 50GB
             pool: "532ca711-42e0-449c-bd1c-51af16f333b6",
@@ -41,7 +41,7 @@ export default defineEventHandler((event) => {
         },
         {
           storage: {
-            id: "storage-data-01",
+            id: "je3634-2345-4abc-89de-abcdef123456",
             name: "vm-01-data",
             size: 100 * 1024 * 1024 * 1024, // 100GB
             pool: "93061a02-e35d-4055-8bcd-a0002440fb89",
@@ -80,7 +80,7 @@ export default defineEventHandler((event) => {
       attachedStorages: [
         {
           storage: {
-            id: "storage-os-02",
+            id: "hres25634-2345-4abc-89de-abcdef123456",
             name: "vm-02-os",
             size: 20 * 1024 * 1024 * 1024, // 20GB
             pool: "532ca711-42e0-449c-bd1c-51af16f333b6",
@@ -114,7 +114,7 @@ export default defineEventHandler((event) => {
       attachedStorages: [],
     },
     {
-      id: "ffeeddcc-bbaa-9988-7766-554433221100",
+      id: "42dfwer56-7890-abcd-efgh-ijklmnopqrst",
       name: "vm-04 (複数SG)",
       instanceType: {
         id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
@@ -137,7 +137,7 @@ export default defineEventHandler((event) => {
       attachedStorages: [],
     },
     {
-      id: "12345678-90ab-cdef-1234-567890abcdef",
+      id: "1rr3wgfe56-7890-abcd-efgh-ijklmnopqrst",
       name: "vm-05(テスト用)",
       cpuCore: 2,
       memorySize: 2 * 1024 * 1024 * 1024,
@@ -155,11 +155,12 @@ export default defineEventHandler((event) => {
       attachedStorages: [
         {
           storage: {
-            id: "storage-os-05",
+            id: "dgefghjk67890-6b02-4c99-bb05-cf8487411d1f",
             name: "vm-05-os",
             size: 30 * 1024 * 1024 * 1024, // 30GB
             pool: "532ca711-42e0-449c-bd1c-51af16f333b6",
           },
+          path: "/dev/sda", // OSディスク
         },
       ],
       attachedNics: [
@@ -173,4 +174,5 @@ export default defineEventHandler((event) => {
       storageUtilization: 0.3,
     },
   ];
+  return mock;
 });

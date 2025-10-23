@@ -2,6 +2,7 @@ import { validate } from "uuid";
 
 export default defineEventHandler(async (event) => {
   const { id } = event.context.params as { id: string };
+  let response: PhysicalNodeDTO;
 
   if (!validate(id)) {
     createError({

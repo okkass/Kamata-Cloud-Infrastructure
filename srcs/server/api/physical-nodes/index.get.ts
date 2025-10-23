@@ -1,5 +1,5 @@
 export default defineEventHandler(() => {
-  return [
+  const physicalNodes: Array<PhysicalNodeDTO> = [
     {
       id: "d898bae4-0a05-48aa-846e-aca5bbfd72c6",
       name: "Node 1",
@@ -23,4 +23,5 @@ export default defineEventHandler(() => {
       storageUtilization: 0.6, // 0 to 1
     },
   ];
+  return physicalNodes;
 });
