@@ -95,7 +95,7 @@ export function useBackupCreateForm() {
   // targetVmId が変更されたら、ストレージのプルダウン選択をリセットする
   watch(targetVmId, (newVmId, oldVmId) => {
     if (newVmId !== oldVmId) {
-      setFieldValue("targetStorageId", undefined); // ストレージ選択をリセット
+      setFieldValue("targetStorageId", ""); // ストレージ選択をリセット
     }
   });
 
