@@ -95,7 +95,6 @@ const {
 // ==============================================================================
 import MoVirtualMachineCreate from "~/components/MoVirtualMachineCreate.vue";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
-// (他のモーダルコンポーネントのインポートも同様)
 import MoAddNodeToCluster from "~/components/MoAddNodeToCluster.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
 import MoImageAdd from "~/components/MoImageAdd.vue";
@@ -109,6 +108,7 @@ import MoUserEdit from "~/components/MoUserEdit.vue";
 import MoVirtualNetworkCreate from "~/components/MoVirtualNetworkCreate.vue";
 import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
 import MoLocalStorageAdd from "~/components/MoLocalStorageAdd.vue";
+import MoBackupCreate from "~/components/MoBackupCreate.vue";
 
 // ==============================================================================
 // State
@@ -239,6 +239,12 @@ const modals = computed(() => [
     props: {
       userData: { name: "test-user", maxMemorySize: 0, maxStorageSize: 0 },
     },
+  },
+  {
+    id: "backupCreate",
+    buttonText: "BU作成",
+    component: markRaw(MoBackupCreate),
+    props: {},
   },
 ]);
 
