@@ -9,4 +9,5 @@ export default defineEventHandler((event) => {
       ipAddress: "10.10.10.101",
     },
   ];
+  return candidates;
 });
