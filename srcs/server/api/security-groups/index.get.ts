@@ -1,7 +1,7 @@
 import { create } from "domain";
 
 export default defineEventHandler(() => {
-  return [
+  const securityGroups: Array<SecurityGroupDTO> = [
     {
       id: "399f4fd6-8335-46f7-bd80-4e53eb0fbe9b",
       name: "default",
@@ -13,7 +13,7 @@ export default defineEventHandler(() => {
           ruleType: "inbound",
           port: 80,
           protocol: "tcp",
-          targetIP: "0.0.0.0/0",
+          targetIp: "0.0.0.0/0",
           action: "allow",
           createdAt: new Date().toISOString(),
         },
@@ -22,7 +22,8 @@ export default defineEventHandler(() => {
           name: "Allow all",
           ruleType: "outbound",
           protocol: "any",
-          targetIP: "0.0.0.0/0",
+          port: null,
+          targetIp: "0.0.0.0/0",
           action: "allow",
           createdAt: new Date().toISOString(),
         },
@@ -32,7 +33,7 @@ export default defineEventHandler(() => {
           ruleType: "inbound",
           port: 443,
           protocol: "tcp",
-          targetIP: "0.0.0.0/0",
+          targetIp: "0.0.0.0/0",
           action: "allow",
           createdAt: new Date().toISOString(),
         },
@@ -50,7 +51,7 @@ export default defineEventHandler(() => {
           ruleType: "inbound",
           port: 22,
           protocol: "tcp",
-          targetIP: "0.0.0.0/0",
+          targetIp: "0.0.0.0/0",
           action: "allow",
           createdAt: new Date().toISOString(),
         },
@@ -59,7 +60,8 @@ export default defineEventHandler(() => {
           name: "Allow all",
           ruleType: "outbound",
           protocol: "any",
-          targetIP: "0.0.0.0/0",
+          port: null,
+          targetIp: "0.0.0.0/0",
           action: "allow",
           createdAt: new Date().toISOString(),
         },
@@ -67,4 +69,5 @@ export default defineEventHandler(() => {
       createdAt: new Date().toISOString(),
     },
   ];
+  return securityGroups;
 });

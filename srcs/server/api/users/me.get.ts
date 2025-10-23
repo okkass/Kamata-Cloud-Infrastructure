@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const user1 = {
-    id: randomUUID(),
+    id: "a575c9ea-96fb-4ed3-9d92-d93712d0e2cc",
     name: "Alice",
     email: "sample@example.com",
     createdAt: new Date().toISOString(),

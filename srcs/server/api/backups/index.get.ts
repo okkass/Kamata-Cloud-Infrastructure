@@ -1,5 +1,7 @@
+import { BackupDTO } from "~~/shared/types";
+
 export default defineEventHandler(() => {
-  return [
+  const backups: Array<BackupDTO> = [
     {
       id: "2b8d85e8-cf75-4ac4-8394-d042da5c9593",
       name: "backup-web01",
@@ -29,4 +31,5 @@ export default defineEventHandler(() => {
       },
     },
   ];
+  return backups;
 });

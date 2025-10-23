@@ -1,5 +1,5 @@
 export default defineEventHandler(() => {
-  return [
+  const storagePools: Array<StoragePoolDTO> = [
     {
       id: "532ca711-42e0-449c-bd1c-51af16f333b6",
       name: "node1-SSD",
@@ -17,4 +17,5 @@ export default defineEventHandler(() => {
       usedSize: 200 * 1024 * 1_024 * 1_024,
     },
   ];
+  return storagePools;
 });

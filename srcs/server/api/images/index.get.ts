@@ -1,5 +1,5 @@
 export default defineEventHandler((event) => {
-  return [
+  const images: Array<ImageDTO> = [
     {
       id: "057a9f47-380e-43fe-b3c4-22a46cd97220",
       name: "Ubuntu 22.04",
@@ -15,4 +15,5 @@ export default defineEventHandler((event) => {
       size: 45450 * 1024 * 1024, // 45450MB(45.45GB)をバイトで表現
     },
   ];
+  return images;
 });

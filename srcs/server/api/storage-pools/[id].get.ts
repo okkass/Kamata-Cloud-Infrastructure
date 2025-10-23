@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
   if (!validate(id)) {
     createError({ statusCode: 400, message: "Invalid UUID format" });
   }
-  let mock = [
+  let mock: Array<StoragePoolDTO> = [
     {
       id: "532ca711-42e0-449c-bd1c-51af16f333b6",
       name: "node1-SSD",

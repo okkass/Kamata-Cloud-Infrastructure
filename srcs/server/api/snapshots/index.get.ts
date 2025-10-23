@@ -1,5 +1,5 @@
 export default defineEventHandler(async (event) => {
-  return [
+  const snapshots: Array<SnapShotDTO> = [
     {
       id: "9799c8f8-a040-466e-92fd-d1fc0d8e0d83",
       name: "snapshot-1",
@@ -11,9 +11,8 @@ export default defineEventHandler(async (event) => {
           id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
           name: "t2.standard",
           createdAt: new Date().toISOString(),
-          cpuCores: 4,
+          cpuCore: 4,
           memorySize: 4 * 1024 * 1024 * 1024, // 4 GB
-          storageSize: 64 * 1024 * 1024 * 1024, // 64 GB
         },
         status: "running",
         node: {
@@ -40,7 +39,7 @@ export default defineEventHandler(async (event) => {
                 ruleType: "inbound",
                 port: 80,
                 protocol: "tcp",
-                targetIP: "0.0.0.0/0",
+                targetIp: "0.0.0.0/0",
                 action: "allow",
                 createdAt: new Date().toISOString(),
               },
@@ -49,7 +48,8 @@ export default defineEventHandler(async (event) => {
                 name: "Allow all",
                 ruleType: "outbound",
                 protocol: "any",
-                targetIP: "0.0.0.0/0",
+                port: null,
+                targetIp: "0.0.0.0/0",
                 action: "allow",
                 createdAt: new Date().toISOString(),
               },
@@ -75,9 +75,8 @@ export default defineEventHandler(async (event) => {
           id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
           name: "t2.standard",
           createdAt: new Date().toISOString(),
-          cpuCores: 4,
+          cpuCore: 4,
           memorySize: 4 * 1024 * 1024 * 1024, // 4 GB
-          storageSize: 64 * 1024 * 1024 * 1024, // 64 GB
         },
         status: "running",
         node: {
@@ -104,7 +103,7 @@ export default defineEventHandler(async (event) => {
                 ruleType: "inbound",
                 port: 80,
                 protocol: "tcp",
-                targetIP: "0.0.0.0/0",
+                targetIp: "0.0.0.0/0",
                 action: "allow",
                 createdAt: new Date().toISOString(),
               },
@@ -113,7 +112,8 @@ export default defineEventHandler(async (event) => {
                 name: "Allow all",
                 ruleType: "outbound",
                 protocol: "any",
-                targetIP: "0.0.0.0/0",
+                port: null,
+                targetIp: "0.0.0.0/0",
                 action: "allow",
                 createdAt: new Date().toISOString(),
               },
@@ -129,4 +129,5 @@ export default defineEventHandler(async (event) => {
       },
     },
   ];
+  return snapshots;
 });

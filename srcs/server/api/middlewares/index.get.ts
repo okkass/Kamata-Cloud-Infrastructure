@@ -1,5 +1,5 @@
 export default defineEventHandler(() => {
-  return [
+  const middlewares: Array<MiddleWareDTO> = [
     {
       id: "02a0c981-d96a-40e7-acf2-3345ed41a055",
       name: "Nginx",
@@ -13,4 +13,5 @@ export default defineEventHandler(() => {
       name: "Mysql",
     },
   ];
+  return middlewares;
 });

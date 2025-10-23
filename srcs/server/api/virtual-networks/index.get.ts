@@ -1,7 +1,7 @@
 import { create } from "domain";
 
 export default defineEventHandler(() => {
-  const mock = [
+  const mock: Array<VirtualNetworkDTO> = [
     {
       id: "9653a4bb-3c60-4950-abf0-2702023696c2",
       name: "vpc-1",
@@ -12,14 +12,14 @@ export default defineEventHandler(() => {
           id: "effdf1f8-3be5-4cae-819a-5832fc053b1b",
           name: "subnet-1",
           cidr: "10.0.0.0/24",
-          possivleExternalConnections: true,
+          possibleExternalConnection: true,
           createdAt: new Date().toISOString(),
         },
         {
           id: "6146ccd7-ddf8-42c3-9edf-66ce6f7a2c4b",
           name: "subnet-2",
           cidr: "10.0.0.1/24",
-          possivleExternalConnections: false,
+          possibleExternalConnection: false,
           createdAt: new Date().toISOString(),
         },
       ],
@@ -36,14 +36,14 @@ export default defineEventHandler(() => {
           id: "84d6e21a-8e71-4efc-88ad-5d425f3646c9",
           name: "subnet-3",
           cidr: "10.19.0.0/24",
-          possivleExternalConnections: true,
+          possibleExternalConnection: true,
           createdAt: new Date().toISOString(),
         },
         {
           id: "56c483f3-1817-4656-bc5f-f0836af0e796",
           name: "subnet-4",
           cidr: "10.19.0.1/24",
-          possivleExternalConnections: false,
+          possibleExternalConnection: false,
           createdAt: new Date().toISOString(),
         },
       ],

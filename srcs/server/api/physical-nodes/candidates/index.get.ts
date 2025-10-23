@@ -1,5 +1,5 @@
 export default defineEventHandler((event) => {
-  return [
+  const candidates: Array<PhysicalNodeCandidateDTO> = [
     {
       name: "Node 3",
       ipAddress: "10.10.10.100",
@@ -9,4 +9,5 @@ export default defineEventHandler((event) => {
       ipAddress: "10.10.10.101",
     },
   ];
+  return candidates;
 });
