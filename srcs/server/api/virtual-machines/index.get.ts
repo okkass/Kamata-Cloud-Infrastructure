@@ -1,5 +1,7 @@
+import { VirtualMachineDTO } from "~~/shared/types";
+
 export default defineEventHandler((event) => {
-  return [
+  const mock: Array<VirtualMachineDTO> = [
     {
       id: "8874840c-fe85-4eb9-985f-a856eee1faa2",
       name: "vm-01 (フル構成)",
@@ -14,12 +16,17 @@ export default defineEventHandler((event) => {
       node: {
         id: "ba49196a-dfa7-4ce2-99c0-e4c4767f7b39",
         name: "Node 2",
+        ipAddress: "10.10.10.10",
+        status: "active",
+        isAdmin: false,
+        createdAt: new Date().toISOString(),
       },
       createdAt: new Date().toISOString(),
       securityGroups: [
         {
           id: "399f4fd6-8335-46f7-bd80-4e53eb0fbe9b",
           name: "default",
+          createdAt: new Date().toISOString(),
         },
       ],
       attachedStorages: [
@@ -61,8 +68,12 @@ export default defineEventHandler((event) => {
       },
       status: "stopped",
       node: {
-        id: "d898bae4-0a05-48aa-846e-aca5bbfd72c6",
-        name: "Node 1",
+        id: "ba49196a-dfa7-4ce2-99c0-e4c4767f7b39",
+        name: "Node 2",
+        ipAddress: "10.10.10.10",
+        status: "active",
+        isAdmin: false,
+        createdAt: new Date().toISOString(),
       },
       createdAt: new Date().toISOString(),
       securityGroups: [],
@@ -87,18 +98,27 @@ export default defineEventHandler((event) => {
         name: "t2.micro",
         cpuCore: 1,
         memorySize: 1 * 1024 * 1024 * 1024,
+        createdAt: new Date().toISOString(),
       },
       status: "running",
       node: {
-        id: "d898bae4-0a05-48aa-846e-aca5bbfd72c6",
-        name: "Node 1",
+        id: "ba49196a-dfa7-4ce2-99c0-e4c4767f7b39",
+        name: "Node 2",
+        ipAddress: "10.10.10.10",
+        status: "active",
+        isAdmin: false,
+        createdAt: new Date().toISOString(),
       },
+      createdAt: new Date().toISOString(),
+      securityGroups: [],
+      attachedStorages: [],
     },
     {
       id: "ffeeddcc-bbaa-9988-7766-554433221100",
       name: "vm-04 (複数SG)",
       instanceType: {
         id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
+        createdAt: new Date().toISOString(),
         name: "t2.standard",
         cpuCore: 8,
         memorySize: 16 * 1024 * 1024 * 1024,
@@ -107,7 +127,14 @@ export default defineEventHandler((event) => {
       node: {
         id: "ba49196a-dfa7-4ce2-99c0-e4c4767f7b39",
         name: "Node 2",
+        ipAddress: "10.10.10.10",
+        status: "active",
+        isAdmin: false,
+        createdAt: new Date().toISOString(),
       },
+      createdAt: new Date().toISOString(),
+      securityGroups: [],
+      attachedStorages: [],
     },
     {
       id: "12345678-90ab-cdef-1234-567890abcdef",
@@ -116,8 +143,12 @@ export default defineEventHandler((event) => {
       memorySize: 2 * 1024 * 1024 * 1024,
       status: "pending",
       node: {
-        id: "d898bae4-0a05-48aa-846e-aca5bbfd72c6",
-        name: "Node 1",
+        id: "ba49196a-dfa7-4ce2-99c0-e4c4767f7b39",
+        name: "Node 2",
+        ipAddress: "10.10.10.10",
+        status: "active",
+        isAdmin: false,
+        createdAt: new Date().toISOString(),
       },
       createdAt: new Date().toISOString(),
       securityGroups: [],
