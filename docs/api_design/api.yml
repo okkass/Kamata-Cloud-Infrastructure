@@ -2019,6 +2019,9 @@ components:
           type: string
           format: uuid
           description: ポートフォリオを識別するための一意なID
+        title:
+          type: string
+          description: ポートフォリオのタイトル
         viewCount24Hour:
           type: number
           format: integer
@@ -2054,6 +2057,13 @@ components:
         - title
         - createdAt
         - status
+    PortfolioCreateRequest:
+      type: object
+      description: ポートフォリオ作成リクエストオブジェクト
+      properties:
+        title:
+          type: string
+          description: ポートフォリオのタイトル
     SecurityGroup:
       type: object
       description: セキュリティグループオブジェクト
