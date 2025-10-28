@@ -73,13 +73,14 @@
           選択した仮想マシンにはバックアップ可能なストレージがありません。
         </p>
       </div>
-
+    </form>
+    <template #footer>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary" :disabled="isCreating">
           {{ isCreating ? "作成中..." : "作成" }}
         </button>
       </div>
-    </form>
+    </template>
   </BaseModal>
 </template>
 

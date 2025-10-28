@@ -59,13 +59,14 @@
           {{ errors.memorySizeInMb }}
         </p>
       </div>
-
+    </form>
+    <template #footer>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary" :disabled="isCreating">
-          {{ isCreating ? "作成中..." : "作成" }}
+          {{ isCreating ? "追加中..." : "追加" }}
         </button>
       </div>
-    </form>
+    </template>
   </BaseModal>
 </template>
 

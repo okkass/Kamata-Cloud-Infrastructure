@@ -21,6 +21,7 @@
       <div class="modal-body overflow-y-auto p-3" :class="modalBodyClass">
         <slot />
       </div>
+      <slot name="footer" />
     </div>
   </div>
 </template>
@@ -40,7 +41,7 @@ const modalBodyClass = computed(() => {
     case "lg":
       return "h-[450px]";
     case "md":
-      return "h-[300px]";
+      return "h-[450px]";
     default:
       return "";
   }
