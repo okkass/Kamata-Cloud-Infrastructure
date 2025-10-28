@@ -109,6 +109,7 @@ import MoVirtualNetworkCreate from "~/components/MoVirtualNetworkCreate.vue";
 import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
 import MoLocalStorageAdd from "~/components/MoLocalStorageAdd.vue";
 import MoBackupCreate from "~/components/MoBackupCreate.vue";
+import MoSnapshotCreate from "~/components/MoSnapshotCreate.vue";
 
 // ==============================================================================
 // State
@@ -244,6 +245,12 @@ const modals = computed(() => [
     id: "backupCreate",
     buttonText: "BU作成",
     component: markRaw(MoBackupCreate),
+    props: {},
+  },
+  {
+    id: "snapshotCreate",
+    buttonText: "SS作成",
+    component: markRaw(MoSnapshotCreate),
     props: {},
   },
 ]);
