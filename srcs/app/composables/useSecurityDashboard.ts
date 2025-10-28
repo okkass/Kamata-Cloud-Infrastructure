@@ -1,4 +1,11 @@
 // ...existing code...
+/**
+ * =================================================================================
+ * セキュリティグループ ダッシュボード Composable
+ * ---------------------------------------------------------------------------------
+ * /api/security-groups の仕様に合わせて一覧を整形し、ページ用のハンドラを提供。
+ * =================================================================================
+ */
 import { ref, computed } from "vue";
 import { useToast } from "@/composables/useToast";
 import { useResourceList } from "@/composables/useResourceList";
@@ -11,9 +18,9 @@ type SecurityGroupRuleDTO = {
   ruleType: "inbound" | "outbound";
   port?: number;
   protocol: "tcp" | "udp" | "icmp" | "any" | string;
-  targetIP: string;
+  targetIP: string; // e.g. "0.0.0.0/0"
   action: "allow" | "deny" | string;
-  createdAt: string;
+  createdAt: string; // ISO
 };
 
 type SecurityGroupDTO = {
@@ -21,22 +28,24 @@ type SecurityGroupDTO = {
   name: string;
   description?: string;
   rules: SecurityGroupRuleDTO[];
-  createdAt: string;
+  createdAt: string; // ISO
 };
 
+/** テーブルUI用（明示的なフィールド名を追加、互換のため旧名も残す） */
 type UiSecurityGroup = {
   id: string;
   name: string;
   description: string;
+  // より明示的なフィールド名
   inboundRuleCount: number;
   outboundRuleCount: number;
-  /** @deprecated use inboundRuleCount */
-  inCount: number;
-  /** @deprecated use outboundRuleCount */
-  outCount: number;
-  ruleSummary: string;
-  rules: string;
-  createdAt: string;
+  // 既存コード互換のためのエイリアス（deprecated の注記あり）
+  inCount: number; // DEPRECATED: use inboundRuleCount
+  outCount: number; // DEPRECATED: use outboundRuleCount
+  // 表示用の文字列（新旧両方用意）
+  ruleSummary: string; // e.g. "1 / 2"
+  rules: string; // テンプレート側が期待するキー名
+  createdAt: string; // 表示整形済み
 };
 
 type TableColumn = {
@@ -45,7 +54,7 @@ type TableColumn = {
   align?: "left" | "center" | "right";
 };
 
-/* =========================== Utils =========================== */
+/* =========================== Utils (ローカル整形) =========================== */
 function formatDateTime(iso?: string): string {
   if (!iso) return "";
   const d = new Date(iso);
@@ -62,6 +71,7 @@ function formatDateTime(iso?: string): string {
 export function useSecurityDashboard() {
   const { addToast } = useToast();
 
+  // /api/security-groups に合わせる
   const { data: rawGroups, refresh: refreshGroupList } =
     useResourceList<SecurityGroupDTO>("security-groups");
 
@@ -82,19 +92,16 @@ export function useSecurityDashboard() {
     refresh: refreshGroupList,
   });
 
-  // columns を ref にしてテンプレ側で動的変更しやすくする
-  const columns = ref<TableColumn[]>([
+  const columns: TableColumn[] = [
     { key: "name", label: "グループ名", align: "left" },
     { key: "id", label: "セキュリティグループID", align: "left" },
     { key: "description", label: "説明", align: "left" },
-    // テンプレ側の #cell-rules に合わせる
+    // テンプレート側では #cell-rules を使用しているためキーを "rules" に合わせる
     { key: "rules", label: "イン/アウト ルール数", align: "left" },
     { key: "createdAt", label: "作成日時", align: "left" },
-  ]);
+  ];
 
-  const headerButtons = ref([
-    { key: "create", label: "セキュリティグループ追加", kind: "primary" },
-  ]);
+  const headerButtons = [{ label: "セキュリティグループ追加", action: "add" }];
 
   const groups = computed<UiSecurityGroup[]>(() =>
     (rawGroups.value ?? []).map((g) => {
@@ -102,136 +109,75 @@ export function useSecurityDashboard() {
         g.rules?.filter((r) => r.ruleType === "inbound").length ?? 0;
       const outboundRuleCount =
         g.rules?.filter((r) => r.ruleType === "outbound").length ?? 0;
+
       const summary = `${inboundRuleCount} / ${outboundRuleCount}`;
 
       return {
         id: g.id,
         name: g.name,
         description: g.description ?? "",
+        // 新しい明示的フィールド
         inboundRuleCount,
         outboundRuleCount,
+        // 既存互換フィールド（deprecated）
         inCount: inboundRuleCount,
         outCount: outboundRuleCount,
+        // 表示用文字列（両方提供）
         ruleSummary: summary,
-        rules: summary,
+        rules: summary, // テンプレートの #cell-rules と整合
         createdAt: formatDateTime(g.createdAt),
       };
     })
   );
 
-  /* ========== 安全化ラッパー ========== */
-  function safeOpenModal(name: string) {
-    if (typeof openModal === "function") {
-      try {
-        openModal(name);
-      } catch (e) {
-        console.error("openModal error:", e);
-      }
-    } else {
-      console.warn("openModal is not available");
-    }
-  }
-
-  function safeHandleRowAction(payload: {
-    action: string;
-    row: UiSecurityGroup;
-  }) {
-    if (typeof handleRowAction === "function") {
-      try {
-        handleRowAction(payload);
-      } catch (e) {
-        console.error("handleRowAction error:", e);
-      }
-    } else {
-      console.warn("handleRowAction is not available");
-    }
-  }
-
-  async function safeHandleDelete(...args: any[]) {
-    if (typeof handleDelete === "function") {
-      try {
-        // handleDelete 可能ならその戻り値を返す
-        return await handleDelete(...args);
-      } catch (e) {
-        console.error("handleDelete error:", e);
-      }
-    } else {
-      console.warn("handleDelete is not available");
-    }
-  }
-
-  function safeCancelAction(...args: any[]) {
-    if (typeof cancelAction === "function") {
-      try {
-        return cancelAction(...args);
-      } catch (e) {
-        console.error("cancelAction error:", e);
-      }
-    } else {
-      console.warn("cancelAction is not available");
-    }
-  }
-
-  function safeHandleSuccess() {
-    if (typeof handleSuccess === "function") {
-      try {
-        handleSuccess();
-      } catch (e) {
-        console.error("handleSuccess error:", e);
-      }
-    } else {
-      console.warn("handleSuccess is not available");
-    }
-  }
-
-  /* ========== public handlers (テンプレ用) ========== */
   function handleHeaderAction(action: string) {
-    if (action !== "create") return;
-    safeOpenModal("add-security-group");
+    if (action !== "add") return;
+    openModal("add-security-group");
   }
 
   function promptForDeletion(row: UiSecurityGroup) {
-    safeHandleRowAction({ action: "delete", row });
+    handleRowAction({ action: "delete", row });
   }
 
   /**
-   * トーストのみ
+   * トーストのみ（通知責務のみ）
    */
   function notifyOnly(message = "処理が完了しました。") {
-    try {
-      addToast({ type: "success", message });
-    } catch (e) {
-      console.error("addToast error:", e);
-    }
+    addToast({ type: "success", message });
   }
 
   /**
-   * 通知 + 成功ハンドラ呼び出し（安全に呼ぶ）
+   * 通知 + ページ状態更新（既存の notifySuccess 相当の振る舞い）
+   * 名前を明示的にして責務を分離。
    */
   function notifyAndHandleSuccess(message = "処理が完了しました。") {
-    notifyOnly(message);
-    safeHandleSuccess();
+    addToast({ type: "success", message });
+    handleSuccess();
   }
 
+  // 互換性のため、既存呼び出し名を notifySuccess として提供（既存コードが依存している場合に安全）
   const notifySuccess = notifyAndHandleSuccess;
 
   return {
+    // table
     columns,
     groups,
     headerButtons,
+    // actions state
     activeModal,
     targetForDeletion,
     isDeleting,
     deletingGroupId,
-    // handlers (テンプレはこれらを使用)
+    // handlers
     handleHeaderAction,
     promptForDeletion,
-    cancelAction: safeCancelAction,
-    handleDelete: safeHandleDelete,
+    cancelAction,
+    handleDelete,
     closeModal,
-    notifySuccess,
-    notifyOnly,
-    notifyAndHandleSuccess,
+    // notify: 明示的関数を両方提供
+    notifySuccess, // 既存互換（通知 + handleSuccess）
+    notifyOnly, // トーストだけを行いたい場合はこちら
+    notifyAndHandleSuccess, // 明示的な名前
   };
 }
 // ...existing code...
