@@ -1,4 +1,3 @@
-// srcs/app/composables/useSecurityDashboard.ts
 /**
  * =================================================================================
  * セキュリティグループ ダッシュボード Composable
@@ -31,14 +30,20 @@ type SecurityGroupDTO = {
   createdAt: string; // ISO
 };
 
-/** テーブルUI用 */
+/** テーブルUI用（明示的なフィールド名を追加、互換のため旧名も残す） */
 type UiSecurityGroup = {
   id: string;
   name: string;
   description: string;
+  // より明示的なフィールド名
+  inboundRuleCount: number;
+  outboundRuleCount: number;
+  // 既存コード互換のためのエイリアス
   inCount: number;
   outCount: number;
-  rules: string; // "inCount / outCount"
+  // 表示用の文字列（新旧両方用意）
+  ruleSummary: string; // e.g. "1 / 2"
+  rules: string;
   createdAt: string; // 表示整形済み
 };
 
@@ -90,7 +95,7 @@ export function useSecurityDashboard() {
     { key: "name", label: "グループ名", align: "left" },
     { key: "id", label: "セキュリティグループID", align: "left" },
     { key: "description", label: "説明", align: "left" },
-    { key: "rules", label: "イン/アウト ルール数", align: "left" },
+    { key: "ruleSummary", label: "イン/アウト ルール数", align: "left" },
     { key: "createdAt", label: "作成日時", align: "left" },
   ]);
 
@@ -100,17 +105,26 @@ export function useSecurityDashboard() {
 
   const groups = computed<UiSecurityGroup[]>(() =>
     (rawGroups.value ?? []).map((g) => {
-      const inCount =
+      const inboundRuleCount =
         g.rules?.filter((r) => r.ruleType === "inbound").length ?? 0;
-      const outCount =
+      const outboundRuleCount =
         g.rules?.filter((r) => r.ruleType === "outbound").length ?? 0;
+
+      const summary = `${inboundRuleCount} / ${outboundRuleCount}`;
+
       return {
         id: g.id,
         name: g.name,
         description: g.description ?? "",
-        inCount,
-        outCount,
-        rules: `${inCount} / ${outCount}`,
+        // 新しい明示的フィールド
+        inboundRuleCount,
+        outboundRuleCount,
+        // 既存互換フィールド（すぐに破壊的変更しないためのエイリアス）
+        inCount: inboundRuleCount,
+        outCount: outboundRuleCount,
+        // 表示用文字列（新旧両方提供）
+        ruleSummary: summary,
+        rules: summary,
         createdAt: formatDateTime(g.createdAt),
       };
     })
@@ -125,10 +139,24 @@ export function useSecurityDashboard() {
     handleRowAction({ action: "delete", row });
   }
 
-  function notifySuccess(message = "処理が完了しました。") {
+  /**
+   * トーストのみ（通知責務のみ）
+   */
+  function notifyOnly(message = "処理が完了しました。") {
+    addToast({ type: "success", message });
+  }
+
+  /**
+   * 通知 + ページ状態更新（既存の notifySuccess 相当の振る舞い）
+   * 名前を明示的にして責務を分離。
+   */
+  function notifyAndHandleSuccess(message = "処理が完了しました。") {
     addToast({ type: "success", message });
     handleSuccess();
   }
+
+  // 互換性のため、既存呼び出し名を notifySuccess として提供（既存コードが依存している場合に安全）
+  const notifySuccess = notifyAndHandleSuccess;
 
   return {
     // table
@@ -146,6 +174,9 @@ export function useSecurityDashboard() {
     cancelAction,
     handleDelete,
     closeModal,
-    notifySuccess,
+    // notify: 明示的関数を両方提供
+    notifySuccess, // 既存互換（通知 + handleSuccess）
+    notifyOnly, // トーストだけを行いたい場合はこちら
+    notifyAndHandleSuccess, // 明示的な名前
   };
 }
