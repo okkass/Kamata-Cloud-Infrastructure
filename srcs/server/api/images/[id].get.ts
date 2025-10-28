@@ -2,6 +2,7 @@ import { validate } from "uuid";
 
 export default defineEventHandler((event) => {
   const id = event.context.params?.id;
+  let image: ImageDTO | undefined;
 
   if (!id) {
     throw createError({
@@ -15,7 +16,7 @@ export default defineEventHandler((event) => {
     });
   } else {
     if (id == "057a9f47-380e-43fe-b3c4-22a46cd97220") {
-      return {
+      image = {
         id: "057a9f47-380e-43fe-b3c4-22a46cd97220",
         name: "Ubuntu 22.04",
         description: "Setumei",
@@ -23,7 +24,7 @@ export default defineEventHandler((event) => {
         size: 19190 * 1024 * 1024, // 19190MB(19.19GB)をバイトで表現
       };
     } else {
-      return {
+      image = {
         id: "da4d9350-30f2-4280-82ce-0e5547209c1d",
         name: "Debian bookwarm",
         description: "Setumei",
@@ -32,4 +33,5 @@ export default defineEventHandler((event) => {
       };
     }
   }
+  return image;
 });
