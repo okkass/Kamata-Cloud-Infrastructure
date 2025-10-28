@@ -91,17 +91,15 @@ export function useSecurityDashboard() {
     refresh: refreshGroupList,
   });
 
-  const columns = ref<TableColumn[]>([
+  const columns: TableColumn[] = [
     { key: "name", label: "グループ名", align: "left" },
     { key: "id", label: "セキュリティグループID", align: "left" },
     { key: "description", label: "説明", align: "left" },
     { key: "ruleSummary", label: "イン/アウト ルール数", align: "left" },
     { key: "createdAt", label: "作成日時", align: "left" },
-  ]);
+  ];
 
-  const headerButtons = ref([
-    { label: "セキュリティグループ追加", action: "add" },
-  ]);
+  const headerButtons = [{ label: "セキュリティグループ追加", action: "add" }];
 
   const groups = computed<UiSecurityGroup[]>(() =>
     (rawGroups.value ?? []).map((g) => {
@@ -137,13 +135,6 @@ export function useSecurityDashboard() {
 
   function promptForDeletion(row: UiSecurityGroup) {
     handleRowAction({ action: "delete", row });
-  }
-
-  /**
-   * トーストのみ（通知責務のみ）
-   */
-  function notifyOnly(message = "処理が完了しました。") {
-    addToast({ type: "success", message });
   }
 
   /**
