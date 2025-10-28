@@ -217,9 +217,11 @@
   .table-status {
     @apply inline-flex select-none items-center rounded-md px-2 py-0.5 text-xs font-bold;
   }
+  /* セル内の説明テキスト */
   .cell-description {
     @apply block mt-0.5 text-sm text-gray-500;
   }
+  /* セル内の注釈テキスト */
   .cell-note {
     @apply ml-1 text-sm text-gray-500;
   }
