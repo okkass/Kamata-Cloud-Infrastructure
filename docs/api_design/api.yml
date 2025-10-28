@@ -2093,6 +2093,8 @@ components:
         title:
           type: string
           description: ポートフォリオのタイトル
+      required:
+        - title
     SecurityGroup:
       type: object
       description: セキュリティグループオブジェクト
