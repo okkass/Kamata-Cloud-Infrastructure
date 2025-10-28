@@ -1,132 +1,108 @@
+<!-- srcs/app/pages/security_group_management/index.vue -->
 <template>
-  <DashboardLayout
-    title="セキュリティグループ"
-    :columns="columns"
-    :rows="securityGroups"
-    rowKey="id"
-    :headerButtons="headerButtons"
-    @header-action="onHeaderAction"
-    @row-action="handleRowAction"
-  >
-    <!-- グループ名をクリックで詳細ページへ遷移 -->
-    <template #cell-name="{ row }">
-      <template>
-        <NuxtLink :to="`/security-group/${row.id}`" class="table-link">
-          {{ row.name }}
-        </NuxtLink>
+  <div>
+    <DashboardLayout
+      title="セキュリティグループ"
+      :columns="columns"
+      :rows="groups || []"
+      rowKey="id"
+      :headerButtons="headerButtons"
+      no-ellipsis
+      @header-action="handleHeaderAction"
+    >
+      <!-- グループ名（リンク）＋説明 -->
+      <template #cell-name="{ row }">
+        <div v-if="row">
+          <NuxtLink
+            :to="`/security-group/${row.id}`"
+            class="text-blue-600 hover:underline underline-offset-2 decoration-1"
+          >
+            {{ row.name }}
+          </NuxtLink>
+          <span
+            v-if="row.description"
+            class="block mt-0.5 text-sm text-gray-500"
+          >
+            {{ row.description }}
+          </span>
+        </div>
       </template>
-    </template>
 
-    <!-- In/Outルール数を表示 -->
-    <template #cell-in-out-count="{ row }">
-      <div class="flex items-center justify-center gap-2 text-sm">
-        <span class="font-semibold">In:</span>
-        <span class="count-badge-sky count-badge">
-          {{ getRuleCount(row.rules, "inbound") }}
-        </span>
-        <span class="font-semibold ml-2">Out:</span>
-        <span class="count-badge-indigo count-badge">
-          {{ getRuleCount(row.rules, "outbound") }}
-        </span>
-      </div>
-    </template>
+      <!-- SG ID は等幅表示 -->
+      <template #cell-id="{ row }">
+        <span class="font-mono">{{ row.id }}</span>
+      </template>
 
-    <!-- 操作メニュー -->
-    <template #row-actions="{ row, emit }">
-      <NuxtLink
-        v-if="row"
-        :to="`/security-group/${row.id}`"
-        class="action-item"
-      >
-        詳細
-      </NuxtLink>
-      <a href="#" class="action-item" @click.prevent="emit('edit')"> 編集 </a>
-      <a
-        href="#"
-        class="action-item action-item-danger"
-        @click.prevent="emit('delete')"
-      >
-        削除
-      </a>
-    </template>
-  </DashboardLayout>
+      <!-- ルール数（IN/OUT） -->
+      <template #cell-rules="{ row }">
+        <span class="font-mono">{{ row.inCount }} / {{ row.outCount }}</span>
+      </template>
 
-  <!-- モーダル定義エリア -->
-  <!-- 汎用モーダル (削除確認) -->
+      <!-- 作成日 -->
+      <template #cell-createdAt="{ row }">
+        <span>{{ row.createdAt }}</span>
+      </template>
+
+      <!-- 行の操作（3点メニュー） -->
+      <template #row-actions="{ row }">
+        <NuxtLink
+          :to="`/security-group/${row?.id}`"
+          class="block w-full px-3 py-2 text-left border-t border-slate-200 hover:bg-slate-50"
+        >
+          詳細
+        </NuxtLink>
+        <button
+          type="button"
+          class="block w-full px-3 py-2 text-left border-t border-slate-200 hover:bg-red-50 text-red-600 hover:text-red-700 disabled:opacity-60 disabled:pointer-events-none"
+          :disabled="deletingGroupId === row?.id"
+          @click.stop.prevent="row && promptForDeletion(row)"
+        >
+          削除
+        </button>
+      </template>
+    </DashboardLayout>
+  </div>
+
+  <!-- 削除確認モーダル（キーは複数形） -->
   <MoDeleteConfirm
-    :show="activeModal === `delete-${RESOURCE_NAME}`"
-    :message="`本当に '${targetForDeletion?.name}' を削除しますか？`"
+    :show="activeModal === 'delete-security-groups'"
+    :message="`本当にセキュリティグループ「${
+      targetForDeletion?.name ?? ''
+    }」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
   />
 
-  <!-- 特化型モーダル (編集) -->
-  <MoSecurityGroupEdit
-    :show="activeModal === `edit-${RESOURCE_NAME}`"
-    :security-group-data="targetForEditing"
-    @close="cancelAction"
-    @success="handleSuccess"
-  />
-
-  <!-- 特化型モーダル (作成) -->
+  <!-- 追加モーダル -->
   <MoSecurityGroupCreate
-    :show="activeModal === `create-${RESOURCE_NAME}`"
+    :show="activeModal === 'add-security-group'"
     @close="closeModal"
-    @success="handleSuccess"
+    @success="notifySuccess"
   />
 </template>
 
 <script setup lang="ts">
-const RESOURCE_NAME = "security-groups";
-const resourceLabel = "セキュリティグループ";
-// --- Composables Setup ---
-// APIから表示するデータを取得
-const { data: securityGroups, refresh } =
-  useResourceList<SecurityGroupDTO>(RESOURCE_NAME);
+import DashboardLayout from "~/components/DashboardLayout.vue";
+import { useSecurityDashboard } from "~/composables/useSecurityDashboard";
+import MoDeleteConfirm from "~/components/MoDeleteConfirm.vue";
+import MoSecurityGroupCreate from "~/components/MoSecurityGroupCreate.vue";
 
-// ページのUIアクションを管理するComposableを呼び出し
 const {
+  columns,
+  groups,
+  headerButtons,
+
   activeModal,
-  openModal,
-  closeModal,
   targetForDeletion,
-  targetForEditing,
   isDeleting,
-  handleRowAction,
-  handleDelete,
-  handleSuccess,
+  deletingGroupId,
+
+  handleHeaderAction,
+  promptForDeletion,
   cancelAction,
-} = usePageActions<SecurityGroupDTO>({
-  resourceName: RESOURCE_NAME,
-  resourceLabel,
-  refresh,
-});
-
-// --- UI Configuration ---
-const columns = [
-  { key: "name", label: "グループ名" },
-  { key: "description", label: "説明" },
-  { key: "in-out-count", label: "イン/アウトルール" },
-  { key: "createdAt", label: "作成日時" },
-];
-const headerButtons = [{ label: "新規作成", action: "create" }];
-
-// --- Page-Specific Helper Functions ---
-/** 指定されたタイプのルール数を計算する */
-const getRuleCount = (
-  rules: SecurityRuleDTO[] | undefined,
-  type: "inbound" | "outbound"
-): number => {
-  if (!Array.isArray(rules)) return 0;
-  return rules.filter((rule) => rule.ruleType === type).length;
-};
-
-// --- Page-Specific Event Handlers ---
-/** ヘッダーボタンのアクションを処理する */
-const onHeaderAction = (action: string) => {
-  if (action === "create") {
-    openModal(`create-${RESOURCE_NAME}`);
-  }
-};
+  handleDelete,
+  closeModal,
+  notifySuccess,
+} = useSecurityDashboard();
 </script>
