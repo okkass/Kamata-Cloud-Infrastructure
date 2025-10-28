@@ -1588,7 +1588,6 @@ paths:
           description: 仮想ネットワークまたはサブネットが見つからない
       security:
         - BearerAuth: []
-
   /api/portfolios:
     get:
       summary: ポートフォリオ一覧の取得
@@ -1636,19 +1635,46 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-    delete:
-      summary: ポートフォリオの削除
-      description: 指定したIDのポートフォリオを削除します。
+  /api/snapshots/{id}:
+    get:
+      summary: スナップショットの詳細取得
+      description: 指定したIDのスナップショットの詳細情報を取得します。
       tags:
         - Portfolio
       parameters:
-        - name: portfolioId
-          in: query
+        - name: id
+          in: path
           required: true
           schema:
             type: string
             format: uuid
-          description: ポートフォリオの一意なID
+          description: スナップショットの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SnapShot"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: スナップショットが見つからない
+    delete:
+      summary: スナップショットの削除
+      description: 指定したIDのスナップショットを削除します。
+      tags:
+        - Portfolio
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: スナップショットの一意なID
       responses:
         "204":
           description: 削除成功
@@ -1657,7 +1683,7 @@ paths:
         "403":
           description: 権限エラー
         "404":
-          description: ポートフォリオが見つからない
+          description: スナップショットが見つからない
       security:
         - BearerAuth: []
 
@@ -1678,6 +1704,7 @@ components:
           description: ストレージデバイスのパス
           example: "/dev/sda"
       required:
+        - id
         - storage
         - path
     Backup:
