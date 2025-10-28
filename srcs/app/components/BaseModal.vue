@@ -39,7 +39,7 @@ defineEmits(["close"]);
 const modalBodyClass = computed(() => {
   switch (props.size) {
     case "lg":
-      return "h-[450px]";
+      return "h-[600px]";
     case "md":
       return "h-[450px]";
     default:
