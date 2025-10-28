@@ -6,22 +6,19 @@
       :rows="images"
       rowKey="id"
       :headerButtons="headerButtons"
-      @header-action="handleHeaderAction"
+      @header-action="() => openModal('add-image')"
     >
       <template #cell-name="{ row }">
         <NuxtLink :to="`/image/${row.id}`" class="table-link">
           {{ row.name }}
-          <span
-            v-if="row.description"
-            class="block mt-0.5 text-sm text-gray-500"
-          >
+          <span v-if="row.description" class="cell-description">
             {{ row.description }}
           </span>
         </NuxtLink>
       </template>
 
       <template #cell-size="{ row }">
-        <span class="font-mono">{{ row.size }}</span>
+        <span class="cell-mono">{{ row.size }}</span>
       </template>
 
       <template #cell-createdAt="{ row }">
@@ -29,15 +26,23 @@
       </template>
 
       <template #row-actions="{ row }">
-        <NuxtLink :to="`/image/${row?.id}`" class="action-item first:border-t-0"
-          >詳細</NuxtLink
+        <NuxtLink :to="`/image/${row?.id}`" class="action-item">詳細</NuxtLink>
+
+        <button
+          type="button"
+          class="action-item"
+          @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
         >
+          編集
+        </button>
+
         <button
           type="button"
           class="action-item action-item-danger"
-          :class="{ 'action-item-disabled': deletingImageId === row?.id }"
-          :disabled="deletingImageId === row?.id"
-          @click.stop.prevent="row && promptForDeletion(row)"
+          :disabled="isDeleting && targetForDeletion?.id === row?.id"
+          @click.stop.prevent="
+            row && handleRowAction({ action: 'delete', row })
+          "
         >
           削除
         </button>
@@ -47,38 +52,47 @@
 
   <MoDeleteConfirm
     :show="activeModal === 'delete-images'"
-    :message="`本当にイメージ「${
-      targetForDeletion?.name ?? ''
-    }」を削除しますか？`"
+    :message="`本当にイメージ「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
   />
-
   <MoImageAdd
-    :show="activeModal === 'add-image'"
+    :show="activeModal === 'add-images'"
     @close="closeModal"
-    @success="notifySuccess"
+    @success="handleSuccess"
+  />
+  <MoImageEdit
+    :show="activeModal === 'edit-images'"
+    :image-data="targetForEditing ?? undefined"
+    @close="closeModal"
+    @success="handleSuccess"
   />
 </template>
 
 <script setup lang="ts">
 import { useImageManagement } from "~/composables/useImageManagement";
+import { usePageActions } from "~/composables/usePageActions";
 
-// Composableからページに必要なロジックと状態をすべて受け取る
+// --- データロジックの取得 ---
+const { columns, images, headerButtons, refreshImageList } =
+  useImageManagement();
+
+// --- アクションロジックの取得 ---
 const {
-  columns,
-  images,
-  headerButtons,
   activeModal,
-  targetForDeletion,
-  isDeleting,
-  deletingImageId,
-  handleHeaderAction,
-  promptForDeletion,
-  cancelAction,
-  handleDelete,
+  openModal,
   closeModal,
-  notifySuccess,
-} = useImageManagement();
+  targetForDeletion,
+  targetForEditing, // ★ 編集対象のデータを取得
+  isDeleting,
+  handleRowAction,
+  handleDelete,
+  handleSuccess,
+  cancelAction,
+} = usePageActions<UiImage>({
+  resourceName: "images",
+  resourceLabel: "イメージ",
+  refresh: refreshImageList,
+});
 </script>

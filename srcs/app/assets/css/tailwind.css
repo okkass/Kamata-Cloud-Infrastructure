@@ -197,7 +197,7 @@
     */
   /* アクションアイテム（ドロップダウンメニューの項目など） */
   .action-item {
-    @apply block w-full px-4 py-3 text-left text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t border-slate-200;
+    @apply block w-full px-3 py-2 text-left text-[15px] hover:bg-[#f5f7fa] border-t border-slate-200;
   }
 
   /* 無効化されたアクションアイテム */
@@ -211,11 +211,17 @@
   }
   /* テーブル内などで使用する主要なリンク */
   .table-link {
-    @apply text-sky-600 hover:text-sky-800 hover:underline font-semibold;
+    @apply text-sky-600 hover:text-sky-800 hover:underline;
   }
   /* テーブル内のステータス表示用バッジ */
   .table-status {
     @apply inline-flex select-none items-center rounded-md px-2 py-0.5 text-xs font-bold;
+  }
+  .cell-description {
+    @apply block mt-0.5 text-sm text-gray-500;
+  }
+  .cell-note {
+    @apply ml-1 text-sm text-gray-500;
   }
 
   /** =================================================
