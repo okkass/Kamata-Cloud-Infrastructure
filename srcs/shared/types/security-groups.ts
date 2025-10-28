@@ -84,10 +84,6 @@ export interface SecurityRuleDTO {
    * セキュリティルールが作成された日時
    */
   createdAt: string;
-  /**
-   * セキュリティルールのアクション（許可または拒否）
-   */
-  action: "allow" | "deny";
 }
 
 export const SecurityRuleRuleTypeEnum = {
