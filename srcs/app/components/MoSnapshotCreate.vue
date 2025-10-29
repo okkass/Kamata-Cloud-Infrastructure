@@ -36,13 +36,14 @@
           :placeholder-value="undefined"
         />
       </div>
-
+    </form>
+    <template #footer>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary" :disabled="isCreating">
           {{ isCreating ? "作成中..." : "作成" }}
         </button>
       </div>
-    </form>
+    </template>
   </BaseModal>
 </template>
 
