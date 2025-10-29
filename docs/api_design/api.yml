@@ -1588,6 +1588,106 @@ paths:
           description: 仮想ネットワークまたはサブネットが見つからない
       security:
         - BearerAuth: []
+  /api/portfolios:
+    get:
+      summary: ポートフォリオ一覧の取得
+      description: すべてのポートフォリオのリストを取得します。
+      tags:
+        - Portfolio
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Portfolio"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: ポートフォリオの作成
+      description: 新しいポートフォリオを作成します。
+      tags:
+        - Portfolio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PortfolioCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Portfolio"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /api/snapshots/{id}:
+    get:
+      summary: スナップショットの詳細取得
+      description: 指定したIDのスナップショットの詳細情報を取得します。
+      tags:
+        - Portfolio
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: スナップショットの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SnapShot"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: スナップショットが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: スナップショットの削除
+      description: 指定したIDのスナップショットを削除します。
+      tags:
+        - Portfolio
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: スナップショットの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: スナップショットが見つからない
+      security:
+        - BearerAuth: []
 
 components:
   schemas:
@@ -1607,6 +1707,7 @@ components:
           example: "/dev/sda"
       required:
         - id
+        - storage
         - path
     Backup:
       type: object
@@ -1947,6 +2048,9 @@ components:
           type: string
           format: uuid
           description: ポートフォリオを識別するための一意なID
+        title:
+          type: string
+          description: ポートフォリオのタイトル
         viewCount24Hour:
           type: number
           format: integer
@@ -1982,6 +2086,15 @@ components:
         - title
         - createdAt
         - status
+    PortfolioCreateRequest:
+      type: object
+      description: ポートフォリオ作成リクエストオブジェクト
+      properties:
+        title:
+          type: string
+          description: ポートフォリオのタイトル
+      required:
+        - title
     SecurityGroup:
       type: object
       description: セキュリティグループオブジェクト
