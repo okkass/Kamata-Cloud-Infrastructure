@@ -3,7 +3,7 @@ import { validate } from "uuid";
 export default defineEventHandler(async (event) => {
   const { id } = event.context.params as { id: string };
   if (!validate(id)) {
-    createError({ statusCode: 400, message: "Invalid UUID format" });
+    throw createError({ statusCode: 400, message: "Invalid UUID format" });
   }
   let mock: Array<LocalStoragePoolDTO> = [
     {
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   ];
   const pool = mock.find((p) => p.id === id);
   if (!pool) {
-    createError({ statusCode: 404, message: "Storage pool not found" });
+    throw createError({ statusCode: 404, message: "Storage pool not found" });
   }
   return pool;
 });
