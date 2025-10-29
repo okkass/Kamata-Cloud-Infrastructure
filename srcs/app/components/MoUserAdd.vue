@@ -93,13 +93,14 @@
           </FormInput>
         </div>
       </FormSection>
-
+    </form>
+    <template #footer>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary" :disabled="isCreating">
           {{ isCreating ? "追加中..." : "追加" }}
         </button>
       </div>
-    </form>
+    </template>
   </BaseModal>
 </template>
 

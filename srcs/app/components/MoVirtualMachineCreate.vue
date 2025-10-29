@@ -33,7 +33,8 @@
           "
         />
       </div>
-
+    </div>
+    <template #footer>
       <div class="modal-footer">
         <div class="flex gap-3">
           <SecondaryButton @click="prevTab" :disabled="currentTab === 0">
@@ -58,12 +59,12 @@
           </button>
         </div>
       </div>
-    </div>
+    </template>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { useVmWizardForm } from '~/composables/modal/useVmWizardForm';
+import { useVmWizardForm } from "~/composables/modal/useVmWizardForm";
 /**
  * =================================================================================
  * 仮想マシン作成モーダル (MoVirtualMachineCreate.vue)
