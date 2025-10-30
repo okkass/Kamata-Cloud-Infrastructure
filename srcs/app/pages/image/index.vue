@@ -6,7 +6,7 @@
       :rows="images"
       rowKey="id"
       :headerButtons="headerButtons"
-      @header-action="() => openModal('add-image')"
+      @header-action="() => openModal('add-images')"
     >
       <template #cell-name="{ row }">
         <NuxtLink :to="`/image/${row.id}`" class="table-link">

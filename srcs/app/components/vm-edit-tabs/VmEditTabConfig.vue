@@ -194,7 +194,7 @@ const {
   data: storagePools,
   pending: poolsPending,
   error: poolsError,
-} = useResourceList<ModelStoragePoolDTO>("storage-pool");
+} = useResourceList<ModelStoragePoolDTO>("storage-pools");
 
 // ==============================================================================
 // UI操作

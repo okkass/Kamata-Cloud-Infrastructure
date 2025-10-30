@@ -1,13 +1,17 @@
 <template>
-  <BaseModal :show="show" :title="modalTitle" @close="$emit('close')" size="lg">
+  <BaseModal :show="show" :title="modalTitle" @close="handleClose" size="lg">
     <div class="flex flex-col">
-      <div v-if="pending" class="text-center p-8">
-        仮想マシンの情報を読み込み中...
+      <div v-if="pending && !vmData" class="text-center p-8 text-gray-500">
+        <p>仮想マシンの情報を読み込み中...</p>
       </div>
+
       <div v-else-if="error" class="text-center text-red-500 p-8">
-        情報の読み込みに失敗しました。
+        <p>情報の読み込みに失敗しました。</p>
+        <p class="text-sm mt-1">{{ error.message }}</p>
+        <button @click="reloadData" class="btn-secondary mt-4">再試行</button>
       </div>
-      <div v-else>
+
+      <div v-else-if="vmData">
         <div class="flex border-b border-gray-200">
           <button
             type="button"
@@ -15,163 +19,170 @@
             :key="tab.name"
             @click="currentTab = index"
             :class="[
-              'relative py-2 px-4 text-sm font-medium',
+              'relative py-2 px-4 text-sm font-medium focus:outline-none focus:ring-2 focus:ring-offset-1 focus:ring-blue-400',
               currentTab === index
-                ? 'border-b-2 border-blue-500 text-blue-600'
-                : 'text-gray-500 hover:text-gray-700',
+                ? 'border-b-2 border-blue-500 text-blue-600' // アクティブタブ
+                : 'text-gray-500 hover:text-gray-700 hover:border-gray-300 hover:border-b-2', // 非アクティブタブ
             ]"
+            :aria-current="currentTab === index ? 'page' : undefined"
           >
             {{ tab.name }}
             <span
-              v-if="!tabValidity[index]"
+              v-if="!isValid(index)"
               class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"
+              title="このタブに入力エラーがあります"
             ></span>
           </button>
         </div>
+
         <div class="pt-6">
           <component
             v-for="(tab, index) in tabs"
             :key="index"
             v-show="currentTab === index"
             :is="tab.component"
-            :ref="
-              (el) => {
-                if (el) tabRefs[index] = el;
-              }
-            "
+            :ref="setTabRef(index)"
           />
         </div>
-        <div
-          class="flex justify-end items-center mt-6 pt-4 border-t border-gray-200"
-        >
+
+        <div class="modal-footer mt-6 pt-4 border-t border-gray-200">
+          <p v-if="submitError" class="text-sm text-red-500 mr-auto">
+            {{ submitError }}
+          </p>
+
           <div class="flex gap-3">
-            <SecondaryButton @click="prevTab" :disabled="currentTab === 0">
-              戻る
-            </SecondaryButton>
             <button
               type="button"
-              v-if="currentTab < tabs.length - 1"
-              @click="nextTab"
-              class="btn-primary"
+              @click="prevTab"
+              :disabled="currentTab === 0"
+              class="btn-secondary"
             >
-              次へ
+              戻る
             </button>
             <button
-              v-else
-              @click="handleSubmit"
-              :disabled="isUpdating"
-              class="py-2 px-5 bg-green-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 disabled:opacity-50"
+              type="button"
+              @click="handleNextOrSubmit"
+              :disabled="isSubmitting"
+              :class="
+                currentTab === tabs.length - 1 ? 'btn-success' : 'btn-primary'
+              "
             >
-              {{ isUpdating ? "更新中..." : "更新" }}
+              <svg
+                v-if="isSubmitting && currentTab === tabs.length - 1"
+                class="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+              >
+                <circle
+                  class="opacity-25"
+                  cx="12"
+                  cy="12"
+                  r="10"
+                  stroke="currentColor"
+                  stroke-width="4"
+                ></circle>
+                <path
+                  class="opacity-75"
+                  fill="currentColor"
+                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                ></path>
+              </svg>
+              {{
+                currentTab < tabs.length - 1
+                  ? "次へ"
+                  : isSubmitting
+                  ? "更新中..."
+                  : "更新"
+              }}
             </button>
           </div>
         </div>
+      </div>
+      <div
+        v-else-if="!pending && !error && !vmData"
+        class="text-center p-8 text-gray-500"
+      >
+        仮想マシンのデータが見つかりませんでした。
       </div>
     </div>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-// (import文などは変更なし)
-import { ref, markRaw, computed, watch } from "vue";
-import { useToast } from "~/composables/useToast";
-import VmEditTabGeneral from "~/components/vm-edit-tabs/VmEditTabGeneral.vue";
-import VmEditTabConfig from "~/components/vm-edit-tabs/VmEditTabConfig.vue";
-import VmEditTabNetwork from "~/components/vm-edit-tabs/VmEditTabNetwork.vue";
+/**
+ * =================================================================================
+ * 仮想マシン編集モーダル (MoVirtualMachineEdit.vue)
+ * ---------------------------------------------------------------------------------
+ * 既存の仮想マシンの設定を複数のタブに分けて編集するためのモーダルUIです。
+ * データ取得、タブ管理、フォームの初期化、更新処理は `useVirtualMachineEdit`
+ * Composable に委譲します。
+ * =================================================================================
+ */
+import { ref, computed } from "vue"; // markRaw は Composable へ移動
+// Composable をインポート (後で作成)
+import { useVirtualMachineEdit } from "~/composables/modal/useVirtualMachineEdit";
+// 各タブのコンポーネントをインポート (Composable でもインポートするが、型推論のためにここでも記述)
+import type VmEditTabGeneral from "~/components/vm-edit-tabs/VmEditTabGeneral.vue";
+import type VmEditTabConfig from "~/components/vm-edit-tabs/VmEditTabConfig.vue";
+import type VmEditTabNetwork from "~/components/vm-edit-tabs/VmEditTabNetwork.vue";
+// 共通ボタンコンポーネント (もし SecondaryButton があれば)
+// import SecondaryButton from '~/components/SecondaryButton.vue';
 
-// (Props, Emitsは変更なし)
+// --- Props (親コンポーネントからの受け取りデータ) ---
 const props = defineProps({
+  /** モーダルの表示状態 (v-model:show) */
   show: { type: Boolean, required: true },
+  /** 編集対象の仮想マシンのID */
   vmId: { type: String, default: null },
 });
-const emit = defineEmits(["close", "success"]);
 
-// --- API (初期データ取得) ---
-// ★ DTOの `pool` の型を string に修正
-interface VmDetailDTO {
-  id: string;
-  name: string;
-  node: { id: string; name: string };
-  instanceType: { cpuCores: number; memorySize: number };
-  attachedStorages: {
-    storage: { id: string; name: string; size: number; pool: string };
-    path: string;
-  }[];
-  attachedNics: { id: string; subnetId: string }[];
-  securityGroups: { id: string; name: string }[];
-}
-const fetchUrl = computed(() =>
-  props.vmId ? `/api/virtual-machines/${props.vmId}` : null
-);
+// --- Emits (親コンポーネントへのイベント通知) ---
+const emit = defineEmits([
+  "close", // モーダルを閉じる要求
+  "success", // 更新成功通知
+]);
+
+// --- Composable からロジックと状態を取得 ---
 const {
-  data: vmData,
-  pending,
-  error,
-  refresh,
-} = useFetch<VmDetailDTO>(fetchUrl, { immediate: false });
+  // データ取得関連
+  vmData, // 取得したVMの詳細データ (ref)
+  pending, // データ取得中フラグ (ref)
+  error, // データ取得エラー (ref)
+  reloadData, // データ再取得関数
 
-// (タブ定義、UI操作、handleSubmitは変更なし)
-const tabs = [
-  { name: "概要", component: markRaw(VmEditTabGeneral) },
-  { name: "構成", component: markRaw(VmEditTabConfig) },
-  { name: "ネットワーク", component: markRaw(VmEditTabNetwork) },
-];
-const tabRefs = ref<any[]>([]);
-const currentTab = ref(0);
-const modalTitle = ref("仮想マシン編集");
-const prevTab = () => {
-  if (currentTab.value > 0) currentTab.value--;
+  // タブ関連
+  tabs, // タブ定義の配列 (ref or computed)
+  currentTab, // 現在アクティブなタブのインデックス (ref)
+  modalTitle, // モーダルのタイトル (ref or computed)
+  prevTab, // 前のタブへ移動する関数
+  nextTab, // 次のタブへ移動する関数
+  setTabRef, // タブコンポーネントの参照を設定する関数
+  isValid, // 指定されたタブが有効かチェックする関数
+
+  // 更新処理関連
+  handleSubmit, // 更新処理を実行する関数
+  isSubmitting, // 更新API通信中フラグ (ref)
+  submitError, // 更新時のエラーメッセージ (ref)
+} = useVirtualMachineEdit(props); // Props (特に vmId) を Composable に渡す
+
+// --- ローカルメソッド ---
+/**
+ * モーダルを閉じる処理
+ */
+const handleClose = () => {
+  // 必要であれば閉じる前の確認処理などをここに書く
+  emit("close");
 };
-const nextTab = () => {
-  if (currentTab.value < tabs.length - 1) currentTab.value++;
-};
-const tabValidity = computed(() =>
-  tabRefs.value.map((tab) => tab?.isValid?.valid ?? false)
-);
-const { addToast } = useToast();
-const isUpdating = ref(false);
-const handleSubmit = async () => {
-  /* ... */
-};
 
-// --- 初期値設定 ---
-watch(
-  () => props.show,
-  async (isVisible) => {
-    if (isVisible && props.vmId) {
-      await refresh();
-
-      if (vmData.value) {
-        // 概要タブ
-        tabRefs.value[0]?.resetForm({
-          values: { name: vmData.value.name, nodeId: vmData.value.node.id },
-        });
-
-        // 構成タブ
-        tabRefs.value[1]?.resetForm({
-          values: {
-            cpuCores: vmData.value.instanceType.cpuCores,
-            memorySize:
-              vmData.value.instanceType.memorySize / 1024 / 1024 / 1024,
-            storages: vmData.value.attachedStorages.map((s, index) => ({
-              id: s.storage.id,
-              name: s.storage.name,
-              size: s.storage.size / 1024 / 1024 / 1024,
-              poolId: s.storage.pool, // ★ poolId に修正
-              type: s.path === "/dev/sda" ? "os" : "manual", // pathを見てOSディスクを判断
-            })),
-          },
-        });
-
-        // ネットワークタブ
-        tabRefs.value[2]?.resetForm({
-          values: {
-            subnetId: vmData.value.attachedNics[0]?.subnetId,
-            securityGroupIds: vmData.value.securityGroups.map((sg) => sg.id),
-          },
-        });
-      }
-    }
+/**
+ * 「次へ」または「更新」ボタンが押されたときの処理
+ */
+const handleNextOrSubmit = () => {
+  if (currentTab.value < tabs.value.length - 1) {
+    nextTab(); // 最後のタブでなければ次に進む
+  } else {
+    handleSubmit(emit); // 最後のタブなら更新処理を実行 (emitを渡す)
   }
-);
+};
 </script>

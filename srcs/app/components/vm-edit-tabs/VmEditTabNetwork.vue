@@ -143,13 +143,13 @@ const {
   data: networks,
   pending: networksPending,
   error: networksError,
-} = useResourceList<ModelVirtualNetworkDTO>("virtual-network");
+} = useResourceList<ModelVirtualNetworkDTO>("virtual-networks");
 
 const {
   data: securityGroups,
   pending: sgPending,
   error: sgError,
-} = useResourceList<ModelSecurityGroupDTO>("security-group");
+} = useResourceList<ModelSecurityGroupDTO>("security-groups");
 
 // ==============================================================================
 // UI操作

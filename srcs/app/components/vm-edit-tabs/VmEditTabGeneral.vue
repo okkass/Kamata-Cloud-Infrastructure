@@ -89,7 +89,7 @@ const {
   data: nodes,
   pending,
   error,
-} = useResourceList<ModelPhysicalNodeDTO>("physical-node");
+} = useResourceList<ModelPhysicalNodeDTO>("physical-nodes");
 </script>
 
 <style scoped>
