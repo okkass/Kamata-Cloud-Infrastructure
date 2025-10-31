@@ -237,14 +237,14 @@ export function useVirtualMachineEdit(props: Props) {
           size: s.storage?.size
             ? Math.round(s.storage.size / (1024 * 1024 * 1024))
             : 0,
-          poolId: s.storage?.pool || s.storage?.poolId || "", // API DTOに合わせて修正
+          poolId: s.storage?.poolId || "", // API DTOに合わせて修正
           type: s.path === "/dev/sda" ? "os" : "manual", // OSディスク判定
         }));
 
         configTab.resetForm({
           // resetForm に渡す値は VmEditTabConfig のフォームスキーマに合わせる
           values: {
-            cpuCores: data.instanceType?.cpuCores || data.cpuCore || 0, // instanceType優先、なければカスタム値
+            cpuCores: data.instanceType?.cpuCore || data.cpuCore || 0, // instanceType優先、なければカスタム値
             memorySize: memorySizeGiB,
             storages: storagesGiB,
             // ★ インスタンスタイプIDも渡す (カスタム構成の場合は null)
