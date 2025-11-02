@@ -91,13 +91,3 @@ const {
   error,
 } = useResourceList<ModelPhysicalNodeDTO>("physical-nodes");
 </script>
-
-<style scoped>
-/* (スタイルは変更なし) */
-.form-label {
-  @apply block mb-1.5 font-semibold text-gray-700;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
-}
-</style>
