@@ -16,7 +16,8 @@
         "dbaeumer.vscode-eslint",
         "42Crunch.vscode-openapi",
         "bradlc.vscode-tailwindcss",
-        "Prisma.prisma"
+        "Prisma.prisma",
+        "MermaidChart.vscode-mermaid-chart"
       ],
       "settings": {
         "editor.formatOnSave": true,

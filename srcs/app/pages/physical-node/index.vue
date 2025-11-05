@@ -7,20 +7,19 @@
       rowKey="id"
       :headerButtons="headerButtons"
       @header-action="handleDashboardHeaderAction"
+      @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
         <div v-if="row">
           <NuxtLink :to="`/physical-node/${row.id}`" class="table-link">
             {{ row.name }}
-            <span v-if="row.isMgmt" class="text-sm text-gray-500"
-              >（管理ノード）</span
-            >
+            <span v-if="row.isMgmt" class="cell-note">（管理ノード）</span>
           </NuxtLink>
         </div>
       </template>
 
       <template #cell-ip="{ row }">
-        <span v-if="row" class="font-mono">{{ row.ip }}</span>
+        <span v-if="row" class="cell-mono">{{ row.ip }}</span>
       </template>
 
       <template #cell-status="{ row }">
@@ -35,31 +34,22 @@
 
       <template #row-actions="{ row }">
         <div v-if="row">
-          <NuxtLink
-            :to="`/physical-node/${row.id}`"
-            class="action-item first:border-t-0"
-          >
+          <NuxtLink :to="`/physical-node/${row.id}`" class="action-item">
             詳細
           </NuxtLink>
-
           <button
             type="button"
-            class="action-item w-full text-left"
-            :class="{
-              'action-item-disabled': row.isMgmt || switchingNodeId === row.id,
-            }"
+            class="action-item"
             :disabled="row.isMgmt || switchingNodeId === row.id"
-            @click.stop.prevent="handleSetAsManagementNode(row.id)"
+            @click.stop.prevent="onRowAction({ action: 'set-mgmt', row })"
           >
             管理ノードに設定
           </button>
-
           <button
             type="button"
             class="action-item action-item-danger"
-            :class="{ 'action-item-disabled hover:bg-slate-500': row.isMgmt }"
             :disabled="row.isMgmt"
-            @click.stop.prevent="promptForNodeDeletion(row)"
+            @click.stop.prevent="onRowAction({ action: 'delete', row })"
           >
             削除
           </button>
@@ -76,7 +66,7 @@
     @confirm="handleDelete"
   />
   <MoAddNodeToCluster
-    :show="activeModal === 'add-physical-node'"
+    :show="activeModal === 'add-physical-nodes'"
     @close="closeModal"
     @success="handleSuccess"
   />
@@ -92,22 +82,46 @@
  * =================================================================================
  */
 import { usePhysicalNodeManagement } from "~/composables/usePhysicalNodeManagement";
+import { usePageActions } from "~/composables/usePageActions";
 
-// --- Composableからページ全体のロジックを取得 ---
+// --- データロジック ---
 const {
   columns,
   displayNodes,
   headerButtons,
+  switchingNodeId,
+  handleSetAsManagementNode,
+  refreshNodeList,
+} = usePhysicalNodeManagement();
+
+// --- アクションロジック ---
+const {
   activeModal,
+  openModal,
+  closeModal,
   targetForDeletion,
   isDeleting,
-  switchingNodeId,
-  handleDashboardHeaderAction,
-  handleSetAsManagementNode,
-  promptForNodeDeletion,
-  cancelAction,
+  handleRowAction,
   handleDelete,
-  closeModal,
   handleSuccess,
-} = usePhysicalNodeManagement();
+  cancelAction,
+} = usePageActions<UiNode>({
+  resourceName: "physical-nodes",
+  resourceLabel: "物理ノード",
+  refresh: refreshNodeList,
+});
+
+// --- イベントの振り分け ---
+const handleDashboardHeaderAction = (action: string) => {
+  if (action === "add") {
+    openModal("add-physical-nodes");
+  }
+};
+const onRowAction = ({ action, row }: { action: string; row: UiNode }) => {
+  if (action === "set-mgmt") {
+    handleSetAsManagementNode(row.id);
+  } else {
+    handleRowAction({ action, row });
+  }
+};
 </script>

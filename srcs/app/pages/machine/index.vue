@@ -45,14 +45,21 @@
       >
         詳細
       </NuxtLink>
-      <a href="#" class="action-item" @click.prevent="emit('edit')"> 編集 </a>
-      <a
-        href="#"
+      <button
+        type="button"
+        class="action-item"
+        @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
+      >
+        編集
+      </button>
+      <button
+        type="button"
         class="action-item action-item-danger"
-        @click.prevent="emit('delete')"
+        :disabled="isDeleting && targetForDeletion?.id === row?.id"
+        @click.stop.prevent="row && handleRowAction({ action: 'delete', row })"
       >
         削除
-      </a>
+      </button>
     </template>
   </DashboardLayout>
    

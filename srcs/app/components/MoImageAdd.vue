@@ -1,212 +1,96 @@
 <template>
-  <div
-    v-if="show"
-    class="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
-  >
-    <section
-      class="w-full max-w-2xl rounded-2xl bg-white shadow-2xl ring-1 ring-black/5 p-6 md:p-8"
-    >
-      <!-- header -->
-      <header class="mb-6">
-        <h2
-          class="text-2xl md:text-[26px] font-extrabold tracking-tight text-slate-900"
-        >
-          {{ title }}
-        </h2>
-      </header>
+  <BaseModal :show="show" title="イメージ追加" @close="$emit('close')">
+    <form @submit.prevent="submitForm" class="modal-space">
+      <div>
+        <label for="image-name-add" class="form-label">
+          イメージ名 <span class="required-asterisk">*</span>
+        </label>
+        <input
+          id="image-name-add"
+          type="text"
+          placeholder="例: ubuntu-24.04-amd64"
+          v-model="name"
+          v-bind="nameAttrs"
+          class="form-input"
+          :class="{ 'form-border-error': errors.name }"
+        />
+        <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
+      </div>
 
-      <!-- body -->
-      <form @submit.prevent="onSubmit" class="space-y-6">
-        <!-- image name -->
-        <div>
-          <label
-            for="imageName"
-            class="mb-2 block text-sm font-medium text-slate-700"
-          >
-            イメージ名 <span class="text-rose-600">*</span>
-          </label>
-          <input
-            id="imageName"
-            v-model.trim="imageName"
-            type="text"
-            required
-            class="block w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900 placeholder-slate-400 shadow-sm focus:border-sky-400 focus:outline-none focus:ring-4 focus:ring-sky-100"
-            placeholder="例）ubuntu-24.04-amd64"
-          />
-        </div>
+      <div>
+        <label for="image-file-add" class="form-label">
+          イメージファイル <span class="required-asterisk">*</span>
+        </label>
+        <FormDropZone
+          id="image-file-add"
+          v-model="file"
+          accept=".img,.qcow2,.zip,.gz,.xz"
+          :error-message="errors.file"
+        />
+      </div>
 
-        <!-- file dropzone -->
-        <div>
-          <label class="mb-2 block text-sm font-medium text-slate-700">
-            イメージファイル <span class="text-rose-600">*</span>
-          </label>
-
-          <div
-            class="group relative flex min-h-[140px] cursor-pointer items-center justify-center rounded-2xl border-2 border-dashed border-slate-300 bg-slate-50/60 p-4 transition"
-            :class="{
-              'border-sky-500 bg-sky-50/60 shadow-inner': dragOver,
-              'hover:border-slate-400 hover:bg-slate-50': !dragOver,
-            }"
-            @dragover.prevent="dragOver = true"
-            @dragleave.prevent="dragOver = false"
-            @drop.prevent="onDrop"
-            @click="fileInput?.click()"
-          >
-            <input
-              ref="fileInput"
-              type="file"
-              accept=".img,.qcow2,.raw,.iso,.vhd,.vhdx,.vmdk,.zip,.gz,.xz"
-              class="sr-only"
-              @change="onFilePick"
-              required
-            />
-            <div class="text-center">
-              <!-- upload icon -->
-              <svg
-                class="mx-auto mb-3 h-10 w-10"
-                viewBox="0 0 24 24"
-                fill="none"
-              >
-                <path
-                  d="M12 16V4m0 0l-4 4m4-4l4 4"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
-                <path
-                  d="M20 16v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2"
-                  stroke="currentColor"
-                  stroke-width="1.5"
-                />
-              </svg>
-              <p class="text-sm text-slate-700">
-                ここに<strong class="font-semibold">ドラッグ＆ドロップ</strong
-                >するか、クリックして選択
-              </p>
-              <p class="mt-1 text-xs text-slate-500">
-                対応：img / qcow2 / raw / iso / vhd(x) / vmdk / zip / gz / xz
-              </p>
-              <p v-if="file" class="mt-2 text-sm font-medium text-slate-800">
-                選択中：{{ file.name }}
-              </p>
-            </div>
-          </div>
-        </div>
-
-        <!-- actions -->
-        <div class="flex items-center justify-end gap-3 pt-2">
-          <button
-            type="button"
-            class="rounded-xl border border-slate-300 px-4 py-2 text-slate-700 hover:bg-slate-50 focus:outline-none focus:ring-4 focus:ring-slate-200"
-            @click="$emit('close')"
-          >
-            キャンセル
-          </button>
-
-          <button
-            type="submit"
-            :disabled="submitting"
-            class="inline-flex items-center justify-center rounded-xl px-5 py-2.5 font-semibold text-white shadow-lg transition focus:outline-none focus:ring-4 disabled:cursor-not-allowed disabled:opacity-60"
-            :style="{ backgroundColor: buttonColor }"
-          >
-            <svg
-              v-if="submitting"
-              class="mr-2 h-4 w-4 animate-spin"
-              viewBox="0 0 24 24"
-              fill="none"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              />
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"
-              />
-            </svg>
-            追加
-          </button>
-        </div>
-
-        <transition name="fade">
-          <p v-if="message" class="mt-3 text-sm text-slate-700">
-            {{ message }}
-          </p>
-        </transition>
-      </form>
-    </section>
-  </div>
+      <div>
+        <label for="image-description-add" class="form-label">説明</label>
+        <textarea
+          id="image-description-add"
+          :rows="3"
+          v-model="description"
+          v-bind="descriptionAttrs"
+          class="form-input"
+          :class="{ 'form-border-error': errors.description }"
+          placeholder="例: Ubuntu 24.04 LTS (Noble Numbat) 64bit版"
+        ></textarea>
+        <p v-if="errors.description" class="text-error mt-1">
+          {{ errors.description }}
+        </p>
+      </div>
+    </form>
+    <template #footer>
+      <div class="modal-footer">
+        <button type="submit" class="btn btn-primary" :disabled="isCreating">
+          {{ isCreating ? "追加中..." : "追加" }}
+        </button>
+      </div>
+    </template>
+  </BaseModal>
 </template>
 
-<script setup>
-import { ref } from "vue";
+<script setup lang="ts">
+/**
+ * =================================================================================
+ * イメージ追加モーダル (MoImageAdd.vue)
+ * ---------------------------------------------------------------------------------
+ * UIの表示に特化したコンポーネントです。
+ * 実際のフォームの状態管理やAPI送信ロジックは `useImageAddForm` Composable に
+ * 分離されています。
+ * =================================================================================
+ */
+// Composable をインポート (パスはプロジェクトに合わせて調整してください)
+import { useImageAddForm } from "~/composables/modal/useImageAddForm";
+// FormDropZoneコンポーネントをインポート (パスを確認)
+import FormDropZone from "~/components/FormDropZone.vue"; // パスを確認・調整してください
 
-const props = defineProps({
-  show: { type: Boolean, required: true },
-  title: { type: String, default: "イメージ追加" },
-  buttonColor: { type: String, default: "#1a73e8" },
-});
-const emit = defineEmits(["close", "submitted"]);
+// --- 親コンポーネントとの連携 ---
+defineProps({ show: { type: Boolean, required: true } });
+const emit = defineEmits(["close", "success"]);
 
-const fileInput = ref(null);
-const dragOver = ref(false);
-const submitting = ref(false);
-const message = ref("");
+// --- Composable からフォームロジックと状態を取得 ---
+const {
+  errors, // エラーオブジェクト
+  // フォームフィールド
+  name,
+  nameAttrs,
+  file, // FormDropZoneのv-model用
+  // fileAttrs, // FormDropZoneでは通常不要
+  description,
+  descriptionAttrs,
+  // 状態とアクション
+  isCreating,
+  onFormSubmit, // Composable が提供する送信ハンドラ
+} = useImageAddForm();
 
-const imageName = ref("");
-const file = ref(null);
-
-function onFilePick(e) {
-  const f = e.target.files?.[0];
-  if (f) file.value = f;
-}
-function onDrop(e) {
-  dragOver.value = false;
-  const f = e.dataTransfer?.files?.[0];
-  if (f) file.value = f;
-}
-async function onSubmit() {
-  if (!imageName.value || !file.value) return;
-  submitting.value = true;
-  message.value = "";
-  try {
-    await new Promise((r) => setTimeout(r, 600));
-
-    // 現在時刻を整形して追加
-    const now = new Date();
-    const formatted = now.toLocaleString("ja-JP", {
-      year: "numeric",
-      month: "2-digit",
-      day: "2-digit",
-      hour: "2-digit",
-      minute: "2-digit",
-      second: "2-digit",
-    });
-
-    message.value = `「${imageName.value}」を追加しました（${file.value.name}） - ${formatted}`;
-
-    emit("submitted", {
-      name: imageName.value,
-      file: file.value,
-      addedAt: now,
-    });
-  } finally {
-    submitting.value = false;
-  }
-}
+// --- イベントハンドラ ---
+// Composable から受け取った `onFormSubmit` 関数に、
+// このコンポーネントの `emit` 関数を渡して実行するラッパー関数。
+const submitForm = onFormSubmit(emit);
 </script>
-
-<style scoped>
-.fade-enter-active,
-.fade-leave-active {
-  transition: opacity 0.2s ease;
-}
-.fade-enter-from,
-.fade-leave-to {
-  opacity: 0;
-}
-</style>

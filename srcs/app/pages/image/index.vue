@@ -1,27 +1,33 @@
 <template>
   <div>
     <DashboardLayout
-      title="セキュリティグループ"
+      title="仮想マシンイメージ"
       :columns="columns"
-      :rows="groups || []"
+      :rows="images"
       rowKey="id"
       :headerButtons="headerButtons"
-      @header-action="() => openModal('add-security-groups')"
+      @header-action="() => openModal('add-image')"
     >
       <template #cell-name="{ row }">
-        <div v-if="row">
-          <NuxtLink :to="`/security-group/${row.id}`" class="table-link">
-            {{ row.name }}
-          </NuxtLink>
+        <NuxtLink :to="`/image/${row.id}`" class="table-link">
+          {{ row.name }}
           <span v-if="row.description" class="cell-description">
             {{ row.description }}
           </span>
-        </div>
-      </template>
-      <template #row-actions="{ row }">
-        <NuxtLink :to="`/security-group/${row?.id}`" class="action-item">
-          詳細
         </NuxtLink>
+      </template>
+
+      <template #cell-size="{ row }">
+        <span class="cell-mono">{{ row.size }}</span>
+      </template>
+
+      <template #cell-createdAt="{ row }">
+        <span>{{ row.createdAt }}</span>
+      </template>
+
+      <template #row-actions="{ row }">
+        <NuxtLink :to="`/image/${row?.id}`" class="action-item">詳細</NuxtLink>
+
         <button
           type="button"
           class="action-item"
@@ -29,9 +35,11 @@
         >
           編集
         </button>
+
         <button
           type="button"
           class="action-item action-item-danger"
+          :disabled="isDeleting && targetForDeletion?.id === row?.id"
           @click.stop.prevent="
             row && handleRowAction({ action: 'delete', row })
           "
@@ -43,48 +51,48 @@
   </div>
 
   <MoDeleteConfirm
-    :show="activeModal === 'delete-security-groups'"
-    :message="`本当に「${targetForDeletion?.name}」を削除しますか？`"
+    :show="activeModal === 'delete-images'"
+    :message="`本当にイメージ「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
   />
-  <MoSecurityGroupCreate
-    :show="activeModal === 'add-security-groups'"
+  <MoImageAdd
+    :show="activeModal === 'add-images'"
     @close="closeModal"
     @success="handleSuccess"
   />
-  <MoSecurityGroupEdit
-    :show="activeModal === 'edit-security-groups'"
-    :group="targetForEditing"
+  <MoImageEdit
+    :show="activeModal === 'edit-images'"
+    :image-data="targetForEditing ?? undefined"
     @close="closeModal"
     @success="handleSuccess"
   />
 </template>
 
 <script setup lang="ts">
-import { useSecurityDashboard } from "~/composables/useSecurityDashboard";
+import { useImageManagement } from "~/composables/useImageManagement";
 import { usePageActions } from "~/composables/usePageActions";
 
-// ★ 1. データ関連のComposableを呼び出し
-const { columns, groups, headerButtons, refreshGroupList } =
-  useSecurityDashboard();
+// --- データロジックの取得 ---
+const { columns, images, headerButtons, refreshImageList } =
+  useImageManagement();
 
-// ★ 2. アクション関連のComposableを呼び出し
+// --- アクションロジックの取得 ---
 const {
   activeModal,
   openModal,
   closeModal,
   targetForDeletion,
-  targetForEditing, // targetForEditingを受け取る
+  targetForEditing, // ★ 編集対象のデータを取得
   isDeleting,
   handleRowAction,
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<SecurityGroupDTO>({
-  resourceName: "security-groups",
-  resourceLabel: "セキュリティグループ",
-  refresh: refreshGroupList, // refresh関数を渡す
+} = usePageActions<UiImage>({
+  resourceName: "images",
+  resourceLabel: "イメージ",
+  refresh: refreshImageList,
 });
 </script>

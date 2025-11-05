@@ -9,16 +9,6 @@
 import { ref, computed } from "vue";
 import { useToast } from "@/composables/useToast";
 import { useResourceList } from "@/composables/useResourceList";
-import { usePageActions } from "@/composables/usePageActions";
-
-// ==============================================================================
-// Type Definitions
-// ==============================================================================
-type TableColumn = {
-  key: keyof UiNode | string;
-  label: string;
-  align?: "left" | "center" | "right";
-};
 
 /**
  * メインのComposable関数
@@ -34,21 +24,6 @@ export function usePhysicalNodeManagement() {
     PhysicalNodeUpdateRequestDTO,
     PhysicalNodeDTO
   >("physical-nodes");
-  const {
-    activeModal,
-    openModal,
-    closeModal,
-    targetForDeletion,
-    isDeleting,
-    handleRowAction,
-    handleDelete,
-    handleSuccess,
-    cancelAction,
-  } = usePageActions<UiNode>({
-    resourceName: "physical-nodes",
-    resourceLabel: "物理ノード",
-    refresh: refreshNodeList,
-  });
 
   // ============================================================================
   // Component State
@@ -127,37 +102,17 @@ export function usePhysicalNodeManagement() {
       switchingNodeId.value = null;
     }
   }
-  function promptForNodeDeletion(row: UiNode) {
-    if (row.isMgmt) return;
-    handleRowAction({ action: "delete", row });
-  }
-
-  function handleDashboardHeaderAction(action: string) {
-    if (action !== "add") return;
-    openModal("add-physical-node");
-  }
 
   // ============================================================================
   // Expose
   // コンポーネント側で利用する変数や関数を返却
   // ============================================================================
   return {
-    // Table Data
     columns,
     displayNodes,
     headerButtons,
-    // Modals & Actions
-    activeModal,
-    targetForDeletion,
-    isDeleting,
     switchingNodeId,
-    // Handlers
-    handleDashboardHeaderAction,
     handleSetAsManagementNode,
-    promptForNodeDeletion,
-    cancelAction,
-    handleDelete,
-    closeModal,
-    handleSuccess,
+    refreshNodeList,
   };
 }
