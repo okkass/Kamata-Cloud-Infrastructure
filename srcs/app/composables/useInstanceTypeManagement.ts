@@ -1,36 +1,25 @@
-// app/composables/useInstanceTypeManagement.ts
 import { ref, computed, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import { useToast } from "@/composables/useToast";
+import { convertByteToUnit } from "./../utils/format";
+import { formatDateTime } from "./../utils/date";
 
 type RawInstanceType = {
   id: string;
   name: string;
   createdAt: string;
-  cpuCores: number;
+  cpuCore?: number;
+  cpuCores?: number;
   memorySize: number; // bytes
-  storageSize: number; // bytes
 };
 
 export type InstanceTypeRow = {
   id: string;
   name: string;
   vcpu: number;
-  memoryGb: number;
-  diskGb: number;
+  memoryMb: number; // MB 表示
   description?: string;
   createdAtText?: string;
-};
-
-const GB = 1024 * 1024 * 1024;
-const toGb = (b: number) => Math.round(b / GB);
-const p2 = (n: number) => String(n).padStart(2, "0");
-const toText = (iso: string) => {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return "";
-  return `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())} ${p2(
-    d.getHours()
-  )}:${p2(d.getMinutes())}`;
 };
 
 export function useInstanceTypeManagement() {
@@ -39,8 +28,7 @@ export function useInstanceTypeManagement() {
   const columns = [
     { key: "name", label: "名前", align: "left" },
     { key: "vcpu", label: "vCPU", align: "right" },
-    { key: "memoryGb", label: "メモリ", align: "right" },
-    { key: "diskGb", label: "ストレージ", align: "right" },
+    { key: "memoryMb", label: "メモリ (MB)", align: "right" },
     { key: "createdAtText", label: "作成日時", align: "left" },
   ];
 
@@ -64,15 +52,23 @@ export function useInstanceTypeManagement() {
   );
 
   const displayInstanceTypes = computed<InstanceTypeRow[]>(() =>
-    (rawList.value ?? []).map((r) => ({
-      id: r.id,
-      name: r.name,
-      vcpu: r.cpuCores,
-      memoryGb: toGb(r.memorySize),
-      diskGb: toGb(r.storageSize),
-      description: "",
-      createdAtText: toText(r.createdAt),
-    }))
+    (rawList.value ?? []).map((r) => {
+      // cpu のキー名が不確実なので両方に対応
+      const vcpu =
+        typeof r.cpuCore === "number"
+          ? r.cpuCore
+          : typeof r.cpuCores === "number"
+          ? r.cpuCores
+          : 0;
+      return {
+        id: r.id,
+        name: r.name,
+        vcpu,
+        memoryMb: convertByteToUnit(r.memorySize ?? 0, "MB"),
+        description: "",
+        createdAtText: formatDateTime(r.createdAt),
+      };
+    })
   );
 
   const activeModal = ref<
@@ -113,14 +109,14 @@ export function useInstanceTypeManagement() {
     window.location.href = path;
   }
 
-  function promptForDeletion(row: InstanceTypeRow) {
-    targetForDeletion.value = row;
-    activeModal.value = "delete-instance-type";
-  }
-
   function openEditModal(row: InstanceTypeRow) {
     editingTarget.value = row;
     activeModal.value = "edit-instance-type";
+  }
+
+  function promptForDeletion(row: InstanceTypeRow) {
+    targetForDeletion.value = row;
+    activeModal.value = "delete-instance-type";
   }
 
   function cancelAction() {
@@ -150,12 +146,9 @@ export function useInstanceTypeManagement() {
       await $fetch(`/api/instance-types/${encodeURIComponent(id)}`, {
         method: "DELETE",
       });
-      // 成功トースト（addToast が関数であることを確認してから呼ぶ）
-      if (typeof addToast === "function") {
+      if (typeof addToast === "function")
         addToast({ type: "success", message: "削除しました。" });
-      }
       await refresh();
-      // モーダルを閉じる
       cancelAction();
     } catch (e: any) {
       console.error("handleDelete error:", e);

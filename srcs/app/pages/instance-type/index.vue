@@ -25,12 +25,11 @@
     <template #cell-vcpu="{ row }">
       <span v-if="row" class="font-mono">{{ row.vcpu }}</span>
     </template>
-    <template #cell-memoryGb="{ row }">
-      <span v-if="row" class="font-mono">{{ row.memoryGb }} GB</span>
+
+    <template #cell-memoryMb="{ row }">
+      <span v-if="row" class="font-mono">{{ row.memoryMb }} MB</span>
     </template>
-    <template #cell-diskGb="{ row }">
-      <span v-if="row" class="font-mono">{{ row.diskGb }} GB</span>
-    </template>
+
     <template #cell-createdAtText="{ row }">
       <span v-if="row">{{ row.createdAtText }}</span>
     </template>
@@ -78,7 +77,6 @@
       @close="cancelAction"
       @confirm="handleDelete"
     />
-    <!-- 編集モーダルを追加 -->
     <MoInstanceTypeEdit
       v-if="activeModal === 'edit-instance-type'"
       :show="true"
@@ -106,8 +104,8 @@ const {
   isDeleting,
   isDeletingId,
   handleDashboardHeaderAction,
-  openEdit, // navigation 用（残す）
-  openEditModal, // modal 用
+  openEdit,
+  openEditModal,
   promptForDeletion,
   cancelAction,
   handleDelete,
@@ -116,14 +114,14 @@ const {
   handleEditSuccess,
 } = useInstanceTypeManagement();
 
-// MoInstanceTypeEdit が期待する形に変換して渡す
+// 編集モーダルには MB 単位で渡す（VM作成に合わせる）
 const editingPayload = computed(() =>
   editingTarget.value
     ? {
         id: editingTarget.value.id,
         name: editingTarget.value.name,
-        cpuCores: editingTarget.value.vcpu,
-        memorySize: editingTarget.value.memoryGb,
+        cpuCore: editingTarget.value.vcpu, // cpuCore 名で渡す
+        memorySizeMb: editingTarget.value.memoryMb ?? 0, // MB 単位
       }
     : null
 );
