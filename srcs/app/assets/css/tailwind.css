@@ -243,6 +243,14 @@
     @apply text-indigo-800 bg-indigo-100;
   }
 
+  /**=================================================
+   * Summary Styles (サマリースタイル)
+   * ==================================================
+   */
+  .quick-link {
+    @apply block p-4 bg-white rounded-lg shadow font-semibold text-gray-700 hover:bg-gray-50;
+  }
+
   /**
    * ==================================================================
    * Else (その他)
