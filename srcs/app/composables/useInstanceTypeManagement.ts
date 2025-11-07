@@ -1,6 +1,7 @@
 // app/composables/useInstanceTypeManagement.ts
 import { ref, computed, watchEffect } from "vue";
 import { useRouter } from "vue-router";
+import type { PageActionsReturn } from "@/composables/usePageActions";
 import { usePageActions } from "@/composables/usePageActions";
 import { useResourceDelete } from "@/composables/useResourceDelete";
 import { useResourceList } from "@/composables/useResourceList";
@@ -32,11 +33,12 @@ export function useInstanceTypeManagement() {
     error,
   } = useResourceList<RawInstanceType>("instance-types");
 
-  const pageActions = usePageActions<InstanceTypeRow>({
-    resourceName: "instance-types",
-    resourceLabel: "インスタンスタイプ",
-    refresh,
-  });
+  const pageActions: PageActionsReturn<InstanceTypeRow> =
+    usePageActions<InstanceTypeRow>({
+      resourceName: "instance-types",
+      resourceLabel: "インスタンスタイプ",
+      refresh,
+    });
 
   const activeModal = pageActions.activeModal ?? ref<string | null>(null);
   const openModal = pageActions.openModal ?? ((_key: string) => {});
