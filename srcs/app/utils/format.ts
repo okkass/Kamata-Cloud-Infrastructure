@@ -12,10 +12,10 @@ export type ByteUnit = keyof typeof BYTE_UNITS;
  * バイトを指定された単位に変換し、最も近い整数に丸める
  * @param bytes - 変換元のバイト数
  * @param unit - 変換先の単位
- * @returns {number} - 変換後の整数値
+ * @returns {number} - 変換後の数値
  */
-export const convertByteToUnit = (bytes: number, unit: ByteUnit): number => {
-  return Math.round(bytes / BYTE_UNITS[unit]);
+export const convertByteToUnit = (bytes: number, unit: ByteUnit, round: boolean = true): number => {
+  return round ? Math.round(bytes / BYTE_UNITS[unit]) : bytes / BYTE_UNITS[unit];
 };
 
 /**

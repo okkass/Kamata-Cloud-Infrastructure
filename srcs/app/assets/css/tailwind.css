@@ -11,14 +11,14 @@
    */
   /* 全てのボタンの基本となる形状、サイズ、状態を定義 */
   .btn {
-    @apply py-2 px-5 font-semibold rounded-lg shadow-md transition-colors 
+    @apply py-2 px-5 rounded shadow-md transition-colors
            disabled:opacity-50 disabled:cursor-not-allowed
            focus:outline-none focus:ring-2 focus:ring-offset-2; /* ★フォーカススタイルを共通化 */
   }
 
   /* プライマリ（主要な）アクション用のボタンスタイル */
   .btn-primary {
-    @apply bg-blue-600 text-white hover:bg-blue-700 focus:ring-blue-500;
+    @apply bg-blue-500 text-white hover:bg-blue-600 focus:ring-blue-500;
   }
   /* 項目追加など、補助的なアクション用のボタンスタイル */
   .btn-add {
@@ -251,6 +251,69 @@
     @apply block p-4 bg-white rounded-lg shadow font-semibold text-gray-700 hover:bg-gray-50;
   }
 
+  /* サマリーページの各セクション（プログレスバーやグラフを囲む） */
+  .summary-section {
+    @apply space-y-8;
+  }
+
+  /* プログレスバーやグラフのグリッドコンテナ */
+  .summary-grid {
+    @apply grid grid-cols-3 md:grid-cols-1 gap-4;
+  }
+
+  /* 時系列グラフのグリッドコンテナ */
+  .summary-timeseries-grid {
+    @apply grid grid-cols-1 lg:grid-cols-2 gap-6 h-[100%];
+  }
+
+  /* 各セクションのタイトル */
+  .summary-section-title {
+    @apply text-xl font-semibold mb-4;
+  }
+
+  /* 時系列グラフのセクション間のマージン */
+  .summary-timeseries-section {
+    @apply space-y-8 mt-8;
+  }
+  /* プログレスバーのカード全体 */
+  .summary-progress-card {
+    @apply bg-white p-4 rounded-lg shadow;
+  }
+
+  /* プログレスバーのタイトル */
+  .summary-progress-title {
+    @apply font-semibold text-gray-700 mb-2;
+  }
+
+  /* 使用量テキストのコンテナ */
+  .summary-progress-text {
+    @apply flex justify-between text-sm font-medium text-gray-600 mb-1;
+  }
+
+  /* プログレスバーの背景（溝） */
+  .summary-progress-track {
+    @apply w-full bg-gray-200 rounded-full h-2.5;
+  }
+
+  /* プログレスバー本体（進捗を示すバー） */
+  .summary-progress-bar {
+    @apply h-2.5 rounded-full transition-all duration-300;
+  }
+
+  /* プログレスバーの色 */
+  .progress-bar-normal {
+    @apply bg-blue-500;
+  }
+  .progress-bar-warning {
+    @apply bg-yellow-500;
+  }
+  .progress-bar-danger {
+    @apply bg-red-500;
+  }
+  .chart-loading-state {
+    @apply flex items-center justify-center h-[250px] text-gray-400;
+  }
+
   /**
    * ==================================================================
    * Else (その他)
@@ -259,6 +322,12 @@
   /* 入力必須フィールドのアスタリスク */
   .required-asterisk {
     @apply text-rose-600;
+  }
+  .loading-text {
+    @apply text-gray-500 mt-8;
+  }
+  .error-text {
+    @apply text-red-500 mt-8;
   }
 }
 

@@ -1,13 +1,13 @@
 <template>
-  <div class="bg-white p-4 rounded-lg shadow">
-    <h3 class="font-semibold text-gray-700 mb-2">{{ title }}</h3>
-    <div class="flex justify-between text-sm font-medium text-gray-600 mb-1">
+  <div class="summary-progress-card">
+    <h3 class="summary-progress-title">{{ title }}</h3>
+    <div class="summary-progress-text">
       <span>{{ usageText }} / {{ totalText }}</span>
       <span>{{ percentageText }}</span>
     </div>
-    <div class="w-full bg-gray-200 rounded-full h-2.5">
+    <div class="summary-progress-track">
       <div
-        class="h-2.5 rounded-full transition-all duration-300"
+        class="summary-progress-bar"
         :class="barColorClass"
         :style="{ width: percentage + '%' }"
       ></div>
@@ -20,9 +20,9 @@ import { computed } from "vue";
 
 const props = defineProps<{
   title: string;
-  usage: number | string; // 単位変換で文字列が来る可能性も考慮
+  usage: number | string;
   total: number | string;
-  unit: string; // "GB", "MB", "Cores"
+  unit: string;
 }>();
 
 const alertThreshold = 90;
@@ -46,9 +46,10 @@ const usageText = computed(() => `${props.usage} ${props.unit}`);
 const totalText = computed(() => `${props.total} ${props.unit}`);
 
 // 使用率に応じてプログレスバーの色を変更
+// ★ CSSクラス名を返すように変更
 const barColorClass = computed(() => {
-  if (percentage.value > alertThreshold) return "bg-red-500";
-  if (percentage.value > warningThreshold) return "bg-yellow-500";
-  return "bg-blue-500";
+  if (percentage.value > alertThreshold) return "progress-bar-danger";
+  if (percentage.value > warningThreshold) return "progress-bar-warning";
+  return "progress-bar-normal";
 });
 </script>

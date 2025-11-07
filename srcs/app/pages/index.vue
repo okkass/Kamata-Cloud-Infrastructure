@@ -3,21 +3,10 @@
     <h1 class="text-3xl font-bold mb-6">ダッシュボードサマリー</h1>
 
     <div>
-      <button
-        @click="isAdmin = !isAdmin"
-        class="mb-4 px-4 py-2 bg-blue-500 text-white rounded"
-      >
+      <button @click="isAdmin = !isAdmin" class="mb-4 btn btn-primary">
         {{ isAdmin ? "管理者モードを解除" : "管理者モードに切替" }}
       </button>
     </div>
-
-    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
-      <NuxtLink to="/virtual-machine" class="quick-link">VM管理</NuxtLink>
-      <NuxtLink to="/storage-pool" class="quick-link">ストレージ</NuxtLink>
-      <NuxtLink to="/security-group" class="quick-link">セキュリティ</NuxtLink>
-      <NuxtLink to="/profile" class="quick-link">アカウント</NuxtLink>
-    </div>
-
     <component :is="summaryComponent" />
   </div>
 </template>
@@ -35,7 +24,3 @@ const summaryComponent = computed(() => {
   return isAdmin.value ? SummaryAdmin : SummaryUser;
 });
 </script>
-
-<style scoped>
-
-</style>

@@ -67,8 +67,6 @@
  */
 // Composable をインポート (パスはプロジェクトに合わせて調整してください)
 import { useImageAddForm } from "~/composables/modal/useImageAddForm";
-// FormDropZoneコンポーネントをインポート (パスを確認)
-import FormDropZone from "~/components/FormDropZone.vue"; // パスを確認・調整してください
 
 // --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });

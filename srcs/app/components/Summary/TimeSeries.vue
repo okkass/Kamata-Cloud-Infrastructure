@@ -1,7 +1,8 @@
 <template>
-  <div class="bg-white p-4 rounded-lg shadow" style="height: 300px">
-    <h3 class="font-semibold text-gray-700 mb-2">{{ title }}</h3>
-    <client-only>
+  <div class="summary-progress-card">
+    <h3 class="summary-progress-title">{{ title }}</h3>
+
+    <ClientOnly>
       <apexchart
         v-if="series && options"
         width="100%"
@@ -10,18 +11,31 @@
         :options="options"
         :series="series"
       />
-      <div
-        v-else
-        class="flex items-center justify-center h-[250px] text-gray-400"
-      >
-        データを読み込み中...
-      </div>
-    </client-only>
+      <div v-else class="chart-loading-state">データを読み込み中...</div>
+
+      <template #fallback>
+        <div class="chart-loading-state">グラフを読み込み中...</div>
+      </template>
+    </ClientOnly>
   </div>
 </template>
 
 <script setup lang="ts">
+/**
+ * =================================================================================
+ * 時系列グラフコンポーネント (SummaryTimeSeries.vue)
+ * ---------------------------------------------------------------------------------
+ * ApexChartsを使用して、時系列データを表示する汎用コンポーネント。
+ * SSR時の警告を避けるため、<ClientOnly>でラップして使用する。
+ * =================================================================================
+ */
 import type { ApexOptions } from "apexcharts";
+
+/**
+ * ==============================================================================
+ * Props (親からの受け取りデータ)
+ * ==============================================================================
+ */
 defineProps<{
   /** グラフの左上に表示されるタイトル */
   title: string;
