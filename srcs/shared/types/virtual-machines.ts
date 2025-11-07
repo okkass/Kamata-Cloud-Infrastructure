@@ -443,5 +443,5 @@ export interface VirtualStorageDTO {
   /**
    * 仮想ストレージが作成された日時
    */
-  createdAt: Date;
+  createdAt?: Date;
 }

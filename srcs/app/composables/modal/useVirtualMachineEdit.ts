@@ -208,19 +208,32 @@ export function useVirtualMachineEdit(props: Props) {
         };
       }
       if (index === 1) {
+        // --- 構成タブ ---
         const memorySizeGiB =
           (data.instanceType?.memorySize || data.memorySize || 0) /
           (1024 * 1024 * 1024);
-        const storagesGiB = (data.attachedStorages || []).map((s) => ({
-          id: s.storage.id,
-          name: s.storage.name,
-          size: Math.round(s.storage.size / (1024 * 1024 * 1024)), // Byte to GiB
-          poolId: s.storage.poolId,
-          type: s.path === "/dev/sda" ? "os" : "manual",
-        }));
+
+        const storagesGiB = (data.attachedStorages || []).map((s) => {
+          // ★ s (AttachedStorageDTO) から storage (VirtualStorageDTO) を安全に取得
+          // ★ storage が null や undefined の場合、空のオブジェクトをデフォルト値にする
+          const storage = s.storage || {};
+
+          return {
+            // ★ storage.id が無い場合も考慮
+            id: storage.id || s.id, // storage.id がなければ s.id (AttachedStorageDTOのid) を使う
+            // ★ storage.name が無い場合も考慮
+            name: storage.name || "不明なストレージ",
+            // ★ storage.size が無い場合も考慮
+            size: Math.round((storage.size || 0) / (1024 * 1024 * 1024)), // Byte to GiB
+            // ★ storage.poolId を安全に取得
+            poolId: storage.poolId || null,
+            type: s.path === "/dev/sda" ? "os" : "manual",
+          };
+        });
+
         return {
           instanceTypeId: data.instanceType?.id || null,
-          cpuCores: data.instanceType?.cpuCore || data.cpuCore || 0,
+          cpuCore: data.instanceType?.cpuCore || data.cpuCore || 0,
           memorySize: Math.round(memorySizeGiB), // GiB
           storages: storagesGiB,
         };
