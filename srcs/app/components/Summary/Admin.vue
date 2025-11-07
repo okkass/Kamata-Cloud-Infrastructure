@@ -21,14 +21,14 @@
             convertByteToUnit(
               summaryData.clusterSummary.usedMemory,
               'GB',
-              false
+              DISABLE_ROUNDING
             ).toFixed(1)
           "
           :total="
             convertByteToUnit(
               summaryData.clusterSummary.totalMemory,
               'GB',
-              false
+              DISABLE_ROUNDING
             ).toFixed(0)
           "
           unit="GB"
@@ -39,14 +39,14 @@
             convertByteToUnit(
               summaryData.clusterSummary.usedStorage,
               'GB',
-              false
+              DISABLE_ROUNDING
             ).toFixed(1)
           "
           :total="
             convertByteToUnit(
               summaryData.clusterSummary.totalStorage,
               'GB',
-              false
+              DISABLE_ROUNDING
             ).toFixed(0)
           "
           unit="GB"

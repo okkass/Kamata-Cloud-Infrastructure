@@ -159,7 +159,7 @@ export function useSummary(isAdmin: Ref<boolean>) {
           memChart: formatForApex(
             node.memHistory,
             "メモリ",
-            convertByteToUnit(node.totalMemory, "GB", false),
+            convertByteToUnit(node.totalMemory, "GB", DISABLE_ROUNDING),
             "GB"
           ),
           networkChart: formatForNetwork(
@@ -178,7 +178,7 @@ export function useSummary(isAdmin: Ref<boolean>) {
           memChart: formatForApex(
             vm.memHistory,
             "メモリ",
-            convertByteToUnit(vm.totalMemory, "GB", false),
+            convertByteToUnit(vm.totalMemory, "GB", DISABLE_ROUNDING),
             "GB"
           ),
         })),
