@@ -114,15 +114,14 @@
  * =================================================================================
  * 仮想マシン編集モーダル (MoVirtualMachineEdit.vue)
  * ---------------------------------------------------------------------------------
- * 既存の仮想マシンの設定を複数のタブに分けて編集するためのモーダルUIです。
- * データ取得、タブ管理、フォームの初期化、更新処理は `useVirtualMachineEdit`
- * Composable に委譲します。
+ * 既存の仮想マシンの設定を複数のタブに分けて編集するためのモーダルUI（親コンポーネント）。
+ * 実際のロジックは `useVirtualMachineEdit` Composable に委譲します。
  * =================================================================================
  */
-import { ref, computed } from "vue"; // markRaw は Composable へ移動
-// Composable をインポート (後で作成)
+import { computed } from "vue"; // Composable から返されるため、Vueからの直接importは不要な場合も
+// Composable をインポート
 import { useVirtualMachineEdit } from "~/composables/modal/useVirtualMachineEdit";
-// 各タブのコンポーネントをインポート (Composable でもインポートするが、型推論のためにここでも記述)
+// 各タブのコンポーネント型をインポート (型推論のため)
 import type VmEditTabGeneral from "~/components/vm-edit-tabs/VmEditTabGeneral.vue";
 import type VmEditTabConfig from "~/components/vm-edit-tabs/VmEditTabConfig.vue";
 import type VmEditTabNetwork from "~/components/vm-edit-tabs/VmEditTabNetwork.vue";
@@ -171,7 +170,6 @@ const {
  * モーダルを閉じる処理
  */
 const handleClose = () => {
-  // 必要であれば閉じる前の確認処理などをここに書く
   emit("close");
 };
 

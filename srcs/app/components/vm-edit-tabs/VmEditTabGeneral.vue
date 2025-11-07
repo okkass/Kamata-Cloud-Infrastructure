@@ -1,63 +1,77 @@
 <template>
   <div class="space-y-4">
     <div>
-      <label for="vm-name" class="form-label">仮想マシン名</label>
+      <label for="vm-edit-name" class="form-label">
+        仮想マシン名 <span class="required-asterisk">*</span>
+      </label>
       <input
         type="text"
-        id="vm-name"
+        id="vm-edit-name"
         v-model="name"
         v-bind="nameAttrs"
         class="form-input"
-        :class="{ 'border-red-500': errors.name }"
+        :class="{ 'form-border-error': errors.name }"
         placeholder="例: vm-middleware01"
       />
-      <p v-if="errors.name" class="text-red-500 text-sm mt-1">
+      <p v-if="errors.name" class="text-error mt-1">
         {{ errors.name }}
       </p>
     </div>
 
     <div>
-      <label for="node-select" class="form-label">ノード選択</label>
-      <div v-if="pending" class="text-gray-500">ノード一覧を読み込み中...</div>
-      <div v-else-if="error" class="text-red-500">
-        ノード一覧の取得に失敗しました。
-      </div>
-      <select
-        v-else
-        id="node-select"
+      <FormSelect
+        label="ノード選択"
+        name="vm-edit-node"
         v-model="nodeId"
-        v-bind="nodeIdAttrs"
-        class="form-input"
-        :class="{ 'border-red-500': errors.nodeId }"
-      >
-        <option :value="undefined" disabled>ノードを選択してください</option>
-        <option v-for="node in nodes" :key="node.id" :value="node.id">
-          {{ node.name }}
-        </option>
-      </select>
-      <p v-if="errors.nodeId" class="text-red-500 text-sm mt-1">
-        {{ errors.nodeId }}
-      </p>
+        :options="nodes ?? []"
+        option-value="id"
+        option-label="name"
+        placeholder="ノードを選択してください"
+        :pending="pending"
+        :error="error"
+        :error-message="errors.nodeId"
+        :required="true"
+        :placeholder-value="undefined"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useResourceList } from "~/composables/useResourceList";
+/**
+ * =================================================================================
+ * VM編集モーダル: 概要タブ (VmEditTabGeneral.vue)
+ * ---------------------------------------------------------------------------------
+ * このコンポーネントは、VM編集モーダルの「概要」タブのUIとフォームロジックを
+ * 自己完結して管理します。
+ * * 責務:
+ * 1. 自身のフォーム (VM名, ノード) の状態とバリデーション (VeeValidate) を管理する。
+ * 2. フォームに必要なデータ (ノード一覧) をAPI (useResourceList) から取得する。
+ * 3. 親コンポーネント (MoVirtualMachineEdit) が
+ * フォームの初期化 (resetForm), 検証 (validate), 値の収集 (values, meta) が
+ * できるように、`defineExpose` でインターフェースを公開する。
+ * =================================================================================
+ */
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
+import { useResourceList } from "~/composables/useResourceList";
+// ★ 共通コンポーネントをインポート
+import FormSelect from "~/components/FormSelect.vue";
+// ★ 共有型定義をインポート
+import type { PhysicalNodeDTO } from "~~/shared/types/physical-nodes";
 
 // ==============================================================================
-// 型定義
+// API (ノード一覧取得)
 // ==============================================================================
-interface ModelPhysicalNodeDTO {
-  id: string;
-  name: string;
-}
+const {
+  data: nodes, // 取得したノード一覧 (ref)
+  pending, // 読み込み中フラグ (ref)
+  error, // エラーオブジェクト (ref)
+} = useResourceList<PhysicalNodeDTO>("physical-nodes");
 
 // ==============================================================================
-// バリデーション
+// Validation Schema (バリデーション定義)
 // ==============================================================================
 const validationSchema = toTypedSchema(
   z.object({
@@ -66,28 +80,32 @@ const validationSchema = toTypedSchema(
   })
 );
 
-// useFormをセットアップ (初期値は空でOK。親が後からセットします)
-const { errors, defineField, values, meta, resetForm } = useForm({
+// ==============================================================================
+// Form Setup (VeeValidate)
+// ==============================================================================
+// このタブ専用のフォームをセットアップ
+// initialValues は親の useVirtualMachineEdit が resetForm を呼んで設定する
+const { errors, defineField, values, meta, resetForm, validate } = useForm({
   validationSchema,
+  initialValues: {
+    name: "",
+    nodeId: undefined, // FormSelect の placeholderValue と合わせる
+  },
 });
 
+// v-model と v-bind 用のヘルパー
 const [name, nameAttrs] = defineField("name");
-const [nodeId, nodeIdAttrs] = defineField("nodeId");
+const [nodeId] = defineField("nodeId"); // FormSelect は v-model のみでOK
 
-// --- 親コンポーネントへの公開 ---
-// resetFormも公開することで、親がこのフォームの値をリセットできるようになる
+// ==============================================================================
+// Expose (親へのインターフェース公開)
+// ==============================================================================
+// 親コンポーネント (MoVirtualMachineEdit / useVirtualMachineEdit) が
+// このタブフォームを制御するために必要なものを公開します。
 defineExpose({
-  formData: values,
-  isValid: meta,
-  resetForm,
+  validate, // 親が "次へ" / "更新" 時に呼び出すバリデーション関数
+  resetForm, // 親がデータ取得後に初期値をセットするために呼び出す関数
+  values, // 親が "更新" 時にフォームの値を取得するために参照
+  meta, // 親がタブのエラー状態(isValid)をチェックするために参照
 });
-
-// ==============================================================================
-// API連携
-// ==============================================================================
-const {
-  data: nodes,
-  pending,
-  error,
-} = useResourceList<ModelPhysicalNodeDTO>("physical-nodes");
 </script>
