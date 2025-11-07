@@ -148,7 +148,7 @@ export function useSummary(isAdmin: Ref<boolean>) {
 
     if (isAdmin.value) {
       return {
-        nodes: (historyData.value.data as NodeData[]).map((node) => ({
+        nodes: (historyData.value.data as HistoryData[]).map((node) => ({
           ...node,
           cpuChart: formatForApex(
             node.cpuHistory,
@@ -172,7 +172,7 @@ export function useSummary(isAdmin: Ref<boolean>) {
     } else {
       return {
         nodes: null,
-        vms: (historyData.value.data as VmData[]).map((vm) => ({
+        vms: (historyData.value.data as HistoryData[]).map((vm) => ({
           ...vm,
           cpuChart: formatForApex(vm.cpuHistory, "CPU", vm.totalCpu, "Cores"),
           memChart: formatForApex(

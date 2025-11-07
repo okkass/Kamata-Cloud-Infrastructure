@@ -2,7 +2,7 @@ export interface HistoryItem {
   timestamp: number;
   value: number;
 }
-export interface NodeData {
+export interface HistoryData {
   id: string;
   name: string;
   totalCpu: number;
@@ -12,25 +12,7 @@ export interface NodeData {
   networkINHistory: HistoryItem[];
   networkOUTHistory: HistoryItem[];
 }
-export interface VmData {
-  id: string;
-  name: string;
-  totalCpu: number;
-  totalMemory: number;
-  cpuHistory: HistoryItem[];
-  memHistory: HistoryItem[];
-  networkINHistory: HistoryItem[];
-  networkOUTHistory: HistoryItem[];
-}
-interface ClusterSummary {
-  totalCpu: number;
-  usedCpu: number;
-  totalMemory: number;
-  usedMemory: number;
-  totalStorage: number;
-  usedStorage: number;
-}
-interface UserQuota {
+interface Summary {
   totalCpu: number;
   usedCpu: number;
   totalMemory: number;
@@ -40,9 +22,9 @@ interface UserQuota {
 }
 
 export interface SummaryResponse {
-  clusterSummary: ClusterSummary | UserQuota;
+  clusterSummary: Summary;
 }
 
 export interface SummaryHistoryResponse {
-  data: NodeData[] | VmData[];
+  data: HistoryData[];
 }
