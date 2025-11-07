@@ -1,34 +1,34 @@
 import { ref, computed, watchEffect } from "vue";
 import { useRouter } from "vue-router";
-import { useToast } from "@/composables/useToast";
-import { convertByteToUnit } from "./../utils/format";
+import { usePageActions } from "@/composables/usePageActions";
 import { formatDateTime } from "./../utils/date";
 
 type RawInstanceType = {
   id: string;
   name: string;
   createdAt: string;
-  cpuCore?: number;
   cpuCores?: number;
-  memorySize: number; // bytes
+  cpuCore?: number;
+  memorySize: number; // bytes (そのまま保持)
 };
 
 export type InstanceTypeRow = {
   id: string;
   name: string;
   vcpu: number;
-  memoryMb: number; // MB 表示
+  memorySize: number; // bytes をそのまま保持（表示は画面側で MB に変換）
   description?: string;
   createdAtText?: string;
 };
 
 export function useInstanceTypeManagement() {
-  const { addToast } = useToast();
+  const isDeletingId = ref<string | null>(null);
 
   const columns = [
     { key: "name", label: "名前", align: "left" },
     { key: "vcpu", label: "vCPU", align: "right" },
-    { key: "memoryMb", label: "メモリ (MB)", align: "right" },
+    // テンプレ側で MB に変換して表示する（bytes をそのまま渡す）
+    { key: "memorySize", label: "メモリ (MB)", align: "right" },
     { key: "createdAtText", label: "作成日時", align: "left" },
   ];
 
@@ -51,9 +51,30 @@ export function useInstanceTypeManagement() {
     { immediate: true }
   );
 
+  // usePageActions は refresh を受け取る想定 -> fetch の refresh を渡してから利用
+  const pageActions = usePageActions<InstanceTypeRow>({
+    resourceName: "instance-types",
+    resourceLabel: "インスタンスタイプ",
+    refresh,
+  });
+
+  // pageActions の戻り値を安全に参照
+  const activeModal = (pageActions as any).activeModal ?? ref(null);
+  const openModal = (pageActions as any).openModal ?? ((id: string) => {});
+  const closeModal = (pageActions as any).closeModal ?? (() => {});
+  const targetForDeletion =
+    (pageActions as any).targetForDeletion ?? ref<InstanceTypeRow | null>(null);
+  const targetForEditing =
+    (pageActions as any).targetForEditing ?? ref<InstanceTypeRow | null>(null);
+  const isDeleting = (pageActions as any).isDeleting ?? ref(false);
+  const pageHandleDelete =
+    (pageActions as any).handleDelete ?? (async () => {});
+  const pageHandleSuccess =
+    (pageActions as any).handleSuccess ?? (async () => {});
+  const pageCancelAction = (pageActions as any).cancelAction ?? (() => {});
+
   const displayInstanceTypes = computed<InstanceTypeRow[]>(() =>
     (rawList.value ?? []).map((r) => {
-      // cpu のキー名が不確実なので両方に対応
       const vcpu =
         typeof r.cpuCore === "number"
           ? r.cpuCore
@@ -64,24 +85,12 @@ export function useInstanceTypeManagement() {
         id: r.id,
         name: r.name,
         vcpu,
-        memoryMb: convertByteToUnit(r.memorySize ?? 0, "MB"),
+        memorySize: r.memorySize ?? 0, // bytes をそのまま返す
         description: "",
         createdAtText: formatDateTime(r.createdAt),
       };
     })
   );
-
-  const activeModal = ref<
-    null | "add-instance-type" | "delete-instance-type" | "edit-instance-type"
-  >(null);
-  const targetForDeletion = ref<InstanceTypeRow | null>(null);
-  const editingTarget = ref<InstanceTypeRow | null>(null);
-  const isDeleting = ref(false);
-  const isDeletingId = ref<string | null>(null);
-
-  function handleDashboardHeaderAction(key: string) {
-    if (key === "add-instance-type") activeModal.value = "add-instance-type";
-  }
 
   const router = (() => {
     try {
@@ -110,65 +119,37 @@ export function useInstanceTypeManagement() {
   }
 
   function openEditModal(row: InstanceTypeRow) {
-    editingTarget.value = row;
-    activeModal.value = "edit-instance-type";
+    targetForEditing.value = row;
+    openModal("edit-instance-type");
   }
 
   function promptForDeletion(row: InstanceTypeRow) {
     targetForDeletion.value = row;
-    activeModal.value = "delete-instance-type";
+    openModal("delete-instance-type");
   }
 
-  function cancelAction() {
-    activeModal.value = null;
-    targetForDeletion.value = null;
-    editingTarget.value = null;
-    isDeleting.value = false;
-    isDeletingId.value = null;
-  }
-
-  function closeModal() {
-    activeModal.value = null;
-    editingTarget.value = null;
-  }
-
-  async function handleEditSuccess() {
-    closeModal();
-    await refresh();
-  }
-
-  async function handleDelete() {
+  const handleDelete = async () => {
     if (!targetForDeletion.value) return;
     const id = targetForDeletion.value.id;
+    isDeletingId.value = id;
     try {
-      isDeleting.value = true;
-      isDeletingId.value = id;
-      await $fetch(`/api/instance-types/${encodeURIComponent(id)}`, {
-        method: "DELETE",
-      });
-      if (typeof addToast === "function")
-        addToast({ type: "success", message: "削除しました。" });
-      await refresh();
-      cancelAction();
-    } catch (e: any) {
-      console.error("handleDelete error:", e);
-      if (typeof addToast === "function") {
-        addToast({
-          type: "error",
-          message: "削除に失敗しました。",
-          details: e?.data?.message ?? e?.message ?? String(e),
-        });
-      }
+      await pageHandleDelete();
     } finally {
-      isDeleting.value = false;
       isDeletingId.value = null;
     }
-  }
+  };
 
-  async function handleAddSuccess() {
-    closeModal();
-    await refresh();
-  }
+  const cancelAction = () => {
+    pageCancelAction();
+  };
+
+  const handleAddSuccess = async () => {
+    await pageHandleSuccess();
+  };
+
+  const handleEditSuccess = async () => {
+    await pageHandleSuccess();
+  };
 
   if (process?.dev) {
     watchEffect(() => {
@@ -183,10 +164,12 @@ export function useInstanceTypeManagement() {
     displayInstanceTypes,
     activeModal,
     targetForDeletion,
-    editingTarget,
+    editingTarget: targetForEditing,
     isDeleting,
     isDeletingId,
-    handleDashboardHeaderAction,
+    handleDashboardHeaderAction: (key: string) => {
+      if (key === "add-instance-type") openModal("add-instance-type");
+    },
     openEdit,
     openEditModal,
     promptForDeletion,

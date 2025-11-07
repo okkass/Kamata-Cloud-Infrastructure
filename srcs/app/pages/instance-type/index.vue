@@ -26,8 +26,10 @@
       <span v-if="row" class="font-mono">{{ row.vcpu }}</span>
     </template>
 
-    <template #cell-memoryMb="{ row }">
-      <span v-if="row" class="font-mono">{{ row.memoryMb }} MB</span>
+    <template #cell-memorySize="{ row }">
+      <span v-if="row" class="font-mono">
+        {{ convertByteToUnit(row.memorySize ?? 0, "MB") }} MB
+      </span>
     </template>
 
     <template #cell-createdAtText="{ row }">
@@ -89,6 +91,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { convertByteToUnit } from "../../utils/format";
 import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoDeleteConfirm from "~/components/MoDeleteConfirm.vue";
@@ -114,14 +117,17 @@ const {
   handleEditSuccess,
 } = useInstanceTypeManagement();
 
-// 編集モーダルには MB 単位で渡す（VM作成に合わせる）
+// 編集モーダルに渡す payload（MB 単位）
 const editingPayload = computed(() =>
   editingTarget.value
     ? {
         id: editingTarget.value.id,
         name: editingTarget.value.name,
-        cpuCore: editingTarget.value.vcpu, // cpuCore 名で渡す
-        memorySizeMb: editingTarget.value.memoryMb ?? 0, // MB 単位
+        cpuCore: editingTarget.value.vcpu,
+        memorySizeMb: convertByteToUnit(
+          editingTarget.value.memorySize ?? 0,
+          "MB"
+        ),
       }
     : null
 );
