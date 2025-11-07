@@ -45,17 +45,17 @@ const props = defineProps<{
  */
 // 管理者用のリンク一覧
 const adminLinks = [
-  { to: "/virtual-machine", text: "VM管理" },
+  { to: "/machine", text: "VM管理" },
   { to: "/physical-node", text: "ノード管理" },
   { to: "/storage-pool", text: "ストレージ" },
   { to: "/security-group", text: "セキュリティ" },
-  { to: "/users", text: "ユーザー管理" },
+  { to: "/user", text: "ユーザー管理" },
   { to: "/settings", text: "アカウント設定" },
 ];
 
 // 一般ユーザー用のリンク一覧
 const userLinks = [
-  { to: "/virtual-machine", text: "VM管理" },
+  { to: "/machine", text: "VM管理" },
   { to: "/security-group", text: "セキュリティ" },
   { to: "/settings", text: "アカウント設定" },
 ];
