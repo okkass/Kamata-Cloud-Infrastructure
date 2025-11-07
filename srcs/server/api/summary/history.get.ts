@@ -40,7 +40,8 @@ export default defineEventHandler((event) => {
           totalMemory: 32 * 1024 ** 3,
           cpuHistory: generateHourlyData(),
           memHistory: generateHourlyData(),
-          networkHistory: generateNetworkHourlyData(),
+          networkINHistory: generateNetworkHourlyData(),
+          networkOUTHistory: generateNetworkHourlyData(),
         },
         {
           id: "pve02",
@@ -49,7 +50,8 @@ export default defineEventHandler((event) => {
           totalMemory: 64 * 1024 ** 3,
           cpuHistory: generateHourlyData(),
           memHistory: generateHourlyData(),
-          networkHistory: generateNetworkHourlyData(),
+          networkINHistory: generateNetworkHourlyData(),
+          networkOUTHistory: generateNetworkHourlyData(),
         },
       ],
     };
@@ -64,7 +66,8 @@ export default defineEventHandler((event) => {
           totalMemory: 8 * 1024 ** 3,
           cpuHistory: generateHourlyData(),
           memHistory: generateHourlyData(),
-          networkHistory: generateNetworkHourlyData(),
+          networkINHistory: generateNetworkHourlyData(),
+          networkOUTHistory: generateNetworkHourlyData(),
         },
         {
           id: "vm102",
@@ -73,7 +76,8 @@ export default defineEventHandler((event) => {
           totalMemory: 8 * 1024 ** 3,
           cpuHistory: generateHourlyData(),
           memHistory: generateHourlyData(),
-          networkHistory: generateNetworkHourlyData(),
+          networkINHistory: generateNetworkHourlyData(),
+          networkOUTHistory: generateNetworkHourlyData(),
         },
       ],
     };

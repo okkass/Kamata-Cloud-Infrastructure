@@ -9,7 +9,8 @@ export interface NodeData {
   totalMemory: number;
   cpuHistory: HistoryItem[];
   memHistory: HistoryItem[];
-  networkHistory: HistoryItem[];
+  networkINHistory: HistoryItem[];
+  networkOUTHistory: HistoryItem[];
 }
 export interface VmData {
   id: string;
@@ -18,7 +19,8 @@ export interface VmData {
   totalMemory: number;
   cpuHistory: HistoryItem[];
   memHistory: HistoryItem[];
-  networkHistory: HistoryItem[];
+  networkINHistory: HistoryItem[];
+  networkOUTHistory: HistoryItem[];
 }
 interface ClusterSummary {
   totalCpu: number;

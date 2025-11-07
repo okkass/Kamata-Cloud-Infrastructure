@@ -1,7 +1,5 @@
 <template>
   <div class="p-6">
-    <h1 class="text-3xl font-bold mb-6">ダッシュボードサマリー</h1>
-
     <div>
       <button @click="isAdmin = !isAdmin" class="mb-4 btn btn-primary">
         {{ isAdmin ? "管理者モードを解除" : "管理者モードに切替" }}

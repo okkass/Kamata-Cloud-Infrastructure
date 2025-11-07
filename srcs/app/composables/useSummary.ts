@@ -37,30 +37,38 @@ const createChartOptions = (
     },
   };
 };
-// ★ 2. ネットワークI/O (KB/sなど) 用のオプション
-const createNetworkChartOptions = (title: string): ApexOptions => {
+// ★ 2. ネットワークI/O 用のオプション
+const createNetworkChartOptions = (): ApexOptions => {
   return {
     chart: { type: "area", zoom: { enabled: false }, toolbar: { show: false } },
     dataLabels: { enabled: false },
     stroke: { curve: "smooth", width: 2 },
-    // グラフの色を緑系に変更して区別
     fill: {
       type: "gradient",
       gradient: { opacityFrom: 0.7, opacityTo: 0.1 },
-      colors: ["#00E396"],
     },
-    colors: ["#00E396"],
+    colors: ["#F59E0B", "#818CF8"],
     xaxis: { type: "datetime", labels: { format: "HH:mm" } },
     yaxis: {
-      // min/maxを削除し、自動スケールにする
+      min: 0, // 最小値は0
+      // maxは指定せず、自動スケールに任せる
       labels: { formatter: (value: number) => `${value.toFixed(0)} KB` }, // 単位をKBと仮定
     },
     tooltip: {
       x: { format: "MM/dd HH:mm" },
+      shared: true, // ★ IN/OUTを同時に表示する共有ツールチップ
       y: {
-        formatter: (value: number) => `${value.toFixed(2)} KB`, // 単位をKBと仮定
-        title: { formatter: () => title },
+        formatter: (value: number) => {
+          if (value === undefined) return "N/A";
+          return `${value.toFixed(2)} KB`;
+        },
       },
+    },
+    legend: {
+      // 凡例 (IN / OUT) を表示
+      position: "top",
+      horizontalAlign: "left",
+      offsetY: 0,
     },
   };
 };
@@ -120,14 +128,21 @@ export function useSummary(isAdmin: Ref<boolean>) {
       const options = createChartOptions(label, totalValue, unit);
       return { series, options };
     };
-    const formatForNetwork = (history: HistoryItem[], label: string) => {
+    const formatForNetwork = (
+      inHistory: HistoryItem[],
+      outHistory: HistoryItem[]
+    ) => {
       const series = [
         {
-          name: label,
-          data: history.map((item) => [item.timestamp, item.value]),
+          name: "IN",
+          data: inHistory.map((item) => [item.timestamp, item.value]),
+        },
+        {
+          name: "OUT",
+          data: outHistory.map((item) => [item.timestamp, item.value]),
         },
       ]; // *100 しない
-      const options = createNetworkChartOptions(label);
+      const options = createNetworkChartOptions();
       return { series, options };
     };
 
@@ -148,8 +163,8 @@ export function useSummary(isAdmin: Ref<boolean>) {
             "GB"
           ),
           networkChart: formatForNetwork(
-            node.networkHistory,
-            "ネットワーク I/O"
+            node.networkINHistory,
+            node.networkOUTHistory
           ),
         })),
         vms: null,
