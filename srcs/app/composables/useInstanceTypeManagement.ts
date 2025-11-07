@@ -1,7 +1,10 @@
+// app/composables/useInstanceTypeManagement.ts
 import { ref, computed, watchEffect } from "vue";
 import { useRouter } from "vue-router";
 import { usePageActions } from "@/composables/usePageActions";
-import { formatDateTime } from "./../utils/date";
+import { useResourceDelete } from "@/composables/useResourceDelete";
+import { useResourceList } from "@/composables/useResourceList";
+import { formatDateTime } from "~/utils/date";
 
 type RawInstanceType = {
   id: string;
@@ -9,25 +12,58 @@ type RawInstanceType = {
   createdAt: string;
   cpuCores?: number;
   cpuCore?: number;
-  memorySize: number; // bytes (そのまま保持)
+  memorySize: number; // bytes（保持はそのまま。表示は画面側で MB 変換）
 };
 
 export type InstanceTypeRow = {
   id: string;
   name: string;
   vcpu: number;
-  memorySize: number; // bytes をそのまま保持（表示は画面側で MB に変換）
+  memorySize: number; // bytes を保持
   description?: string;
   createdAtText?: string;
 };
 
 export function useInstanceTypeManagement() {
+  const {
+    data: rawList,
+    pending,
+    refresh,
+    error,
+  } = useResourceList<RawInstanceType>("instance-types");
+
+  const pageActions = usePageActions<InstanceTypeRow>({
+    resourceName: "instance-types",
+    resourceLabel: "インスタンスタイプ",
+    refresh,
+  });
+
+  const activeModal = pageActions.activeModal ?? ref<string | null>(null);
+  const openModal = pageActions.openModal ?? ((_key: string) => {});
+  const closeModal = pageActions.close ?? pageActions.closeModal ?? (() => {});
+  const targetForDeletion =
+    pageActions.targetForDeletion ?? ref<InstanceTypeRow | null>(null);
+  const targetForEditing =
+    pageActions.targetForEditing ?? ref<InstanceTypeRow | null>(null);
+  const isDeleting = pageActions.isDeleting ?? ref(false);
+  const pageExecuteDelete =
+    pageActions.executeDelete ?? pageActions.handleDelete ?? undefined;
+  const pageHandleSuccess = pageActions.handleSuccess ?? (async () => {});
+  const pageCancelAction = pageActions.cancelAction ?? (() => {});
+
+  // 予備の削除実装（pageActions に無い場合）
+  const { executeDelete: fallbackDelete, isDeleting: fallbackIsDeleting } =
+    useResourceDelete("instance-types");
+
   const isDeletingId = ref<string | null>(null);
 
-  const columns = [
+  const columns: Array<{
+    key: keyof InstanceTypeRow | "createdAtText";
+    label: string;
+    align?: "left" | "center" | "right";
+  }> = [
     { key: "name", label: "名前", align: "left" },
     { key: "vcpu", label: "vCPU", align: "right" },
-    // テンプレ側で MB に変換して表示する（bytes をそのまま渡す）
     { key: "memorySize", label: "メモリ (MB)", align: "right" },
     { key: "createdAtText", label: "作成日時", align: "left" },
   ];
@@ -38,40 +74,7 @@ export function useInstanceTypeManagement() {
       label: "インスタンスタイプ追加",
       variant: "primary",
     },
-  ];
-
-  const {
-    data: rawList,
-    pending,
-    refresh,
-    error,
-  } = useAsyncData<RawInstanceType[]>(
-    "instance-types:list",
-    () => $fetch<RawInstanceType[]>("/api/instance-types"),
-    { immediate: true }
-  );
-
-  // usePageActions は refresh を受け取る想定 -> fetch の refresh を渡してから利用
-  const pageActions = usePageActions<InstanceTypeRow>({
-    resourceName: "instance-types",
-    resourceLabel: "インスタンスタイプ",
-    refresh,
-  });
-
-  // pageActions の戻り値を安全に参照
-  const activeModal = (pageActions as any).activeModal ?? ref(null);
-  const openModal = (pageActions as any).openModal ?? ((id: string) => {});
-  const closeModal = (pageActions as any).closeModal ?? (() => {});
-  const targetForDeletion =
-    (pageActions as any).targetForDeletion ?? ref<InstanceTypeRow | null>(null);
-  const targetForEditing =
-    (pageActions as any).targetForEditing ?? ref<InstanceTypeRow | null>(null);
-  const isDeleting = (pageActions as any).isDeleting ?? ref(false);
-  const pageHandleDelete =
-    (pageActions as any).handleDelete ?? (async () => {});
-  const pageHandleSuccess =
-    (pageActions as any).handleSuccess ?? (async () => {});
-  const pageCancelAction = (pageActions as any).cancelAction ?? (() => {});
+  ] as const;
 
   const displayInstanceTypes = computed<InstanceTypeRow[]>(() =>
     (rawList.value ?? []).map((r) => {
@@ -85,13 +88,14 @@ export function useInstanceTypeManagement() {
         id: r.id,
         name: r.name,
         vcpu,
-        memorySize: r.memorySize ?? 0, // bytes をそのまま返す
+        memorySize: r.memorySize ?? 0, // 表示側で MB に変換
         description: "",
         createdAtText: formatDateTime(r.createdAt),
       };
     })
   );
 
+  // ルーターは Nuxt/純 Vue 両対応
   const router = (() => {
     try {
       return useRouter();
@@ -105,16 +109,20 @@ export function useInstanceTypeManagement() {
     const nav = (globalThis as any).navigateTo;
     if (typeof nav === "function") {
       try {
-        nav(path);
+        await nav(path);
         return;
-      } catch {}
+      } catch {
+        // noop
+      }
     }
     try {
       if (router?.push) {
         await router.push(path);
         return;
       }
-    } catch {}
+    } catch {
+      // noop
+    }
     window.location.href = path;
   }
 
@@ -133,7 +141,18 @@ export function useInstanceTypeManagement() {
     const id = targetForDeletion.value.id;
     isDeletingId.value = id;
     try {
-      await pageHandleDelete();
+      if (typeof pageExecuteDelete === "function") {
+        await pageExecuteDelete(id);
+      } else {
+        const res = await fallbackDelete(id);
+        if (!res.success)
+          throw new Error(res.error?.message ?? "delete failed");
+      }
+      await refresh();
+      pageCancelAction();
+      await pageHandleSuccess();
+    } catch (e) {
+      console.error("delete error:", e);
     } finally {
       isDeletingId.value = null;
     }
@@ -165,7 +184,7 @@ export function useInstanceTypeManagement() {
     activeModal,
     targetForDeletion,
     editingTarget: targetForEditing,
-    isDeleting,
+    isDeleting: isDeleting ?? fallbackIsDeleting,
     isDeletingId,
     handleDashboardHeaderAction: (key: string) => {
       if (key === "add-instance-type") openModal("add-instance-type");

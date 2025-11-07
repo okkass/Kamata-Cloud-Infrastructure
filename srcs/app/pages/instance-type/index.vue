@@ -8,6 +8,7 @@
     :headerButtons="headerButtons"
     @header-action="handleDashboardHeaderAction"
   >
+    <!-- 名称 -->
     <template #cell-name="{ row }">
       <div v-if="row">
         <NuxtLink
@@ -22,20 +23,24 @@
       </div>
     </template>
 
+    <!-- vCPU -->
     <template #cell-vcpu="{ row }">
       <span v-if="row" class="font-mono">{{ row.vcpu }}</span>
     </template>
 
+    <!-- メモリ（MB表示） -->
     <template #cell-memorySize="{ row }">
       <span v-if="row" class="font-mono">
         {{ convertByteToUnit(row.memorySize ?? 0, "MB") }} MB
       </span>
     </template>
 
+    <!-- 作成日時 -->
     <template #cell-createdAtText="{ row }">
       <span v-if="row">{{ row.createdAtText }}</span>
     </template>
 
+    <!-- 行アクション -->
     <template #row-actions="{ row }">
       <div v-if="row">
         <NuxtLink
@@ -91,7 +96,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { convertByteToUnit } from "../../utils/format";
+import { convertByteToUnit } from "~/utils/format";
 import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoDeleteConfirm from "~/components/MoDeleteConfirm.vue";
@@ -107,7 +112,6 @@ const {
   isDeleting,
   isDeletingId,
   handleDashboardHeaderAction,
-  openEdit,
   openEditModal,
   promptForDeletion,
   cancelAction,
@@ -117,7 +121,7 @@ const {
   handleEditSuccess,
 } = useInstanceTypeManagement();
 
-// 編集モーダルに渡す payload（MB 単位）
+// 編集モーダルに渡す payload（MB単位）
 const editingPayload = computed(() =>
   editingTarget.value
     ? {
