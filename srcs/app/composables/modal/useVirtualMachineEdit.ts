@@ -3,29 +3,26 @@
  * 仮想マシン編集モーダル Composable (useVirtualMachineEdit.ts)
  * ---------------------------------------------------------------------------------
  * このComposableは、MoVirtualMachineEditコンポーネント（親）で使用される
- * VM詳細データの取得、タブの状態管理、各タブ（子）へのフォーム初期値設定、
+ * VM詳細データの取得、タブの状態管理、各タブ（子）への初期値データ提供、
  * および最終的な更新APIへの送信ロジックをカプセル化します。
  *
- * 子タブコンポーネント (VmEditTab...) は、それぞれが
- * 1. 自身のフォームロジック (useForm)
- * 2. 必要なドロップダウン用データ (例: ノード一覧) のAPI取得
- * を担当し、
- * 3. defineExpose で { validate, resetForm, values, meta } を公開する
- * 必要があります。
+ * ★ 親 (MoVirtualMachineEdit.vue) は v-if="vmData" を使い、データ取得後に
+ * 子タブを描画し、:initial-data="getInitialDataForTab(index)" で初期値を渡します。
+ * ★ 子 (VmEditTab...) は props で initialData を受け取り、
+ * useForm の initialValues に設定します。
  * =================================================================================
  */
 import { ref, computed, watch, markRaw, nextTick } from "vue";
 import { useToast } from "~/composables/useToast";
-// ★ Nuxt 3 推奨のデータ取得方法 useAsyncData を利用
 import { useAsyncData } from "#app";
 
 // ★ 必要な型定義を、ご提示いただいたパスに基づいてインポート
 import type {
   VirtualMachineDTO, // GET /api/virtual-machines/{vmId} のレスポンス型
-  VirtualMachineUpdateRequestDTO,
+  VirtualMachineUpdateRequestDTO, // PUTリクエストの型
   AttachedStorageDTO, // ★ PUTリクエストが使用する型
   NetworkInterfaceDTO, // ★ PUTリクエストが使用する型
-} from "~~/shared/types/virtual-machines"; //
+} from "~~/shared/types/virtual-machines";
 
 // ★ ModelInstanceTypeDTO を instance-types.ts から直接インポート
 import type { ModelInstanceTypeDTO } from "~~/shared/types/instance-types"; //
@@ -41,12 +38,13 @@ interface Props {
   vmId: string | null;
 }
 
-// 各タブコンポーネントが expose すべきメソッド/プロパティの型 (インターフェース)
+// 各タブコンポーネントが expose すべきメソッド/プロパティの型
+// (親が子を制御するために必要なもの)
 interface TabComponent {
   validate: () => Promise<{ valid: boolean }>; // バリデーション実行
-  resetForm: (payload: { values: any }) => void; // フォーム初期化
   values: Record<string, any>; // 現在のフォームの値
   meta: { valid: boolean }; // 現在のバリデーション状態
+  // resetForm は子が自分で行うため、親は呼び出さない
 }
 
 /**
@@ -67,8 +65,6 @@ export function useVirtualMachineEdit(props: Props) {
   // ============================================================================
   // API Data Fetching (VM詳細データ取得)
   // ============================================================================
-
-  // useAsyncData でデータ取得を管理
   const {
     data: vmData, // 取得したVMデータ (ref<VirtualMachineDTO | null>)
     pending, // データ取得中フラグ (ref<boolean>)
@@ -78,10 +74,7 @@ export function useVirtualMachineEdit(props: Props) {
   } = useAsyncData<VirtualMachineDTO>(
     `vm-detail-${props.vmId || "new"}`, // vmIdごとに一意なキーを生成
     async () => {
-      // vmId が null または undefined の場合は取得を実行しない
-      if (!props.vmId) {
-        return null;
-      }
+      if (!props.vmId) return null;
       try {
         // ★ APIエンドポイント (GET /api/virtual-machines/{vmId})
         return await $fetch<VirtualMachineDTO>(
@@ -89,7 +82,6 @@ export function useVirtualMachineEdit(props: Props) {
         );
       } catch (fetchError: any) {
         console.error("Failed to fetch VM details:", fetchError);
-        // Nuxt のエラーハンドリング機構を利用
         throw createError({
           statusCode: fetchError.statusCode || 500,
           statusMessage:
@@ -99,8 +91,8 @@ export function useVirtualMachineEdit(props: Props) {
       }
     },
     {
-      immediate: false, // props.vmId が確定してから手動で実行するため false
-      server: false, // クライアントサイドでのみ取得
+      immediate: false, // props.show の watch で手動実行
+      server: false,
     }
   );
 
@@ -149,14 +141,12 @@ export function useVirtualMachineEdit(props: Props) {
   // 指定タブのバリデーション状態をチェック (UIのエラーアイコン表示用)
   const isValid = (index: number): boolean => {
     const tab = tabRefs.value[index];
-    // 各タブが expose している `meta` (VeeValidate) を参照
     if (tab?.meta) return tab.meta.valid;
-    // 参照がまだない場合は、エラーなしとして扱う (初期表示時)
-    return true;
+    return true; // 参照がまだない場合はOKとみなす
   };
 
   // ============================================================================
-  // Initialization (フォーム初期化)
+  // Initialization (データ取得トリガーと初期値提供)
   // ============================================================================
 
   // モーダル表示状態(props.show)を監視してデータ取得/リセット
@@ -178,44 +168,30 @@ export function useVirtualMachineEdit(props: Props) {
     { immediate: true }
   ); // 初期化時にもチェック
 
-  // データ取得が完了(vmDataが変更)したら、各タブのフォームを初期化
-  watch(vmData, (newData) => {
-    // モーダル表示中、データあり、タブ参照が設定されたら初期化
-    // (tabRefs.value.length をチェックすることで、タブがマウントされるのを待つ)
-    if (props.show && newData && tabRefs.value.length === tabs.value.length) {
-      // nextTick を使って、DOM更新が完了しタブ参照が確実に設定された後に実行
-      nextTick(() => {
-        initializeForms(newData);
-      });
-    }
-  });
-
   /**
-   * 各タブのフォームをAPIデータで初期化する
-   * @param data APIから取得したVM詳細データ (VirtualMachineDTO)
+   * ★ 新方針: 子コンポーネントに props として渡すための初期値データを整形する
+   * (MoVirtualMachineEdit.vue の v-if="vmData" の後で呼ばれる)
+   * @param index 取得するタブのインデックス
    */
-  const initializeForms = (data: VirtualMachineDTO) => {
-    try {
-      // --- 概要タブ (VmEditTabGeneral) ---
-      const generalTab = tabRefs.value[0];
-      if (generalTab?.resetForm) {
-        generalTab.resetForm({
-          values: {
-            name: data.name,
-            nodeId: data.node?.id || null, //
-          },
-        });
-      }
+  const getInitialDataForTab = (index: number) => {
+    if (!vmData.value) return undefined;
 
-      // --- 構成タブ (VmEditTabConfig) ---
-      const configTab = tabRefs.value[1];
-      if (configTab?.resetForm) {
-        // instanceType または memorySize を GiB に変換
-        // (1 GiB = 1024 * 1024 * 1024 Bytes)
+    const data = vmData.value;
+
+    try {
+      if (index === 0) {
+        // --- 概要タブ (VmEditTabGeneral) ---
+        return {
+          name: data.name,
+          nodeId: data.node?.id || null, //
+        };
+      }
+      if (index === 1) {
+        // --- 構成タブ (VmEditTabConfig) ---
+        //
         const memorySizeGiB =
           (data.instanceType?.memorySize || data.memorySize || 0) /
           (1024 * 1024 * 1024);
-        // attachedStorages を整形
         const storagesGiB = (data.attachedStorages || []).map((s) => ({
           id: s.storage.id,
           name: s.storage.name,
@@ -224,20 +200,16 @@ export function useVirtualMachineEdit(props: Props) {
           type: s.path === "/dev/sda" ? "os" : "manual", // OSディスク判定
         }));
 
-        configTab.resetForm({
-          values: {
-            instanceTypeId: data.instanceType?.id || null, //
-            cpuCores: data.instanceType?.cpuCore || data.cpuCore || 0, //
-            memorySize: Math.round(memorySizeGiB), // GiB
-            storages: storagesGiB,
-          },
-        });
+        return {
+          instanceTypeId: data.instanceType?.id || null, //
+          cpuCores: data.instanceType?.cpuCore || data.cpuCore || 0, //
+          memorySize: Math.round(memorySizeGiB), // GiB
+          storages: storagesGiB,
+        };
       }
-
-      // --- ネットワークタブ (VmEditTabNetwork) ---
-      const networkTab = tabRefs.value[2];
-      if (networkTab?.resetForm) {
-        // attachedNics を整形
+      if (index === 2) {
+        // --- ネットワークタブ (VmEditTabNetwork) ---
+        //
         const nicsData = (data.attachedNics || []).map((nic) => ({
           id: nic.id, // NIC自体のID
           subnetId: nic.subnetId || null,
@@ -246,20 +218,19 @@ export function useVirtualMachineEdit(props: Props) {
           ipAddress: nic.ipAddress, //
         }));
 
-        networkTab.resetForm({
-          values: {
-            nics: nicsData, // ★ NIC情報を配列で渡す
-            securityGroupIds: (data.securityGroups || []).map((sg) => sg.id), //
-          },
-        });
+        return {
+          nics: nicsData, // ★ NIC情報を配列で渡す
+          securityGroupIds: (data.securityGroups || []).map((sg) => sg.id), //
+        };
       }
-    } catch (initError) {
-      console.error("Error initializing tab forms:", initError);
-      addToast({
-        type: "error",
-        message: "フォームの初期化中にエラーが発生しました。",
-      });
+    } catch (err: any) {
+      console.error(`Error preparing initial data for tab ${index}:`, err);
+      // エラーが発生したらグローバルエラーとして設定し、UIにフィードバック
+      error.value = new Error(
+        `タブ ${index + 1} の初期化に失敗しました: ${err.message}`
+      );
     }
+    return undefined;
   };
 
   // ============================================================================
@@ -403,5 +374,7 @@ export function useVirtualMachineEdit(props: Props) {
     handleSubmit,
     isSubmitting,
     submitError,
+    // ★ 初期値提供関数
+    getInitialDataForTab,
   };
 }

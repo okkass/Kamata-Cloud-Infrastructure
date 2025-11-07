@@ -59,7 +59,7 @@ import { useResourceList } from "~/composables/useResourceList";
 // ★ 共通コンポーネントをインポート
 import FormSelect from "~/components/FormSelect.vue";
 // ★ 共有型定義をインポート
-import type { PhysicalNodeDTO } from "~~/shared/types/physical-nodes";
+import type { PhysicalNodeDTO } from "~~/shared/types/physical-nodes"; //
 
 // ==============================================================================
 // API (ノード一覧取得)
@@ -68,7 +68,7 @@ const {
   data: nodes, // 取得したノード一覧 (ref)
   pending, // 読み込み中フラグ (ref)
   error, // エラーオブジェクト (ref)
-} = useResourceList<PhysicalNodeDTO>("physical-nodes");
+} = useResourceList<PhysicalNodeDTO>("physical-nodes"); //
 
 // ==============================================================================
 // Validation Schema (バリデーション定義)
