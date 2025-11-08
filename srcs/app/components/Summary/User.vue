@@ -57,27 +57,27 @@
       リソース状況の読み込みに失敗しました。
     </div>
   </div>
-
-  <section
-    v-if="chartConfigData?.vms"
-    v-for="vm in chartConfigData.vms"
-    :key="vm.id"
-    class="summary-timeseries-section"
-  >
-    <h2 class="summary-section-title">{{ vm.name }}</h2>
-    <div class="summary-timeseries-grid">
-      <SummaryTimeSeries
-        title="CPU使用率 (過去24時間)"
-        :options="vm.cpuChart.options"
-        :series="vm.cpuChart.series"
-      />
-      <SummaryTimeSeries
-        title="メモリ使用率 (過去24時間)"
-        :options="vm.memChart.options"
-        :series="vm.memChart.series"
-      />
-    </div>
-  </section>
+  <template v-if="chartConfigData?.vms">
+    <section
+      v-for="vm in chartConfigData.vms"
+      :key="vm.id"
+      class="summary-timeseries-section"
+    >
+      <h2 class="summary-section-title">{{ vm.name }}</h2>
+      <div class="summary-timeseries-grid">
+        <SummaryTimeSeries
+          title="CPU使用率 (過去24時間)"
+          :options="vm.cpuChart.options"
+          :series="vm.cpuChart.series"
+        />
+        <SummaryTimeSeries
+          title="メモリ使用率 (過去24時間)"
+          :options="vm.memChart.options"
+          :series="vm.memChart.series"
+        />
+      </div>
+    </section>
+  </template>
   <div v-else-if="historyPending" class="loading-text">
     グラフ履歴を読み込み中...
   </div>
