@@ -164,11 +164,11 @@ onBeforeUnmount(() => {
             </td>
             <td
               v-if="hasRowActions"
-              class="table-cell text-center sticky right-0 bg-white z-10"
+              class="pl-4 text-center sticky right-0 bg-white z-10"
             >
               <button
                 type="button"
-                class="menu-trigger flex items-center justify-center w-10 h-10 rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                class="w-10 h-10 rounded-full text-slate-500 transition"
                 @click.stop="toggleMenu($event, row, rIdx)"
               >
                 <span class="sr-only">操作メニューを開く</span>
