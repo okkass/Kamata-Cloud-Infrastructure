@@ -61,32 +61,33 @@
     </div>
   </div>
 
-  <section
-    v-if="chartConfigData?.nodes"
-    v-for="node in chartConfigData.nodes"
-    :key="node.id"
-    class="summary-timeseries-section"
-  >
-    <h2 class="summary-section-title">{{ node.name }}</h2>
-    <div class="summary-timeseries-grid">
-      <SummaryNodeInfoCard :node="node" />
-      <SummaryTimeSeries
-        title="ネットワーク使用率 (過去24時間)"
-        :options="node.networkChart.options"
-        :series="node.networkChart.series"
-      />
-      <SummaryTimeSeries
-        title="CPU使用率 (過去24時間)"
-        :options="node.cpuChart.options"
-        :series="node.cpuChart.series"
-      />
-      <SummaryTimeSeries
-        title="メモリ使用率 (過去24時間)"
-        :options="node.memChart.options"
-        :series="node.memChart.series"
-      />
-    </div>
-  </section>
+  <template v-if="chartConfigData?.nodes">
+    <section
+      v-for="node in chartConfigData.nodes"
+      :key="node.id"
+      class="summary-timeseries-section"
+    >
+      <h2 class="summary-section-title">{{ node.name }}</h2>
+      <div class="summary-timeseries-grid">
+        <SummaryNodeInfoCard :node="node" />
+        <SummaryTimeSeries
+          title="ネットワーク使用率 (過去24時間)"
+          :options="node.networkChart.options"
+          :series="node.networkChart.series"
+        />
+        <SummaryTimeSeries
+          title="CPU使用率 (過去24時間)"
+          :options="node.cpuChart.options"
+          :series="node.cpuChart.series"
+        />
+        <SummaryTimeSeries
+          title="メモリ使用率 (過去24時間)"
+          :options="node.memChart.options"
+          :series="node.memChart.series"
+        />
+      </div>
+    </section>
+  </template>
   <div v-else-if="historyPending" class="loading-text">
     グラフ履歴を読み込み中...
   </div>
