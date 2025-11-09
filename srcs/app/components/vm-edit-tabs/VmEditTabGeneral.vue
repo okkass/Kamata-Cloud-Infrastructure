@@ -42,37 +42,43 @@
  * =================================================================================
  * VM編集モーダル: 概要タブ (VmEditTabGeneral.vue)
  * ---------------------------------------------------------------------------------
- * このコンポーネントは、VM編集モーダルの「概要」タブのUIとフォームロジックを
- * 自己完結して管理します。
- * * 責務:
- * 1. 自身のフォーム (VM名, ノード) の状態とバリデーション (VeeValidate) を管理する。
- * 2. フォームに必要なデータ (ノード一覧) をAPI (useResourceList) から取得する。
- * 3. 親コンポーネント (MoVirtualMachineEdit) が
- * フォームの初期化 (resetForm), 検証 (validate), 値の収集 (values, meta) が
- * できるように、`defineExpose` でインターフェースを公開する。
+ * 親 (MoVirtualMachineEdit) から initialData を props で受け取り、
+ * VeeValidate の初期値に設定します。
  * =================================================================================
  */
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
+import { z } from "zod";
+// ★ useResourceList.ts をインポート
 import { useResourceList } from "~/composables/useResourceList";
-// ★ 共通コンポーネントをインポート
-import FormSelect from "~/components/FormSelect.vue";
-// ★ 共有型定義をインポート
-import type { PhysicalNodeDTO } from "~~/shared/types/physical-nodes"; //
+// ★ 型定義をインポート
+import type { PhysicalNodeDTO } from "~~/shared/types/physical-nodes";
 
-// ==============================================================================
-// API (ノード一覧取得)
-// ==============================================================================
+// =============================================================================
+// Props (初期値受け取り)
+// =============================================================================
+// ★ 1. 親コンポーネントから初期値を受け取る
+const props = defineProps<{
+  initialData: {
+    name: string;
+    nodeId: string | null;
+  };
+}>();
+
+// =============================================================================
+// Data Fetching (ノード一覧)
+// =============================================================================
+// ★ 2. ノード一覧をAPIから取得 (変更なし)
 const {
-  data: nodes, // 取得したノード一覧 (ref)
-  pending, // 読み込み中フラグ (ref)
-  error, // エラーオブジェクト (ref)
-} = useResourceList<PhysicalNodeDTO>("physical-nodes"); //
+  data: nodes,
+  pending,
+  error,
+} = useResourceList<PhysicalNodeDTO>("physical-nodes");
 
-// ==============================================================================
+// =============================================================================
 // Validation Schema (バリデーション定義)
-// ==============================================================================
+// =============================================================================
+// ★ 3. バリデーション定義 (変更なし)
 const validationSchema = toTypedSchema(
   z.object({
     name: z.string().min(1, "仮想マシン名は必須です。"),
@@ -80,32 +86,36 @@ const validationSchema = toTypedSchema(
   })
 );
 
-// ==============================================================================
+// =============================================================================
 // Form Setup (VeeValidate)
-// ==============================================================================
-// このタブ専用のフォームをセットアップ
-// initialValues は親の useVirtualMachineEdit が resetForm を呼んで設定する
-const { errors, defineField, values, meta, resetForm, validate } = useForm({
+// =============================================================================
+// ★ 4. フォームのセットアップ
+const { errors, defineField, values, meta, validate } = useForm({
   validationSchema,
+  /**
+   * ★ 5. 初期値を props.initialData から設定
+   * 親 (MoVirtualMachineEdit) が v-if="vmData" で描画制御しているため、
+   * このコンポーネントがマウントされる時点で props.initialData は
+   * 確定した値 (name, nodeId) を持っています。
+   */
   initialValues: {
-    name: "",
-    nodeId: undefined, // FormSelect の placeholderValue と合わせる
+    name: props.initialData.name,
+    // nodeId が null の場合は undefined に変換し、FormSelect の placeholder と合わせる
+    nodeId: props.initialData.nodeId ?? undefined,
   },
 });
 
-// v-model と v-bind 用のヘルパー
+// v-model と v-bind 用のヘルパー (変更なし)
 const [name, nameAttrs] = defineField("name");
-const [nodeId] = defineField("nodeId"); // FormSelect は v-model のみでOK
+const [nodeId] = defineField("nodeId");
 
-// ==============================================================================
+// =============================================================================
 // Expose (親へのインターフェース公開)
-// ==============================================================================
-// 親コンポーネント (MoVirtualMachineEdit / useVirtualMachineEdit) が
-// このタブフォームを制御するために必要なものを公開します。
+// =============================================================================
+// ★ 6. 親 (useVirtualMachineEdit) が必要とするものを公開 (変更なし)
 defineExpose({
-  validate, // 親が "次へ" / "更新" 時に呼び出すバリデーション関数
-  resetForm, // 親がデータ取得後に初期値をセットするために呼び出す関数
-  values, // 親が "更新" 時にフォームの値を取得するために参照
-  meta, // 親がタブのエラー状態(isValid)をチェックするために参照
+  validate, // バリデーション関数
+  values, // フォームの現在の値
+  meta, // フォームのメタ情報 (meta.valid を親が参照)
 });
 </script>

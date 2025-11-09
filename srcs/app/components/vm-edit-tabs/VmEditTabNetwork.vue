@@ -37,58 +37,48 @@
         <tbody>
           <tr v-if="sgFields.length === 0">
             <td colspan="2" class="text-center py-4 text-gray-500">
-              適用中のセキュリティグループはありません
+              適用中のセキュリティグループはありません。
             </td>
           </tr>
-          <tr
-            v-for="(field, index) in sgFields"
-            :key="field.key"
-            class="bg-white border-b"
-          >
-            <td class="px-4 py-2 font-medium">
-              {{ getGroupName(field.value) }}
-            </td>
-            <td class="px-4 py-2 text-center">
+          <tr v-for="(group, index) in appliedGroups" :key="group.id">
+            <td class="px-4 py-3">{{ group.name }}</td>
+            <td class="px-4 py-3 text-center">
               <button
                 type="button"
                 @click="removeSg(index)"
-                class="text-red-500 hover:text-red-700 font-bold text-xl"
-                title="セキュリティグループを解除"
+                class="text-red-500 hover:text-red-700"
               >
-                &times;
+                削除
               </button>
             </td>
           </tr>
         </tbody>
       </table>
 
-      <div class="flex items-center gap-3 mt-4">
-        <div class="flex-grow">
+      <div class="mt-4 flex items-end gap-3">
+        <div class="flex-1">
           <FormSelect
-            :label="undefined"
+            label="セキュリティグループを追加"
             name="vm-edit-sg-add"
             v-model="selectedGroupToAdd"
             :options="availableGroups ?? []"
             option-value="id"
             option-label="name"
-            placeholder="追加するグループを選択..."
+            placeholder="グループを選択"
             :pending="sgPending"
             :error="sgError"
-            :placeholder-value="null"
+            :label-hidden="true"
           />
         </div>
         <button
           type="button"
-          @click="addSg"
+          @click="addSecurityGroup"
+          class="btn-secondary-outline"
           :disabled="!selectedGroupToAdd"
-          class="btn-secondary"
         >
           追加
         </button>
       </div>
-      <p v-if="errors.securityGroupIds" class="text-error mt-1">
-        {{ errors.securityGroupIds }}
-      </p>
     </div>
   </div>
 </template>
@@ -98,166 +88,154 @@
  * =================================================================================
  * VM編集モーダル: ネットワークタブ (VmEditTabNetwork.vue)
  * ---------------------------------------------------------------------------------
- * このコンポーネントは、VM編集モーダルの「ネットワーク」タブのUIとフォームロジックを
- * 自己完結して管理します。
- * * 責務:
- * 1. 自身のフォーム (NIC配列, セキュリティグループ配列) の状態とバリデーション (VeeValidate) を管理する。
- * 2. フォームに必要なデータ (VPC/サブネット一覧, SG一覧) をAPI (useResourceList) から取得する。
- * 3. 適用中SGと追加可能SGのUIロジックを管理する。
- * 4. 親コンポーネントが必要とするインターフェース (validate, resetForm, etc.) を
- * `defineExpose` で公開する。
+ * 親 (MoVirtualMachineEdit) から initialData を props で受け取り、
+ * VeeValidate の初期値に設定します。
  * =================================================================================
  */
-import { ref, computed } from "vue";
-import { useResourceList } from "~/composables/useResourceList";
+import { ref, computed } from "vue"; // ★ computed をインポート
 import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
-// ★ 共通コンポーネントをインポート
-import FormSelect from "~/components/FormSelect.vue";
-// ★ 共有型定義をインポート
+import { z } from "zod";
+import { useResourceList } from "~/composables/useResourceList";
 import type { VirtualNetworkDTO } from "~~/shared/types/virtual-networks";
-import type { SecurityGroupDTO } from "~~/shared/types/security-groups"; //
-import type { NetworkInterfaceDTO } from "~~/shared/types/virtual-machines"; //
+import type { SecurityGroupDTO } from "~~/shared/types/security-groups";
 
-// ==============================================================================
-// Props (親からの初期値)
-// ==============================================================================
-// ★ 親(useVirtualMachineEdit)から渡される初期データ
+// =============================================================================
+// Props (初期値受け取り)
+// =============================================================================
+// ★ 1. 親コンポーネントから初期値を受け取る
+// (useVirtualMachineEdit.ts の getInitialDataForTab(2) が返す型)
 const props = defineProps<{
-  initialData?: {
-    nics: NetworkInterfaceDTO[];
+  initialData: {
+    nics: {
+      id: string;
+      subnetId: string | null;
+      name: string;
+      macAddress: string;
+      ipAddress: string;
+    }[];
     securityGroupIds: string[];
   };
 }>();
 
-// ==============================================================================
-// API (ドロップダウン用データ取得)
-// ==============================================================================
-
-// 1. 仮想ネットワーク (サブネット) 一覧の取得
+// =============================================================================
+// Data Fetching (ネットワーク & セキュリティグループ一覧)
+// =============================================================================
+// ★ 2. サブネット（ネットワーク）一覧を取得
 const {
   data: networks,
   pending: networksPending,
   error: networksError,
-} = useResourceList<VirtualNetworkDTO>("virtual-networks"); //
+} = useResourceList<VirtualNetworkDTO>("virtual-networks");
 
-// 2. セキュリティグループ一覧の取得
+// ★ 3. セキュリティグループ一覧を取得
 const {
-  data: securityGroups,
+  data: allSecurityGroups,
   pending: sgPending,
   error: sgError,
-} = useResourceList<SecurityGroupDTO>("security-groups"); //
+} = useResourceList<SecurityGroupDTO>("security-groups");
 
-// ==============================================================================
+// =============================================================================
 // Validation Schema (バリデーション定義)
-// ==============================================================================
-// (NetworkInterfaceDTO)
+// =============================================================================
+// ★ 4. バリデーション定義 (変更なし)
 const nicSchema = z.object({
   id: z.string(),
-  subnetId: z.string().nullable(),
   name: z.string(),
   macAddress: z.string(),
   ipAddress: z.string(),
+  // ネットワークタブは編集 disabled だが、バリデーションのために定義
+  subnetId: z.string().nullable(),
 });
 
 const validationSchema = toTypedSchema(
   z.object({
-    // nics 配列 (親から渡される)
-    // (注: サブネットは disabled なので、バリデーションは緩くても良い)
-    nics: z.array(nicSchema).optional(),
-    // securityGroupIdsは文字列の配列
+    nics: z.array(nicSchema),
     securityGroupIds: z.array(z.string()),
   })
 );
 
-// ==============================================================================
+// =============================================================================
 // Form Setup (VeeValidate)
-// ==============================================================================
+// =============================================================================
+// ★ 5. フォームのセットアップ
 const {
   errors,
   defineField,
   values,
   meta,
-  resetForm,
   validate,
-  setFieldValue,
-} = useForm({
-  validationSchema,
-  // ★ 親から渡された initialData を initialValues に設定
-  initialValues: {
-    nics: props.initialData?.nics || [],
-    securityGroupIds: props.initialData?.securityGroupIds || [],
-  },
-});
-
-// --- NICs (Subnet) ---
-// このタブではNICの変更を許可しないため、`useFieldArray` は使用しない。
-// v-model のために、最初のNICのsubnetIdへのcomputed refを作成
-const firstNicSubnetId = computed({
-  get: () => values.nics?.[0]?.subnetId || null,
-  set: (value) => {
-    // このフィールドは disabled だが、v-model のためにセッターを用意
-    if (values.nics && values.nics[0]) {
-      setFieldValue("nics[0].subnetId", value);
-    }
-  },
-});
-
-// --- Security Groups (動的配列) ---
-// ★ any型を排除し、<string> (IDの配列) を指定
-const {
-  fields: sgFields,
   push: pushSg,
   remove: removeSg,
-} = useFieldArray<string>("securityGroupIds");
-
-// ==============================================================================
-// UIロジック (セキュリティグループ追加)
-// ==============================================================================
-// (参考ファイル のロジックをそのまま流用)
-
-// 追加用プルダウンで選択されているグループID (v-model)
-const selectedGroupToAdd = ref<string | null>(null);
-
-// 適用済みのグループを除外した、追加可能なグループのリスト
-const availableGroups = computed(() => {
-  const appliedIds = new Set(values.securityGroupIds || []);
-  return securityGroups.value?.filter((sg) => !appliedIds.has(sg.id)) || [];
+} = useForm({
+  validationSchema,
+  /**
+   * ★ 6. 初期値を props.initialData から設定
+   */
+  initialValues: {
+    // nics は配列ごと初期値として渡す (NICの追加/削除は非対応)
+    nics: props.initialData.nics,
+    // securityGroupIds はIDの配列
+    securityGroupIds: props.initialData.securityGroupIds,
+  },
 });
 
-// IDからグループ名を取得するヘルパー関数 (適用済みリスト表示用)
-const getGroupName = (id: string) => {
-  return securityGroups.value?.find((sg) => sg.id === id)?.name || id;
-};
+// ★ 7. v-model ヘルパー (変更なし)
+// NIC 1 (nics[0].subnetId) を v-model でバインド
+const [firstNicSubnetId] = defineField("nics[0].subnetId");
 
-// 「追加」ボタン押下時の処理
-const addSg = () => {
+// セキュリティグループ (FieldArray) の設定
+const { fields: sgFields } = useFieldArray<string>("securityGroupIds");
+
+// =============================================================================
+// Security Group (SG) Logic
+// =============================================================================
+// ★ 8. セキュリティグループの追加ロジック (変更なし)
+
+// 追加用プルダウンの v-model
+const selectedGroupToAdd = ref<string | null>(null);
+
+// 適用済みSG (values.securityGroupIds) と ID->名 辞書 (allSecurityGroups) を使って、
+// v-for で表示するための {id, name} の配列を生成
+const appliedGroups = computed(() => {
+  const allSgsMap = new Map(
+    allSecurityGroups.value?.map((g) => [g.id, g.name])
+  );
+  return values.securityGroupIds.map((id) => ({
+    id: id,
+    name: allSgsMap.get(id) || id, // 見つからなければIDをそのまま表示
+  }));
+});
+
+// 追加用プルダウンに表示する「まだ適用されていない」SGのリスト
+const availableGroups = computed(() => {
+  const appliedIds = new Set(values.securityGroupIds);
+  return (allSecurityGroups.value ?? []).filter((g) => !appliedIds.has(g.id));
+});
+
+// "追加" ボタン押下時の処理
+const addSecurityGroup = () => {
   if (selectedGroupToAdd.value) {
-    // 既に適用されていないか念のためチェック
-    if (!values.securityGroupIds?.includes(selectedGroupToAdd.value)) {
-      pushSg(selectedGroupToAdd.value); // 配列 (values.securityGroupIds) にIDを追加
-    }
+    // (useFieldArray の pushSg を呼ぶ)
+    pushSg(selectedGroupToAdd.value);
     selectedGroupToAdd.value = null; // 選択プルダウンをリセット
   }
 };
 
-// ==============================================================================
+// =============================================================================
 // Expose (親へのインターフェース公開)
-// ==============================================================================
+// =============================================================================
+// ★ 9. 親 (useVirtualMachineEdit) が必要とするものだけを公開
+// (resetForm は削除)
 defineExpose({
-  validate, // バリデーション実行関数
-  resetForm, // (親は使わないが、念のため公開)
-  values, // フォームの現在の値 (ref)
-  meta, // フォームのバリデーション状態 (ref)
+  validate,
+  values,
+  meta,
 });
 </script>
 
 <style scoped>
-/*
-  参考ファイル のスタイル定義をそのまま適用 
-  (スタイルは極力変えないでください、という要件のため)
-*/
+/* (スタイルは変更なし) */
 .form-section {
   @apply p-4 border border-gray-200 rounded-lg;
 }
@@ -273,27 +251,7 @@ defineExpose({
 .form-input:disabled {
   @apply bg-gray-100 cursor-not-allowed;
 }
-.btn-secondary {
-  @apply py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 whitespace-nowrap;
-}
-.form-help {
-  @apply text-xs text-gray-500 mt-1;
-}
-
-/* 削除ボタン (&times;) のスタイル
-  (参考ファイル のクラスを適用)
-*/
-.text-red-500 {
-  color: #ef4444; /* (text-error と同等と仮定) */
-}
-.hover\:text-red-700:hover {
-  color: #b91c1c;
-}
-.font-bold {
-  font-weight: 700;
-}
-.text-xl {
-  font-size: 1.25rem;
-  line-height: 1.75rem;
+.btn-secondary-outline {
+  @apply py-2 px-4 bg-white border border-gray-300 text-gray-700 rounded-lg shadow-sm hover:bg-gray-50;
 }
 </style>
