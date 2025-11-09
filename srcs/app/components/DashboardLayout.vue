@@ -64,7 +64,7 @@ const toggleMenu = (event: MouseEvent, row: T, index: number) => {
   const target = event.currentTarget as HTMLElement;
   const rect = target.getBoundingClientRect();
   menuPos.value = {
-    top: rect.bottom + window.scrollY + 8,
+    top: rect.bottom + 8,
     left: rect.left + rect.width / 2,
   };
   openKey.value = key;
@@ -109,8 +109,10 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <div class="p-6 text-slate-900 font-sans bg-white">
-    <div class="flex items-center justify-between gap-2 flex-wrap mb-4">
+  <div class="p-3 text-slate-900 font-sans bg-white">
+    <div
+      class="flex-shrink-0 flex items-center justify-between gap-2 flex-wrap mb-4"
+    >
       <h1 class="m-0 text-[26px] font-extrabold tracking-[0.02em]">
         {{ title }}
       </h1>
@@ -130,7 +132,7 @@ onBeforeUnmount(() => {
 
     <div class="overflow-x-auto">
       <table
-        class="w-full table-auto border border-slate-200 rounded-lg shadow-md bg-white"
+        class="w-full table-auto border border-slate-200 rounded-lg shadow-md bg-white min-w-[1200px]"
       >
         <thead>
           <tr class="table-header">
@@ -141,7 +143,10 @@ onBeforeUnmount(() => {
             >
               {{ c.label }}
             </th>
-            <th v-if="hasRowActions" class="table-header-cell text-center">
+            <th
+              v-if="hasRowActions"
+              class="table-header-cell text-center sticky right-0 z-10 bg-gray-100"
+            >
               操作
             </th>
           </tr>
@@ -157,20 +162,23 @@ onBeforeUnmount(() => {
                 {{ row[c.key] }}
               </slot>
             </td>
-
-            <td v-if="hasRowActions" class="table-cell text-center">
+            <td
+              v-if="hasRowActions"
+              class="table-cell text-center sticky right-0 bg-white z-10"
+            >
               <button
-                class="menu-trigger btn py-1 px-3 text-sm bg-[#7fb2e1] text-white border border-[#5b8eb8] hover:bg-[#6aa3d8]"
+                type="button"
+                class="menu-trigger flex items-center justify-center w-10 h-10 rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 @click.stop="toggleMenu($event, row, rIdx)"
               >
-                操作 ▼
+                <span class="sr-only">操作メニューを開く</span>
+                <IconKebabMenu />
               </button>
             </td>
           </tr>
         </tbody>
       </table>
     </div>
-
     <teleport to="body">
       <div
         v-if="openKey !== null"
@@ -180,8 +188,18 @@ onBeforeUnmount(() => {
       >
         <slot
           name="row-actions"
-          :row="rows.find((r, i) => getKeyForRow(r, i) === openKey)"
-          :emit="(action: string) => emit('row-action', { action, row: rows.find((r, i) => getKeyForRow(r, i) === openKey)! })"
+          v-bind="{
+            row: (() => {
+              const openRow = rows.find((r, i) => getKeyForRow(r, i) === openKey);
+              return openRow;
+            })(),
+            emit: (action: string) => {
+              const openRow = rows.find((r, i) => getKeyForRow(r, i) === openKey);
+              if (openRow) {
+                emit('row-action', { action, row: openRow });
+              }
+            }
+          }"
         />
       </div>
     </teleport>

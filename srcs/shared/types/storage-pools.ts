@@ -1,7 +1,7 @@
 /**
- * ストレージプールオブジェクト
+ * ネットワークストレージプールオブジェクト
  */
-export interface StoragePoolDTO {
+export interface NetworkStoragePoolDTO {
   /**
    * ストレージプールを識別するための一意なID
    */
@@ -10,7 +10,6 @@ export interface StoragePoolDTO {
    * ストレージプールの名前
    */
   name: string;
-  type?: StoragePoolTypeEnum;
   /**
    * ストレージプールが作成された日時
    */
@@ -23,25 +22,53 @@ export interface StoragePoolDTO {
    * 使用中のストレージサイズ（バイト単位）
    */
   usedSize: number;
+  /**
+   * 対応するローカルストレージプールのID
+   */
+  localStoragePoolId: string;
 }
-
-export const StoragePoolTypeEnum = {
-  Local: "local",
-  Network: "network",
-} as const;
-
-export type StoragePoolTypeEnum =
-  (typeof StoragePoolTypeEnum)[keyof typeof StoragePoolTypeEnum];
-
 /**
- * ストレージプール作成リクエストオブジェクト
+ * ローカルストレージプールオブジェクト
  */
-export interface StoragePoolCreateRequestDTO {
+export interface LocalStoragePoolDTO {
+  /**
+   * ストレージプールを識別するための一意なID
+   */
+  id: string;
   /**
    * ストレージプールの名前
    */
   name: string;
-  type: StoragePoolCreateRequestTypeEnum;
+  /**
+   * ストレージプールが作成された日時
+   */
+  createdAt: string;
+  /**
+   * ストレージプールの総サイズ（バイト単位）
+   */
+  totalSize: number;
+  /**
+   * 使用中のストレージサイズ（バイト単位）
+   */
+  usedSize: number;
+  /**
+   * ストレージプールが存在する物理ノードのID
+   */
+  nodeId: string;
+  /**
+   * ストレージデバイスのパス
+   */
+  devFile: string;
+}
+
+/**
+ * ローカルストレージプール作成リクエストオブジェクト
+ */
+export interface LocalStoragePoolCreateRequestDTO {
+  /**
+   * ストレージプールの名前
+   */
+  name: string;
   /**
    * ストレージプールを作成する物理ノードのID
    */
@@ -51,19 +78,47 @@ export interface StoragePoolCreateRequestDTO {
    */
   size: number;
   /**
-   * ストレージデバイスのパス（ローカルストレージの場合）
+   * ストレージデバイスのパス
    */
-  devFile?: string;
-  /**
-   * 使用するローカルストレージのID（ネットワークストレージの場合）
-   */
-  localStorageId?: string;
+  devFile: string;
 }
 
-export const StoragePoolCreateRequestTypeEnum = {
-  Local: "local",
-  Network: "network",
-} as const;
+/**
+ * ストレージデバイスファイルオブジェクト
+ */
+export interface DeviceFileDTO {
+  /**
+   * ストレージデバイスのパス
+   */
+  file: string;
+  /**
+   * ストレージデバイスのサイズ（バイト単位）
+   */
+  size: number;
+  /**
+   * ストレージデバイスのベンダー情報
+   */
+  vendor: string;
+  /**
+   * ストレージデバイスのモデル情報
+   */
+  model: string;
+}
 
-export type StoragePoolCreateRequestTypeEnum =
-  (typeof StoragePoolCreateRequestTypeEnum)[keyof typeof StoragePoolCreateRequestTypeEnum];
+/**
+ * ネットワークストレージプール作成リクエストオブジェクト
+ */
+export interface NetworkStoragePoolCreateRequestDTO {
+  /**
+   * ストレージプールの名前
+   */
+  name: string;
+  /**
+   * ストレージプールのサイズ（バイト単位）
+   */
+  size: number;
+  /**
+   * 使用するローカルストレージのID
+   */
+  localStorageId: string;
+}

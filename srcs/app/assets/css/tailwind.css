@@ -168,7 +168,7 @@
    */
   /* テーブルのヘッダー */
   .table-header {
-    @apply text-xs text-gray-700 uppercase bg-gray-100;
+    @apply text-xs text-gray-700 uppercase bg-gray-100 whitespace-nowrap;
   }
   /* テーブルの行 */
   .table-row {
@@ -197,21 +197,33 @@
     */
   /* アクションアイテム（ドロップダウンメニューの項目など） */
   .action-item {
-    @apply block px-4 py-3 text-[15px] font-semibold text-slate-900 hover:bg-[#f5f7fa] border-t border-slate-200;
+    @apply block w-full px-3 py-2 text-left text-[15px] hover:bg-[#f5f7fa] border-t border-slate-200;
   }
 
   /* 無効化されたアクションアイテム */
   .action-item-disabled {
-    @apply w-full text-center px-4 py-2 text-sm font-bold text-white bg-slate-500 border border-slate-700 rounded-md cursor-not-allowed select-none;
+    @apply block w-full px-4 py-3 text-left text-sm text-white bg-slate-500 border-slate-700 cursor-not-allowed select-none hover:bg-slate-500;
   }
 
   /* 危険な操作（削除など）を表すアクションアイテム */
   .action-item-danger {
-    @apply text-red-600 hover:bg-red-50;
+    @apply text-red-600 hover:bg-red-100;
   }
   /* テーブル内などで使用する主要なリンク */
   .table-link {
-    @apply text-sky-600 hover:text-sky-800 hover:underline font-semibold;
+    @apply text-sky-600 hover:text-sky-800 hover:underline;
+  }
+  /* テーブル内のステータス表示用バッジ */
+  .table-status {
+    @apply inline-flex select-none items-center rounded-md px-2 py-0.5 text-xs font-bold;
+  }
+  /* セル内の説明テキスト */
+  .cell-description {
+    @apply block mt-0.5 text-sm text-gray-500;
+  }
+  /* セル内の注釈テキスト */
+  .cell-note {
+    @apply ml-1 text-sm text-gray-500;
   }
 
   /** =================================================

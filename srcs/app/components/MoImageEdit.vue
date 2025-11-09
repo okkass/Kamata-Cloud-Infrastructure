@@ -27,9 +27,11 @@
         :error="errors.description"
       />
     </div>
+    <template #footer>
     <div class="modal-footer">
       <button @click="onSubmit" class="btn btn-primary">保存</button>
     </div>
+    </template>
   </BaseModal>
 </template>
 

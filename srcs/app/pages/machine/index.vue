@@ -1,6 +1,6 @@
 <template>
   <DashboardLayout
-    title="仮想マシンダッシュボード"
+    title="仮想マシン"
     :columns="columns"
     :rows="rowsForTable"
     rowKey="id"
@@ -29,10 +29,7 @@
       <span class="text-sm">{{ row.node.name }}</span>
     </template>
     <template #cell-status="{ row }">
-      <span
-        class="inline-flex select-none items-center rounded-md px-2 py-0.5 text-xs font-bold"
-        :class="getVmStatusDisplay(row.status).class"
-      >
+      <span class="table-status" :class="getVmStatusDisplay(row.status).class">
         {{ getVmStatusDisplay(row.status).text }}
       </span>
     </template>
@@ -48,14 +45,21 @@
       >
         詳細
       </NuxtLink>
-      <a href="#" class="action-item" @click.prevent="emit('edit')"> 編集 </a>
-      <a
-        href="#"
+      <button
+        type="button"
+        class="action-item"
+        @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
+      >
+        編集
+      </button>
+      <button
+        type="button"
         class="action-item action-item-danger"
-        @click.prevent="emit('delete')"
+        :disabled="isDeleting && targetForDeletion?.id === row?.id"
+        @click.stop.prevent="row && handleRowAction({ action: 'delete', row })"
       >
         削除
-      </a>
+      </button>
     </template>
   </DashboardLayout>
    
@@ -79,6 +83,7 @@
     :is-loading="isDeleting"
     :resource-label="resourceLabel"
     :resource-name="targetForDeletion?.name"
+    :message="`本当に「${targetForDeletion?.name ?? ''}」を削除しますか？`"
     @close="cancelAction"
     @confirm="handleDelete"
   />

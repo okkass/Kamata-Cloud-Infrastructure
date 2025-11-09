@@ -21,6 +21,7 @@
       <div class="modal-body overflow-y-auto p-3" :class="modalBodyClass">
         <slot />
       </div>
+      <slot name="footer" />
     </div>
   </div>
 </template>
@@ -38,9 +39,9 @@ defineEmits(["close"]);
 const modalBodyClass = computed(() => {
   switch (props.size) {
     case "lg":
-      return "h-[450px]";
+      return "h-[600px]";
     case "md":
-      return "h-[300px]";
+      return "h-[450px]";
     default:
       return "";
   }

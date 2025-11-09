@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
   if (!id || !validate(id)) {
     createError({ statusCode: 400, message: "Invalid or missing ID" });
   }
-  const mock = [
+  const mock: Array<SecurityGroupDTO> = [
     {
       id: "399f4fd6-8335-46f7-bd80-4e53eb0fbe9b",
       name: "default",
@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
           ruleType: "inbound",
           port: 80,
           protocol: "tcp",
-          targetIP: "0.0.0.0/0",
+          targetIp: "0.0.0.0/0",
           action: "allow",
           createdAt: new Date().toISOString(),
         },
@@ -27,7 +27,8 @@ export default defineEventHandler(async (event) => {
           name: "Allow all",
           ruleType: "outbound",
           protocol: "any",
-          targetIP: "0.0.0.0/0",
+          port: null,
+          targetIp: "0.0.0.0/0",
           action: "allow",
           createdAt: new Date().toISOString(),
         },
@@ -45,7 +46,7 @@ export default defineEventHandler(async (event) => {
           ruleType: "inbound",
           port: 22,
           protocol: "tcp",
-          targetIP: "0.0.0.0/0",
+          targetIp: "0.0.0.0/0",
           action: "allow",
           createdAt: new Date().toISOString(),
         },
@@ -54,7 +55,8 @@ export default defineEventHandler(async (event) => {
           name: "Allow all",
           ruleType: "outbound",
           protocol: "any",
-          targetIP: "0.0.0.0/0",
+          port: null,
+          targetIp: "0.0.0.0/0",
           action: "allow",
           createdAt: new Date().toISOString(),
         },
@@ -63,7 +65,7 @@ export default defineEventHandler(async (event) => {
     },
   ];
 
-  const securityGroup = mock.find((sg) => sg.id === id);
+  const securityGroup: SecurityGroupDTO | undefined = mock.find((sg) => sg.id === id);
   if (!securityGroup) {
     createError({ statusCode: 404, message: "Security group not found" });
   }
