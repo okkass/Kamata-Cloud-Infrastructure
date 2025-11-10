@@ -4,7 +4,7 @@
     title="インスタンスタイプの追加"
     @close="$emit('close')"
   >
-    <form @submit.prevent="onFormSubmit" class="modal-space">
+    <form @submit.prevent="submitForm" class="modal-space">
       <div>
         <label for="instance-type-name" class="form-label">
           インスタンスタイプ名 <span class="required-asterisk">*</span>
@@ -59,13 +59,14 @@
           {{ errors.memorySizeInMb }}
         </p>
       </div>
-
+    </form>
+    <template #footer>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary" :disabled="isCreating">
-          {{ isCreating ? "作成中..." : "作成" }}
+          {{ isCreating ? "追加中..." : "追加" }}
         </button>
       </div>
-    </form>
+    </template>
   </BaseModal>
 </template>
 
@@ -74,123 +75,33 @@
  * =================================================================================
  * インスタンスタイプ追加モーダル (MoInstanceTypeAdd.vue)
  * ---------------------------------------------------------------------------------
- * このコンポーネントは、新しいインスタンスタイプ（CPU、メモリの組み合わせ）を
- * 作成するためのUIと機能を提供します。
+ * UIの表示に特化したコンポーネントです。
+ * 実際のフォームの状態管理やAPI送信ロジックは `useInstanceTypeAddForm` Composable に
+ * 分離されています。
  * =================================================================================
  */
-import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
-import { useResourceCreate } from "~/composables/useResourceCreate";
-import { useToast } from "~/composables/useToast";
+// Composable をインポート (パスはプロジェクトに合わせて調整してください)
+import { useInstanceTypeAddForm } from "~/composables/modal/useInstanceTypeAddForm";
 
 // --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 
-// ==============================================================================
-// Type Definitions
-// APIとの通信で使用するデータの型を定義します。
-// ==============================================================================
-// POST /api/instance-type で送信するリクエストボディの型
-interface InstanceTypeCreateRequestDTO {
-  name: string;
-  cpuCores: number;
-  memorySize: number; // APIへはバイト単位で送信
-}
-// POST成功後に返される、作成済みインスタンスタイプの型
-interface ModelInstanceTypeDTO {
-  id: string;
-  name: string;
-  // ...
-}
+// --- Composable からフォームロジックと状態を取得 ---
+const {
+  errors,
+  name,
+  nameAttrs,
+  cpuCores,
+  cpuCoresAttrs,
+  memorySizeInMb,
+  memorySizeInMbAttrs,
+  isCreating,
+  onFormSubmit, // Composable が提供する送信ハンドラ
+} = useInstanceTypeAddForm();
 
-// ==============================================================================
-// Validation Schema
-// フォームのバリデーションルールをZodで定義します。
-// ==============================================================================
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "インスタンスタイプ名は必須です。"),
-    cpuCores: z
-      .number({
-        required_error: "CPUコア数は必須です。",
-        invalid_type_error: "数値を入力してください。",
-      })
-      .int("整数で入力してください。")
-      .min(1, "1以上の値を入力してください。"),
-    memorySizeInMb: z
-      .number({
-        required_error: "メモリサイズは必須です。",
-        invalid_type_error: "数値を入力してください。",
-      })
-      .int("整数で入力してください。")
-      .min(1, "1MB以上の値を入力してください。"),
-  })
-);
-
-// ==============================================================================
-// Form Setup
-// VeeValidateのuseFormを使って、フォームの状態管理をセットアップします。
-// `handleSubmit` を利用することで、バリデーション通過時のみ実行される関数を安全に定義できます。
-// ==============================================================================
-const { errors, defineField, handleSubmit } = useForm({
-  validationSchema,
-  initialValues: {
-    cpuCores: 1,
-    memorySizeInMb: 1024,
-  },
-});
-
-const [name, nameAttrs] = defineField("name");
-const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
-const [memorySizeInMb, memorySizeInMbAttrs] = defineField("memorySizeInMb");
-
-// ==============================================================================
-// API Submission
-// ==============================================================================
-const { executeCreate: executeInstanceTypeCreation, isCreating } =
-  useResourceCreate<InstanceTypeCreateRequestDTO, ModelInstanceTypeDTO>(
-    "instance-types"
-  );
-
-const { addToast } = useToast();
-
-// ==============================================================================
-// Event Handler
-// ==============================================================================
-
-/**
- * フォームが送信されたときに実行されるハンドラ。
- * VeeValidateの`handleSubmit`でラップされており、バリデーションが通過した場合のみ呼び出されます。
- * @param {object} formValues - バリデーション済みのフォーム入力値
- */
-const onFormSubmit = handleSubmit(async (formValues) => {
-  // APIに送信するデータ（ペイロード）を構築します。
-  // メモリサイズはMBからByteに変換します。
-  const payload: InstanceTypeCreateRequestDTO = {
-    name: formValues.name,
-    cpuCores: formValues.cpuCores,
-    memorySize: formValues.memorySizeInMb * 1024 * 1024, // MB to Bytes
-  };
-
-  // APIリクエストを実行します。
-  const result = await executeInstanceTypeCreation(payload);
-
-  // 結果に応じてトースト通知を表示します。
-  if (result.success) {
-    addToast({
-      type: "success",
-      message: `インスタンスタイプ「${payload.name}」が作成されました`,
-    });
-    emit("success"); // 親コンポーネントに成功を通知
-    emit("close"); // モーダルを閉じる
-  } else {
-    addToast({
-      type: "error",
-      message: "作成に失敗しました。",
-      details: result.error?.message,
-    });
-  }
-});
+// --- イベントハンドラ ---
+// Composable から受け取った `onFormSubmit` 関数に、
+// このコンポーネントの `emit` 関数を渡して実行するラッパー関数。
+const submitForm = onFormSubmit(emit);
 </script>

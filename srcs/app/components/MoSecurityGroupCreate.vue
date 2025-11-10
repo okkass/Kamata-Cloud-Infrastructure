@@ -55,13 +55,14 @@
         @add-rule="addOutboundRule"
         @delete-rule="removeOutboundRule"
       />
-
+    </form>
+    <template #footer>
       <div class="modal-footer">
         <button type="submit" class="btn btn-primary" :disabled="isCreating">
           {{ isCreating ? "作成中..." : "作成" }}
         </button>
       </div>
-    </form>
+    </template>
   </BaseModal>
 </template>
 
@@ -74,7 +75,7 @@
  * 実際のフォームロジックは `useSecurityGroupForm` Composable に分離されています。
  * =================================================================================
  */
-import { useSecurityGroupForm } from "~/composables/useSecurityGroupForm";
+import { useSecurityGroupForm } from "~/composables/modal/useSecurityGroupForm";
 
 // --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });

@@ -8,6 +8,13 @@ import type {
  * アタッチされたストレージオブジェクト
  */
 export interface AttachedStorageDTO {
+  /**
+   * アタッチされたストレージを識別するための一意なID
+   */
+  id: string;
+  /**
+   * アタッチされたストレージに関する情報
+   */
   storage?: VirtualStorageDTO;
   /**
    * ストレージデバイスのパス
@@ -75,23 +82,23 @@ export interface NetworkInterfaceDTO {
   /**
    * ネットワークインターフェースを識別するための一意なID
    */
-  id?: string;
+  id: string;
   /**
    * ネットワークインターフェースの名前
    */
-  name?: string;
+  name: string;
   /**
    * ネットワークインターフェースのMACアドレス
    */
-  macAddress?: string;
+  macAddress: string;
   /**
    * ネットワークインターフェースのIPアドレス
    */
-  ipAddress?: string;
+  ipAddress: string;
   /**
    * ネットワークインターフェースが属するサブネットのID
    */
-  subnetId?: string;
+  subnetId: string;
 }
 
 /**
@@ -101,15 +108,15 @@ export interface PortfolioDTO {
   /**
    * ポートフォリオを識別するための一意なID
    */
-  id?: string;
+  id: string;
   /**
    * 過去24時間のビュー数
    */
-  viewCount24Hour?: number;
+  viewCount24Hour: number;
   /**
    * 過去7日間のビュー数
    */
-  viewCount7Day?: number;
+  viewCount7Day: number;
 }
 /**
  * ポートフォリオ記事オブジェクト
@@ -118,16 +125,16 @@ export interface PortfolioArticleDTO {
   /**
    * ポートフォリオ記事を識別するための一意なID
    */
-  id?: string;
+  id: string;
   /**
    * ポートフォリオ記事のタイトル
    */
-  title?: string;
+  title: string;
   /**
    * ポートフォリオ記事が作成された日時
    */
-  createdAt?: string;
-  status?: PortfolioArticleStatusEnum;
+  createdAt: string;
+  status: PortfolioArticleStatusEnum;
 }
 
 export const PortfolioArticleStatusEnum = {
@@ -203,7 +210,7 @@ export interface VirtualMachineBaseDTO {
    * 仮想マシンの状態
    */
   status: VirtualMachineStatusEnum;
-  node?: PhysicalNodeDTO;
+  node: PhysicalNodeDTO;
   /**
    * 仮想マシンが作成された日時
    */
@@ -274,6 +281,8 @@ export const VirtualMachineStatusEnum = {
   Running: "running",
   Stopped: "stopped",
   Suspended: "suspended",
+  Error: "error",
+  Pending: "pending",
 } as const;
 
 export type VirtualMachineStatusEnum =
@@ -387,7 +396,7 @@ export interface VirtualMachineUpdateRequestDTO {
   /**
    * 仮想マシンの名前
    */
-  name: string;
+  name?: string;
   instanceType?: ModelInstanceTypeDTO;
   /**
    * CPUコア数
@@ -418,17 +427,21 @@ export interface VirtualStorageDTO {
   /**
    * 仮想ストレージを識別するための一意なID
    */
-  id?: string;
+  id: string;
   /**
    * 仮想ストレージの名前
    */
-  name?: string;
+  name: string;
   /**
    * 仮想ストレージのサイズ（バイト単位）
    */
-  size?: number;
+  size: number;
   /**
    * 仮想ストレージが属するストレージプールのID
    */
-  pool?: string;
+  poolId: string;
+  /**
+   * 仮想ストレージが作成された日時
+   */
+  createdAt: Date;
 }

@@ -1,4 +1,4 @@
-import type { TotpInfo } from ".";
+import type { TotpInfoDTO } from ".";
 
 /**
  * User object
@@ -28,7 +28,7 @@ export interface UserDTO {
    * ユーザが最後にログインした日時
    */
   lastLoginAt?: string;
-  TotpInfo?: TotpInfo;
+  totpInfo?: TotpInfoDTO;
 }
 /**
  * ユーザ作成リクエストオブジェクト
@@ -91,6 +91,10 @@ export interface UserUpdateRequestDTO {
    * ユーザが使用できる最大ストレージサイズ（バイト単位）
    */
   maxStorageSize?: number;
+  /**
+   * ユーザが管理者かどうかを示すフラグ
+   */
+  isAdmin?: boolean;
 }
 
 /**

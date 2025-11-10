@@ -1,6 +1,7 @@
 import { validate } from "uuid";
 
 export default defineEventHandler((event) => {
+  let user: UserDTO | undefined;
   const id = event.context.params?.id;
 
   if (!id) {
@@ -15,8 +16,8 @@ export default defineEventHandler((event) => {
     });
   } else {
     if (id == "a575c9ea-96fb-4ed3-9d92-d93712d0e2cc") {
-      return {
-        id: "r14093834-c1e9-4197-8def-ffdf31d1a63b",
+      user = {
+        id: "a575c9ea-96fb-4ed3-9d92-d93712d0e2cc",
         name: "Alice",
         email: "sample@example.com",
         createdAt: new Date().toISOString(),
@@ -24,8 +25,8 @@ export default defineEventHandler((event) => {
         lastLoginAt: new Date().toISOString(),
       };
     } else {
-      return {
-        d: "ff09658a-6b02-4c99-bb05-cf8487411d1f",
+      user = {
+        id: "ff09658a-6b02-4c99-bb05-cf8487411d1f",
         name: "Bob",
         email: "sample@example.com",
         createdAt: new Date().toISOString(),
@@ -34,4 +35,5 @@ export default defineEventHandler((event) => {
       };
     }
   }
+  return user;
 });
