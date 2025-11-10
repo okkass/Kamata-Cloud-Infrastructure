@@ -1,7 +1,6 @@
 <template>
   <div
-    class="relative"
-    style="min-height: calc(100vh - 4rem); padding-top: 2rem"
+class="relative min-h-[calc(100vh-theme(spacing.16))] pt-8"
   >
     <DefaultHeader />
     <div>
