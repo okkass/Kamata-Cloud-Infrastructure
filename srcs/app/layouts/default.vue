@@ -1,10 +1,13 @@
 <template>
-  <div class="relative min-h-screen">
+  <div
+    class="relative"
+    style="min-height: calc(100vh - 4rem); padding-top: 2rem"
+  >
     <DefaultHeader />
     <div>
       <UserSidebar :isAdmin="isAdmin" />
       <main
-        class="p-8 transition-all duration-300 mt-8"
+        class="p-8 transition-all duration-300"
         :class="isSidebarOpen ? 'ml-56' : 'ml-8'"
       >
         <slot />
