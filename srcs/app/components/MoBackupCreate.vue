@@ -96,8 +96,6 @@
  */
 // Composable をインポート
 import { useBackupCreateForm } from "~/composables/modal/useBackupCreateForm";
-// 必要な共通コンポーネントをインポート
-import FormSelect from "~/components/FormSelect.vue";
 
 // --- 親コンポーネントとの連携 (Props & Emits) ---
 defineProps({ show: { type: Boolean, required: true } });

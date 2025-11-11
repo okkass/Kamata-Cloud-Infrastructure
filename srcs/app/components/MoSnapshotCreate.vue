@@ -59,8 +59,6 @@
  */
 // Composable をインポート (後で作成)
 import { useSnapshotCreateForm } from "~/composables/modal/useSnapshotCreateForm";
-// 必要な共通コンポーネントをインポート (パスを確認・調整してください)
-import FormSelect from "~/components/FormSelect.vue"; // 仮パス
 
 // --- 親コンポーネントとの連携 (Props & Emits) ---
 // show prop: モーダルの表示状態を制御します (trueで表示)
