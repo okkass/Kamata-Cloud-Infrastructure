@@ -44,11 +44,11 @@ jobs:
       - name: Install dependencies
         run: |
           # APIドキュメント生成用のRedocly CLIをインストール
-          npm install -g @redocly/cli
+          pnpm install @redocly/cli
           # TypeDoc生成用の依存パッケージをインストール
-          npm ci
+          pnpm install
           # Prisma Clientのスキーマに合わせる
-          npx prisma generate
+          pnpm dlx prisma generate
         working-directory: ./srcs 
 
       # 4. APIドキュメントを生成
@@ -58,7 +58,7 @@ jobs:
 
       # 5. TypeDocドキュメントを生成
       - name: Build Type Docs
-        run: npx typedoc --tsconfig ./srcs/tsconfig.typedoc.json --entryPointStrategy expand --out public/types srcs/shared/types/
+        run: pnpm dlx typedoc --tsconfig ./srcs/tsconfig.typedoc.json --entryPointStrategy expand --out public/types srcs/shared/types/
 
       # 6. 結合された成果物をアーティファクトとしてアップロード
       - name: Upload Artifact
