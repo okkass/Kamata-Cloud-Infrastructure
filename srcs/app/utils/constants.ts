@@ -18,3 +18,5 @@ export const USER = {name: "users", label: "ユーザー"};
 export const SECURITY_GROUP = {name: "security-groups", label: "セキュリティグループ"};
 export const MIDDLEWARE = {name: "middlewares", label: "ミドルウェア"};
 export const PHYSICAL_NODE = {name: "physical-nodes", label: "物理ノード"};
+export const DISABLE_ROUNDING = false;
+
