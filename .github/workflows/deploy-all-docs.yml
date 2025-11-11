@@ -38,18 +38,16 @@ jobs:
         with:
           node-version: "20"
           cache: "npm"
-          cache-dependency-path: 'srcs/package-lock.json'
+          cache-dependency-path: "srcs/package-lock.json"
 
       # 3. 必要なパッケージをすべてインストール
       - name: Install dependencies
         run: |
           # APIドキュメント生成用のRedocly CLIをインストール
           npm install -g @redocly/cli
-          # TypeDoc生成用の依存パッケージをインストール
-          npm ci
-          # Prisma Clientのスキーマに合わせる
-          npx prisma generate
-        working-directory: ./srcs 
+          # プロジェクトの依存関係をインストール
+          npm install
+        working-directory: ./srcs
 
       # 4. APIドキュメントを生成
       # 生成物を格納する `public` ディレクトリに直接出力する
