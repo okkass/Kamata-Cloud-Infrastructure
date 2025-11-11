@@ -10,6 +10,10 @@ import { ref, computed } from "vue";
 import { useToast } from "@/composables/useToast";
 import { useResourceList } from "@/composables/useResourceList";
 
+/** 定数 */
+export const addPhysicalNodeAction = `add-${PHYSICAL_NODE.name}`;
+export const deletePhysicalNodeAction = `delete-${PHYSICAL_NODE.name}`;
+
 /**
  * メインのComposable関数
  */
@@ -19,11 +23,11 @@ export function usePhysicalNodeManagement() {
   // ============================================================================
   const { addToast } = useToast();
   const { data: rawNodes, refresh: refreshNodeList } =
-    useResourceList<PhysicalNodeDTO>("physical-nodes");
+    useResourceList<PhysicalNodeDTO>(PHYSICAL_NODE.name);
   const { executeUpdate: updateNode } = useResourceUpdate<
     PhysicalNodeUpdateRequestDTO,
     PhysicalNodeDTO
-  >("physical-nodes");
+  >(PHYSICAL_NODE.name);
 
   // ============================================================================
   // Component State

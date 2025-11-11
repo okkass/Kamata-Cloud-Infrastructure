@@ -15,12 +15,15 @@ interface UiEnhancedSecurityGroup extends Omit<SecurityGroupDTO, "rules"> {
   inboundRuleCount: number;
   outboundRuleCount: number;
 }
+export const addSecurityGroupAction = `add-${SECURITY_GROUP.name}`;
+export const editSecurityGroupAction = `edit-${SECURITY_GROUP.name}`;
+export const deleteSecurityGroupAction = `delete-${SECURITY_GROUP.name}`;
 
 /* =========================== Main Composable =========================== */
 export function useSecurityDashboard() {
   // --- API Data ---
   const { data: rawGroups, refresh: refreshGroupList } =
-    useResourceList<SecurityGroupDTO>("security-groups");
+    useResourceList<SecurityGroupDTO>(SECURITY_GROUP.name);
 
   // --- UI Configuration ---
   const columns: TableColumn[] = [

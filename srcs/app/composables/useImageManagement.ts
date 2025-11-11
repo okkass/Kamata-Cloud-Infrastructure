@@ -4,6 +4,11 @@
 import { ref, computed } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 
+/** 定数定義  */
+export const addImageAction = `add-${IMAGE.name}`;
+export const editImageAction = `edit-${IMAGE.name}`;
+export const deleteImageAction = `delete-${IMAGE.name}`;
+
 /**
  * 仮想マシンイメージ管理ページのUIロジックと状態を管理するComposable
  *
@@ -12,7 +17,7 @@ import { useResourceList } from "@/composables/useResourceList";
 export function useImageManagement() {
   // --- APIデータ取得 ---
   const { data: imageDTOs, refresh: refreshImageList } =
-    useResourceList<ImageDTO>("images");
+    useResourceList<ImageDTO>(IMAGE.name);
 
   // --- UI表示用の設定 ---
   const columns: TableColumn[] = [

@@ -6,7 +6,7 @@
       :rows="images"
       rowKey="id"
       :headerButtons="headerButtons"
-      @header-action="() => openModal('add-image')"
+      @header-action="() => openModal(addImageAction)"
     >
       <template #cell-name="{ row }">
         <NuxtLink :to="`/image/${row.id}`" class="table-link">
@@ -51,19 +51,19 @@
   </div>
 
   <MoDeleteConfirm
-    :show="activeModal === 'delete-images'"
+    :show="activeModal === deleteImageAction"
     :message="`本当にイメージ「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
   />
   <MoImageAdd
-    :show="activeModal === 'add-images'"
+    :show="activeModal === addImageAction"
     @close="closeModal"
     @success="handleSuccess"
   />
   <MoImageEdit
-    :show="activeModal === 'edit-images'"
+    :show="activeModal === editImageAction"
     :image-data="targetForEditing ?? undefined"
     @close="closeModal"
     @success="handleSuccess"
@@ -91,8 +91,8 @@ const {
   handleSuccess,
   cancelAction,
 } = usePageActions<UiImage>({
-  resourceName: "images",
-  resourceLabel: "イメージ",
+  resourceName: IMAGE.name,
+  resourceLabel: IMAGE.label,
   refresh: refreshImageList,
 });
 </script>

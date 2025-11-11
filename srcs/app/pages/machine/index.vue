@@ -64,14 +64,14 @@
   </DashboardLayout>
    
   <MoVirtualMachineCreate
-    :show="activeModal === `create-${RESOURCE_NAME}`"
+    :show="activeModal === createVirtualMachineAction"
     @close="cancelAction"
     @success="handleSuccess"
   />
 
    
   <MoVirtualMachineEdit
-    :show="activeModal === `edit-${RESOURCE_NAME}`"
+    :show="activeModal === editVirtualMachineAction"
     :virtual-machine="targetForEditing"
     @close="cancelAction"
     @success="handleSuccess"
@@ -79,9 +79,9 @@
 
    
   <MoDeleteConfirm
-    :show="activeModal === `delete-${RESOURCE_NAME}`"
+    :show="activeModal === deleteVirtualMachineAction"
     :is-loading="isDeleting"
-    :resource-label="resourceLabel"
+    :resource-label="MACHINE.label"
     :resource-name="targetForDeletion?.name"
     :message="`本当に「${targetForDeletion?.name ?? ''}」を削除しますか？`"
     @close="cancelAction"
@@ -95,14 +95,16 @@ import { computed } from "vue";
 // ==============================================================================
 // 定数定義 (Constants)
 // ==============================================================================
-const RESOURCE_NAME = "virtual-machines";
-const resourceLabel = "仮想マシン";
+const createVirtualMachineAction = `create-${MACHINE.name}`;
+const editVirtualMachineAction = `edit-${MACHINE.name}`;
+const deleteVirtualMachineAction = `delete-${MACHINE.name}`;
 
 // ==============================================================================
 // 状態管理 (State Management via Composables)
 // ==============================================================================
-const { data: virtualMachines, refresh } =
-  useResourceList<VirtualMachineDTO>(RESOURCE_NAME);
+const { data: virtualMachines, refresh } = useResourceList<VirtualMachineDTO>(
+  MACHINE.name
+);
 
 const rowsForTable = computed<VirtualMachineDTO[]>(
   () => virtualMachines.value ?? []
@@ -119,8 +121,8 @@ const {
   handleSuccess,
   cancelAction,
 } = usePageActions<VirtualMachineDTO>({
-  resourceName: RESOURCE_NAME,
-  resourceLabel,
+  resourceName: MACHINE.name,
+  resourceLabel: MACHINE.label,
   refresh,
 });
 
@@ -146,7 +148,7 @@ const headerButtons = [{ label: "新規作成", action: "create" }];
 // ==============================================================================
 const onHeaderAction = (action: string) => {
   if (action === "create") {
-    openModal(`create-${RESOURCE_NAME}`);
+    openModal(createVirtualMachineAction);
   }
 };
 </script>
