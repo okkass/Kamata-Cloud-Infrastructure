@@ -31,8 +31,12 @@ jobs:
       # 1. リポジトリのソースコードをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
+      
+      # 2. Corepackをセットアップ
+      - name: Set up Corepack
+        run: corepack enable
 
-      # 2. Node.js環境をセットアップ
+      # 3. Node.js環境をセットアップ
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -40,7 +44,7 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: 'srcs/pnpm-lock.yaml'
 
-      # 3. 必要なパッケージをすべてインストール
+      # 4. 必要なパッケージをすべてインストール
       - name: Install dependencies
         run: |
           # APIドキュメント生成用のRedocly CLIをインストール
@@ -51,23 +55,23 @@ jobs:
           pnpm dlx prisma generate
         working-directory: ./srcs 
 
-      # 4. APIドキュメントを生成
+      # 5. APIドキュメントを生成
       # 生成物を格納する `public` ディレクトリに直接出力する
       - name: Build API Docs
         run: redocly build-docs docs/api_design/api.yml -o public/index.html
 
-      # 5. TypeDocドキュメントを生成
+      # 6. TypeDocドキュメントを生成
       - name: Build Type Docs
         run: pnpm dlx typedoc --tsconfig ./srcs/tsconfig.typedoc.json --entryPointStrategy expand --out public/types srcs/shared/types/
 
-      # 6. 結合された成果物をアーティファクトとしてアップロード
+      # 7. 結合された成果物をアーティファクトとしてアップロード
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # APIとTypesの両方を含む `public` ディレクトリをアップロード
           path: ./public
 
-      # 7. GitHub Pagesにデプロイ
+      # 8. GitHub Pagesにデプロイ
       - name: Deploy to Github Pages
         id: deployment # このステップの結果を後で参照するためのID
         uses: actions/deploy-pages@v4
