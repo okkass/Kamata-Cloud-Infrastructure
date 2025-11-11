@@ -37,7 +37,7 @@ jobs:
         run: corepack enable
 
       # 3. pnpmのグローバルbinディレクトリを設定
-      - name: Set up pnpm global bin directory for `pnpm add --global`
+      - name: Set up pnpm global bin directory for `pnpm install -g`
         run: |
           PNPM_HOME=/home/runner/.local/share/pnpm
           echo "PNPM_HOME=$PNPM_HOME" >> "$GITHUB_ENV"
