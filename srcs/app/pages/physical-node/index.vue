@@ -1,7 +1,7 @@
 <template>
   <div>
     <DashboardLayout
-      title="物理ノード"
+      title="ノード"
       :columns="columns"
       :rows="displayNodes"
       rowKey="id"
@@ -59,14 +59,14 @@
   </div>
 
   <MoDeleteConfirm
-    :show="activeModal === 'delete-physical-nodes'"
+    :show="activeModal === deletePhysicalNodeAction"
     :message="`本当にノード「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
   />
   <MoAddNodeToCluster
-    :show="activeModal === 'add-physical-nodes'"
+    :show="activeModal === addPhysicalNodeAction"
     @close="closeModal"
     @success="handleSuccess"
   />
@@ -106,15 +106,15 @@ const {
   handleSuccess,
   cancelAction,
 } = usePageActions<UiNode>({
-  resourceName: "physical-nodes",
-  resourceLabel: "物理ノード",
+  resourceName: PHYSICAL_NODE.name,
+  resourceLabel: PHYSICAL_NODE.label,
   refresh: refreshNodeList,
 });
 
 // --- イベントの振り分け ---
 const handleDashboardHeaderAction = (action: string) => {
   if (action === "add") {
-    openModal("add-physical-nodes");
+    openModal(addPhysicalNodeAction);
   }
 };
 const onRowAction = ({ action, row }: { action: string; row: UiNode }) => {
