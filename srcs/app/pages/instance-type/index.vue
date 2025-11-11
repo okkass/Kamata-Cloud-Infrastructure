@@ -4,7 +4,7 @@
     :columns="columns"
     :rows="rawList"
     :headerButtons="headerButtons"
-    @header-action="() => openModal('add-instance-types')"
+    @header-action="() => openModal(addInstanceTypeAction)"
     @row-action="handleRowAction"
   >
     <template #cell-name="{ row }">
@@ -47,18 +47,18 @@
   </DashboardLayout>
 
   <MoInstanceTypeAdd
-    :show="activeModal === 'add-instance-types'"
+    :show="activeModal === addInstanceTypeAction"
     @close="closeModal"
     @success="handleSuccess"
   />
   <MoInstanceTypeEdit
-    :show="activeModal === 'edit-instance-types'"
+    :show="activeModal === editInstanceTypeAction"
     :instance-type-data="targetForEditing"
     @close="closeModal"
     @success="handleSuccess"
   />
   <MoDeleteConfirm
-    :show="activeModal === 'delete-instance-types'"
+    :show="activeModal === deleteInstanceTypeAction"
     :message="`本当にインスタンスタイプ「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
@@ -85,8 +85,8 @@ const {
   handleSuccess,
   cancelAction,
 } = usePageActions<ModelInstanceTypeDTO>({
-  resourceName: "instance-types",
-  resourceLabel: "インスタンスタイプ",
+  resourceName: INSTANCE_TYPE.name,
+  resourceLabel: INSTANCE_TYPE.label,
   refresh: refresh,
 });
 </script>

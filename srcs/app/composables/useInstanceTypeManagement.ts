@@ -10,6 +10,11 @@
  */
 import { useResourceList } from "@/composables/useResourceList";
 
+/** 定数定義  */
+export const addInstanceTypeAction = `add-${INSTANCE_TYPE.name}`;
+export const editInstanceTypeAction = `edit-${INSTANCE_TYPE.name}`;
+export const deleteInstanceTypeAction = `delete-${INSTANCE_TYPE.name}`;
+
 /* =========================== Main Composable =========================== */
 
 export function useInstanceTypeManagement() {
@@ -23,7 +28,7 @@ export function useInstanceTypeManagement() {
     pending,
     refresh,
     error,
-  } = useResourceList<ModelInstanceTypeDTO>("instance-types");
+  } = useResourceList<ModelInstanceTypeDTO>(INSTANCE_TYPE.name);
 
   /**
    * ==================================================================
@@ -40,7 +45,7 @@ export function useInstanceTypeManagement() {
   const headerButtons = [
     {
       action: "add", // usePageActions が 'add-instance-type' より 'add' を期待
-      label: "インスタンスタイプ追加",
+      label: "追加",
     },
   ];
 
