@@ -36,7 +36,19 @@ jobs:
       - name: Set up Corepack
         run: corepack enable
 
-      # 3. Node.js環境をセットアップ
+      # 3. pnpmのグローバルbinディレクトリを設定
+      - name: Set up pnpm global bin directory for `pnpm add --global`
+        run: |
+          if [ "$RUNNER_OS" == "Windows" ]; then
+            PNPM_HOME=/c/Program\ Files/Git/home/runner/.local/share/pnpm
+          elif [ "$RUNNER_OS" == "Linux" ]; then
+            PNPM_HOME=/home/runner/.local/share/pnpm
+          fi
+          echo "PNPM_HOME=$PNPM_HOME" >> "$GITHUB_ENV"
+          echo "$PNPM_HOME" >> "$GITHUB_PATH"
+        shell: bash
+
+      # 4. Node.js環境をセットアップ
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -44,7 +56,7 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: "srcs/pnpm-lock.yaml"
 
-      # 4. 必要なパッケージをすべてインストール
+      # 5. 必要なパッケージをすべてインストール
       - name: Install dependencies
         run: |
           # APIドキュメント生成用のRedocly CLIをインストール
@@ -55,23 +67,23 @@ jobs:
           pnpm dlx prisma generate
         working-directory: ./srcs
 
-      # 5. APIドキュメントを生成
+      # 6. APIドキュメントを生成
       # 生成物を格納する `public` ディレクトリに直接出力する
       - name: Build API Docs
         run: redocly build-docs docs/api_design/api.yml -o public/index.html
 
-      # 6. TypeDocドキュメントを生成
+      # 7. TypeDocドキュメントを生成
       - name: Build Type Docs
         run: pnpm dlx typedoc --tsconfig ./srcs/tsconfig.typedoc.json --entryPointStrategy expand --out public/types srcs/shared/types/
 
-      # 7. 結合された成果物をアーティファクトとしてアップロード
+      # 8. 結合された成果物をアーティファクトとしてアップロード
       - name: Upload Artifact
         uses: actions/upload-pages-artifact@v3
         with:
           # APIとTypesの両方を含む `public` ディレクトリをアップロード
           path: ./public
 
-      # 8. GitHub Pagesにデプロイ
+      # 9. GitHub Pagesにデプロイ
       - name: Deploy to Github Pages
         id: deployment # このステップの結果を後で参照するためのID
         uses: actions/deploy-pages@v4
