@@ -130,7 +130,10 @@ watch(
           .map((rule) => ({
             id: rule.id, // ★ APIとフォームで共通のキー
             protocol: rule.protocol.toUpperCase(), // 'tcp' -> 'TCP'
-            port: rule.port !== undefined && rule.port !== null ? String(rule.port) : "",
+            port:
+              rule.port !== undefined && rule.port !== null
+                ? String(rule.port)
+                : "",
             sourceIp: rule.targetIp, // ★ targetIp -> sourceIp
           })),
         // 'outbound'のルールだけを抽出・変換
@@ -139,7 +142,10 @@ watch(
           .map((rule) => ({
             id: rule.id,
             protocol: rule.protocol.toUpperCase(),
-            port: rule.port !== undefined && rule.port !== null ? String(rule.port) : "",
+            port:
+              rule.port !== undefined && rule.port !== null
+                ? String(rule.port)
+                : "",
             sourceIp: rule.targetIp,
           })),
       };
