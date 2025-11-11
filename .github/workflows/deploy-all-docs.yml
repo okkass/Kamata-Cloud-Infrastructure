@@ -31,7 +31,7 @@ jobs:
       # 1. リポジトリのソースコードをチェックアウト
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       # 2. Corepackをセットアップ
       - name: Set up Corepack
         run: corepack enable
@@ -42,18 +42,18 @@ jobs:
         with:
           node-version: "20"
           cache: "pnpm"
-          cache-dependency-path: 'srcs/pnpm-lock.yaml'
+          cache-dependency-path: "srcs/pnpm-lock.yaml"
 
       # 4. 必要なパッケージをすべてインストール
       - name: Install dependencies
         run: |
           # APIドキュメント生成用のRedocly CLIをインストール
-          pnpm install @redocly/cli
+          pnpm install -g @redocly/cli
           # TypeDoc生成用の依存パッケージをインストール
           pnpm install
           # Prisma Clientのスキーマに合わせる
           pnpm dlx prisma generate
-        working-directory: ./srcs 
+        working-directory: ./srcs
 
       # 5. APIドキュメントを生成
       # 生成物を格納する `public` ディレクトリに直接出力する
