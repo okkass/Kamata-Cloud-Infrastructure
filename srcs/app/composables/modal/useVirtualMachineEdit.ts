@@ -128,7 +128,6 @@ export function useVirtualMachineEdit(props: Props) {
   }; //
 
   /**
-   * ★ (型エラー修正)
    * isValid の戻り値は void ではなく boolean でなければなりません。
    * (MoVirtualMachineEdit.vue で v-if="!isValid(index)" のように使われるため)
    */

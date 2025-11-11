@@ -89,7 +89,7 @@
                 :label-hidden="true"
                 :name="`storage-pool-${index}`"
                 v-model="storage.value.poolId"
-                :options="allPools"
+                :options="pools ?? []"
                 option-value="id"
                 option-label="name"
                 placeholder="プールを選択"
@@ -129,24 +129,19 @@
  * =================================================================================
  * VM編集モーダル: 構成タブ (VmEditTabConfig.vue)
  * ---------------------------------------------------------------------------------
- * ★ ネットワークプールとローカルプールの両方を取得し、選択肢を統合
+ * ★ ローカルストレージプールのみを取得するように修正
  * =================================================================================
  */
-import { computed } from "vue"; // ★ computed をインポート
+// import { computed } from 'vue'; // (computed は不要になったため削除)
 import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { z } from "zod";
 import { useResourceList } from "~/composables/useResourceList";
 
 /**
- * ★ 修正
- * 'storage-pools' ファイルから 'NetworkStoragePoolDTO' と 'LocalStoragePoolDTO' を
- * インポートします。
+ * 'storage-pools' ファイルから 'LocalStoragePoolDTO' のみをインポート
  */
-import type {
-  NetworkStoragePoolDTO,
-  LocalStoragePoolDTO,
-} from "~~/shared/types/storage-pools";
+import type { LocalStoragePoolDTO } from "~~/shared/types/storage-pools";
 
 // =============================================================================
 // Props (初期値受け取り)
@@ -171,44 +166,24 @@ const props = defineProps<{
 // =============================================================================
 // Data Fetching (ストレージプール一覧)
 // =============================================================================
-// ★ 修正: ネットワークプールとローカルプールの2種類を取得します
+// ★ 修正: ローカルストレージプールのみを取得
 
-// 1. ネットワークプール
+// (ネットワークプールの useResourceList 呼び出しは削除)
+
+// ★ 修正: APIパスをご指定の 'storage-pools/local' に修正
+// ★ 修正: 変数名を 'pools', 'poolsPending', 'poolsError' に変更
 const {
-  data: networkPools,
-  pending: networkPending,
-  error: networkError,
-} = useResourceList<NetworkStoragePoolDTO>("network-storage-pools");
+  data: pools,
+  pending: poolsPending,
+  error: poolsError,
+} = useResourceList<LocalStoragePoolDTO>("storage-pools/local");
 
-// 2. ローカルプール
-const {
-  data: localPools,
-  pending: localPending,
-  error: localError,
-} = useResourceList<LocalStoragePoolDTO>("local-storage-pools");
-
-// 3. 2つのリストを1つに統合 (computed を使用)
-const allPools = computed(() => {
-  // 取得したデータを、FormSelect が使える { id, name } の形式にマッピングして結合
-  const networkOptions = (networkPools.value ?? []).map((pool) => ({
-    id: pool.id,
-    name: pool.name,
-  }));
-  const localOptions = (localPools.value ?? []).map((pool) => ({
-    id: pool.id,
-    name: pool.name,
-  }));
-  return [...networkOptions, ...localOptions];
-});
-
-// 4. どちらかのAPIが pending/error なら、FormSelect に伝える
-const poolsPending = computed(() => networkPending.value || localPending.value);
-const poolsError = computed(() => networkError.value || localError.value);
+// (allPools, poolsPending, poolsError の computed は削除)
 
 // =============================================================================
 // Validation Schema (バリデーション定義)
 // =============================================================================
-// (変更なし: createdAt も '横流し' のために定義)
+// (変更なし)
 const storageSchema = z.object({
   id: z.string(),
   createdAt: z.string(),
@@ -232,7 +207,7 @@ const validationSchema = toTypedSchema(
 // =============================================================================
 // Form Setup (VeeValidate)
 // =============================================================================
-// (変更なし: props.initialData を初期値として使用)
+// (変更なし)
 const { errors, defineField, values, meta, validate } = useForm({
   validationSchema,
   initialValues: {
@@ -252,17 +227,16 @@ const {
   fields: storageFields,
   remove: removeStorage,
   push: pushStorage,
-} = useFieldArray<any>("storages");
+} = useFieldArray<VirtualStorageDTO>("storages");
 
-// (addStorage ロジックは変更なし: createdAt も "横流し" のため)
+// (addStorage ロジックは変更なし)
 const addStorage = () => {
   pushStorage({
     id: `new-${crypto.randomUUID()}`,
-    createdAt: new Date().toISOString(),
+    createdAt: new Date(),
     name: "new-storage",
     size: 10,
     poolId: undefined as any,
-    type: "manual",
   });
 };
 
