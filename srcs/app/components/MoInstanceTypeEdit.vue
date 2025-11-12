@@ -5,46 +5,44 @@
     @close="$emit('close')"
   >
     <form @submit.prevent="submitForm">
-      <FormSection>
-        <FormInput
-          name="instance-type-name-edit"
-          label="インスタンスタイプ名"
-          type="text"
-          :required="true"
-          v-model="name"
-          v-bind="nameAttrs"
-          :error="errors.name"
-          placeholder="例: standard.xlarge"
-        />
+      <FormInput
+        name="instance-type-name-edit"
+        label="インスタンスタイプ名"
+        type="text"
+        :required="true"
+        v-model="name"
+        v-bind="nameAttrs"
+        :error="errors.name"
+        placeholder="例: standard.xlarge"
+      />
 
-        <FormInput
-          name="instance-cpu-edit"
-          label="vCPU数 (個)"
-          type="number"
-          :required="true"
-          v-model.number="cpuCore"
-          v-bind="cpuCoreAttrs"
-          :error="errors.cpuCore"
-          placeholder="例: 16"
-          min="1"
-        />
+      <FormInput
+        name="instance-cpu-edit"
+        label="vCPU数 (個)"
+        type="number"
+        :required="true"
+        v-model.number="cpuCore"
+        v-bind="cpuCoreAttrs"
+        :error="errors.cpuCore"
+        placeholder="例: 16"
+        min="1"
+      />
 
-        <FormInput
-          name="instance-memory-edit"
-          label="メモリ (MB)"
-          type="number"
-          :required="true"
-          v-model.number="memorySizeInMb"
-          v-bind="memorySizeInMbAttrs"
-          :error="errors.memorySizeInMb"
-          placeholder="例: 32768"
-          min="1"
-        >
-          <template #suffix>
-            <span class="form-unit-label">MB</span>
-          </template>
-        </FormInput>
-      </FormSection>
+      <FormInput
+        name="instance-memory-edit"
+        label="メモリ (MB)"
+        type="number"
+        :required="true"
+        v-model.number="memorySizeInMb"
+        v-bind="memorySizeInMbAttrs"
+        :error="errors.memorySizeInMb"
+        placeholder="例: 32768"
+        min="1"
+      >
+        <template #suffix>
+          <span class="form-unit-label">MB</span>
+        </template>
+      </FormInput>
     </form>
     <template #footer>
       <div class="modal-footer">
