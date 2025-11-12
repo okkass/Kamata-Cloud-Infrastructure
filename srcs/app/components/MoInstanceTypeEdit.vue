@@ -60,12 +60,6 @@
         </p>
       </div>
 
-      <!--
-        注: API仕様 (PUT /api/instance-types/{id}) に
-        ストレージサイズ (storageSize) が含まれていないため、
-        フォーム項目からも除外しています。
-      -->
-
       <div class="modal-footer">
         <button type_="submit" class="btn btn-primary" :disabled="isUpdating">
           {{ isUpdating ? "保存中..." : "保存" }}
