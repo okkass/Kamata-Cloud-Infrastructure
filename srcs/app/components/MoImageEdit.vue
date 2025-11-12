@@ -1,28 +1,26 @@
 <template>
   <BaseModal :show="show" title="イメージ編集" @close="$emit('close')">
     <form @submit.prevent="submitForm">
-      <FormSection>
-        <FormInput
-          name="image-name-edit"
-          label="イメージ名"
-          type="text"
-          :required="true"
-          v-model="name"
-          v-bind="nameAttrs"
-          :error="errors.name"
-          placeholder="例: ubuntu-22.04-custom"
-        />
+      <FormInput
+        name="image-name-edit"
+        label="イメージ名"
+        type="text"
+        :required="true"
+        v-model="name"
+        v-bind="nameAttrs"
+        :error="errors.name"
+        placeholder="例: ubuntu-22.04-custom"
+      />
 
-        <FormTextarea
-          name="image-description-edit"
-          label="説明"
-          :rows="4"
-          v-model="description"
-          v-bind="descriptionAttrs"
-          :error="errors.description"
-          placeholder="イメージの説明を入力してください"
-        />
-      </FormSection>
+      <FormTextarea
+        name="image-description-edit"
+        label="説明"
+        :rows="4"
+        v-model="description"
+        v-bind="descriptionAttrs"
+        :error="errors.description"
+        placeholder="イメージの説明を入力してください"
+      />
     </form>
 
     <template #footer>
