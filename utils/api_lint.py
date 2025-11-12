@@ -1,7 +1,7 @@
 import yaml
 
 SCHEMA_ORDER = [
-   "openapi",
+    "openapi",
     "info",
     "servers",
     "paths",
