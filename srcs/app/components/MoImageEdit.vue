@@ -53,7 +53,6 @@ import type { ImageDTO } from "~~/shared/types/images";
 
 // ★ 汎用コンポーネントをインポート
 import FormInput from "~/components/Form/Input.vue";
-import FormSection from "~/components/Form/Section.vue";
 import FormTextarea from "~/components/Form/Textarea.vue";
 
 // --- 親コンポーネントとの連携 (Props & Emits) ---
