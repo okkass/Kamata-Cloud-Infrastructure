@@ -35,11 +35,11 @@ def main():
     save_yaml("docs/api_design/api.yml", ordered_api)
 
 def load_yaml(file_path):
-    with open(file_path, 'r') as file:
+    with open(file_path, 'r', encoding='utf-8') as file:
         return yaml.safe_load(file)
 
 def save_yaml(file_path, data):
-    with open(file_path, 'w') as file:
+    with open(file_path, 'w', encoding='utf-8') as file:
         yaml.dump(data, file, sort_keys=False, allow_unicode=True, indent=2)
 
 if __name__ == "__main__":
