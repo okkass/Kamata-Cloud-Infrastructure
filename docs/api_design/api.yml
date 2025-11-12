@@ -1486,7 +1486,36 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/storage-pools/from-node/{nodeId}:
+  /api/storage-pools/{id}:
+    get:
+      summary: ストレージプールの詳細取得
+      description: 指定したIDのストレージプールの詳細情報を取得します。
+      tags:
+        - StoragePool
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ストレージプールの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoragePool"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ストレージプールが見つからない
+      security:
+        - BearerAuth: []
+  /api/storage-pools/node/{nodeId}:
     get:
       summary: 指定した物理ノードから利用可能なストレージプール一覧の取得
       description: 指定した物理ノードから利用可能なストレージプールのリストを取得します。
