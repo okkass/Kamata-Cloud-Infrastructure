@@ -1,64 +1,84 @@
 <template>
   <div class="space-y-4">
     <div>
-      <label for="vm-name" class="form-label">仮想マシン名</label>
+      <label for="vm-edit-name" class="form-label">
+        仮想マシン名 <span class="required-asterisk">*</span>
+      </label>
       <input
         type="text"
-        id="vm-name"
+        id="vm-edit-name"
         v-model="name"
         v-bind="nameAttrs"
         class="form-input"
-        :class="{ 'border-red-500': errors.name }"
+        :class="{ 'form-border-error': errors.name }"
         placeholder="例: vm-middleware01"
       />
-      <p v-if="errors.name" class="text-red-500 text-sm mt-1">
+      <p v-if="errors.name" class="text-error mt-1">
         {{ errors.name }}
       </p>
     </div>
 
     <div>
-      <label for="node-select" class="form-label">ノード選択</label>
-      <div v-if="pending" class="text-gray-500">ノード一覧を読み込み中...</div>
-      <div v-else-if="error" class="text-red-500">
-        ノード一覧の取得に失敗しました。
-      </div>
-      <select
-        v-else
-        id="node-select"
+      <FormSelect
+        label="ノード選択"
+        name="vm-edit-node"
         v-model="nodeId"
-        v-bind="nodeIdAttrs"
-        class="form-input"
-        :class="{ 'border-red-500': errors.nodeId }"
-      >
-        <option :value="undefined" disabled>ノードを選択してください</option>
-        <option v-for="node in nodes" :key="node.id" :value="node.id">
-          {{ node.name }}
-        </option>
-      </select>
-      <p v-if="errors.nodeId" class="text-red-500 text-sm mt-1">
-        {{ errors.nodeId }}
-      </p>
+        :options="nodes ?? []"
+        option-value="id"
+        option-label="name"
+        placeholder="ノードを選択してください"
+        :pending="pending"
+        :error="error"
+        :error-message="errors.nodeId"
+        :required="true"
+        :placeholder-value="undefined"
+      />
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { useResourceList } from "~/composables/useResourceList";
+/**
+ * =================================================================================
+ * VM編集モーダル: 概要タブ (VmEditTabGeneral.vue)
+ * ---------------------------------------------------------------------------------
+ * 親 (MoVirtualMachineEdit) から initialData を props で受け取り、
+ * VeeValidate の初期値に設定します。
+ * =================================================================================
+ */
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
+import { z } from "zod";
+// ★ useResourceList.ts をインポート
+import { useResourceList } from "~/composables/useResourceList";
+// ★ 型定義をインポート
+import type { PhysicalNodeDTO } from "~~/shared/types/physical-nodes";
 
-// ==============================================================================
-// 型定義
-// ==============================================================================
-interface ModelPhysicalNodeDTO {
-  id: string;
-  name: string;
-}
+// =============================================================================
+// Props (初期値受け取り)
+// =============================================================================
+// ★ 1. 親コンポーネントから初期値を受け取る
+const props = defineProps<{
+  initialData: {
+    name: string;
+    nodeId: string | null;
+  };
+}>();
 
-// ==============================================================================
-// バリデーション
-// ==============================================================================
+// =============================================================================
+// Data Fetching (ノード一覧)
+// =============================================================================
+// ★ 2. ノード一覧をAPIから取得 (変更なし)
+const {
+  data: nodes,
+  pending,
+  error,
+} = useResourceList<PhysicalNodeDTO>("physical-nodes");
+
+// =============================================================================
+// Validation Schema (バリデーション定義)
+// =============================================================================
+// ★ 3. バリデーション定義 (変更なし)
 const validationSchema = toTypedSchema(
   z.object({
     name: z.string().min(1, "仮想マシン名は必須です。"),
@@ -66,38 +86,36 @@ const validationSchema = toTypedSchema(
   })
 );
 
-// useFormをセットアップ (初期値は空でOK。親が後からセットします)
-const { errors, defineField, values, meta, resetForm } = useForm({
+// =============================================================================
+// Form Setup (VeeValidate)
+// =============================================================================
+// ★ 4. フォームのセットアップ
+const { errors, defineField, values, meta, validate } = useForm({
   validationSchema,
+  /**
+   * ★ 5. 初期値を props.initialData から設定
+   * 親 (MoVirtualMachineEdit) が v-if="vmData" で描画制御しているため、
+   * このコンポーネントがマウントされる時点で props.initialData は
+   * 確定した値 (name, nodeId) を持っています。
+   */
+  initialValues: {
+    name: props.initialData.name,
+    // nodeId が null の場合は undefined に変換し、FormSelect の placeholder と合わせる
+    nodeId: props.initialData.nodeId ?? undefined,
+  },
 });
 
+// v-model と v-bind 用のヘルパー (変更なし)
 const [name, nameAttrs] = defineField("name");
-const [nodeId, nodeIdAttrs] = defineField("nodeId");
+const [nodeId] = defineField("nodeId");
 
-// --- 親コンポーネントへの公開 ---
-// resetFormも公開することで、親がこのフォームの値をリセットできるようになる
+// =============================================================================
+// Expose (親へのインターフェース公開)
+// =============================================================================
+// ★ 6. 親 (useVirtualMachineEdit) が必要とするものを公開 (変更なし)
 defineExpose({
-  formData: values,
-  isValid: meta,
-  resetForm,
+  validate, // バリデーション関数
+  values, // フォームの現在の値
+  meta, // フォームのメタ情報 (meta.valid を親が参照)
 });
-
-// ==============================================================================
-// API連携
-// ==============================================================================
-const {
-  data: nodes,
-  pending,
-  error,
-} = useResourceList<ModelPhysicalNodeDTO>("physical-node");
 </script>
-
-<style scoped>
-/* (スタイルは変更なし) */
-.form-label {
-  @apply block mb-1.5 font-semibold text-gray-700;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
-}
-</style>

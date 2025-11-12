@@ -242,7 +242,7 @@ const {
   data: storagePools,
   pending: poolsPending,
   error: poolsError,
-} = useResourceList<StoragePoolDTO>("storage-pools");
+} = useResourceList<LocalStoragePoolDTO>("storage-pools");
 
 /**
  * ==============================================================================
