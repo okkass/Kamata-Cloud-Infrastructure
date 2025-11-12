@@ -4,6 +4,7 @@
  * ---------------------------------------------------------------------------------
  * MoInstanceTypeEdit コンポーネントのフォーム状態管理、バリデーション、
  * および API 送信ロジックを担当します。
+ * ★ 汎用Composable (useResourceUpdate) を使用
  * =================================================================================
  */
 import { ref, watch } from "vue";
@@ -11,9 +12,9 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useToast } from "~/composables/useToast";
-// ★ 単位変換ユーティリティをインポート
 import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
-// ★ 型定義をインポート
+// ★ 汎用更新Composableをインポート
+import { useResourceUpdate } from "~/composables/useResourceEdit";
 import type {
   ModelInstanceTypeDTO,
   InstanceTypeUpdateRequestDTO,
@@ -46,7 +47,13 @@ const validationSchema = toTypedSchema(
  */
 export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
   const { addToast } = useToast();
-  const isUpdating = ref(false); // 更新処理中のフラグ
+
+  // ★ 汎用の更新Composableをセットアップ
+  // TPayload = InstanceTypeUpdateRequestDTO, TResponse = ModelInstanceTypeDTO
+  const { executeUpdate, isUpdating } = useResourceUpdate<
+    InstanceTypeUpdateRequestDTO,
+    ModelInstanceTypeDTO
+  >("instance-types"); // (APIパス)
 
   // --- VeeValidate のセットアップ ---
   const { errors, defineField, handleSubmit, resetForm } = useForm({
@@ -105,7 +112,6 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
    */
   const onFormSubmit = (emit: (event: "close" | "success") => void) => {
     // VeeValidate の handleSubmit でバリデーションを行う
-    // ★ handleSubmit は引数としてバリデーション済みの 'values' を渡してくれる
     return handleSubmit(async (values) => {
       if (!props.instanceTypeData) {
         addToast({
@@ -115,46 +121,34 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
         return;
       }
 
-      isUpdating.value = true;
-
+      // 1. API (PUT) リクエストボディを作成
       const payload: InstanceTypeUpdateRequestDTO = {
         name: values.name,
         cpuCore: values.cpuCore,
         memorySize: convertUnitToByte(values.memorySizeInMb, "MB"),
       };
 
-      try {
-        // API (PUT /api/instance-types/{id}) の呼び出し
-        // (updatedData は $fetch の戻り値。 204 No Content の場合、空になる可能性がある)
-        const updatedData = await $fetch<ModelInstanceTypeDTO>(
-          `/api/instance-types/${props.instanceTypeData.id}`,
-          {
-            method: "PUT",
-            body: payload,
-          }
-        );
+      // 2. ★ 汎用Composableの executeUpdate を呼び出す
+      const { success, error } = await executeUpdate(
+        props.instanceTypeData.id,
+        payload
+      );
 
-        // ★★★ 修正箇所 ★★★
-        // APIのレスポンス (updatedData.name) ではなく、
-        // 送信に成功したフォームの値 (values.name) を使用します。
-        // これにより、APIが 204 No Content を返した場合でも 'undefined' になりません。
+      // 3. 結果をハンドリング
+      if (success) {
         addToast({
           type: "success",
           message: `「${values.name}」を更新しました。`,
         });
-        // ★★★ 修正ここまで ★★★
-
         emit("success");
         emit("close");
-      } catch (error: any) {
-        console.error("Failed to update instance type:", error);
+      } else {
+        // useResourceUpdate が返したエラーメッセージを利用
         addToast({
           type: "error",
           message: "インスタンスタイプの更新に失敗しました。",
-          details: error.data?.message || error.message,
+          details: error?.message || "不明なエラーです。",
         });
-      } finally {
-        isUpdating.value = false;
       }
     });
   };
@@ -162,13 +156,15 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
   // --- 公開 (MoInstanceTypeEdit.vue が使用) ---
   return {
     errors,
+    // フォームフィールド
     name,
     nameAttrs,
     cpuCore,
     cpuCoreAttrs,
     memorySizeInMb,
     memorySizeInMbAttrs,
-    isUpdating,
+    // 状態とアクション
+    isUpdating, // ★ useResourceUpdate から受け取った isUpdating を返す
     onFormSubmit,
   };
 }
