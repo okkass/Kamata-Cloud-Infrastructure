@@ -31,15 +31,15 @@ export interface UserDTO {
   /**
    * ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
    */
-  cpuLimit?: number;
+  maxCpuCore?: number;
   /**
    * ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
    */
-  memoryLimit?: number;
+  maxMemorySize?: number;
   /**
    * ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
    */
-  storageLimit?: number;
+  maxStorageSize?: number;
   /**
    * TOTP情報
    */

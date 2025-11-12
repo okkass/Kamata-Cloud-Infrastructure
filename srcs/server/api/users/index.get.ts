@@ -18,9 +18,9 @@ export default defineEventHandler(async (event) => {
       createdAt: new Date().toISOString(),
       isAdmin: false,
       lastLoginAt: new Date().toISOString(),
-      cpuLimit: 32,
-      memoryLimit: 32 * 1024 * 1024 * 1024, // 32GB
-      storageLimit: 512 * 1024 * 1024 * 1024, // 512GB
+      maxCpuCore: 32,
+      maxMemorySize: 32 * 1024 * 1024 * 1024, // 32GB
+      maxStorageSize: 512 * 1024 * 1024 * 1024, // 512GB
     },
   ];
   return users;

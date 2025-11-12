@@ -1,3 +1,4 @@
+import { UserDTO } from "~~/shared/types";
 import { verifyToken, KCIJWTPayload } from "../../utils/jwt";
 import { randomUUID } from "crypto";
 
@@ -14,16 +15,16 @@ export default defineEventHandler(async (event) => {
     return { message: "Invalid or expired token" };
   }
 
-  const user1 = {
+  const user1: UserDTO = {
     id: "ff09658a-6b02-4c99-bb05-cf8487411d1f",
     name: "Bob",
     email: "sample@example.com",
     createdAt: new Date().toISOString(),
     isAdmin: false,
     lastLoginAt: new Date().toISOString(),
-    cpuLimit: 32,
-    memoryLimit: 32 * 1024 * 1024 * 1024, // 32GB
-    storageLimit: 512 * 1024 * 1024 * 1024, // 512GB
+    maxCpuCore: 32,
+    maxMemorySize: 32 * 1024 * 1024 * 1024, // 32GB
+    maxStorageSize: 512 * 1024 * 1024 * 1024, // 512GB
   };
   return user1;
 });
