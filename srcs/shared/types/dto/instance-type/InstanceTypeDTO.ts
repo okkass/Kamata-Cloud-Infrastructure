@@ -1,7 +1,7 @@
 /**
  * 仮想マシンのインスタンスタイプオブジェクト
  */
-export interface ModelInstanceTypeDTO {
+export interface InstanceTypeDTO {
   /**
    * インスタンスタイプを識別するための一意なID
    */
