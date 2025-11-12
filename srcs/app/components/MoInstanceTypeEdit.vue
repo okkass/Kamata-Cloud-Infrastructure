@@ -46,7 +46,12 @@
     </form>
     <template #footer>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" :disabled="isUpdating">
+        <button
+          type="button"
+          @click="submitForm"
+          class="btn btn-primary"
+          :disabled="isUpdating"
+        >
           {{ isUpdating ? "保存中..." : "保存" }}
         </button>
       </div>
