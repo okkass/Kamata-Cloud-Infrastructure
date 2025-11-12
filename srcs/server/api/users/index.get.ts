@@ -16,8 +16,11 @@ export default defineEventHandler(async (event) => {
       name: "Bob",
       email: "sample@example.com",
       createdAt: new Date().toISOString(),
-      isAdmin: true,
+      isAdmin: false,
       lastLoginAt: new Date().toISOString(),
+      cpuLimit: 32,
+      memoryLimit: 32 * 1024 * 1024 * 1024, // 32GB
+      storageLimit: 512 * 1024 * 1024 * 1024, // 512GB
     },
   ];
   return users;
