@@ -1,71 +1,98 @@
 <template>
   <BaseModal
     :show="show"
-    title="インスタンスタイプの編集"
+    title="インスタンスタイプ編集"
     @close="$emit('close')"
   >
-    <form v-if="values" @submit.prevent="onSubmit" class="modal-space">
-      <FormInput
-        label="インスタンスタイプ名"
-        name="instance-type-name-edit"
-        type="text"
-        placeholder="例: standard.xlarge"
-        v-model="name"
-        v-model:attrs="nameAttrs"
-        :error="errors.name"
-      />
+    <form @submit.prevent="submitForm" class="modal-space">
+      <div>
+        <label for="instance-type-name-edit" class="form-label">
+          インスタンスタイプ名 <span class="required-asterisk">*</span>
+        </label>
+        <input
+          id="instance-type-name-edit"
+          type="text"
+          v-model="name"
+          v-bind="nameAttrs"
+          class="form-input"
+          :class="{ 'form-border-error': errors.name }"
+          placeholder="例: standard.xlarge"
+        />
+        <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
+      </div>
 
-      <FormInput
-        label="CPUコア数"
-        name="instance-vcpu-edit"
-        type="number"
-        placeholder="例: 16"
-        v-model.number="cpuCores"
-        v-model:attrs="cpuCoresAttrs"
-        :error="errors.cpuCores"
-      />
+      <div>
+        <label for="instance-cpu-edit" class="form-label">
+          vCPU数 (個) <span class="required-asterisk">*</span>
+        </label>
+        <input
+          id="instance-cpu-edit"
+          type="number"
+          v-model.number="cpuCore"
+          v-bind="cpuCoreAttrs"
+          class="form-input"
+          :class="{ 'form-border-error': errors.cpuCore }"
+          placeholder="例: 16"
+        />
+        <p v-if="errors.cpuCore" class="text-error mt-1">
+          {{ errors.cpuCore }}
+        </p>
+      </div>
 
-      <FormInput
-        label="メモリ数"
-        name="instance-memory-edit"
-        type="number"
-        placeholder="例: 32"
-        v-model.number="memorySize"
-        v-model:attrs="memorySizeAttrs"
-        :error="errors.memorySize"
-      >
-        <template #suffix>
-          <span class="font-semibold text-gray-600">GB</span>
-        </template>
-      </FormInput>
-    </form>
-    <div v-else class="text-center">
-      <p>編集するデータを読み込めませんでした。</p>
-    </div>
+      <div>
+        <label for="instance-memory-edit" class="form-label">
+          メモリ (MB) <span class="required-asterisk">*</span>
+        </label>
+        <div class="flex">
+          <input
+            id="instance-memory-edit"
+            type="number"
+            v-model.number="memorySizeInMb"
+            v-bind="memorySizeInMbAttrs"
+            class="form-input rounded-r-none"
+            :class="{ 'form-border-error': errors.memorySizeInMb }"
+            placeholder="例: 32768"
+          />
+          <span class="form-unit-label">MB</span>
+        </div>
+        <p v-if="errors.memorySizeInMb" class="text-error mt-1">
+          {{ errors.memorySizeInMb }}
+        </p>
+      </div>
 
-    <template #footer>
-      <div class="flex justify-end w-full">
-        <button
-          @click="onSubmit"
-          class="btn btn-primary"
-          :disabled="isUpdating"
-        >
+      <!--
+        注: API仕様 (PUT /api/instance-types/{id}) に
+        ストレージサイズ (storageSize) が含まれていないため、
+        フォーム項目からも除外しています。
+      -->
+
+      <div class="modal-footer">
+        <button type_="submit" class="btn btn-primary" :disabled="isUpdating">
           {{ isUpdating ? "保存中..." : "保存" }}
         </button>
       </div>
-    </template>
+    </form>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { watch, type PropType } from "vue";
-import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
+/**
+ * =================================================================================
+ * インスタンスタイプ編集モーダル (MoInstanceTypeEdit.vue)
+ * ---------------------------------------------------------------------------------
+ * UIの表示に特化したコンポーネントです。
+ * 実際のフォームの状態管理やAPI送信ロジックは `useInstanceTypeEditForm` Composable に
+ * 分離されています。
+ * =================================================================================
+ */
+import { useInstanceTypeEditForm } from "~/composables/modal/useInstanceTypeEditForm";
+import type { ModelInstanceTypeDTO } from "~~/shared/types/instance-types";
 
-// --- Props & Emits ---
+// --- 親コンポーネントとの連携 (Props & Emits) ---
 const props = defineProps({
+  /** モーダルの表示状態 (trueで表示) */
   show: { type: Boolean, required: true },
+  /** 編集対象の初期データ。呼び出し元(一覧ページなど)から渡される */
   instanceTypeData: {
     type: Object as PropType<ModelInstanceTypeDTO | null>,
     default: null,
@@ -73,66 +100,21 @@ const props = defineProps({
 });
 const emit = defineEmits(["close", "success"]);
 
-// --- Composables ---
-const { executeUpdate, isUpdating } = useResourceUpdate<any, any>(
-  "instance-types"
-);
-const { addToast } = useToast();
+// --- Composable からフォームロジックと状態を取得 ---
+const {
+  errors,
+  // フォームフィールド
+  name,
+  nameAttrs,
+  cpuCore,
+  cpuCoreAttrs,
+  memorySizeInMb,
+  memorySizeInMbAttrs,
+  // 状態とアクション
+  isUpdating,
+  onFormSubmit,
+} = useInstanceTypeEditForm(props); // Composableにpropsを渡す
 
-// ★ 1. Zodでバリデーションスキーマを定義
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "インスタンスタイプ名は必須です。"),
-    cpuCores: z
-      .number({ required_error: "CPUコア数は必須です。" })
-      .int()
-      .min(1),
-    memorySize: z
-      .number({ required_error: "メモリ数は必須です。" })
-      .int()
-      .min(1),
-  })
-);
-
-// ★ 2. vee-validateのuseFormをセットアップ
-const { errors, defineField, values, resetForm, handleSubmit } = useForm({
-  validationSchema,
-});
-const [name, nameAttrs] = defineField("name");
-const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
-const [memorySize, memorySizeAttrs] = defineField("memorySize");
-
-// ★ 3. 親から渡されるデータが変更されたら、vee-validateのフォームをリセットして値を反映
-watch(
-  () => props.instanceTypeData,
-  (newData) => {
-    if (newData) {
-      resetForm({
-        values: { ...newData },
-      });
-    }
-  },
-  { immediate: true }
-);
-
-// ★ 4. handleSubmitでラップして、バリデーション通過時のみAPIを呼ぶ
-const onSubmit = handleSubmit(async (formValues) => {
-  if (!props.instanceTypeData) return;
-
-  const result = await executeUpdate(props.instanceTypeData.id, formValues);
-
-  if (result.success) {
-    addToast({
-      type: "success",
-      message: `'${result.data?.name}' の更新に成功しました。`,
-    });
-    emit("success");
-  } else {
-    addToast({
-      type: "error",
-      message: "更新に失敗しました。",
-      details: result.error?.message,
-    });
-  }
-});
+// --- イベントハンドラ ---
+const submitForm = onFormSubmit(emit);
 </script>
