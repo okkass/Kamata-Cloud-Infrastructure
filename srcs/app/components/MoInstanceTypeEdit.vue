@@ -67,8 +67,6 @@
  */
 import { useInstanceTypeEditForm } from "~/composables/modal/useInstanceTypeEditForm";
 import type { ModelInstanceTypeDTO } from "~~/shared/types/instance-types";
-import FormInput from "~/components/FormInput.vue";
-import FormSection from "~/components/FormSection.vue";
 
 // --- Props & Emits ---
 const props = defineProps({
