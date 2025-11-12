@@ -168,7 +168,7 @@ onBeforeUnmount(() => {
             >
               <button
                 type="button"
-                class="menu-trigger flex items-center justify-center w-10 h-10 rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
+                class="menu-trigger rounded-full text-slate-500 transition hover:bg-slate-100 hover:text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-400"
                 @click.stop="toggleMenu($event, row, rIdx)"
               >
                 <span class="sr-only">操作メニューを開く</span>

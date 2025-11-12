@@ -981,229 +981,6 @@ paths:
           description: スナップショットが見つからない
       security:
         - BearerAuth: []
-  /api/storage-pools/local:
-    get:
-      summary: ローカルストレージプール一覧の取得
-      description: すべてのローカルストレージプールのリストを取得します。
-      tags:
-        - StoragePool
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/LocalStoragePool"
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-      security:
-        - BearerAuth: []
-    post:
-      summary: ストレージプールの作成
-      description: 新しいストレージプールを作成します。
-      tags:
-        - StoragePool
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/LocalStoragePoolCreateRequest"
-      responses:
-        "201":
-          description: 作成成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LocalStoragePool"
-        "400":
-          description: リクエストエラー
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-      security:
-        - BearerAuth: []
-  /api/storage-pools/local/{poolId}:
-    get:
-      summary: ストレージプールの詳細取得
-      description: 指定したIDのストレージプールの詳細情報を取得します。
-      tags:
-        - StoragePool
-      parameters:
-        - name: poolId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ストレージプールの一意なID
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LocalStoragePool"
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-        "404":
-          description: ストレージプールが見つからない
-      security:
-        - BearerAuth: []
-    delete:
-      summary: ストレージプールの削除
-      description: 指定したIDのストレージプールを削除します。
-      tags:
-        - StoragePool
-      parameters:
-        - name: poolId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ストレージプールの一意なID
-      responses:
-        "204":
-          description: 削除成功
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-        "404":
-          description: ストレージプールが見つからない
-      security:
-        - BearerAuth: []
-  /api/storage-pools/local/{nodeId}/devices:
-    get:
-      summary: デバイス一覧の取得
-      description: 指定した物理ノードのローカルストレージプールに使用可能なデバイスのリストを取得します。
-      tags:
-        - StoragePool
-      parameters:
-        - name: nodeId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: 物理ノードの一意なID
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/DeviceFile"
-  /api/storage-pools/network:
-    get:
-      summary: ネットワークストレージプール一覧の取得
-      description: すべてのネットワークストレージプールのリストを取得します。
-      tags:
-        - StoragePool
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NetworkStoragePool"
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-      security:
-        - BearerAuth: []
-    post:
-      summary: ストレージプールの作成
-      description: 新しいストレージプールを作成します。
-      tags:
-        - StoragePool
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NetworkStoragePoolCreateRequest"
-      responses:
-        "201":
-          description: 作成成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NetworkStoragePool"
-        "400":
-          description: リクエストエラー
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-      security:
-        - BearerAuth: []
-  /api/storage-pools/network/{poolId}:
-    get:
-      summary: ストレージプールの詳細取得
-      description: 指定したIDのストレージプールの詳細情報を取得します。
-      tags:
-        - StoragePool
-      parameters:
-        - name: poolId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ストレージプールの一意なID
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NetworkStoragePool"
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-        "404":
-          description: ストレージプールが見つからない
-      security:
-        - BearerAuth: []
-    delete:
-      summary: ストレージプールの削除
-      description: 指定したIDのストレージプールを削除します。
-      tags:
-        - StoragePool
-      parameters:
-        - name: poolId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ストレージプールの一意なID
-      responses:
-        "204":
-          description: 削除成功
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-        "404":
-          description: ストレージプールが見つからない
-      security:
-        - BearerAuth: []
   /api/virtual-machines:
     get:
       summary: 仮想マシン一覧の取得
@@ -1686,6 +1463,88 @@ paths:
           description: 権限エラー
         "404":
           description: スナップショットが見つからない
+      security:
+        - BearerAuth: []
+  /api/storage-pools:
+    get:
+      summary: ストレージプール一覧の取得
+      description: すべてのストレージプールのリストを取得します。
+      tags:
+        - StoragePool
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StoragePool"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /api/storage-pools/{id}:
+    get:
+      summary: ストレージプールの詳細取得
+      description: 指定したIDのストレージプールの詳細情報を取得します。
+      tags:
+        - StoragePool
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ストレージプールの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StoragePool"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ストレージプールが見つからない
+      security:
+        - BearerAuth: []
+  /api/storage-pools/node/{nodeId}:
+    get:
+      summary: 指定した物理ノードから利用可能なストレージプール一覧の取得
+      description: 指定した物理ノードから利用可能なストレージプールのリストを取得します。
+      tags:
+        - StoragePool
+      parameters:
+        - name: nodeId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: 物理ノードの一意なID
+          example: "123e4567-e89b-12d3-a456-426614174000"
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/StoragePool"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
       security:
         - BearerAuth: []
 
@@ -2306,138 +2165,6 @@ components:
           description: 復元するスナップショットのID
       required:
         - snapshotId
-    NetworkStoragePool:
-      type: object
-      description: ネットワークストレージプールオブジェクト
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: ネットワークストレージプールを識別するための一意なID
-        name:
-          type: string
-          description: ストレージプールの名前
-        createdAt:
-          type: string
-          format: date-time
-          description: ストレージプールが作成された日時
-        totalSize:
-          type: integer
-          description: ストレージプールの総サイズ（バイト単位）
-        usedSize:
-          type: integer
-          description: 使用中のストレージサイズ（バイト単位）
-        localStoragePoolId:
-          type: string
-          format: uuid
-          description: 対応するローカルストレージプールのID
-      required:
-        - id
-        - name
-        - createdAt
-        - totalSize
-        - usedSize
-        - localStoragePoolId
-    LocalStoragePool:
-      type: object
-      description: ローカルストレージプールオブジェクト
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: ストレージプールを識別するための一意なID
-        name:
-          type: string
-          description: ストレージプールの名前
-        createdAt:
-          type: string
-          format: date-time
-          description: ストレージプールが作成された日時
-        totalSize:
-          type: integer
-          description: ストレージプールの総サイズ（バイト単位）
-        usedSize:
-          type: integer
-          description: 使用中のストレージサイズ（バイト単位）
-        nodeId:
-          type: string
-          format: uuid
-          description: ストレージプールが存在する物理ノードのID
-        devFile:
-          type: string
-          description: ストレージデバイスのパス
-          example: "/dev/sdb"
-      required:
-        - id
-        - name
-        - createdAt
-        - totalSize
-        - usedSize
-        - nodeId
-        - devFile
-    LocalStoragePoolCreateRequest:
-      type: object
-      description: ローカルストレージプール作成リクエストオブジェクト
-      properties:
-        name:
-          type: string
-          description: ストレージプールの名前
-        nodeId:
-          type: string
-          format: uuid
-          description: ストレージプールを作成する物理ノードのID
-        size:
-          type: integer
-          description: ストレージプールのサイズ（バイト単位）
-        devFile:
-          type: string
-          description: ストレージデバイスのパス
-          example: "/dev/sdb"
-      required:
-        - name
-        - nodeId
-        - devFile
-        - size
-    DeviceFile:
-      type: object
-      description: ストレージデバイスファイルオブジェクト
-      properties:
-        file:
-          type: string
-          description: ストレージデバイスのパス
-          example: "/dev/sdb"
-        size:
-          type: integer
-          description: ストレージデバイスのサイズ（バイト単位）
-        vendor:
-          type: string
-          description: ストレージデバイスのベンダー情報
-        model:
-          type: string
-          description: ストレージデバイスのモデル情報
-      required:
-        - file
-        - size
-        - vendor
-        - model
-    NetworkStoragePoolCreateRequest:
-      type: object
-      description: ネットワークストレージプール作成リクエストオブジェクト
-      properties:
-        name:
-          type: string
-          description: ストレージプールの名前
-        size:
-          type: integer
-          description: ストレージプールのサイズ（バイト単位）
-        localStorageId:
-          type: string
-          format: uuid
-          description: 使用するローカルストレージプールのID
-      required:
-        - name
-        - localStorageId
-        - size
     Subnet:
       type: object
       description: サブネットオブジェクト
@@ -2878,6 +2605,49 @@ components:
         - size
         - pool
         - createdAt
+    StoragePool:
+      type: object
+      description: ストレージプールオブジェクト
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: ストレージプールを識別するための一意なID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        name:
+          type: string
+          description: ストレージプールの名前
+          example: "Node1 Pool 1"
+        nodeId:
+          type: string
+          format: uuid
+          description: ストレージプールが属する物理ノードのID
+          example: "550e8400-e29b-41d4-a716-446655440000"
+        createdAt:
+          type: string
+          format: date-time
+          description: ストレージプールが作成された日時
+          example: "2024-01-01T12:00:00Z"
+        totalSize:
+          type: integer
+          description: ストレージプールの総サイズ（バイト単位）
+          example: 1099511627776
+        usedSize:
+          type: integer
+          description: ストレージプールの使用済みサイズ（バイト単位）
+          example: 549755813888
+        hasNetworkAccess:
+          type: boolean
+          description: ストレージプールがネットワークアクセス可能かどうかを示すフラグ
+          example: true
+      required:
+        - id
+        - name
+        - nodeId
+        - totalSize
+        - usedSize
+        - hasNetworkAccess
+
   securitySchemes:
     BearerAuth:
       type: http

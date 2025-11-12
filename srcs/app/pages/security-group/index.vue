@@ -6,7 +6,7 @@
       :rows="groups || []"
       rowKey="id"
       :headerButtons="headerButtons"
-      @header-action="() => openModal('add-security-groups')"
+      @header-action="() => openModal(addSecurityGroupAction)"
     >
       <template #cell-name="{ row }">
         <div v-if="row">
@@ -43,19 +43,19 @@
   </div>
 
   <MoDeleteConfirm
-    :show="activeModal === 'delete-security-groups'"
+    :show="activeModal === deleteSecurityGroupAction"
     :message="`本当に「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
   />
   <MoSecurityGroupCreate
-    :show="activeModal === 'add-security-groups'"
+    :show="activeModal === addSecurityGroupAction"
     @close="closeModal"
     @success="handleSuccess"
   />
   <MoSecurityGroupEdit
-    :show="activeModal === 'edit-security-groups'"
+    :show="activeModal === editSecurityGroupAction"
     :group="targetForEditing"
     @close="closeModal"
     @success="handleSuccess"
@@ -83,8 +83,8 @@ const {
   handleSuccess,
   cancelAction,
 } = usePageActions<SecurityGroupDTO>({
-  resourceName: "security-groups",
-  resourceLabel: "セキュリティグループ",
+  resourceName: SECURITY_GROUP.name,
+  resourceLabel: SECURITY_GROUP.label,
   refresh: refreshGroupList, // refresh関数を渡す
 });
 </script>

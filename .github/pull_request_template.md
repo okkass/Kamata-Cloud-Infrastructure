@@ -9,9 +9,6 @@
 [質問]: 実装意図の確認
 [Nits]: 細かな修正（typo、フォーマットなど）
 
-関数と変数: camelCase
-定数: UPPER_SNAKE_CASE
-
 <!-- for Github Copilot review rule -->
 
 <!-- I want to review in Japanese. -->
