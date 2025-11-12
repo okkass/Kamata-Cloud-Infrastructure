@@ -15,3 +15,5 @@ export const tabs = [
     loader: () => import("~/components/detail/panels/DetailTabStorage.vue"),
   },
 ];
+
+//loaderを使わず直接読み込みたい場合 component: DetailTabGeneral のように指定できます
