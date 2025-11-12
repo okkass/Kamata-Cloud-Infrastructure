@@ -13,11 +13,8 @@ import * as z from "zod";
 import { useToast } from "~/composables/useToast";
 // ★ 汎用更新Composableをインポート
 import { useResourceUpdate } from "~/composables/useResourceEdit";
-// ★ 型定義をインポート (パスは仮定)
-import type {
-  ImageDTO,
-  ImageUpdateRequestDTO, //
-} from "~~/shared/types/images";
+import type { ImageDTO, ImageUpdateRequestDTO } from "~~/shared/types/images";
+
 // --- Props の型定義 ---
 interface ImageEditProps {
   show: boolean;
