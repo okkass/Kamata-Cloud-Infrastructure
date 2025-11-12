@@ -2341,6 +2341,18 @@ components:
           type: string
           format: date-time
           description: ユーザが最後にログインした日時
+        maxCpuCore:
+          type: integer
+          description: ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
+          example: 32
+        maxMemorySize:
+          type: integer
+          description: ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
+          example: 17179869184
+        maxStorageSize:
+          type: integer
+          description: ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
+          example: 1099511627776
         TotpInfo:
           $ref: "#/components/schemas/TotpInfo"
       required:
