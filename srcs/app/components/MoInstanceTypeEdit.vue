@@ -4,64 +4,50 @@
     title="インスタンスタイプ編集"
     @close="$emit('close')"
   >
-    <form @submit.prevent="submitForm" class="modal-space">
-      <div>
-        <label for="instance-type-name-edit" class="form-label">
-          インスタンスタイプ名 <span class="required-asterisk">*</span>
-        </label>
-        <input
-          id="instance-type-name-edit"
+    <form @submit.prevent="submitForm">
+      <FormSection>
+        <FormInput
+          name="instance-type-name-edit"
+          label="インスタンスタイプ名"
           type="text"
+          :required="true"
           v-model="name"
           v-bind="nameAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.name }"
+          :error="errors.name"
           placeholder="例: standard.xlarge"
         />
-        <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
-      </div>
 
-      <div>
-        <label for="instance-cpu-edit" class="form-label">
-          vCPU数 (個) <span class="required-asterisk">*</span>
-        </label>
-        <input
-          id="instance-cpu-edit"
+        <FormInput
+          name="instance-cpu-edit"
+          label="vCPU数 (個)"
           type="number"
+          :required="true"
           v-model.number="cpuCore"
           v-bind="cpuCoreAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.cpuCore }"
+          :error="errors.cpuCore"
           placeholder="例: 16"
+          min="1"
         />
-        <p v-if="errors.cpuCore" class="text-error mt-1">
-          {{ errors.cpuCore }}
-        </p>
-      </div>
 
-      <div>
-        <label for="instance-memory-edit" class="form-label">
-          メモリ (MB) <span class="required-asterisk">*</span>
-        </label>
-        <div class="flex">
-          <input
-            id="instance-memory-edit"
-            type="number"
-            v-model.number="memorySizeInMb"
-            v-bind="memorySizeInMbAttrs"
-            class="form-input rounded-r-none"
-            :class="{ 'form-border-error': errors.memorySizeInMb }"
-            placeholder="例: 32768"
-          />
-          <span class="form-unit-label">MB</span>
-        </div>
-        <p v-if="errors.memorySizeInMb" class="text-error mt-1">
-          {{ errors.memorySizeInMb }}
-        </p>
-      </div>
+        <FormInput
+          name="instance-memory-edit"
+          label="メモリ (MB)"
+          type="number"
+          :required="true"
+          v-model.number="memorySizeInMb"
+          v-bind="memorySizeInMbAttrs"
+          :error="errors.memorySizeInMb"
+          placeholder="例: 32768"
+          min="1"
+        >
+          <template #suffix>
+            <span class="form-unit-label">MB</span>
+          </template>
+        </FormInput>
+      </FormSection>
 
       <div class="modal-footer">
-        <button type_="submit" class="btn btn-primary" :disabled="isUpdating">
+        <button type="submit" class="btn btn-primary" :disabled="isUpdating">
           {{ isUpdating ? "保存中..." : "保存" }}
         </button>
       </div>
@@ -75,12 +61,18 @@
  * インスタンスタイプ編集モーダル (MoInstanceTypeEdit.vue)
  * ---------------------------------------------------------------------------------
  * UIの表示に特化したコンポーネントです。
+ * 汎用コンポーネント (FormInput, FormSection) を使用しています。
  * 実際のフォームの状態管理やAPI送信ロジックは `useInstanceTypeEditForm` Composable に
  * 分離されています。
  * =================================================================================
  */
 import { useInstanceTypeEditForm } from "~/composables/modal/useInstanceTypeEditForm";
 import type { ModelInstanceTypeDTO } from "~~/shared/types/instance-types";
+
+// ★ 汎用コンポーネントをインポート
+import FormInput from "~/components/FormInput.vue";
+import FormSection from "~/components/FormSection.vue";
+// (FormSelect.vue はこのフォームでは使用しないためインポート不要)
 
 // --- 親コンポーネントとの連携 (Props & Emits) ---
 const props = defineProps({
@@ -110,5 +102,6 @@ const {
 } = useInstanceTypeEditForm(props); // Composableにpropsを渡す
 
 // --- イベントハンドラ ---
+/** フォームの送信イベントを Composable に渡す */
 const submitForm = onFormSubmit(emit);
 </script>

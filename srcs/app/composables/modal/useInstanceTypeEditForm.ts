@@ -33,7 +33,6 @@ const validationSchema = toTypedSchema(
       .number({ invalid_type_error: "vCPU数は必須です。" })
       .int("整数で入力してください。")
       .min(1, "1以上の値を入力してください。"),
-    // ★ フォーム入力は MB 単位
     memorySizeInMb: z
       .number({ invalid_type_error: "メモリは必須です。" })
       .int("整数で入力してください。")
@@ -52,7 +51,6 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
   // --- VeeValidate のセットアップ ---
   const { errors, defineField, handleSubmit, resetForm } = useForm({
     validationSchema,
-    // 初期値は watch で設定
     initialValues: {
       name: "",
       cpuCore: 1,
@@ -69,22 +67,19 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
   watch(
     () => props.instanceTypeData,
     (newData) => {
-      // モーダルが表示され、かつ有効な初期データがある場合にフォームをリセット
       if (props.show && newData) {
         resetForm({
           values: {
             name: newData.name,
             cpuCore: newData.cpuCore,
-            // ★ API (バイト) -> フォーム (MB) に変換
             memorySizeInMb: convertByteToUnit(newData.memorySize, "MB"),
           },
         });
       }
     },
-    { immediate: true } // コンポーネント初期化時にもチェック
+    { immediate: true }
   );
 
-  // モーダル表示時にもリセット（再表示された場合のため）
   watch(
     () => props.show,
     (isVisible) => {
@@ -110,6 +105,7 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
    */
   const onFormSubmit = (emit: (event: "close" | "success") => void) => {
     // VeeValidate の handleSubmit でバリデーションを行う
+    // ★ handleSubmit は引数としてバリデーション済みの 'values' を渡してくれる
     return handleSubmit(async (values) => {
       if (!props.instanceTypeData) {
         addToast({
@@ -121,16 +117,15 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
 
       isUpdating.value = true;
 
-      // ★ API (PUT) リクエストボディを作成
       const payload: InstanceTypeUpdateRequestDTO = {
         name: values.name,
         cpuCore: values.cpuCore,
-        // ★ フォーム (MB) -> API (バイト) に変換
         memorySize: convertUnitToByte(values.memorySizeInMb, "MB"),
       };
 
       try {
         // API (PUT /api/instance-types/{id}) の呼び出し
+        // (updatedData は $fetch の戻り値。 204 No Content の場合、空になる可能性がある)
         const updatedData = await $fetch<ModelInstanceTypeDTO>(
           `/api/instance-types/${props.instanceTypeData.id}`,
           {
@@ -139,10 +134,16 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
           }
         );
 
+        // ★★★ 修正箇所 ★★★
+        // APIのレスポンス (updatedData.name) ではなく、
+        // 送信に成功したフォームの値 (values.name) を使用します。
+        // これにより、APIが 204 No Content を返した場合でも 'undefined' になりません。
         addToast({
           type: "success",
-          message: `「${updatedData.name}」を更新しました。`,
+          message: `「${values.name}」を更新しました。`,
         });
+        // ★★★ 修正ここまで ★★★
+
         emit("success");
         emit("close");
       } catch (error: any) {
@@ -161,14 +162,12 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
   // --- 公開 (MoInstanceTypeEdit.vue が使用) ---
   return {
     errors,
-    // フォームフィールド
     name,
     nameAttrs,
     cpuCore,
     cpuCoreAttrs,
     memorySizeInMb,
     memorySizeInMbAttrs,
-    // 状態とアクション
     isUpdating,
     onFormSubmit,
   };
