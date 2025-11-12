@@ -2692,5 +2692,9 @@ tags:
     description: セキュリティグループ関連の操作
   - name: StoragePool
     description: ストレージプール関連の操作
+  - name: User
+    description: ユーザ関連の操作
   - name: VirtualMachine
     description: 仮想マシン関連の操作
+  - name: VirtualNetwork
+    description: 仮想ネットワーク関連の操作
