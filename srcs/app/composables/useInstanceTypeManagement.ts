@@ -28,7 +28,7 @@ export function useInstanceTypeManagement() {
     pending,
     refresh,
     error,
-  } = useResourceList<ModelInstanceTypeDTO>(INSTANCE_TYPE.name);
+  } = useResourceList<InstanceTypeDTO>(INSTANCE_TYPE.name);
 
   /**
    * ==================================================================
@@ -48,7 +48,6 @@ export function useInstanceTypeManagement() {
       label: "追加",
     },
   ];
-
 
   /**
    * ==================================================================

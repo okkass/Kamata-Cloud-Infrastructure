@@ -1,4 +1,3 @@
-import { PortfolioArticleStatusEnum } from "./PortfolioDTO";
 /**
  * ポートフォリオ記事オブジェクト
  */
@@ -17,3 +16,11 @@ export interface PortfolioArticleDTO {
   createdAt: string;
   status: PortfolioArticleStatusEnum;
 }
+
+export const PortfolioArticleStatusEnum = {
+  Published: "published",
+  Draft: "draft",
+} as const;
+
+export type PortfolioArticleStatusEnum =
+  (typeof PortfolioArticleStatusEnum)[keyof typeof PortfolioArticleStatusEnum];

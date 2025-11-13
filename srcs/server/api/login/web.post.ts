@@ -1,9 +1,7 @@
-import { LoginPost200ResponseDTO } from "~~/shared/types";
-
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
-  const tokens = await $fetch<LoginPost200ResponseDTO>("/api/login", {
+  const tokens = await $fetch<LoginResponseDTO>("/api/login", {
     method: "POST",
     body: {
       email: body.email,

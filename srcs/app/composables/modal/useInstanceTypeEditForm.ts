@@ -16,9 +16,9 @@ import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
 // ★ 汎用更新Composableをインポート
 import { useResourceUpdate } from "~/composables/useResourceEdit";
 import type {
-  ModelInstanceTypeDTO,
+  InstanceTypeDTO as ModelInstanceTypeDTO,
   InstanceTypeUpdateRequestDTO,
-} from "~~/shared/types/instance-types";
+} from "~~/shared/types/dto/instance-type";
 
 // --- Props の型定義 ---
 interface InstanceTypeEditProps {

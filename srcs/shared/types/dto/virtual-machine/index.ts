@@ -16,3 +16,5 @@ export type { BackupCreateRequestDTO } from "./BackupCreateRequestDTO";
 export type { VirtualMachineDTO } from "./VirtualMachineDTO";
 export type { VirtualMachineBaseDTO } from "./VirtualMachineBaseDTO";
 export type { BackupDTO } from "./BackupDTO";
+
+export { VirtualMachineStatusEnum } from "./VirtualMachineDTO";

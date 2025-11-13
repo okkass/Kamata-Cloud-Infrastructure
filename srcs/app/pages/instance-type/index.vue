@@ -84,7 +84,7 @@ const {
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<ModelInstanceTypeDTO>({
+} = usePageActions<InstanceTypeDTO>({
   resourceName: INSTANCE_TYPE.name,
   resourceLabel: INSTANCE_TYPE.label,
   refresh: refresh,

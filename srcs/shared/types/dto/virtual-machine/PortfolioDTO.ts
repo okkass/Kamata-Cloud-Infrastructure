@@ -15,11 +15,3 @@ export interface PortfolioDTO {
    */
   viewCount7Day: number;
 }
-
-export const PortfolioArticleStatusEnum = {
-  Published: "published",
-  Draft: "draft",
-} as const;
-
-export type PortfolioArticleStatusEnum =
-  (typeof PortfolioArticleStatusEnum)[keyof typeof PortfolioArticleStatusEnum];

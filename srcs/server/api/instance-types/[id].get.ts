@@ -2,7 +2,7 @@ import { validate } from "uuid";
 
 export default defineEventHandler((event) => {
   const id = event.context.params?.id;
-  let instanceType: ModelInstanceTypeDTO | undefined;
+  let instanceType: InstanceTypeDTO | undefined;
 
   if (!id) {
     throw createError({
