@@ -1,3 +1,4 @@
+import type { VirtualMachineDTO } from "./VirtualMachineDTO";
 /**
  * スナップショットオブジェクト
  */

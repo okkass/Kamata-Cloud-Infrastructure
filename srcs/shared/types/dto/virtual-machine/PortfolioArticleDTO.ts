@@ -1,3 +1,4 @@
+import { PortfolioArticleStatusEnum } from "./PortfolioDTO";
 /**
  * ポートフォリオ記事オブジェクト
  */

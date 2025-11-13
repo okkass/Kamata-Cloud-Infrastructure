@@ -1,3 +1,8 @@
+import { VirtualMachineStatusEnum } from "./VirtualMachineDTO";
+import type { PhysicalNodeDTO } from "../physical-node/PhysicalNodeDTO";
+import type { SecurityGroupDTO } from "../security-group/SecurityGroupDTO";
+import type { AttachedStorageDTO } from "./AttachedStorageDTO";
+import type { NetworkInterfaceDTO } from "./NetworkInterfaceDTO";
 /**
  * 仮想マシンオブジェクト(ベース)
  */

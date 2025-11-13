@@ -1,3 +1,8 @@
+import {
+  SecurityRuleRuleTypeEnum,
+  SecurityRuleActionEnum,
+  SecurityRuleProtocolEnum,
+} from "./SecurityRuleDTO";
 /**
  * セキュリティルール更新リクエストオブジェクト
  */

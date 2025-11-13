@@ -1,3 +1,5 @@
+import { PhysicalNodeStatusEnum } from "../dto/physical-node/PhysicalNodeDTO";
+
 /**
  * UI表示用に整形された物理ノードのデータ型。
  * APIから取得した`PhysicalNodeDTO`を、ダッシュボードのテーブルなどで

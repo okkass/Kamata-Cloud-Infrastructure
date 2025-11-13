@@ -1,3 +1,4 @@
+import type { SubnetDTO } from "./SubnetDTO";
 /**
  * 仮想ネットワークオブジェクト
  */

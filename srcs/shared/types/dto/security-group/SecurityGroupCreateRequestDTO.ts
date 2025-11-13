@@ -1,3 +1,5 @@
+import type { SecurityRuleCreateRequestDTO } from ".";
+
 /**
  * セキュリティグループ作成リクエストオブジェクト
  */

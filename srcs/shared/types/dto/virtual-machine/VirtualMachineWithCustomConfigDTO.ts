@@ -1,3 +1,4 @@
+import type { VirtualMachineBaseDTO } from "./VirtualMachineBaseDTO";
 /**
  * パターンB: CPUとメモリをカスタム指定している場合のオブジェクト
  */

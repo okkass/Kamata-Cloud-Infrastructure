@@ -1,1 +1,1 @@
-export type { StoragePool } from './StoragePool';
+export type { StoragePoolDTO } from "./StoragePool";

@@ -1,3 +1,9 @@
+import { SecurityRuleRuleTypeEnum } from "./SecurityRuleDTO";
+import {
+  SecurityRuleProtocolEnum,
+  SecurityRuleActionEnum,
+} from "./SecurityRuleDTO";
+
 /**
  * セキュリティルール作成リクエストオブジェクト
  */

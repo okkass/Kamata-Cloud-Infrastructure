@@ -1,3 +1,4 @@
+import type { VirtualStorageDTO } from "./VirtualStorageDTO";
 /**
  * アタッチされたストレージオブジェクト
  */

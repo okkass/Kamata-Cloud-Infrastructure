@@ -1,3 +1,5 @@
+import type { VirtualMachineWithInstanceTypeDTO } from "./VirtualMachineWithInstanceTypeDTO";
+import type { VirtualMachineWithCustomConfigDTO } from "./VirtualMachineWithCustomConfigDTO";
 export type VirtualMachineDTO =
   | VirtualMachineWithInstanceTypeDTO
   | VirtualMachineWithCustomConfigDTO;

@@ -1,3 +1,4 @@
+import type { SecurityRuleDTO } from ".";
 /**
  * セキュリティグループオブジェクト
  */

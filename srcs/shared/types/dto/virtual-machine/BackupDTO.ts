@@ -1,3 +1,5 @@
+import type { VirtualStorageDTO } from "./VirtualStorageDTO";
+
 /**
  * バックアップオブジェクト
  */

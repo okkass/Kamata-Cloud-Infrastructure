@@ -1,3 +1,5 @@
+import type { TotpInfoDTO } from "../auth/TotpInfoDTO";
+
 /**
  * User object
  */
