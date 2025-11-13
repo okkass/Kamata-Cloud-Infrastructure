@@ -1,5 +1,6 @@
 // app/composables/useUserManagement.ts
 import { computed } from "vue";
+import { convertByteToUnit } from "../utils/format";
 import { formatDateTime } from "../utils/date";
 
 type RawUser = {
@@ -7,9 +8,19 @@ type RawUser = {
   accountName?: string;
   name?: string;
   email?: string;
-  limits?: { cpu?: number; memoryGb?: number; storageGb?: number };
-  lastLoginAt?: string; // ISO
+  createdAt?: string;
+  lastLoginAt?: string;
   description?: string;
+  maxCpuCore?: number;
+  maxMemorySize?: number; // bytes
+  maxStorageSize?: number; // bytes
+  limits?: {
+    cpu?: number;
+    memoryGb?: number;
+    storageGb?: number;
+    memorySize?: number; // bytes
+    storageSize?: number; // bytes
+  };
 };
 
 export type UserRow = {
@@ -19,9 +30,14 @@ export type UserRow = {
   limitsText: string;
   lastLoginText: string;
   description?: string;
-  // 編集先を一行遷移で使う場合は必要なら追加
   editUrl?: string;
 };
+
+function toNumber(v: any): number {
+  if (v == null) return 0;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : 0;
+}
 
 export function useUserManagement() {
   const { data, pending, error, refresh } = useAsyncData<RawUser[]>(
@@ -42,17 +58,38 @@ export function useUserManagement() {
     (data.value ?? []).map((u) => {
       const account = u.accountName ?? u.name ?? "-";
       const email = u.email ?? "-";
-      const cpu = u.limits?.cpu ?? 0;
-      const mem = u.limits?.memoryGb ?? 0;
-      const sto = u.limits?.storageGb ?? 0;
+
+      const cpu = toNumber(u.maxCpuCore) || toNumber(u.limits?.cpu) || 0;
+
+      let memoryGb = 0;
+      if (toNumber(u.maxMemorySize) > 0) {
+        memoryGb = convertByteToUnit(u.maxMemorySize!, "GB");
+      } else if (toNumber(u.limits?.memoryGb) > 0) {
+        memoryGb = toNumber(u.limits!.memoryGb);
+      } else if (toNumber(u.limits?.memorySize) > 0) {
+        memoryGb = convertByteToUnit(u.limits!.memorySize!, "GB");
+      }
+
+      let storageGb = 0;
+      if (toNumber(u.maxStorageSize) > 0) {
+        storageGb = convertByteToUnit(u.maxStorageSize!, "GB");
+      } else if (toNumber(u.limits?.storageGb) > 0) {
+        storageGb = toNumber(u.limits!.storageGb);
+      } else if (toNumber(u.limits?.storageSize) > 0) {
+        storageGb = convertByteToUnit(u.limits!.storageSize!, "GB");
+      }
+
+      const limitsText = `CPU: ${cpu}, メモリ: ${memoryGb} GB, ストレージ: ${storageGb} GB`;
+      const lastLoginText = u.lastLoginAt ? formatDateTime(u.lastLoginAt) : "-";
+
       return {
         id: u.id,
         account,
         email,
-        limitsText: `CPU: ${cpu}, メモリ: ${mem} GB, ストレージ: ${sto} GB`,
-        lastLoginText: u.lastLoginAt ? formatDateTime(u.lastLoginAt) : "-",
+        limitsText,
+        lastLoginText,
         description: u.description,
-        editUrl: "/404", // 適当な遷移先が必要ならここを変更
+        editUrl: `/users/${encodeURIComponent(u.id)}`,
       };
     })
   );

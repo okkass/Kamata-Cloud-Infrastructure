@@ -32,7 +32,6 @@
       <span>{{ row.lastLoginText }}</span>
     </template>
 
-    <!-- 右端 操作メニュー（DashboardLayout標準のケバブ） -->
     <template #row-actions="{ row }">
       <button
         class="action-item"
@@ -49,14 +48,12 @@
     </template>
   </DashboardLayout>
 
-  <!-- 利用者追加モーダル（/workspace/srcs/app/components/MoUserAdd.vue） -->
   <MoUserAdd
     :show="activeModal === 'add-users'"
     @close="closeModal"
     @success="onAddSuccess"
   />
 
-  <!-- 既存の削除モーダル -->
   <MoDeleteConfirm
     :show="activeModal === 'delete-users'"
     :message="`「${targetForDeletion?.account}」を削除します。よろしいですか？`"
@@ -70,19 +67,12 @@
 import DashboardLayout from "@/components/DashboardLayout.vue";
 import MoUserAdd from "@/components/MoUserAdd.vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
-import { useUserManagement } from "@/composables/useUserManagement";
+import {
+  useUserManagement,
+  type UserRow,
+} from "@/composables/useUserManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import { useToast } from "@/composables/useToast";
-
-type UiRow = {
-  id: string;
-  name: string;
-  account: string;
-  email: string;
-  limitsText: string;
-  lastLoginText: string;
-  description?: string;
-};
 
 const { columns, headerButtons, rows, refresh } = useUserManagement();
 
@@ -101,7 +91,7 @@ const {
   handleRowAction,
   handleDelete,
   cancelAction,
-} = usePageActions<UiRow>({
+} = usePageActions<UserRow>({
   resourceName: "users",
   resourceLabel: "利用者",
   refresh,
@@ -110,24 +100,23 @@ const {
 const { addToast } = useToast();
 
 const onHeaderAction = (action: string) => {
-  if (action === "add") openModal("add-users"); // MoUserAdd を開く
+  if (action === "add") openModal("add-users");
 };
 
-const onRowAction = (payload: { action: string; row?: any }) => {
+const onRowAction = (payload: { action: string; row?: UserRow | null }) => {
   const { action, row } = payload;
   if (!row) return;
-  const uiRow = row as UiRow;
   if (action === "edit") {
-    targetForEditing.value = uiRow;
+    if (typeof targetForEditing !== "undefined") targetForEditing.value = row;
     openModal("edit-users");
     return;
   }
   if (action === "delete") {
-    targetForDeletion.value = uiRow;
+    targetForDeletion.value = row;
     openModal("delete-users");
     return;
   }
-  handleRowAction({ action, row: uiRow });
+  handleRowAction({ action, row });
 };
 
 const onAddSuccess = async (msg?: string) => {
