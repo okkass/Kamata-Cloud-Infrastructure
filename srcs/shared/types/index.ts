@@ -5,12 +5,21 @@ export * from "./toast";
 export * from "./results";
 export * from "./modal";
 
-export * from "./images";
-export * from "./instance-types";
-export * from "./logins";
-export * from "./physical-nodes";
-export * from "./security-groups";
-export * from "./storage-pools";
-export * from "./users";
-export * from "./virtual-machines";
-export * from "./virtual-networks";
+export * from "./dto/image";
+export * from "./dto/instance-type";
+export * from "./dto/auth";
+export * from "./dto/physical-node";
+export * from "./dto/security-group";
+export * from "./dto/storage-pool";
+export * from "./dto/user";
+export * from "./dto/virtual-machine";
+export * from "./dto/virtual-network";
+
+export * from "./ui/UiNode";
+
+export type {
+  HistoryItem,
+  HistoryData,
+  SummaryResponse,
+  SummaryHistoryResponse,
+} from "./dto/summary";

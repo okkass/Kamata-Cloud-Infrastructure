@@ -66,13 +66,12 @@
  * =================================================================================
  */
 import { useInstanceTypeEditForm } from "~/composables/modal/useInstanceTypeEditForm";
-import type { ModelInstanceTypeDTO } from "~~/shared/types/instance-types";
 
 // --- Props & Emits ---
 const props = defineProps({
   show: { type: Boolean, required: true },
   instanceTypeData: {
-    type: Object as PropType<ModelInstanceTypeDTO | null>,
+    type: Object as PropType<InstanceTypeDTO | null>,
     default: null,
   },
 });

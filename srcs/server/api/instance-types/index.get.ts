@@ -1,7 +1,5 @@
-import { ModelInstanceTypeDTO } from "~~/shared/types";
-
 export default defineEventHandler((event) => {
-  const instanceTypes: Array<ModelInstanceTypeDTO> = [
+  const instanceTypes: Array<InstanceTypeDTO> = [
     {
       id: "7b6fb312-8c89-44d2-a417-4665a4a9be83",
       name: "t2.micro",
