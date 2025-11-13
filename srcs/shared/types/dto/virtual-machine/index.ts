@@ -18,3 +18,4 @@ export type { VirtualMachineBaseDTO } from "./VirtualMachineBaseDTO";
 export type { BackupDTO } from "./BackupDTO";
 
 export { VirtualMachineStatusEnum } from "./VirtualMachineDTO";
+export { PortfolioArticleStatusEnum } from "./PortfolioArticleDTO";
