@@ -232,7 +232,7 @@ const {
   data: templates,
   pending: templatesPending,
   error: templatesError,
-} = useResourceList<ModelInstanceTypeDTO>("instance-types");
+} = useResourceList<InstanceTypeDTO>("instance-types");
 const {
   data: backups,
   pending: backupsPending,

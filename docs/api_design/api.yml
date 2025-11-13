@@ -1,10 +1,8 @@
-# yaml-language-server: $schema=https://json-schema.org/draft/2020-12/schema
-openapi: "3.0.3"
+openapi: 3.0.3
 info:
   title: KCI API
   description: KCI API documentation
   version: 0.0.1
-
 paths:
   /api/backups:
     get:
@@ -75,159 +73,6 @@ paths:
           description: 権限エラー
         "404":
           description: バックアップが見つからない
-      security:
-        - BearerAuth: []
-  /api/users:
-    get:
-      summary: ユーザ一覧の取得
-      description: すべてのユーザのリストを取得します。
-      tags:
-        - User
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/User"
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-      security:
-        - BearerAuth: []
-    post:
-      summary: ユーザの作成
-      description: 新しいユーザを作成します。
-      tags:
-        - User
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserCreateRequest"
-      responses:
-        "201":
-          description: 作成成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "400":
-          description: リクエストエラー
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-      security:
-        - BearerAuth: []
-  /api/users/me:
-    get:
-      summary: 自分のユーザ情報取得
-      description: 認証されたユーザの詳細情報を取得します。
-      tags:
-        - Users
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "401":
-          description: 認証エラー
-      security:
-        - BearerAuth: []
-  /api/users/{userId}:
-    get:
-      summary: ユーザの詳細取得
-      description: 指定したIDのユーザの詳細情報を取得します。
-      tags:
-        - User
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ユーザの一意なID
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-        "404":
-          description: ユーザが見つからない
-      security:
-        - BearerAuth: []
-    put:
-      summary: ユーザの更新
-      description: 指定したIDのユーザ情報を更新します。
-      tags:
-        - User
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ユーザの一意なID
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/UserUpdateRequest"
-      responses:
-        "200":
-          description: 更新成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/User"
-        "400":
-          description: リクエストエラー
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-        "404":
-          description: ユーザが見つからない
-      security:
-        - BearerAuth: []
-    delete:
-      summary: ユーザの削除
-      description: 指定したIDのユーザを削除します。
-      tags:
-        - User
-      parameters:
-        - name: userId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ユーザの一意なID
-      responses:
-        "204":
-          description: 削除成功
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-        "404":
-          description: ユーザが見つからない
       security:
         - BearerAuth: []
   /api/images:
@@ -737,6 +582,53 @@ paths:
           description: 物理ノードが見つからない
       security:
         - BearerAuth: []
+  /api/portfolios:
+    get:
+      summary: ポートフォリオ一覧の取得
+      description: すべてのポートフォリオのリストを取得します。
+      tags:
+        - Portfolio
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Portfolio"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: ポートフォリオの作成
+      description: 新しいポートフォリオを作成します。
+      tags:
+        - Portfolio
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PortfolioCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Portfolio"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
   /api/security-groups:
     get:
       summary: セキュリティグループ一覧の取得
@@ -981,10 +873,63 @@ paths:
           description: スナップショットが見つからない
       security:
         - BearerAuth: []
-  /api/storage-pools/local:
+  /api/snapshots/{id}:
     get:
-      summary: ローカルストレージプール一覧の取得
-      description: すべてのローカルストレージプールのリストを取得します。
+      summary: スナップショットの詳細取得
+      description: 指定したIDのスナップショットの詳細情報を取得します。
+      tags:
+        - Portfolio
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: スナップショットの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SnapShot"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: スナップショットが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: スナップショットの削除
+      description: 指定したIDのスナップショットを削除します。
+      tags:
+        - Portfolio
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: スナップショットの一意なID
+      responses:
+        "204":
+          description: 削除成功
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: スナップショットが見つからない
+      security:
+        - BearerAuth: []
+  /api/storage-pools:
+    get:
+      summary: ストレージプール一覧の取得
+      description: すべてのストレージプールのリストを取得します。
       tags:
         - StoragePool
       responses:
@@ -995,96 +940,17 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/LocalStoragePool"
+                  $ref: "#/components/schemas/StoragePool"
         "401":
           description: 認証エラー
         "403":
           description: 権限エラー
       security:
         - BearerAuth: []
-    post:
-      summary: ストレージプールの作成
-      description: 新しいストレージプールを作成します。
-      tags:
-        - StoragePool
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/LocalStoragePoolCreateRequest"
-      responses:
-        "201":
-          description: 作成成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LocalStoragePool"
-        "400":
-          description: リクエストエラー
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-      security:
-        - BearerAuth: []
-  /api/storage-pools/local/{poolId}:
+  /api/storage-pools/node/{nodeId}:
     get:
-      summary: ストレージプールの詳細取得
-      description: 指定したIDのストレージプールの詳細情報を取得します。
-      tags:
-        - StoragePool
-      parameters:
-        - name: poolId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ストレージプールの一意なID
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/LocalStoragePool"
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-        "404":
-          description: ストレージプールが見つからない
-      security:
-        - BearerAuth: []
-    delete:
-      summary: ストレージプールの削除
-      description: 指定したIDのストレージプールを削除します。
-      tags:
-        - StoragePool
-      parameters:
-        - name: poolId
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: ストレージプールの一意なID
-      responses:
-        "204":
-          description: 削除成功
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-        "404":
-          description: ストレージプールが見つからない
-      security:
-        - BearerAuth: []
-  /api/storage-pools/local/{nodeId}/devices:
-    get:
-      summary: デバイス一覧の取得
-      description: 指定した物理ノードのローカルストレージプールに使用可能なデバイスのリストを取得します。
+      summary: 指定した物理ノードから利用可能なストレージプール一覧の取得
+      description: 指定した物理ノードから利用可能なストレージプールのリストを取得します。
       tags:
         - StoragePool
       parameters:
@@ -1095,6 +961,7 @@ paths:
             type: string
             format: uuid
           description: 物理ノードの一意なID
+          example: 123e4567-e89b-12d3-a456-426614174000
       responses:
         "200":
           description: 成功
@@ -1103,46 +970,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/DeviceFile"
-  /api/storage-pools/network:
-    get:
-      summary: ネットワークストレージプール一覧の取得
-      description: すべてのネットワークストレージプールのリストを取得します。
-      tags:
-        - StoragePool
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/NetworkStoragePool"
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-      security:
-        - BearerAuth: []
-    post:
-      summary: ストレージプールの作成
-      description: 新しいストレージプールを作成します。
-      tags:
-        - StoragePool
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/NetworkStoragePoolCreateRequest"
-      responses:
-        "201":
-          description: 作成成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/NetworkStoragePool"
+                  $ref: "#/components/schemas/StoragePool"
         "400":
           description: リクエストエラー
         "401":
@@ -1151,14 +979,14 @@ paths:
           description: 権限エラー
       security:
         - BearerAuth: []
-  /api/storage-pools/network/{poolId}:
+  /api/storage-pools/{id}:
     get:
       summary: ストレージプールの詳細取得
       description: 指定したIDのストレージプールの詳細情報を取得します。
       tags:
         - StoragePool
       parameters:
-        - name: poolId
+        - name: id
           in: path
           required: true
           schema:
@@ -1171,7 +999,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/NetworkStoragePool"
+                $ref: "#/components/schemas/StoragePool"
         "401":
           description: 認証エラー
         "403":
@@ -1180,19 +1008,148 @@ paths:
           description: ストレージプールが見つからない
       security:
         - BearerAuth: []
-    delete:
-      summary: ストレージプールの削除
-      description: 指定したIDのストレージプールを削除します。
+  /api/users:
+    get:
+      summary: ユーザ一覧の取得
+      description: すべてのユーザのリストを取得します。
       tags:
-        - StoragePool
+        - User
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+    post:
+      summary: ユーザの作成
+      description: 新しいユーザを作成します。
+      tags:
+        - User
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserCreateRequest"
+      responses:
+        "201":
+          description: 作成成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+      security:
+        - BearerAuth: []
+  /api/users/me:
+    get:
+      summary: 自分のユーザ情報取得
+      description: 認証されたユーザの詳細情報を取得します。
+      tags:
+        - User
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: 認証エラー
+      security:
+        - BearerAuth: []
+  /api/users/{userId}:
+    get:
+      summary: ユーザの詳細取得
+      description: 指定したIDのユーザの詳細情報を取得します。
+      tags:
+        - User
       parameters:
-        - name: poolId
+        - name: userId
           in: path
           required: true
           schema:
             type: string
             format: uuid
-          description: ストレージプールの一意なID
+          description: ユーザの一意なID
+      responses:
+        "200":
+          description: 成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ユーザが見つからない
+      security:
+        - BearerAuth: []
+    put:
+      summary: ユーザの更新
+      description: 指定したIDのユーザ情報を更新します。
+      tags:
+        - User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ユーザの一意なID
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdateRequest"
+      responses:
+        "200":
+          description: 更新成功
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "400":
+          description: リクエストエラー
+        "401":
+          description: 認証エラー
+        "403":
+          description: 権限エラー
+        "404":
+          description: ユーザが見つからない
+      security:
+        - BearerAuth: []
+    delete:
+      summary: ユーザの削除
+      description: 指定したIDのユーザを削除します。
+      tags:
+        - User
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+          description: ユーザの一意なID
       responses:
         "204":
           description: 削除成功
@@ -1201,7 +1158,7 @@ paths:
         "403":
           description: 権限エラー
         "404":
-          description: ストレージプールが見つからない
+          description: ユーザが見つからない
       security:
         - BearerAuth: []
   /api/virtual-machines:
@@ -1588,107 +1545,6 @@ paths:
           description: 仮想ネットワークまたはサブネットが見つからない
       security:
         - BearerAuth: []
-  /api/portfolios:
-    get:
-      summary: ポートフォリオ一覧の取得
-      description: すべてのポートフォリオのリストを取得します。
-      tags:
-        - Portfolio
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: "#/components/schemas/Portfolio"
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-      security:
-        - BearerAuth: []
-    post:
-      summary: ポートフォリオの作成
-      description: 新しいポートフォリオを作成します。
-      tags:
-        - Portfolio
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: "#/components/schemas/PortfolioCreateRequest"
-      responses:
-        "201":
-          description: 作成成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/Portfolio"
-        "400":
-          description: リクエストエラー
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-      security:
-        - BearerAuth: []
-  /api/snapshots/{id}:
-    get:
-      summary: スナップショットの詳細取得
-      description: 指定したIDのスナップショットの詳細情報を取得します。
-      tags:
-        - Portfolio
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: スナップショットの一意なID
-      responses:
-        "200":
-          description: 成功
-          content:
-            application/json:
-              schema:
-                $ref: "#/components/schemas/SnapShot"
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-        "404":
-          description: スナップショットが見つからない
-      security:
-        - BearerAuth: []
-    delete:
-      summary: スナップショットの削除
-      description: 指定したIDのスナップショットを削除します。
-      tags:
-        - Portfolio
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-            format: uuid
-          description: スナップショットの一意なID
-      responses:
-        "204":
-          description: 削除成功
-        "401":
-          description: 認証エラー
-        "403":
-          description: 権限エラー
-        "404":
-          description: スナップショットが見つからない
-      security:
-        - BearerAuth: []
-
 components:
   schemas:
     AttachedStorage:
@@ -1704,7 +1560,7 @@ components:
         path:
           type: string
           description: ストレージデバイスのパス
-          example: "/dev/sda"
+          example: /dev/sda
       required:
         - id
         - storage
@@ -1923,12 +1779,12 @@ components:
         macAddress:
           type: string
           description: ネットワークインターフェースのMACアドレス
-          example: "02:42:ac:11:00:02"
+          example: 02:42:ac:11:00:02
         ipAddress:
           type: string
           format: ipv4
           description: ネットワークインターフェースのIPアドレス
-          example: "10.0.0.0/32"
+          example: 10.0.0.0/32
         subnetId:
           type: string
           format: uuid
@@ -1970,7 +1826,9 @@ components:
           description: 物理ノードのIPアドレス
         status:
           type: string
-          enum: [active, inactive]
+          enum:
+            - active
+            - inactive
           description: 物理ノードの状態
         isAdmin:
           type: boolean
@@ -1988,12 +1846,12 @@ components:
           type: number
           format: float
           description: メモリ使用率（0.0から1.0の範囲）
-          example: 0.60
+          example: 0.6
         storageUtilization:
           type: number
           format: float
           description: ストレージ使用率（0.0から1.0の範囲）
-          example: 0.80
+          example: 0.8
       required:
         - id
         - name
@@ -2080,7 +1938,9 @@ components:
           description: ポートフォリオ記事が作成された日時
         status:
           type: string
-          enum: [published, draft]
+          enum:
+            - published
+            - draft
       required:
         - id
         - title
@@ -2164,7 +2024,9 @@ components:
           description: セキュリティルールの名前
         ruleType:
           type: string
-          enum: [inbound, outbound]
+          enum:
+            - inbound
+            - outbound
           description: ルールのタイプ（インバウンドまたはアウトバウンド）
         port:
           type: integer
@@ -2172,16 +2034,22 @@ components:
           example: 22
         protocol:
           type: string
-          enum: [tcp, udp, icmp, any]
+          enum:
+            - tcp
+            - udp
+            - icmp
+            - any
           description: 適用されるプロトコル
         targetIp:
           type: string
           format: ipv4
           description: ターゲットIPアドレス
-          example: "192.0.2.0/24"
+          example: 192.0.2.0/24
         action:
           type: string
-          enum: [allow, deny]
+          enum:
+            - allow
+            - deny
           description: ルールのアクション（許可または拒否）
         createdAt:
           type: string
@@ -2203,7 +2071,9 @@ components:
           description: セキュリティルールの名前
         ruleType:
           type: string
-          enum: [inbound, outbound]
+          enum:
+            - inbound
+            - outbound
           description: ルールのタイプ（インバウンドまたはアウトバウンド）
         port:
           type: integer
@@ -2211,16 +2081,21 @@ components:
           example: 22
         protocol:
           type: string
-          enum: [tcp, udp, icmp]
+          enum:
+            - tcp
+            - udp
+            - icmp
           description: 適用されるプロトコル
         targetIp:
           type: string
           format: ipv4
           description: ターゲットIPアドレス
-          example: "10.0.0.0/16"
+          example: 10.0.0.0/16
         action:
           type: string
-          enum: [allow, deny]
+          enum:
+            - allow
+            - deny
           description: ルールのアクション（許可または拒否）
       required:
         - name
@@ -2238,7 +2113,9 @@ components:
           description: セキュリティルールの名前
         ruleType:
           type: string
-          enum: [inbound, outbound]
+          enum:
+            - inbound
+            - outbound
           description: ルールのタイプ（インバウンドまたはアウトバウンド）
         port:
           type: integer
@@ -2246,13 +2123,16 @@ components:
           example: 22
         protocol:
           type: string
-          enum: [tcp, udp, icmp]
+          enum:
+            - tcp
+            - udp
+            - icmp
           description: 適用されるプロトコル
         targetIp:
           type: string
           format: ipv4
           description: ターゲットIPアドレス
-          example: "10.0.0.0/16"
+          example: 10.0.0.0/16
     SnapShot:
       type: object
       description: スナップショットオブジェクト
@@ -2306,138 +2186,48 @@ components:
           description: 復元するスナップショットのID
       required:
         - snapshotId
-    NetworkStoragePool:
+    StoragePool:
       type: object
-      description: ネットワークストレージプールオブジェクト
-      properties:
-        id:
-          type: string
-          format: uuid
-          description: ネットワークストレージプールを識別するための一意なID
-        name:
-          type: string
-          description: ストレージプールの名前
-        createdAt:
-          type: string
-          format: date-time
-          description: ストレージプールが作成された日時
-        totalSize:
-          type: integer
-          description: ストレージプールの総サイズ（バイト単位）
-        usedSize:
-          type: integer
-          description: 使用中のストレージサイズ（バイト単位）
-        localStoragePoolId:
-          type: string
-          format: uuid
-          description: 対応するローカルストレージプールのID
-      required:
-        - id
-        - name
-        - createdAt
-        - totalSize
-        - usedSize
-        - localStoragePoolId
-    LocalStoragePool:
-      type: object
-      description: ローカルストレージプールオブジェクト
+      description: ストレージプールオブジェクト
       properties:
         id:
           type: string
           format: uuid
           description: ストレージプールを識別するための一意なID
+          example: 550e8400-e29b-41d4-a716-446655440000
         name:
           type: string
           description: ストレージプールの名前
+          example: Node1 Pool 1
+        nodeId:
+          type: string
+          format: uuid
+          description: ストレージプールが属する物理ノードのID
+          example: 550e8400-e29b-41d4-a716-446655440000
         createdAt:
           type: string
           format: date-time
           description: ストレージプールが作成された日時
+          example: "2024-01-01T12:00:00Z"
         totalSize:
           type: integer
           description: ストレージプールの総サイズ（バイト単位）
+          example: 1099511627776
         usedSize:
           type: integer
-          description: 使用中のストレージサイズ（バイト単位）
-        nodeId:
-          type: string
-          format: uuid
-          description: ストレージプールが存在する物理ノードのID
-        devFile:
-          type: string
-          description: ストレージデバイスのパス
-          example: "/dev/sdb"
+          description: ストレージプールの使用済みサイズ（バイト単位）
+          example: 549755813888
+        hasNetworkAccess:
+          type: boolean
+          description: ストレージプールがネットワークアクセス可能かどうかを示すフラグ
+          example: true
       required:
         - id
         - name
-        - createdAt
+        - nodeId
         - totalSize
         - usedSize
-        - nodeId
-        - devFile
-    LocalStoragePoolCreateRequest:
-      type: object
-      description: ローカルストレージプール作成リクエストオブジェクト
-      properties:
-        name:
-          type: string
-          description: ストレージプールの名前
-        nodeId:
-          type: string
-          format: uuid
-          description: ストレージプールを作成する物理ノードのID
-        size:
-          type: integer
-          description: ストレージプールのサイズ（バイト単位）
-        devFile:
-          type: string
-          description: ストレージデバイスのパス
-          example: "/dev/sdb"
-      required:
-        - name
-        - nodeId
-        - devFile
-        - size
-    DeviceFile:
-      type: object
-      description: ストレージデバイスファイルオブジェクト
-      properties:
-        file:
-          type: string
-          description: ストレージデバイスのパス
-          example: "/dev/sdb"
-        size:
-          type: integer
-          description: ストレージデバイスのサイズ（バイト単位）
-        vendor:
-          type: string
-          description: ストレージデバイスのベンダー情報
-        model:
-          type: string
-          description: ストレージデバイスのモデル情報
-      required:
-        - file
-        - size
-        - vendor
-        - model
-    NetworkStoragePoolCreateRequest:
-      type: object
-      description: ネットワークストレージプール作成リクエストオブジェクト
-      properties:
-        name:
-          type: string
-          description: ストレージプールの名前
-        size:
-          type: integer
-          description: ストレージプールのサイズ（バイト単位）
-        localStorageId:
-          type: string
-          format: uuid
-          description: 使用するローカルストレージプールのID
-      required:
-        - name
-        - localStorageId
-        - size
+        - hasNetworkAccess
     Subnet:
       type: object
       description: サブネットオブジェクト
@@ -2452,7 +2242,7 @@ components:
         cidr:
           type: string
           description: CIDR形式のサブネットアドレス
-          example: "10.0.0.0/24"
+          example: 10.0.0.0/24
         possibleExternalConnection:
           type: boolean
           description: 外部接続が可能かどうかを示すフラグ
@@ -2476,7 +2266,7 @@ components:
         cidr:
           type: string
           description: CIDR形式のサブネットアドレス
-          example: "10.0.0.0/16"
+          example: 10.0.0.0/16
         possibleExternalConnection:
           type: boolean
           description: 外部接続が可能かどうかを示すフラグ
@@ -2494,7 +2284,7 @@ components:
         cidr:
           type: string
           description: CIDR形式のサブネットアドレス
-          example: "10.0.0.0/16"
+          example: 10.0.0.0/16
         possibleExternalConnection:
           type: boolean
           description: 外部接続が可能かどうかを示すフラグ
@@ -2551,6 +2341,18 @@ components:
           type: string
           format: date-time
           description: ユーザが最後にログインした日時
+        maxCpuCore:
+          type: integer
+          description: ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
+          example: 32
+        maxMemorySize:
+          type: integer
+          description: ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
+          example: 17179869184
+        maxStorageSize:
+          type: integer
+          description: ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
+          example: 1099511627776
         TotpInfo:
           $ref: "#/components/schemas/TotpInfo"
       required:
@@ -2633,7 +2435,10 @@ components:
           description: 仮想マシンのインスタンスタイプ
         status:
           type: string
-          enum: [running, stopped, suspended]
+          enum:
+            - running
+            - stopped
+            - suspended
           description: 仮想マシンの状態
         node:
           $ref: "#/components/schemas/PhysicalNode"
@@ -2666,12 +2471,12 @@ components:
           type: number
           format: float
           description: メモリ使用率（0.0から1.0の範囲）
-          example: 0.70
+          example: 0.7
         storageUtilization:
           type: number
           format: float
           description: ストレージ使用率（0.0から1.0の範囲）
-          example: 0.40
+          example: 0.4
         cpuCore:
           type: integer
           description: 仮想マシンに割り当てられたCPUコア数
@@ -2807,7 +2612,7 @@ components:
         cidr:
           type: string
           description: CIDR形式のネットワークアドレス
-          example: "10.0.0.0/16"
+          example: 10.0.0.0/16
         createdAt:
           type: string
           format: date-time
@@ -2843,7 +2648,7 @@ components:
         cidr:
           type: string
           description: CIDR形式のネットワークアドレス
-          example: "10.0.0.0/16"
+          example: 10.0.0.0/16
       required:
         - name
         - cidr
@@ -2884,3 +2689,24 @@ components:
       scheme: bearer
       bearerFormat: JWT
       description: JWTを使用した認証方式
+tags:
+  - name: Auth
+    description: 認証関連の操作
+  - name: Image
+    description: 仮想マシンイメージ関連の操作
+  - name: InstanceType
+    description: インスタンスタイプ関連の操作
+  - name: PhysicalNode
+    description: 物理ノード関連の操作
+  - name: Portfolio
+    description: ポートフォリオ関連の操作
+  - name: SecurityGroup
+    description: セキュリティグループ関連の操作
+  - name: StoragePool
+    description: ストレージプール関連の操作
+  - name: User
+    description: ユーザ関連の操作
+  - name: VirtualMachine
+    description: 仮想マシン関連の操作
+  - name: VirtualNetwork
+    description: 仮想ネットワーク関連の操作

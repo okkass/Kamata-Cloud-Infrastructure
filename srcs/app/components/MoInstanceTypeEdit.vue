@@ -1,52 +1,54 @@
 <template>
   <BaseModal
     :show="show"
-    title="インスタンスタイプの編集"
+    title="インスタンスタイプ編集"
     @close="$emit('close')"
   >
-    <form v-if="values" @submit.prevent="onSubmit" class="modal-space">
+    <form @submit.prevent="submitForm">
       <FormInput
-        label="インスタンスタイプ名"
         name="instance-type-name-edit"
+        label="インスタンスタイプ名"
         type="text"
-        placeholder="例: standard.xlarge"
+        :required="true"
         v-model="name"
-        v-model:attrs="nameAttrs"
+        v-bind="nameAttrs"
         :error="errors.name"
+        placeholder="例: standard.xlarge"
       />
 
       <FormInput
-        label="CPUコア数"
-        name="instance-vcpu-edit"
+        name="instance-cpu-edit"
+        label="vCPU数 (個)"
         type="number"
+        :required="true"
+        v-model.number="cpuCore"
+        v-bind="cpuCoreAttrs"
+        :error="errors.cpuCore"
         placeholder="例: 16"
-        v-model.number="cpuCores"
-        v-model:attrs="cpuCoresAttrs"
-        :error="errors.cpuCores"
+        min="1"
       />
 
       <FormInput
-        label="メモリ数"
         name="instance-memory-edit"
+        label="メモリ (MB)"
         type="number"
-        placeholder="例: 32"
-        v-model.number="memorySize"
-        v-model:attrs="memorySizeAttrs"
-        :error="errors.memorySize"
+        :required="true"
+        v-model.number="memorySizeInMb"
+        v-bind="memorySizeInMbAttrs"
+        :error="errors.memorySizeInMb"
+        placeholder="例: 32768"
+        min="1"
       >
         <template #suffix>
-          <span class="font-semibold text-gray-600">GB</span>
+          <span class="form-unit-label">MB</span>
         </template>
       </FormInput>
     </form>
-    <div v-else class="text-center">
-      <p>編集するデータを読み込めませんでした。</p>
-    </div>
-
     <template #footer>
-      <div class="flex justify-end w-full">
+      <div class="modal-footer">
         <button
-          @click="onSubmit"
+          type="button"
+          @click="submitForm"
           class="btn btn-primary"
           :disabled="isUpdating"
         >
@@ -58,81 +60,36 @@
 </template>
 
 <script setup lang="ts">
-import { watch, type PropType } from "vue";
-import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
+/**
+ * =================================================================================
+ * インスタンスタイプ編集モーダル (MoInstanceTypeEdit.vue)
+ * =================================================================================
+ */
+import { useInstanceTypeEditForm } from "~/composables/modal/useInstanceTypeEditForm";
 
 // --- Props & Emits ---
 const props = defineProps({
   show: { type: Boolean, required: true },
   instanceTypeData: {
-    type: Object as PropType<ModelInstanceTypeDTO | null>,
+    type: Object as PropType<InstanceTypeDTO | null>,
     default: null,
   },
 });
 const emit = defineEmits(["close", "success"]);
 
-// --- Composables ---
-const { executeUpdate, isUpdating } = useResourceUpdate<any, any>(
-  "instance-types"
-);
-const { addToast } = useToast();
+// --- Composable からフォームロジックと状態を取得 ---
+const {
+  errors,
+  name,
+  nameAttrs,
+  cpuCore,
+  cpuCoreAttrs,
+  memorySizeInMb,
+  memorySizeInMbAttrs,
+  isUpdating,
+  onFormSubmit,
+} = useInstanceTypeEditForm(props);
 
-// ★ 1. Zodでバリデーションスキーマを定義
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "インスタンスタイプ名は必須です。"),
-    cpuCores: z
-      .number({ required_error: "CPUコア数は必須です。" })
-      .int()
-      .min(1),
-    memorySize: z
-      .number({ required_error: "メモリ数は必須です。" })
-      .int()
-      .min(1),
-  })
-);
-
-// ★ 2. vee-validateのuseFormをセットアップ
-const { errors, defineField, values, resetForm, handleSubmit } = useForm({
-  validationSchema,
-});
-const [name, nameAttrs] = defineField("name");
-const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
-const [memorySize, memorySizeAttrs] = defineField("memorySize");
-
-// ★ 3. 親から渡されるデータが変更されたら、vee-validateのフォームをリセットして値を反映
-watch(
-  () => props.instanceTypeData,
-  (newData) => {
-    if (newData) {
-      resetForm({
-        values: { ...newData },
-      });
-    }
-  },
-  { immediate: true }
-);
-
-// ★ 4. handleSubmitでラップして、バリデーション通過時のみAPIを呼ぶ
-const onSubmit = handleSubmit(async (formValues) => {
-  if (!props.instanceTypeData) return;
-
-  const result = await executeUpdate(props.instanceTypeData.id, formValues);
-
-  if (result.success) {
-    addToast({
-      type: "success",
-      message: `'${result.data?.name}' の更新に成功しました。`,
-    });
-    emit("success");
-  } else {
-    addToast({
-      type: "error",
-      message: "更新に失敗しました。",
-      details: result.error?.message,
-    });
-  }
-});
+// --- イベントハンドラ ---
+const submitForm = onFormSubmit(emit);
 </script>

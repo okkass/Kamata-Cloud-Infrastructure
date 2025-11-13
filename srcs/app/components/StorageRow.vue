@@ -28,7 +28,7 @@
 
     <td class="px-1 py-2">
       <FormSelect
-        name="storage-pool"
+        name="storage-pools"
         :options="pools ?? []"
         placeholder="選択してください"
         :required="true"

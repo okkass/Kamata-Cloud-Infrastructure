@@ -4,7 +4,7 @@
 export const userSidebarSections = [
   {
     title: "利用者ダッシュボード",
-    links: [{ text: "利用者ダッシュボード", href: "/user/dashboard" }],
+    links: [{ text: "利用者ダッシュボード", href: "/user-dashboard" }],
   },
   {
     title: "仮想ネットワーク管理",
