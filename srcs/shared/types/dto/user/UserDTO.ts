@@ -27,6 +27,18 @@ export interface UserDTO {
   /**
    * ユーザが最後にログインした日時
    */
+  /**
+   * ユーザが使用できる最大CPUコア数
+   */
+  maxCpuCore?: number;
+  /**
+   * ユーザが使用できる最大メモリサイズ（バイト単位）
+   */
+  maxMemorySize?: number;
+  /**
+   * ユーザが使用できる最大ストレージサイズ（バイト単位）
+   */
+  maxStorageSize?: number;
   lastLoginAt?: string;
   totpInfo?: TotpInfoDTO;
 }
