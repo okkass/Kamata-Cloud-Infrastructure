@@ -94,5 +94,5 @@ const {
   data: middlewares,
   pending: middlewaresPending,
   error: middlewaresError,
-} = useResourceList<MiddleWareDTO>("middlewares");
+} = useResourceList<MiddlewareDTO>("middlewares");
 </script>

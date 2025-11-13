@@ -9,8 +9,8 @@
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import { useResourceCreate } from "~/composables/useResourceCreate"; 
-import { useToast } from "~/composables/useToast"; 
+import { useResourceCreate } from "~/composables/useResourceCreate";
+import { useToast } from "~/composables/useToast";
 
 // ==============================================================================
 // Validation Schema (バリデーションスキーマ)
@@ -64,7 +64,7 @@ export function useInstanceTypeAddForm() {
   // useResourceCreate Composableを使ってAPIへのPOSTリクエストを管理します。
   // ============================================================================
   const { executeCreate: executeInstanceTypeCreation, isCreating } =
-    useResourceCreate<InstanceTypeCreateRequestDTO, ModelInstanceTypeDTO>(
+    useResourceCreate<InstanceTypeCreateRequestDTO, InstanceTypeDTO>(
       "instance-types" // APIエンドポイントのパス
     );
   const { addToast } = useToast();

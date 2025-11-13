@@ -163,9 +163,9 @@ import { useResourceList } from "~/composables/useResourceList";
 import { convertByteToUnit } from "~/utils/format";
 
 // ★ 必要な型定義をインポート
-import type { VirtualMachineDTO } from "~~/shared/types/virtual-machines";
-import type { ModelInstanceTypeDTO } from "~~/shared/types/instance-types";
-import type { ImageDTO } from "~~/shared/types/images";
+import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine";
+import type { InstanceTypeDTO as ModelInstanceTypeDTO } from "~~/shared/types/dto/instance-type";
+import type { ImageDTO } from "~~/shared/types/dto/image";
 
 // ==============================================================================
 // コンポーネントインポート (Edit系)
