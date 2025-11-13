@@ -74,6 +74,8 @@
 import { useImageManagement } from "~/composables/useImageManagement";
 import { usePageActions } from "~/composables/usePageActions";
 
+import type { UiImage } from "~/composables/useImageManagement";
+
 // --- データロジックの取得 ---
 const { columns, images, headerButtons, refreshImageList } =
   useImageManagement();
