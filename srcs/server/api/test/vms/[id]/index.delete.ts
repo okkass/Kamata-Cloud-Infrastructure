@@ -1,6 +1,6 @@
 // delete
 export default defineEventHandler(async (event) => {
-    const data = await readBody(event);
-    console.log("deleted VM data:", data);
+    const vmId = event.context.params.id;
+    console.log("deleted VM id:", vmId);
   return { message: "VM deleted successfully" };
 });
