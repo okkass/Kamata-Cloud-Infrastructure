@@ -16,3 +16,10 @@ export * from "./dto/virtual-machine";
 export * from "./dto/virtual-network";
 
 export * from "./ui/UiNode";
+
+export type {
+  HistoryItem,
+  HistoryData,
+  SummaryResponse,
+  SummaryHistoryResponse,
+} from "./dto/summary";
