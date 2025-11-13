@@ -139,6 +139,57 @@
       </div>
     </div>
 
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">セキュリティグループ一覧 (API連携)</h2>
+
+      <div v-if="sgPending" class="mt-2 text-gray-500">
+        セキュリティグループ一覧を読み込み中...
+      </div>
+
+      <div v-else-if="sgError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ sgError.message }}
+      </div>
+
+      <table
+        v-else-if="securityGroups && securityGroups.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">説明</th>
+            <th class="px-6 py-3">ルール数</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="sg in securityGroups"
+            :key="sg.id"
+            class="bg-white border-b"
+          >
+            <td class="px-6 py-4 font-medium">{{ sg.name }}</td>
+            <td class="px-6 py-4 truncate max-w-xs" :title="sg.description">
+              {{ sg.description || "N/A" }}
+            </td>
+            <td class="px-6 py-4">{{ sg.rules?.length ?? 0 }}</td>
+            <td class="px-6 py-4 text-center">
+              <button
+                @click="openSecurityGroupEditModal(sg)"
+                class="btn-secondary"
+              >
+                編集
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+      <div v-else class="mt-2 text-gray-500">
+        表示できるセキュリティグループがありません。
+      </div>
+    </div>
+
     <component
       v-for="modal in editModals"
       :key="modal.id"
@@ -166,6 +217,7 @@ import { convertByteToUnit } from "~/utils/format";
 import type { VirtualMachineDTO } from "~~/shared/types/virtual-machines";
 import type { ModelInstanceTypeDTO } from "~~/shared/types/instance-types";
 import type { ImageDTO } from "~~/shared/types/images";
+import type { SecurityGroupDTO } from "~~/shared/types/security-groups";
 
 // ==============================================================================
 // コンポーネントインポート (Edit系)
@@ -173,6 +225,7 @@ import type { ImageDTO } from "~~/shared/types/images";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
+import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 
 // ==============================================================================
 // State (状態管理)
@@ -206,6 +259,12 @@ const {
   refresh: refreshImages, // ★ リフレッシュ関数に別名
 } = useResourceList<ImageDTO>("images"); // (APIパス)
 
+const {
+  data: securityGroups,
+  pending: sgPending, // (vm/it/im と被らないよう 'sg' を使用)
+  error: sgError,
+  refresh: refreshSecurityGroups, // ★ リフレッシュ関数に別名
+} = useResourceList<SecurityGroupDTO>("security-groups"); // (APIパス)
 // ==============================================================================
 // モーダル定義 (★ 拡張ポイント)
 // ==============================================================================
@@ -230,6 +289,13 @@ const editModals = computed(() => [
     // ★ MoImageEdit が 'imageData' prop を受け取る
     props: { imageData: targetResource.value },
     refreshFn: refreshImages, // ★ 成功時に images をリフレッシュ
+  },
+  {
+    id: "securityGroupEdit",
+    component: markRaw(MoSecurityGroupEdit),
+    // ★ MoSecurityGroupEdit が 'securityGroupData' prop を受け取る
+    props: { securityGroupData: targetResource.value },
+    refreshFn: refreshSecurityGroups, // ★ 成功時に securityGroups をリフレッシュ
   },
 ]);
 
@@ -276,5 +342,10 @@ const openInstanceTypeEditModal = (it: ModelInstanceTypeDTO) => {
 /** ★ イメージ編集モーダルを開く (新規追加) */
 const openImageEditModal = (image: ImageDTO) => {
   openModal("imageEdit", image);
+};
+
+/** ★ セキュリティグループ編集モーダルを開く (新規追加) */
+const openSecurityGroupEditModal = (sg: SecurityGroupDTO) => {
+  openModal("securityGroupEdit", sg);
 };
 </script>

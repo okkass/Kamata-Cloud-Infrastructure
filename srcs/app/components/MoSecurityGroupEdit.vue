@@ -3,14 +3,15 @@
     :show="show"
     title="セキュリティグループ編集"
     @close="$emit('close')"
+    size="lg"
   >
-    <form v-if="values" @submit.prevent="onSubmit" class="space-y-6">
-      <div class="space-y-4">
+    <form @submit.prevent="submitForm">
+      <FormSection title="基本情報">
         <FormInput
           label="セキュリティグループ名"
           name="sg-name-edit"
           v-model="name"
-          v-model:attrs="nameAttrs"
+          v-bind="nameAttrs"
           :error="errors.name"
           :required="true"
         />
@@ -19,16 +20,18 @@
           name="sg-description-edit"
           :rows="3"
           v-model="description"
-          v-model:attrs="descriptionAttrs"
+          v-bind="descriptionAttrs"
           :error="errors.description"
         />
-      </div>
+      </FormSection>
 
       <RuleTable
         title="インバウンドルール"
         :rules="inboundFields"
         :errors="errors"
         field-name-prefix="inboundRules"
+        :protocol-options="protocolOptions"
+        :action-options="actionOptions"
         @add-rule="addInboundRule"
         @delete-rule="removeInbound"
       />
@@ -38,21 +41,22 @@
         :rules="outboundFields"
         :errors="errors"
         field-name-prefix="outboundRules"
+        :protocol-options="protocolOptions"
+        :action-options="actionOptions"
         @add-rule="addOutboundRule"
         @delete-rule="removeOutbound"
       />
     </form>
-    <div v-else class="text-center text-gray-500">
-      編集するデータを読み込んでいます...
-    </div>
 
     <template #footer>
-      <div class="flex justify-end gap-3 w-full">
-        <button type="button" class="btn btn-back" @click="$emit('close')">
-          キャンセル
-        </button>
-        <button type="button" @click="onSubmit" class="btn btn-primary">
-          保存
+      <div class="modal-footer">
+        <button
+          type="button"
+          @click="submitForm"
+          class="btn btn-primary"
+          :disabled="isUpdating"
+        >
+          {{ isUpdating ? "保存中..." : "保存" }}
         </button>
       </div>
     </template>
@@ -60,151 +64,64 @@
 </template>
 
 <script setup lang="ts">
-import { watch, type PropType } from "vue";
-import { useForm, useFieldArray } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
+/**
+ * =================================================================================
+ * セキュリティグループ編集モーダル (MoSecurityGroupEdit.vue)
+ * ---------------------------------------------------------------------------------
+ * UIの表示に特化したコンポーネントです。
+ * ★ RuleTable.vue サブコンポーネントを使用してルールを描画します。
+ * =================================================================================
+ */
+import { useSecurityGroupEditForm } from "~/composables/modal/useSecurityGroupEditForm";
+// ★ 型定義をインポート (パスは仮定)
+import type { SecurityGroupDTO } from "~~/shared/types/security-groups";
+
+// ★ 汎用コンポーネントをインポート
+import FormInput from "~/components/Form/Input.vue";
+import FormTextarea from "~/components/Form/Textarea.vue"; // (このコンポーネントが存在する前提)
+import FormSection from "~/components/Form/Section.vue";
+import FormSelect from "~/components/Form/Select.vue";
+// ★ RuleTable サブコンポーネントをインポート
 import RuleTable from "~/components/RuleTable.vue";
 
-// --- Props & Emits ---
+// --- 親コンポーネントとの連携 (Props & Emits) ---
 const props = defineProps({
+  /** モーダルの表示状態 (trueで表示) */
   show: { type: Boolean, required: true },
+  /** 編集対象の初期データ。呼び出し元(一覧ページなど)から渡される */
   securityGroupData: {
     type: Object as PropType<SecurityGroupDTO | null>,
     default: null,
   },
 });
-const emit = defineEmits(["close", "save"]);
+const emit = defineEmits(["close", "success"]);
 
-// ★ 1. Zodスキーマを定義（作成時と共通）
-const ruleSchema = z.object({
-  id: z.string().optional(),
-  protocol: z.string(),
-  port: z.string().optional(),
-  portRange: z.string().optional(),
-  sourceIp: z.string().optional(),
-  sourceType: z.string().optional(),
-  source: z.string().optional(),
-  destinationType: z.string().optional(),
-  destination: z.string().optional(),
-  description: z.string().optional(),
-});
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "セキュリティグループ名は必須です。"),
-    description: z.string().optional(),
-    inboundRules: z.array(ruleSchema),
-    outboundRules: z.array(ruleSchema),
-  })
-);
-
-// ★ 2. vee-validateのuseFormをセットアップ（initialValuesはここでは設定しない）
-const { errors, defineField, values, resetForm, handleSubmit } = useForm({
-  validationSchema,
-});
-
-// 静的フィールドと動的配列フィールドを定義
-const [name, nameAttrs] = defineField("name");
-const [description, descriptionAttrs] = defineField("description");
+// --- Composable からフォームロジックと状態を取得 ---
+// (useSecurityGroupEditForm.ts は前回作成したものでOK)
 const {
-  fields: inboundFields,
-  push: pushInbound,
-  remove: removeInbound,
-} = useFieldArray("inboundRules");
-const {
-  fields: outboundFields,
-  push: pushOutbound,
-  remove: removeOutbound,
-} = useFieldArray("outboundRules");
+  errors,
+  values, // RuleTable がエラー参照で使う
+  // フォームフィールド
+  name,
+  nameAttrs,
+  description,
+  descriptionAttrs,
+  // 動的配列
+  inboundFields,
+  outboundFields,
+  removeInbound,
+  removeOutbound,
+  addInboundRule,
+  addOutboundRule,
+  // 状態とアクション
+  isUpdating,
+  onFormSubmit,
+  // FormSelect用
+  protocolOptions,
+  actionOptions,
+} = useSecurityGroupEditForm(props); // Composableにpropsを渡す
 
-watch(
-  () => props.securityGroupData,
-  (newData) => {
-    if (newData && newData.rules) {
-      // フォーム用のデータ構造を作成
-      const formValues = {
-        ...newData,
-        // 'inbound'のルールだけを抽出・変換
-        inboundRules: newData.rules
-          .filter((rule) => rule.ruleType === "inbound")
-          .map((rule) => ({
-            id: rule.id, // ★ APIとフォームで共通のキー
-            protocol: rule.protocol.toUpperCase(), // 'tcp' -> 'TCP'
-            port:
-              rule.port !== undefined && rule.port !== null
-                ? String(rule.port)
-                : "",
-            sourceIp: rule.targetIp, // ★ targetIp -> sourceIp
-          })),
-        // 'outbound'のルールだけを抽出・変換
-        outboundRules: newData.rules
-          .filter((rule) => rule.ruleType === "outbound")
-          .map((rule) => ({
-            id: rule.id,
-            protocol: rule.protocol.toUpperCase(),
-            port:
-              rule.port !== undefined && rule.port !== null
-                ? String(rule.port)
-                : "",
-            sourceIp: rule.targetIp,
-          })),
-      };
-
-      // 変換したデータをフォームにセット
-      resetForm({
-        values: formValues,
-      });
-    }
-  },
-  { immediate: true, deep: true }
-);
-
-// ルール追加・削除のメソッド
-const addInboundRule = () => {
-  pushInbound({
-    protocol: "TCP",
-    portRange: "",
-    sourceType: "cidr",
-    source: "",
-    description: "",
-  });
-};
-const addOutboundRule = () => {
-  pushOutbound({
-    protocol: "TCP",
-    portRange: "",
-    destinationType: "cidr",
-    destination: "",
-    description: "",
-  });
-};
-
-const onSubmit = handleSubmit((formValues) => {
-  // フォームのデータをAPIの形式に再変換
-  const payload = {
-    name: formValues.name,
-    description: formValues.description,
-    rules: [
-      ...formValues.inboundRules.map((rule) => ({
-        ...rule,
-        ruleType: "inbound",
-        targetIP: rule.sourceIp, // ★ sourceIp -> targetIP
-        protocol: rule.protocol.toLowerCase(), // 'TCP' -> 'tcp'
-      })),
-      ...formValues.outboundRules.map((rule) => ({
-        ...rule,
-        ruleType: "outbound",
-        targetIP: rule.sourceIp,
-        protocol: rule.protocol.toLowerCase(),
-      })),
-    ],
-  };
-
-  console.log("APIに送信するデータ:", payload);
-  // ここでAPI呼び出しを実行
-  // executeUpdate(props.securityGroupData.id, payload);
-
-  emit("save", payload);
-  emit("close");
-});
+// --- イベントハンドラ ---
+/** フォームの送信イベントを Composable に渡す */
+const submitForm = onFormSubmit(emit);
 </script>
