@@ -1,6 +1,6 @@
-// patch mockレスポンスを返すだけのダミー実装
 export default defineEventHandler(async (event) => {
     const data = await readBody(event);
-    console.log("patched NIC data:", data);
+    const vmId = event.context.params?.vmid;
+    console.log(`patched NIC: vmid: ${vmId} data:`, data);
   return { message: "NIC patched successfully" };
 });
