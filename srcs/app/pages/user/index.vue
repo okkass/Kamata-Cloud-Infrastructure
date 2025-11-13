@@ -69,12 +69,14 @@
 <script setup lang="ts">
 import DashboardLayout from "@/components/DashboardLayout.vue";
 import MoUserAdd from "@/components/MoUserAdd.vue";
+import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
 import { useUserManagement } from "@/composables/useUserManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import { useToast } from "@/composables/useToast";
 
 type UiRow = {
   id: string;
+  name: string;
   account: string;
   email: string;
   limitsText: string;
@@ -99,31 +101,38 @@ const {
   handleRowAction,
   handleDelete,
   cancelAction,
-} = usePageActions<UiRow>({ resourceName: "users", refresh });
+} = usePageActions<UiRow>({
+  resourceName: "users",
+  resourceLabel: "利用者",
+  refresh,
+});
 
-const { toast } = useToast();
+const { addToast } = useToast();
 
 const onHeaderAction = (action: string) => {
   if (action === "add") openModal("add-users"); // MoUserAdd を開く
 };
 
-const onRowAction = ({ action, row }: { action: string; row: UiRow }) => {
+const onRowAction = (payload: { action: string; row?: any }) => {
+  const { action, row } = payload;
+  if (!row) return;
+  const uiRow = row as UiRow;
   if (action === "edit") {
-    targetForEditing.value = row;
+    targetForEditing.value = uiRow;
     openModal("edit-users");
     return;
   }
   if (action === "delete") {
-    targetForDeletion.value = row;
+    targetForDeletion.value = uiRow;
     openModal("delete-users");
     return;
   }
-  handleRowAction({ action, row });
+  handleRowAction({ action, row: uiRow });
 };
 
-const onAddSuccess = (msg?: string) => {
-  if (msg) toast.success(msg);
+const onAddSuccess = async (msg?: string) => {
+  if (msg) addToast({ type: "success", message: msg });
   closeModal();
-  refresh();
+  await refresh();
 };
 </script>

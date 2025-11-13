@@ -1,6 +1,6 @@
 // app/composables/useUserManagement.ts
 import { computed } from "vue";
-import { formatDateTime } from "@/utils/date";
+import { formatDateTime } from "../utils/date";
 
 type RawUser = {
   id: string;
@@ -19,6 +19,8 @@ export type UserRow = {
   limitsText: string;
   lastLoginText: string;
   description?: string;
+  // 編集先を一行遷移で使う場合は必要なら追加
+  editUrl?: string;
 };
 
 export function useUserManagement() {
@@ -50,9 +52,17 @@ export function useUserManagement() {
         limitsText: `CPU: ${cpu}, メモリ: ${mem} GB, ストレージ: ${sto} GB`,
         lastLoginText: u.lastLoginAt ? formatDateTime(u.lastLoginAt) : "-",
         description: u.description,
+        editUrl: "/404", // 適当な遷移先が必要ならここを変更
       };
     })
   );
 
-  return { pending, error, columns, headerButtons, rows, refresh };
+  return {
+    pending,
+    error,
+    columns,
+    headerButtons,
+    rows,
+    refresh,
+  } as const;
 }
