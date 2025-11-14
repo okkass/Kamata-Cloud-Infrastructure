@@ -56,7 +56,7 @@
           type="button"
           @click="addSecurityGroup"
           :disabled="!selectedGroupToAdd"
-          class="btn-secondary"
+          class="btn btn-add"
         >
           追加
         </button>
