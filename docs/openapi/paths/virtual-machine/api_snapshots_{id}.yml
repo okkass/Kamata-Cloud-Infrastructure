@@ -30,7 +30,7 @@ delete:
   summary: スナップショットの削除
   description: 指定したIDのスナップショットを削除します。
   tags:
-    - Portfolio
+    - VirtualMachine
   parameters:
     - name: id
       in: path
