@@ -2,7 +2,7 @@ get:
   summary: スナップショットの詳細取得
   description: 指定したIDのスナップショットの詳細情報を取得します。
   tags:
-    - Portfolio
+    - VirtualMachine
   parameters:
     - name: id
       in: path
