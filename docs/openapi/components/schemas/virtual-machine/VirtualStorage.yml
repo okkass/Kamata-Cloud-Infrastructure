@@ -15,9 +15,13 @@ properties:
     type: string
     format: uuid
     description: 仮想ストレージが属するストレージプールのID
+  createdAt:
+    type: string
+    format: date-time
+    description: 仮想ストレージの作成日時
 required:
   - id
   - name
   - size
-  - pool
+  - poolId
   - createdAt
