@@ -59,14 +59,14 @@
   </div>
 
   <MoDeleteConfirm
-    :show="activeModal === deletePhysicalNodeAction"
+    :show="activeModal === DELETE_PHYSICAL_NODE_ACTION"
     :message="`本当にノード「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
   />
   <MoAddNodeToCluster
-    :show="activeModal === addPhysicalNodeAction"
+    :show="activeModal === ADD_PHYSICAL_NODE_ACTION"
     @close="closeModal"
     @success="handleSuccess"
   />
@@ -81,7 +81,7 @@
  * 実際のロジックは `usePhysicalNodeManagement` Composable に分離されています。
  * =================================================================================
  */
-import { usePhysicalNodeManagement } from "~/composables/usePhysicalNodeManagement";
+import { usePhysicalNodeManagement } from "~/composables/dashboard/usePhysicalNodeManagement";
 import { usePageActions } from "~/composables/usePageActions";
 
 // --- データロジック ---
@@ -92,6 +92,8 @@ const {
   switchingNodeId,
   handleSetAsManagementNode,
   refreshNodeList,
+  ADD_PHYSICAL_NODE_ACTION,
+  DELETE_PHYSICAL_NODE_ACTION,
 } = usePhysicalNodeManagement();
 
 // --- アクションロジック ---
@@ -114,7 +116,7 @@ const {
 // --- イベントの振り分け ---
 const handleDashboardHeaderAction = (action: string) => {
   if (action === "add") {
-    openModal(addPhysicalNodeAction);
+    openModal(ADD_PHYSICAL_NODE_ACTION);
   }
 };
 const onRowAction = ({ action, row }: { action: string; row: UiNode }) => {

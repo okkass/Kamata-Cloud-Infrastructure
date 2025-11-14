@@ -15,8 +15,9 @@ export const restoreSnapshotAction = `restore-${SNAPSHOT.name}`;
 export const deleteSnapshotAction = `delete-${SNAPSHOT.name}`;
 
 export function useSnapshotManagement() {
-  const { data, pending, error, refresh } =
-    useResourceList<SnapShotDTO>(SNAPSHOT.name);
+  const { data, pending, error, refresh } = useResourceList<SnapShotDTO>(
+    SNAPSHOT.name
+  );
 
   const columns = [
     { key: "name", label: "スナップショット名", align: "left" as const },
@@ -35,5 +36,15 @@ export function useSnapshotManagement() {
     }))
   );
 
-  return { pending, error, columns, headerButtons, displaySnapshots, refresh };
+  return {
+    pending,
+    error,
+    columns,
+    headerButtons,
+    displaySnapshots,
+    refresh,
+    CREATE_SNAPSHOT_ACTION: createSnapshotAction,
+    RESTORE_SNAPSHOT_ACTION: restoreSnapshotAction,
+    DELETE_SNAPSHOT_ACTION: deleteSnapshotAction,
+  };
 }

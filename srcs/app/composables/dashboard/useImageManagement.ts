@@ -69,5 +69,8 @@ export function useImageManagement() {
     images,
     headerButtons,
     refreshImageList,
+    ADD_IMAGE_ACTION: addImageAction,
+    EDIT_IMAGE_ACTION: editImageAction,
+    DELETE_IMAGE_ACTION: deleteImageAction,
   };
 }

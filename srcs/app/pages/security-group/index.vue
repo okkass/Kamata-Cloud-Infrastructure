@@ -63,7 +63,7 @@
 </template>
 
 <script setup lang="ts">
-import { useSecurityDashboard } from "~/composables/useSecurityDashboard";
+import { useSecurityDashboard } from "~/composables/dashboard/useSecurityDashboard";
 import { usePageActions } from "~/composables/usePageActions";
 
 // ★ 1. データ関連のComposableを呼び出し

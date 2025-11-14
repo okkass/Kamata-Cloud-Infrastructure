@@ -118,5 +118,7 @@ export function usePhysicalNodeManagement() {
     switchingNodeId,
     handleSetAsManagementNode,
     refreshNodeList,
+    ADD_PHYSICAL_NODE_ACTION: addPhysicalNodeAction,
+    DELETE_PHYSICAL_NODE_ACTION: deletePhysicalNodeAction,
   };
 }
