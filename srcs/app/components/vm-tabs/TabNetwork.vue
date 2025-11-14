@@ -151,7 +151,7 @@ const validationSchema = toTypedSchema(
   z.object({
     vpcId: z.string({ required_error: "VPCを選択してください。" }),
     subnetId: z.string({ required_error: "サブネットを選択してください。" }),
-    securityGroupIds: z.string().nullable(),
+    securityGroupIds: z.array(z.string()),
     keyPairFile: z.any().nullable(),
   })
 );
@@ -168,7 +168,7 @@ const { errors, defineField, values, meta, setFieldValue } = useForm({
   initialValues: {
     vpcId: undefined,
     subnetId: undefined,
-    securityGroupIds: null,
+    securityGroupIds: [],
     keyPairFile: null,
   },
 });
@@ -185,7 +185,7 @@ const {
   fields: sgFields, // v-for で使用
   push: pushSg, // ★ ここで pushSg が定義されます
   remove: removeSg, // 削除ボタンで使用
-} = useFieldArray<string>("securityGroupIdss"); // "securityGroupIdss" という名前の配列を管理
+} = useFieldArray<string>("securityGroupIds"); // "securityGroupIds" という名前の配列を管理
 
 // --- 親コンポーネントへの公開 ---
 defineExpose({

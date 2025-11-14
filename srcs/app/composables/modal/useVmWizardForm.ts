@@ -76,7 +76,7 @@ export function useVmWizardForm() {
       publicKey: networkData?.keyPairFile
         ? await readFileAsText(networkData.keyPairFile)
         : null,
-      securityGroupId: networkData?.securityGroupId ?? null,
+      securityGroupIds: networkData?.securityGroupIds ?? null,
       imageId: osData?.osImageId ?? null,
       middleWareId: osData?.middlewareId,
       storages:
