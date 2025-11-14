@@ -67,5 +67,5 @@ required:
   - status
   - createdAt
   - securityGroups
-  - attachedStorage
+  - attachedStorages
   - node
