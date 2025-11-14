@@ -1,0 +1,23 @@
+type: object
+description: 仮想ストレージオブジェクト
+properties:
+  id:
+    type: string
+    format: uuid
+    description: 仮想ストレージを識別するための一意なID
+  name:
+    type: string
+    description: 仮想ストレージの名前
+  size:
+    type: integer
+    description: 仮想ストレージのサイズ（バイト単位）
+  poolId:
+    type: string
+    format: uuid
+    description: 仮想ストレージが属するストレージプールのID
+required:
+  - id
+  - name
+  - size
+  - pool
+  - createdAt

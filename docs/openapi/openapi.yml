@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: KCI API
+  description: KCI API documentation
+  version: 0.0.1
+paths:
+  /api/backups:
+    $ref: paths/virtual-machine/api_backups.yml
+  /api/images:
+    $ref: paths/image/api_images.yml
+  /api/images/{imageId}:
+    $ref: paths/image/api_images_{imageId}.yml
+  /api/instance-types:
+    $ref: paths/instance-type/api_instance-types.yml
+  /api/instance-types/{instanceTypeId}:
+    $ref: paths/instance-type/api_instance-types_{instanceTypeId}.yml
+  /api/login:
+    $ref: paths/auth/api_login.yml
+  /api/login/web:
+    $ref: paths/auth/api_login_web.yml
+  /api/middlewares:
+    $ref: paths/image/api_middlewares.yml
+  /api/physical-nodes:
+    $ref: paths/physical-node/api_physical-nodes.yml
+  /api/physical-nodes/candidates:
+    $ref: paths/physical-node/api_physical-nodes_candidates.yml
+  /api/physical-nodes/{nodeId}:
+    $ref: paths/physical-node/api_physical-nodes_{nodeId}.yml
+  /api/portfolios:
+    $ref: paths/portfolio/api_portfolios.yml
+  /api/security-groups:
+    $ref: paths/security-group/api_security-groups.yml
+  /api/security-groups/{groupId}:
+    $ref: paths/security-group/api_security-groups_{groupId}.yml
+  /api/security-groups/{groupId}/rules:
+    $ref: paths/security-group/api_security-groups_{groupId}_rules.yml
+  /api/snapshots:
+    $ref: paths/virtual-machine/api_snapshots.yml
+  /api/snapshots/{id}:
+    $ref: paths/virtual-machine/api_snapshots_{id}.yml
+  /api/storage-pools:
+    $ref: paths/storage-pool/api_storage-pools.yml
+  /api/storage-pools/node/{nodeId}:
+    $ref: paths/storage-pool/api_storage-pools_node_{nodeId}.yml
+  /api/storage-pools/{id}:
+    $ref: paths/storage-pool/api_storage-pools_{id}.yml
+  /api/users:
+    $ref: paths/user/api_users.yml
+  /api/users/me:
+    $ref: paths/user/api_users_me.yml
+  /api/users/{userId}:
+    $ref: paths/user/api_users_{userId}.yml
+  /api/virtual-machines:
+    $ref: paths/virtual-machine/api_virtual-machines.yml
+  /api/virtual-machines/{vmId}:
+    $ref: paths/virtual-machine/api_virtual-machines_{vmId}.yml
+  /api/virtual-networks:
+    $ref: paths/virtual-network/api_virtual-networks.yml
+  /api/virtual-networks/{networkId}:
+    $ref: paths/virtual-network/api_virtual-networks_{networkId}.yml
+  /api/virtual-networks/{networkId}/subnets:
+    $ref: paths/virtual-network/api_virtual-networks_{networkId}_subnets.yml
+  /api/virtual-networks/{networkId}/subnets/{subnetId}:
+    $ref: paths/virtual-network/api_virtual-networks_{networkId}_subnets_{subnetId}.yml
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWTを使用した認証方式
+tags:
+  - name: Auth
+    description: 認証関連の操作
+  - name: Image
+    description: 仮想マシンイメージ関連の操作
+  - name: InstanceType
+    description: インスタンスタイプ関連の操作
+  - name: PhysicalNode
+    description: 物理ノード関連の操作
+  - name: Portfolio
+    description: ポートフォリオ関連の操作
+  - name: SecurityGroup
+    description: セキュリティグループ関連の操作
+  - name: StoragePool
+    description: ストレージプール関連の操作
+  - name: User
+    description: ユーザ関連の操作
+  - name: VirtualMachine
+    description: 仮想マシン関連の操作
+  - name: VirtualNetwork
+    description: 仮想ネットワーク関連の操作

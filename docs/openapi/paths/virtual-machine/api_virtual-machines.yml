@@ -1,0 +1,46 @@
+get:
+  summary: 仮想マシン一覧の取得
+  description: すべての仮想マシンのリストを取得します。
+  tags:
+    - VirtualMachine
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/virtual-machine/VirtualMachine.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []
+post:
+  summary: 仮想マシンの作成
+  description: 新しい仮想マシンを作成します。
+  tags:
+    - VirtualMachine
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/virtual-machine/VirtualMachineCreateRequest.yml
+  responses:
+    "201":
+      description: 作成成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-machine/VirtualMachine.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []

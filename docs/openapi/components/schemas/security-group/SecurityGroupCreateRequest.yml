@@ -1,0 +1,15 @@
+type: object
+description: セキュリティグループ作成リクエストオブジェクト
+properties:
+  name:
+    type: string
+    description: セキュリティグループの名前
+  description:
+    type: string
+    description: セキュリティグループの説明
+  rules:
+    type: array
+    items:
+      $ref: ./SecurityRuleCreateRequest.yml
+required:
+  - name

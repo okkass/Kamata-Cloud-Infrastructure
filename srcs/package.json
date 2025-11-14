@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.19.0",
+    "@redocly/cli": "^2.11.1",
     "@types/uuid": "^10.0.0",
     "@vee-validate/zod": "^4.15.1",
     "apexcharts": "^5.3.6",

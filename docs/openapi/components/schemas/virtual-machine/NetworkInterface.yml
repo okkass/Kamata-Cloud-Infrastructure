@@ -1,0 +1,29 @@
+type: object
+description: ネットワークインターフェースオブジェクト
+properties:
+  id:
+    type: string
+    format: uuid
+    description: ネットワークインターフェースを識別するための一意なID
+  name:
+    type: string
+    description: ネットワークインターフェースの名前
+  macAddress:
+    type: string
+    description: ネットワークインターフェースのMACアドレス
+    example: 02:42:ac:11:00:02
+  ipAddress:
+    type: string
+    format: ipv4
+    description: ネットワークインターフェースのIPアドレス
+    example: 10.0.0.0/32
+  subnetId:
+    type: string
+    format: uuid
+    description: ネットワークインターフェースが属するサブネットのID
+required:
+  - id
+  - name
+  - macAddress
+  - ipAddress
+  - subnetId
