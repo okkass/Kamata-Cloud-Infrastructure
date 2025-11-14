@@ -63,5 +63,8 @@ export function useInstanceTypeManagement() {
     pending,
     refresh,
     error,
+    ADD_INSTANCE_TYPE_ACTION: addInstanceTypeAction,
+    EDIT_INSTANCE_TYPE_ACTION: editInstanceTypeAction,
+    DELETE_INSTANCE_TYPE_ACTION: deleteInstanceTypeAction,
   };
 }
