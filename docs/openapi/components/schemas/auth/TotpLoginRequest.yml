@@ -1,0 +1,13 @@
+type: object
+description: TOTPログインリクエストオブジェクト
+properties:
+  email:
+    type: string
+    format: email
+    description: ユーザのメールアドレス
+  totpCode:
+    type: string
+    description: TOTPコード
+required:
+  - email
+  - totpCode

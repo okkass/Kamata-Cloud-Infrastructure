@@ -1,0 +1,12 @@
+type: object
+description: インスタンスタイプ更新リクエストオブジェクト
+properties:
+  name:
+    type: string
+    description: インスタンスタイプの名前
+  cpuCore:
+    type: integer
+    description: CPUコア数
+  memorySize:
+    type: integer
+    description: メモリサイズ（バイト単位）

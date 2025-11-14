@@ -1,0 +1,27 @@
+post:
+  summary: ユーザのログイン
+  description: ユーザのメールアドレスとパスワードを使用してログインします。トークンはCookieに保存されます。
+  tags:
+    - Auth
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/auth/LoginRequest.yml
+  responses:
+    "200":
+      description: ログイン成功
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+                description: ログイン成功メッセージ
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+  security: []

@@ -1,0 +1,46 @@
+get:
+  summary: 物理ノード一覧の取得
+  description: すべての物理ノードのリストを取得します。
+  tags:
+    - PhysicalNode
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/physical-node/PhysicalNode.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []
+post:
+  summary: 物理ノードの追加
+  description: 新しい物理ノードを追加します。
+  tags:
+    - PhysicalNode
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/physical-node/PhysicalNodeAddRequest.yml
+  responses:
+    "201":
+      description: 作成成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/physical-node/PhysicalNode.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []

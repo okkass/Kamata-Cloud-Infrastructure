@@ -1,0 +1,13 @@
+type: object
+description: サブネット更新リクエストオブジェクト
+properties:
+  name:
+    type: string
+    description: サブネットの名前
+  cidr:
+    type: string
+    description: CIDR形式のサブネットアドレス
+    example: 10.0.0.0/16
+  possibleExternalConnection:
+    type: boolean
+    description: 外部接続が可能かどうかを示すフラグ

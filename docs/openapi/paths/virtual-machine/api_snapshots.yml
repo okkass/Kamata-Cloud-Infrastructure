@@ -1,0 +1,70 @@
+get:
+  summary: スナップショット一覧の取得
+  description: すべてのスナップショットのリストを取得します。
+  tags:
+    - VirtualMachine
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/virtual-machine/SnapShot.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []
+post:
+  summary: スナップショットの作成
+  description: 新しいスナップショットを作成します。
+  tags:
+    - VirtualMachine
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/virtual-machine/SnapShotCreateRequest.yml
+  responses:
+    "201":
+      description: 作成成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-machine/SnapShot.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []
+delete:
+  summary: スナップショットの削除
+  description: 指定したIDのスナップショットを削除します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: snapshotId
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: スナップショットの一意なID
+  responses:
+    "204":
+      description: 削除成功
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: スナップショットが見つからない
+  security:
+    - BearerAuth: []

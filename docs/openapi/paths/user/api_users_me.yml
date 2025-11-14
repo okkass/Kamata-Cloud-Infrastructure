@@ -1,0 +1,16 @@
+get:
+  summary: 自分のユーザ情報取得
+  description: 認証されたユーザの詳細情報を取得します。
+  tags:
+    - User
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/user/User.yml
+    "401":
+      description: 認証エラー
+  security:
+    - BearerAuth: []

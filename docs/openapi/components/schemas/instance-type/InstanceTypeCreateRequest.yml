@@ -1,0 +1,16 @@
+type: object
+description: インスタンスタイプ作成リクエストオブジェクト
+properties:
+  name:
+    type: string
+    description: インスタンスタイプの名前
+  cpuCore:
+    type: integer
+    description: CPUコア数
+  memorySize:
+    type: integer
+    description: メモリサイズ（バイト単位）
+required:
+  - name
+  - cpuCore
+  - memorySize
