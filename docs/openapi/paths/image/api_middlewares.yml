@@ -16,3 +16,5 @@ get:
       description: 認証エラー
     "403":
       description: 権限エラー
+  security:
+    - bearerAuth: []
