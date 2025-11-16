@@ -1,0 +1,4 @@
+type: object
+description: インスタンスタイプ更新リクエストオブジェクト(PATCH)
+allOf:
+  - $ref: "./InstanceTypeUpdatable.yml"

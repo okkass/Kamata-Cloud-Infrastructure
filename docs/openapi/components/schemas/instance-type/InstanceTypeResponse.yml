@@ -1,0 +1,4 @@
+type: object
+description: インスタンスタイプレスポンスオブジェクト
+allOf:
+  - $ref: "./InstanceTypeServerBase.yml"
