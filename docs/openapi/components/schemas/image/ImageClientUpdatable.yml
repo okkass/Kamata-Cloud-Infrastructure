@@ -1,9 +1,11 @@
 type: object
-description: 仮想マシンイメージ更新リクエストオブジェクト
+description: 仮想マシンイメージのうち更新可能な情報を表すスキーマ
 properties:
   name:
     type: string
     description: 仮想マシンイメージの名前
+    example: Ubuntu 22.04 LTS
   description:
     type: string
     description: 仮想マシンイメージの説明
+    example: Ubuntu 22.04 LTS イメージ

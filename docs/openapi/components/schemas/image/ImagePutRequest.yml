@@ -1,0 +1,7 @@
+type: object
+description: 仮想マシンイメージ更新リクエスト(PUT)オブジェクト
+allOf:
+  - $ref: "./ImageClientUpdatable.yml"
+required:
+  - name
+  - description

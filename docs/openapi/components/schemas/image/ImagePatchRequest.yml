@@ -1,0 +1,4 @@
+type: object
+description: 仮想マシンイメージ更新リクエスト(PATCH)オブジェクト
+allOf:
+  - $ref: "./ImageClientUpdatable.yml"

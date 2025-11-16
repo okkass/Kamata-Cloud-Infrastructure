@@ -1,16 +1,7 @@
 type: object
 description: 仮想マシンイメージ作成リクエストオブジェクト
-properties:
-  name:
-    type: string
-    description: 仮想マシンイメージの名前
-  description:
-    type: string
-    description: 仮想マシンイメージの説明
-  file:
-    type: string
-    format: binary
-    description: アップロードする仮想マシンイメージファイル(base64エンコードされたバイナリデータ)
+allOf:
+  - $ref: "./ImageClientUpdatable.yml"
+  - $ref: "./ImageCreateOnly.yml"
 required:
   - name
-  - file
