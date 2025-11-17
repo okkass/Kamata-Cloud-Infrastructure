@@ -1,0 +1,10 @@
+type: object
+description: 物理ノードを作成時に設定できるプロパティ
+properties:
+  ipAddress:
+    type: string
+    format: ipv4
+    description: 物理ノードのIPアドレス
+    example: 192.168.0.1
+required:
+  - ipAddress

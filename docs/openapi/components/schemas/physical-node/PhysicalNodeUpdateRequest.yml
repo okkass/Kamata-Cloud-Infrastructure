@@ -1,6 +1,0 @@
-type: object
-description: 物理ノード更新リクエストオブジェクト
-properties:
-  isAdmin:
-    type: boolean
-    description: 物理ノードが管理ノードかどうかを示すフラグ

@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/physical-node/PhysicalNodeCandidate.yml
+              $ref: ../../components/schemas/physical-node/PhysicalNodeCandidateResponse.yml
     "401":
       description: 認証エラー
     "403":

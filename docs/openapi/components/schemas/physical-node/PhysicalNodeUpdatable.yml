@@ -1,0 +1,11 @@
+type: object
+description: 物理ノード更新可能なプロパティ
+properties:
+  name:
+    type: string
+    description: 物理ノードの名前
+    example: node-01
+  isAdmin:
+    type: boolean
+    description: 物理ノードが管理ノードかどうかを示すフラグ
+    example: true
