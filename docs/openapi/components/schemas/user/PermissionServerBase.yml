@@ -1,0 +1,11 @@
+type: object
+description: 権限情報のサーバー側ベースオブジェクト
+properties:
+  resource:
+    type: string
+    description: 権限が適用されるリソースの名前
+  crud:
+    $ref: ../user/CRUDServerBase.yml
+required:
+  - resource
+  - crud

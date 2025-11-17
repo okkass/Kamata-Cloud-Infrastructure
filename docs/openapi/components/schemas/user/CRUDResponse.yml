@@ -1,0 +1,4 @@
+type: object
+description: 権限CRUDレスポンスオブジェクト
+allOf:
+  - $ref: ./user/CRUDServerBase.yml

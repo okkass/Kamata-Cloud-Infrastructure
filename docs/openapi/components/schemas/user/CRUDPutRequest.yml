@@ -1,0 +1,9 @@
+type: object
+description: CRUD更新リクエストオブジェクト(PUT)
+allOf:
+  - $ref: "./CRUDUpdatable.yml"
+required:
+  - canCreate
+  - canRead
+  - canUpdate
+  - canDelete

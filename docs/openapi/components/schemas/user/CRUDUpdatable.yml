@@ -1,0 +1,15 @@
+type: object
+description: CRUDで表現される権限オブジェクト
+properties:
+  canCreate:
+    type: boolean
+    description: オブジェクトの作成が許可されているかどうか
+  canRead:
+    type: boolean
+    description: オブジェクトの読み取りが許可されているかどうか
+  canUpdate:
+    type: boolean
+    description: オブジェクトの更新が許可されているかどうか
+  canDelete:
+    type: boolean
+    description: オブジェクトの削除が許可されているかどうか
