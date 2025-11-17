@@ -1,5 +1,5 @@
 type: object
-description: セキュリティルール更新リクエストオブジェクト
+description: セキュリティルール更新可能なフィールド
 properties:
   name:
     type: string
@@ -20,9 +20,16 @@ properties:
       - tcp
       - udp
       - icmp
+      - any
     description: 適用されるプロトコル
   targetIp:
     type: string
     format: ipv4
     description: ターゲットIPアドレス
-    example: 10.0.0.0/16
+    example: 192.0.2.0/24
+  action:
+    type: string
+    enum:
+      - allow
+      - deny
+    description: ルールのアクション（許可または拒否）

@@ -1,0 +1,7 @@
+type: object
+description: セキュリティグループ更新リクエストオブジェクト(PUT)
+allOf:
+  - $ref: "./SecurityGroupUpdatable.yml"
+required:
+  - name
+  - description

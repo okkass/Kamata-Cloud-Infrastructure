@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/security-group/SecurityGroup.yml
+              $ref: ../../components/schemas/security-group/SecurityGroupResponse.yml
     "401":
       description: 認証エラー
     "403":
@@ -35,7 +35,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityGroup.yml
+            $ref: ../../components/schemas/security-group/SecurityGroupResponse.yml
     "400":
       description: リクエストエラー
     "401":

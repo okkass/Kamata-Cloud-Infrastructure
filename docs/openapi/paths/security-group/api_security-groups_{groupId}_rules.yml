@@ -1,3 +1,33 @@
+get:
+  summary: セキュリティグループルール一覧の取得
+  description: 指定したIDのセキュリティグループに関連付けられたルールのリストを取得します。
+  tags:
+    - SecurityGroup
+  parameters:
+    - name: groupId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループの一意なID
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: セキュリティグループが見つからない
+  security:
+    - BearerAuth: []
 post:
   summary: セキュリティグループルールの追加
   description: 指定したセキュリティグループに新しいルールを追加します。
@@ -23,7 +53,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityRule.yml
+            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
     "400":
       description: リクエストエラー
     "401":

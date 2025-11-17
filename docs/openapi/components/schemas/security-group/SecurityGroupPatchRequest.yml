@@ -1,0 +1,4 @@
+type: object
+description: セキュリティグループ更新リクエストオブジェクト(PATCH)
+allOf:
+  - $ref: "./SecurityGroupUpdatable.yml"

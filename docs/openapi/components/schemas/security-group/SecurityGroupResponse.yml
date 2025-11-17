@@ -1,0 +1,4 @@
+type: object
+description: セキュリティグループレスポンスオブジェクト
+allOf:
+  - $ref: ./SecurityGroupServerBase.yml

@@ -22,4 +22,5 @@ properties:
 required:
   - id
   - name
+  - rules
   - createdAt

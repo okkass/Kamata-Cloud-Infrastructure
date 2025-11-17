@@ -1,0 +1,4 @@
+type: object
+description: セキュリティルールレスポンスオブジェクト
+allOf:
+  - $ref: ./SecurityRuleServerBase.yml
