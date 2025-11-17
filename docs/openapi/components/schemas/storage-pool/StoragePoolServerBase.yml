@@ -19,7 +19,7 @@ properties:
     type: string
     format: date-time
     description: ストレージプールが作成された日時
-    example: '2024-01-01T12:00:00Z'
+    example: "2024-01-01T12:00:00Z"
   totalSize:
     type: integer
     description: ストレージプールの総サイズ（バイト単位）
@@ -36,6 +36,7 @@ required:
   - id
   - name
   - nodeId
+  - createdAt
   - totalSize
   - usedSize
   - hasNetworkAccess

@@ -1,0 +1,8 @@
+type: object
+description: ストレージプール作成リクエストオブジェクト
+allOf:
+  - $ref: "./StoragePoolCreateOnly.yml"
+  - $ref: "./StoragePoolUpdatable.yml"
+required:
+  - name
+  - hasNetworkAccess

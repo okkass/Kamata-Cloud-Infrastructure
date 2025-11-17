@@ -1,0 +1,4 @@
+type: object
+description: ストレージプール更新リクエストオブジェクト(PATCH)
+allOf:
+  - $ref: "./StoragePoolUpdatable.yml"
