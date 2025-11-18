@@ -2,20 +2,19 @@
   <DashboardLayout
     title="仮想ネットワーク"
     :columns="columns"
-    :rows="visibleRows"
+    :rows="rows"
     rowKey="id"
     :headerButtons="headerButtons"
-    no-ellipsis
-    @header-action="handleHeaderAction"
+    @header-action="onHeaderAction"
     @row-action="onRowAction"
   >
-    <!-- 名称＋説明 -->
+    <!-- 仮想ネットワーク名 -->
     <template #cell-name="{ row }">
-      <NuxtLink :to="`/virtual-network/${row.id}`" class="table-link">
-        {{ row.name }}
-      </NuxtLink>
-      <div v-if="row.description" class="text-sm text-gray-500 mt-0.5">
-        {{ row.description }}
+      <div>
+        <span class="table-link">{{ row.name }}</span>
+        <div v-if="row.description" class="text-sm text-gray-500 mt-0.5">
+          {{ row.description }}
+        </div>
       </div>
     </template>
 
@@ -34,19 +33,19 @@
       <span>{{ row.createdAtText }}</span>
     </template>
 
-    <!-- 行アクション（編集は詳細へ、削除は確認モーダル） -->
+    <!-- 三点リーダー（詳細 / 編集 / 削除） -->
     <template #row-actions="{ row }">
-      <div>
-        <button
-          type="button"
-          class="action-item"
-          @click.stop.prevent="onRowAction({ action: 'edit', row })"
+      <div v-if="row">
+        <NuxtLink
+          :to="`/virtual-network/${encodeURIComponent(row.id)}`"
+          class="action-item first:border-t-0"
         >
-          編集
-        </button>
+          詳細
+        </NuxtLink>
+
         <button
-          type="button"
           class="action-item action-item-danger"
+          :disabled="isDeleting && targetForDeletion?.id === row.id"
           @click.stop.prevent="onRowAction({ action: 'delete', row })"
         >
           削除
@@ -55,36 +54,41 @@
     </template>
   </DashboardLayout>
 
-  <!-- 削除確認モーダルのみ利用（他モーダルは未実装のためページ依存を避ける） -->
+  <!-- 作成モーダル：showCreate が true のときに開く -->
+  <MoVirtualNetworkCreate
+    :show="activeModal === CREATE_VNET_ACTION"
+    @close="closeModal"
+    @success="onCreateSuccess"
+  />
+
+  <!-- 削除確認モーダル（usePageActions が管理する場合は activeModal で制御） -->
   <MoDeleteConfirm
-    :show="activeModal === deleteVNetAction"
+    :show="activeModal === DELETE_VNET_ACTION"
     :message="`本当に仮想ネットワーク「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
-    @close="cancelActionSafe"
-    @confirm="handleDeleteSafe"
+    @close="cancelAction"
+    @confirm="handleDelete"
   />
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
-import { useRouter } from "vue-router";
 import DashboardLayout from "@/components/DashboardLayout.vue";
+import MoVirtualNetworkCreate from "@/components/MoVirtualNetworkCreate.vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
-import { useVNetManagement, VNetRow } from "@/composables/useVNetManagement";
+import {
+  useVNetManagement,
+  type VNetRow,
+} from "@/composables/useVNetManagement";
 import { usePageActions } from "@/composables/usePageActions";
 
-/* 定数 */
-const VNET = { name: "virtual-networks", label: "仮想ネットワーク" } as const;
-const createVNetAction = "create-vnet";
-const editVNetAction = "edit-vnet";
-const deleteVNetAction = "delete-vnet";
+const CREATE_VNET_ACTION = "create-virtual-network";
+const DELETE_VNET_ACTION = "delete-virtual-network";
+const EDIT_VNET_ACTION = "edit-virtual-network";
 
-/* composable から列・ボタン・行データを取得 */
+type UiRow = VNetRow;
+
 const { columns, headerButtons, rows, refresh } = useVNetManagement();
 
-const router = useRouter();
-
-/* usePageActions を再利用（refresh を渡す） */
 const {
   activeModal,
   openModal,
@@ -95,111 +99,39 @@ const {
   handleRowAction,
   handleDelete,
   cancelAction,
-} = usePageActions<VNetRow>({
-  resourceName: VNET.name,
-  resourceLabel: VNET.label,
+} = usePageActions<UiRow>({
+  resourceName: "virtual-networks",
+  resourceLabel: "仮想ネットワーク",
   refresh,
 });
 
-/* 可視行（フロント削除は targetForDeletion の扱いに依存せず removedIds で対応） */
-const removedIds = ref(new Set<string>());
-const visibleRows = computed(() =>
-  (rows.value ?? []).filter((r) => !removedIds.value.has(r.id))
-);
+const onHeaderAction = (action: string) => {
+  if (
+    action === "create" ||
+    action === "add" ||
+    action === CREATE_VNET_ACTION
+  ) {
+    openModal?.(CREATE_VNET_ACTION);
+  }
+};
 
-/* 安全ラッパー */
-function openModalSafe(name: string) {
-  if (typeof openModal === "function") {
-    try {
-      openModal(name);
-    } catch (e) {
-      console.error("openModal error:", e);
-    }
-  } else {
-    console.warn("openModal not available");
-  }
-}
-function handleRowActionSafe(payload: { action: string; row: VNetRow }) {
-  if (typeof handleRowAction === "function") {
-    try {
-      handleRowAction(payload);
-    } catch (e) {
-      console.error("handleRowAction error:", e);
-    }
-  } else {
-    console.warn("handleRowAction not available");
-  }
-}
-async function handleDeleteSafe() {
-  if (typeof handleDelete === "function") {
-    try {
-      await handleDelete();
-    } catch (e) {
-      console.error("handleDelete error:", e);
-    }
-  } else {
-    // fallback: フロントで削除対象が set されていれば除外する
-    if (targetForDeletion && targetForDeletion.value) {
-      removedIds.value.add(targetForDeletion.value.id);
-      if (typeof closeModal === "function") closeModal();
-      if (typeof refresh === "function") await refresh();
-    } else {
-      console.warn("handleDelete not available and no targetForDeletion");
-    }
-  }
-}
-function cancelActionSafe() {
-  if (typeof cancelAction === "function") {
-    try {
-      cancelAction();
-    } catch (e) {
-      console.error("cancelAction error:", e);
-    }
-  } else if (typeof closeModal === "function") {
-    closeModal();
-  } else {
-    console.warn("cancelAction/closeModal not available");
-  }
-}
-
-/* ヘッダアクション: 現状は詳細未実装なので404へ遷移（将来モーダル置換可能） */
-function handleHeaderAction(action: string) {
-  if (action === "create" || action === "add" || action === createVNetAction) {
-    // 将来モーダル実装時は openModalSafe(createVNetAction)
-    router.push("/404").catch(() => {});
-  } else {
-    console.info("header action:", action);
-  }
-}
-
-/* 行アクション: edit -> 詳細（未実装は404）、delete -> 削除モーダル表示 */
-function onRowAction(payload: { action: string; row: VNetRow }) {
-  const { action, row } = payload;
+const onRowAction = ({ action, row }: { action: string; row: UiRow }) => {
   if (!row) return;
-
-  if (action === "edit") {
-    // 詳細/編集画面が未実装なので詳細ページへ遷移（404 になる場合あり）
-    router.push(`/virtual-network/${row.id}`).catch(() => {});
-    return;
-  }
-
   if (action === "delete") {
-    if (targetForDeletion) {
-      targetForDeletion.value = row;
-      openModalSafe(deleteVNetAction);
-    } else {
-      // フォールバック: フロント削除
-      const confirmed = window.confirm(
-        `本当に仮想ネットワーク「${row.name}」を削除しますか？`
-      );
-      if (!confirmed) return;
-      removedIds.value.add(row.id);
-      console.info("deleted (front-only):", row.id);
-    }
+    targetForDeletion.value = row;
+    openModal?.(DELETE_VNET_ACTION);
     return;
   }
+  if (action === "edit") {
+    targetForEditing.value = row;
+    openModal?.(EDIT_VNET_ACTION);
+    return;
+  }
+  handleRowAction?.({ action, row });
+};
 
-  // その他は composable の共通ハンドラへ委譲
-  handleRowActionSafe({ action, row });
-}
+const onCreateSuccess = async () => {
+  closeModal?.();
+  await refresh();
+};
 </script>
