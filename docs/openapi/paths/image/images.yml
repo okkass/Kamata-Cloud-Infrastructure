@@ -26,9 +26,21 @@ post:
   requestBody:
     required: true
     content:
-      application/json:
+      multipart/form-data:
         schema:
-          $ref: ../../components/schemas/image/ImageCreateRequest.yml
+          type: object
+          properties:
+            file:
+              type: string
+              format: binary
+            metadata:
+              $ref: ../../components/schemas/image/ImageCreateRequest.yml
+          required:
+            - file
+            - metadata
+        encoding:
+          metadata:
+            contentType: application/json
   responses:
     "201":
       description: 作成成功

@@ -1,9 +1,0 @@
-type: object
-description: 仮想マシンイメージ作成時に必要な情報を表すスキーマ
-properties:
-  imageFile:
-    type: string
-    format: binary
-    description: 仮想マシンイメージのファイル(base64エンコードされたバイナリデータ)
-required:
-  - imageFile

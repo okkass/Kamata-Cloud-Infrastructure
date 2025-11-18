@@ -5,7 +5,7 @@
  */
 export interface ImageClientUpdatable {
   /** 仮想マシンイメージの名前 */
-  name: string;
+  name?: string;
   /** 仮想マシンイメージの説明 */
-  description: string;
+  description?: string;
 }
