@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/user/User.yml
+              $ref: ../../components/schemas/user/UserResponse.yml
     "401":
       description: 認証エラー
     "403":
@@ -35,7 +35,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/user/User.yml
+            $ref: ../../components/schemas/user/UserResponse.yml
     "400":
       description: リクエストエラー
     "401":
