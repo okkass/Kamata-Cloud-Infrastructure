@@ -7,5 +7,5 @@ import type { ImageClientUpdatable } from "./ImageClientUpdatable";
  * ImageClientUpdatableを継承
  */
 export type ImageCreateRequest = Omit<ImageClientUpdatable, "name"> & {
-  name: ImageClientUpdatable["name"];
-}; // name の型を元の型から継承するにゃん
+  name: NonNullable<Required<ImageClientUpdatable["name"]>>;
+}; // name を必須プロパティとして再定義するにゃん
