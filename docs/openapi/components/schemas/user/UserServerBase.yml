@@ -37,6 +37,18 @@ properties:
     example: 1099511627776
   totpInfo:
     $ref: ../auth/TotpInfo.yml
+  isImageAdmin:
+    type: boolean
+    description: ユーザがイメージ管理者かどうかを示すフラグ
+    example: false
+  isInstanceTypeAdmin:
+    type: boolean
+    description: ユーザがインスタンスタイプ管理者かどうかを示すフラグ
+    example: false
+  isPhysicalNodeAdmin:
+    type: boolean
+    description: ユーザが物理ノード管理者かどうかを示すフラグ
+    example: false
 required:
   - id
   - name

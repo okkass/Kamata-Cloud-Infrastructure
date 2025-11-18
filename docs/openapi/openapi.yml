@@ -45,11 +45,11 @@ paths:
   /api/storage-pools/{id}:
     $ref: paths/storage-pool/api_storage-pools_{id}.yml
   /api/users:
-    $ref: paths/user/api_users.yml
+    $ref: paths/user/users.yml
   /api/users/me:
-    $ref: paths/user/api_users_me.yml
+    $ref: paths/user/users_me.yml
   /api/users/{userId}:
-    $ref: paths/user/api_users_{userId}.yml
+    $ref: paths/user/users_{userId}.yml
   /api/virtual-machines:
     $ref: paths/virtual-machine/api_virtual-machines.yml
   /api/virtual-machines/{vmId}:

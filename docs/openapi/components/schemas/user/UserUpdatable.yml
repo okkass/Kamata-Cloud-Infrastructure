@@ -1,0 +1,25 @@
+type: object
+description: ユーザの更新可能プロパティ
+properties:
+  name:
+    type: string
+    description: ユーザの表示名
+  email:
+    type: string
+    format: email
+    description: ユーザのメールアドレス
+  isAdmin:
+    type: boolean
+    description: ユーザが管理者権限を持つかどうか
+  isImageAdmin:
+    type: boolean
+    description: ユーザがイメージ管理者かどうかを示すフラグ
+    example: false
+  isInstanceTypeAdmin:
+    type: boolean
+    description: ユーザがインスタンスタイプ管理者かどうかを示すフラグ
+    example: false
+  isPhysicalNodeAdmin:
+    type: boolean
+    description: ユーザが物理ノード管理者かどうかを示すフラグ
+    example: false

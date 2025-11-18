@@ -1,0 +1,12 @@
+type: object
+description: ユーザレスポンスオブジェクト
+allOf:
+  - $ref: "./UserServerBase.yml"
+required:
+  - id
+  - name
+  - email
+  - createdAt
+  - isAdmin
+  - lastLoginAt
+  - permissions
