@@ -36,7 +36,7 @@
           label="最大vCPU (コア)"
           name="user-max-cpu-add"
           type="number"
-          vV-model.number="maxCpuCores"
+          v-model.number="maxCpuCores"
           v-bind="maxCpuCoresAttrs"
           :error="errors.maxCpuCores"
           min="1"

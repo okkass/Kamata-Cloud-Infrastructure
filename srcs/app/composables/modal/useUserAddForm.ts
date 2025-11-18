@@ -5,7 +5,7 @@
  * ★ defineField / 型不一致エラー対応版
  * =================================================================================
  */
-import { useForm, defineField } from "vee-validate";
+import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
