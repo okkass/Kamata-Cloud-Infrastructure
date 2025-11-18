@@ -1,5 +1,5 @@
 type: object
-description: インスタンスタイプ作成リクエストオブジェクト
+description: インスタンスタイプ更新リクエストオブジェクト(PUT)
 allOf:
   - $ref: "./InstanceTypeUpdatable.yml"
 required:
