@@ -65,17 +65,17 @@ export interface UserServerBase {
    * ユーザがイメージ管理者かどうかを示すフラグ
    * example: false
    */
-  isImageAdmin?: boolean;
+  isImageAdmin: boolean;
 
   /**
    * ユーザがインスタンスタイプ管理者かどうかを示すフラグ
    * example: false
    */
-  isInstanceTypeAdmin?: boolean;
+  isInstanceTypeAdmin: boolean;
 
   /**
    * ユーザが物理ノード管理者かどうかを示すフラグ
    * example: false
    */
-  isPhysicalNodeAdmin?: boolean;
+  isPhysicalNodeAdmin: boolean;
 }

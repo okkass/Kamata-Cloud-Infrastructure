@@ -53,3 +53,7 @@ required:
   - id
   - name
   - email
+  - isAdmin
+  - isImageAdmin
+  - isInstanceTypeAdmin
+  - isPhysicalNodeAdmin
