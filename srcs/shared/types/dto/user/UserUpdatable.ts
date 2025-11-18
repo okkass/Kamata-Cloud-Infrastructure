@@ -35,4 +35,18 @@ export interface UserUpdatable {
    * example: false
    */
   isPhysicalNodeAdmin?: boolean;
+  /**
+   * ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
+   */
+  maxCpuCore?: number;
+
+  /**
+   * ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
+   */
+  maxMemorySize?: number;
+
+  /**
+   * ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
+   */
+  maxStorageSize?: number;
 }
