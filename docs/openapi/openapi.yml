@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: KCI API
   description: KCI API documentation
-  version: 1.0.1
+  version: 0.45.1
 paths:
   /api/backups:
     $ref: paths/virtual-machine/api_backups.yml
