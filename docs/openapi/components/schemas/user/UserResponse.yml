@@ -9,4 +9,3 @@ required:
   - createdAt
   - isAdmin
   - lastLoginAt
-  - permissions
