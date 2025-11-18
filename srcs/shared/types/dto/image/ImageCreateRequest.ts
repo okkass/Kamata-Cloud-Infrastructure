@@ -6,6 +6,6 @@ import type { ImageClientUpdatable } from "./ImageClientUpdatable";
  * 仮想マシンイメージ作成リクエストオブジェクトのインターフェースにゃん
  * ImageClientUpdatableを継承
  */
-export interface ImageCreateRequest extends ImageClientUpdatable {
-  name: string;
-}
+export type ImageCreateRequest = Omit<ImageClientUpdatable, "name"> & {
+  name: ImageClientUpdatable["name"];
+}; // name の型を元の型から継承するにゃん

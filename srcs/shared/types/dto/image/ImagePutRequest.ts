@@ -6,7 +6,10 @@ import type { ImageClientUpdatable } from "./ImageClientUpdatable";
  * 仮想マシンイメージ更新リクエスト(PUT)オブジェクトのインターフェースにゃん
  * ImageClientUpdatable を継承
  */
-export interface ImagePutRequest extends ImageClientUpdatable {
-  name: string;
-  description: string;
-}
+export type ImagePutRequest = Omit<
+  ImageClientUpdatable,
+  "name" | "description"
+> & {
+  name: ImageClientUpdatable["name"];
+  description: ImageClientUpdatable["description"];
+}; // name と description の型を元の型から継承するにゃん
