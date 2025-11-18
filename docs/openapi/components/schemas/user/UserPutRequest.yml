@@ -5,3 +5,10 @@ allOf:
 required:
   - name
   - email
+  - isAdmin
+  - isImageAdmin
+  - isInstanceTypeAdmin
+  - isVirtualMachineAdmin
+  - isNetworkAdmin
+  - isSecurityGroupAdmin
+  - isPhysicalNodeAdmin

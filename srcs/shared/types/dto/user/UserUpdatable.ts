@@ -36,6 +36,18 @@ export interface UserUpdatable {
    */
   isPhysicalNodeAdmin?: boolean;
   /**
+   * ユーザが仮想マシン管理者かどうかを示すフラグ
+   */
+  isVirtualMachineAdmin?: boolean;
+  /**
+   * ユーザがネットワーク管理者かどうかを示すフラグ
+   */
+  isNetworkAdmin?: boolean;
+  /**
+   * ユーザがセキュリティグループ管理者かどうかを示すフラグ
+   */
+  isSecurityGroupAdmin?: boolean;
+  /**
    * ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
    */
   maxCpuCore?: number;
