@@ -1,5 +1,4 @@
 export type { ImageClientUpdatable } from "./ImageClientUpdatable";
-export type { ImageCreateOnly } from "./ImageCreateOnly";
 export type { ImageCreateRequest } from "./ImageCreateRequest";
 export type { ImagePatchRequest } from "./ImagePatchRequest";
 export type { ImagePutRequest } from "./ImagePutRequest";
