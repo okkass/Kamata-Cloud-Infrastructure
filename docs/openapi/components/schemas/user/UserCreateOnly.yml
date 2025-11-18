@@ -6,25 +6,5 @@ properties:
     format: password
     description: ユーザのパスワード
     example: StrongP@ssw0rd!
-  isAdmin:
-    type: boolean
-    description: ユーザが管理者かどうかを示すフラグ
-    example: false
-  isImageAdmin:
-    type: boolean
-    description: ユーザがイメージ管理者かどうかを示すフラグ
-    example: false
-  isInstanceTypeAdmin:
-    type: boolean
-    description: ユーザがインスタンスタイプ管理者かどうかを示すフラグ
-    example: false
-  isPhysicalNodeAdmin:
-    type: boolean
-    description: ユーザが物理ノード管理者かどうかを示すフラグ
-    example: false
 required:
   - password
-  - isAdmin
-  - isImageAdmin
-  - isInstanceTypeAdmin
-  - isPhysicalNodeAdmin
