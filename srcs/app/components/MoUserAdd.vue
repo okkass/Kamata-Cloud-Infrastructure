@@ -1,102 +1,132 @@
 <template>
-  <BaseModal :show="show" title="利用者の追加" @close="$emit('close')">
-    <form @submit.prevent="submitForm" class="modal-space">
-      <div>
-        <label for="user-account-name-add" class="form-label">
-          アカウント名 <span class="required-asterisk">*</span>
-        </label>
-        <input
-          id="user-account-name-add"
+  <BaseModal :show="show" title="利用者の追加" @close="handleClose">
+    <form id="user-add-form" @submit.prevent="submitForm">
+      <FormSection title="基本情報">
+        <FormInput
+          label="アカウント名"
+          name="user-account-name-add"
           type="text"
           v-model="name"
           v-bind="nameAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.name }"
+          :error="errors.name"
+          :required="true"
         />
-        <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
-      </div>
-
-      <div>
-        <label for="user-email-add" class="form-label">
-          メールアドレス <span class="required-asterisk">*</span>
-        </label>
-        <input
-          id="user-email-add"
+        <FormInput
+          label="メールアドレス"
+          name="user-email-add"
           type="email"
           v-model="email"
           v-bind="emailAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.email }"
+          :error="errors.email"
+          :required="true"
         />
-        <p v-if="errors.email" class="text-error mt-1">{{ errors.email }}</p>
-      </div>
-
-      <div>
-        <label for="user-password-add" class="form-label">
-          パスワード <span class="required-asterisk">*</span>
-        </label>
-        <input
-          id="user-password-add"
+        <FormInput
+          label="パスワード"
+          name="user-password-add"
           type="password"
           v-model="password"
           v-bind="passwordAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.password }"
+          :error="errors.password"
+          :required="true"
         />
-        <p v-if="errors.password" class="text-error mt-1">
-          {{ errors.password }}
-        </p>
-      </div>
+      </FormSection>
 
-      <FormSection title="リソース制限">
-        <div class="space-y-2">
-          <FormInput
-            name="user-max-cpu"
-            label="CPUコア数"
-            type="number"
-            placeholder="無制限"
-            v-model.number="maxCpuCores"
-            v-model:attrs="maxCpuCoresAttrs"
-            :error="errors.maxCpuCores"
-          >
-            <template #suffix>
-              <span class="form-unit-label">vCPU</span>
-            </template>
-          </FormInput>
+      <FormSection title="リソースクォータ (上限なしの場合は空欄)">
+        <FormInput
+          label="最大vCPU (コア)"
+          name="user-max-cpu-add"
+          type="number"
+          vV-model.number="maxCpuCores"
+          v-bind="maxCpuCoresAttrs"
+          :error="errors.maxCpuCores"
+          min="1"
+        />
+        <FormInput
+          label="最大メモリ (MB)"
+          name="user-max-memory-add"
+          type="number"
+          v-model.number="maxMemorySizeInMb"
+          v-bind="maxMemorySizeInMbAttrs"
+          :error="errors.maxMemorySizeInMb"
+          min="1"
+        />
+        <FormInput
+          label="最大ストレージ (GB)"
+          name="user-max-storage-add"
+          type="number"
+          v-model.number="maxStorageSizeInGb"
+          v-bind="maxStorageSizeInGbAttrs"
+          :error="errors.maxStorageSizeInGb"
+          min="1"
+        />
+      </FormSection>
 
-          <FormInput
-            name="user-max-memory"
-            label="メモリ (MB)"
-            type="number"
-            placeholder="無制限"
-            v-model.number="maxMemorySizeInMb"
-            v-model:attrs="maxMemorySizeInMbAttrs"
-            :error="errors.maxMemorySizeInMb"
-          >
-            <template #suffix>
-              <span class="form-unit-label">MB</span>
-            </template>
-          </FormInput>
-
-          <FormInput
-            name="user-max-storage"
-            label="ストレージ (GB)"
-            type="number"
-            placeholder="無制限"
-            v-model.number="maxStorageSizeInGb"
-            v-model:attrs="maxStorageSizeInGbAttrs"
-            :error="errors.maxStorageSizeInGb"
-          >
-            <template #suffix>
-              <span class="form-unit-label">GB</span>
-            </template>
-          </FormInput>
+      <FormSection title="管理者権限">
+        <div class="checkbox-grid">
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="isAdmin" v-bind="isAdminAttrs" />
+            全体管理者
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isImageAdmin"
+              v-bind="isImageAdminAttrs"
+            />
+            イメージ管理
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isInstanceTypeAdmin"
+              v-bind="isInstanceTypeAdminAttrs"
+            />
+            インスタンスタイプ管理
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isNetworkAdmin"
+              v-bind="isNetworkAdminAttrs"
+            />
+            ネットワーク管理
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isPhysicalNodeAdmin"
+              v-bind="isPhysicalNodeAdminAttrs"
+            />
+            物理ノード管理
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isSecurityGroupAdmin"
+              v-bind="isSecurityGroupAdminAttrs"
+            />
+            セキュリティグループ管理
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isVirtualMachineAdmin"
+              v-bind="isVirtualMachineAdminAttrs"
+            />
+            仮想マシン管理
+          </label>
         </div>
       </FormSection>
     </form>
+
     <template #footer>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" :disabled="isCreating">
+        <button
+          type="button"
+          @click="submitForm"
+          class="btn btn-primary"
+          :disabled="isCreating"
+        >
           {{ isCreating ? "追加中..." : "追加" }}
         </button>
       </div>
@@ -109,13 +139,12 @@
  * =================================================================================
  * 利用者追加モーダル (MoUserAdd.vue)
  * ---------------------------------------------------------------------------------
- * UIの表示に特化したコンポーネントです。
- * 実際のフォームの状態管理やAPI送信ロジックは `useUserAddForm` Composable に
- * 分離されています。
+ * ★ 新しい権限チェックボックスを追加
  * =================================================================================
  */
-// Composable をインポート
-import { useUserAddForm } from "~/composables/modal/useUserAddForm"; // パスを確認
+import { useUserAddForm } from "~/composables/modal/useUserAddForm";
+import FormInput from "~/components/Form/Input.vue";
+import FormSection from "~/components/Form/Section.vue";
 
 // --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
@@ -124,25 +153,74 @@ const emit = defineEmits(["close", "success"]);
 // --- Composable からフォームロジックと状態を取得 ---
 const {
   errors,
+  // アカウント情報
   name,
   nameAttrs,
   email,
   emailAttrs,
   password,
   passwordAttrs,
+  // クォータ
   maxCpuCores,
   maxCpuCoresAttrs,
   maxMemorySizeInMb,
   maxMemorySizeInMbAttrs,
   maxStorageSizeInGb,
   maxStorageSizeInGbAttrs,
+  // ★ 権限
+  isAdmin,
+  isAdminAttrs,
+  isImageAdmin,
+  isImageAdminAttrs,
+  isInstanceTypeAdmin,
+  isInstanceTypeAdminAttrs,
+  isNetworkAdmin,
+  isNetworkAdminAttrs,
+  isPhysicalNodeAdmin,
+  isPhysicalNodeAdminAttrs,
+  isSecurityGroupAdmin,
+  isSecurityGroupAdminAttrs,
+  isVirtualMachineAdmin,
+  isVirtualMachineAdminAttrs,
+  // 状態とアクション
   isCreating,
-  onFormSubmit, // Composable が提供する送信ハンドラ
+  onFormSubmit,
+  resetForm, // resetForm も取得
 } = useUserAddForm();
 
 // --- イベントハンドラ ---
-// Composable から受け取った `onFormSubmit` 関数に、
-// このコンポーネントの `emit` 関数を渡して実行するラッパー関数。
-// これにより、Composable 側でフォーム送信成功時に `emit('success')` や `emit('close')` を呼び出せる。
+
+// ★ Composable が提供する送信ハンドラをラップ
 const submitForm = onFormSubmit(emit);
+
+// ★ モーダルが閉じる時にフォームをリセット
+const handleClose = () => {
+  resetForm(); // VeeValidate のフォーム状態をリセット
+  emit("close");
+};
 </script>
+
+<style scoped>
+/* ★ チェックボックス用の簡易グリッド */
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
+}
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.375rem; /* rounded-md */
+  border: 1px solid #e5e7eb; /* border-gray-200 */
+  cursor: pointer;
+}
+.checkbox-label:hover {
+  background-color: #f9fafb; /* bg-gray-50 */
+}
+.checkbox-label input {
+  width: 1rem;
+  height: 1rem;
+}
+</style>
