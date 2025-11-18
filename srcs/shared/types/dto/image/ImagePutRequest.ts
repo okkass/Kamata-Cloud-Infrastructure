@@ -10,6 +10,6 @@ export type ImagePutRequest = Omit<
   ImageClientUpdatable,
   "name" | "description"
 > & {
-  name: ImageClientUpdatable["name"];
-  description: ImageClientUpdatable["description"];
-}; // name と description の型を元の型から継承するにゃん
+  name: NonNullable<Required<ImageClientUpdatable>["name"]>;
+  description: NonNullable<Required<ImageClientUpdatable>["description"]>;
+}; // name と description を必須プロパティとして再定義するにゃん
