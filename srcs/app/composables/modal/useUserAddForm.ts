@@ -1,8 +1,6 @@
 /**
  * =================================================================================
  * 利用者追加フォーム Composable (useUserAddForm.ts)
- * ---------------------------------------------------------------------------------
- * ★ トースト通知の修正 (result.data?.name -> values.name)
  * =================================================================================
  */
 import { useForm } from "vee-validate";
@@ -11,7 +9,6 @@ import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
 import type { UserCreateRequest } from "~~/shared/types/dto/user/UserCreateRequest";
-// format.ts から convertUnitToByte をインポート (前回の変更を維持)
 import { convertUnitToByte } from "~/utils/format";
 
 interface UserDTO {
@@ -31,19 +28,26 @@ const validationSchema = toTypedSchema(
       .email("有効なメールアドレスを入力してください。"),
     password: z.string().min(8, "パスワードは8文字以上で入力してください。"),
 
-    maxCpuCores: z
-      .number()
-      .positive("1以上の値を入力してください。")
-      .optional(),
-    maxMemorySizeInMb: z
-      .number()
-      .positive("1以上の値を入力してください。")
-      .optional(),
-    maxStorageSizeInGb: z
-      .number()
-      .positive("1以上の値を入力してください。")
-      .optional(),
+    // ★★★ 修正箇所 ★★★
+    // z.preprocess を使用して、入力が空文字 "" の場合、null に変換してから検証します。
+    // これにより、フォームを空にすると null 扱いに
 
+    maxCpuCores: z.preprocess(
+      (val) => (val === "" ? null : val),
+      z.number().positive("1以上の値を入力してください。").optional()
+    ),
+
+    maxMemorySizeInMb: z.preprocess(
+      (val) => (val === "" ? null : val),
+      z.number().positive("1以上の値を入力してください。").optional()
+    ),
+
+    maxStorageSizeInGb: z.preprocess(
+      (val) => (val === "" ? null : val),
+      z.number().positive("1以上の値を入力してください。").optional()
+    ),
+
+    // (権限フィールド)
     isAdmin: z.boolean(),
     isImageAdmin: z.boolean(),
     isInstanceTypeAdmin: z.boolean(),
@@ -74,9 +78,11 @@ export function useUserAddForm() {
       name: "",
       email: "",
       password: "",
+      // 初期値は undefined
       maxCpuCores: undefined,
       maxMemorySizeInMb: undefined,
       maxStorageSizeInGb: undefined,
+      // 権限初期値
       isAdmin: false,
       isImageAdmin: false,
       isInstanceTypeAdmin: false,
@@ -117,7 +123,6 @@ export function useUserAddForm() {
   // ============================================================================
   const onFormSubmit = (emit: (event: "close" | "success") => void) => {
     return handleSubmit(async (values) => {
-      // 単位変換
       const maxMemorySizeInBytes = values.maxMemorySizeInMb
         ? convertUnitToByte(values.maxMemorySizeInMb, "MB")
         : null;
@@ -131,9 +136,12 @@ export function useUserAddForm() {
         name: values.name,
         email: values.email,
         password: values.password,
+
+        // values.maxCpuCores は undefined なので、?? null により null が入る
         maxCpuCore: values.maxCpuCores ?? null,
         maxMemorySize: maxMemorySizeInBytes,
         maxStorageSize: maxStorageSizeInBytes,
+
         isAdmin: values.isAdmin,
         isImageAdmin: values.isImageAdmin,
         isInstanceTypeAdmin: values.isInstanceTypeAdmin,
@@ -148,9 +156,6 @@ export function useUserAddForm() {
 
       if (result.success) {
         addToast({
-          // ★★★ 修正箇所 ★★★
-          // APIのレスポンス (result.data.name) ではなく、
-          // 送信に成功したフォームの入力値 (values.name) を使用します。
           message: `利用者「${values.name}」を追加しました。`,
           type: "success",
         });
@@ -167,7 +172,7 @@ export function useUserAddForm() {
   };
 
   // ============================================================================
-  // Expose (外部への公開)
+  // Expose
   // ============================================================================
   return {
     errors,
