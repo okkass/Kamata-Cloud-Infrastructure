@@ -34,17 +34,17 @@ const validationSchema = toTypedSchema(
 
     maxCpuCores: z.preprocess(
       (val) => (val === "" ? null : val),
-      z.number().positive("1以上の値を入力してください。").optional()
+      z.number().positive("1以上の値を入力してください。").optional().nullable()
     ),
 
     maxMemorySizeInMb: z.preprocess(
       (val) => (val === "" ? null : val),
-      z.number().positive("1以上の値を入力してください。").optional()
+      z.number().positive("1以上の値を入力してください。").optional().nullable()
     ),
 
     maxStorageSizeInGb: z.preprocess(
       (val) => (val === "" ? null : val),
-      z.number().positive("1以上の値を入力してください。").optional()
+      z.number().positive("1以上の値を入力してください。").optional().nullable()
     ),
 
     // (権限フィールド)
@@ -78,10 +78,10 @@ export function useUserAddForm() {
       name: "",
       email: "",
       password: "",
-      // 初期値は undefined
-      maxCpuCores: undefined,
-      maxMemorySizeInMb: undefined,
-      maxStorageSizeInGb: undefined,
+      // 初期値は null
+      maxCpuCores: null,
+      maxMemorySizeInMb: null,
+      maxStorageSizeInGb: null,
       // 権限初期値
       isAdmin: false,
       isImageAdmin: false,
@@ -137,10 +137,10 @@ export function useUserAddForm() {
         email: values.email,
         password: values.password,
 
-        // values.maxCpuCores は undefined なので、?? null により null が入る
+        // null許容に対応
         maxCpuCore: values.maxCpuCores ?? null,
-        maxMemorySize: maxMemorySizeInBytes,
-        maxStorageSize: maxStorageSizeInBytes,
+        maxMemorySize: maxMemorySizeInBytes ?? null,
+        maxStorageSize: maxStorageSizeInBytes ?? null,
 
         isAdmin: values.isAdmin,
         isImageAdmin: values.isImageAdmin,
