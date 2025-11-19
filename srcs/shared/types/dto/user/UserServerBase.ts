@@ -41,19 +41,19 @@ export interface UserServerBase {
    * ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
    * example: 32
    */
-  maxCpuCore?: number;
+  maxCpuCore?: number | null;
 
   /**
    * ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
    * example: 17179869184
    */
-  maxMemorySize?: number;
+  maxMemorySize?: number | null;
 
   /**
    * ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
    * example: 1099511627776
    */
-  maxStorageSize?: number;
+  maxStorageSize?: number | null;
 
   /**
    * TotpInfo reference: ../auth/TotpInfo.yml
@@ -78,4 +78,22 @@ export interface UserServerBase {
    * example: false
    */
   isPhysicalNodeAdmin: boolean;
+
+  /**
+   * ユーザがセキュリティグループ管理者かどうかを示すフラグ
+   * example: false
+   */
+  isSecurityGroupAdmin: boolean;
+
+  /**
+   * ユーザが仮想マシン管理者かどうかを示すフラグ
+   * example: false
+   */
+  isVirtualMachineAdmin: boolean;
+
+  /**
+   * ユーザが仮想ネットワーク管理者かどうかを示すフラグ
+   * example: false
+   */
+  isNetworkAdmin: boolean;
 }
