@@ -97,11 +97,18 @@ export function useUserAddForm() {
   const [name, nameAttrs] = defineField("name");
   const [email, emailAttrs] = defineField("email");
   const [password, passwordAttrs] = defineField("password");
-  const [maxCpuCores, maxCpuCoresAttrs] = defineField("maxCpuCores");
-  const [maxMemorySizeInMb, maxMemorySizeInMbAttrs] =
-    defineField("maxMemorySizeInMb");
-  const [maxStorageSizeInGb, maxStorageSizeInGbAttrs] =
-    defineField("maxStorageSizeInGb");
+  const [maxCpuCores, maxCpuCoresAttrs] = defineField<
+    "maxCpuCores",
+    number | null | undefined
+  >("maxCpuCores");
+  const [maxMemorySizeInMb, maxMemorySizeInMbAttrs] = defineField<
+    "maxMemorySizeInMb",
+    number | null | undefined
+  >("maxMemorySizeInMb");
+  const [maxStorageSizeInGb, maxStorageSizeInGbAttrs] = defineField<
+    "maxStorageSizeInGb",
+    number | null | undefined
+  >("maxStorageSizeInGb");
   const [isAdmin, isAdminAttrs] = defineField("isAdmin");
   const [isImageAdmin, isImageAdminAttrs] = defineField("isImageAdmin");
   const [isInstanceTypeAdmin, isInstanceTypeAdminAttrs] = defineField(
