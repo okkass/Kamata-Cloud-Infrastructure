@@ -34,17 +34,17 @@ const validationSchema = toTypedSchema(
 
     maxCpuCores: z.preprocess(
       (val) => (val === "" ? null : val),
-      z.number().positive("1以上の値を入力してください。").optional().nullable()
+      z.number().positive("1以上の値を入力してください。").nullable()
     ),
 
     maxMemorySizeInMb: z.preprocess(
       (val) => (val === "" ? null : val),
-      z.number().positive("1以上の値を入力してください。").optional().nullable()
+      z.number().positive("1以上の値を入力してください。").nullable()
     ),
 
     maxStorageSizeInGb: z.preprocess(
       (val) => (val === "" ? null : val),
-      z.number().positive("1以上の値を入力してください。").optional().nullable()
+      z.number().positive("1以上の値を入力してください。").nullable()
     ),
 
     // (権限フィールド)
@@ -99,15 +99,15 @@ export function useUserAddForm() {
   const [password, passwordAttrs] = defineField("password");
   const [maxCpuCores, maxCpuCoresAttrs] = defineField<
     "maxCpuCores",
-    number | null | undefined
+    number | null
   >("maxCpuCores");
   const [maxMemorySizeInMb, maxMemorySizeInMbAttrs] = defineField<
     "maxMemorySizeInMb",
-    number | null | undefined
+    number | null
   >("maxMemorySizeInMb");
   const [maxStorageSizeInGb, maxStorageSizeInGbAttrs] = defineField<
     "maxStorageSizeInGb",
-    number | null | undefined
+    number | null
   >("maxStorageSizeInGb");
   const [isAdmin, isAdminAttrs] = defineField("isAdmin");
   const [isImageAdmin, isImageAdminAttrs] = defineField("isImageAdmin");
