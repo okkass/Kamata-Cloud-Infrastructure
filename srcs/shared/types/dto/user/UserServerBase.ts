@@ -78,4 +78,22 @@ export interface UserServerBase {
    * example: false
    */
   isPhysicalNodeAdmin: boolean;
+
+  /**
+   * ユーザがセキュリティグループ管理者かどうかを示すフラグ
+   * example: false
+   */
+  isSecurityGroupAdmin: boolean;
+
+  /**
+   * ユーザが仮想マシン管理者かどうかを示すフラグ
+   * example: false
+   */
+  isVirtualMachineAdmin: boolean;
+
+  /**
+   * ユーザが仮想ネットワーク管理者かどうかを示すフラグ
+   * example: false
+   */
+  isNetworkAdmin: boolean;
 }

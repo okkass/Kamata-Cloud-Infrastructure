@@ -7,3 +7,6 @@ required:
   - name
   - email
   - isAdmin
+  - maxCpuCore
+  - maxMemorySize
+  - maxStorageSize
