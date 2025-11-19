@@ -1,8 +1,6 @@
 /**
  * =================================================================================
  * 利用者追加フォーム Composable (useUserAddForm.ts)
- * ---------------------------------------------------------------------------------
- * ★ defineField / 型不一致エラー対応版
  * =================================================================================
  */
 import { useForm } from "vee-validate";
@@ -11,6 +9,9 @@ import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
 import type { UserCreateRequest } from "~~/shared/types/dto/user/UserCreateRequest";
+// ★ format.ts から convertUnitToByte をインポート
+import { convertUnitToByte } from "~/utils/format";
+
 interface UserDTO {
   id: string;
   name: string;
@@ -131,11 +132,13 @@ export function useUserAddForm() {
   const onFormSubmit = (emit: (event: "close" | "success") => void) => {
     return handleSubmit(async (values) => {
       // 単位変換 (values.xxx が undefined の場合、null に変換される)
+      // ★ ここで format.ts の convertUnitToByte を使用
       const maxMemorySizeInBytes = values.maxMemorySizeInMb
-        ? values.maxMemorySizeInMb * 1024 * 1024 // MB to Bytes
+        ? convertUnitToByte(values.maxMemorySizeInMb, "MB") // MB to Bytes
         : null; // undefined なら null
+
       const maxStorageSizeInBytes = values.maxStorageSizeInGb
-        ? values.maxStorageSizeInGb * 1024 * 1024 * 1024 // GB to Bytes
+        ? convertUnitToByte(values.maxStorageSizeInGb, "GB") // GB to Bytes
         : null; // undefined なら null
 
       // API (POST) リクエストボディを作成 (UserCreateRequest 形式)
