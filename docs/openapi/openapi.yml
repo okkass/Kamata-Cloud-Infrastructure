@@ -5,45 +5,45 @@ info:
   version: 0.45.1
 paths:
   /api/backups:
-    $ref: paths/virtual-machine/api_backups.yml
+    $ref: paths/virtual-machine/backups.yml
   /api/images:
-    $ref: paths/image/api_images.yml
+    $ref: paths/image/images.yml
   /api/images/{imageId}:
-    $ref: paths/image/api_images_{imageId}.yml
+    $ref: paths/image/images_{imageId}.yml
   /api/instance-types:
-    $ref: paths/instance-type/api_instance-types.yml
+    $ref: paths/instance-type/instance-types.yml
   /api/instance-types/{instanceTypeId}:
-    $ref: paths/instance-type/api_instance-types_{instanceTypeId}.yml
+    $ref: paths/instance-type/instance-types_{instanceTypeId}.yml
   /api/login:
-    $ref: paths/auth/api_login.yml
+    $ref: paths/auth/login.yml
   /api/login/web:
-    $ref: paths/auth/api_login_web.yml
+    $ref: paths/auth/login_web.yml
   /api/middlewares:
-    $ref: paths/image/api_middlewares.yml
+    $ref: paths/image/middlewares.yml
   /api/physical-nodes:
-    $ref: paths/physical-node/api_physical-nodes.yml
+    $ref: paths/physical-node/physical-nodes.yml
   /api/physical-nodes/candidates:
-    $ref: paths/physical-node/api_physical-nodes_candidates.yml
+    $ref: paths/physical-node/physical-nodes_candidates.yml
   /api/physical-nodes/{nodeId}:
-    $ref: paths/physical-node/api_physical-nodes_{nodeId}.yml
+    $ref: paths/physical-node/physical-nodes_{nodeId}.yml
   /api/portfolios:
-    $ref: paths/portfolio/api_portfolios.yml
+    $ref: paths/portfolio/portfolios.yml
   /api/security-groups:
-    $ref: paths/security-group/api_security-groups.yml
+    $ref: paths/security-group/security-groups.yml
   /api/security-groups/{groupId}:
-    $ref: paths/security-group/api_security-groups_{groupId}.yml
+    $ref: paths/security-group/security-groups_{groupId}.yml
   /api/security-groups/{groupId}/rules:
-    $ref: paths/security-group/api_security-groups_{groupId}_rules.yml
+    $ref: paths/security-group/security-groups_{groupId}_rules.yml
   /api/snapshots:
-    $ref: paths/virtual-machine/api_snapshots.yml
+    $ref: paths/virtual-machine/snapshots.yml
   /api/snapshots/{id}:
-    $ref: paths/virtual-machine/api_snapshots_{id}.yml
+    $ref: paths/virtual-machine/snapshots_{id}.yml
   /api/storage-pools:
-    $ref: paths/storage-pool/api_storage-pools.yml
+    $ref: paths/storage-pool/storage-pools.yml
   /api/storage-pools/node/{nodeId}:
-    $ref: paths/storage-pool/api_storage-pools_node_{nodeId}.yml
+    $ref: paths/storage-pool/storage-pools_node_{nodeId}.yml
   /api/storage-pools/{id}:
-    $ref: paths/storage-pool/api_storage-pools_{id}.yml
+    $ref: paths/storage-pool/storage-pools_{id}.yml
   /api/users:
     $ref: paths/user/users.yml
   /api/users/me:
@@ -51,17 +51,17 @@ paths:
   /api/users/{userId}:
     $ref: paths/user/users_{userId}.yml
   /api/virtual-machines:
-    $ref: paths/virtual-machine/api_virtual-machines.yml
+    $ref: paths/virtual-machine/virtual-machines.yml
   /api/virtual-machines/{vmId}:
-    $ref: paths/virtual-machine/api_virtual-machines_{vmId}.yml
+    $ref: paths/virtual-machine/virtual-machines_{vmId}.yml
   /api/virtual-networks:
-    $ref: paths/virtual-network/api_virtual-networks.yml
+    $ref: paths/virtual-network/virtual-networks.yml
   /api/virtual-networks/{networkId}:
-    $ref: paths/virtual-network/api_virtual-networks_{networkId}.yml
+    $ref: paths/virtual-network/virtual-networks_{networkId}.yml
   /api/virtual-networks/{networkId}/subnets:
-    $ref: paths/virtual-network/api_virtual-networks_{networkId}_subnets.yml
+    $ref: paths/virtual-network/virtual-networks_{networkId}_subnets.yml
   /api/virtual-networks/{networkId}/subnets/{subnetId}:
-    $ref: paths/virtual-network/api_virtual-networks_{networkId}_subnets_{subnetId}.yml
+    $ref: paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}.yml
 components:
   securitySchemes:
     BearerAuth:
