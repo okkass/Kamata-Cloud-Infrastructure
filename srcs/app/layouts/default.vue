@@ -1,7 +1,5 @@
 <template>
-  <div
-class="relative min-h-[calc(100vh-theme(spacing.16))] pt-8"
-  >
+  <div class="relative min-h-[calc(100vh-theme(spacing.16))] pt-8">
     <DefaultHeader />
     <div>
       <UserSidebar :isAdmin="isAdmin" />

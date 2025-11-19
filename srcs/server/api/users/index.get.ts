@@ -13,6 +13,12 @@ export default defineEventHandler(async (event) => {
       isImageAdmin: true,
       isInstanceTypeAdmin: true,
       isPhysicalNodeAdmin: true,
+      isSecurityGroupAdmin: true,
+      isVirtualMachineAdmin: true,
+      isNetworkAdmin: true,
+      maxCpuCore: null,
+      maxMemorySize: null,
+      maxStorageSize: null,
     },
     {
       id: "ff09658a-6b02-4c99-bb05-cf8487411d1f",
@@ -27,6 +33,9 @@ export default defineEventHandler(async (event) => {
       isImageAdmin: false,
       isInstanceTypeAdmin: false,
       isPhysicalNodeAdmin: false,
+      isSecurityGroupAdmin: false,
+      isVirtualMachineAdmin: false,
+      isNetworkAdmin: false,
     },
   ];
   return users;
