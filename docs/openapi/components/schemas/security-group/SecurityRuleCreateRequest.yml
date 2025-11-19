@@ -1,0 +1,41 @@
+type: object
+description: セキュリティルール作成リクエストオブジェクト
+properties:
+  name:
+    type: string
+    description: セキュリティルールの名前
+  ruleType:
+    type: string
+    enum:
+      - inbound
+      - outbound
+    description: ルールのタイプ（インバウンドまたはアウトバウンド）
+  port:
+    type: integer
+    description: 適用されるポート番号
+    example: 22
+  protocol:
+    type: string
+    enum:
+      - tcp
+      - udp
+      - icmp
+    description: 適用されるプロトコル
+  targetIp:
+    type: string
+    format: ipv4
+    description: ターゲットIPアドレス
+    example: 10.0.0.0/16
+  action:
+    type: string
+    enum:
+      - allow
+      - deny
+    description: ルールのアクション（許可または拒否）
+required:
+  - name
+  - ruleType
+  - port
+  - protocol
+  - targetIp
+  - action

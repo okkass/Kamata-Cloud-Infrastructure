@@ -1,0 +1,10 @@
+type: object
+description: ユーザ作成時のみに設定可能なプロパティ
+properties:
+  password:
+    type: string
+    format: password
+    description: ユーザのパスワード
+    example: StrongP@ssw0rd!
+required:
+  - password
