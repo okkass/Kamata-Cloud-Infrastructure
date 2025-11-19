@@ -50,15 +50,15 @@ export interface UserUpdatable {
   /**
    * ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
    */
-  maxCpuCore?: number;
+  maxCpuCore?: number | null;
 
   /**
    * ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
    */
-  maxMemorySize?: number;
+  maxMemorySize?: number | null;
 
   /**
    * ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
    */
-  maxStorageSize?: number;
+  maxStorageSize?: number | null;
 }
