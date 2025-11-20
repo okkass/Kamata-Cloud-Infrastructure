@@ -1,5 +1,5 @@
 type: object
-description: 仮想マシンイメージオブジェクト
+description: 仮想マシンイメージの基本情報を表すスキーマ
 properties:
   id:
     type: string

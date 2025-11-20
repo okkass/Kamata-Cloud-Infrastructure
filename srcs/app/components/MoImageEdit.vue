@@ -49,11 +49,11 @@
  * =================================================================================
  */
 import { useImageEditForm } from "~/composables/modal/useImageEditForm";
-import type { ImageDTO } from "~~/shared/types/images";
 
 // ★ 汎用コンポーネントをインポート
 import FormInput from "~/components/Form/Input.vue";
 import FormTextarea from "~/components/Form/Textarea.vue";
+import type { ImageResponse } from "~~/shared/types";
 
 // --- 親コンポーネントとの連携 (Props & Emits) ---
 const props = defineProps({
@@ -61,7 +61,7 @@ const props = defineProps({
   show: { type: Boolean, required: true },
   /** 編集対象の初期データ。呼び出し元(一覧ページなど)から渡される */
   imageData: {
-    type: Object as PropType<ImageDTO | null>,
+    type: Object as PropType<ImageResponse | null>,
     default: null,
   },
 });
