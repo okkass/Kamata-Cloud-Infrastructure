@@ -56,7 +56,7 @@
 
   <MoDeleteConfirm
     :show="activeModal === DELETE_USERS_MODAL"
-    :message="`「${targetForDeletion?.account}」を削除します。よろしいですか？`"
+    :message="`「${targetForDeletion?.name}」を削除します。よろしいですか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
@@ -105,7 +105,7 @@ const {
 function onHeaderAction(e: string | { key?: string } | any) {
   const key = typeof e === "string" ? e : e?.key;
   if (key === "add" || key === "create" || key === ADD_USERS_MODAL) {
-    if (typeof openModal === "function") openModal(ADD_USERS_MODAL);
+    openModal(ADD_USERS_MODAL);
   }
 }
 
@@ -113,27 +113,47 @@ function onRowAction(payload: { action: string; row?: UserRow | null } | any) {
   if (!payload) return;
   const action = String(payload.action ?? payload.key ?? "");
   const row: UserRow | undefined = payload.row ?? payload.item;
-
   if (!row) return;
 
   if (action === "edit") {
-    if (targetForEditing) targetForEditing.value = row;
-    if (typeof openModal === "function") openModal(EDIT_USERS_MODAL);
+    targetForEditing.value = row;
+    openModal(EDIT_USERS_MODAL);
     return;
   }
 
   if (action === "delete") {
-    if (targetForDeletion) targetForDeletion.value = row;
-    if (typeof openModal === "function") openModal(DELETE_USERS_MODAL);
+    targetForDeletion.value = row;
+    openModal(DELETE_USERS_MODAL);
     return;
   }
 
-  if (typeof handleRowAction === "function") handleRowAction({ action, row });
+  handleRowAction({ action, row });
 }
 
 async function onAddSuccess(msg?: string) {
   if (msg) addToast({ type: "success", message: msg });
-  if (typeof closeModal === "function") closeModal();
+  closeModal();
   await refresh();
 }
 </script>
+
+<style scoped>
+.table-link {
+  color: #2563eb;
+  text-decoration: none;
+}
+.font-mono {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
+    "Courier New", monospace;
+}
+.action-item {
+  display: inline-block;
+  padding: 6px 10px;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+}
+.action-item-danger {
+  color: #b91c1c;
+}
+</style>
