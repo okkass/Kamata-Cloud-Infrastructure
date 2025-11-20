@@ -1,201 +1,176 @@
 <template>
   <BaseModal :show="show" title="利用者の編集" @close="$emit('close')">
-    <div v-if="editableUser" class="space-y-4">
-      <div>
-        <label for="user-account-name-edit" class="form-label"
-          >アカウント名</label
-        >
-        <input
-          id="user-account-name-edit"
+    <form id="user-edit-form" @submit.prevent="submitForm">
+      <FormSection title="基本情報">
+        <FormInput
+          label="アカウント名"
+          name="user-account-name-edit"
           type="text"
-          v-model="editableUser.name"
-          class="form-input"
-          disabled
+          v-model="name"
+          v-bind="nameAttrs"
+          :error="errors.name"
+          :required="true"
         />
-      </div>
-
-      <div>
-        <label for="user-email-edit" class="form-label">メールアドレス</label>
-        <input
-          id="user-email-edit"
+        <FormInput
+          label="メールアドレス"
+          name="user-email-edit"
           type="email"
-          v-model="editableUser.email"
-          class="form-input"
+          v-model="email"
+          v-bind="emailAttrs"
+          :error="errors.email"
+          :required="true"
         />
-      </div>
+      </FormSection>
 
-      <div class="pt-2">
-        <label class="form-label">最大リソース制限</label>
-        <div class="space-y-2">
-          <div class="flex items-center gap-2">
-            <input
-              type="number"
-              v-model.number="editableUser.maxCpuCores"
-              class="form-input"
-              placeholder="最大CPU数"
-            />
-            <span class="unit-label">vCPU</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <input
-              type="number"
-              v-model.number="editableUser.maxMemorySize"
-              class="form-input"
-              placeholder="最大メモリ数"
-            />
-            <span class="unit-label">GB</span>
-          </div>
-          <div class="flex items-center gap-2">
-            <input
-              type="number"
-              v-model.number="editableUser.maxStorageSize"
-              class="form-input"
-              placeholder="最大ストレージ数"
-            />
-            <span class="unit-label">GB</span>
-          </div>
+      <FormSection title="リソースクォータ (上限なしの場合は空欄)">
+        <FormInput
+          label="最大vCPU (コア)"
+          name="user-max-cpu-edit"
+          type="number"
+          v-model.number="maxCpuCores"
+          v-bind="maxCpuCoresAttrs"
+          :error="errors.maxCpuCores"
+          min="1"
+        />
+        <FormInput
+          label="最大メモリ (MB)"
+          name="user-max-memory-edit"
+          type="number"
+          v-model.number="maxMemorySizeInMb"
+          v-bind="maxMemorySizeInMbAttrs"
+          :error="errors.maxMemorySizeInMb"
+          min="1"
+        />
+        <FormInput
+          label="最大ストレージ (GB)"
+          name="user-max-storage-edit"
+          type="number"
+          v-model.number="maxStorageSizeInGb"
+          v-bind="maxStorageSizeInGbAttrs"
+          :error="errors.maxStorageSizeInGb"
+          min="1"
+        />
+      </FormSection>
+
+      <FormSection title="管理者権限">
+        <div class="checkbox-grid">
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="isAdmin" />
+            全体管理者
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="isImageAdmin" />
+            イメージ管理
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="isInstanceTypeAdmin" />
+            インスタンスタイプ管理
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="isNetworkAdmin" />
+            ネットワーク管理
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="isPhysicalNodeAdmin" />
+            物理ノード管理
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="isSecurityGroupAdmin" />
+            セキュリティグループ管理
+          </label>
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="isVirtualMachineAdmin" />
+            仮想マシン管理
+          </label>
         </div>
-      </div>
+      </FormSection>
+    </form>
 
-      <div class="pt-2">
-        <label class="form-label">パスワード</label>
-        <SecondaryButton @click="sendPasswordResetEmail">
-          パスワードリセットメールを送る
-        </SecondaryButton>
+    <template #footer>
+      <div class="modal-footer">
+        <button
+          type="button"
+          @click="submitForm"
+          class="btn btn-primary"
+          :disabled="isUpdating"
+        >
+          {{ isUpdating ? "保存中..." : "保存" }}
+        </button>
       </div>
-    </div>
-    <div class="flex justify-end mt-8 pt-4 border-t">
-      <button @click="saveChanges" class="btn-primary">保存</button>
-    </div>
+    </template>
   </BaseModal>
 </template>
 
-<script setup>
-import { ref, watch } from "vue";
-import { useToast } from "~/composables/useToast"; // Toast通知用のComposableをインポート
+<script setup lang="ts">
+import {
+  useUserEditForm,
+  type UserDTO,
+} from "~/composables/modal/useUserEditForm";
+import FormInput from "~/components/Form/Input.vue";
+import FormSection from "~/components/Form/Section.vue";
 
-// ==============================================================================
-// 担当者（API実装担当）へのメッセージ:
-// 下記のsaveChanges関数とsendPasswordResetEmail関数内に、
-// APIへのデータ送信ロジックを実装してください。
-// ==============================================================================
-
-// --- 親コンポーネントとの連携定義 (変更不要) ---
+// --- 親コンポーネントとの連携 ---
 const props = defineProps({
   show: { type: Boolean, required: true },
-  userData: { type: Object, required: false },
-});
-const emit = defineEmits(["close", "save"]);
-
-// --- フォームの入力データを保持するリアクティブ変数 (変更不要) ---
-const editableUser = ref(null);
-const { addToast } = useToast(); // Toast通知関数を取得
-
-// --- 親から渡されたデータをフォームに反映させる処理 ---
-watch(
-  () => props.userData,
-  (newData) => {
-    // ============================================================================
-    // ▼▼▼ API実装担当者の方へ: ここはAPIのレスポンス形式に合わせて調整してください ▼▼▼
-    // ============================================================================
-    if (newData) {
-      editableUser.value = {
-        id: newData.id,
-        name: newData.name,
-        email: newData.email,
-        maxCpuCores: newData.maxCpuCores || 0,
-        maxMemorySize: (newData.maxMemorySize || 0) / (1024 * 1024 * 1024),
-        maxStorageSize: (newData.maxStorageSize || 0) / (1024 * 1024 * 1024),
-      };
-    } else {
-      editableUser.value = null;
-    }
-    // ============================================================================
-    // ▲▲▲ APIのレスポンス形式に合わせた調整はここまで ▲▲▲
-    // ============================================================================
+  userData: {
+    type: Object as PropType<UserDTO | null>,
+    default: null,
   },
-  { immediate: true, deep: true }
-);
+});
+const emit = defineEmits(["close", "success"]);
 
-/**
- * 「保存」ボタンが押されたときに実行される関数
- */
-const saveChanges = () => {
-  if (!editableUser.value) return;
+// --- Composable からフォームロジックを取得 ---
+const {
+  errors,
+  name,
+  nameAttrs,
+  email,
+  emailAttrs,
+  // パスワード関連は削除
+  maxCpuCores,
+  maxCpuCoresAttrs,
+  maxMemorySizeInMb,
+  maxMemorySizeInMbAttrs,
+  maxStorageSizeInGb,
+  maxStorageSizeInGbAttrs,
 
-  // ============================================================================
-  // ▼▼▼ API実装担当者の方へ: この中にAPI呼び出し処理を実装してください ▼▼▼
-  // ============================================================================
+  // 権限 (v-model用)
+  isAdmin,
+  isImageAdmin,
+  isInstanceTypeAdmin,
+  isNetworkAdmin,
+  isPhysicalNodeAdmin,
+  isSecurityGroupAdmin,
+  isVirtualMachineAdmin,
 
-  const payload = {
-    name: editableUser.value.name,
-    email: editableUser.value.email,
-    maxCpuCores: editableUser.value.maxCpuCores,
-    maxMemorySize: (editableUser.value.maxMemorySize || 0) * 1024 * 1024 * 1024,
-    maxStorageSize:
-      (editableUser.value.maxStorageSize || 0) * 1024 * 1024 * 1024,
-  };
+  isUpdating,
+  onFormSubmit,
+} = useUserEditForm(props);
 
-  // 2. API呼び出し (PUTリクエスト):
-  //    const { data, error } = await useApiFetch(`/users/${editableUser.value.id}`, {
-  //      method: 'PUT',
-  //      body: payload,
-  //    });
-
-  // 3. 結果のハンドリング:
-  //    if (error.value) {
-  //      addToast({ message: 'ユーザー情報の更新に失敗しました。', type: 'error' });
-  //    } else {
-  //      addToast({ message: `利用者「${data.value.name}」の変更を保存しました。`, type: 'success' });
-  //      emit("save", data.value);
-  //      emit("close");
-  //    }
-
-  // --- 現在はAPI実装前のダミー動作 ---
-  console.log("APIに送信する更新データ:", payload);
-  addToast({
-    message: `【ダミー】利用者「${editableUser.value.name}」の変更を保存しました。`,
-    type: "success",
-  });
-  emit("save", editableUser.value);
-  emit("close");
-  // ============================================================================
-  // ▲▲▲ API実装はここまで ▲▲▲
-  // ============================================================================
-};
-
-/**
- * 「パスワードリセットメールを送る」ボタンが押されたときに実行される関数
- */
-const sendPasswordResetEmail = () => {
-  if (!editableUser.value) return;
-  // ============================================================================
-  // ▼▼▼ API実装担当者の方へ: この中にメール送信APIの呼び出し処理を実装してください ▼▼▼
-  // ============================================================================
-
-  // --- 現在はAPI実装前のダミー動作 ---
-  addToast({
-    message: `【ダミー】「${editableUser.value.name}」にパスワードリセットメールを送信します。`,
-    type: "info",
-  });
-  // ============================================================================
-  // ▲▲▲ API実装はここまで ▲▲▲
-  // ============================================================================
-};
+const submitForm = onFormSubmit(emit);
 </script>
 
 <style scoped>
-/* (スタイルは変更なし) */
-.form-label {
-  @apply block mb-1.5 font-semibold text-gray-700;
+/* チェックボックス用スタイル */
+.checkbox-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.75rem;
 }
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 disabled:bg-gray-100 disabled:cursor-not-allowed;
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem;
+  border-radius: 0.375rem;
+  border: 1px solid #e5e7eb;
+  cursor: pointer;
 }
-.btn-primary {
-  @apply py-2 px-5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700;
+.checkbox-label:hover {
+  background-color: #f9fafb;
 }
-.unit-label {
-  @apply bg-gray-200 text-gray-700 font-semibold py-2.5 px-4 rounded-md whitespace-nowrap;
+.checkbox-label input {
+  width: 1rem;
+  height: 1rem;
 }
 </style>

@@ -1,7 +1,3 @@
-/**
- * UserServerBase
- * User object
- */
 export interface UserServerBase {
   /**
    * ユーザを識別するための一意なID
@@ -80,6 +76,12 @@ export interface UserServerBase {
   isPhysicalNodeAdmin: boolean;
 
   /**
+   * ユーザがネットワーク管理者かどうかを示すフラグ
+   * example: false
+   */
+  isNetworkAdmin: boolean;
+
+  /**
    * ユーザがセキュリティグループ管理者かどうかを示すフラグ
    * example: false
    */
@@ -90,10 +92,4 @@ export interface UserServerBase {
    * example: false
    */
   isVirtualMachineAdmin: boolean;
-
-  /**
-   * ユーザが仮想ネットワーク管理者かどうかを示すフラグ
-   * example: false
-   */
-  isNetworkAdmin: boolean;
 }
