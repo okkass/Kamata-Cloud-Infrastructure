@@ -66,5 +66,8 @@ export function useSecurityDashboard() {
     groups,
     headerButtons,
     refreshGroupList,
+    ADD_SECURITY_GROUP_ACTION: addSecurityGroupAction,
+    EDIT_SECURITY_GROUP_ACTION: editSecurityGroupAction,
+    DELETE_SECURITY_GROUP_ACTION: deleteSecurityGroupAction,
   };
 }
