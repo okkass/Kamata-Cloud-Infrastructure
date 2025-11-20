@@ -1,8 +1,8 @@
 get:
-  summary: 指定した物理ノードから利用可能なストレージプール一覧の取得
-  description: 指定した物理ノードから利用可能なストレージプールのリストを取得します。
+  summary: ノードに新規接続されたストレージデバイスの一覧取得
+  description: 指定したIDの物理ノードに新規接続されたストレージデバイスの一覧を取得します。
   tags:
-    - StoragePool
+    - PhysicalNode
   parameters:
     - name: nodeId
       in: path
@@ -11,7 +11,6 @@ get:
         type: string
         format: uuid
       description: 物理ノードの一意なID
-      example: 123e4567-e89b-12d3-a456-426614174000
   responses:
     "200":
       description: 成功
@@ -20,12 +19,12 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/storage-pool/StoragePoolResponse.yml
-    "400":
-      description: リクエストエラー
+              $ref: ../../components/schemas/physical-node/DeviceResponse.yml
     "401":
       description: 認証エラー
     "403":
       description: 権限エラー
+    "404":
+      description: 物理ノードが見つからない
   security:
     - BearerAuth: []
