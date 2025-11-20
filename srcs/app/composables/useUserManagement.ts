@@ -39,7 +39,10 @@ function toNumber(v: unknown): number {
 }
 
 export function useUserManagement() {
-  const { data, pending, error, refresh } = useAsyncData<RawUser[]>("users-list", () => $fetch("/api/users"));
+  const { data, pending, error, refresh } = useAsyncData<RawUser[]>(
+    "users-list",
+    () => $fetch("/api/users")
+  );
 
   const columns = [
     { key: "account", label: "アカウント名", align: "left" as const },
@@ -58,8 +61,9 @@ export function useUserManagement() {
       const cpu = toNumber(u.maxCpuCore) || toNumber(u.limits?.cpu) || 0;
 
       let memoryGb = 0;
-      if (toNumber(u.maxMemorySize) > 0) {
-        memoryGb = convertByteToUnit(u.maxMemorySize!, "GB");
+      const size = u.maxMemorySize;
+      if (toNumber(size) > 0) {
+        memoryGb = convertByteToUnit(size, "GB");
       } else if (toNumber(u.limits?.memoryGb) > 0) {
         memoryGb = toNumber(u.limits!.memoryGb);
       } else if (toNumber(u.limits?.memorySize) > 0) {

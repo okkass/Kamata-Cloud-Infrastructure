@@ -102,7 +102,7 @@ const {
   refresh,
 });
 
-function onHeaderAction(e: string | { key?: string } | any) {
+function onHeaderAction(e: string | { key?: string }) {
   const key = typeof e === "string" ? e : e?.key;
   if (key === "add" || key === "create" || key === ADD_USERS_MODAL) {
     openModal(ADD_USERS_MODAL);
