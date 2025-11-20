@@ -1,0 +1,30 @@
+get:
+  summary: ノードに新規接続されたストレージデバイスの一覧取得
+  description: 指定したIDの物理ノードに新規接続されたストレージデバイスの一覧を取得します。
+  tags:
+    - PhysicalNode
+  parameters:
+    - name: nodeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 物理ノードの一意なID
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/physical-node/DeviceResponse.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 物理ノードが見つからない
+  security:
+    - BearerAuth: []

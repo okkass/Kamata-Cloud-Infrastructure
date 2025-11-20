@@ -10,6 +10,11 @@ properties:
     type: integer
     description: ストレージプールの総サイズ（バイト単位）
     example: 1099511627776
+  devicePath:
+    type: string
+    description: ストレージプールが使用するデバイスのパス
+    example: /dev/sdb
 required:
   - nodeId
   - totalSize
+  - devicePath
