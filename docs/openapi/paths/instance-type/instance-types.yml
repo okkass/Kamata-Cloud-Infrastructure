@@ -1,0 +1,46 @@
+get:
+  summary: インスタンスタイプ一覧の取得
+  description: すべてのインスタンスタイプのリストを取得します。
+  tags:
+    - InstanceType
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/instance-type/InstanceType.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []
+post:
+  summary: インスタンスタイプの作成
+  description: 新しいインスタンスタイプを作成します。
+  tags:
+    - InstanceType
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/instance-type/InstanceTypeCreateRequest.yml
+  responses:
+    "201":
+      description: 作成成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/instance-type/InstanceType.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []

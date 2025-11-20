@@ -2,18 +2,6 @@
 import { computed, ref } from "vue";
 import { formatDateTime } from "@/utils/date";
 
-type RawVNet = {
-  id: string;
-  name: string;
-  cidr: string;
-  // API では subnets が配列（オブジェクト配列）で返る想定
-  subnets?: Array<Record<string, any>>;
-  createdAt?: string; // ISO
-  description?: string;
-  inboundTraffic?: number;
-  outboundTraffic?: number;
-};
-
 export type VNetRow = {
   id: string;
   name: string;
@@ -24,41 +12,23 @@ export type VNetRow = {
   inboundTraffic?: number;
   outboundTraffic?: number;
 };
-
-const DEFAULT_MOCK: RawVNet[] = [
-  {
-    id: "vnet-1",
-    name: "default-vnet",
-    cidr: "10.0.0.0/16",
-    subnets: [{ id: "s1" }, { id: "s2" }, { id: "s3" }],
-    createdAt: new Date().toISOString(),
-    description: "デフォルトの仮想ネットワーク（モック）",
-  },
-  {
-    id: "vnet-2",
-    name: "prod-vnet",
-    cidr: "192.168.0.0/16",
-    subnets: [{ id: "s1" }, { id: "s2" }],
-    createdAt: new Date().toISOString(),
-    description: "本番用（モック）",
-  },
-];
-
 export function useVNetManagement() {
-  const { data, pending, error, refresh } = useAsyncData<RawVNet[]>(
-    "virtual-networks:list",
-    () => $fetch("/api/virtual-networks")
+  const { data, pending, error, refresh } = useResourceList<VirtualNetworkDTO>(
+    NETWORK.name
   );
+  const CREATE_VNET_ACTION = `create-${NETWORK.name}`;
+  const DELETE_VNET_ACTION = `delete-${NETWORK.name}`;
+  const EDIT_VNET_ACTION = `edit-${NETWORK.name}`;
 
-  const columns = [
-    { key: "name", label: "名前", align: "left" as const },
-    { key: "cidr", label: "CIDR", align: "left" as const },
-    { key: "subnets", label: "サブネット数", align: "right" as const },
-    { key: "createdAtText", label: "作成日時", align: "left" as const },
+  const columns: TableColumn[] = [
+    { key: "name", label: "名前", align: "left" },
+    { key: "cidr", label: "CIDR", align: "left" },
+    { key: "subnets", label: "サブネット数", align: "right" },
+    { key: "createdAtText", label: "作成日時", align: "left" },
   ];
 
   const headerButtons = [
-    { action: "create", label: "仮想ネットワーク作成", variant: "primary" },
+    { action: CREATE_VNET_ACTION, label: "仮想ネットワーク作成" },
   ];
 
   const rows = computed<VNetRow[]>(() =>
@@ -70,7 +40,6 @@ export function useVNetManagement() {
         cidr: v.cidr,
         subnets: subnetsCount,
         createdAtText: v.createdAt ? formatDateTime(v.createdAt) : "-",
-        description: v.description,
         inboundTraffic: v.inboundTraffic,
         outboundTraffic: v.outboundTraffic,
       };
@@ -84,5 +53,8 @@ export function useVNetManagement() {
     headerButtons,
     rows,
     refresh,
+    CREATE_VNET_ACTION,
+    DELETE_VNET_ACTION,
+    EDIT_VNET_ACTION,
   } as const;
 }

@@ -1,0 +1,16 @@
+type: object
+description: スナップショット作成リクエストオブジェクト
+properties:
+  name:
+    type: string
+    description: スナップショットの名前
+  description:
+    type: string
+    description: スナップショットの説明
+  targetVmId:
+    type: string
+    format: uuid
+    description: スナップショットを取得する仮想マシンのID
+required:
+  - name
+  - targetVmId

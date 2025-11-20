@@ -10,12 +10,9 @@
   >
     <!-- 仮想ネットワーク名 -->
     <template #cell-name="{ row }">
-      <div>
-        <span class="table-link">{{ row.name }}</span>
-        <div v-if="row.description" class="text-sm text-gray-500 mt-0.5">
-          {{ row.description }}
-        </div>
-      </div>
+      <NuxtLink :to="`/network/${row.id}`" class="table-link">
+        {{ row.name }}
+      </NuxtLink>
     </template>
 
     <!-- CIDR -->
@@ -37,16 +34,21 @@
     <template #row-actions="{ row }">
       <div v-if="row">
         <NuxtLink
-          :to="`/virtual-network/${encodeURIComponent(row.id)}`"
+          :to="`/network/${row.id}`"
           class="action-item first:border-t-0"
         >
           詳細
         </NuxtLink>
-
+        <button
+          class="action-item"
+          @click.stop.prevent="onRowAction({ action: EDIT_VNET_ACTION, row })"
+        >
+          編集
+        </button>
         <button
           class="action-item action-item-danger"
           :disabled="isDeleting && targetForDeletion?.id === row.id"
-          @click.stop.prevent="onRowAction({ action: 'delete', row })"
+          @click.stop.prevent="onRowAction({ action: DELETE_VNET_ACTION, row })"
         >
           削除
         </button>
@@ -58,7 +60,7 @@
   <MoVirtualNetworkCreate
     :show="activeModal === CREATE_VNET_ACTION"
     @close="closeModal"
-    @success="onCreateSuccess"
+    @success="handleSuccess"
   />
 
   <!-- 削除確認モーダル（usePageActions が管理する場合は activeModal で制御） -->
@@ -68,6 +70,12 @@
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
+  />
+  <MoVirtualMachineEdit
+    :show="activeModal === EDIT_VNET_ACTION"
+    :vnet="targetForEditing"
+    @close="closeModal"
+    @success="handleSuccess"
   />
 </template>
 
@@ -81,13 +89,15 @@ import {
 } from "@/composables/useVNetManagement";
 import { usePageActions } from "@/composables/usePageActions";
 
-const CREATE_VNET_ACTION = "create-virtual-network";
-const DELETE_VNET_ACTION = "delete-virtual-network";
-const EDIT_VNET_ACTION = "edit-virtual-network";
-
-type UiRow = VNetRow;
-
-const { columns, headerButtons, rows, refresh } = useVNetManagement();
+const {
+  columns,
+  headerButtons,
+  rows,
+  refresh,
+  CREATE_VNET_ACTION,
+  DELETE_VNET_ACTION,
+  EDIT_VNET_ACTION,
+} = useVNetManagement();
 
 const {
   activeModal,
@@ -98,40 +108,32 @@ const {
   isDeleting,
   handleRowAction,
   handleDelete,
+  handleSuccess,
   cancelAction,
-} = usePageActions<UiRow>({
-  resourceName: "virtual-networks",
-  resourceLabel: "仮想ネットワーク",
+} = usePageActions<VNetRow>({
+  resourceName: NETWORK.name,
+  resourceLabel: NETWORK.label,
   refresh,
 });
 
 const onHeaderAction = (action: string) => {
-  if (
-    action === "create" ||
-    action === "add" ||
-    action === CREATE_VNET_ACTION
-  ) {
-    openModal?.(CREATE_VNET_ACTION);
+  if (action === CREATE_VNET_ACTION) {
+    openModal(CREATE_VNET_ACTION);
   }
 };
 
-const onRowAction = ({ action, row }: { action: string; row: UiRow }) => {
+const onRowAction = ({ action, row }: { action: string; row: VNetRow }) => {
   if (!row) return;
-  if (action === "delete") {
+  if (action === DELETE_VNET_ACTION) {
     targetForDeletion.value = row;
-    openModal?.(DELETE_VNET_ACTION);
+    openModal(DELETE_VNET_ACTION);
     return;
   }
-  if (action === "edit") {
+  if (action === EDIT_VNET_ACTION) {
     targetForEditing.value = row;
-    openModal?.(EDIT_VNET_ACTION);
+    openModal(EDIT_VNET_ACTION);
     return;
   }
-  handleRowAction?.({ action, row });
-};
-
-const onCreateSuccess = async () => {
-  closeModal?.();
-  await refresh();
+  handleRowAction({ action, row });
 };
 </script>
