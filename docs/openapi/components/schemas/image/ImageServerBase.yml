@@ -19,8 +19,12 @@ properties:
     type: number
     format: integer
     description: 仮想マシンイメージのサイズ(バイト単位)
+  nodeId:
+    type: string
+    description: 仮想マシンイメージが存在するノードのID
 required:
   - id
   - name
   - createdAt
   - size
+  - nodeId
