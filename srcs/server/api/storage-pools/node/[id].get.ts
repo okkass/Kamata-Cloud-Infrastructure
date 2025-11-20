@@ -1,4 +1,5 @@
 import { validate } from "uuid";
+import { StoragePoolResponse } from "~~/shared/types";
 
 export default defineEventHandler(async (event) => {
   const nodeId = event.context.params?.id;
@@ -18,7 +19,7 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const storagePools: Array<StoragePoolDTO> = [
+  const storagePools: Array<StoragePoolResponse> = [
     {
       id: "424e0305-9d0e-4c37-bd6e-06da5bb7fc52",
       name: "Node1 Pool 1",
