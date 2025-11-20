@@ -15,9 +15,6 @@ properties:
   cpuCore:
     type: integer
     description: CPUコア数
-  cpuSocket:
-    type: integer
-    description: CPUソケット数
   memorySize:
     type: integer
     description: メモリサイズ（バイト単位）

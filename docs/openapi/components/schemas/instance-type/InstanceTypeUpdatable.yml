@@ -9,10 +9,6 @@ properties:
     type: integer
     description: CPUコア数
     example: 4
-  cpuSocket:
-    type: integer
-    description: CPUソケット数
-    example: 1
   memorySize:
     type: integer
     description: メモリサイズ（バイト単位）

@@ -7,16 +7,13 @@ import type { InstanceTypeUpdatable } from "./InstanceTypeUpdatable";
  */
 export type InstanceTypeCreateRequest = Omit<
   InstanceTypeUpdatable,
-  "name" | "cpuCore" | "cpuSocket" | "memorySize"
+  "name" | "cpuCore" | "memorySize"
 > & {
   /** インスタンスタイプの名前 */
   name: string;
 
   /** CPUコア数 */
   cpuCore: number;
-
-  /** CPUソケット数 */
-  cpuSocket: number;
 
   /** メモリサイズ（バイト単位） */
   memorySize: number;

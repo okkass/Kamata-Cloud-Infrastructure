@@ -10,9 +10,6 @@ export interface InstanceTypeUpdatable {
   /** CPUコア数 */
   cpuCore?: number;
 
-  /** CPUソケット数 */
-  cpuSocket?: number;
-
   /** メモリサイズ（バイト単位） */
   memorySize?: number;
 }

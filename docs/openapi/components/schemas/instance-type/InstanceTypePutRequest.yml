@@ -5,5 +5,4 @@ allOf:
 required:
   - name
   - cpuCore
-  - cpuSocket
   - memorySize
