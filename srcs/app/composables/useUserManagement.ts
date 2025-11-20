@@ -1,14 +1,13 @@
 // app/composables/useUserManagement.ts
 import { computed } from "vue";
-import { convertByteToUnit } from "../utils/format";
-import { formatDateTime } from "../utils/date";
+import { convertByteToUnit } from "@/utils/format";
+import { formatDateTime } from "@/utils/date";
 
 type RawUser = {
   id: string;
   accountName?: string;
   name?: string;
   email?: string;
-  createdAt?: string;
   lastLoginAt?: string;
   description?: string;
   maxCpuCore?: number;
@@ -33,17 +32,14 @@ export type UserRow = {
   editUrl?: string;
 };
 
-function toNumber(v: any): number {
+function toNumber(v: unknown): number {
   if (v == null) return 0;
   const n = Number(v);
   return Number.isFinite(n) ? n : 0;
 }
 
 export function useUserManagement() {
-  const { data, pending, error, refresh } = useAsyncData<RawUser[]>(
-    "users-list",
-    () => $fetch("/api/users")
-  );
+  const { data, pending, error, refresh } = useAsyncData<RawUser[]>("users-list", () => $fetch("/api/users"));
 
   const columns = [
     { key: "account", label: "アカウント名", align: "left" as const },

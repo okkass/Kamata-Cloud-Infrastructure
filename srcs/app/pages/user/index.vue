@@ -37,7 +37,7 @@
         class="action-item"
         @click.stop="onRowAction({ action: 'edit', row })"
       >
-        編集
+        詳細
       </button>
       <button
         class="action-item action-item-danger"
@@ -49,13 +49,13 @@
   </DashboardLayout>
 
   <MoUserAdd
-    :show="activeModal === 'add-users'"
+    :show="activeModal === ADD_USERS_MODAL"
     @close="closeModal"
     @success="onAddSuccess"
   />
 
   <MoDeleteConfirm
-    :show="activeModal === 'delete-users'"
+    :show="activeModal === DELETE_USERS_MODAL"
     :message="`「${targetForDeletion?.account}」を削除します。よろしいですか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
@@ -74,7 +74,12 @@ import {
 import { usePageActions } from "@/composables/usePageActions";
 import { useToast } from "@/composables/useToast";
 
+const ADD_USERS_MODAL = "add-users";
+const EDIT_USERS_MODAL = "edit-users";
+const DELETE_USERS_MODAL = "delete-users";
+
 const { columns, headerButtons, rows, refresh } = useUserManagement();
+const { addToast } = useToast();
 
 const rowActions = [
   { key: "edit", label: "編集" },
@@ -97,31 +102,38 @@ const {
   refresh,
 });
 
-const { addToast } = useToast();
+function onHeaderAction(e: string | { key?: string } | any) {
+  const key = typeof e === "string" ? e : e?.key;
+  if (key === "add" || key === "create" || key === ADD_USERS_MODAL) {
+    if (typeof openModal === "function") openModal(ADD_USERS_MODAL);
+  }
+}
 
-const onHeaderAction = (action: string) => {
-  if (action === "add") openModal("add-users");
-};
+function onRowAction(payload: { action: string; row?: UserRow | null } | any) {
+  if (!payload) return;
+  const action = String(payload.action ?? payload.key ?? "");
+  const row: UserRow | undefined = payload.row ?? payload.item;
 
-const onRowAction = (payload: { action: string; row?: UserRow | null }) => {
-  const { action, row } = payload;
   if (!row) return;
-  if (action === "edit") {
-    if (typeof targetForEditing !== "undefined") targetForEditing.value = row;
-    openModal("edit-users");
-    return;
-  }
-  if (action === "delete") {
-    targetForDeletion.value = row;
-    openModal("delete-users");
-    return;
-  }
-  handleRowAction({ action, row });
-};
 
-const onAddSuccess = async (msg?: string) => {
+  if (action === "edit") {
+    if (targetForEditing) targetForEditing.value = row;
+    if (typeof openModal === "function") openModal(EDIT_USERS_MODAL);
+    return;
+  }
+
+  if (action === "delete") {
+    if (targetForDeletion) targetForDeletion.value = row;
+    if (typeof openModal === "function") openModal(DELETE_USERS_MODAL);
+    return;
+  }
+
+  if (typeof handleRowAction === "function") handleRowAction({ action, row });
+}
+
+async function onAddSuccess(msg?: string) {
   if (msg) addToast({ type: "success", message: msg });
-  closeModal();
+  if (typeof closeModal === "function") closeModal();
   await refresh();
-};
+}
 </script>
