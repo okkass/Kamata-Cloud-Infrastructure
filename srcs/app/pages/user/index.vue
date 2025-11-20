@@ -14,9 +14,9 @@
     <template #cell-account="{ row }">
       <div>
         <span class="table-link">{{ row.account }}</span>
-        <span v-if="row.description" class="text-sm text-gray-500 block mt-0.5">
+        <div v-if="row.description" class="text-sm text-gray-500 mt-0.5">
           {{ row.description }}
-        </span>
+        </div>
       </div>
     </template>
 
@@ -109,20 +109,24 @@ function onHeaderAction(e: string | { key?: string } | any) {
   }
 }
 
-function onRowAction(payload: { action: string; row?: UserRow | null } | any) {
+function onRowAction(
+  payload:
+    | { action?: string; key?: string; row?: UserRow; item?: UserRow }
+    | any
+) {
   if (!payload) return;
   const action = String(payload.action ?? payload.key ?? "");
   const row: UserRow | undefined = payload.row ?? payload.item;
   if (!row) return;
 
   if (action === "edit") {
-    targetForEditing.value = row;
+    if (targetForEditing) targetForEditing.value = row;
     openModal(EDIT_USERS_MODAL);
     return;
   }
 
   if (action === "delete") {
-    targetForDeletion.value = row;
+    if (targetForDeletion) targetForDeletion.value = row;
     openModal(DELETE_USERS_MODAL);
     return;
   }
@@ -136,24 +140,3 @@ async function onAddSuccess(msg?: string) {
   await refresh();
 }
 </script>
-
-<style scoped>
-.table-link {
-  color: #2563eb;
-  text-decoration: none;
-}
-.font-mono {
-  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas,
-    "Courier New", monospace;
-}
-.action-item {
-  display: inline-block;
-  padding: 6px 10px;
-  background: transparent;
-  border: none;
-  cursor: pointer;
-}
-.action-item-danger {
-  color: #b91c1c;
-}
-</style>
