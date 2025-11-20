@@ -21,6 +21,7 @@ properties:
     description: 仮想マシンイメージのサイズ(バイト単位)
   nodeId:
     type: string
+    format: uuid
     description: 仮想マシンイメージが存在するノードのID
 required:
   - id
