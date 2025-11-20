@@ -209,7 +209,7 @@ import { convertByteToUnit } from "~/utils/format"; // ★ 必要な型定義を
 import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine";
 import type { InstanceTypeDTO as ModelInstanceTypeDTO } from "~~/shared/types/dto/instance-type";
 import type { ImageDTO } from "~~/shared/types/dto/image";
-import type { UserDTO } from "~/composables/modal/useUserEditForm";
+import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
 
 // ==============================================================================
 // コンポーネントインポート (Edit系)
@@ -228,7 +228,6 @@ const targetResource = ref<any>(null);
 // ==============================================================================
 // API連携 (一覧取得)
 // ==============================================================================
-// (既存)
 const {
   data: virtualMachines,
   pending: vmPending,
@@ -250,16 +249,15 @@ const {
   refresh: refreshImages,
 } = useResourceList<ImageDTO>("images");
 
-// --- ★ 利用者一覧 (新規追加) ---
 const {
   data: users,
-  pending: usersPending, // 変数名が被らないように
+  pending: usersPending,
   error: usersError,
-  refresh: refreshUsers, // ★ リフレッシュ関数に別名
-} = useResourceList<UserDTO>("users"); // APIパスは "/api/users" を想定
+  refresh: refreshUsers,
+} = useResourceList<UserServerBase>("users");
 
 // ==============================================================================
-// モーダル定義 (★ 拡張ポイント)
+// モーダル定義
 // ==============================================================================
 const editModals = computed(() => [
   // (VM編集 ... 既存)
@@ -320,7 +318,6 @@ const handleSuccess = () => {
 };
 
 // --- モーダルを開くためのヘルパー関数 ---
-
 const openVmEditModal = (vm: VirtualMachineDTO) => {
   openModal("vmEdit", vm);
 };
@@ -333,8 +330,7 @@ const openImageEditModal = (image: ImageDTO) => {
   openModal("imageEdit", image);
 };
 
-/** ★ 利用者編集モーダルを開く (新規追加) */
-const openUserEditModal = (user: UserDTO) => {
+const openUserEditModal = (user: UserServerBase) => {
   openModal("userEdit", user);
 };
 </script>
