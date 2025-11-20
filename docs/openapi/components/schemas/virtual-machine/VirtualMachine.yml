@@ -9,7 +9,7 @@ properties:
     type: string
     description: 仮想マシンの名前
   instanceType:
-    $ref: ../instance-type/InstanceType.yml
+    $ref: ../instance-type/InstanceTypeResponse.yml
     description: 仮想マシンのインスタンスタイプ
   status:
     type: string
