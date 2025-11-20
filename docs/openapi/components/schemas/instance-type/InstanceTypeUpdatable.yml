@@ -1,12 +1,15 @@
 type: object
-description: インスタンスタイプ更新リクエストオブジェクト
+description: インスタンスタイプのうち更新可能な情報を表すスキーマ
 properties:
   name:
     type: string
     description: インスタンスタイプの名前
+    example: micro
   cpuCore:
     type: integer
     description: CPUコア数
+    example: 4
   memorySize:
     type: integer
     description: メモリサイズ（バイト単位）
+    example: 8589934592

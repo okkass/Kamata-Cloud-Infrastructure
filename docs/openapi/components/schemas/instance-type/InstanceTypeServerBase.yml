@@ -23,4 +23,5 @@ required:
   - name
   - createdAt
   - cpuCore
+  - cpuSocket
   - memorySize
