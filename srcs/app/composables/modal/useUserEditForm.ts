@@ -1,6 +1,8 @@
 /**
  * =================================================================================
  * 利用者編集フォーム Composable (useUserEditForm.ts)
+ * ---------------------------------------------------------------------------------
+ * ★ 型定義ファイルを指定のものに変更
  * =================================================================================
  */
 import { watch } from "vue";
@@ -11,46 +13,18 @@ import { useResourceUpdate } from "~/composables/useResourceEdit";
 import { useToast } from "~/composables/useToast";
 import { convertUnitToByte, convertByteToUnit } from "~/utils/format";
 
-// --- 型定義 ---
-export interface UserDTO {
-  id: string;
-  name: string;
-  email: string;
-  maxCpuCore: number | null;
-  maxMemorySize: number | null;
-  maxStorageSize: number | null;
-  isAdmin: boolean;
-  isImageAdmin: boolean;
-  isInstanceTypeAdmin: boolean;
-  isNetworkAdmin: boolean;
-  isPhysicalNodeAdmin: boolean;
-  isSecurityGroupAdmin: boolean;
-  isVirtualMachineAdmin: boolean;
-}
+// ★ 指定された型定義をインポート
+import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
+import type { UserPutRequest } from "~~/shared/types/dto/user/UserPutRequest";
 
-// 更新リクエストボディ (パスワード削除)
-interface UserUpdateRequest {
-  name: string;
-  email: string;
-  maxCpuCore: number | null;
-  maxMemorySize: number | null;
-  maxStorageSize: number | null;
-  isAdmin: boolean;
-  isImageAdmin: boolean;
-  isInstanceTypeAdmin: boolean;
-  isNetworkAdmin: boolean;
-  isPhysicalNodeAdmin: boolean;
-  isSecurityGroupAdmin: boolean;
-  isVirtualMachineAdmin: boolean;
-}
-
+// Props の型定義
 interface UserEditProps {
   show: boolean;
-  userData: UserDTO | null;
+  userData: UserServerBase | null; // ★ UserDTO -> UserServerBase に変更
 }
 
 // =============================================================================
-// Validation Schema
+// Validation Schema (バリデーションスキーマ)
 // =============================================================================
 const validationSchema = toTypedSchema(
   z.object({
@@ -59,8 +33,6 @@ const validationSchema = toTypedSchema(
       .string()
       .min(1, "メールアドレスは必須です。")
       .email("有効なメールアドレスを入力してください。"),
-
-    // ★ パスワード削除
 
     // クォータ
     maxCpuCores: z.preprocess(
@@ -87,23 +59,26 @@ const validationSchema = toTypedSchema(
   })
 );
 
+/**
+ * 利用者編集フォームのロジック
+ */
 export function useUserEditForm(props: UserEditProps) {
   const { addToast } = useToast();
 
+  // ★ 更新用 Composable の型引数を変更
   const { executeUpdate, isUpdating } = useResourceUpdate<
-    UserUpdateRequest,
-    UserDTO
+    UserPutRequest, // リクエスト型
+    UserServerBase // レスポンス型
   >("users");
 
   // ============================================================================
-  // Form Setup
+  // Form Setup (VeeValidate)
   // ============================================================================
   const { errors, defineField, handleSubmit, resetForm } = useForm({
     validationSchema,
     initialValues: {
       name: "",
       email: "",
-      // ★ パスワード削除
       maxCpuCores: undefined,
       maxMemorySizeInMb: undefined,
       maxStorageSizeInGb: undefined,
@@ -120,7 +95,6 @@ export function useUserEditForm(props: UserEditProps) {
   // --- フィールド定義 ---
   const [name, nameAttrs] = defineField("name");
   const [email, emailAttrs] = defineField("email");
-  // ★ パスワード削除
 
   const [maxCpuCores, maxCpuCoresAttrs] = defineField("maxCpuCores");
   const [maxMemorySizeInMb, maxMemorySizeInMbAttrs] =
@@ -128,7 +102,7 @@ export function useUserEditForm(props: UserEditProps) {
   const [maxStorageSizeInGb, maxStorageSizeInGbAttrs] =
     defineField("maxStorageSizeInGb");
 
-  // 権限 (Attrs は UI で使わないため削除しても良いが、定義は残しておく)
+  // 権限
   const [isAdmin] = defineField("isAdmin");
   const [isImageAdmin] = defineField("isImageAdmin");
   const [isInstanceTypeAdmin] = defineField("isInstanceTypeAdmin");
@@ -138,7 +112,7 @@ export function useUserEditForm(props: UserEditProps) {
   const [isVirtualMachineAdmin] = defineField("isVirtualMachineAdmin");
 
   // ============================================================================
-  // 初期値の反映
+  // 初期値の反映 (Watch)
   // ============================================================================
   watch(
     () => props.userData,
@@ -148,8 +122,8 @@ export function useUserEditForm(props: UserEditProps) {
           values: {
             name: newData.name,
             email: newData.email,
-            // ★ パスワード削除
 
+            // クォータ: UserServerBase のプロパティを使用
             maxCpuCores: newData.maxCpuCore ?? undefined,
             maxMemorySizeInMb: newData.maxMemorySize
               ? convertByteToUnit(newData.maxMemorySize, "MB")
@@ -158,6 +132,7 @@ export function useUserEditForm(props: UserEditProps) {
               ? convertByteToUnit(newData.maxStorageSize, "GB")
               : undefined,
 
+            // 権限
             isAdmin: newData.isAdmin,
             isImageAdmin: newData.isImageAdmin,
             isInstanceTypeAdmin: newData.isInstanceTypeAdmin,
@@ -173,7 +148,7 @@ export function useUserEditForm(props: UserEditProps) {
   );
 
   // ============================================================================
-  // 送信処理
+  // Submission Handler (送信処理)
   // ============================================================================
   const onFormSubmit = (emit: (event: "close" | "success") => void) => {
     return handleSubmit(async (values) => {
@@ -187,8 +162,8 @@ export function useUserEditForm(props: UserEditProps) {
         ? convertUnitToByte(values.maxStorageSizeInGb, "GB")
         : null;
 
-      // ペイロード作成 (パスワードなし)
-      const payload: UserUpdateRequest = {
+      // ペイロード作成: UserPutRequest 型に準拠
+      const payload: UserPutRequest = {
         name: values.name,
         email: values.email,
 
@@ -205,6 +180,7 @@ export function useUserEditForm(props: UserEditProps) {
         isVirtualMachineAdmin: values.isVirtualMachineAdmin,
       };
 
+      // APIリクエスト (PUT)
       const { success, error } = await executeUpdate(
         props.userData.id,
         payload
@@ -234,15 +210,12 @@ export function useUserEditForm(props: UserEditProps) {
     nameAttrs,
     email,
     emailAttrs,
-    // ★ パスワード削除
     maxCpuCores,
     maxCpuCoresAttrs,
     maxMemorySizeInMb,
     maxMemorySizeInMbAttrs,
     maxStorageSizeInGb,
     maxStorageSizeInGbAttrs,
-
-    // 権限 (Attrsは使用しない)
     isAdmin,
     isImageAdmin,
     isInstanceTypeAdmin,

@@ -102,18 +102,24 @@
 </template>
 
 <script setup lang="ts">
-import {
-  useUserEditForm,
-  type UserDTO,
-} from "~/composables/modal/useUserEditForm";
+/**
+ * =================================================================================
+ * 利用者編集モーダル (MoUserEdit.vue)
+ * =================================================================================
+ */
+import { useUserEditForm } from "~/composables/modal/useUserEditForm";
 import FormInput from "~/components/Form/Input.vue";
 import FormSection from "~/components/Form/Section.vue";
+
+// ★ 指定された型定義をインポート
+import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
 
 // --- 親コンポーネントとの連携 ---
 const props = defineProps({
   show: { type: Boolean, required: true },
   userData: {
-    type: Object as PropType<UserDTO | null>,
+    // ★ UserDTO -> UserServerBase に変更
+    type: Object as PropType<UserServerBase | null>,
     default: null,
   },
 });
@@ -126,15 +132,12 @@ const {
   nameAttrs,
   email,
   emailAttrs,
-  // パスワード関連は削除
   maxCpuCores,
   maxCpuCoresAttrs,
   maxMemorySizeInMb,
   maxMemorySizeInMbAttrs,
   maxStorageSizeInGb,
   maxStorageSizeInGbAttrs,
-
-  // 権限 (v-model用)
   isAdmin,
   isImageAdmin,
   isInstanceTypeAdmin,
@@ -142,7 +145,6 @@ const {
   isPhysicalNodeAdmin,
   isSecurityGroupAdmin,
   isVirtualMachineAdmin,
-
   isUpdating,
   onFormSubmit,
 } = useUserEditForm(props);
@@ -151,7 +153,6 @@ const submitForm = onFormSubmit(emit);
 </script>
 
 <style scoped>
-/* チェックボックス用スタイル */
 .checkbox-grid {
   display: grid;
   grid-template-columns: repeat(2, 1fr);
