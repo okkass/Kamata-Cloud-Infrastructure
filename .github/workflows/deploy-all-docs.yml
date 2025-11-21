@@ -53,6 +53,8 @@ jobs:
           pnpm install
           # prisma関連のセットアップ
           pnpm prisma generate
+        env:
+          DATABASE_URL: mysql://kci_user:moimoi1204@localhost:3306/kci_db
         working-directory: ./srcs
 
       # 5. APIドキュメントをbundle
