@@ -1,36 +1,46 @@
 /**
  * =================================================================================
  * イメージ追加フォーム Composable (useImageAddForm.ts)
+ * ---------------------------------------------------------------------------------
+ * ★ ノード選択 (nodeId) のロジックを追加
  * =================================================================================
  */
-import { ref } from "vue";
-import { useForm, useField } from "vee-validate"; // useField を使用
+import { useForm, useField } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
+// ★ リソース一覧取得用 Composable をインポート
+import { useResourceList } from "~/composables/useResourceList";
 import { useToast } from "~/composables/useToast";
 
-// ★ リクエスト型定義
 import type { ImageCreateRequest } from "~~/shared/types/dto/image/ImageCreateRequest";
-// ★ レスポンス型定義 (ImageServerBase を継承した ImageResponse)
 import type { ImageResponse } from "~~/shared/types/dto/image/ImageResponse";
 
+// ★ ノードの型定義 (画像2枚目 GET /api/nodes のレスポンス参考)
+interface NodeDTO {
+  id: string;
+  name: string;
+  hostname: string;
+  // ... 他のプロパティは省略
+}
+
 // ==============================================================================
-// Validation Schema (バリデーションスキーマ)
+// Validation Schema
 // ==============================================================================
 const zodSchema = z.object({
   name: z.string().min(1, "イメージ名は必須です。"),
-  // ファイルは必須。 Fileオブジェクトであることを確認します
   file: z.instanceof(File, { message: "イメージファイルを選択してください。" }),
   description: z.string().optional(),
+  // ★ nodeId のバリデーションを追加
+  nodeId: z
+    .string({ required_error: "作成先ノードを選択してください。" })
+    .min(1, "作成先ノードを選択してください。"),
 });
 
 const validationSchema = toTypedSchema(zodSchema);
 type FormValues = z.infer<typeof zodSchema>;
 
-/**
- * ファイルをBase64文字列に変換するヘルパー関数
- */
+// (convertFileToBase64 ヘルパー関数は変更なし)
 const convertFileToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -52,15 +62,22 @@ const convertFileToBase64 = (file: File): Promise<string> => {
 export function useImageAddForm() {
   const { addToast } = useToast();
 
-  // ★ useResourceCreate の型引数を共有型定義に変更
-  // Request: ImageCreateRequest, Response: ImageResponse
   const { executeCreate, isCreating } = useResourceCreate<
     ImageCreateRequest,
     ImageResponse
   >("images");
 
   // ============================================================================
-  // Form Setup (VeeValidate)
+  // ★ ノード一覧の取得 (GET /api/nodes)
+  // ============================================================================
+  const {
+    data: nodes,
+    pending: nodesPending,
+    error: nodesError,
+  } = useResourceList<NodeDTO>("nodes");
+
+  // ============================================================================
+  // Form Setup
   // ============================================================================
   const { errors, handleSubmit, resetForm } = useForm<FormValues>({
     validationSchema,
@@ -68,10 +85,12 @@ export function useImageAddForm() {
       name: "",
       description: "",
       file: undefined,
+      // ★ 初期値
+      nodeId: "",
     },
   });
 
-  // --- フィールド定義 (useField を使用) ---
+  // --- フィールド定義 (useField) ---
 
   // 1. name
   const {
@@ -79,11 +98,7 @@ export function useImageAddForm() {
     handleBlur: nameBlur,
     handleChange: nameChange,
   } = useField<string>("name");
-  const nameAttrs = {
-    name: "name",
-    onBlur: nameBlur,
-    onChange: nameChange,
-  };
+  const nameAttrs = { name: "name", onBlur: nameBlur, onChange: nameChange };
 
   // 2. description
   const {
@@ -97,30 +112,41 @@ export function useImageAddForm() {
     onChange: descChange,
   };
 
-  // 3. file (FormDropZone用)
+  // 3. file
   const { value: file } = useField<File | undefined>("file");
 
+  // 4. ★ nodeId (新規追加)
+  const {
+    value: nodeId,
+    handleBlur: nodeIdBlur,
+    handleChange: nodeIdChange,
+  } = useField<string>("nodeId");
+  // Selectコンポーネントには通常 v-model を渡すだけで十分ですが、
+  // 属性が必要な場合は以下のように定義します
+  // const nodeIdAttrs = { name: "nodeId", onBlur: nodeIdBlur, onChange: nodeIdChange };
+
   // ============================================================================
-  // Submission Handler (送信処理)
+  // Submission Handler
   // ============================================================================
   const onFormSubmit = (emit: (event: "close" | "success") => void) => {
     return handleSubmit(async (formValues) => {
       try {
-        // ファイルをBase64に変換
         const fileBase64 = await convertFileToBase64(formValues.file);
 
-        // APIに送信するデータ（ペイロード）を構築
-        const payload: ImageCreateRequest = {
+        // ペイロード構築
+        // Note: 型定義ファイル(ImageCreateRequest)に nodeId がまだ追加されていない場合
+        // エラーになるため、一時的に `as any` 等で回避するか、型定義を更新してください。
+        const payload: any = {
           name: formValues.name,
           description: formValues.description || undefined,
           file: fileBase64,
-        } as ImageCreateRequest;
+          // ★ nodeId を追加 (画像1枚目の仕様)
+          nodeId: formValues.nodeId,
+        };
 
-        // APIリクエストを実行
         const result = await executeCreate(payload);
 
         if (result.success) {
-          // 成功時のメッセージ (result.data は ImageResponse 型)
           addToast({
             message: `イメージ「${
               result.data?.name ?? payload.name
@@ -137,25 +163,28 @@ export function useImageAddForm() {
           });
         }
       } catch (error) {
-        console.error("File conversion error:", error);
+        console.error("Error:", error);
         addToast({
-          message: "ファイルの処理中にエラーが発生しました。",
+          message: "処理中にエラーが発生しました。",
           type: "error",
         });
       }
     });
   };
 
-  // ============================================================================
-  // Expose
-  // ============================================================================
   return {
     errors,
     name,
     nameAttrs,
     description,
     descriptionAttrs,
-    file, // FormDropZone用
+    file,
+    // ★ ノード関連のデータを公開
+    nodeId,
+    nodes,
+    nodesPending,
+    nodesError,
+
     isCreating,
     onFormSubmit,
     resetForm,

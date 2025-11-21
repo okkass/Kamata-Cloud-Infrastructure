@@ -1,6 +1,6 @@
 <template>
   <BaseModal :show="show" title="イメージ追加" @close="$emit('close')">
-    <form @submit.prevent="submitForm">
+    <form @submit.prevent="submitForm" class="modal-space">
       <FormSection>
         <FormInput
           label="イメージ名"
@@ -12,6 +12,25 @@
           :error="errors.name"
           :required="true"
         />
+
+        <FormSelect
+          label="作成先ノード"
+          name="image-node-add"
+          :options="nodes ?? []"
+          option-label="name"
+          option-value="id"
+          placeholder="ノードを選択してください"
+          :required="true"
+          :pending="nodesPending"
+          :error="nodesError"
+          :error-message="errors.nodeId"
+          v-model="nodeId"
+        >
+          <template #option="{ option }">
+            {{ option.name }}
+            <span class="text-gray-500">({{ option.hostname }})</span>
+          </template>
+        </FormSelect>
 
         <div>
           <label for="image-file-add" class="form-label-sm">
@@ -61,6 +80,7 @@ import { useImageAddForm } from "~/composables/modal/useImageAddForm";
 import FormInput from "~/components/Form/Input.vue";
 import FormSection from "~/components/Form/Section.vue";
 import FormDropZone from "~/components/Form/DropZone.vue";
+import FormSelect from "~/components/Form/Select.vue";
 
 // --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
@@ -74,6 +94,12 @@ const {
   description,
   descriptionAttrs,
   file,
+  // ★ ノード関連
+  nodeId,
+  nodes,
+  nodesPending,
+  nodesError,
+
   isCreating,
   onFormSubmit,
 } = useImageAddForm();
