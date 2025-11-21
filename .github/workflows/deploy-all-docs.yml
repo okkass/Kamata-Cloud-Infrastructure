@@ -51,6 +51,8 @@ jobs:
           pnpm install @redocly/cli
           # TypeDoc生成用の依存パッケージをインストール
           pnpm install
+          # prisma関連のセットアップ
+          pnpm prisma generate
         working-directory: ./srcs
 
       # 5. APIドキュメントをbundle
