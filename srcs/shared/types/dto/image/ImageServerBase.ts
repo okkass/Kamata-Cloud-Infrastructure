@@ -1,7 +1,7 @@
 // ImageServerBase.ts
 // openapi ImageServerBase.yml から自動生成
 /**
- * 仮想マシンイメージの基本情報を表すインターフェースにゃん
+ * 仮想マシンイメージの基本情報を表すインターフェース
  */
 export interface ImageServerBase {
   /** 仮想マシンイメージを識別するための一意なID (uuid) */

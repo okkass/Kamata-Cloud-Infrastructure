@@ -1,53 +1,49 @@
 <template>
   <BaseModal :show="show" title="イメージ追加" @close="$emit('close')">
-    <form @submit.prevent="submitForm" class="modal-space">
-      <div>
-        <label for="image-name-add" class="form-label">
-          イメージ名 <span class="required-asterisk">*</span>
-        </label>
-        <input
-          id="image-name-add"
+    <form @submit.prevent="submitForm">
+      <FormSection>
+        <FormInput
+          label="イメージ名"
+          name="image-name-add"
           type="text"
           placeholder="例: ubuntu-24.04-amd64"
           v-model="name"
           v-bind="nameAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.name }"
+          :error="errors.name"
+          :required="true"
         />
-        <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
-      </div>
 
-      <div>
-        <label for="image-file-add" class="form-label">
-          イメージファイル <span class="required-asterisk">*</span>
-        </label>
-        <FormDropZone
-          id="image-file-add"
-          v-model="file"
-          accept=".img,.qcow2,.zip,.gz,.xz"
-          :error-message="errors.file"
-        />
-      </div>
+        <div>
+          <label for="image-file-add" class="form-label-sm">
+            イメージファイル <span class="required-asterisk">*</span>
+          </label>
+          <FormDropZone
+            id="image-file-add"
+            v-model="file"
+            accept=".img,.qcow2,.zip,.gz,.xz,.iso"
+            :error-message="errors.file"
+          />
+        </div>
 
-      <div>
-        <label for="image-description-add" class="form-label">説明</label>
-        <textarea
-          id="image-description-add"
-          :rows="3"
+        <FormInput
+          label="説明"
+          name="image-description-add"
           v-model="description"
           v-bind="descriptionAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.description }"
-          placeholder="例: Ubuntu 24.04 LTS (Noble Numbat) 64bit版"
-        ></textarea>
-        <p v-if="errors.description" class="text-error mt-1">
-          {{ errors.description }}
-        </p>
-      </div>
+          :error="errors.description"
+          placeholder="イメージの説明を入力してください"
+        />
+      </FormSection>
     </form>
+
     <template #footer>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" :disabled="isCreating">
+        <button
+          type="button"
+          @click="submitForm"
+          class="btn btn-primary"
+          :disabled="isCreating"
+        >
           {{ isCreating ? "追加中..." : "追加" }}
         </button>
       </div>
@@ -59,36 +55,28 @@
 /**
  * =================================================================================
  * イメージ追加モーダル (MoImageAdd.vue)
- * ---------------------------------------------------------------------------------
- * UIの表示に特化したコンポーネントです。
- * 実際のフォームの状態管理やAPI送信ロジックは `useImageAddForm` Composable に
- * 分離されています。
  * =================================================================================
  */
-// Composable をインポート (パスはプロジェクトに合わせて調整してください)
 import { useImageAddForm } from "~/composables/modal/useImageAddForm";
+import FormInput from "~/components/Form/Input.vue";
+import FormSection from "~/components/Form/Section.vue";
+import FormDropZone from "~/components/Form/DropZone.vue";
 
 // --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 
-// --- Composable からフォームロジックと状態を取得 ---
+// --- Composable からフォームロジックを取得 ---
 const {
-  errors, // エラーオブジェクト
-  // フォームフィールド
+  errors,
   name,
   nameAttrs,
-  file, // FormDropZoneのv-model用
-  // fileAttrs, // FormDropZoneでは通常不要
   description,
   descriptionAttrs,
-  // 状態とアクション
+  file,
   isCreating,
-  onFormSubmit, // Composable が提供する送信ハンドラ
+  onFormSubmit,
 } = useImageAddForm();
 
-// --- イベントハンドラ ---
-// Composable から受け取った `onFormSubmit` 関数に、
-// このコンポーネントの `emit` 関数を渡して実行するラッパー関数。
 const submitForm = onFormSubmit(emit);
 </script>
