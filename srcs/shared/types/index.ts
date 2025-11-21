@@ -5,7 +5,7 @@ export * from "./modal";
 export * from "./dto/image";
 export * from "./dto/instance-type";
 export * from "./dto/auth";
-export * from "./dto/physical-node";
+export * from "./dto/node";
 export * from "./dto/security-group";
 export * from "./dto/storage-pool";
 export * from "./dto/user";

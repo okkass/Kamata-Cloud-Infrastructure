@@ -1,7 +1,7 @@
 /**
  * 物理ノード追加リクエストオブジェクト
  */
-export interface PhysicalNodeAddRequestDTO {
+export interface NodeAddRequestDTO {
   /**
    * 物理ノードの名前
    */

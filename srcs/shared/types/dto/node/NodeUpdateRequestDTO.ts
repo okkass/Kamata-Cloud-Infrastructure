@@ -1,7 +1,7 @@
 /**
  * 物理ノード更新リクエストオブジェクト
  */
-export interface PhysicalNodeUpdateRequestDTO {
+export interface NodeUpdateRequestDTO {
   /**
    * 物理ノードが管理ノードかどうかを示すフラグ
    */

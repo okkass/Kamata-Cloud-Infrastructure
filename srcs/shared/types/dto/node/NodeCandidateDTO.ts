@@ -1,7 +1,7 @@
 /**
  * 物理ノード候補オブジェクト
  */
-export interface PhysicalNodeCandidateDTO {
+export interface NodeCandidateDTO {
   /**
    * 物理ノードの名前
    */
