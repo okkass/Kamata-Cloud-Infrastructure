@@ -1,5 +1,5 @@
 import { VirtualMachineStatusEnum } from "./VirtualMachineDTO";
-import type { PhysicalNodeDTO } from "../node/PhysicalNodeDTO";
+import type { NodeDTO } from "../node/NodeDTO";
 import type { SecurityGroupDTO } from "../security-group/SecurityGroupDTO";
 import type { AttachedStorageDTO } from "./AttachedStorageDTO";
 import type { NetworkInterfaceDTO } from "./NetworkInterfaceDTO";
@@ -19,7 +19,7 @@ export interface VirtualMachineBaseDTO {
    * 仮想マシンの状態
    */
   status: VirtualMachineStatusEnum;
-  node: PhysicalNodeDTO;
+  node: NodeDTO;
   /**
    * 仮想マシンが作成された日時
    */
