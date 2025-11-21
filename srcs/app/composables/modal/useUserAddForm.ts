@@ -8,13 +8,11 @@ import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
-import type { UserCreateRequest } from "~~/shared/types/dto/user/UserCreateRequest";
 import { convertUnitToByte } from "~/utils/format";
 
-interface UserDTO {
-  id: string;
-  name: string;
-}
+// ★ 共有型定義をインポート
+import type { UserCreateRequest } from "~~/shared/types/dto/user/UserCreateRequest";
+import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
 
 // =============================================================================
 // Validation Schema (バリデーションスキーマ)
@@ -28,26 +26,21 @@ const validationSchema = toTypedSchema(
       .email("有効なメールアドレスを入力してください。"),
     password: z.string().min(8, "パスワードは8文字以上で入力してください。"),
 
-    // ★★★ 修正箇所 ★★★
-    // z.preprocess を使用して、入力が空文字 "" の場合、null に変換してから検証します。
-    // これにより、フォームを空にすると null 扱いに
-
+    // クォータ
     maxCpuCores: z.preprocess(
-      (val) => (val === "" ? null : val),
-      z.number().positive("1以上の値を入力してください。").nullable()
+      (val) => (val === "" ? undefined : val),
+      z.number().positive("1以上の値を入力してください。").optional()
     ),
-
     maxMemorySizeInMb: z.preprocess(
-      (val) => (val === "" ? null : val),
-      z.number().positive("1以上の値を入力してください。").nullable()
+      (val) => (val === "" ? undefined : val),
+      z.number().positive("1以上の値を入力してください。").optional()
     ),
-
     maxStorageSizeInGb: z.preprocess(
-      (val) => (val === "" ? null : val),
-      z.number().positive("1以上の値を入力してください。").nullable()
+      (val) => (val === "" ? undefined : val),
+      z.number().positive("1以上の値を入力してください。").optional()
     ),
 
-    // (権限フィールド)
+    // 権限
     isAdmin: z.boolean(),
     isImageAdmin: z.boolean(),
     isInstanceTypeAdmin: z.boolean(),
@@ -63,26 +56,26 @@ const validationSchema = toTypedSchema(
  */
 export function useUserAddForm() {
   const { addToast } = useToast();
+
+  // ★ useResourceCreate の型引数を共有型定義に変更
+  // Request: UserCreateRequest, Response: UserServerBase
   const { executeCreate, isCreating } = useResourceCreate<
     UserCreateRequest,
-    UserDTO
+    UserServerBase
   >("users");
 
   // ============================================================================
   // Form Setup (VeeValidate)
   // ============================================================================
-
   const { errors, defineField, handleSubmit, resetForm } = useForm({
     validationSchema,
     initialValues: {
       name: "",
       email: "",
       password: "",
-      // 初期値は null
-      maxCpuCores: null,
-      maxMemorySizeInMb: null,
-      maxStorageSizeInGb: null,
-      // 権限初期値
+      maxCpuCores: undefined,
+      maxMemorySizeInMb: undefined,
+      maxStorageSizeInGb: undefined,
       isAdmin: false,
       isImageAdmin: false,
       isInstanceTypeAdmin: false,
@@ -97,18 +90,13 @@ export function useUserAddForm() {
   const [name, nameAttrs] = defineField("name");
   const [email, emailAttrs] = defineField("email");
   const [password, passwordAttrs] = defineField("password");
-  const [maxCpuCores, maxCpuCoresAttrs] = defineField<
-    "maxCpuCores",
-    number | null
-  >("maxCpuCores");
-  const [maxMemorySizeInMb, maxMemorySizeInMbAttrs] = defineField<
-    "maxMemorySizeInMb",
-    number | null
-  >("maxMemorySizeInMb");
-  const [maxStorageSizeInGb, maxStorageSizeInGbAttrs] = defineField<
-    "maxStorageSizeInGb",
-    number | null
-  >("maxStorageSizeInGb");
+
+  const [maxCpuCores, maxCpuCoresAttrs] = defineField("maxCpuCores");
+  const [maxMemorySizeInMb, maxMemorySizeInMbAttrs] =
+    defineField("maxMemorySizeInMb");
+  const [maxStorageSizeInGb, maxStorageSizeInGbAttrs] =
+    defineField("maxStorageSizeInGb");
+
   const [isAdmin, isAdminAttrs] = defineField("isAdmin");
   const [isImageAdmin, isImageAdminAttrs] = defineField("isImageAdmin");
   const [isInstanceTypeAdmin, isInstanceTypeAdminAttrs] = defineField(
@@ -130,6 +118,7 @@ export function useUserAddForm() {
   // ============================================================================
   const onFormSubmit = (emit: (event: "close" | "success") => void) => {
     return handleSubmit(async (values) => {
+      // 単位変換
       const maxMemorySizeInBytes = values.maxMemorySizeInMb
         ? convertUnitToByte(values.maxMemorySizeInMb, "MB")
         : null;
@@ -138,17 +127,14 @@ export function useUserAddForm() {
         ? convertUnitToByte(values.maxStorageSizeInGb, "GB")
         : null;
 
-      // APIリクエストボディ
+      // APIリクエストボディ (UserCreateRequest型)
       const payload: UserCreateRequest = {
         name: values.name,
         email: values.email,
         password: values.password,
-
-        // null許容に対応
         maxCpuCore: values.maxCpuCores ?? null,
-        maxMemorySize: maxMemorySizeInBytes ?? null,
-        maxStorageSize: maxStorageSizeInBytes ?? null,
-
+        maxMemorySize: maxMemorySizeInBytes,
+        maxStorageSize: maxStorageSizeInBytes,
         isAdmin: values.isAdmin,
         isImageAdmin: values.isImageAdmin,
         isInstanceTypeAdmin: values.isInstanceTypeAdmin,
@@ -178,9 +164,6 @@ export function useUserAddForm() {
     });
   };
 
-  // ============================================================================
-  // Expose
-  // ============================================================================
   return {
     errors,
     name,
