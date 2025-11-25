@@ -1,4 +1,4 @@
 type: object
-description: セキュリティルール更新リクエストオブジェクト(PUT)
+description: セキュリティルール更新リクエストオブジェクト(PATCH)
 allOf:
   - $ref: "./SecurityRuleUpdatable.yml"
