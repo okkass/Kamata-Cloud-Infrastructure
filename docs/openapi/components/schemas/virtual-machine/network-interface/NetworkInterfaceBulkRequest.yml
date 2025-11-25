@@ -27,4 +27,4 @@ properties:
     items:
       type: string
       format: uuid
-      description: セキュリティルールのID
+      description: ネットワークインターフェースのID
