@@ -1,0 +1,5 @@
+type: object
+description: 物理ノード追加リクエストオブジェクト
+allOf:
+  - $ref: "./PhysicalNodeCreateOnly.yml"
+  - $ref: "./PhysicalNodeUpdatable.yml"
