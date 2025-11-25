@@ -37,6 +37,9 @@
       <NuxtLink v-if="row" :to="`/users/${row.id}`" class="action-item"
         >詳細</NuxtLink
       >
+      <button class="action-item" @click.stop.prevent="onEdit(row)">
+        編集
+      </button>
       <button
         class="action-item action-item-danger"
         @click.stop.prevent="row && handleRowAction({ action: 'delete', row })"
@@ -52,7 +55,14 @@
     @success="handleSuccess"
   />
 
-  <!-- 編集モーダルがプロジェクトで使われている場合は usePageActions の targetForEditing を渡すための実装を追加してください -->
+  <MoUserEdit
+    :show="activeModal === EDIT_USER_ACTION"
+    :userData="editingUserData"
+    :userId="targetForEditing?.value?.id ?? null"
+    @close="closeModal"
+    @success="handleSuccess"
+  />
+
   <MoDeleteConfirm
     :show="activeModal === DELETE_USER_ACTION"
     :message="`本当に「${targetForDeletion?.name}」を削除しますか？`"
@@ -65,10 +75,13 @@
 <script setup lang="ts">
 import DashboardLayout from "@/components/DashboardLayout.vue";
 import MoUserAdd from "@/components/MoUserAdd.vue";
+import MoUserEdit from "@/components/MoUserEdit.vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
+import { ref } from "vue";
 import { useUserManagement } from "@/composables/useUserManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import type { UserRow } from "@/composables/useUserManagement";
+import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
 
 const ADD_USER_ACTION = "add-users";
 const EDIT_USER_ACTION = "edit-users";
@@ -81,6 +94,7 @@ const {
   openModal,
   closeModal,
   targetForDeletion,
+  targetForEditing,
   isDeleting,
   handleRowAction,
   handleDelete,
@@ -91,4 +105,42 @@ const {
   resourceLabel: "利用者",
   refresh,
 });
+
+/* 編集時にモーダルへ即渡すためのローカル ref（null または UserServerBase） */
+const editingUserData = ref<UserServerBase | null>(null);
+
+/* 数値フィールドを確実に number 型でモーダルに渡す正規化 */
+function toNum(v: unknown): number | undefined {
+  if (v == null) return undefined;
+  const n = Number(v);
+  return Number.isFinite(n) ? n : undefined;
+}
+function normalizeUserDto(dto: any): UserServerBase {
+  if (!dto) return dto;
+  const limits = dto.limits ? { ...dto.limits } : undefined;
+  if (limits) {
+    limits.cpu = toNum(limits.cpu) ?? limits.cpu;
+    limits.memoryGb = toNum(limits.memoryGb) ?? limits.memoryGb;
+    limits.storageGb = toNum(limits.storageGb) ?? limits.storageGb;
+    limits.memorySize = toNum(limits.memorySize) ?? limits.memorySize;
+    limits.storageSize = toNum(limits.storageSize) ?? limits.storageSize;
+  }
+  return {
+    ...dto,
+    maxCpuCore: toNum(dto.maxCpuCore) ?? dto.maxCpuCore,
+    maxMemorySize: toNum(dto.maxMemorySize) ?? dto.maxMemorySize,
+    maxStorageSize: toNum(dto.maxStorageSize) ?? dto.maxStorageSize,
+    limits,
+  };
+}
+
+/* 編集ボタンハンドラ: targetForEditing と editingUserData をセットしてモーダルを開く */
+function onEdit(row: UserRow) {
+  if (!row) return;
+  // 正規化して即渡す（モーダルは userData を優先して表示する）
+  const normalizedDto = normalizeUserDto(row.dto);
+  editingUserData.value = normalizedDto;
+  if (targetForEditing) targetForEditing.value = { ...row, dto: normalizedDto };
+  openModal(EDIT_USER_ACTION);
+}
 </script>
