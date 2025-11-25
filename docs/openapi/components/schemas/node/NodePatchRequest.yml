@@ -1,4 +1,4 @@
 type: object
 description: 物理ノード更新リクエストオブジェクト(PATCH)
 allOf:
-  - $ref: "./PhysicalNodeUpdatable.yml"
+  - $ref: "./NodeUpdatable.yml"

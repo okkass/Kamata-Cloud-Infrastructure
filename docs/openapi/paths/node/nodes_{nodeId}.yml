@@ -17,7 +17,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/node/Node.yml
+            $ref: ../../components/schemas/node/NodeResponse.yml
     "401":
       description: 認証エラー
     "403":
@@ -44,14 +44,50 @@ put:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/node/NodeUpdateRequest.yml
+          $ref: ../../components/schemas/node/NodePutRequest.yml
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/node/Node.yml
+            $ref: ../../components/schemas/node/NodeResponse.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 物理ノードが見つからない
+  security:
+    - BearerAuth: []
+patch:
+  summary: 物理ノードの部分更新
+  description: 指定したIDの物理ノード情報を更新します。
+  tags:
+    - Node
+  parameters:
+    - name: nodeId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 物理ノードの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/node/NodePatchRequest.yml
+  responses:
+    "200":
+      description: 更新成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/node/NodeResponse.yml
     "400":
       description: リクエストエラー
     "401":

@@ -1,4 +1,4 @@
 type: object
 description: 物理ノード候補レスポンスオブジェクト
 allOf:
-  - $ref: "./PhysicalNodeCandidateServerBase.yml"
+  - $ref: "./NodeCandidateServerBase.yml"
