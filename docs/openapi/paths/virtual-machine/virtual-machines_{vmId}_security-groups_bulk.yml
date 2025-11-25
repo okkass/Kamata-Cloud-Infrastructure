@@ -1,0 +1,19 @@
+post:
+  summary: 仮想マシンセキュリティグループの一括編集
+  description: 指定したIDの仮想マシンにセキュリティグループを一括で編集します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/virtual-machine/security-group/AttachedSecurityGroupBulkRequest.yml

@@ -1,0 +1,65 @@
+get:
+  summary: 仮想マシンのセキュリティグループ一覧取得
+  description: 指定したIDの仮想マシンに関連付けられたセキュリティグループの一覧を取得します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/security-group/SecurityGroupResponse.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想マシンが見つからない
+  security:
+    - BearerAuth: []
+post:
+  summary: 仮想マシンへのセキュリティグループの追加
+  description: 指定したIDの仮想マシンにセキュリティグループを追加します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          properties:
+            securityGroupId:
+              type: string
+              format: uuid
+              description: 追加するセキュリティグループの一意なID
+  responses:
+    "200":
+      description: 成功
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想マシンが見つからない
+  security:
+    - BearerAuth: []

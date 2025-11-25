@@ -1,0 +1,150 @@
+get:
+  summary: 仮想マシンのネットワークインターフェース詳細取得
+  description: 指定したIDの仮想マシンに関連付けられたネットワークインターフェースの詳細を取得します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+    - name: nicId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ネットワークインターフェースの一意なID
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想マシンが見つからない
+  security:
+    - BearerAuth: []
+put:
+  summary: 仮想マシンのネットワークインターフェース編集
+  description: 指定したIDの仮想マシンに関連付けられたネットワークインターフェースを編集します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+    - name: nicId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ネットワークインターフェースの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfacePutRequest.yml
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想マシンが見つからない
+  security:
+    - BearerAuth: []
+patch:
+  summary: 仮想マシンのネットワークインターフェース部分編集
+  description: 指定したIDの仮想マシンに関連付けられたネットワークインターフェースを部分編集します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+    - name: nicId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ネットワークインターフェースの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfacePatchRequest.yml
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想マシンが見つからない
+  security:
+    - BearerAuth: []
+delete:
+  summary: 仮想マシンのネットワークインターフェース削除
+  description: 指定したIDの仮想マシンに関連付けられたネットワークインターフェースを削除します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+    - name: nicId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ネットワークインターフェースの一意なID
+  responses:
+    "204":
+      description: 成功
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想マシンが見つからない
+  security:
+    - BearerAuth: []

@@ -1,0 +1,52 @@
+get:
+  summary: 仮想ストレージの詳細取得
+  description: 指定したIDの仮想ストレージの詳細情報を取得します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: storageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想ストレージの一意なID
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-machine/virtual-storage/VirtualStorageResponse.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想ストレージが見つからない
+  security:
+    - BearerAuth: []
+delete:
+  summary: 仮想ストレージの削除
+  description: 指定したIDの仮想ストレージを削除します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: storageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想ストレージの一意なID
+  responses:
+    "204":
+      description: 削除成功
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想ストレージが見つからない
+  security:
+    - BearerAuth: []

@@ -1,6 +1,6 @@
 get:
-  summary: スナップショットの詳細取得
-  description: 指定したIDのスナップショットの詳細情報を取得します。
+  summary: バックアップの詳細取得
+  description: 指定したIDのバックアップの詳細情報を取得します。
   tags:
     - VirtualMachine
   parameters:
@@ -10,25 +10,25 @@ get:
       schema:
         type: string
         format: uuid
-      description: スナップショットの一意なID
+      description: バックアップの一意なID
   responses:
     "200":
       description: 成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-machine/snapshot/SnapShotResponse.yml
+            $ref: ../../components/schemas/virtual-machine/backup/BackupResponse.yml
     "401":
       description: 認証エラー
     "403":
       description: 権限エラー
     "404":
-      description: スナップショットが見つからない
+      description: バックアップが見つからない
   security:
     - BearerAuth: []
 put:
-  summary: スナップショットの更新
-  description: 指定したIDのスナップショット情報を更新します。
+  summary: バックアップの更新
+  description: 指定したIDのバックアップ情報を更新します。
   tags:
     - VirtualMachine
   parameters:
@@ -38,20 +38,20 @@ put:
       schema:
         type: string
         format: uuid
-      description: スナップショットの一意なID
+      description: バックアップの一意なID
   requestBody:
     required: true
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/virtual-machine/snapshot/SnapshotPutRequest.yml
+          $ref: ../../components/schemas/virtual-machine/backup/BackupPutRequest.yml
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-machine/snapshot/SnapshotResponse.yml
+            $ref: ../../components/schemas/virtual-machine/backup/BackupResponse.yml
     "400":
       description: リクエストエラー
     "401":
@@ -59,12 +59,12 @@ put:
     "403":
       description: 権限エラー
     "404":
-      description: スナップショットが見つからない
+      description: バックアップが見つからない
   security:
     - BearerAuth: []
 patch:
-  summary: スナップショットの部分更新
-  description: 指定したIDのスナップショット情報を部分的に更新します。
+  summary: バックアップの部分更新
+  description: 指定したIDのバックアップ情報を部分的に更新します。
   tags:
     - VirtualMachine
   parameters:
@@ -74,20 +74,20 @@ patch:
       schema:
         type: string
         format: uuid
-      description: スナップショットの一意なID
+      description: バックアップの一意なID
   requestBody:
     required: true
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/virtual-machine/snapshot/SnapshotPatchRequest.yml
+          $ref: ../../components/schemas/virtual-machine/backup/BackupPatchRequest.yml
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-machine/snapshot/SnapshotResponse.yml
+            $ref: ../../components/schemas/virtual-machine/backup/BackupResponse.yml
     "400":
       description: リクエストエラー
     "401":
@@ -95,12 +95,12 @@ patch:
     "403":
       description: 権限エラー
     "404":
-      description: スナップショットが見つからない
+      description: バックアップが見つからない
   security:
     - BearerAuth: []
 delete:
-  summary: スナップショットの削除
-  description: 指定したIDのスナップショットを削除します。
+  summary: バックアップの削除
+  description: 指定したIDのバックアップを削除します。
   tags:
     - VirtualMachine
   parameters:
@@ -110,7 +110,7 @@ delete:
       schema:
         type: string
         format: uuid
-      description: スナップショットの一意なID
+      description: バックアップの一意なID
   responses:
     "204":
       description: 削除成功
@@ -119,6 +119,6 @@ delete:
     "403":
       description: 権限エラー
     "404":
-      description: スナップショットが見つからない
+      description: バックアップが見つからない
   security:
     - BearerAuth: []
