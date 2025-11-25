@@ -14,9 +14,9 @@
     <template #cell-account="{ row }">
       <div>
         <span class="table-link">{{ row.account }}</span>
-        <div v-if="row.description" class="text-sm text-gray-500 mt-0.5">
+        <span v-if="row.description" class="text-sm text-gray-500 block mt-0.5">
           {{ row.description }}
-        </div>
+        </span>
       </div>
     </template>
 
@@ -37,7 +37,7 @@
         class="action-item"
         @click.stop="onRowAction({ action: 'edit', row })"
       >
-        詳細
+        編集
       </button>
       <button
         class="action-item action-item-danger"
@@ -102,13 +102,37 @@ const {
   refresh,
 });
 
-function onHeaderAction(e: string | { key?: string }) {
-  const key = typeof e === "string" ? e : e?.key;
+/* header-action のペイロード形状はプロジェクトにより違うので寛容に受け取る
+   例: "add" / { key: "add" } / { action: "add" } / ボタンオブジェクトそのもの 等 */
+function onHeaderAction(e: unknown) {
+  if (e == null) return;
+  let key: string | undefined;
+
+  if (typeof e === "string") key = e;
+  else if (typeof e === "object") {
+    // try common properties
+    // @ts-ignore
+    key = e.key ?? e.action ?? e.type ?? e.name ?? e.label;
+    if (typeof key !== "string") {
+      // ボタンオブジェクトが渡されるケースで key プロパティがない場合は 'add' を想定することもある
+      // headerButtons 内の first-primary を開く挙動を残したいならここで判定を追加
+      // まずは key が取れなければ終了
+      key = undefined;
+    }
+  }
+
+  if (!key) return;
+
+  // 互換性のため複数キーを許容
   if (key === "add" || key === "create" || key === ADD_USERS_MODAL) {
     openModal(ADD_USERS_MODAL);
+    return;
   }
+
+  // 他のヘッダ操作があればここに追加
 }
 
+/* 行アクション: edit => 編集モーダル（または詳細）、delete => 削除モーダル */
 function onRowAction(
   payload:
     | { action?: string; key?: string; row?: UserRow; item?: UserRow }
@@ -120,18 +144,18 @@ function onRowAction(
   if (!row) return;
 
   if (action === "edit") {
-    if (targetForEditing) targetForEditing.value = row;
+    targetForEditing.value = row;
     openModal(EDIT_USERS_MODAL);
     return;
   }
 
   if (action === "delete") {
-    if (targetForDeletion) targetForDeletion.value = row;
+    targetForDeletion.value = row;
     openModal(DELETE_USERS_MODAL);
     return;
   }
 
-  handleRowAction({ action, row });
+  if (typeof handleRowAction === "function") handleRowAction({ action, row });
 }
 
 async function onAddSuccess(msg?: string) {
