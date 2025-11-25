@@ -1,58 +1,56 @@
 <template>
   <BaseModal :show="show" title="イメージ追加" @close="$emit('close')">
     <form @submit.prevent="submitForm" class="modal-space">
-      <FormSection>
-        <FormInput
-          label="イメージ名"
-          name="image-name-add"
-          type="text"
-          placeholder="例: ubuntu-24.04-amd64"
-          v-model="name"
-          v-bind="nameAttrs"
-          :error="errors.name"
-          :required="true"
+      <FormInput
+        label="イメージ名"
+        name="image-name-add"
+        type="text"
+        placeholder="例: ubuntu-24.04-amd64"
+        v-model="name"
+        v-bind="nameAttrs"
+        :error="errors.name"
+        :required="true"
+      />
+
+      <FormSelect
+        label="作成先ノード"
+        name="image-node-add"
+        :options="nodes ?? []"
+        option-label="name"
+        option-value="id"
+        placeholder="ノードを選択してください"
+        :required="true"
+        :pending="nodesPending"
+        :error="nodesError"
+        :error-message="errors.nodeId"
+        v-model="nodeId"
+      >
+        <template #option="{ option }">
+          {{ option.name }}
+          <span class="text-gray-500">({{ option.hostname }})</span>
+        </template>
+      </FormSelect>
+
+      <div>
+        <label for="image-file-add" class="form-label-sm">
+          イメージファイル <span class="required-asterisk">*</span>
+        </label>
+        <FormDropZone
+          id="image-file-add"
+          v-model="file"
+          accept=".img,.qcow2,.zip,.gz,.xz,.iso"
+          :error-message="errors.file"
         />
+      </div>
 
-        <FormSelect
-          label="作成先ノード"
-          name="image-node-add"
-          :options="nodes ?? []"
-          option-label="name"
-          option-value="id"
-          placeholder="ノードを選択してください"
-          :required="true"
-          :pending="nodesPending"
-          :error="nodesError"
-          :error-message="errors.nodeId"
-          v-model="nodeId"
-        >
-          <template #option="{ option }">
-            {{ option.name }}
-            <span class="text-gray-500">({{ option.hostname }})</span>
-          </template>
-        </FormSelect>
-
-        <div>
-          <label for="image-file-add" class="form-label-sm">
-            イメージファイル <span class="required-asterisk">*</span>
-          </label>
-          <FormDropZone
-            id="image-file-add"
-            v-model="file"
-            accept=".img,.qcow2,.zip,.gz,.xz,.iso"
-            :error-message="errors.file"
-          />
-        </div>
-
-        <FormInput
-          label="説明"
-          name="image-description-add"
-          v-model="description"
-          v-bind="descriptionAttrs"
-          :error="errors.description"
-          placeholder="イメージの説明を入力してください"
-        />
-      </FormSection>
+      <FormInput
+        label="説明"
+        name="image-description-add"
+        v-model="description"
+        v-bind="descriptionAttrs"
+        :error="errors.description"
+        placeholder="イメージの説明を入力してください"
+      />
     </form>
 
     <template #footer>
