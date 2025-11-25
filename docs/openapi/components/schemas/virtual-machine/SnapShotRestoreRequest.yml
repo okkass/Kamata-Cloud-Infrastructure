@@ -1,0 +1,9 @@
+type: object
+description: スナップショット復元リクエストオブジェクト
+properties:
+  snapshotId:
+    type: string
+    format: uuid
+    description: 復元するスナップショットのID
+required:
+  - snapshotId

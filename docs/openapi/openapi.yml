@@ -1,0 +1,92 @@
+openapi: 3.0.3
+info:
+  title: KCI API
+  description: KCI API documentation
+  version: 0.45.1
+paths:
+  /api/backups:
+    $ref: paths/virtual-machine/backups.yml
+  /api/images:
+    $ref: paths/image/images.yml
+  /api/images/{imageId}:
+    $ref: paths/image/images_{imageId}.yml
+  /api/instance-types:
+    $ref: paths/instance-type/instance-types.yml
+  /api/instance-types/{instanceTypeId}:
+    $ref: paths/instance-type/instance-types_{instanceTypeId}.yml
+  /api/login:
+    $ref: paths/auth/login.yml
+  /api/login/web:
+    $ref: paths/auth/login_web.yml
+  /api/middlewares:
+    $ref: paths/image/middlewares.yml
+  /api/nodes:
+    $ref: paths/node/nodes.yml
+  /api/nodes/candidates:
+    $ref: paths/node/nodes_candidates.yml
+  /api/nodes/{nodeId}:
+    $ref: paths/node/nodes_{nodeId}.yml
+  /api/portfolios:
+    $ref: paths/portfolio/portfolios.yml
+  /api/security-groups:
+    $ref: paths/security-group/security-groups.yml
+  /api/security-groups/{groupId}:
+    $ref: paths/security-group/security-groups_{groupId}.yml
+  /api/security-groups/{groupId}/rules:
+    $ref: paths/security-group/security-groups_{groupId}_rules.yml
+  /api/snapshots:
+    $ref: paths/virtual-machine/snapshots.yml
+  /api/snapshots/{id}:
+    $ref: paths/virtual-machine/snapshots_{id}.yml
+  /api/storage-pools:
+    $ref: paths/storage-pool/storage-pools.yml
+  /api/storage-pools/node/{nodeId}:
+    $ref: paths/storage-pool/storage-pools_node_{nodeId}.yml
+  /api/storage-pools/{id}:
+    $ref: paths/storage-pool/storage-pools_{id}.yml
+  /api/users:
+    $ref: paths/user/users.yml
+  /api/users/me:
+    $ref: paths/user/users_me.yml
+  /api/users/{userId}:
+    $ref: paths/user/users_{userId}.yml
+  /api/virtual-machines:
+    $ref: paths/virtual-machine/virtual-machines.yml
+  /api/virtual-machines/{vmId}:
+    $ref: paths/virtual-machine/virtual-machines_{vmId}.yml
+  /api/virtual-networks:
+    $ref: paths/virtual-network/virtual-networks.yml
+  /api/virtual-networks/{networkId}:
+    $ref: paths/virtual-network/virtual-networks_{networkId}.yml
+  /api/virtual-networks/{networkId}/subnets:
+    $ref: paths/virtual-network/virtual-networks_{networkId}_subnets.yml
+  /api/virtual-networks/{networkId}/subnets/{subnetId}:
+    $ref: paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}.yml
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWTを使用した認証方式
+tags:
+  - name: Auth
+    description: 認証関連の操作
+  - name: Image
+    description: 仮想マシンイメージ関連の操作
+  - name: InstanceType
+    description: インスタンスタイプ関連の操作
+  - name: Node
+    description: 物理ノード関連の操作
+  - name: Portfolio
+    description: ポートフォリオ関連の操作
+  - name: SecurityGroup
+    description: セキュリティグループ関連の操作
+  - name: StoragePool
+    description: ストレージプール関連の操作
+  - name: User
+    description: ユーザ関連の操作
+  - name: VirtualMachine
+    description: 仮想マシン関連の操作
+  - name: VirtualNetwork
+    description: 仮想ネットワーク関連の操作

@@ -1,0 +1,12 @@
+type: object
+description: TOTP情報オブジェクト
+properties:
+  secret:
+    type: string
+    description: TOTPシークレットキー
+  uri:
+    type: string
+    description: TOTP URI（QRコード生成用）
+required:
+  - secret
+  - uri

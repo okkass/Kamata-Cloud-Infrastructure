@@ -1,0 +1,7 @@
+type: object
+description: ストレージプール更新リクエストオブジェクト(PUT)
+allOf:
+  - $ref: "./StoragePoolUpdatable.yml"
+required:
+  - name
+  - hasNetworkAccess

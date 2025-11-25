@@ -1,0 +1,9 @@
+type: object
+description: イメージ作成時のみ設定可能なプロパティ
+properties:
+  nodeId:
+    type: string
+    format: uuid
+    description: イメージを作成するノードのID
+required:
+  - nodeId

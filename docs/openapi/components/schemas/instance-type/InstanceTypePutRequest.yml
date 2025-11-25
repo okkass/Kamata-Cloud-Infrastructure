@@ -1,0 +1,8 @@
+type: object
+description: インスタンスタイプ更新リクエストオブジェクト(PUT)
+allOf:
+  - $ref: "./InstanceTypeUpdatable.yml"
+required:
+  - name
+  - cpuCore
+  - memorySize
