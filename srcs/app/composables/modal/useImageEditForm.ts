@@ -106,7 +106,7 @@ export function useImageEditForm(props: ImageEditProps) {
       const payload: ImagePutRequest = {
         name: formValues.name,
         description: formValues.description,
-      } as ImagePutRequest;
+      }
 
       const { success, error, data } = await executeUpdate(
         props.imageData.id,
