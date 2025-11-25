@@ -12,21 +12,15 @@
           :required="true"
         />
 
-        <div>
-          <label for="image-description-edit" class="form-label-sm">説明</label>
-          <textarea
-            id="image-description-edit"
-            rows="3"
-            v-model="description"
-            v-bind="descriptionAttrs"
-            class="form-input"
-            :class="{ 'form-border-error': errors.description }"
-            placeholder="イメージの説明を入力してください"
-          ></textarea>
-          <p class="text-error h-5">
-            {{ errors.description || "&nbsp;" }}
-          </p>
-        </div>
+        <FormTextarea
+          label="説明"
+          name="image-description-edit"
+          :rows="3"
+          v-model="description"
+          v-bind="descriptionAttrs"
+          :error="errors.description"
+          placeholder="イメージの説明を入力してください"
+        />
       </FormSection>
     </form>
 
@@ -55,6 +49,7 @@ import { useImageEditForm } from "~/composables/modal/useImageEditForm";
 import FormInput from "~/components/Form/Input.vue";
 import FormSection from "~/components/Form/Section.vue";
 import type { ImageServerBase } from "~~/shared/types/dto/image/ImageServerBase";
+import FormTextarea from "~/components/Form/Textarea.vue";
 
 // --- 親コンポーネントとの連携 ---
 const props = defineProps({
