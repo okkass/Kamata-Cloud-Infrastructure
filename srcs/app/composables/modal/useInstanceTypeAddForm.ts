@@ -16,27 +16,31 @@ import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type/Ins
 // ==============================================================================
 // Validation Schema
 // ==============================================================================
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "インスタンスタイプ名は必須です。"),
-    cpuCores: z
-      .number({
-        required_error: "CPUコア数は必須です。",
-        invalid_type_error: "数値を入力してください。",
-      })
-      .int("整数で入力してください。")
-      .min(1, "1以上の値を入力してください。"),
-    memorySizeInMb: z
-      .number({
-        required_error: "メモリサイズは必須です。",
-        invalid_type_error: "数値を入力してください。",
-      })
-      .int("整数で入力してください。")
-      .min(1, "1MB以上の値を入力してください。"),
-  })
-);
 
-type FormValues = z.infer<typeof validationSchema>;
+// まず生の Zod スキーマを定義する
+const zodSchema = z.object({
+  name: z.string().min(1, "インスタンスタイプ名は必須です。"),
+  cpuCore: z
+    .number({
+      required_error: "CPUコア数は必須です。",
+      invalid_type_error: "数値を入力してください。",
+    })
+    .int("整数で入力してください。")
+    .min(1, "1以上の値を入力してください。"),
+  memorySizeInMb: z
+    .number({
+      required_error: "メモリサイズは必須です。",
+      invalid_type_error: "数値を入力してください。",
+    })
+    .int("整数で入力してください。")
+    .min(1, "1MB以上の値を入力してください。"),
+});
+
+// VeeValidate用には変換したものを使う
+const validationSchema = toTypedSchema(zodSchema);
+
+// 型推論には生の Zod スキーマを使う
+type FormValues = z.infer<typeof zodSchema>;
 
 /**
  * インスタンスタイプ追加フォームのロジック
@@ -53,10 +57,10 @@ export function useInstanceTypeAddForm() {
   // Form Setup
   // ============================================================================
   const { errors, handleSubmit, resetForm } = useForm<FormValues>({
-    validationSchema,
+    validationSchema, // 変換済みのスキーマを渡す
     initialValues: {
       name: "",
-      cpuCores: undefined,
+      cpuCore: undefined,
       memorySizeInMb: undefined,
     },
   });
@@ -69,41 +73,23 @@ export function useInstanceTypeAddForm() {
     handleBlur: nameBlur,
     handleChange: nameChange,
   } = useField<string>("name");
+  const nameAttrs = { onBlur: nameBlur, onChange: nameChange };
 
-  // ★★★ 修正箇所: name プロパティを削除 ★★★
-  const nameAttrs = {
-    // name: "name", // ← 削除 (テンプレート側の name="instance-type-name" と競合するため)
-    onBlur: nameBlur,
-    onChange: nameChange,
-  };
-
-  // 2. CPU Cores
+  // 2. CPU Core
   const {
-    value: cpuCores,
+    value: cpuCore,
     handleBlur: cpuBlur,
     handleChange: cpuChange,
-  } = useField<number | undefined>("cpuCores");
+  } = useField<number | undefined>("cpuCore");
+  const cpuCoreAttrs = { onBlur: cpuBlur, onChange: cpuChange };
 
-  // ★★★ 修正箇所: name プロパティを削除 ★★★
-  const cpuCoresAttrs = {
-    // name: "cpuCores", // ← 削除
-    onBlur: cpuBlur,
-    onChange: cpuChange,
-  };
-
-  // 3. Memory Size
+  // 3. Memory Size (MB)
   const {
     value: memorySizeInMb,
     handleBlur: memBlur,
     handleChange: memChange,
   } = useField<number | undefined>("memorySizeInMb");
-
-  // ★★★ 修正箇所: name プロパティを削除 ★★★
-  const memorySizeInMbAttrs = {
-    // name: "memorySizeInMb", // ← 削除
-    onBlur: memBlur,
-    onChange: memChange,
-  };
+  const memorySizeInMbAttrs = { onBlur: memBlur, onChange: memChange };
 
   // ============================================================================
   // Submission Handler
@@ -112,7 +98,7 @@ export function useInstanceTypeAddForm() {
     handleSubmit(async (formValues) => {
       const payload: InstanceTypeCreateRequest = {
         name: formValues.name,
-        cpuCore: formValues.cpuCores,
+        cpuCore: formValues.cpuCore,
         memorySize: convertUnitToByte(formValues.memorySizeInMb, "MB"),
       };
 
@@ -138,8 +124,8 @@ export function useInstanceTypeAddForm() {
     errors,
     name,
     nameAttrs,
-    cpuCores,
-    cpuCoresAttrs,
+    cpuCore,
+    cpuCoreAttrs,
     memorySizeInMb,
     memorySizeInMbAttrs,
     isCreating,
