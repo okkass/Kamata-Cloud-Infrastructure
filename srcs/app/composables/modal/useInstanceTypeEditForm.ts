@@ -1,76 +1,104 @@
 /**
  * =================================================================================
  * インスタンスタイプ編集フォーム Composable (useInstanceTypeEditForm.ts)
- * ---------------------------------------------------------------------------------
- * MoInstanceTypeEdit コンポーネントのフォーム状態管理、バリデーション、
- * および API 送信ロジックを担当します。
- * ★ 汎用Composable (useResourceUpdate) を使用
  * =================================================================================
  */
-import { ref, watch } from "vue";
-import { useForm } from "vee-validate";
+import { watch } from "vue";
+import { useForm, useField } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
+import { useResourceUpdate } from "~/composables/useResourceEdit";
 import { useToast } from "~/composables/useToast";
 import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
-// ★ 汎用更新Composableをインポート
-import { useResourceUpdate } from "~/composables/useResourceEdit";
-import type {
-  InstanceTypeDTO as ModelInstanceTypeDTO,
-  InstanceTypeUpdateRequestDTO,
-} from "~~/shared/types/dto/instance-type";
 
-// --- Props の型定義 ---
+import type { InstanceTypePutRequest } from "~~/shared/types/dto/instance-type/InstanceTypePutRequest";
+import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type/InstanceTypeResponse";
+import type { InstanceTypeServerBase } from "~~/shared/types/dto/instance-type/InstanceTypeServerBase";
+
+// Props の型定義
 interface InstanceTypeEditProps {
   show: boolean;
-  instanceTypeData: ModelInstanceTypeDTO | null;
+  // 編集対象データ (ServerBase)
+  instanceTypeData: InstanceTypeServerBase | null;
 }
 
-// --- バリデーションスキーマ ---
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "インスタンスタイプ名は必須です。"),
-    cpuCore: z
-      .number({ invalid_type_error: "vCPU数は必須です。" })
-      .int("整数で入力してください。")
-      .min(1, "1以上の値を入力してください。"),
-    memorySizeInMb: z
-      .number({ invalid_type_error: "メモリは必須です。" })
-      .int("整数で入力してください。")
-      .min(1, "1MB以上の値を入力してください。"),
-  })
-);
+// ==============================================================================
+// Validation Schema
+// ==============================================================================
+const zodSchema = z.object({
+  name: z.string().min(1, "インスタンスタイプ名は必須です。"),
+  cpuCore: z
+    .number({
+      required_error: "CPUコア数は必須です。",
+      invalid_type_error: "数値を入力してください。",
+    })
+    .int("整数で入力してください。")
+    .min(1, "1以上の値を入力してください。"),
+  memorySizeInMb: z
+    .number({
+      required_error: "メモリサイズは必須です。",
+      invalid_type_error: "数値を入力してください。",
+    })
+    .int("整数で入力してください。")
+    .min(1, "1MB以上の値を入力してください。"),
+});
+
+const validationSchema = toTypedSchema(zodSchema);
+type FormValues = z.infer<typeof zodSchema>;
 
 /**
  * インスタンスタイプ編集フォームのロジック
- * @param props MoInstanceTypeEdit から渡される props
  */
 export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
   const { addToast } = useToast();
 
-  // ★ 汎用の更新Composableをセットアップ
-  // TPayload = InstanceTypeUpdateRequestDTO, TResponse = ModelInstanceTypeDTO
   const { executeUpdate, isUpdating } = useResourceUpdate<
-    InstanceTypeUpdateRequestDTO,
-    ModelInstanceTypeDTO
-  >("instance-types"); // (APIパス)
+    InstanceTypePutRequest,
+    InstanceTypeResponse
+  >("instance-types");
 
-  // --- VeeValidate のセットアップ ---
-  const { errors, defineField, handleSubmit, resetForm } = useForm({
+  // ============================================================================
+  // Form Setup
+  // ============================================================================
+  const { errors, handleSubmit, resetForm } = useForm<FormValues>({
     validationSchema,
     initialValues: {
       name: "",
-      cpuCore: 1,
-      memorySizeInMb: 1024,
+      cpuCore: undefined,
+      memorySizeInMb: undefined,
     },
   });
 
-  // --- フォームフィールドの定義 ---
-  const [name, nameAttrs] = defineField("name");
-  const [cpuCore, cpuCoreAttrs] = defineField("cpuCore");
-  const [memorySizeInMb, memorySizeInMbAttrs] = defineField("memorySizeInMb");
+  // --- フィールド定義 (useField) ---
 
-  // --- 初期値の設定 (Props監視) ---
+  // 1. Name
+  const {
+    value: name,
+    handleBlur: nameBlur,
+    handleChange: nameChange,
+  } = useField<string>("name");
+  // name属性の重複を防ぐため、attrsにはnameを含めない
+  const nameAttrs = { onBlur: nameBlur, onChange: nameChange };
+
+  // 2. CPU Core
+  const {
+    value: cpuCore,
+    handleBlur: cpuBlur,
+    handleChange: cpuChange,
+  } = useField<number | undefined>("cpuCore");
+  const cpuCoreAttrs = { onBlur: cpuBlur, onChange: cpuChange };
+
+  // 3. Memory Size (MB)
+  const {
+    value: memorySizeInMb,
+    handleBlur: memBlur,
+    handleChange: memChange,
+  } = useField<number | undefined>("memorySizeInMb");
+  const memorySizeInMbAttrs = { onBlur: memBlur, onChange: memChange };
+
+  // ============================================================================
+  // 初期値の反映 (Watch)
+  // ============================================================================
   watch(
     () => props.instanceTypeData,
     (newData) => {
@@ -79,92 +107,64 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
           values: {
             name: newData.name,
             cpuCore: newData.cpuCore,
+            // Byte -> MB 変換
             memorySizeInMb: convertByteToUnit(newData.memorySize, "MB"),
           },
         });
       }
     },
-    { immediate: true }
+    { immediate: true, deep: true }
   );
 
-  watch(
-    () => props.show,
-    (isVisible) => {
-      if (isVisible && props.instanceTypeData) {
-        resetForm({
-          values: {
-            name: props.instanceTypeData.name,
-            cpuCore: props.instanceTypeData.cpuCore,
-            memorySizeInMb: convertByteToUnit(
-              props.instanceTypeData.memorySize,
-              "MB"
-            ),
-          },
-        });
-      }
-    }
-  );
-
-  // --- フォーム送信処理 ---
-  /**
-   * フォーム送信イベントを処理する高階関数
-   * @param emit - コンポーネントの emit 関数
-   */
+  // ============================================================================
+  // Submission Handler
+  // ============================================================================
   const onFormSubmit = (emit: (event: "close" | "success") => void) => {
-    // VeeValidate の handleSubmit でバリデーションを行う
-    return handleSubmit(async (values) => {
-      if (!props.instanceTypeData) {
-        addToast({
-          type: "error",
-          message: "編集対象のインスタンスタイプが見つかりません。",
-        });
-        return;
-      }
+    return handleSubmit(async (formValues) => {
+      if (!props.instanceTypeData?.id) return;
 
-      // 1. API (PUT) リクエストボディを作成
-      const payload: InstanceTypeUpdateRequestDTO = {
-        name: values.name,
-        cpuCore: values.cpuCore,
-        memorySize: convertUnitToByte(values.memorySizeInMb, "MB"),
+      // ペイロード作成: InstanceTypePutRequest 型に準拠
+      const payload: InstanceTypePutRequest = {
+        name: formValues.name,
+        cpuCore: formValues.cpuCore,
+        // MB -> Byte 変換
+        memorySize: convertUnitToByte(formValues.memorySizeInMb, "MB"),
       };
 
-      // 2. ★ 汎用Composableの executeUpdate を呼び出す
-      const { success, error } = await executeUpdate(
+      // APIリクエスト (PUT)
+      const { success, error, data } = await executeUpdate(
         props.instanceTypeData.id,
         payload
       );
 
-      // 3. 結果をハンドリング
       if (success) {
         addToast({
+          message: `インスタンスタイプ「${
+            data?.name ?? payload.name
+          }」を更新しました。`,
           type: "success",
-          message: `「${values.name}」を更新しました。`,
         });
         emit("success");
         emit("close");
       } else {
-        // useResourceUpdate が返したエラーメッセージを利用
         addToast({
-          type: "error",
           message: "インスタンスタイプの更新に失敗しました。",
-          details: error?.message || "不明なエラーです。",
+          type: "error",
+          details: error?.message,
         });
       }
     });
   };
 
-  // --- 公開 (MoInstanceTypeEdit.vue が使用) ---
   return {
     errors,
-    // フォームフィールド
     name,
     nameAttrs,
     cpuCore,
     cpuCoreAttrs,
     memorySizeInMb,
     memorySizeInMbAttrs,
-    // 状態とアクション
-    isUpdating, // ★ useResourceUpdate から受け取った isUpdating を返す
+    isUpdating,
     onFormSubmit,
   };
 }
