@@ -20,12 +20,12 @@ paths:
     $ref: paths/auth/login_web.yml
   /api/middlewares:
     $ref: paths/image/middlewares.yml
-  /api/physical-nodes:
-    $ref: paths/physical-node/physical-nodes.yml
-  /api/physical-nodes/candidates:
-    $ref: paths/physical-node/physical-nodes_candidates.yml
-  /api/physical-nodes/{nodeId}:
-    $ref: paths/physical-node/physical-nodes_{nodeId}.yml
+  /api/nodes:
+    $ref: paths/node/nodes.yml
+  /api/nodes/candidates:
+    $ref: paths/node/nodes_candidates.yml
+  /api/nodes/{nodeId}:
+    $ref: paths/node/nodes_{nodeId}.yml
   /api/portfolios:
     $ref: paths/portfolio/portfolios.yml
   /api/security-groups:
@@ -76,7 +76,7 @@ tags:
     description: 仮想マシンイメージ関連の操作
   - name: InstanceType
     description: インスタンスタイプ関連の操作
-  - name: PhysicalNode
+  - name: Node
     description: 物理ノード関連の操作
   - name: Portfolio
     description: ポートフォリオ関連の操作

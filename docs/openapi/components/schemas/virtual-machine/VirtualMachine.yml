@@ -19,7 +19,7 @@ properties:
       - suspended
     description: 仮想マシンの状態
   node:
-    $ref: ../physical-node/PhysicalNode.yml
+    $ref: ../node/NodeResponse.yml
     description: 仮想マシンが配置されている物理ノード
   createdAt:
     type: string

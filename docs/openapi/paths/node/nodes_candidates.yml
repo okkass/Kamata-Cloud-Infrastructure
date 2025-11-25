@@ -2,7 +2,7 @@ get:
   summary: 物理ノード候補一覧の取得
   description: 物理ノードとして追加可能な候補のリストを取得します。
   tags:
-    - PhysicalNode
+    - Node
   responses:
     "200":
       description: 成功
@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/physical-node/PhysicalNodeCandidate.yml
+              $ref: ../../components/schemas/node/NodeCandidateResponse.yml
     "401":
       description: 認証エラー
     "403":

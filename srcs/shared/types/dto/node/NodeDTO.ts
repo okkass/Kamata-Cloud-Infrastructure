@@ -1,7 +1,7 @@
 /**
  * 物理ノードオブジェクト
  */
-export interface PhysicalNodeDTO {
+export interface NodeDTO {
   /**
    * 物理ノードを識別するための一意なID
    */
@@ -17,7 +17,7 @@ export interface PhysicalNodeDTO {
   /**
    * 物理ノードの状態
    */
-  status: PhysicalNodeStatusEnum;
+  status: NodeStatusEnum;
   /**
    * 物理ノードが管理ノードかどうかを示すフラグ
    */
@@ -40,10 +40,10 @@ export interface PhysicalNodeDTO {
   storageUtilization?: number;
 }
 
-export const PhysicalNodeStatusEnum = {
+export const NodeStatusEnum = {
   Active: "active",
   Inactive: "inactive",
 } as const;
 
-export type PhysicalNodeStatusEnum =
-  (typeof PhysicalNodeStatusEnum)[keyof typeof PhysicalNodeStatusEnum];
+export type NodeStatusEnum =
+  (typeof NodeStatusEnum)[keyof typeof NodeStatusEnum];
