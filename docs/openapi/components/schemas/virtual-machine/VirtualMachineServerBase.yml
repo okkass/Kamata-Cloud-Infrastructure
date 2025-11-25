@@ -28,18 +28,18 @@ properties:
   securityGroups:
     type: array
     items:
-      $ref: ../security-group/SecurityGroupResponse.yml
+      $ref: ../security-group/SecurityGroup.yml
     description: 仮想マシンに関連付けられたセキュリティグループのリスト
   attachedStorages:
     type: array
     description: アタッチされたストレージのリスト
     items:
-      $ref: ../virtual-storage/VirtualStorageResponse.yml
+      $ref: ./virtual-storage/VirtualStorageResponse.yml
   attachedNics:
     type: array
     description: アタッチされたネットワークインターフェースのリスト
     items:
-      $ref: ../network-interface/NetworkInterfaceResponse.yml
+      $ref: ./network-interface/NetworkInterfaceResponse.yml
   cpuUtilization:
     type: number
     format: float

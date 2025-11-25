@@ -17,7 +17,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-machine/snapshot/SnapShotResponse.yml
+            $ref: ../../components/schemas/virtual-machine/snapshot/SnapshotResponse.yml
     "401":
       description: 認証エラー
     "403":
