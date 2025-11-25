@@ -83,6 +83,9 @@ import { usePageActions } from "@/composables/usePageActions";
 import type { UserRow } from "@/composables/useUserManagement";
 import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
 
+// 既存の正規化ユーティリティを再利用
+import { normalizeUserNumbers } from "@/composables/useUserManagement";
+
 const ADD_USER_ACTION = "add-users";
 const EDIT_USER_ACTION = "edit-users";
 const DELETE_USER_ACTION = "delete-users";
@@ -109,38 +112,13 @@ const {
 /* 編集時にモーダルへ即渡すためのローカル ref（null または UserServerBase） */
 const editingUserData = ref<UserServerBase | null>(null);
 
-/* 数値フィールドを確実に number 型でモーダルに渡す正規化 */
-function toNum(v: unknown): number | undefined {
-  if (v == null) return undefined;
-  const n = Number(v);
-  return Number.isFinite(n) ? n : undefined;
-}
-function normalizeUserDto(dto: any): UserServerBase {
-  if (!dto) return dto;
-  const limits = dto.limits ? { ...dto.limits } : undefined;
-  if (limits) {
-    limits.cpu = toNum(limits.cpu) ?? limits.cpu;
-    limits.memoryGb = toNum(limits.memoryGb) ?? limits.memoryGb;
-    limits.storageGb = toNum(limits.storageGb) ?? limits.storageGb;
-    limits.memorySize = toNum(limits.memorySize) ?? limits.memorySize;
-    limits.storageSize = toNum(limits.storageSize) ?? limits.storageSize;
-  }
-  return {
-    ...dto,
-    maxCpuCore: toNum(dto.maxCpuCore) ?? dto.maxCpuCore,
-    maxMemorySize: toNum(dto.maxMemorySize) ?? dto.maxMemorySize,
-    maxStorageSize: toNum(dto.maxStorageSize) ?? dto.maxStorageSize,
-    limits,
-  };
-}
-
 /* 編集ボタンハンドラ: targetForEditing と editingUserData をセットしてモーダルを開く */
 function onEdit(row: UserRow) {
   if (!row) return;
-  // 正規化して即渡す（モーダルは userData を優先して表示する）
-  const normalizedDto = normalizeUserDto(row.dto);
-  editingUserData.value = normalizedDto;
-  if (targetForEditing) targetForEditing.value = { ...row, dto: normalizedDto };
+  // useUserManagement が提供する normalizeUserNumbers を使って正規化
+  const normalized = normalizeUserNumbers(row.dto) ?? (row.dto as any);
+  editingUserData.value = normalized as UserServerBase;
+  if (targetForEditing) targetForEditing.value = { ...row, dto: normalized };
   openModal(EDIT_USER_ACTION);
 }
 </script>
