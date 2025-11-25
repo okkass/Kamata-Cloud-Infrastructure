@@ -1,26 +1,33 @@
 <template>
   <BaseModal :show="show" title="イメージ編集" @close="$emit('close')">
-    <form @submit.prevent="submitForm">
-      <FormInput
-        name="image-name-edit"
-        label="イメージ名"
-        type="text"
-        :required="true"
-        v-model="name"
-        v-bind="nameAttrs"
-        :error="errors.name"
-        placeholder="例: ubuntu-22.04-custom"
-      />
+    <form @submit.prevent="submitForm" class="modal-space">
+      <FormSection>
+        <FormInput
+          label="イメージ名"
+          name="image-name-edit"
+          type="text"
+          v-model="name"
+          v-bind="nameAttrs"
+          :error="errors.name"
+          :required="true"
+        />
 
-      <FormTextarea
-        name="image-description-edit"
-        label="説明"
-        :rows="4"
-        v-model="description"
-        v-bind="descriptionAttrs"
-        :error="errors.description"
-        placeholder="イメージの説明を入力してください"
-      />
+        <div>
+          <label for="image-description-edit" class="form-label-sm">説明</label>
+          <textarea
+            id="image-description-edit"
+            rows="3"
+            v-model="description"
+            v-bind="descriptionAttrs"
+            class="form-input"
+            :class="{ 'form-border-error': errors.description }"
+            placeholder="イメージの説明を入力してください"
+          ></textarea>
+          <p class="text-error h-5">
+            {{ errors.description || "&nbsp;" }}
+          </p>
+        </div>
+      </FormSection>
     </form>
 
     <template #footer>
@@ -42,45 +49,35 @@
 /**
  * =================================================================================
  * イメージ編集モーダル (MoImageEdit.vue)
- * ---------------------------------------------------------------------------------
- * UIの表示に特化したコンポーネントです。
- * 実際のフォームの状態管理やAPI送信ロジックは `useImageEditForm` Composable に
- * 分離されています。
  * =================================================================================
  */
-import { useImageEditForm } from "~/composables/modal/useImageEditForm";
-
-// ★ 汎用コンポーネントをインポート
+import {
+  useImageEditForm,
+  type ImageDTO,
+} from "~/composables/modal/useImageEditForm";
 import FormInput from "~/components/Form/Input.vue";
-import FormTextarea from "~/components/Form/Textarea.vue";
-import type { ImageResponse } from "~~/shared/types";
+import FormSection from "~/components/Form/Section.vue";
 
-// --- 親コンポーネントとの連携 (Props & Emits) ---
+// --- 親コンポーネントとの連携 ---
 const props = defineProps({
-  /** モーダルの表示状態 (trueで表示) */
   show: { type: Boolean, required: true },
-  /** 編集対象の初期データ。呼び出し元(一覧ページなど)から渡される */
   imageData: {
-    type: Object as PropType<ImageResponse | null>,
+    type: Object as PropType<ImageDTO | null>,
     default: null,
   },
 });
 const emit = defineEmits(["close", "success"]);
 
-// --- Composable からフォームロジックと状態を取得 ---
+// --- Composable からフォームロジックを取得 ---
 const {
   errors,
-  // フォームフィールド
   name,
   nameAttrs,
   description,
   descriptionAttrs,
-  // 状態とアクション
   isUpdating,
   onFormSubmit,
-} = useImageEditForm(props); // Composableにpropsを渡す
+} = useImageEditForm(props);
 
-// --- イベントハンドラ ---
-/** フォームの送信イベントを Composable に渡す */
 const submitForm = onFormSubmit(emit);
 </script>
