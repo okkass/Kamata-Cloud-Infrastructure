@@ -1,5 +1,5 @@
 type: object
-description: 仮想マシンオブジェクト
+description: 仮想マシンのサーバーサイドベースオブジェクト
 properties:
   id:
     type: string
@@ -19,7 +19,7 @@ properties:
       - suspended
     description: 仮想マシンの状態
   node:
-    $ref: ../node/Node.yml
+    $ref: ../node/NodeResponse.yml
     description: 仮想マシンが配置されている物理ノード
   createdAt:
     type: string
@@ -28,18 +28,18 @@ properties:
   securityGroups:
     type: array
     items:
-      $ref: ../security-group/SecurityGroup.yml
+      $ref: ../security-group/SecurityGroupResponse.yml
     description: 仮想マシンに関連付けられたセキュリティグループのリスト
   attachedStorages:
     type: array
     description: アタッチされたストレージのリスト
     items:
-      $ref: ./AttachedStorage.yml
+      $ref: ./AttachedStorageResponse.yml
   attachedNics:
     type: array
     description: アタッチされたネットワークインターフェースのリスト
     items:
-      $ref: ./NetworkInterface.yml
+      $ref: ./NetworkInterfaceResponse.yml
   cpuUtilization:
     type: number
     format: float
@@ -69,3 +69,7 @@ required:
   - securityGroups
   - attachedStorages
   - node
+  - securityGroups
+  - attachedNics
+  - cpuCore
+  - memorySize

@@ -1,0 +1,10 @@
+type: object
+description: 仮想マシン更新可能なプロパティを持つオブジェクト
+properties:
+  name:
+    type: string
+    description: 仮想マシンの名前
+  instanceTypeId:
+    type: string
+    format: uuid
+    description: 使用するインスタンスタイプのID
