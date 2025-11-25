@@ -3,6 +3,6 @@ description: セキュリティグループ作成リクエストオブジェク�
 allOf:
   - $ref: ./SecurityGroupUpdatable.yml
   - $ref: ./SecurityGroupCreateOnly.yml
-reqquired:
+required:
   - name
   - rules
