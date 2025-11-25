@@ -1,7 +1,5 @@
 // app/composables/useUserManagement.ts
 import { computed } from "vue";
-import { convertByteToUnit } from "@/utils/format";
-import { formatDateTime } from "@/utils/date";
 
 type RawUser = {
   id: string;
@@ -24,6 +22,8 @@ type RawUser = {
 
 export type UserRow = {
   id: string;
+  // usePageActions が期待する name を必須で持たせる（account のエイリアス）
+  name: string;
   account: string;
   email: string;
   limitsText: string;
@@ -37,8 +37,22 @@ function toNumber(v: unknown): number {
   const n = Number(v);
   return Number.isFinite(n) ? n : 0;
 }
+function bytesToGb(bytes?: number): number {
+  if (!bytes || Number.isNaN(bytes)) return 0;
+  return Math.round((bytes / (1024 * 1024 * 1024)) * 10) / 10;
+}
+function formatDate(iso?: string): string {
+  if (!iso) return "-";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return "-";
+  const pad2 = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}/${pad2(d.getMonth() + 1)}/${pad2(
+    d.getDate()
+  )} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+}
 
 export function useUserManagement() {
+  // Nuxt の useAsyncData / $fetch を想定
   const { data, pending, error, refresh } = useAsyncData<RawUser[]>(
     "users-list",
     () => $fetch("/api/users")
@@ -51,39 +65,74 @@ export function useUserManagement() {
     { key: "lastLoginText", label: "最終ログイン", align: "left" as const },
   ];
 
-  const headerButtons = [{ label: "＋ 利用者追加", action: "add" }];
+  const headerButtons = [
+    { key: "add", label: "＋ 利用者追加", kind: "primary" },
+  ];
 
   const rows = computed<UserRow[]>(() =>
     (data.value ?? []).map((u) => {
       const account = u.accountName ?? u.name ?? "-";
+      const name = account;
       const email = u.email ?? "-";
 
-      const cpu = toNumber(u.maxCpuCore) || toNumber(u.limits?.cpu) || 0;
+      // CPU
+      const maxCpu = u.maxCpuCore != null ? toNumber(u.maxCpuCore) : undefined;
+      const limitsCpu =
+        u.limits?.cpu != null ? toNumber(u.limits!.cpu) : undefined;
+      const hasCpuInfo = maxCpu != null || limitsCpu != null;
+      const cpu = maxCpu ?? limitsCpu ?? 0;
+      const cpuText = hasCpuInfo ? String(cpu) : "無制限";
 
-      let memoryGb = 0;
-      const size = u.maxMemorySize;
-      if (toNumber(size) > 0) {
-        memoryGb = convertByteToUnit(size, "GB");
-      } else if (toNumber(u.limits?.memoryGb) > 0) {
-        memoryGb = toNumber(u.limits!.memoryGb);
-      } else if (toNumber(u.limits?.memorySize) > 0) {
-        memoryGb = convertByteToUnit(u.limits!.memorySize!, "GB");
-      }
+      // Memory
+      const maxMemorySize =
+        u.maxMemorySize != null ? toNumber(u.maxMemorySize) : undefined;
+      const limitsMemoryGb =
+        u.limits?.memoryGb != null ? toNumber(u.limits!.memoryGb) : undefined;
+      const limitsMemorySize =
+        u.limits?.memorySize != null
+          ? toNumber(u.limits!.memorySize)
+          : undefined;
+      const hasMemoryInfo =
+        maxMemorySize != null ||
+        limitsMemoryGb != null ||
+        limitsMemorySize != null;
+      const memoryGb =
+        (maxMemorySize && maxMemorySize > 0 && bytesToGb(maxMemorySize)) ||
+        (limitsMemoryGb && limitsMemoryGb > 0 && limitsMemoryGb) ||
+        (limitsMemorySize &&
+          limitsMemorySize > 0 &&
+          bytesToGb(limitsMemorySize)) ||
+        0;
+      const memoryText = hasMemoryInfo ? `${memoryGb}GB` : "無制限";
 
-      let storageGb = 0;
-      if (toNumber(u.maxStorageSize) > 0) {
-        storageGb = convertByteToUnit(u.maxStorageSize!, "GB");
-      } else if (toNumber(u.limits?.storageGb) > 0) {
-        storageGb = toNumber(u.limits!.storageGb);
-      } else if (toNumber(u.limits?.storageSize) > 0) {
-        storageGb = convertByteToUnit(u.limits!.storageSize!, "GB");
-      }
+      // Storage
+      const maxStorageSize =
+        u.maxStorageSize != null ? toNumber(u.maxStorageSize) : undefined;
+      const limitsStorageGb =
+        u.limits?.storageGb != null ? toNumber(u.limits!.storageGb) : undefined;
+      const limitsStorageSize =
+        u.limits?.storageSize != null
+          ? toNumber(u.limits!.storageSize)
+          : undefined;
+      const hasStorageInfo =
+        maxStorageSize != null ||
+        limitsStorageGb != null ||
+        limitsStorageSize != null;
+      const storageGb =
+        (maxStorageSize && maxStorageSize > 0 && bytesToGb(maxStorageSize)) ||
+        (limitsStorageGb && limitsStorageGb > 0 && limitsStorageGb) ||
+        (limitsStorageSize &&
+          limitsStorageSize > 0 &&
+          bytesToGb(limitsStorageSize)) ||
+        0;
+      const storageText = hasStorageInfo ? `${storageGb}GB` : "無制限";
 
-      const limitsText = `CPU: ${cpu}, メモリ: ${memoryGb} GB, ストレージ: ${storageGb} GB`;
-      const lastLoginText = u.lastLoginAt ? formatDateTime(u.lastLoginAt) : "-";
+      const limitsText = `CPU: ${cpuText} / Mem: ${memoryText} / Sto: ${storageText}`;
+      const lastLoginText = u.lastLoginAt ? formatDate(u.lastLoginAt) : "-";
 
       return {
         id: u.id,
+        name,
         account,
         email,
         limitsText,
