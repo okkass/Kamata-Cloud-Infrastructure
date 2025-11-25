@@ -38,12 +38,6 @@
         >詳細</NuxtLink
       >
       <button
-        class="action-item"
-        @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
-      >
-        編集
-      </button>
-      <button
         class="action-item action-item-danger"
         @click.stop.prevent="row && handleRowAction({ action: 'delete', row })"
       >
@@ -87,7 +81,6 @@ const {
   openModal,
   closeModal,
   targetForDeletion,
-  targetForEditing,
   isDeleting,
   handleRowAction,
   handleDelete,

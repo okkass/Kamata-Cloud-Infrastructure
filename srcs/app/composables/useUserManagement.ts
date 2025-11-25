@@ -2,7 +2,7 @@
 import { computed } from "vue";
 import { convertByteToUnit } from "@/utils/format";
 import { formatDateTime } from "@/utils/date";
-import type { UserDTO } from "~/shared/types/dto/user/UserDTO";
+import type { UserDTO } from "@/../shared/types/dto/user.dto";
 
 export type UserRow = {
   id: string;
@@ -28,29 +28,19 @@ function bytesToGb(bytes?: number): number {
 
 /* 再利用可能なフォーマッタをエクスポート（テンプレートや他 composable から参照可） */
 export function formatCpu(dto: UserDTO): string {
-  const maxCpu = dto.maxCpuCore ?? dto.limits?.cpu ?? undefined;
+  const maxCpu = dto.maxCpuCore ?? undefined;
   return maxCpu != null ? String(toNumber(maxCpu)) : "無制限";
 }
 export function formatMemory(dto: UserDTO): string {
   const max = dto.maxMemorySize ?? undefined;
-  const memGb = dto.limits?.memoryGb ?? undefined;
-  const memSize = dto.limits?.memorySize ?? undefined;
   if (max != null && toNumber(max) > 0)
     return `${convertByteToUnit(max, "GB")} GB`;
-  if (memGb != null && toNumber(memGb) > 0) return `${toNumber(memGb)} GB`;
-  if (memSize != null && toNumber(memSize) > 0)
-    return `${convertByteToUnit(memSize, "GB")} GB`;
   return "無制限";
 }
 export function formatStorage(dto: UserDTO): string {
   const max = dto.maxStorageSize ?? undefined;
-  const storGb = dto.limits?.storageGb ?? undefined;
-  const storSize = dto.limits?.storageSize ?? undefined;
   if (max != null && toNumber(max) > 0)
     return `${convertByteToUnit(max, "GB")} GB`;
-  if (storGb != null && toNumber(storGb) > 0) return `${toNumber(storGb)} GB`;
-  if (storSize != null && toNumber(storSize) > 0)
-    return `${convertByteToUnit(storSize, "GB")} GB`;
   return "無制限";
 }
 export function formatLimits(dto: UserDTO): string {
@@ -78,7 +68,7 @@ export function useUserManagement() {
 
   const rows = computed<UserRow[]>(() =>
     (data.value ?? []).map((u) => {
-      const account = u.accountName ?? u.name ?? "-";
+      const account = u.name ?? "-";
       return {
         id: u.id,
         name: account,
