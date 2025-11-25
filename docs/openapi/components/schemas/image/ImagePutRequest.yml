@@ -4,4 +4,3 @@ allOf:
   - $ref: "./ImageClientUpdatable.yml"
 required:
   - name
-  - description

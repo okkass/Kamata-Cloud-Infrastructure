@@ -12,7 +12,7 @@ https://okkass.github.io/Kamata-Cloud-Infrastructure/types
 Oracle Cloud Infrastructure 上にて運用中  
 https://kci.redmine.chiffon-lab.tech
 
-## KCI-Proxmox
+## KCI-Proxmox Virtual Environment
 
 仮想化基盤 Proxmox VE
 https://kci.proxmox.chiffon-lab.tech
