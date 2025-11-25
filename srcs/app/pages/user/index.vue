@@ -56,7 +56,7 @@
 
   <MoDeleteConfirm
     :show="activeModal === DELETE_USERS_MODAL"
-    :message="`「${targetForDeletion?.name}」を削除します。よろしいですか？`"
+    :message="`「${targetForDeletion?.account}」を削除します。よろしいですか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"

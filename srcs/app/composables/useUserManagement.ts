@@ -24,6 +24,8 @@ type RawUser = {
 
 export type UserRow = {
   id: string;
+  // usePageActions と互換を保つため name を必須にする
+  name: string;
   account: string;
   email: string;
   limitsText: string;
@@ -51,46 +53,66 @@ export function useUserManagement() {
     { key: "lastLoginText", label: "最終ログイン", align: "left" as const },
   ];
 
-  const headerButtons = [{ label: "＋ 利用者追加", action: "add" }];
+  // headerButtons に key を明示
+  const headerButtons = [{ key: "add", label: "＋ 利用者追加", action: "add" }];
 
   const rows = computed<UserRow[]>(() =>
     (data.value ?? []).map((u) => {
       const account = u.accountName ?? u.name ?? "-";
+      // name を必須に合わせて account を代入
+      const name = account;
       const email = u.email ?? "-";
 
-      // CPU: 情報が無ければ「無制限」
-      const hasCpuInfo = u.maxCpuCore != null || u.limits?.cpu != null;
-      const cpuValue = toNumber(u.maxCpuCore) || toNumber(u.limits?.cpu) || 0;
+      // --- CPU: キャッシュして重複呼び出しを削減 ---
+      const maxCpuRaw = u.maxCpuCore;
+      const limitsCpuRaw = u.limits?.cpu;
+      const hasCpuInfo = maxCpuRaw != null || limitsCpuRaw != null;
+      const cpuValue =
+        (maxCpuRaw != null ? toNumber(maxCpuRaw) : 0) || toNumber(limitsCpuRaw);
       const cpuText = hasCpuInfo ? String(cpuValue) : "無制限";
 
-      // Memory: 情報が無ければ「無制限」
+      // --- Memory: 必要な値を一度だけ取得 ---
+      const maxMemoryRaw = u.maxMemorySize;
+      const limitsMemoryGbRaw = u.limits?.memoryGb;
+      const limitsMemorySizeRaw = u.limits?.memorySize;
       const hasMemoryInfo =
-        u.maxMemorySize != null ||
-        u.limits?.memoryGb != null ||
-        u.limits?.memorySize != null;
+        maxMemoryRaw != null ||
+        limitsMemoryGbRaw != null ||
+        limitsMemorySizeRaw != null;
       let memoryGb = 0;
-      const maxMemory = u.maxMemorySize;
-      if (toNumber(maxMemory) > 0) {
-        memoryGb = convertByteToUnit(maxMemory, "GB");
-      } else if (toNumber(u.limits?.memoryGb) > 0) {
-        memoryGb = toNumber(u.limits!.memoryGb);
-      } else if (toNumber(u.limits?.memorySize) > 0) {
-        memoryGb = convertByteToUnit(u.limits!.memorySize!, "GB");
+      if (maxMemoryRaw != null && toNumber(maxMemoryRaw) > 0) {
+        memoryGb = convertByteToUnit(maxMemoryRaw, "GB");
+      } else if (limitsMemoryGbRaw != null && toNumber(limitsMemoryGbRaw) > 0) {
+        memoryGb = toNumber(limitsMemoryGbRaw);
+      } else if (
+        limitsMemorySizeRaw != null &&
+        toNumber(limitsMemorySizeRaw) > 0
+      ) {
+        memoryGb = convertByteToUnit(limitsMemorySizeRaw, "GB");
       }
       const memoryText = hasMemoryInfo ? `${memoryGb} GB` : "無制限";
 
-      // Storage: 情報が無ければ「無制限」
+      // --- Storage: 同上 ---
+      const maxStorageRaw = u.maxStorageSize;
+      const limitsStorageGbRaw = u.limits?.storageGb;
+      const limitsStorageSizeRaw = u.limits?.storageSize;
       const hasStorageInfo =
-        u.maxStorageSize != null ||
-        u.limits?.storageGb != null ||
-        u.limits?.storageSize != null;
+        maxStorageRaw != null ||
+        limitsStorageGbRaw != null ||
+        limitsStorageSizeRaw != null;
       let storageGb = 0;
-      if (toNumber(u.maxStorageSize) > 0) {
-        storageGb = convertByteToUnit(u.maxStorageSize!, "GB");
-      } else if (toNumber(u.limits?.storageGb) > 0) {
-        storageGb = toNumber(u.limits!.storageGb);
-      } else if (toNumber(u.limits?.storageSize) > 0) {
-        storageGb = convertByteToUnit(u.limits!.storageSize!, "GB");
+      if (maxStorageRaw != null && toNumber(maxStorageRaw) > 0) {
+        storageGb = convertByteToUnit(maxStorageRaw, "GB");
+      } else if (
+        limitsStorageGbRaw != null &&
+        toNumber(limitsStorageGbRaw) > 0
+      ) {
+        storageGb = toNumber(limitsStorageGbRaw);
+      } else if (
+        limitsStorageSizeRaw != null &&
+        toNumber(limitsStorageSizeRaw) > 0
+      ) {
+        storageGb = convertByteToUnit(limitsStorageSizeRaw, "GB");
       }
       const storageText = hasStorageInfo ? `${storageGb} GB` : "無制限";
 
@@ -99,6 +121,7 @@ export function useUserManagement() {
 
       return {
         id: u.id,
+        name,
         account,
         email,
         limitsText,
