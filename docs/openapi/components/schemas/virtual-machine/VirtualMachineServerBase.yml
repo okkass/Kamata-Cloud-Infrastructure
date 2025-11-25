@@ -34,7 +34,7 @@ properties:
     type: array
     description: アタッチされたストレージのリスト
     items:
-      $ref: ./AttachedStorageResponse.yml
+      $ref: ./VirtualStorageResponse.yml
   attachedNics:
     type: array
     description: アタッチされたネットワークインターフェースのリスト
@@ -69,7 +69,6 @@ required:
   - securityGroups
   - attachedStorages
   - node
-  - securityGroups
   - attachedNics
   - cpuCore
   - memorySize

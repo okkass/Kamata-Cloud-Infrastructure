@@ -1,0 +1,4 @@
+type: object
+description: バックアップレスポンスオブジェクト
+allOf:
+  - $ref: ./BackupServerBase.yml

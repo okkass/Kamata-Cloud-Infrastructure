@@ -1,0 +1,7 @@
+type: object
+description: 仮想マシンに新たなストレージをアタッチするためのリクエストオブジェクト
+allOf:
+  - $ref: ./AttachedStorageUpdatable.yml
+  - $ref: ./AttachedStorageCreateOnly.yml
+required:
+  - name

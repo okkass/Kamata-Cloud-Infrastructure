@@ -1,0 +1,4 @@
+type: object
+description: ネットワークインターフェースレスポンスオブジェクト
+allOf:
+  - $ref: ./NetworkInterfaceServerBase.yml

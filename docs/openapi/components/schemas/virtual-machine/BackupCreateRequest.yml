@@ -1,13 +1,8 @@
 type: object
 description: バックアップ作成リクエストオブジェクト
-properties:
-  name:
-    type: string
-    description: バックアップの名前
-  targetStorageId:
-    type: string
-    format: uuid
-    description: バックアップ対象の仮想ストレージのID
+allOf:
+  - $ref: ./BackupCreateOnly.yml
+  - $ref: ./BackupUpdatable.yml
 required:
   - name
-  - targetStorageId
+  - description

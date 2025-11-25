@@ -15,13 +15,23 @@ properties:
     type: string
     format: uuid
     description: 仮想ストレージが属するストレージプールのID
+  mountPoint:
+    type: string
+    description: 仮想ストレージのマウントポイント
   createdAt:
     type: string
     format: date-time
     description: 仮想ストレージの作成日時
+  status:
+    type: string
+    enum:
+      - attached
+      - detached
+    description: 仮想ストレージの状態
 required:
   - id
   - name
   - size
   - poolId
   - createdAt
+  - status
