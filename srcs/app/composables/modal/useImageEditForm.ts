@@ -1,10 +1,6 @@
 /**
  * =================================================================================
  * イメージ編集フォーム Composable (useImageEditForm.ts)
- * ---------------------------------------------------------------------------------
- * ★ ImagePutRequest 型定義を利用
- * ★ useField を使用 (互換性維持)
- * ★ name属性の重複エラーを解消 (attrsからnameを除去)
  * =================================================================================
  */
 import { watch } from "vue";
@@ -16,16 +12,12 @@ import { useToast } from "~/composables/useToast";
 
 import type { ImagePutRequest } from "~~/shared/types/dto/image/ImagePutRequest";
 import type { ImageResponse } from "~~/shared/types/dto/image/ImageResponse";
-
-export interface ImageDTO {
-  id: string;
-  name: string;
-  description?: string;
-}
+import type { ImageServerBase } from "~~/shared/types/dto/image/ImageServerBase";
 
 interface ImageEditProps {
   show: boolean;
-  imageData: ImageDTO | null;
+  // ★ ImageDTO -> ImageServerBase に変更
+  imageData: ImageServerBase | null;
 }
 
 // ==============================================================================
@@ -33,6 +25,7 @@ interface ImageEditProps {
 // ==============================================================================
 const zodSchema = z.object({
   name: z.string().min(1, "イメージ名は必須です。"),
+  // ImagePutRequestの定義により description は必須(NonNullable)
   description: z.string(),
 });
 
@@ -68,10 +61,7 @@ export function useImageEditForm(props: ImageEditProps) {
     handleChange: nameChange,
   } = useField<string>("name");
 
-  // ★★★ 修正箇所: name プロパティを削除 ★★★
-  // テンプレート側で name="image-name-edit" を指定しているため、ここでは含めない
   const nameAttrs = {
-    // name: "name", // ← 削除
     onBlur: nameBlur,
     onChange: nameChange,
   };
@@ -82,9 +72,7 @@ export function useImageEditForm(props: ImageEditProps) {
     handleChange: descChange,
   } = useField<string>("description");
 
-  // ★★★ 修正箇所: name プロパティを削除 ★★★
   const descriptionAttrs = {
-    // name: "description", // ← 削除
     onBlur: descBlur,
     onChange: descChange,
   };
@@ -99,6 +87,7 @@ export function useImageEditForm(props: ImageEditProps) {
         resetForm({
           values: {
             name: newData.name,
+            // description が undefined の場合は空文字を入れて必須要件を満たす
             description: newData.description || "",
           },
         });

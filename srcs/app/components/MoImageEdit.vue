@@ -51,18 +51,16 @@
  * イメージ編集モーダル (MoImageEdit.vue)
  * =================================================================================
  */
-import {
-  useImageEditForm,
-  type ImageDTO,
-} from "~/composables/modal/useImageEditForm";
+import { useImageEditForm } from "~/composables/modal/useImageEditForm";
 import FormInput from "~/components/Form/Input.vue";
 import FormSection from "~/components/Form/Section.vue";
+import type { ImageServerBase } from "~~/shared/types/dto/image/ImageServerBase";
 
 // --- 親コンポーネントとの連携 ---
 const props = defineProps({
   show: { type: Boolean, required: true },
   imageData: {
-    type: Object as PropType<ImageDTO | null>,
+    type: Object as PropType<ImageServerBase | null>,
     default: null,
   },
 });
