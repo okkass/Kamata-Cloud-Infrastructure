@@ -1,0 +1,30 @@
+type: object
+description: 仮想ストレージバルク更新リクエストオブジェクト
+properties:
+  add:
+    type: array
+    description: 追加する仮想ストレージのリスト
+    items:
+      $ref: "./AttachedStorageCreateRequest.yml"
+  patch:
+    type: array
+    description: 更新する仮想ストレージのリスト
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 更新する仮想ストレージのID
+        data:
+          $ref: "./AttachedStorageUpdatable.yml"
+      required:
+        - id
+        - data
+  delete:
+    type: array
+    description: 削除するセキュリティルールのIDリスト
+    items:
+      type: string
+      format: uuid
+      description: セキュリティルールのID

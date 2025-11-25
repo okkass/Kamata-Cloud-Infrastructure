@@ -1,0 +1,30 @@
+type: object
+description: ネットワークインターフェースバルク更新リクエストオブジェクト
+properties:
+  add:
+    type: array
+    description: 追加するネットワークインターフェースのリスト
+    items:
+      $ref: "./NetworkInterfaceCreateRequest.yml"
+  patch:
+    type: array
+    description: 更新するネットワークインターフェースのリスト
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 更新する仮想ストレージのID
+        data:
+          $ref: "./NetworkInterfaceUpdatable.yml"
+      required:
+        - id
+        - data
+  delete:
+    type: array
+    description: 削除するネットワークインターフェースのIDリスト
+    items:
+      type: string
+      format: uuid
+      description: セキュリティルールのID

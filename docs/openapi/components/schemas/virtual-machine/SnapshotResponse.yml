@@ -1,0 +1,4 @@
+type: object
+description: スナップショットレスポンスオブジェクト
+allOf:
+  - $ref: ./SnapshotServerBase.yml

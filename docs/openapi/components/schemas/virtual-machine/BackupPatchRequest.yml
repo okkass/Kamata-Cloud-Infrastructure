@@ -1,0 +1,4 @@
+type: object
+description: バックアップ部分更新リクエストオブジェクト
+allOf:
+  - $ref: ./BackupUpdatable.yml
