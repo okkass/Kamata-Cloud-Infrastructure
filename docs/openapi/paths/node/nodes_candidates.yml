@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/node/NodeCandidate.yml
+              $ref: ../../components/schemas/node/NodeCandidateResponse.yml
     "401":
       description: 認証エラー
     "403":

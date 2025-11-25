@@ -1,0 +1,7 @@
+type: object
+description: 物理ノード更新リクエストオブジェクト(PUT)
+allOf:
+  - $ref: "./NodeUpdatable.yml"
+required:
+  - name
+  - isAdmin
