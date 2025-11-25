@@ -1,0 +1,4 @@
+type: object
+description: 物理ノードレスポンスオブジェクト
+allOf:
+  - $ref: "./NodeServerBase.yml"
