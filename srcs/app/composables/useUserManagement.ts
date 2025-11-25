@@ -62,9 +62,7 @@ export function useUserManagement() {
     { key: "lastLoginText", label: "最終ログイン", align: "left" as const },
   ];
 
-  const headerButtons = [
-    { key: "create", label: "＋ 利用者追加", primary: true },
-  ];
+  const headerButtons = [{ action: "add", label: "＋ 利用者追加" }];
 
   const rows = computed<UserRow[]>(() =>
     (data.value ?? []).map((u) => {
