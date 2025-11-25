@@ -15,7 +15,7 @@ properties:
         id:
           type: string
           format: uuid
-          description: 更新する仮想ストレージのID
+          description: 更新するネットワークインターフェースのID
         data:
           $ref: "./NetworkInterfaceUpdatable.yml"
       required:
