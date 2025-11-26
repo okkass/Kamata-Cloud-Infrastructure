@@ -1,16 +1,20 @@
 /**
  * =================================================================================
  * イメージ追加フォーム Composable (useImageAddForm.ts)
+ * ---------------------------------------------------------------------------------
+ * ★ defineField を使用したバージョン
+ * ★ name属性の重複警告を回避するための処理込み
  * =================================================================================
  */
-import { useForm, useField } from "vee-validate";
+import { computed } from "vue";
+import { useForm } from "vee-validate"; // defineField は useForm の戻り値に含まれます
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useResourceList } from "~/composables/useResourceList";
 import { useToast } from "~/composables/useToast";
 
-// 型定義のインポート
+// 型定義
 import type { ImageCreateRequest } from "~~/shared/types/dto/image/ImageCreateRequest";
 import type { ImageResponse } from "~~/shared/types/dto/image/ImageResponse";
 import type { NodeDTO } from "~~/shared/types/dto/node/NodeDTO";
@@ -59,9 +63,7 @@ export function useImageAddForm() {
     ImageResponse
   >("images");
 
-  // ============================================================================
-  // ノード一覧の取得 (GET /api/nodes)
-  // ============================================================================
+  // ノード一覧取得
   const {
     data: nodes,
     pending: nodesPending,
@@ -71,7 +73,8 @@ export function useImageAddForm() {
   // ============================================================================
   // Form Setup
   // ============================================================================
-  const { errors, handleSubmit, resetForm } = useForm<FormValues>({
+  // defineField を useForm から取得
+  const { errors, handleSubmit, resetForm, defineField } = useForm<FormValues>({
     validationSchema,
     initialValues: {
       name: "",
@@ -81,42 +84,29 @@ export function useImageAddForm() {
     },
   });
 
-  // --- フィールド定義 (useField) ---
+  // --- フィールド定義 (defineField) ---
 
   // 1. name
-  const {
-    value: name,
-    handleBlur: nameBlur,
-    handleChange: nameChange,
-  } = useField<string>("name");
-
-  // name属性の重複エラーを防ぐため、attrs に name を含めない
-  const nameAttrs = {
-    onBlur: nameBlur,
-    onChange: nameChange,
-  };
+  const [name, nameProps] = defineField("name");
+  // ★ 重複警告回避: defineFieldが生成する props から 'name' を除外する
+  const nameAttrs = computed(() => {
+    const { name: _, ...rest } = nameProps.value;
+    return rest;
+  });
 
   // 2. description
-  const {
-    value: description,
-    handleBlur: descBlur,
-    handleChange: descChange,
-  } = useField<string>("description");
+  const [description, descriptionProps] = defineField("description");
+  // ★ 重複警告回避
+  const descriptionAttrs = computed(() => {
+    const { name: _, ...rest } = descriptionProps.value;
+    return rest;
+  });
 
-  const descriptionAttrs = {
-    onBlur: descBlur,
-    onChange: descChange,
-  };
-
-  // 3. file
-  const { value: file } = useField<File | undefined>("file");
+  // 3. file (FormDropZone用)
+  const [file] = defineField("file");
 
   // 4. nodeId
-  const {
-    value: nodeId,
-    handleBlur: nodeIdBlur,
-    handleChange: nodeIdChange,
-  } = useField<string>("nodeId");
+  const [nodeId] = defineField("nodeId");
 
   // ============================================================================
   // Submission Handler
@@ -173,6 +163,7 @@ export function useImageAddForm() {
     nodes,
     nodesPending,
     nodesError,
+
     isCreating,
     onFormSubmit,
     resetForm,
