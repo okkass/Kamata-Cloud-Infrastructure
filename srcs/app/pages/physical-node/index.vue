@@ -11,7 +11,7 @@
     >
       <template #cell-name="{ row }">
         <div v-if="row">
-          <NuxtLink :to="`/physical-node/${row.id}`" class="table-link">
+          <NuxtLink :to="`/node/${row.id}`" class="table-link">
             {{ row.name }}
             <span v-if="row.isMgmt" class="cell-note">（管理ノード）</span>
           </NuxtLink>
@@ -34,7 +34,7 @@
 
       <template #row-actions="{ row }">
         <div v-if="row">
-          <NuxtLink :to="`/physical-node/${row.id}`" class="action-item">
+          <NuxtLink :to="`/node/${row.id}`" class="action-item">
             詳細
           </NuxtLink>
           <button
@@ -59,14 +59,14 @@
   </div>
 
   <MoDeleteConfirm
-    :show="activeModal === deletePhysicalNodeAction"
+    :show="activeModal === DELETE_NODE_ACTION"
     :message="`本当にノード「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
   />
   <MoAddNodeToCluster
-    :show="activeModal === addPhysicalNodeAction"
+    :show="activeModal === ADD_NODE_ACTION"
     @close="closeModal"
     @success="handleSuccess"
   />
@@ -78,10 +78,10 @@
  * 物理ノード管理ページ
  * ---------------------------------------------------------------------------------
  * UIの表示に特化したコンポーネントです。
- * 実際のロジックは `usePhysicalNodeManagement` Composable に分離されています。
+ * 実際のロジックは `useNodeManagement` Composable に分離されています。
  * =================================================================================
  */
-import { usePhysicalNodeManagement } from "~/composables/usePhysicalNodeManagement";
+import { useNodeManagement } from "~/composables/dashboard/useNodeManagement";
 import { usePageActions } from "~/composables/usePageActions";
 
 // --- データロジック ---
@@ -92,7 +92,9 @@ const {
   switchingNodeId,
   handleSetAsManagementNode,
   refreshNodeList,
-} = usePhysicalNodeManagement();
+  ADD_NODE_ACTION,
+  DELETE_NODE_ACTION,
+} = useNodeManagement();
 
 // --- アクションロジック ---
 const {
@@ -106,15 +108,15 @@ const {
   handleSuccess,
   cancelAction,
 } = usePageActions<UiNode>({
-  resourceName: PHYSICAL_NODE.name,
-  resourceLabel: PHYSICAL_NODE.label,
+  resourceName: NODE.name,
+  resourceLabel: NODE.label,
   refresh: refreshNodeList,
 });
 
 // --- イベントの振り分け ---
 const handleDashboardHeaderAction = (action: string) => {
   if (action === "add") {
-    openModal(addPhysicalNodeAction);
+    openModal(ADD_NODE_ACTION);
   }
 };
 const onRowAction = ({ action, row }: { action: string; row: UiNode }) => {

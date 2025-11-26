@@ -1,0 +1,70 @@
+get:
+  summary: バックアップ一覧の取得
+  description: ユーザのバックアップのリストを取得します。
+  tags:
+    - VirtualMachine
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/virtual-machine/Backup.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []
+post:
+  summary: バックアップの作成
+  description: 新しいバックアップを作成します。
+  tags:
+    - VirtualMachine
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/virtual-machine/BackupCreateRequest.yml
+  responses:
+    "201":
+      description: 作成成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-machine/Backup.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []
+delete:
+  summary: バックアップの削除
+  description: 指定したIDのバックアップを削除します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: backupId
+      in: query
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: バックアップの一意なID
+  responses:
+    "204":
+      description: 削除成功
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: バックアップが見つからない
+  security:
+    - BearerAuth: []

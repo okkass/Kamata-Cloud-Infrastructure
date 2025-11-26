@@ -8,7 +8,7 @@ on:
       - main
     paths:
       # APIドキュメントのトリガーパス
-      - "docs/api_design/api.yml"
+      - "docs/openapi/**"
       # TypeDocのトリガーパス
       - "srcs/shared/types/**"
       # このワークフローファイル自体の変更でもトリガー
@@ -32,19 +32,11 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      # 2. Corepackをセットアップ
+      # 2. Corepackをセットアップ(pnpmを使うため)
       - name: Set up Corepack
         run: corepack enable
 
-      # 3. pnpmのグローバルbinディレクトリを設定
-      - name: Set up pnpm global bin directory for `pnpm install -g`
-        run: |
-          PNPM_HOME=/home/runner/.local/share/pnpm
-          echo "PNPM_HOME=$PNPM_HOME" >> "$GITHUB_ENV"
-          echo "$PNPM_HOME" >> "$GITHUB_PATH"
-        shell: bash
-
-      # 4. Node.js環境をセットアップ
+      # 3. Node.js環境をセットアップ
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
@@ -52,21 +44,28 @@ jobs:
           cache: "pnpm"
           cache-dependency-path: "srcs/pnpm-lock.yaml"
 
-      # 5. 必要なパッケージをすべてインストール
+      # 4. 必要なパッケージをすべてインストール
       - name: Install dependencies
         run: |
           # APIドキュメント生成用のRedocly CLIをインストール
-          pnpm install -g @redocly/cli
+          pnpm install @redocly/cli
           # TypeDoc生成用の依存パッケージをインストール
           pnpm install
-          # Prisma Clientのスキーマに合わせる
-          pnpm dlx prisma generate
+          # prisma関連のセットアップ
+          pnpm prisma generate
+        env:
+          DATABASE_URL: mysql://kci_user:moimoi1204@localhost:3306/kci_db
         working-directory: ./srcs
+
+      # 5. APIドキュメントをbundle
+      # Redocly CLIを使ってAPIドキュメントをバンドル(一塊にまとめる)
+      - name: Bundle API Docs
+        run: pnpm --package=@redocly/cli dlx redocly bundle docs/openapi/openapi.yml -o public/api.yml
 
       # 6. APIドキュメントを生成
       # 生成物を格納する `public` ディレクトリに直接出力する
       - name: Build API Docs
-        run: redocly build-docs docs/api_design/api.yml -o public/index.html
+        run: pnpm --package=@redocly/cli dlx redocly build-docs public/api.yml -o public/index.html
 
       # 7. TypeDocドキュメントを生成
       - name: Build Type Docs

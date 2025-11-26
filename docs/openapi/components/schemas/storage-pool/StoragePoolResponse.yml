@@ -1,0 +1,4 @@
+type: object
+description: ストレージプールレスポンスオブジェクト
+allOf:
+  - $ref: "./StoragePoolServerBase.yml"

@@ -1,5 +1,7 @@
+import { ImageResponse } from "~~/shared/types";
+
 export default defineEventHandler((event) => {
-  const images: Array<ImageDTO> = [
+  const images: Array<ImageResponse> = [
     {
       id: "057a9f47-380e-43fe-b3c4-22a46cd97220",
       name: "Ubuntu 22.04",

@@ -1,0 +1,14 @@
+type: object
+description: ログインリクエストオブジェクト
+properties:
+  email:
+    type: string
+    format: email
+    description: ユーザのメールアドレス
+  password:
+    type: string
+    format: password
+    description: ユーザのパスワード
+required:
+  - email
+  - password

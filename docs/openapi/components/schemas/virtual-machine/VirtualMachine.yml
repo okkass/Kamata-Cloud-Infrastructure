@@ -1,0 +1,71 @@
+type: object
+description: 仮想マシンオブジェクト
+properties:
+  id:
+    type: string
+    format: uuid
+    description: 仮想マシンを識別するための一意なID
+  name:
+    type: string
+    description: 仮想マシンの名前
+  instanceType:
+    $ref: ../instance-type/InstanceTypeResponse.yml
+    description: 仮想マシンのインスタンスタイプ
+  status:
+    type: string
+    enum:
+      - running
+      - stopped
+      - suspended
+    description: 仮想マシンの状態
+  node:
+    $ref: ../node/NodeResponse.yml
+    description: 仮想マシンが配置されている物理ノード
+  createdAt:
+    type: string
+    format: date-time
+    description: 仮想マシンが作成された日時
+  securityGroups:
+    type: array
+    items:
+      $ref: ../security-group/SecurityGroup.yml
+    description: 仮想マシンに関連付けられたセキュリティグループのリスト
+  attachedStorages:
+    type: array
+    description: アタッチされたストレージのリスト
+    items:
+      $ref: ./AttachedStorage.yml
+  attachedNics:
+    type: array
+    description: アタッチされたネットワークインターフェースのリスト
+    items:
+      $ref: ./NetworkInterface.yml
+  cpuUtilization:
+    type: number
+    format: float
+    description: CPU使用率（0.0から1.0の範囲）
+    example: 0.55
+  memoryUtilization:
+    type: number
+    format: float
+    description: メモリ使用率（0.0から1.0の範囲）
+    example: 0.7
+  storageUtilization:
+    type: number
+    format: float
+    description: ストレージ使用率（0.0から1.0の範囲）
+    example: 0.4
+  cpuCore:
+    type: integer
+    description: 仮想マシンに割り当てられたCPUコア数
+  memorySize:
+    type: integer
+    description: 仮想マシンに割り当てられたメモリサイズ（バイト単位）
+required:
+  - id
+  - name
+  - status
+  - createdAt
+  - securityGroups
+  - attachedStorages
+  - node

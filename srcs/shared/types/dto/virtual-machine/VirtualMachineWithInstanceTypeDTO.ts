@@ -1,11 +1,11 @@
+import type { InstanceTypeResponse } from "../instance-type";
 import type { VirtualMachineBaseDTO } from "./VirtualMachineBaseDTO";
-import type { InstanceTypeDTO } from "../instance-type/InstanceTypeDTO";
 /**
  * パターンA: インスタンスタイプを持ってる場合のオブジェクト
  */
 export interface VirtualMachineWithInstanceTypeDTO
   extends VirtualMachineBaseDTO {
-  instanceType: InstanceTypeDTO;
+  instanceType: InstanceTypeResponse;
   /**
    * CPUコア数
    */

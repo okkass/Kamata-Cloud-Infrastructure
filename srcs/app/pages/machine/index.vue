@@ -64,14 +64,14 @@
   </DashboardLayout>
    
   <MoVirtualMachineCreate
-    :show="activeModal === createVirtualMachineAction"
+    :show="activeModal === CREATE_VIRTUAL_MACHINE_ACTION"
     @close="cancelAction"
     @success="handleSuccess"
   />
 
    
   <MoVirtualMachineEdit
-    :show="activeModal === editVirtualMachineAction"
+    :show="activeModal === EDIT_VIRTUAL_MACHINE_ACTION"
     :virtual-machine="targetForEditing"
     @close="cancelAction"
     @success="handleSuccess"
@@ -79,7 +79,7 @@
 
    
   <MoDeleteConfirm
-    :show="activeModal === deleteVirtualMachineAction"
+    :show="activeModal === DELETE_VIRTUAL_MACHINE_ACTION"
     :is-loading="isDeleting"
     :resource-label="MACHINE.label"
     :resource-name="targetForDeletion?.name"
@@ -95,9 +95,9 @@ import { computed } from "vue";
 // ==============================================================================
 // 定数定義 (Constants)
 // ==============================================================================
-const createVirtualMachineAction = `create-${MACHINE.name}`;
-const editVirtualMachineAction = `edit-${MACHINE.name}`;
-const deleteVirtualMachineAction = `delete-${MACHINE.name}`;
+const CREATE_VIRTUAL_MACHINE_ACTION = `create-${MACHINE.name}`;
+const EDIT_VIRTUAL_MACHINE_ACTION = `edit-${MACHINE.name}`;
+const DELETE_VIRTUAL_MACHINE_ACTION = `delete-${MACHINE.name}`;
 
 // ==============================================================================
 // 状態管理 (State Management via Composables)
@@ -148,7 +148,7 @@ const headerButtons = [{ label: "新規作成", action: "create" }];
 // ==============================================================================
 const onHeaderAction = (action: string) => {
   if (action === "create") {
-    openModal(createVirtualMachineAction);
+    openModal(CREATE_VIRTUAL_MACHINE_ACTION);
   }
 };
 </script>
