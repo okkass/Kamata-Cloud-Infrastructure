@@ -69,7 +69,7 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
   });
 
   // --- フィールド定義 (defineField) ---
-const [name, nameAttrs] = defineField("name");
+  const [name, nameAttrs] = defineField("name");
   const [cpuCore, cpuCoreAttrs] = defineField("cpuCore");
   const [memorySizeInMb, memorySizeInMbAttrs] = defineField("memorySizeInMb");
 
