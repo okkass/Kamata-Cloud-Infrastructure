@@ -53,7 +53,7 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
   const { executeUpdate, isUpdating } = useResourceUpdate<
     InstanceTypePutRequest,
     InstanceTypeResponse
-  >("instance-types");
+  >(INSTANCE_TYPE.name);
 
   // ============================================================================
   // Form Setup
