@@ -1,6 +1,9 @@
 <template>
   <div>
-    <label class="form-label">{{ label }}</label>
+    <label class="form-label-sm"
+      >{{ label }}
+      <span v-if="required" class="required-asterisk">*</span>
+    </label>
     <div
       class="drop-zone"
       :class="{ 'is-dragging': isDragging }"
@@ -60,6 +63,10 @@ const props = defineProps({
   accept: {
     type: String,
     default: "*/*", // デフォルトでは全てのファイル形式を許可
+  },
+  required: {
+    type: Boolean,
+    default: false,
   },
 });
 
