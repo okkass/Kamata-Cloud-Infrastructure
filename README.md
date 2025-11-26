@@ -14,5 +14,5 @@ https://kci.redmine.chiffon-lab.tech
 
 ## KCI-Proxmox Virtual Environment
 
-仮想化基盤 Proxmox VE
+仮想化基盤 Proxmox VE 8.4
 https://kci.proxmox.chiffon-lab.tech

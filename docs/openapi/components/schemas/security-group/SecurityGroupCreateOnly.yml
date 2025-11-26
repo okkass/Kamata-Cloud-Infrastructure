@@ -1,0 +1,9 @@
+type: object
+description: セキュリティグループ作成時のみに設定可能なプロパティ
+properties:
+  rules:
+    type: array
+    items:
+      $ref: ./SecurityRuleCreateRequest.yml
+required:
+  - rules
