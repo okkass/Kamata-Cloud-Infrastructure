@@ -1,6 +1,6 @@
 post:
-  summary: セキュリティグループルールの追加
-  description: 指定したセキュリティグループに新しいルールを追加します。
+  summary: セキュリティルールの一括追加、更新、削除
+  description: 指定したセキュリティグループ内で複数のルールを一括で追加、更新、または削除します。
   tags:
     - SecurityGroup
   parameters:
@@ -16,14 +16,16 @@ post:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/security-group/SecurityRuleCreateRequest.yml
+          $ref: ../../components/schemas/security-group/SecurityRuleBulkRequest.yml
   responses:
-    "201":
-      description: ルール追加成功
+    "200":
+      description: ルール一括操作成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+            type: array
+            items:
+              $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
     "400":
       description: リクエストエラー
     "401":

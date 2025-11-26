@@ -5,44 +5,42 @@
     @close="$emit('close')"
   >
     <form @submit.prevent="submitForm">
-      <FormSection>
-        <FormInput
-          label="インスタンスタイプ名"
-          name="instance-type-name"
-          type="text"
-          placeholder="例: standard.xlarge"
-          v-model="name"
-          v-bind="nameAttrs"
-          :error="errors.name"
-          :required="true"
-        />
+      <FormInput
+        label="インスタンスタイプ名"
+        name="instance-type-name"
+        type="text"
+        placeholder="例: standard.xlarge"
+        v-model="name"
+        v-bind="nameAttrs"
+        :error="errors.name"
+        :required="true"
+      />
 
-        <FormInput
-          label="CPUコア数"
-          name="instance-cpu-cores"
-          type="number"
-          placeholder="例: 16"
-          v-model.number="cpuCores"
-          v-bind="cpuCoresAttrs"
-          :error="errors.cpuCores"
-          :required="true"
-        />
+      <FormInput
+        label="CPUコア数"
+        name="instance-cpu-cores"
+        type="number"
+        placeholder="例: 16"
+        v-model.number="cpuCore"
+        v-bind="cpuCoreAttrs"
+        :error="errors.cpuCore"
+        :required="true"
+      />
 
-        <FormInput
-          label="メモリサイズ"
-          name="instance-memory"
-          type="number"
-          placeholder="例: 4096"
-          v-model.number="memorySizeInMb"
-          v-bind="memorySizeInMbAttrs"
-          :error="errors.memorySizeInMb"
-          :required="true"
-        >
-          <template #suffix>
-            <span class="form-unit-label rounded-l-none -ml-px">MB</span>
-          </template>
-        </FormInput>
-      </FormSection>
+      <FormInput
+        label="メモリサイズ"
+        name="instance-memory"
+        type="number"
+        placeholder="例: 4096"
+        v-model.number="memorySizeInMb"
+        v-bind="memorySizeInMbAttrs"
+        :error="errors.memorySizeInMb"
+        :required="true"
+      >
+        <template #suffix>
+          <span class="form-unit-label rounded-l-none -ml-px">MB</span>
+        </template>
+      </FormInput>
     </form>
 
     <template #footer>
@@ -81,11 +79,11 @@ const {
   errors,
   // フォームフィールド (v-model用)
   name,
-  cpuCores,
+  cpuCore,
   memorySizeInMb,
   // 属性 (onBlur, onChange 用)
   nameAttrs,
-  cpuCoresAttrs,
+  cpuCoreAttrs,
   memorySizeInMbAttrs,
   // 状態とアクション
   isCreating,
@@ -93,8 +91,6 @@ const {
 } = useInstanceTypeAddForm();
 
 // --- イベントハンドラ ---
-
-// ★★★ 修正箇所 ★★★
 // onFormSubmit(emit) は Promise<void> を返す関数ですが、
 // テンプレート側の型チェックで void を期待されるため、ここでラップします。
 const submitHandler = onFormSubmit(emit);
