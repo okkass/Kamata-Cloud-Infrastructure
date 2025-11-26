@@ -69,14 +69,12 @@ import { useInstanceTypeEditForm } from "~/composables/modal/useInstanceTypeEdit
 import FormInput from "~/components/Form/Input.vue";
 import FormSection from "~/components/Form/Section.vue";
 
-// ★ 型定義のインポート
 import type { InstanceTypeServerBase } from "~~/shared/types/dto/instance-type/InstanceTypeServerBase";
 
 // --- Props & Emits ---
 const props = defineProps({
   show: { type: Boolean, required: true },
   instanceTypeData: {
-    // ★ InstanceTypeServerBase に変更
     type: Object as PropType<InstanceTypeServerBase | null>,
     default: null,
   },

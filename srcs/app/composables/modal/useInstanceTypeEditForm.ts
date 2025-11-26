@@ -1,14 +1,10 @@
 /**
  * =================================================================================
  * インスタンスタイプ編集フォーム Composable (useInstanceTypeEditForm.ts)
- * ---------------------------------------------------------------------------------
- * ★ defineField を使用するように修正
- * ★ Zodのエラーメッセージオプションを message に統一
- * ★ name属性の重複回避処理を追加
  * =================================================================================
  */
 import { watch, computed } from "vue";
-import { useForm } from "vee-validate"; // useField を削除
+import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceUpdate } from "~/composables/useResourceEdit";
@@ -33,14 +29,12 @@ const zodSchema = z.object({
   name: z.string().min(1, "インスタンスタイプ名は必須です。"),
   cpuCore: z
     .number({
-      // ★ 修正箇所: invalid_type_error -> message に変更
       message: "数値を入力してください。",
     })
     .int("整数で入力してください。")
     .min(1, "1以上の値を入力してください。"),
   memorySizeInMb: z
     .number({
-      // ★ 修正箇所: invalid_type_error -> message に変更
       message: "数値を入力してください。",
     })
     .int("整数で入力してください。")
@@ -64,7 +58,7 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
   // ============================================================================
   // Form Setup
   // ============================================================================
-  // ★ defineField を分割代入で取得
+  // defineField を分割代入で取得
   const { errors, handleSubmit, resetForm, defineField } = useForm<FormValues>({
     validationSchema,
     initialValues: {
@@ -78,7 +72,6 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
 
   // 1. Name
   const [name, nameProps] = defineField("name");
-  // ★ 重複警告回避: props から 'name' を除外する
   const nameAttrs = computed(() => {
     const { name: _, ...rest } = nameProps.value;
     return rest;
@@ -86,7 +79,6 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
 
   // 2. CPU Core
   const [cpuCore, cpuCoreProps] = defineField("cpuCore");
-  // ★ 重複警告回避
   const cpuCoreAttrs = computed(() => {
     const { name: _, ...rest } = cpuCoreProps.value;
     return rest;
@@ -94,7 +86,6 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
 
   // 3. Memory Size (MB)
   const [memorySizeInMb, memProps] = defineField("memorySizeInMb");
-  // ★ 重複警告回避
   const memorySizeInMbAttrs = computed(() => {
     const { name: _, ...rest } = memProps.value;
     return rest;
