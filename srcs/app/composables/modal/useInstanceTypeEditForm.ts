@@ -69,27 +69,9 @@ export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
   });
 
   // --- フィールド定義 (defineField) ---
-
-  // 1. Name
-  const [name, nameProps] = defineField("name");
-  const nameAttrs = computed(() => {
-    const { name: _, ...rest } = nameProps.value;
-    return rest;
-  });
-
-  // 2. CPU Core
-  const [cpuCore, cpuCoreProps] = defineField("cpuCore");
-  const cpuCoreAttrs = computed(() => {
-    const { name: _, ...rest } = cpuCoreProps.value;
-    return rest;
-  });
-
-  // 3. Memory Size (MB)
-  const [memorySizeInMb, memProps] = defineField("memorySizeInMb");
-  const memorySizeInMbAttrs = computed(() => {
-    const { name: _, ...rest } = memProps.value;
-    return rest;
-  });
+const [name, nameAttrs] = defineField("name");
+  const [cpuCore, cpuCoreAttrs] = defineField("cpuCore");
+  const [memorySizeInMb, memorySizeInMbAttrs] = defineField("memorySizeInMb");
 
   // ============================================================================
   // 初期値の反映 (Watch)
