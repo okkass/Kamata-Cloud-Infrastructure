@@ -29,13 +29,13 @@ interface InstanceTypeEditProps {
 // --- バリデーションスキーマ ---
 const validationSchema = toTypedSchema(
   z.object({
-    name: z.string().min(1, "インスタンスタイプ名は必須です。"),
+    name: z.string().min(1, "インスタンスタイプ名を入力してください。"),
     cpuCore: z
-      .number({ message: "vCPU数は必須です。" })
+      .number({ message: "数値を入力してください。" })
       .int("整数で入力してください。")
       .min(1, "1以上の値を入力してください。"),
     memorySizeInMb: z
-      .number({ message: "メモリは必須です。" })
+      .number({ message: "数値を入力してください。" })
       .int("整数で入力してください。")
       .min(1, "1MB以上の値を入力してください。"),
   })
