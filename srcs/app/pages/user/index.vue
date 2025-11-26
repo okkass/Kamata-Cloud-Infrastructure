@@ -1,23 +1,24 @@
 <!-- app/pages/user-management/index.vue -->
 <template>
   <DashboardLayout
-    title="利用者管理ダッシュボード"
+    title="利用者管理"
     :columns="columns"
     :rows="rows"
     rowKey="id"
     :headerButtons="headerButtons"
-    :rowActions="rowActions"
-    no-ellipsis
-    @header-action="onHeaderAction"
-    @row-action="onRowAction"
+    @header-action="() => openModal(ADD_USER_ACTION)"
+    @row-action="handleRowAction"
   >
     <template #cell-account="{ row }">
-      <div>
-        <span class="table-link">{{ row.account }}</span>
-        <span v-if="row.description" class="text-sm text-gray-500 block mt-0.5">
+      <NuxtLink :to="`/users/${row.id}`" class="table-link">
+        {{ row.account }}
+        <div
+          v-if="row.description"
+          class="cell-description text-sm text-gray-500"
+        >
           {{ row.description }}
-        </span>
-      </div>
+        </div>
+      </NuxtLink>
     </template>
 
     <template #cell-email="{ row }">
@@ -33,15 +34,15 @@
     </template>
 
     <template #row-actions="{ row }">
-      <button
-        class="action-item"
-        @click.stop="onRowAction({ action: 'edit', row })"
+      <NuxtLink v-if="row" :to="`/users/${row.id}`" class="action-item"
+        >詳細</NuxtLink
       >
+      <button class="action-item" @click.stop.prevent="onEdit(row)">
         編集
       </button>
       <button
         class="action-item action-item-danger"
-        @click.stop="onRowAction({ action: 'delete', row })"
+        @click.stop.prevent="row && handleRowAction({ action: 'delete', row })"
       >
         削除
       </button>
@@ -49,14 +50,22 @@
   </DashboardLayout>
 
   <MoUserAdd
-    :show="activeModal === 'add-users'"
+    :show="activeModal === ADD_USER_ACTION"
     @close="closeModal"
-    @success="onAddSuccess"
+    @success="handleSuccess"
+  />
+
+  <MoUserEdit
+    :show="activeModal === EDIT_USER_ACTION"
+    :userData="editingUserData"
+    :userId="targetForEditing?.value?.id ?? null"
+    @close="closeModal"
+    @success="handleSuccess"
   />
 
   <MoDeleteConfirm
-    :show="activeModal === 'delete-users'"
-    :message="`「${targetForDeletion?.account}」を削除します。よろしいですか？`"
+    :show="activeModal === DELETE_USER_ACTION"
+    :message="`本当に「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
@@ -66,20 +75,22 @@
 <script setup lang="ts">
 import DashboardLayout from "@/components/DashboardLayout.vue";
 import MoUserAdd from "@/components/MoUserAdd.vue";
+import MoUserEdit from "@/components/MoUserEdit.vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
-import {
-  useUserManagement,
-  type UserRow,
-} from "@/composables/useUserManagement";
+import { ref } from "vue";
+import { useUserManagement } from "@/composables/useUserManagement";
 import { usePageActions } from "@/composables/usePageActions";
-import { useToast } from "@/composables/useToast";
+import type { UserRow } from "@/composables/useUserManagement";
+import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
+
+// 既存の正規化ユーティリティを再利用
+import { normalizeUserNumbers } from "@/composables/useUserManagement";
+
+const ADD_USER_ACTION = "add-users";
+const EDIT_USER_ACTION = "edit-users";
+const DELETE_USER_ACTION = "delete-users";
 
 const { columns, headerButtons, rows, refresh } = useUserManagement();
-
-const rowActions = [
-  { key: "edit", label: "編集" },
-  { key: "delete", label: "削除", danger: true },
-];
 
 const {
   activeModal,
@@ -90,6 +101,7 @@ const {
   isDeleting,
   handleRowAction,
   handleDelete,
+  handleSuccess,
   cancelAction,
 } = usePageActions<UserRow>({
   resourceName: "users",
@@ -97,31 +109,16 @@ const {
   refresh,
 });
 
-const { addToast } = useToast();
+/* 編集時にモーダルへ即渡すためのローカル ref（null または UserServerBase） */
+const editingUserData = ref<UserServerBase | null>(null);
 
-const onHeaderAction = (action: string) => {
-  if (action === "add") openModal("add-users");
-};
-
-const onRowAction = (payload: { action: string; row?: UserRow | null }) => {
-  const { action, row } = payload;
+/* 編集ボタンハンドラ: targetForEditing と editingUserData をセットしてモーダルを開く */
+function onEdit(row: UserRow) {
   if (!row) return;
-  if (action === "edit") {
-    if (typeof targetForEditing !== "undefined") targetForEditing.value = row;
-    openModal("edit-users");
-    return;
-  }
-  if (action === "delete") {
-    targetForDeletion.value = row;
-    openModal("delete-users");
-    return;
-  }
-  handleRowAction({ action, row });
-};
-
-const onAddSuccess = async (msg?: string) => {
-  if (msg) addToast({ type: "success", message: msg });
-  closeModal();
-  await refresh();
-};
+  // useUserManagement が提供する normalizeUserNumbers を使って正規化
+  const normalized = normalizeUserNumbers(row.dto) ?? (row.dto as any);
+  editingUserData.value = normalized as UserServerBase;
+  if (targetForEditing) targetForEditing.value = { ...row, dto: normalized };
+  openModal(EDIT_USER_ACTION);
+}
 </script>

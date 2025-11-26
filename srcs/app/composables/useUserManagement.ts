@@ -1,49 +1,94 @@
 // app/composables/useUserManagement.ts
 import { computed } from "vue";
-import { convertByteToUnit } from "../utils/format";
-import { formatDateTime } from "../utils/date";
-
-type RawUser = {
-  id: string;
-  accountName?: string;
-  name?: string;
-  email?: string;
-  createdAt?: string;
-  lastLoginAt?: string;
-  description?: string;
-  maxCpuCore?: number;
-  maxMemorySize?: number; // bytes
-  maxStorageSize?: number; // bytes
-  limits?: {
-    cpu?: number;
-    memoryGb?: number;
-    storageGb?: number;
-    memorySize?: number; // bytes
-    storageSize?: number; // bytes
-  };
-};
+import { convertByteToUnit } from "@/utils/format";
+import { formatDateTime } from "@/utils/date";
+import { useResourceList } from "@/composables/useResourceList";
+import type { UserResponse as UserDTO } from "~~/shared/types/dto/user";
 
 export type UserRow = {
   id: string;
+  name: string; // usePageActions と整合するため必須
   account: string;
   email: string;
+  dto: UserDTO;
   limitsText: string;
   lastLoginText: string;
   description?: string;
   editUrl?: string;
 };
 
-function toNumber(v: any): number {
-  if (v == null) return 0;
+function toNumber(v: unknown): number | undefined {
+  if (v == null) return undefined;
   const n = Number(v);
-  return Number.isFinite(n) ? n : 0;
+  return Number.isFinite(n) ? n : undefined;
+}
+
+function formatCpu(dto: UserDTO): string {
+  const cpu = dto.maxCpuCore ?? dto.limits?.cpu;
+  return cpu != null ? String(toNumber(cpu) ?? 0) : "無制限";
+}
+
+function formatMemory(dto: UserDTO): string {
+  const max = dto.maxMemorySize;
+  const memGb = dto.limits?.memoryGb;
+  const memSize = dto.limits?.memorySize;
+  if (max != null && (toNumber(max) ?? 0) > 0)
+    return `${convertByteToUnit(max, "GB")} GB`;
+  if (memGb != null && (toNumber(memGb) ?? 0) > 0)
+    return `${toNumber(memGb)} GB`;
+  if (memSize != null && (toNumber(memSize) ?? 0) > 0)
+    return `${convertByteToUnit(memSize, "GB")} GB`;
+  return "無制限";
+}
+
+function formatStorage(dto: UserDTO): string {
+  const max = dto.maxStorageSize;
+  const storGb = dto.limits?.storageGb;
+  const storSize = dto.limits?.storageSize;
+  if (max != null && (toNumber(max) ?? 0) > 0)
+    return `${convertByteToUnit(max, "GB")} GB`;
+  if (storGb != null && (toNumber(storGb) ?? 0) > 0)
+    return `${toNumber(storGb)} GB`;
+  if (storSize != null && (toNumber(storSize) ?? 0) > 0)
+    return `${convertByteToUnit(storSize, "GB")} GB`;
+  return "無制限";
+}
+
+function formatLimits(dto: UserDTO): string {
+  return `CPU: ${formatCpu(dto)}, メモリ: ${formatMemory(
+    dto
+  )}, ストレージ: ${formatStorage(dto)}`;
+}
+
+/** 編集時に渡すための数値正規化（必要な場合にのみ使用） */
+export function normalizeUserNumbers(dto?: any): UserDTO | null {
+  if (!dto) return null;
+  const out: any = { ...dto };
+  out.maxCpuCore = toNumber(out.maxCpuCore) ?? out.maxCpuCore;
+  out.maxMemorySize = toNumber(out.maxMemorySize) ?? out.maxMemorySize;
+  out.maxStorageSize = toNumber(out.maxStorageSize) ?? out.maxStorageSize;
+  if (out.limits) {
+    out.limits = { ...out.limits };
+    out.limits.cpu = toNumber(out.limits.cpu) ?? out.limits.cpu;
+    out.limits.memoryGb = toNumber(out.limits.memoryGb) ?? out.limits.memoryGb;
+    out.limits.storageGb =
+      toNumber(out.limits.storageGb) ?? out.limits.storageGb;
+    out.limits.memorySize =
+      toNumber(out.limits.memorySize) ?? out.limits.memorySize;
+    out.limits.storageSize =
+      toNumber(out.limits.storageSize) ?? out.limits.storageSize;
+  }
+  return out as UserDTO;
 }
 
 export function useUserManagement() {
-  const { data, pending, error, refresh } = useAsyncData<RawUser[]>(
-    "users-list",
-    () => $fetch("/api/users")
-  );
+  // 既存の共通リスト取得を利用（useInstanceTypeManagement と同じパターン）
+  const {
+    data: rawList,
+    pending,
+    refresh,
+    error,
+  } = useResourceList<UserDTO>("users");
 
   const columns = [
     { key: "account", label: "アカウント名", align: "left" as const },
@@ -52,54 +97,27 @@ export function useUserManagement() {
     { key: "lastLoginText", label: "最終ログイン", align: "left" as const },
   ];
 
-  const headerButtons = [{ label: "＋ 利用者追加", action: "add" }];
+  const headerButtons = [
+    { key: "create", label: "＋ 利用者追加", primary: true },
+  ];
 
   const rows = computed<UserRow[]>(() =>
-    (data.value ?? []).map((u) => {
-      const account = u.accountName ?? u.name ?? "-";
-      const email = u.email ?? "-";
-
-      const cpu = toNumber(u.maxCpuCore) || toNumber(u.limits?.cpu) || 0;
-
-      let memoryGb = 0;
-      if (toNumber(u.maxMemorySize) > 0) {
-        memoryGb = convertByteToUnit(u.maxMemorySize!, "GB");
-      } else if (toNumber(u.limits?.memoryGb) > 0) {
-        memoryGb = toNumber(u.limits!.memoryGb);
-      } else if (toNumber(u.limits?.memorySize) > 0) {
-        memoryGb = convertByteToUnit(u.limits!.memorySize!, "GB");
-      }
-
-      let storageGb = 0;
-      if (toNumber(u.maxStorageSize) > 0) {
-        storageGb = convertByteToUnit(u.maxStorageSize!, "GB");
-      } else if (toNumber(u.limits?.storageGb) > 0) {
-        storageGb = toNumber(u.limits!.storageGb);
-      } else if (toNumber(u.limits?.storageSize) > 0) {
-        storageGb = convertByteToUnit(u.limits!.storageSize!, "GB");
-      }
-
-      const limitsText = `CPU: ${cpu}, メモリ: ${memoryGb} GB, ストレージ: ${storageGb} GB`;
-      const lastLoginText = u.lastLoginAt ? formatDateTime(u.lastLoginAt) : "-";
-
+    (rawList.value ?? []).map((u) => {
+      const account = (u as any).accountName ?? u.name ?? "-";
+      const normalized = normalizeUserNumbers(u) ?? u;
       return {
         id: u.id,
+        name: account,
         account,
-        email,
-        limitsText,
-        lastLoginText,
+        email: u.email ?? "-",
+        dto: normalized,
+        limitsText: formatLimits(normalized),
+        lastLoginText: u.lastLoginAt ? formatDateTime(u.lastLoginAt) : "-",
         description: u.description,
         editUrl: `/users/${encodeURIComponent(u.id)}`,
       };
     })
   );
 
-  return {
-    pending,
-    error,
-    columns,
-    headerButtons,
-    rows,
-    refresh,
-  } as const;
+  return { pending, error, columns, headerButtons, rows, refresh } as const;
 }
