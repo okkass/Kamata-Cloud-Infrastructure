@@ -25,7 +25,7 @@ import type { VirtualMachineDTO } from "~~/shared/types"; // VM用
 const zodSchema = z.object({
   name: z.string().min(1, "スナップショット名は必須です。"),
   targetVmId: z.string({
-    required_error: "対象仮想マシンを選択してください。",
+    message: "対象仮想マシンを選択してください。",
   }),
 });
 

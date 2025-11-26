@@ -52,7 +52,7 @@ import type { ImageResponse } from "~~/shared/types";
  */
 const validationSchema = toTypedSchema(
   z.object({
-    osImageId: z.string({ required_error: "OSイメージを選択してください。" }),
+    osImageId: z.string({ message: "OSイメージを選択してください。" }),
     middlewareId: z.string().nullable(),
   })
 );

@@ -29,7 +29,7 @@ const ruleSchema = z
     port: z.preprocess(
       (val) => (val === "" || val === null ? null : Number(val)),
       z
-        .number({ invalid_type_error: "数値を入力してください。" }) // エラーメッセージを追加
+        .number({ message: "数値を入力してください。" }) // エラーメッセージを追加
         .int("整数で入力")
         .min(1, "1-65535")
         .max(65535, "1-65535")

@@ -190,7 +190,7 @@ const storageSchema = z.object({
   type: z.enum(["os", "manual"]),
   name: z.string().min(1, "ストレージ名は必須です。"),
   size: z.number().min(1, "サイズは1GB以上である必要があります。"),
-  poolId: z.string({ required_error: "ストレージプールを選択してください。" }),
+  poolId: z.string({ message: "ストレージプールを選択してください。" }),
 });
 
 const validationSchema = toTypedSchema(
