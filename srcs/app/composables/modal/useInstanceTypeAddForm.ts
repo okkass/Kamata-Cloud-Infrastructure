@@ -21,13 +21,13 @@ const validationSchema = toTypedSchema(
     name: z.string().min(1, "インスタンスタイプ名は必須です。"),
     cpuCores: z
       .number({
-        message: "CPUコア数は必須です。",
+        message: "数値を入力してください。",
       })
       .int("整数で入力してください。")
       .min(1, "1以上の値を入力してください。"),
     memorySizeInMb: z
       .number({
-        message: "メモリサイズは必須です。",
+        message: "数値を入力してください。",
       })
       .int("整数で入力してください。")
       .min(1, "1MB以上の値を入力してください。"),
