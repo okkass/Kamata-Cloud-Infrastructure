@@ -24,9 +24,7 @@ get:
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: ../../components/schemas/virtual-machine/virtual-storage/VirtualStorageResponse.yml
+            $ref: ../../components/schemas/virtual-machine/virtual-storage/VirtualStorageResponse.yml
     "401":
       description: 認証エラー
     "403":
@@ -54,7 +52,7 @@ put:
       schema:
         type: string
         format: uuid
-      description: ネットワークインターフェースの一意なID
+      description: ストレージの一意なID
   requestBody:
     required: true
     content:

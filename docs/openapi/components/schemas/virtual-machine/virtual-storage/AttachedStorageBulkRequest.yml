@@ -23,8 +23,8 @@ properties:
         - data
   delete:
     type: array
-    description: 削除するセキュリティルールのIDリスト
+    description: 削除する仮想ストレージのIDリスト
     items:
       type: string
       format: uuid
-      description: セキュリティルールのID
+      description: 削除する仮想ストレージのID

@@ -24,9 +24,7 @@ get:
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml
+            $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml
     "401":
       description: 認証エラー
     "403":

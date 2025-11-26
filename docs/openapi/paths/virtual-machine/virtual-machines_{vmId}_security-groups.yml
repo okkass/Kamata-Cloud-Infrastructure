@@ -55,6 +55,10 @@ post:
   responses:
     "200":
       description: 成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-machine/security-group/AttachedSecurityGroupResponse.yml
     "401":
       description: 認証エラー
     "403":

@@ -8,7 +8,7 @@ properties:
     type: string
     format: uuid
     description: ストレージプールのID
-  buckupId:
+  backupId:
     type: string
     format: uuid
     description: ストレージのバックアップ元ID(オプション)
