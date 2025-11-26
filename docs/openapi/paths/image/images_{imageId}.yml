@@ -28,7 +28,7 @@ get:
     - BearerAuth: []
 put:
   summary: 仮想マシンイメージの更新
-  description: 指定したIDの仮想マシンイメージ情報を更新します。
+  description: 指定したIDの仮想マシンイメージ情報を更新します。descriptionが空の場合、説明は削除されます。
   tags:
     - Image
   parameters:

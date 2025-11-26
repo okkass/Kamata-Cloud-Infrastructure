@@ -40,6 +40,8 @@ const validationSchema = toTypedSchema(zodSchema);
 // 型推論には生の Zod スキーマを使う
 type FormValues = z.infer<typeof zodSchema>;
 
+type FormValues = z.infer<typeof validationSchema>;
+
 /**
  * インスタンスタイプ追加フォームのロジック
  */

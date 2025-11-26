@@ -17,7 +17,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityGroup.yml
+            $ref: ../../components/schemas/security-group/SecurityGroupResponse.yml
     "401":
       description: 認証エラー
     "403":
@@ -44,14 +44,50 @@ put:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/security-group/SecurityGroupUpdateRequest.yml
+          $ref: ../../components/schemas/security-group/SecurityGroupPutRequest.yml
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityGroup.yml
+            $ref: ../../components/schemas/security-group/SecurityGroupResponse.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: セキュリティグループが見つからない
+  security:
+    - BearerAuth: []
+patch:
+  summary: セキュリティグループの部分更新
+  description: 指定したIDのセキュリティグループ情報を更新します。
+  tags:
+    - SecurityGroup
+  parameters:
+    - name: groupId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/security-group/SecurityGroupPatchRequest.yml
+  responses:
+    "200":
+      description: 更新成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/security-group/SecurityGroupResponse.yml
     "400":
       description: リクエストエラー
     "401":
