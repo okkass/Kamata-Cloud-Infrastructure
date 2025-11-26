@@ -25,10 +25,6 @@
         :error-message="errors.nodeId"
         v-model="nodeId"
       >
-        <template #option="{ option }">
-          {{ option.name }}
-          <span class="text-gray-500">({{ option.id }})</span>
-        </template>
       </FormSelect>
 
       <FormDropZone
