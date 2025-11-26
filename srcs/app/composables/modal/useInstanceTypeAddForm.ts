@@ -3,7 +3,8 @@
  * インスタンスタイプ追加フォーム Composable (useInstanceTypeAddForm.ts)
  * =================================================================================
  */
-import { useForm, useField } from "vee-validate";
+import { computed } from "vue";
+import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
@@ -14,29 +15,26 @@ import type { InstanceTypeCreateRequest } from "~~/shared/types/dto/instance-typ
 import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type/InstanceTypeResponse";
 
 // ==============================================================================
-// Validation Schema
+// Validation Schema (バリデーションスキーマ)
 // ==============================================================================
 
-// まず生の Zod スキーマを定義する
 const zodSchema = z.object({
   name: z.string().min(1, "インスタンスタイプ名は必須です。"),
   cpuCore: z
     .number({
-      required_error: "CPUコア数は必須です。",
-      invalid_type_error: "数値を入力してください。",
+      message: "数値を入力してください。",
     })
     .int("整数で入力してください。")
     .min(1, "1以上の値を入力してください。"),
   memorySizeInMb: z
     .number({
-      required_error: "メモリサイズは必須です。",
-      invalid_type_error: "数値を入力してください。",
+      message: "数値を入力してください。",
     })
     .int("整数で入力してください。")
     .min(1, "1MB以上の値を入力してください。"),
 });
 
-// VeeValidate用には変換したものを使う
+// VeeValidate用に変換
 const validationSchema = toTypedSchema(zodSchema);
 
 // 型推論には生の Zod スキーマを使う
@@ -56,7 +54,8 @@ export function useInstanceTypeAddForm() {
   // ============================================================================
   // Form Setup
   // ============================================================================
-  const { errors, handleSubmit, resetForm } = useForm<FormValues>({
+  // ★ defineField を useForm から取得
+  const { errors, handleSubmit, resetForm, defineField } = useForm<FormValues>({
     validationSchema, // 変換済みのスキーマを渡す
     initialValues: {
       name: "",
@@ -65,31 +64,28 @@ export function useInstanceTypeAddForm() {
     },
   });
 
-  // --- フィールド定義 ---
+  // --- フィールド定義 (defineField) ---
 
   // 1. Name
-  const {
-    value: name,
-    handleBlur: nameBlur,
-    handleChange: nameChange,
-  } = useField<string>("name");
-  const nameAttrs = { onBlur: nameBlur, onChange: nameChange };
+  const [name, nameProps] = defineField("name");
+  const nameAttrs = computed(() => {
+    const { name: _, ...rest } = nameProps.value;
+    return rest;
+  });
 
   // 2. CPU Core
-  const {
-    value: cpuCore,
-    handleBlur: cpuBlur,
-    handleChange: cpuChange,
-  } = useField<number | undefined>("cpuCore");
-  const cpuCoreAttrs = { onBlur: cpuBlur, onChange: cpuChange };
+  const [cpuCore, cpuCoreProps] = defineField("cpuCore");
+  const cpuCoreAttrs = computed(() => {
+    const { name: _, ...rest } = cpuCoreProps.value;
+    return rest;
+  });
 
   // 3. Memory Size (MB)
-  const {
-    value: memorySizeInMb,
-    handleBlur: memBlur,
-    handleChange: memChange,
-  } = useField<number | undefined>("memorySizeInMb");
-  const memorySizeInMbAttrs = { onBlur: memBlur, onChange: memChange };
+  const [memorySizeInMb, memProps] = defineField("memorySizeInMb");
+  const memorySizeInMbAttrs = computed(() => {
+    const { name: _, ...rest } = memProps.value;
+    return rest;
+  });
 
   // ============================================================================
   // Submission Handler
