@@ -113,7 +113,7 @@ const storageSchema = z.object({
     (val) => (val === "" ? undefined : val),
     z
       .number({
-        message: "サイズは必須です。"
+        message: "サイズは必須です。",
       })
       .int("整数で入力してください。")
       .min(1, "1以上の値を入力してください。")
