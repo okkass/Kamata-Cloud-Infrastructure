@@ -83,9 +83,6 @@ import { usePageActions } from "@/composables/usePageActions";
 import type { UserRow } from "@/composables/useUserManagement";
 import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
 
-// 既存の正規化ユーティリティを再利用
-import { normalizeUserNumbers } from "@/composables/useUserManagement";
-
 const ADD_USER_ACTION = "add-users";
 const EDIT_USER_ACTION = "edit-users";
 const DELETE_USER_ACTION = "delete-users";

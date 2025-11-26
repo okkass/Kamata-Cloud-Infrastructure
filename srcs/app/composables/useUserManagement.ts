@@ -5,6 +5,10 @@ import { formatDateTime } from "@/utils/date";
 import { useResourceList } from "@/composables/useResourceList";
 import type { UserResponse as UserDTO } from "~~/shared/types/dto/user";
 
+export const addUserAction = "add-users";
+export const editUserAction = "edit-users";
+export const deleteUserAction = "delete-users";
+
 export type UserRow = {
   id: string;
   name: string; // usePageActions と整合するため必須
@@ -98,7 +102,7 @@ export function useUserManagement() {
   ];
 
   const headerButtons = [
-    { key: "create", label: "＋ 利用者追加", primary: true },
+    { action: "add", label: "＋ 利用者追加", primary: true },
   ];
 
   const rows = computed<UserRow[]>(() =>
