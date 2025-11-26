@@ -1,0 +1,156 @@
+get:
+  summary: セキュリティグループルールの詳細取得
+  description: 指定したセキュリティグループ内の特定のルールの詳細情報を取得します。
+  tags:
+    - SecurityGroup
+  parameters:
+    - name: groupId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループの一意なID
+    - name: ruleId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループルールの一意なID
+  responses:
+    "200":
+      description: ルール詳細取得成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: セキュリティグループまたはルールが見つからない
+  security:
+    - BearerAuth: []
+put:
+  summary: セキュリティグループルールの更新
+  description: 指定したセキュリティグループ内の特定のルールを更新します。
+  tags:
+    - SecurityGroup
+  parameters:
+    - name: groupId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループの一意なID
+    - name: ruleId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループルールの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/security-group/SecurityRulePutRequest.yml
+  responses:
+    "200":
+      description: ルール更新成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: セキュリティグループまたはルールが見つからない
+  security:
+    - BearerAuth: []
+patch:
+  summary: セキュリティグループルールの部分更新
+  description: 指定したセキュリティグループ内の特定のルールを部分的に更新します。
+  tags:
+    - SecurityGroup
+  parameters:
+    - name: groupId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループの一意なID
+    - name: ruleId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループルールの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/security-group/SecurityRulePatchRequest.yml
+  responses:
+    "200":
+      description: ルール部分更新成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: セキュリティグループまたはルールが見つからない
+  security:
+    - BearerAuth: []
+delete:
+  summary: セキュリティグループルールの削除
+  description: 指定したセキュリティグループ内の特定のルールを削除します。
+  tags:
+    - SecurityGroup
+  parameters:
+    - name: groupId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループの一意なID
+    - name: ruleId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループルールの一意なID
+  responses:
+    "204":
+      description: ルール削除成功
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: セキュリティグループまたはルールが見つからない
+  security:
+    - BearerAuth: []
