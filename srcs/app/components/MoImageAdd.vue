@@ -27,21 +27,18 @@
       >
         <template #option="{ option }">
           {{ option.name }}
-          <span class="text-gray-500">({{ option.hostname }})</span>
+          <span class="text-gray-500">({{ option.id }})</span>
         </template>
       </FormSelect>
 
-      <div>
-        <label for="image-file-add" class="form-label-sm">
-          イメージファイル <span class="required-asterisk">*</span>
-        </label>
-        <FormDropZone
-          id="image-file-add"
-          v-model="file"
-          accept=".img,.qcow2,.zip,.gz,.xz,.iso"
-          :error-message="errors.file"
-        />
-      </div>
+      <FormDropZone
+        id="image-file-add"
+        v-model="file"
+        accept=".img,.qcow2,.zip,.gz,.xz,.iso"
+        :required="true"
+        label="ファイルアップロード"
+        :error-message="errors.file"
+      />
 
       <FormInput
         label="説明"
