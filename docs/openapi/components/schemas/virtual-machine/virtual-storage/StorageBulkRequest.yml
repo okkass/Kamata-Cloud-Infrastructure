@@ -5,7 +5,7 @@ properties:
     type: array
     description: 追加する仮想ストレージのリスト
     items:
-      $ref: "./AttachedStorageCreateRequest.yml"
+      $ref: "./StorageCreateRequest.yml"
   patch:
     type: array
     description: 更新する仮想ストレージのリスト
@@ -17,7 +17,7 @@ properties:
           format: uuid
           description: 更新する仮想ストレージのID
         data:
-          $ref: "./AttachedStorageUpdatable.yml"
+          $ref: "./StorageUpdatable.yml"
       required:
         - id
         - data

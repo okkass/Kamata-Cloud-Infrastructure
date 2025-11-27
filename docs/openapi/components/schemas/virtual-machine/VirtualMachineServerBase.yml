@@ -30,12 +30,12 @@ properties:
     items:
       $ref: ../security-group/SecurityGroupResponse.yml
     description: 仮想マシンに関連付けられたセキュリティグループのリスト
-  attachedStorages:
+  storages:
     type: array
     description: アタッチされたストレージのリスト
     items:
       $ref: ./virtual-storage/VirtualStorageResponse.yml
-  attachedNics:
+  networkInterfaces:
     type: array
     description: アタッチされたネットワークインターフェースのリスト
     items:
