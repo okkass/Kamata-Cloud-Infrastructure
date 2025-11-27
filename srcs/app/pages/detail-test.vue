@@ -1,18 +1,18 @@
 <template>
   <ResourceDetailShell
-    title="VM詳細"
-    subtitle="ID: 12345"
-    :tabs="vmTabs"
-    :actions="userActions"
-    :context="{ vmId: '12345' }"
-    @back="router.back()"
+    title="サーバー詳細"
+    subtitle="基本情報"
+    :context="{
+      id: 'dummy-id',
+      region: 'dummy-region',
+    }"
+    :actions="actions"
+    @back="handleBack"
     @action="handleAction"
-  >
-  </ResourceDetailShell>
+  />
 </template>
 
-<script setup>
-import { tabs as vmTabs } from "@/composables/usetabs";
+<script setup lang="ts">
 import { useRouter } from "vue-router";
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import { useToast } from "@/composables/useToast";
@@ -21,25 +21,20 @@ const { addToast } = useToast();
 const router = useRouter();
 
 // 🔹 この配列をページごとに自由に変えればOK（プルダウンの中身）
-const userActions = [
+const actions = [
   { label: "起動", value: "start" },
   { label: "停止", value: "stop" },
   { label: "再起動", value: "restart" },
 ];
 
-const handleAction = (action) => {
-  switch (action.value) {
-    case "start":
-      addToast({ message: "VMを起動しました", type: "success" });
-      break;
-    case "stop":
-      console.log("VMを停止します");
-      break;
-    case "restart":
-      console.log("VMを再起動します");
-      break;
-    default:
-      console.warn("未知のアクション:", action.value);
-  }
+const handleBack = () => {
+  // URL遷移したいならここで。例:
+  router.back();
+  // or router.push("/servers");
+};
+
+const handleAction = (action: { label: string; value: string }) => {
+  console.log("選択されたアクション:", action);
+  // ここに「起動API叩く」「モーダル出す」などの処理を書く
 };
 </script>
