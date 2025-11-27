@@ -1,17 +1,10 @@
 <template>
-  <div
-    :class="[
-      'w-full',
-      sticky
-        ? 'sticky top-0 z-30 bg-white/80 backdrop-blur dark:bg-neutral-900/80'
-        : '',
-    ]"
-  >
+  <div :class="['w-full', sticky ? 'sticky top-0 z-30 bg-white' : '']">
     <div
       ref="tablist"
       role="tablist"
       aria-label="ページ内タブ"
-      class="relative flex flex-wrap gap-1 border-b border-neutral-200 px-2 dark:border-neutral-800"
+      class="relative flex flex-wrap gap-1 border-b border-gray-200 bg-white px-2"
       @keydown="onKeydown"
     >
       <button
@@ -22,16 +15,15 @@
         :tabindex="modelValue === t.value ? 0 : -1"
         @click="select(t.value, i)"
         @focus="focusIndex = i"
-        class="relative rounded-xl px-3 py-2 text-sm font-medium text-neutral-600 outline-none transition hover:bg-neutral-100 focus-visible:ring-2 focus-visible:ring-indigo-500 dark:text-neutral-300 dark:hover:bg-neutral-800"
-        :class="
-          modelValue === t.value ? 'text-indigo-600 dark:text-indigo-400' : ''
-        "
+        class="relative rounded-lg px-3 py-2 text-sm font-medium text-gray-700 outline-none transition hover:bg-gray-100"
+        :class="modelValue === t.value ? 'text-blue-600' : ''"
       >
         <span>{{ t.label }}</span>
       </button>
-      <!-- indicator -->
+
+      <!-- インジケータ -->
       <span
-        class="pointer-events-none absolute bottom-0 h-0.5 w-12 rounded-full bg-indigo-600 transition-[left,width] duration-300 ease-out dark:bg-indigo-400"
+        class="pointer-events-none absolute bottom-0 h-[2px] rounded-full bg-blue-500 transition-[left,width] duration-300 ease-out"
         :style="indicatorStyle"
         aria-hidden="true"
       />
@@ -51,7 +43,6 @@ const props = withDefaults(
   defineProps<{
     tabs: TabItem[];
     modelValue: string;
-    /** タブバーを固定（上部に追従） */
     sticky?: boolean;
   }>(),
   { sticky: true }
@@ -72,9 +63,9 @@ function updateIndicator() {
     const btn =
       tablist.value?.querySelectorAll<HTMLButtonElement>("button")[idx];
     if (!btn) return;
-    const { left, width } = btn.getBoundingClientRect();
+    const rect = btn.getBoundingClientRect();
     const parentLeft = tablist.value!.getBoundingClientRect().left;
-    indicator.value = { left: left - parentLeft, width };
+    indicator.value = { left: rect.left - parentLeft, width: rect.width };
   });
 }
 
@@ -89,12 +80,14 @@ function onKeydown(e: KeyboardEvent) {
   const max = props.tabs.length - 1;
   if (["ArrowRight", "ArrowLeft", "Home", "End"].includes(e.key))
     e.preventDefault();
+
   if (e.key === "ArrowRight")
     focusIndex.value = focusIndex.value >= max ? 0 : focusIndex.value + 1;
   if (e.key === "ArrowLeft")
     focusIndex.value = focusIndex.value <= 0 ? max : focusIndex.value - 1;
   if (e.key === "Home") focusIndex.value = 0;
   if (e.key === "End") focusIndex.value = max;
+
   if (["ArrowRight", "ArrowLeft", "Home", "End"].includes(e.key)) {
     const el =
       tablist.value?.querySelectorAll<HTMLButtonElement>("button")[
@@ -117,6 +110,4 @@ const indicatorStyle = computed(() => ({
 }));
 </script>
 
-<style scoped>
-/* optional tweaks */
-</style>
+<style scoped></style>
