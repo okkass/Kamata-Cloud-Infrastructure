@@ -1,0 +1,12 @@
+type: object
+description: ユーザ作成リクエストオブジェクト
+allOf:
+  - $ref: ./UserCreateOnly.yml
+  - $ref: ./UserUpdatable.yml
+required:
+  - name
+  - email
+  - isAdmin
+  - maxCpuCore
+  - maxMemorySize
+  - maxStorageSize

@@ -46,20 +46,20 @@
   </DashboardLayout>
   <!-- スナップショット作成モーダル -->
   <MoSnapshotCreate
-    :show="activeModal === createSnapshotAction"
+    :show="activeModal === CREATE_SNAPSHOT_ACTION"
     @close="closeModal"
     @success="onCreateSuccess"
   />
 
   <MoSnapshotRestore
-    :show="activeModal === restoreSnapshotAction"
+    :show="activeModal === RESTORE_SNAPSHOT_ACTION"
     :target-row="targetForEditing"
     @close="closeModal"
     @success="onRestoreSuccess"
   />
 
   <MoDeleteConfirm
-    :show="activeModal === deleteSnapshotAction"
+    :show="activeModal === DELETE_SNAPSHOT_ACTION"
     :message="`本当にスナップショット「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
@@ -69,7 +69,7 @@
 
 <script setup lang="ts">
 import DashboardLayout from "@/components/DashboardLayout.vue";
-import { useSnapshotManagement } from "@/composables/useSnapshotManagement";
+import { useSnapshotManagement } from "~/composables/dashboard/useSnapshotManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import MoSnapshotCreate from "@/components/MoSnapshotCreate.vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
@@ -81,8 +81,15 @@ type UiRow = {
   description?: string;
 };
 
-const { columns, headerButtons, displaySnapshots, refresh } =
-  useSnapshotManagement();
+const {
+  columns,
+  headerButtons,
+  displaySnapshots,
+  refresh,
+  CREATE_SNAPSHOT_ACTION,
+  RESTORE_SNAPSHOT_ACTION,
+  DELETE_SNAPSHOT_ACTION,
+} = useSnapshotManagement();
 
 const {
   activeModal,
@@ -102,13 +109,13 @@ const {
 
 const handleHeaderAction = (action: string) => {
   if (action === "create") {
-    openModal(createSnapshotAction);
+    openModal(CREATE_SNAPSHOT_ACTION);
   }
 };
 const onRowAction = ({ action, row }: { action: string; row: UiRow }) => {
   if (action === "restore") {
     targetForEditing.value = row;
-    openModal(restoreSnapshotAction);
+    openModal(RESTORE_SNAPSHOT_ACTION);
     return;
   }
   handleRowAction({ action, row });

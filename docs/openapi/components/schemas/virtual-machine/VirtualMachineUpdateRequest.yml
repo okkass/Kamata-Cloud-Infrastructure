@@ -1,0 +1,32 @@
+type: object
+description: 仮想マシン更新リクエストオブジェクト
+properties:
+  name:
+    type: string
+    description: 仮想マシンの名前
+  instanceTypeId:
+    type: string
+    format: uuid
+    description: 使用するインスタンスタイプのID
+  cpuCore:
+    type: integer
+    description: 仮想マシンに割り当てるCPUコア数
+  memorySize:
+    type: integer
+    description: 仮想マシンに割り当てるメモリサイズ（バイト単位）
+  securityGroupIds:
+    type: array
+    items:
+      type: string
+      format: uuid
+    description: 仮想マシンに関連付けられたセキュリティグループのIDリスト
+  attachedStorages:
+    type: array
+    description: アタッチされたストレージのリスト
+    items:
+      $ref: ./AttachedStorage.yml
+  attachedNics:
+    type: array
+    description: アタッチされたネットワークインターフェースのリスト
+    items:
+      $ref: ./NetworkInterface.yml

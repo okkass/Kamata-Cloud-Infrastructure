@@ -1,0 +1,36 @@
+post:
+  summary: サブネットの追加
+  description: 指定した仮想ネットワークに新しいサブネットを追加します。
+  tags:
+    - VirtualNetwork
+  parameters:
+    - name: networkId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想ネットワークの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/virtual-network/SubnetCreateRequest.yml
+  responses:
+    "201":
+      description: サブネット追加成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-network/Subnet.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想ネットワークが見つからない
+  security:
+    - BearerAuth: []

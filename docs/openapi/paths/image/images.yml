@@ -1,0 +1,59 @@
+get:
+  summary: 仮想マシンイメージ一覧の取得
+  description: すべての仮想マシンイメージのリストを取得します。
+  tags:
+    - Image
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/image/ImageResponse.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []
+post:
+  summary: 仮想マシンイメージの作成
+  description: 新しい仮想マシンイメージを作成します。
+  tags:
+    - Image
+  requestBody:
+    required: true
+    content:
+      multipart/form-data:
+        schema:
+          type: object
+          properties:
+            file:
+              type: string
+              format: binary
+            # metadataはImageCreateRequest型、fileはトップレベルで分離しているにゃん
+            metadata:
+              $ref: ../../components/schemas/image/ImageCreateRequest.yml
+          required:
+            - file
+            - metadata
+        encoding:
+          metadata:
+            contentType: application/json
+  responses:
+    "201":
+      description: 作成成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/image/ImageResponse.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+  security:
+    - BearerAuth: []

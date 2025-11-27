@@ -1,0 +1,74 @@
+put:
+  summary: サブネットの更新
+  description: 指定した仮想ネットワーク内のサブネット情報を更新します。
+  tags:
+    - VirtualNetwork
+  parameters:
+    - name: networkId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想ネットワークの一意なID
+    - name: subnetId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: サブネットの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/virtual-network/SubnetUpdateRequest.yml
+  responses:
+    "200":
+      description: 更新成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-network/Subnet.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想ネットワークまたはサブネットが見つからない
+  security:
+    - BearerAuth: []
+delete:
+  summary: サブネットの削除
+  description: 指定した仮想ネットワーク内のサブネットを削除します。
+  tags:
+    - VirtualNetwork
+  parameters:
+    - name: networkId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想ネットワークの一意なID
+    - name: subnetId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: サブネットの一意なID
+  responses:
+    "204":
+      description: 削除成功
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想ネットワークまたはサブネットが見つからない
+  security:
+    - BearerAuth: []
