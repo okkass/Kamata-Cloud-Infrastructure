@@ -61,25 +61,12 @@ jobs:
           pnpm openapi-typescript ../public/api.yml --output ./shared/types/api-types.ts
 
       # 7. 変更の検知とプッシュ
-      - name: Commit and Push if changed
+      - name: Commit and Push Generated Types
         run: |
-          # GitHub Actions Botとしてコミットするための設定
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          # 変更があるか確認 (git status --porcelain が空文字でなければ変更あり)
-          if [[ -n $(git status --porcelain) ]]; then
-            echo "Changes detected. Pushing..."
-            
-            # 生成されたファイルをステージング
-            git add public/api.yml srcs/shared/types/api-types.ts
-            
-            # コミット
-            # [skip ci] を付けることで、このプッシュが再度Workflowをトリガーするのを防ぐ
-            git commit -m "chore: regenerate api types form openapi [skip ci]"
-            
-            # 現在のブランチにプッシュ
-            git push origin HEAD:${{ github.ref_name }}
-          else
-            echo "No changes detected. Skipping push."
-          fi
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add ./srcs/shared/types/api-types.ts
+          git commit -m 'Generate types from OpenAPI spec' || echo "No changes to commit"
+          git push origin main
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
