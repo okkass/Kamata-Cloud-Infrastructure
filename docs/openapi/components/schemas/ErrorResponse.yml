@@ -21,7 +21,3 @@ properties:
     type: string
     description: エラーが発生した特定のインスタンスを示すURI
     example: "/requests/12345"
-required:
-  - type
-  - title
-  - status
