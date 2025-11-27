@@ -14,7 +14,7 @@ properties:
   rules:
     type: array
     items:
-      $ref: ./SecurityRule.yml
+      $ref: ./SecurityRuleServerBase.yml
   createdAt:
     type: string
     format: date-time
@@ -22,4 +22,5 @@ properties:
 required:
   - id
   - name
+  - rules
   - createdAt

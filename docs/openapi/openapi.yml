@@ -4,28 +4,28 @@ info:
   description: KCI API documentation
   version: 0.45.1
 paths:
-  /api/backups:
-    $ref: paths/virtual-machine/backups.yml
-  /api/images:
-    $ref: paths/image/images.yml
-  /api/images/{imageId}:
-    $ref: paths/image/images_{imageId}.yml
-  /api/instance-types:
-    $ref: paths/instance-type/instance-types.yml
-  /api/instance-types/{instanceTypeId}:
-    $ref: paths/instance-type/instance-types_{instanceTypeId}.yml
   /api/login:
     $ref: paths/auth/login.yml
   /api/login/web:
     $ref: paths/auth/login_web.yml
+  /api/images:
+    $ref: paths/image/images.yml
+  /api/images/{imageId}:
+    $ref: paths/image/images_{imageId}.yml
   /api/middlewares:
     $ref: paths/image/middlewares.yml
+  /api/instance-types:
+    $ref: paths/instance-type/instance-types.yml
+  /api/instance-types/{instanceTypeId}:
+    $ref: paths/instance-type/instance-types_{instanceTypeId}.yml
   /api/nodes:
     $ref: paths/node/nodes.yml
   /api/nodes/candidates:
     $ref: paths/node/nodes_candidates.yml
   /api/nodes/{nodeId}:
     $ref: paths/node/nodes_{nodeId}.yml
+  /api/nodes/{nodeId}/new-devices:
+    $ref: paths/node/nodes_{nodeId}_new-devices.yml
   /api/portfolios:
     $ref: paths/portfolio/portfolios.yml
   /api/security-groups:
@@ -34,10 +34,10 @@ paths:
     $ref: paths/security-group/security-groups_{groupId}.yml
   /api/security-groups/{groupId}/rules:
     $ref: paths/security-group/security-groups_{groupId}_rules.yml
-  /api/snapshots:
-    $ref: paths/virtual-machine/snapshots.yml
-  /api/snapshots/{id}:
-    $ref: paths/virtual-machine/snapshots_{id}.yml
+  /api/security-groups/{groupId}/rules/bulk:
+    $ref: paths/security-group/security-groups_{groupId}_rules_bulk.yml
+  /api/security/groups{groupId}/rules/{ruleId}:
+    $ref: paths/security-group/security_groups{groupId}_rules_{ruleId}.yml
   /api/storage-pools:
     $ref: paths/storage-pool/storage-pools.yml
   /api/storage-pools/node/{nodeId}:
@@ -50,6 +50,14 @@ paths:
     $ref: paths/user/users_me.yml
   /api/users/{userId}:
     $ref: paths/user/users_{userId}.yml
+  /api/users/{userId}/change-password:
+    $ref: paths/user/users_{userId}_change-password.yml
+  /api/backups:
+    $ref: paths/virtual-machine/backups.yml
+  /api/snapshots:
+    $ref: paths/virtual-machine/snapshots.yml
+  /api/snapshots/{id}:
+    $ref: paths/virtual-machine/snapshots_{id}.yml
   /api/virtual-machines:
     $ref: paths/virtual-machine/virtual-machines.yml
   /api/virtual-machines/{vmId}:
