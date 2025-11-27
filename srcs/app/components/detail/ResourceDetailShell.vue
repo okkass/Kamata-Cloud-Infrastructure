@@ -9,7 +9,8 @@
             @click="onBack"
             aria-label="戻る"
           >
-            <Icon name="heroicons:chevron-left" class="h-6 w-6" />
+            <span class="text-base"><</span>
+            <span>戻る</span>
           </button>
 
           <div>
@@ -22,29 +23,35 @@
           </div>
         </div>
 
-        <div class="flex items-center gap-3">
-          <slot name="actions" />
-
-          <div v-if="displayActions.length > 0" class="relative" ref="menuRef">
-            <button
-              type="button"
-              class="detail-menu-button"
-              @click="toggleMenu"
-            >
-              操作
-              <Icon
-                name="heroicons:chevron-down"
-                class="h-4 w-4 text-gray-500"
-              />
-            </button>
-
-            <div v-if="isMenuOpen" class="detail-menu-dropdown">
+        <!-- 右側：操作ボタン（中身は actions プロップで差し替え） -->
+        <div class="flex items-center gap-2">
+          <slot name="operations">
+            <!-- 何も渡されていないときのデフォルトのダミーメニュー -->
+            <div class="relative z-40" @keydown.esc="isMenuOpen = false">
               <button
-                v-for="action in displayActions"
-                :key="action.value"
                 type="button"
-                class="detail-menu-item"
-                @click="onAction(action)"
+                class="inline-flex items-center gap-1 rounded-md border border-neutral-300 bg-white px-3 py-1.5 text-sm font-medium text-neutral-700 shadow-sm hover:bg-neutral-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-indigo-500"
+                @click="toggleMenu"
+              >
+                操作
+                <svg
+                  class="h-4 w-4"
+                  viewBox="0 0 20 20"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M5.23 7.21a.75.75 0 011.06.02L10 11.168l3.71-3.937a.75.75 0 111.08 1.04l-4.25 4.5a.75.75 0 01-1.08 0l-4.25-4.5a.75.75 0 01.02-1.06z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+
+              <!-- ドロップダウンメニュー -->
+              <div
+                v-if="isMenuOpen"
+                class="absolute right-0 mt-1 w-44 rounded-md border border-neutral-200 bg-white py-1 text-sm shadow-lg z-50"
               >
                 {{ action.label }}
               </button>
@@ -95,46 +102,49 @@
 </template>
 
 <script setup lang="ts">
-import {
-  ref,
-  computed,
-  defineAsyncComponent,
-  onMounted,
-  onUnmounted,
-} from "vue";
+import { ref, computed, defineAsyncComponent } from "vue";
+import UITabs from "~/components/ui/UITabs.vue";
+import { tabs } from "~/composables/usetabs";
 
-// 型定義 (外部ファイルに切り出してもOK)
-export type PageAction = {
+type Action = {
   label: string;
   value: string;
 };
 
-export type TabItem = {
-  label: string;
-  value: string;
-  component?: any; // コンポーネントオブジェクトそのもの
-  loader?: () => Promise<any>; // 動的インポート関数
-};
-
-// Props
 const props = defineProps<{
   title: string;
   subtitle?: string;
+  // 全タブ共通で使いたいデータ（ダミーでもOK）
   context?: Record<string, any>;
-  actions?: PageAction[];
-  tabs?: TabItem[]; // ★ tabsをpropで受け取るように変更
+  // 🔹 ページごとに渡せる操作ボタンの中身
+  actions?: Action[];
 }>();
 
 // Emits
 const emit = defineEmits<{
   (e: "back"): void;
-  (e: "action", action: PageAction): void;
+  (e: "action", action: Action): void;
 }>();
 
-// --- 戻るボタン ---
-const onBack = () => emit("back");
+// 戻るボタン → 親（pages側）に任せる
+const onBack = () => {
+  emit("back");
+};
 
-// --- アクションメニュー ---
+// デフォルトのダミーアクション（何も渡されなかったとき用）
+const defaultActions: Action[] = [
+  { label: "ダミーアクション1", value: "dummy1" },
+  { label: "ダミーアクション2", value: "dummy2" },
+];
+
+// ページから渡された actions があればそれを使う
+const displayActions = computed<Action[]>(() => {
+  return props.actions && props.actions.length > 0
+    ? props.actions
+    : defaultActions;
+});
+
+// 操作メニューの開閉
 const isMenuOpen = ref(false);
 const menuRef = ref<HTMLElement | null>(null);
 
@@ -143,21 +153,21 @@ const displayActions = computed(() => props.actions ?? []);
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
-
-const onAction = (action: PageAction) => {
+const onAction = (action: Action) => {
   emit("action", action);
   isMenuOpen.value = false;
 };
 
-// メニュー外クリックで閉じる処理
-const handleClickOutside = (event: MouseEvent) => {
-  if (menuRef.value && !menuRef.value.contains(event.target as Node)) {
-    isMenuOpen.value = false;
-  }
-};
+// タブの状態管理
+const defaultActive =
+  Array.isArray(tabs) && tabs.length > 0 ? tabs[0].value : "";
+const active = ref<string>(defaultActive);
 
-onMounted(() => document.addEventListener("click", handleClickOutside));
-onUnmounted(() => document.removeEventListener("click", handleClickOutside));
+const tabLabels = computed(() =>
+  Array.isArray(tabs)
+    ? tabs.map((t) => ({ label: t.label, value: t.value }))
+    : []
+);
 
 // --- タブ管理 ---
 const defaultTab = props.tabs?.[0]?.value ?? "";
@@ -165,10 +175,11 @@ const activeTab = ref(defaultTab);
 
 // アクティブなコンポーネントの解決
 const activeComponent = computed(() => {
-  if (!props.tabs || props.tabs.length === 0) return null;
+  if (!Array.isArray(tabs) || tabs.length === 0) return null;
+  const tab = tabs.find((t) => t.value === active.value) ?? tabs[0];
 
-  const currentTab =
-    props.tabs.find((t) => t.value === activeTab.value) ?? props.tabs[0];
+  // もし将来 tabs に component プロパティを直書きしたくなった場合用
+  if ((tab as any).component) return (tab as any).component;
 
   if (currentTab?.component) {
     return currentTab.component;
@@ -181,6 +192,6 @@ const activeComponent = computed(() => {
   return null;
 });
 
-// コンテキストデータの正規化
+// context はそのままタブに渡す
 const context = computed(() => props.context ?? {});
 </script>
