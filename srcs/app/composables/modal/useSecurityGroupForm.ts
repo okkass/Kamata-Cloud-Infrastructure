@@ -36,7 +36,7 @@ const ruleSchema = z.object({
       .max(65535)
       .nullable()
   ),
-  targetIp: z.string().min(1, "ターゲットIPは必須です。"),
+  targetIp: z.string().cidrv4("有効なCIDR形式で入力してください。")
 });
 
 // ルールの型定義を抽出する
@@ -78,17 +78,8 @@ export function useSecurityGroupForm() {
   });
 
   // --- 基本フィールド ---
-  const [name, nameProps] = defineField("name");
-  const nameAttrs = computed(() => {
-    const { name: _, ...rest } = nameProps.value;
-    return rest;
-  });
-
-  const [description, descProps] = defineField("description");
-  const descriptionAttrs = computed(() => {
-    const { name: _, ...rest } = descProps.value;
-    return rest;
-  });
+  const [name, nameAttrs] = defineField("name");
+  const [description, descriptionAttrs] = defineField("description");
 
   // --- ルール配列 ---
   const {
