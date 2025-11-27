@@ -50,7 +50,7 @@ jobs:
       # ルートディレクトリで実行。redoclyは依存に入れず dlx で実行するのが手軽
       - name: Bundle API Docs
         run: |
-          pnpm dlx @redocly/cli bundle docs/openapi/openapi.yml -o public/api.yml
+          pnpm @redocly/cli bundle docs/openapi/openapi.yml -o public/api.yml
 
       # 6. 型定義の生成
       # srcsディレクトリで実行し、devDependenciesに入っている openapi-typescript を利用
@@ -58,7 +58,7 @@ jobs:
         working-directory: ./srcs
         run: |
           # ../public/api.yml はルートにあるファイルを指す
-          pnpm exec openapi-typescript ../public/api.yml --output ./shared/types/api-types.ts
+          pnpm openapi-typescript ../public/api.yml --output ./shared/types/api-types.ts
 
       # 7. 変更の検知とプッシュ
       - name: Commit and Push if changed
