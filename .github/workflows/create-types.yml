@@ -50,7 +50,7 @@ jobs:
       # ルートディレクトリで実行。redoclyは依存に入れず dlx で実行するのが手軽
       - name: Bundle API Docs
         run: |
-          pnpm --package=@redocly/cli bundle docs/openapi/openapi.yml -o public/api.yml
+          pnpm --package=@redocly/cli dlx redocly bundle docs/openapi/openapi.yml -o public/api.yml
         working-directory: ./srcs
 
       # 6. 型定義の生成
