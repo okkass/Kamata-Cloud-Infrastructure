@@ -22,10 +22,22 @@ get:
               $ref: ../../components/schemas/virtual-machine/virtual-storage/VirtualStorageResponse.yml
     "401":
       description: 認証エラー
+    content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/ErrorResponse.yml
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/ErrorResponse.yml
     "404":
       description: 仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/ErrorResponse.yml
   security:
     - BearerAuth: []
 post:
@@ -47,3 +59,30 @@ post:
       application/json:
         schema:
           $ref: ../../components/schemas/virtual-machine/virtual-storage/AttachedStorageCreateRequest.yml
+  responses:
+    "201":
+      description: 作成成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-machine/virtual-storage/VirtualStorageResponse.yml
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/ErrorResponse.yml
+    "403":
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/ErrorResponse.yml
+    "404":
+      description: 仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/ErrorResponse.yml
+  security:
+    - BearerAuth: []

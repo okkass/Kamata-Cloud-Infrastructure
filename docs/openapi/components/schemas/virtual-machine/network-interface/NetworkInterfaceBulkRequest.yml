@@ -28,3 +28,10 @@ properties:
       type: string
       format: uuid
       description: ネットワークインターフェースのID
+anyOf:
+  - required:
+      - add
+  - required:
+      - patch
+  - required:
+      - delete

@@ -5,4 +5,3 @@ allOf:
   - $ref: ./BackupUpdatable.yml
 required:
   - name
-  - description

@@ -14,8 +14,16 @@ get:
               $ref: ../../components/schemas/virtual-network/VirtualNetwork.yml
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-network/ErrorResponse.yml
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-network/ErrorResponse.yml
   security:
     - BearerAuth: []
 post:
@@ -38,9 +46,21 @@ post:
             $ref: ../../components/schemas/virtual-network/VirtualNetwork.yml
     "400":
       description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-network/ErrorResponse.yml
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-network/ErrorResponse.yml
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/virtual-network/ErrorResponse.yml
   security:
     - BearerAuth: []

@@ -23,9 +23,21 @@ delete:
       description: 成功
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/ErrorResponse.yml
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/ErrorResponse.yml
     "404":
       description: 仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/ErrorResponse.yml
   security:
     - BearerAuth: []

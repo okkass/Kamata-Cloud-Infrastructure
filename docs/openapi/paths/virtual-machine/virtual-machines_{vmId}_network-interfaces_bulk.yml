@@ -28,9 +28,21 @@ post:
               $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/common/ErrorResponse.yml
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/common/ErrorResponse.yml
     "404":
       description: 仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/common/ErrorResponse.yml
   security:
     - BearerAuth: []

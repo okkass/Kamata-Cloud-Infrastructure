@@ -3,4 +3,5 @@ description: ネットワークインターフェース作成リクエストオ�
 allOf:
   - $ref: ./NetworkInterfaceUpdatable.yml
 required:
+  - name
   - subnetId
