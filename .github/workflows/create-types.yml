@@ -51,7 +51,6 @@ jobs:
       - name: Bundle API Docs
         run: |
           pnpm --package=@redocly/cli dlx redocly bundle docs/openapi/openapi.yml -o public/api.yml
-        working-directory: ./srcs
 
       # 6. 型定義の生成
       # srcsディレクトリで実行し、devDependenciesに入っている openapi-typescript を利用
