@@ -20,11 +20,8 @@ jobs:
     
     steps:
       # 1. リポジトリのチェックアウト
-      # refを指定しないとdetached HEAD状態になり、後のプッシュで失敗します
       - name: Checkout repository
         uses: actions/checkout@v4
-        with:
-          ref: ${{ github.ref_name }}
 
       # 2. pnpmの有効化
       - name: Set up Corepack
