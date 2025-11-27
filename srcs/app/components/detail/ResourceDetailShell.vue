@@ -13,7 +13,7 @@
             class="mt-1 inline-flex items-center gap-1 text-sm text-neutral-500 hover:text-neutral-800"
             @click="onBack"
           >
-            <span class="text-base">&lt;</span>
+            <span class="text-base"><</span>
             <span>戻る</span>
           </button>
 
@@ -27,7 +27,7 @@
           </div>
         </div>
 
-        <!-- 右側：操作ボタン（actions をページから渡せる） -->
+        <!-- 右側：操作ボタン（中身は actions プロップで差し替え） -->
         <div class="flex items-center gap-2">
           <slot name="operations">
             <!-- 何も渡されていないときのデフォルトのダミーメニュー -->
@@ -55,7 +55,7 @@
               <!-- ドロップダウンメニュー -->
               <div
                 v-if="isMenuOpen"
-                class="absolute right-0 mt-1 w-44 rounded-md border border-neutral-200 bg-white py-1 text-sm shadow-lg z-40"
+                class="absolute right-0 mt-1 w-44 rounded-md border border-neutral-200 bg-white py-1 text-sm shadow-lg z-50"
               >
                 <button
                   v-for="action in displayActions"
@@ -94,71 +94,65 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, defineAsyncComponent, type ComputedRef } from "vue";
+import { ref, computed, defineAsyncComponent } from "vue";
 import UITabs from "~/components/ui/UITabs.vue";
+import { tabs } from "~/composables/usetabs";
 
-type TabDef = {
-  label: string;
-  value: string;
-  loader?: () => Promise<any>;
-  component?: any;
-};
-
-type ActionDef = {
+type Action = {
   label: string;
   value: string;
 };
 
-// props / emits
 const props = defineProps<{
   title: string;
   subtitle?: string;
-  // 全タブで共有したいデータ（今はダミーでもOK）
+  // 全タブ共通で使いたいデータ（ダミーでもOK）
   context?: Record<string, any>;
-  // タブ定義：ページごとに差し替えたいところ
-  tabs: TabDef[];
-  // 操作メニュー：ページごとに差し替えたいところ
-  actions?: ActionDef[];
+  // 🔹 ページごとに渡せる操作ボタンの中身
+  actions?: Action[];
 }>();
 
 const emit = defineEmits<{
   (e: "back"): void;
-  (e: "action", value: string): void;
+  (e: "action", action: Action): void;
 }>();
 
-// ---- 戻る押されたとき（pages側でURL遷移などをやる） ----
+// 戻るボタン → 親（pages側）に任せる
 const onBack = () => {
   emit("back");
 };
 
-// ---- 操作メニューの項目（props.actions がなければダミー） ----
-const fallbackActions: ActionDef[] = [
+// デフォルトのダミーアクション（何も渡されなかったとき用）
+const defaultActions: Action[] = [
   { label: "ダミーアクション1", value: "dummy1" },
   { label: "ダミーアクション2", value: "dummy2" },
 ];
 
-const displayActions: ComputedRef<ActionDef[]> = computed(() =>
-  props.actions && props.actions.length > 0 ? props.actions : fallbackActions
-);
+// ページから渡された actions があればそれを使う
+const displayActions = computed<Action[]>(() => {
+  return props.actions && props.actions.length > 0
+    ? props.actions
+    : defaultActions;
+});
 
-// ---- 操作メニューの開閉 ----
+// 操作メニューの開閉
 const isMenuOpen = ref(false);
 const toggleMenu = () => {
   isMenuOpen.value = !isMenuOpen.value;
 };
-const onAction = (action: ActionDef) => {
-  emit("action", action.value);
+const onAction = (action: Action) => {
+  emit("action", action);
   isMenuOpen.value = false;
 };
 
-// ---- タブの状態管理 ----
+// タブの状態管理
 const defaultActive =
-  Array.isArray(props.tabs) && props.tabs.length > 0 ? props.tabs[0].value : "";
+  Array.isArray(tabs) && tabs.length > 0 ? tabs[0].value : "";
 const active = ref<string>(defaultActive);
 
 const tabLabels = computed(() =>
-  Array.isArray(props.tabs)
-    ? props.tabs.map((t) => ({ label: t.label, value: t.value }))
+  Array.isArray(tabs)
+    ? tabs.map((t) => ({ label: t.label, value: t.value }))
     : []
 );
 
@@ -166,11 +160,11 @@ const tabLabels = computed(() =>
 const componentCache = new Map<string, any>();
 
 const activeComponent = computed(() => {
-  if (!Array.isArray(props.tabs) || props.tabs.length === 0) return null;
-  const tab = props.tabs.find((t) => t.value === active.value) ?? props.tabs[0];
+  if (!Array.isArray(tabs) || tabs.length === 0) return null;
+  const tab = tabs.find((t) => t.value === active.value) ?? tabs[0];
 
   // もし将来 tabs に component プロパティを直書きしたくなった場合用
-  if (tab.component) return tab.component;
+  if ((tab as any).component) return (tab as any).component;
 
   if (typeof tab.loader === "function") {
     if (!componentCache.has(tab.value)) {
@@ -182,6 +176,6 @@ const activeComponent = computed(() => {
   return null;
 });
 
-// context はそのままタブに渡すだけ
+// context はそのままタブに渡す
 const context = computed(() => props.context ?? {});
 </script>
