@@ -204,11 +204,11 @@
  * =================================================================================
  */
 import { ref, markRaw, computed } from "vue";
-import { useResourceList } from "~/composables/useResourceList"; // ★ 単位変換ユーティリティをインポート
-import { convertByteToUnit } from "~/utils/format"; // ★ 必要な型定義をインポート
+import { useResourceList } from "~/composables/useResourceList";
+import { convertByteToUnit } from "~/utils/format";
 import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine";
-import type { InstanceTypeDTO as ModelInstanceTypeDTO } from "~~/shared/types/dto/instance-type";
-import type { ImageDTO } from "~~/shared/types/dto/image";
+import type { InstanceTypeResponse as ModelInstanceTypeDTO } from "~~/shared/types/dto/instance-type";
+import type { ImageResponse } from "~~/shared/types/dto/image";
 import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
 
 // ==============================================================================
@@ -247,7 +247,7 @@ const {
   pending: imPending,
   error: imError,
   refresh: refreshImages,
-} = useResourceList<ImageDTO>("images");
+} = useResourceList<ImageResponse>("images");
 
 const {
   data: users,
@@ -326,7 +326,7 @@ const openInstanceTypeEditModal = (it: ModelInstanceTypeDTO) => {
   openModal("instanceTypeEdit", it);
 };
 
-const openImageEditModal = (image: ImageDTO) => {
+const openImageEditModal = (image: ImageResponse) => {
   openModal("imageEdit", image);
 };
 

@@ -3,14 +3,20 @@
     :show="show"
     title="セキュリティグループ編集"
     @close="$emit('close')"
+    size="lg"
   >
-    <form v-if="values" @submit.prevent="onSubmit" class="space-y-6">
-      <div class="space-y-4">
+    <!-- データロード待機 -->
+    <div v-if="!editedData" class="text-center py-8 text-gray-500">
+      読み込み中...
+    </div>
+
+    <form v-else @submit.prevent="submitForm" class="space-y-6">
+      <!-- 1. 基本情報 -->
+      <FormSection title="基本情報">
         <FormInput
           label="セキュリティグループ名"
           name="sg-name-edit"
-          v-model="name"
-          v-model:attrs="nameAttrs"
+          v-model="editedData.name"
           :error="errors.name"
           :required="true"
         />
@@ -18,41 +24,165 @@
           label="説明"
           name="sg-description-edit"
           :rows="3"
-          v-model="description"
-          v-model:attrs="descriptionAttrs"
+          v-model="editedData.description"
           :error="errors.description"
         />
-      </div>
+      </FormSection>
 
-      <RuleTable
-        title="インバウンドルール"
-        :rules="inboundFields"
-        :errors="errors"
-        field-name-prefix="inboundRules"
-        @add-rule="addInboundRule"
-        @delete-rule="removeInbound"
-      />
+      <!-- 2. インバウンドルール -->
+      <FormSection title="インバウンドルール">
+        <div
+          v-if="inboundRules.length === 0"
+          class="text-center text-gray-500 py-4"
+        >
+          ルールがありません。
+        </div>
+        <div v-for="rule in inboundRules" :key="rule.id" class="rule-grid">
+          <FormInput
+            :name="`in-name-${rule.id}`"
+            label="ルール名"
+            v-model="rule.name"
+            :error="getError(rule, 'name')"
+          />
+          <FormSelect
+            :name="`in-protocol-${rule.id}`"
+            label="プロトコル"
+            v-model="rule.protocol"
+            :options="protocolOptions"
+          />
+          <FormInput
+            :name="`in-port-${rule.id}`"
+            label="ポート"
+            type="number"
+            v-model.number="rule.port"
+            placeholder="ANY"
+          />
+          <FormInput
+            :name="`in-target-${rule.id}`"
+            label="送信元 (IP)"
+            v-model="rule.targetIp"
+            :error="getError(rule, 'targetIp')"
+          />
+          <FormSelect
+            :name="`in-action-${rule.id}`"
+            label="アクション"
+            v-model="rule.action"
+            :options="actionOptions"
+          />
+          <div class="flex items-end pb-1">
+            <button
+              type="button"
+              @click="removeRule(getOriginalIndex(rule))"
+              class="btn-icon-danger"
+              title="削除"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-5 h-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12.977 0c-.043.051-.084.102-.125.153m12.702 0c.043.051.084.102.125.153m-12.452 0c-.342.052-.682.107-1.022.166"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="mt-4">
+          <button type="button" @click="addInboundRule" class="btn-secondary">
+            + インバウンドルールを追加
+          </button>
+        </div>
+      </FormSection>
 
-      <RuleTable
-        title="アウトバウンドルール"
-        :rules="outboundFields"
-        :errors="errors"
-        field-name-prefix="outboundRules"
-        @add-rule="addOutboundRule"
-        @delete-rule="removeOutbound"
-      />
+      <!-- 3. アウトバウンドルール -->
+      <FormSection title="アウトバウンドルール">
+        <div
+          v-if="outboundRules.length === 0"
+          class="text-center text-gray-500 py-4"
+        >
+          ルールがありません。
+        </div>
+        <div v-for="rule in outboundRules" :key="rule.id" class="rule-grid">
+          <FormInput
+            :name="`out-name-${rule.id}`"
+            label="ルール名"
+            v-model="rule.name"
+            :error="getError(rule, 'name')"
+          />
+          <FormSelect
+            :name="`out-protocol-${rule.id}`"
+            label="プロトコル"
+            v-model="rule.protocol"
+            :options="protocolOptions"
+          />
+          <FormInput
+            :name="`out-port-${rule.id}`"
+            label="ポート"
+            type="number"
+            v-model.number="rule.port"
+            placeholder="ANY"
+          />
+          <FormInput
+            :name="`out-target-${rule.id}`"
+            label="宛先 (IP)"
+            v-model="rule.targetIp"
+            :error="getError(rule, 'targetIp')"
+          />
+          <FormSelect
+            :name="`out-action-${rule.id}`"
+            label="アクション"
+            v-model="rule.action"
+            :options="actionOptions"
+          />
+          <div class="flex items-end pb-1">
+            <button
+              type="button"
+              @click="removeRule(getOriginalIndex(rule))"
+              class="btn-icon-danger"
+              title="削除"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke-width="1.5"
+                stroke="currentColor"
+                class="w-5 h-5"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12.977 0c-.043.051-.084.102-.125.153m12.702 0c.043.051.084.102.125.153m-12.452 0c-.342.052-.682.107-1.022.166"
+                />
+              </svg>
+            </button>
+          </div>
+        </div>
+        <div class="mt-4">
+          <button type="button" @click="addOutboundRule" class="btn-secondary">
+            + アウトバウンドルールを追加
+          </button>
+        </div>
+      </FormSection>
     </form>
-    <div v-else class="text-center text-gray-500">
-      編集するデータを読み込んでいます...
-    </div>
 
+    <!-- フッター -->
     <template #footer>
-      <div class="flex justify-end gap-3 w-full">
-        <button type="button" class="btn btn-back" @click="$emit('close')">
-          キャンセル
-        </button>
-        <button type="button" @click="onSubmit" class="btn btn-primary">
-          保存
+      <div class="modal-footer">
+        <!-- 変更がない場合 (isDirty=false) はボタンを無効化 -->
+        <button
+          type="button"
+          @click="submitForm"
+          class="btn btn-primary"
+          :disabled="isSaving || !isDirty"
+        >
+          {{ isSaving ? "保存中..." : "保存" }}
         </button>
       </div>
     </template>
@@ -60,11 +190,20 @@
 </template>
 
 <script setup lang="ts">
-import { watch, type PropType } from "vue";
-import { useForm, useFieldArray } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
-import RuleTable from "~/components/RuleTable.vue";
+/**
+ * =================================================================================
+ * セキュリティグループ編集モーダル (MoSecurityGroupEdit.vue)
+ * ---------------------------------------------------------------------------------
+ * useResourceUpdater を利用した差分更新版
+ * =================================================================================
+ */
+import { useSecurityGroupEditForm } from "~/composables/modal/useSecurityGroupEditForm";
+import type { SecurityGroupDTO } from "~~/shared/types/dto/security-group/SecurityGroupDTO";
+
+import FormInput from "~/components/Form/Input.vue";
+import FormTextarea from "~/components/Form/Textarea.vue";
+import FormSection from "~/components/Form/Section.vue";
+import FormSelect from "~/components/Form/Select.vue";
 
 // --- Props & Emits ---
 const props = defineProps({
@@ -74,137 +213,57 @@ const props = defineProps({
     default: null,
   },
 });
-const emit = defineEmits(["close", "save"]);
+const emit = defineEmits(["close", "success"]);
 
-// ★ 1. Zodスキーマを定義（作成時と共通）
-const ruleSchema = z.object({
-  id: z.string().optional(),
-  protocol: z.string(),
-  port: z.string().optional(),
-  portRange: z.string().optional(),
-  sourceIp: z.string().optional(),
-  sourceType: z.string().optional(),
-  source: z.string().optional(),
-  destinationType: z.string().optional(),
-  destination: z.string().optional(),
-  description: z.string().optional(),
-});
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "セキュリティグループ名は必須です。"),
-    description: z.string().optional(),
-    inboundRules: z.array(ruleSchema),
-    outboundRules: z.array(ruleSchema),
-  })
-);
-
-// ★ 2. vee-validateのuseFormをセットアップ（initialValuesはここでは設定しない）
-const { errors, defineField, values, resetForm, handleSubmit } = useForm({
-  validationSchema,
-});
-
-// 静的フィールドと動的配列フィールドを定義
-const [name, nameAttrs] = defineField("name");
-const [description, descriptionAttrs] = defineField("description");
+// --- Composable ---
 const {
-  fields: inboundFields,
-  push: pushInbound,
-  remove: removeInbound,
-} = useFieldArray("inboundRules");
-const {
-  fields: outboundFields,
-  push: pushOutbound,
-  remove: removeOutbound,
-} = useFieldArray("outboundRules");
+  editedData,
+  errors,
+  isDirty,
+  isSaving,
+  onFormSubmit,
+  inboundRules,
+  outboundRules,
+  addInboundRule,
+  addOutboundRule,
+  removeRule,
+  getOriginalIndex,
+  protocolOptions,
+  actionOptions,
+} = useSecurityGroupEditForm(props);
 
-watch(
-  () => props.securityGroupData,
-  (newData) => {
-    if (newData && newData.rules) {
-      // フォーム用のデータ構造を作成
-      const formValues = {
-        ...newData,
-        // 'inbound'のルールだけを抽出・変換
-        inboundRules: newData.rules
-          .filter((rule) => rule.ruleType === "inbound")
-          .map((rule) => ({
-            id: rule.id, // ★ APIとフォームで共通のキー
-            protocol: rule.protocol.toUpperCase(), // 'tcp' -> 'TCP'
-            port:
-              rule.port !== undefined && rule.port !== null
-                ? String(rule.port)
-                : "",
-            sourceIp: rule.targetIp, // ★ targetIp -> sourceIp
-          })),
-        // 'outbound'のルールだけを抽出・変換
-        outboundRules: newData.rules
-          .filter((rule) => rule.ruleType === "outbound")
-          .map((rule) => ({
-            id: rule.id,
-            protocol: rule.protocol.toUpperCase(),
-            port:
-              rule.port !== undefined && rule.port !== null
-                ? String(rule.port)
-                : "",
-            sourceIp: rule.targetIp,
-          })),
-      };
+const submitForm = onFormSubmit(emit);
 
-      // 変換したデータをフォームにセット
-      resetForm({
-        values: formValues,
-      });
-    }
-  },
-  { immediate: true, deep: true }
-);
-
-// ルール追加・削除のメソッド
-const addInboundRule = () => {
-  pushInbound({
-    protocol: "TCP",
-    portRange: "",
-    sourceType: "cidr",
-    source: "",
-    description: "",
-  });
+// バリデーションエラー取得ヘルパー
+// (配列のindexが変わる可能性があるため、ruleオブジェクトから探す簡易的な実装)
+const getError = (rule: any, field: string) => {
+  // 今回は簡易実装のため errors オブジェクトから直接取得する形にはしていません。
+  // useSecurityGroupEditForm 内の validate() でセットされるキーと一致させる必要があります。
+  // ここでは仮に、全体の errors オブジェクトに `rules[INDEX].field` 形式で入っていると想定し、
+  // getOriginalIndex でインデックスを特定して取得します。
+  const index = getOriginalIndex(rule);
+  return errors.value[`rules[${index}].${field}`];
 };
-const addOutboundRule = () => {
-  pushOutbound({
-    protocol: "TCP",
-    portRange: "",
-    destinationType: "cidr",
-    destination: "",
-    description: "",
-  });
-};
-
-const onSubmit = handleSubmit((formValues) => {
-  // フォームのデータをAPIの形式に再変換
-  const payload = {
-    name: formValues.name,
-    description: formValues.description,
-    rules: [
-      ...formValues.inboundRules.map((rule) => ({
-        ...rule,
-        ruleType: "inbound",
-        targetIP: rule.sourceIp, // ★ sourceIp -> targetIP
-        protocol: rule.protocol.toLowerCase(), // 'TCP' -> 'tcp'
-      })),
-      ...formValues.outboundRules.map((rule) => ({
-        ...rule,
-        ruleType: "outbound",
-        targetIP: rule.sourceIp,
-        protocol: rule.protocol.toLowerCase(),
-      })),
-    ],
-  };
-
-  console.log("APIに送信するデータ:", payload);
-  // ここでAPI呼び出しを実行
-  // executeUpdate(props.securityGroupData.id, payload);
-
-  emit("save", payload);
-  emit("close");
-});
 </script>
+
+<style scoped>
+.rule-grid {
+  display: grid;
+  /* Name, Protocol, Port, Target, Action, Delete */
+  grid-template-columns: 2fr 1fr 1fr 2fr 1fr 0.5fr;
+  gap: 0.5rem 1rem;
+  padding: 0.75rem 0.25rem;
+  border-bottom: 1px solid #e5e7eb;
+}
+.rule-grid:last-of-type {
+  border-bottom: none;
+}
+.btn-icon-danger {
+  @apply p-1.5 text-gray-400 rounded-md transition-colors;
+  @apply hover:text-red-600 hover:bg-red-100;
+  @apply focus:outline-none focus:ring-2 focus:ring-red-400;
+}
+.btn-secondary {
+  @apply py-2 px-4 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 whitespace-nowrap;
+}
+</style>

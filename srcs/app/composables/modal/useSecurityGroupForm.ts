@@ -36,7 +36,7 @@ const ruleSchema = z.object({
       .max(65535)
       .nullable()
   ),
-  targetIp: z.string().cidrv4("有効なCIDR形式で入力してください。")
+  targetIp: z.cidrv4("有効なCIDR形式で入力してください。"),
 });
 
 // ルールの型定義を抽出する
