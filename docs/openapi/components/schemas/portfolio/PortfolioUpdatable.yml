@@ -1,0 +1,6 @@
+type: object
+description: ポートフォリオ更新可能オブジェクト
+properties:
+  title:
+    type: string
+    description: ポートフォリオのタイトル
