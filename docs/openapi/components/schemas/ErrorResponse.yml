@@ -1,5 +1,5 @@
 type: object
-description: 標準のエラーレスポンス形式
+description: RFC 9457 (Problem Details for HTTP APIs) に準拠した標準のエラーレスポンス形式
 properties:
   type:
     type: string
