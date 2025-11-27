@@ -19,13 +19,8 @@ export default defineEventHandler((event) => {
     {
       id: "8874840c-fe85-4eb9-985f-a856eee1faa2",
       name: "vm-01 (フル構成)",
-      instanceType: {
-        id: "2b03254f-5485-4286-8baa-77ebee3aea9b",
-        name: "t2.standard",
-        createdAt: new Date().toISOString(),
-        cpuCore: 4, // ★ cpuCores -> cpuCore に変更（合わせる）
-        memorySize: 4 * 1024 * 1024 * 1024, // 4 GB
-      },
+      cpuCore: 4, // ★ cpuCores -> cpuCore に変更（合わせる）
+      memorySize: 4 * 1024 * 1024 * 1024, // 4 GB
       status: "running",
       node: {
         id: "ba49196a-dfa7-4ce2-99c0-e4c4767f7b39",
@@ -40,6 +35,39 @@ export default defineEventHandler((event) => {
         {
           id: "399f4fd6-8335-46f7-bd80-4e53eb0fbe9b",
           name: "default",
+          description: "Default security group",
+          rules: [
+            {
+              id: "11365b65-bea5-4d02-b7d0-1057fded5b81",
+              name: "Allow HTTP",
+              ruleType: "inbound",
+              port: 80,
+              protocol: "tcp",
+              targetIp: "0.0.0.0/0",
+              action: "allow",
+              createdAt: new Date().toISOString(),
+            },
+            {
+              id: "6ae22fa7-bc84-4b14-ac67-ff45fa1fd846",
+              name: "Allow all",
+              ruleType: "outbound",
+              protocol: "any",
+              port: null,
+              targetIp: "0.0.0.0/0",
+              action: "allow",
+              createdAt: new Date().toISOString(),
+            },
+            {
+              id: "d1c6f3e4-2f4b-4c3a-9f0e-3c9b8f1e5a2b",
+              name: "Allow HTTPS",
+              ruleType: "inbound",
+              port: 443,
+              protocol: "tcp",
+              targetIp: "0.0.0.0/0",
+              action: "allow",
+              createdAt: new Date().toISOString(),
+            },
+          ],
           createdAt: new Date().toISOString(),
         },
       ],
