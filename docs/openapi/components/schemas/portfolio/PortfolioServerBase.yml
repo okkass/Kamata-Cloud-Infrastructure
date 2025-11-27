@@ -8,6 +8,10 @@ properties:
   title:
     type: string
     description: ポートフォリオのタイトル
+  createdAt:
+    type: string
+    format: date-time
+    description: ポートフォリオの作成日時
   viewCount24Hour:
     type: number
     format: integer
@@ -18,5 +22,7 @@ properties:
     description: 過去7日間のビュー数
 required:
   - id
+  - title
+  - createdAt
   - viewCount24Hour
   - viewCount7Day

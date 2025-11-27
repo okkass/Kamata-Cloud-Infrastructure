@@ -330,7 +330,14 @@
     @apply text-red-500 mt-8;
   }
 }
-
+/**
+ * ==================================================================
+ * Base Detail (ベースディティール)
+ * ==================================================================
+ */
+.btn-pulldown {
+  @apply inline-flex items-center rounded-full border border-gray-300 bg-white px-4 py-1.5 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50;
+}
 /**
  * ==================================================================
  * Base Layer (ベースレイヤー)
