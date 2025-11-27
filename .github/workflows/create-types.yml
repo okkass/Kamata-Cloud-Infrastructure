@@ -9,7 +9,8 @@ on:
     paths:
       - "docs/openapi/**"
       - ".github/workflows/create-types.yml"
-
+  workflow_dispatch:
+  
 permissions:
   contents: write # 生成したコードをリポジトリへプッシュするために必要
 
