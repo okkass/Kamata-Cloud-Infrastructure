@@ -29,6 +29,9 @@ importers:
       jose:
         specifier: ^6.1.2
         version: 6.1.2
+      js-yaml:
+        specifier: ^4.1.1
+        version: 4.1.1
       jwt-decode:
         specifier: ^4.0.0
         version: 4.0.0
