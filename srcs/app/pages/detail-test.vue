@@ -1,72 +1,45 @@
 <template>
   <ResourceDetailShell
-    title="サーバー詳細"
-    subtitle="基本情報"
-    :tabs="tabs"
-    :actions="actions"
-    :context="context"
-    @back="onBack"
-    @action="onAction"
-  />
+    title="VM詳細"
+    subtitle="ID: 12345"
+    :tabs="vmTabs"
+    :actions="userActions"
+    :context="{ vmId: '12345' }"
+    @back="router.back()"
+    @action="handleAction"
+  >
+  </ResourceDetailShell>
 </template>
 
-<script setup lang="ts">
-import { defineAsyncComponent } from "vue";
-import type { Component } from "vue";
+<script setup>
+import { tabs as vmTabs } from "@/composables/usetabs";
+import { useRouter } from "vue-router";
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
+import { useToast } from "@/composables/useToast";
+const { addToast } = useToast();
 
-// ==== ここが「ページごとにカスタマイズする部分」 ====
+const router = useRouter();
 
-// 1. タブの定義（このページ専用）
-type TabConfig = {
-  label: string;
-  value: string;
-  loader?: () => Promise<any>;
-  component?: Component;
-};
-
-const tabs: TabConfig[] = [
-  {
-    label: "詳細",
-    value: "details",
-    loader: () => import("~/components/detail/panels/DetailTabGeneral.vue"),
-  },
-  {
-    label: "ネットワーキング",
-    value: "network",
-    loader: () => import("~/components/detail/panels/DetailTabNetwork.vue"),
-  },
-  {
-    label: "ストレージ",
-    value: "storage",
-    loader: () => import("~/components/detail/panels/DetailTabStorage.vue"),
-  },
-  // このページ固有で増やすならここに追加
-];
-
-// 2. プルダウンメニューの中身（このページ専用）
-const actions = [
-  { label: "再起動", value: "reboot" },
+// 🔹 この配列をページごとに自由に変えればOK（プルダウンの中身）
+const userActions = [
+  { label: "起動", value: "start" },
   { label: "停止", value: "stop" },
-  { label: "削除", value: "delete" },
+  { label: "再起動", value: "restart" },
 ];
 
-// 3. 全タブ共通で使いたいコンテキスト
-const context = {
-  id: "srv-001",
-  region: "ap-osaka-1",
-  createdAt: "2025-11-26T09:00:00Z",
-};
-
-// 4. イベントハンドラ
-const onBack = () => {
-  // ここで URL 遷移したり、$router.back() したり
-  // 例: useRouter() して router.back()
-  console.log("戻るが押された");
-};
-
-const onAction = (action: { label: string; value: string }) => {
-  console.log("操作メニュー:", action);
-  // value に応じて処理分岐すればOK
+const handleAction = (action) => {
+  switch (action.value) {
+    case "start":
+      addToast({ message: "VMを起動しました", type: "success" });
+      break;
+    case "stop":
+      console.log("VMを停止します");
+      break;
+    case "restart":
+      console.log("VMを再起動します");
+      break;
+    default:
+      console.warn("未知のアクション:", action.value);
+  }
 };
 </script>
