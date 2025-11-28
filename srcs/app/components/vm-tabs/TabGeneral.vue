@@ -98,9 +98,5 @@ defineExpose({
  * APIから非同期で取得します。
  * ==============================================================================
  */
-const {
-  data: nodes,
-  pending,
-  error,
-} = useResourceList<PhysicalNodeDTO>("physical-nodes");
+const { data: nodes, pending, error } = useResourceList<NodeDTO>("nodes");
 </script>

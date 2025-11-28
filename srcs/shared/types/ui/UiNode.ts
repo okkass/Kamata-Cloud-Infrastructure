@@ -1,4 +1,4 @@
-import { PhysicalNodeStatusEnum } from "../dto/physical-node/PhysicalNodeDTO";
+import { NodeStatusEnum } from "../dto/node/NodeDTO";
 
 /**
  * UI表示用に整形された物理ノードのデータ型。
@@ -27,7 +27,7 @@ export type UiNode = {
   /**
    * 物理ノードの状態
    */
-  status: PhysicalNodeStatusEnum;
+  status: NodeStatusEnum;
 
   /**
    * CPU使用率 (UI表示用のパーセント文字列)

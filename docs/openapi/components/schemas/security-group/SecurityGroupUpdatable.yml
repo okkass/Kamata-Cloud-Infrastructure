@@ -1,0 +1,11 @@
+type: object
+description: セキュリティグループ更新可能なプロパティ
+properties:
+  name:
+    type: string
+    description: セキュリティグループの名前
+    example: web-servers
+  description:
+    type: string
+    description: セキュリティグループの説明
+    example: Security group for web servers

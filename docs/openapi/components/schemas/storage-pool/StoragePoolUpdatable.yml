@@ -1,0 +1,11 @@
+type: object
+description: ストレージプール更新可能なプロパティ
+properties:
+  name:
+    type: string
+    description: ストレージプールの名前
+    example: Node1 Pool 1
+  hasNetworkAccess:
+    type: boolean
+    description: ストレージプールがネットワークアクセス可能かどうかを示すフラグ
+    example: true

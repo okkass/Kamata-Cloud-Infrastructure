@@ -52,7 +52,7 @@ import { z } from "zod";
 // ★ useResourceList.ts をインポート
 import { useResourceList } from "~/composables/useResourceList";
 // ★ 型定義をインポート
-import type { PhysicalNodeDTO } from "~~/shared/types/physical-nodes";
+import type { NodeDTO } from "~~/shared/types/node";
 
 // =============================================================================
 // Props (初期値受け取り)
@@ -69,11 +69,7 @@ const props = defineProps<{
 // Data Fetching (ノード一覧)
 // =============================================================================
 // ★ 2. ノード一覧をAPIから取得 (変更なし)
-const {
-  data: nodes,
-  pending,
-  error,
-} = useResourceList<PhysicalNodeDTO>("physical-nodes");
+const { data: nodes, pending, error } = useResourceList<NodeDTO>("nodes");
 
 // =============================================================================
 // Validation Schema (バリデーション定義)

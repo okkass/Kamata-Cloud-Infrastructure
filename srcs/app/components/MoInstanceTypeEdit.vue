@@ -40,7 +40,7 @@
         min="1"
       >
         <template #suffix>
-          <span class="form-unit-label">MB</span>
+          <span class="form-unit-label rounded-l-none -ml-px">MB</span>
         </template>
       </FormInput>
     </form>
@@ -66,12 +66,16 @@
  * =================================================================================
  */
 import { useInstanceTypeEditForm } from "~/composables/modal/useInstanceTypeEditForm";
+import FormInput from "~/components/Form/Input.vue";
+import FormSection from "~/components/Form/Section.vue";
+
+import type { InstanceTypeServerBase } from "~~/shared/types/dto/instance-type/InstanceTypeServerBase";
 
 // --- Props & Emits ---
 const props = defineProps({
   show: { type: Boolean, required: true },
   instanceTypeData: {
-    type: Object as PropType<InstanceTypeDTO | null>,
+    type: Object as PropType<InstanceTypeServerBase | null>,
     default: null,
   },
 });
@@ -91,5 +95,8 @@ const {
 } = useInstanceTypeEditForm(props);
 
 // --- イベントハンドラ ---
-const submitForm = onFormSubmit(emit);
+const submitHandler = onFormSubmit(emit);
+const submitForm = () => {
+  submitHandler();
+};
 </script>

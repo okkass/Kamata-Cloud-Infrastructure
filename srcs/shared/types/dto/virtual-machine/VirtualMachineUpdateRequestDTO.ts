@@ -1,6 +1,6 @@
 import type { AttachedStorageDTO } from "./AttachedStorageDTO";
 import type { NetworkInterfaceDTO } from "./NetworkInterfaceDTO";
-import type { InstanceTypeDTO } from "../instance-type/InstanceTypeDTO";
+import type { InstanceTypeResponse } from "../instance-type";
 /**
  * 仮想マシン更新リクエストオブジェクト
  */
@@ -9,7 +9,7 @@ export interface VirtualMachineUpdateRequestDTO {
    * 仮想マシンの名前
    */
   name?: string;
-  instanceType?: InstanceTypeDTO;
+  instanceType?: InstanceTypeResponse;
   /**
    * CPUコア数
    */

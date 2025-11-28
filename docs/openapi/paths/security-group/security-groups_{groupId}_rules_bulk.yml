@@ -1,0 +1,38 @@
+post:
+  summary: セキュリティルールの一括追加、更新、削除
+  description: 指定したセキュリティグループ内で複数のルールを一括で追加、更新、または削除します。
+  tags:
+    - SecurityGroup
+  parameters:
+    - name: groupId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/security-group/SecurityRuleBulkRequest.yml
+  responses:
+    "200":
+      description: ルール一括操作成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: セキュリティグループが見つからない
+  security:
+    - BearerAuth: []
