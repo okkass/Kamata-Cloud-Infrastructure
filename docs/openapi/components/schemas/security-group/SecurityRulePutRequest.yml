@@ -1,5 +1,5 @@
 type: object
-description: セキュリティルール作成リクエストオブジェクト
+description: セキュリティルール更新リクエストオブジェクト(PUT)
 allOf:
   - $ref: "./SecurityRuleUpdatable.yml"
 required:

@@ -11,24 +11,23 @@ import { useToast } from "@/composables/useToast";
 import { useResourceList } from "@/composables/useResourceList";
 
 /** 定数 */
-export const addPhysicalNodeAction = `add-${PHYSICAL_NODE.name}`;
-export const deletePhysicalNodeAction = `delete-${PHYSICAL_NODE.name}`;
+export const addNodeAction = `add-${NODE.name}`;
+export const deleteNodeAction = `delete-${NODE.name}`;
 
 /**
  * メインのComposable関数
  */
-export function usePhysicalNodeManagement() {
+export function useNodeManagement() {
   // ============================================================================
   // Composables Setup
   // ============================================================================
   const { addToast } = useToast();
   const { data: rawNodes, refresh: refreshNodeList } =
-    useResourceList<PhysicalNodeDTO>(PHYSICAL_NODE.name);
+    useResourceList<NodeDTO>(NODE.name);
   const { executeUpdate: updateNode } = useResourceUpdate<
-    PhysicalNodeUpdateRequestDTO,
-    PhysicalNodeDTO
-  >(PHYSICAL_NODE.name);
-
+    NodeUpdateRequestDTO,
+    NodeDTO
+  >(NODE.name);
   // ============================================================================
   // Component State
   // ============================================================================
@@ -118,7 +117,7 @@ export function usePhysicalNodeManagement() {
     switchingNodeId,
     handleSetAsManagementNode,
     refreshNodeList,
-    ADD_PHYSICAL_NODE_ACTION: addPhysicalNodeAction,
-    DELETE_PHYSICAL_NODE_ACTION: deletePhysicalNodeAction,
+    ADD_NODE_ACTION: addNodeAction,
+    DELETE_NODE_ACTION: deleteNodeAction,
   };
 }
