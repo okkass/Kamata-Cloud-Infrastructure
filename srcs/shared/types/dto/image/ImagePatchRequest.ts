@@ -3,7 +3,7 @@
 import type { ImageClientUpdatable } from "./ImageClientUpdatable";
 
 /**
- * 仮想マシンイメージ更新リクエスト(PATCH)オブジェクトのインターフェースにゃん
+ * 仮想マシンイメージ更新リクエスト(PATCH)オブジェクトのインターフェース
  * ImageClientUpdatable を継承
  */
 export interface ImagePatchRequest extends ImageClientUpdatable {}

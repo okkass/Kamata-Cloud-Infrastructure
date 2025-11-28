@@ -3,7 +3,7 @@
 import type { ImageClientUpdatable } from "./ImageClientUpdatable";
 
 /**
- * 仮想マシンイメージ更新リクエスト(PUT)オブジェクトのインターフェースにゃん
+ * 仮想マシンイメージ更新リクエスト(PUT)オブジェクトのインターフェース
  * ImageClientUpdatable を継承
  */
 export type ImagePutRequest = Omit<
@@ -12,4 +12,4 @@ export type ImagePutRequest = Omit<
 > & {
   name: NonNullable<Required<ImageClientUpdatable>["name"]>;
   description: NonNullable<Required<ImageClientUpdatable>["description"]>;
-}; // name と description を必須プロパティとして再定義するにゃん
+}; // name と description を必須プロパティとして再定義する
