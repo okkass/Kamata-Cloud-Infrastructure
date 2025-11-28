@@ -36,7 +36,7 @@
           >
             <td class="px-6 py-4 font-medium">{{ vm.name }}</td>
             <td class="px-6 py-4">{{ vm.status }}</td>
-            <td class="px-6 py-4">{{ vm.node?.name ?? "N/A" }}</td>
+            <td class="px-6 py-4">{{ vm.nodeName }}</td>
             <td class="px-6 py-4 text-center">
               <button @click="openVmEditModal(vm)" class="btn-secondary">
                 編集
@@ -52,10 +52,7 @@
 
     <div class="mt-8 pt-4 border-t">
       <h2 class="font-semibold text-lg">インスタンスタイプ一覧 (API連携)</h2>
-
-      <div v-if="itPending" class="mt-2 text-gray-500">
-        インスタンスタイプ一覧を読み込み中...
-      </div>
+      <div v-if="itPending" class="mt-2 text-gray-500">一覧を読み込み中...</div>
       <div v-else-if="itError" class="mt-2 text-red-600">
         一覧の取得に失敗しました: {{ itError.message }}
       </div>
@@ -66,8 +63,8 @@
         <thead class="text-xs text-gray-700 uppercase bg-gray-100">
           <tr>
             <th class="px-6 py-3">名前</th>
-            <th class="px-6 py-3">vCPU (個)</th>
-            <th class="px-6 py-3">メモリ (MB)</th>
+            <th class="px-6 py-3">CPU</th>
+            <th class="px-6 py-3">メモリ</th>
             <th class="px-6 py-3 text-center">操作</th>
           </tr>
         </thead>
@@ -78,10 +75,8 @@
             class="bg-white border-b"
           >
             <td class="px-6 py-4 font-medium">{{ it.name }}</td>
-            <td class="px-6 py-4">{{ it.cpuCore }}</td>
-            <td class="px-6 py-4">
-              {{ convertByteToUnit(it.memorySize, "MB") }} MB
-            </td>
+            <td class="px-6 py-4">{{ it.cpuCore }} vCPU</td>
+            <td class="px-6 py-4">{{ it.memorySize }} Byte</td>
             <td class="px-6 py-4 text-center">
               <button
                 @click="openInstanceTypeEditModal(it)"
@@ -93,22 +88,14 @@
           </tr>
         </tbody>
       </table>
-      <div v-else class="mt-2 text-gray-500">
-        表示できるインスタンスタイプがありません。
-      </div>
     </div>
 
     <div class="mt-8 pt-4 border-t">
       <h2 class="font-semibold text-lg">イメージ一覧 (API連携)</h2>
-
-      <div v-if="imPending" class="mt-2 text-gray-500">
-        イメージ一覧を読み込み中...
-      </div>
-
+      <div v-if="imPending" class="mt-2 text-gray-500">一覧を読み込み中...</div>
       <div v-else-if="imError" class="mt-2 text-red-600">
         一覧の取得に失敗しました: {{ imError.message }}
       </div>
-
       <table
         v-else-if="images && images.length > 0"
         class="w-full mt-2 text-sm text-left"
@@ -121,35 +108,27 @@
           </tr>
         </thead>
         <tbody>
-          <tr v-for="image in images" :key="image.id" class="bg-white border-b">
-            <td class="px-6 py-4 font-medium">{{ image.name }}</td>
-            <td class="px-6 py-4 truncate max-w-xs" :title="image.description">
-              {{ image.description || "N/A" }}
-            </td>
+          <tr v-for="img in images" :key="img.id" class="bg-white border-b">
+            <td class="px-6 py-4 font-medium">{{ img.name }}</td>
+            <td class="px-6 py-4">{{ img.description }}</td>
             <td class="px-6 py-4 text-center">
-              <button @click="openImageEditModal(image)" class="btn-secondary">
+              <button @click="openImageEditModal(img)" class="btn-secondary">
                 編集
               </button>
             </td>
           </tr>
         </tbody>
       </table>
-      <div v-else class="mt-2 text-gray-500">
-        表示できるイメージがありません。
-      </div>
     </div>
 
     <div class="mt-8 pt-4 border-t">
       <h2 class="font-semibold text-lg">利用者一覧 (API連携)</h2>
-
       <div v-if="usersPending" class="mt-2 text-gray-500">
-        利用者一覧を読み込み中...
+        一覧を読み込み中...
       </div>
-
       <div v-else-if="usersError" class="mt-2 text-red-600">
         一覧の取得に失敗しました: {{ usersError.message }}
       </div>
-
       <table
         v-else-if="users && users.length > 0"
         class="w-full mt-2 text-sm text-left"
@@ -180,54 +159,86 @@
           </tr>
         </tbody>
       </table>
-      <div v-else class="mt-2 text-gray-500">
-        表示できる利用者がありません。
-      </div>
-
-      <component
-        v-for="modal in editModals"
-        :key="modal.id"
-        :is="modal.component"
-        :show="activeModal === modal.id"
-        v-bind="modal.props"
-        @close="closeModal"
-        @success="handleSuccess"
-      />
     </div>
+
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">セキュリティグループ一覧 (API連携)</h2>
+      <div v-if="sgPending" class="mt-2 text-gray-500">一覧を読み込み中...</div>
+      <div v-else-if="sgError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ sgError.message }}
+      </div>
+      <table
+        v-else-if="securityGroups && securityGroups.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">説明</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="sg in securityGroups"
+            :key="sg.id"
+            class="bg-white border-b"
+          >
+            <td class="px-6 py-4 font-medium">{{ sg.name }}</td>
+            <td class="px-6 py-4 text-gray-600">{{ sg.description || "-" }}</td>
+            <td class="px-6 py-4 text-center">
+              <button
+                @click="openSecurityGroupEditModal(sg)"
+                class="btn-secondary"
+              >
+                編集
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="mt-2 text-gray-500">
+        表示できるセキュリティグループがありません。
+      </div>
+    </div>
+
+    <component
+      v-for="modal in editModals"
+      :key="modal.id"
+      :is="modal.component"
+      :show="activeModal === modal.id"
+      v-bind="modal.props"
+      @close="closeModal"
+      @success="handleSuccess"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
-/**
- * =================================================================================
- * 編集モーダル テストページ (EditModalTestView.vue)
- * =================================================================================
- */
 import { ref, markRaw, computed } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
-import { convertByteToUnit } from "~/utils/format";
+
+// --- 型定義 ---
 import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine";
-import type { InstanceTypeResponse as ModelInstanceTypeDTO } from "~~/shared/types/dto/instance-type";
+import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type";
 import type { ImageResponse } from "~~/shared/types/dto/image";
 import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
+import type { SecurityGroupDTO } from "~~/shared/types/dto/security-group/SecurityGroupDTO";
 
-// ==============================================================================
-// コンポーネントインポート (Edit系)
-// ==============================================================================
+// --- コンポーネント ---
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
 import MoUserEdit from "~/components/MoUserEdit.vue";
+import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 
-// ==============================================================================
-// State (状態管理)
-// ==============================================================================
+// --- State ---
 const activeModal = ref<string | null>(null);
 const targetResource = ref<any>(null);
 
-// ==============================================================================
-// API連携 (一覧取得)
-// ==============================================================================
+// --- API連携 (一覧取得) ---
+
+// 1. 仮想マシン
 const {
   data: virtualMachines,
   pending: vmPending,
@@ -235,13 +246,15 @@ const {
   refresh: refreshVms,
 } = useResourceList<VirtualMachineDTO>("virtual-machines");
 
+// 2. インスタンスタイプ
 const {
   data: instanceTypes,
   pending: itPending,
   error: itError,
   refresh: refreshInstanceTypes,
-} = useResourceList<ModelInstanceTypeDTO>("instance-types");
+} = useResourceList<InstanceTypeResponse>("instance-types");
 
+// 3. イメージ
 const {
   data: images,
   pending: imPending,
@@ -249,6 +262,7 @@ const {
   refresh: refreshImages,
 } = useResourceList<ImageResponse>("images");
 
+// 4. 利用者
 const {
   data: users,
   pending: usersPending,
@@ -256,59 +270,60 @@ const {
   refresh: refreshUsers,
 } = useResourceList<UserServerBase>("users");
 
-// ==============================================================================
-// モーダル定義
-// ==============================================================================
+// 5. セキュリティグループ
+const {
+  data: securityGroups,
+  pending: sgPending,
+  error: sgError,
+  refresh: refreshSecurityGroups,
+} = useResourceList<SecurityGroupDTO>("security-groups");
+
+// --- モーダル定義 ---
 const editModals = computed(() => [
-  // (VM編集 ... 既存)
   {
     id: "vmEdit",
     component: markRaw(MoVirtualMachineEdit),
     props: { vmId: targetResource.value?.id },
     refreshFn: refreshVms,
   },
-  // (インスタンスタイプ編集 ... 既存)
   {
     id: "instanceTypeEdit",
     component: markRaw(MoInstanceTypeEdit),
     props: { instanceTypeData: targetResource.value },
     refreshFn: refreshInstanceTypes,
   },
-  // (イメージ編集 ... 既存)
   {
     id: "imageEdit",
     component: markRaw(MoImageEdit),
     props: { imageData: targetResource.value },
     refreshFn: refreshImages,
   },
-  // --- ★ MoUserEdit の定義を追加 ---
   {
     id: "userEdit",
     component: markRaw(MoUserEdit),
-    // ★ MoUserEdit が 'userData' prop を受け取るようにデータを渡す
     props: { userData: targetResource.value },
-    refreshFn: refreshUsers, // ★ 成功時に users をリフレッシュ
+    refreshFn: refreshUsers,
+  },
+  {
+    id: "securityGroupEdit",
+    component: markRaw(MoSecurityGroupEdit),
+    props: { securityGroupData: targetResource.value },
+    refreshFn: refreshSecurityGroups,
   },
 ]);
 
-// ==============================================================================
-// Methods (メソッド)
-// ==============================================================================
-/**
- * 汎用モーダルオープン関数
- */
+// --- Methods ---
+
 const openModal = (modalId: string, resource: any) => {
   targetResource.value = resource;
   activeModal.value = modalId;
 };
 
-/** モーダルを閉じる */
 const closeModal = () => {
   activeModal.value = null;
   targetResource.value = null;
 };
 
-/** モーダルが @success を発行した時の処理 */
 const handleSuccess = () => {
   const closedModal = editModals.value.find((m) => m.id === activeModal.value);
   if (closedModal?.refreshFn) {
@@ -317,20 +332,13 @@ const handleSuccess = () => {
   closeModal();
 };
 
-// --- モーダルを開くためのヘルパー関数 ---
-const openVmEditModal = (vm: VirtualMachineDTO) => {
-  openModal("vmEdit", vm);
-};
-
-const openInstanceTypeEditModal = (it: ModelInstanceTypeDTO) => {
+// Open Helpers
+const openVmEditModal = (vm: VirtualMachineDTO) => openModal("vmEdit", vm);
+const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
   openModal("instanceTypeEdit", it);
-};
-
-const openImageEditModal = (image: ImageResponse) => {
+const openImageEditModal = (image: ImageResponse) =>
   openModal("imageEdit", image);
-};
-
-const openUserEditModal = (user: UserServerBase) => {
-  openModal("userEdit", user);
-};
+const openUserEditModal = (user: UserServerBase) => openModal("userEdit", user);
+const openSecurityGroupEditModal = (sg: SecurityGroupDTO) =>
+  openModal("securityGroupEdit", sg);
 </script>

@@ -2,51 +2,38 @@
  * =================================================================================
  * セキュリティグループ編集フォーム Composable (useSecurityGroupEditForm.ts)
  * ---------------------------------------------------------------------------------
- * ★ useResourceUpdater を使用して変更検知とPATCHリクエストを行う
- * ★ 初期値からの差分のみを送信
+ * ★ エンドポイントのパスを修正
  * =================================================================================
  */
-import { ref, computed, watch, reactive } from "vue";
+import { ref, computed, watch } from "vue";
 import { useToast } from "~/composables/useToast";
 import {
   useResourceUpdater,
   type ResourceConfig,
 } from "~/composables/useResourceUpdater";
 
-// 型定義のインポート
 import type { SecurityGroupDTO } from "~~/shared/types/dto/security-group/SecurityGroupDTO";
-import type { SecurityRuleDTO } from "~~/shared/types/dto/security-group/SecurityRuleDTO";
 import {
   SecurityRuleProtocolEnum,
   SecurityRuleActionEnum,
   SecurityRuleRuleTypeEnum,
 } from "~~/shared/types/dto/security-group/SecurityRuleDTO";
 
-// Props定義
 interface Props {
   show: boolean;
   securityGroupData: SecurityGroupDTO | null;
 }
 
-/**
- * セキュリティグループ編集フォームのロジック
- */
 export function useSecurityGroupEditForm(props: Props) {
   const { addToast } = useToast();
 
-  // -------------------------------------------------------
-  // 1. データの初期化 (editedData)
-  // -------------------------------------------------------
-  // useResourceUpdater が管理する編集用データ
-  const { editedData, init, isDirty, save, reset, isSaving } =
+  const { editedData, init, save, isDirty, isSaving } =
     useResourceUpdater<SecurityGroupDTO>();
 
-  // モーダルが開かれたり、データが変わったりした時に初期化
   watch(
     () => [props.show, props.securityGroupData],
     ([show, data]) => {
       if (show && data) {
-        // useResourceUpdater の初期化 (初期値のディープコピーを作成)
         init(
           data as SecurityGroupDTO,
           getResourceConfig(data as SecurityGroupDTO)
@@ -56,27 +43,27 @@ export function useSecurityGroupEditForm(props: Props) {
     { immediate: true }
   );
 
-  // -------------------------------------------------------
-  // 2. リソース設定 (ResourceConfig)
-  // どのデータが変更されたら、どのアドレスにPATCHを送るかを定義
-  // -------------------------------------------------------
+  // ★★★ 修正箇所: エンドポイント設定 ★★★
   function getResourceConfig(data: SecurityGroupDTO): ResourceConfig {
     return {
-      // 基本情報の更新設定 (PATCH /api/security-groups/{id})
+      // 1. セキュリティグループ本体の更新
+      // パス: /api/security-groups/{groupId}
       base: {
         endpoint: `/api/security-groups/${data.id}`,
-        fields: ["name", "description"], // 変更を監視するフィールド
+        fields: ["name", "description"],
       },
 
-      // ルールの更新設定
+      // 2. ルールの更新
+      // パス: /api/security/groups/{groupId}/rules/{ruleId}
       collections: {
         rules: {
-          // API仕様: /api/security-groups/{groupId}/rules/{ruleId}
-          // (新規追加は POST .../rules, 削除は DELETE .../rules/{ruleId} と仮定)
+          // useResourceUpdater が自動的に末尾に `/{ruleId}` をつけてPATCHを送ります。
+          // そのため、設定値は `.../rules` までとします。
+          // (groups と groupId の間にはスラッシュが入ると想定して記述しています)
           endpoint: `/api/security-groups/${data.id}/rules`,
+
           idKey: "id",
-          newIdPrefix: "new-", // 新規追加アイテムの仮IDプレフィックス
-          // 変更を監視するフィールド
+          newIdPrefix: "new-",
           fields: [
             "name",
             "protocol",
@@ -90,29 +77,27 @@ export function useSecurityGroupEditForm(props: Props) {
     };
   }
 
-  // -------------------------------------------------------
-  // 3. UI用ヘルパー (バリデーションなど)
-  // -------------------------------------------------------
-  // 簡易バリデーションエラー管理
+  // --- バリデーション ---
   const errors = ref<Record<string, string>>({});
 
   const validate = (): boolean => {
     errors.value = {};
     let isValid = true;
 
-    if (!editedData.value?.name) {
+    if (!editedData.value) return false;
+
+    if (!editedData.value.name) {
       errors.value.name = "グループ名は必須です。";
       isValid = false;
     }
 
-    // ルールのバリデーション (必要に応じて追加)
-    editedData.value?.rules?.forEach((rule: any, index: number) => {
+    editedData.value.rules?.forEach((rule: any, index: number) => {
       if (!rule.name) {
-        errors.value[`rules[${index}].name`] = "ルール名は必須です。";
+        errors.value[`rules[${index}].name`] = "必須";
         isValid = false;
       }
       if (!rule.targetIp) {
-        errors.value[`rules[${index}].targetIp`] = "ターゲットIPは必須です。";
+        errors.value[`rules[${index}].targetIp`] = "必須";
         isValid = false;
       }
     });
@@ -120,9 +105,7 @@ export function useSecurityGroupEditForm(props: Props) {
     return isValid;
   };
 
-  // -------------------------------------------------------
-  // 4. 送信ハンドラ
-  // -------------------------------------------------------
+  // --- 送信ハンドラ ---
   const onFormSubmit = (emit: (event: "close" | "success") => void) => {
     return async () => {
       if (!validate()) {
@@ -148,12 +131,9 @@ export function useSecurityGroupEditForm(props: Props) {
     };
   };
 
-  // -------------------------------------------------------
-  // 5. ルール操作 (UI用)
-  // -------------------------------------------------------
-  // 新規ルール作成ヘルパー
+  // --- ルール操作ヘルパー ---
   const createNewRule = (type: SecurityRuleRuleTypeEnum): any => ({
-    id: `new-${Date.now()}-${Math.random()}`, // 仮ID
+    id: `new-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     name: "New Rule",
     ruleType: type,
     protocol: SecurityRuleProtocolEnum.Tcp,
@@ -183,7 +163,6 @@ export function useSecurityGroupEditForm(props: Props) {
     editedData.value.rules.splice(index, 1);
   };
 
-  // インバウンド/アウトバウンドのフィルタリング (UI表示用)
   const inboundRules = computed(() =>
     (editedData.value?.rules || []).filter(
       (r: any) => r.ruleType === SecurityRuleRuleTypeEnum.Inbound
@@ -195,7 +174,6 @@ export function useSecurityGroupEditForm(props: Props) {
     )
   );
 
-  // 元の配列でのインデックスを探すヘルパー (削除用)
   const getOriginalIndex = (rule: any) => {
     return (
       editedData.value?.rules?.findIndex((r: any) => r.id === rule.id) ?? -1
@@ -208,14 +186,11 @@ export function useSecurityGroupEditForm(props: Props) {
     isDirty,
     isSaving,
     onFormSubmit,
-    // ルール関連
     inboundRules,
     outboundRules,
     addInboundRule,
     addOutboundRule,
-    removeRule,
-    getOriginalIndex,
-    // 定数 (Select用)
+    removeRule: (rule: any) => removeRule(getOriginalIndex(rule)),
     protocolOptions: Object.values(SecurityRuleProtocolEnum),
     actionOptions: Object.values(SecurityRuleActionEnum),
   };
