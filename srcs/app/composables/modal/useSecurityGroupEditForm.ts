@@ -2,7 +2,7 @@
  * =================================================================================
  * セキュリティグループ編集フォーム Composable (useSecurityGroupEditForm.ts)
  * ---------------------------------------------------------------------------------
- * ★ エンドポイントのパスを修正
+ * ★ エンドポイントのパスを修正版
  * =================================================================================
  */
 import { ref, computed, watch } from "vue";
@@ -27,9 +27,11 @@ interface Props {
 export function useSecurityGroupEditForm(props: Props) {
   const { addToast } = useToast();
 
+  // useResourceUpdater から editedData と init を受け取る
   const { editedData, init, save, isDirty, isSaving } =
     useResourceUpdater<SecurityGroupDTO>();
 
+  // モーダルが開いたとき、またはデータが変わったときに初期化
   watch(
     () => [props.show, props.securityGroupData],
     ([show, data]) => {
@@ -57,9 +59,8 @@ export function useSecurityGroupEditForm(props: Props) {
       // パス: /api/security/groups/{groupId}/rules/{ruleId}
       collections: {
         rules: {
-          // useResourceUpdater が自動的に末尾に `/{ruleId}` をつけてPATCHを送ります。
-          // そのため、設定値は `.../rules` までとします。
-          // (groups と groupId の間にはスラッシュが入ると想定して記述しています)
+          // useResourceUpdater が自動的に末尾に `/{ruleId}` (やPOST時のbody) を扱います。
+          // ここではベースとなる `.../rules` までを指定します。
           endpoint: `/api/security-groups/${data.id}/rules`,
 
           idKey: "id",
