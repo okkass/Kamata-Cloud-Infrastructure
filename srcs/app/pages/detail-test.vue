@@ -1,10 +1,10 @@
 <template>
   <ResourceDetailShell
-    title="ユーザー詳細"
+    title="VM詳細"
     subtitle="ID: 12345"
     :tabs="vmTabs"
     :actions="userActions"
-    :context="{ userId: '12345' }"
+    :context="{ vmId: '12345' }"
     @back="router.back()"
     @action="handleAction"
   >
@@ -30,13 +30,13 @@ const userActions = [
 const handleAction = (action) => {
   switch (action.value) {
     case "start":
-      addToast({ message: "ユーザーを起動しました", type: "success" });
+      addToast({ message: "VMを起動しました", type: "success" });
       break;
     case "stop":
-      console.log("ユーザーを停止します");
+      console.log("VMを停止します");
       break;
     case "restart":
-      console.log("ユーザーを再起動します");
+      console.log("VMを再起動します");
       break;
     default:
       console.warn("未知のアクション:", action.value);
