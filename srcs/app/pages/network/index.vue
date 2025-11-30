@@ -41,7 +41,7 @@
       <button
         type="button"
         class="action-item"
-        @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
+        @click.stop.prevent="row && onEdit(row)"
       >
         編集
       </button>
@@ -87,15 +87,15 @@ import DashboardLayout from "@/components/DashboardLayout.vue";
 import MoVirtualNetworkCreate from "@/components/MoVirtualNetworkCreate.vue";
 import MoVirtualNetworkEdit from "@/components/MoVirtualNetworkEdit.vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
-import { useVNetManagement } from "@/composables/useVNetManagement";
+import {
+  useVNetManagement,
+  CREATE_NETWORK_ACTION,
+  EDIT_NETWORK_ACTION,
+  DELETE_NETWORK_ACTION,
+} from "@/composables/useVNetManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import { NETWORK } from "@/utils/constants";
 import type { VNetRow } from "@/composables/useVNetManagement";
-
-/* 機械ページと同じ書き方に合わせる（中身は仮想ネットワーク用） */
-const CREATE_NETWORK_ACTION = `create-${NETWORK.name}`;
-const EDIT_NETWORK_ACTION = `edit-${NETWORK.name}`;
-const DELETE_NETWORK_ACTION = `delete-${NETWORK.name}`;
 
 const { columns, headerButtons, rows, refresh } = useVNetManagement();
 const rowsForTable = computed(() => rows.value ?? []);
@@ -118,12 +118,15 @@ const {
 });
 
 const onHeaderAction = (action: string) => {
-  if (
-    action === "create" ||
-    action === CREATE_NETWORK_ACTION ||
-    action === "add"
-  ) {
-    openModal?.(CREATE_NETWORK_ACTION);
+  if (action === "add") {
+    openModal(CREATE_NETWORK_ACTION);
   }
 };
+
+/* 追加: 編集ボタンが確実にモーダルを開くようにハンドラを明示 */
+function onEdit(row: any) {
+  if (!row) return;
+  if (targetForEditing) targetForEditing.value = row;
+  openModal?.(EDIT_NETWORK_ACTION);
+}
 </script>

@@ -3,9 +3,16 @@ import { computed } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 import { formatDateTime } from "@/utils/date";
 
-/**
- * 仮想ネットワーク DTO（プロジェクト共通型が使えない場合のフォールバック）
- */
+/* action 定数を composable 側で定義・export（instance-type と同様のパターン） */
+export const CREATE_VNET_ACTION = "create-virtual-network";
+export const EDIT_VNET_ACTION = "edit-virtual-network";
+export const DELETE_VNET_ACTION = "delete-virtual-network";
+
+/* ページ実装で期待されている名前でのエイリアスを追加（互換性確保） */
+export const CREATE_NETWORK_ACTION = CREATE_VNET_ACTION;
+export const EDIT_NETWORK_ACTION = EDIT_VNET_ACTION;
+export const DELETE_NETWORK_ACTION = DELETE_VNET_ACTION;
+
 export type VirtualNetworkDTO = {
   id: string;
   name?: string | null;
@@ -13,8 +20,6 @@ export type VirtualNetworkDTO = {
   subnets?: Array<{ id?: string; cidr?: string; [k: string]: any }>;
   createdAt?: string | null;
   description?: string | null;
-  inboundTraffic?: number | null;
-  outboundTraffic?: number | null;
   [k: string]: any;
 };
 
@@ -32,11 +37,6 @@ function countSubnets(v: VirtualNetworkDTO | any): number {
   return Array.isArray(v?.subnets) ? v.subnets.length : 0;
 }
 
-/**
- * useVNetManagement
- * - useResourceList("virtual-networks") を利用して一覧を取得
- * - useUserManagement と同様の戻り値形に合わせる（columns/headerButtons/rows/refresh 等）
- */
 export function useVNetManagement() {
   const {
     data: rawList,
@@ -45,14 +45,17 @@ export function useVNetManagement() {
     error,
   } = useResourceList<VirtualNetworkDTO>("virtual-networks");
 
-  const columns = [
+  const columns: TableColumn[] = [
     { key: "name", label: "名前", align: "left" },
     { key: "cidr", label: "CIDR", align: "left" },
     { key: "subnets", label: "サブネット数", align: "right" },
     { key: "createdAtText", label: "作成日時", align: "left" },
   ];
 
-  const headerButtons = [{ action: "add", label: "仮想ネットワーク作成" }];
+  /* DashboardLayout が emit する action と合わせるため "add" を使う */
+  const headerButtons = [
+    { action: "add", label: "仮想ネットワーク作成", primary: true },
+  ];
 
   const rows = computed<VNetRow[]>(() =>
     (rawList.value ?? []).map((v) => ({
