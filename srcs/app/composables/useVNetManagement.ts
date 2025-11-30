@@ -76,5 +76,8 @@ export function useVNetManagement() {
     headerButtons,
     rows,
     refresh,
+    CREATE_NETWORK_ACTION,
+    EDIT_NETWORK_ACTION,
+    DELETE_NETWORK_ACTION,
   } as const;
 }

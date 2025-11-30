@@ -3,7 +3,7 @@
     title="仮想ネットワーク"
     :columns="columns"
     :rows="rowsForTable"
-    rowKey="id"
+    :row-key="id"
     :headerButtons="headerButtons"
     @header-action="onHeaderAction"
     @row-action="handleRowAction"
@@ -73,8 +73,6 @@
   <MoDeleteConfirm
     :show="activeModal === DELETE_NETWORK_ACTION"
     :is-loading="isDeleting"
-    :resource-label="NETWORK.label"
-    :resource-name="targetForDeletion?.name"
     :message="`本当に「${targetForDeletion?.name ?? ''}」を削除しますか？`"
     @close="cancelAction"
     @confirm="handleDelete"
@@ -123,7 +121,6 @@ const onHeaderAction = (action: string) => {
   }
 };
 
-/* 追加: 編集ボタンが確実にモーダルを開くようにハンドラを明示 */
 function onEdit(row: VNetRow) {
   if (!row) return;
   if (targetForEditing) targetForEditing.value = row;
