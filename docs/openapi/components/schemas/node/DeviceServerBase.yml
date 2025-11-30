@@ -1,0 +1,14 @@
+type: object
+description: ストレージデバイス情報の基本プロパティ
+properties:
+  devicePath:
+    type: string
+    description: ストレージデバイスのパス
+    example: /dev/sdb
+  deviceName:
+    type: string
+    description: ストレージデバイスの名前
+    example: Hitachi SSD HUS724040ALA640
+required:
+  - devicePath
+  - deviceName

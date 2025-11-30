@@ -23,7 +23,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityRule.yml
+            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
     "400":
       description: リクエストエラー
     "401":

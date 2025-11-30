@@ -9,7 +9,7 @@ properties:
     type: string
     description: 仮想マシンの名前
   instanceType:
-    $ref: ../instance-type/InstanceType.yml
+    $ref: ../instance-type/InstanceTypeResponse.yml
     description: 仮想マシンのインスタンスタイプ
   status:
     type: string
@@ -19,7 +19,7 @@ properties:
       - suspended
     description: 仮想マシンの状態
   node:
-    $ref: ../physical-node/PhysicalNode.yml
+    $ref: ../node/NodeResponse.yml
     description: 仮想マシンが配置されている物理ノード
   createdAt:
     type: string
@@ -28,7 +28,7 @@ properties:
   securityGroups:
     type: array
     items:
-      $ref: ../security-group/SecurityGroup.yml
+      $ref: ../security-group/SecurityGroupResponse.yml
     description: 仮想マシンに関連付けられたセキュリティグループのリスト
   attachedStorages:
     type: array

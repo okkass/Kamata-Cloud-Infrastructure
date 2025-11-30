@@ -51,8 +51,10 @@ jobs:
           pnpm install @redocly/cli
           # TypeDoc生成用の依存パッケージをインストール
           pnpm install
-          # Prisma Clientのスキーマに合わせる
-          pnpm dlx prisma generate
+          # prisma関連のセットアップ
+          pnpm prisma generate
+        env:
+          DATABASE_URL: mysql://kci_user:moimoi1204@localhost:3306/kci_db
         working-directory: ./srcs
 
       # 5. APIドキュメントをbundle

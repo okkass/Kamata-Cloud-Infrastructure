@@ -105,15 +105,13 @@ const {
   data: candidateNodes, // 変数名をより具体的に
   pending,
   error,
-} = useResourceList<PhysicalNodeCandidateDTO>("physical-nodes/candidates");
+} = useResourceList<NodeCandidateDTO>("nodes/candidates");
 
 // --- ノード追加処理 ---
 const {
   executeCreate: executeAddNodeToCluster, // 関数名をより具体的に
   isCreating,
-} = useResourceCreate<PhysicalNodeAddRequestDTO, PhysicalNodeDTO>(
-  "physical-nodes"
-);
+} = useResourceCreate<NodeAddRequestDTO, NodeDTO>("nodes");
 
 // --- トースト通知 ---
 const { addToast } = useToast();
@@ -124,13 +122,13 @@ const { addToast } = useToast();
 // ==============================================================================
 
 // 確認ダイアログで選択されているノードの情報を保持するstate
-const nodePendingConfirmation = ref<PhysicalNodeCandidateDTO | null>(null);
+const nodePendingConfirmation = ref<NodeCandidateDTO | null>(null);
 
 /**
  * 「追加」ボタンがクリックされたときに、確認ダイアログを表示します。
- * @param {PhysicalNodeCandidateDTO} node - ユーザーが選択したノードのデータ
+ * @param {NodeCandidateDTO} node - ユーザーが選択したノードのデータ
  */
-const promptForNodeAdditionConfirmation = (node: PhysicalNodeCandidateDTO) => {
+const promptForNodeAdditionConfirmation = (node: NodeCandidateDTO) => {
   nodePendingConfirmation.value = node;
 };
 
@@ -141,7 +139,7 @@ const executeAddNodeAfterConfirmation = async () => {
   if (!nodePendingConfirmation.value) return;
 
   // APIに送信するデータ（ペイロード）を構築
-  const payload: PhysicalNodeAddRequestDTO = {
+  const payload: NodeAddRequestDTO = {
     name: nodePendingConfirmation.value.name,
     ipAddress: nodePendingConfirmation.value.ipAddress,
     isAdmin: false, // 仕様に基づき、isAdminはfalseで固定
