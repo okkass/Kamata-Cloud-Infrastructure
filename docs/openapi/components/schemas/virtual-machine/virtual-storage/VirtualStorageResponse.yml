@@ -1,0 +1,5 @@
+type: object
+description: 仮想ストレージレスポンスオブジェクト
+properties:
+  virtualStorage:
+    $ref: "./VirtualStorageServerBase.yml"

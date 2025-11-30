@@ -1,0 +1,6 @@
+type: object
+description: 仮想マシン更新可能なプロパティを持つオブジェクトのベース
+properties:
+  name:
+    type: string
+    description: 仮想マシンの名前

@@ -1,0 +1,9 @@
+type: object
+description: スナップショット更新可能なプロパティ
+properties:
+  name:
+    type: string
+    description: スナップショットの名前
+  description:
+    type: string
+    description: スナップショットの説明

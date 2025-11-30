@@ -1,0 +1,7 @@
+type: object
+description: スナップショット作成リクエストオブジェクト
+allOf:
+  - $ref: ./SnapshotUpdatable.yml
+  - $ref: ./SnapshotCreateOnly.yml
+required:
+  - name

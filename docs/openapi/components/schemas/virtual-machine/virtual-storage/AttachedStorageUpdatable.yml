@@ -1,0 +1,6 @@
+type: object
+description: 仮想マシンにアタッチしたストレージの更新可能なプロパティを持つオブジェクト
+properties:
+  name:
+    type: string
+    description: 仮想ストレージの名前

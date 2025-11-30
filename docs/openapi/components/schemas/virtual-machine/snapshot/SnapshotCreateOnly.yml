@@ -1,0 +1,9 @@
+type: object
+description: スナップショット作成時のみ設定可能なプロパティ
+properties:
+  targetVmId:
+    type: string
+    format: uuid
+    description: スナップショットを取得する仮想マシンのID
+required:
+  - targetVmId
