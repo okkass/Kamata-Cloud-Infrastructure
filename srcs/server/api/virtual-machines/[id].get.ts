@@ -95,6 +95,7 @@ export default defineEventHandler((event) => {
         {
           id: "nic-01",
           subnetId: "9653a4bb-3c60-4950-abf0-2702023696c2",
+          ipAddress: "192.168.3.65",
         },
       ],
     },
