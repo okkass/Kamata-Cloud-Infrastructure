@@ -90,17 +90,6 @@ import { useVNetManagement } from "~/composables/dashboard/useVNetManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import { NETWORK } from "@/utils/constants";
 
-/* page 内で Row 型を定義（DTO は共有型を参照して dto を保持） */
-type VNetRow = {
-  id: string;
-  name: string;
-  cidr?: string;
-  subnets?: number;
-  createdAtText?: string;
-  dto?: VirtualNetworkDTO;
-  [k: string]: any;
-};
-
 const { columns, headerButtons, rows, refresh } = useVNetManagement();
 const rowsForTable = computed(() => rows.value ?? []);
 
