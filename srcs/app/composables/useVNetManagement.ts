@@ -1,6 +1,22 @@
 // 仮想ネットワーク用の簡易 composable（ページ単体で動くように最小実装）
-import { computed, ref } from "vue";
+import { computed } from "vue";
+import { useResourceList } from "@/composables/useResourceList";
 import { formatDateTime } from "@/utils/date";
+
+/**
+ * 仮想ネットワーク DTO（プロジェクト共通型が使えない場合のフォールバック）
+ */
+export type VirtualNetworkDTO = {
+  id: string;
+  name?: string | null;
+  cidr?: string | null;
+  subnets?: Array<{ id?: string; cidr?: string; [k: string]: any }>;
+  createdAt?: string | null;
+  description?: string | null;
+  inboundTraffic?: number | null;
+  outboundTraffic?: number | null;
+  [k: string]: any;
+};
 
 export type VNetRow = {
   id: string;
@@ -9,41 +25,45 @@ export type VNetRow = {
   subnets: number;
   createdAtText: string;
   description?: string;
-  inboundTraffic?: number;
-  outboundTraffic?: number;
+  dto?: VirtualNetworkDTO;
 };
-export function useVNetManagement() {
-  const { data, pending, error, refresh } = useResourceList<VirtualNetworkDTO>(
-    NETWORK.name
-  );
-  const CREATE_VNET_ACTION = `create-${NETWORK.name}`;
-  const DELETE_VNET_ACTION = `delete-${NETWORK.name}`;
-  const EDIT_VNET_ACTION = `edit-${NETWORK.name}`;
 
-  const columns: TableColumn[] = [
+function countSubnets(v: VirtualNetworkDTO | any): number {
+  return Array.isArray(v?.subnets) ? v.subnets.length : 0;
+}
+
+/**
+ * useVNetManagement
+ * - useResourceList("virtual-networks") を利用して一覧を取得
+ * - useUserManagement と同様の戻り値形に合わせる（columns/headerButtons/rows/refresh 等）
+ */
+export function useVNetManagement() {
+  const {
+    data: rawList,
+    pending,
+    refresh,
+    error,
+  } = useResourceList<VirtualNetworkDTO>("virtual-networks");
+
+  const columns = [
     { key: "name", label: "名前", align: "left" },
     { key: "cidr", label: "CIDR", align: "left" },
     { key: "subnets", label: "サブネット数", align: "right" },
     { key: "createdAtText", label: "作成日時", align: "left" },
   ];
 
-  const headerButtons = [
-    { action: CREATE_VNET_ACTION, label: "仮想ネットワーク作成" },
-  ];
+  const headerButtons = [{ action: "add", label: "仮想ネットワーク作成" }];
 
   const rows = computed<VNetRow[]>(() =>
-    (data.value ?? []).map((v) => {
-      const subnetsCount = Array.isArray(v.subnets) ? v.subnets.length : 0;
-      return {
-        id: v.id,
-        name: v.name,
-        cidr: v.cidr,
-        subnets: subnetsCount,
-        createdAtText: v.createdAt ? formatDateTime(v.createdAt) : "-",
-        inboundTraffic: v.inboundTraffic,
-        outboundTraffic: v.outboundTraffic,
-      };
-    })
+    (rawList.value ?? []).map((v) => ({
+      id: v.id,
+      name: v.name ?? "-",
+      cidr: v.cidr ?? "-",
+      subnets: countSubnets(v),
+      createdAtText: v.createdAt ? formatDateTime(v.createdAt) : "-",
+      description: v.description ?? undefined,
+      dto: v,
+    }))
   );
 
   return {
@@ -53,8 +73,5 @@ export function useVNetManagement() {
     headerButtons,
     rows,
     refresh,
-    CREATE_VNET_ACTION,
-    DELETE_VNET_ACTION,
-    EDIT_VNET_ACTION,
   } as const;
 }
