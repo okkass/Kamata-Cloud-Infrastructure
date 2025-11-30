@@ -3,14 +3,14 @@
     title="仮想ネットワーク"
     :columns="columns"
     :rows="rowsForTable"
-    :row-key="id"
+    :rowKey="id"
     :headerButtons="headerButtons"
     @header-action="onHeaderAction"
     @row-action="handleRowAction"
   >
     <template #cell-name="{ row }">
       <NuxtLink
-        :to="`/virtual-network/${encodeURIComponent(String(row.id))}`"
+        :to="`network/${encodeURIComponent(String(row.id))}`"
         class="table-link"
       >
         {{ row.name }}
@@ -32,7 +32,7 @@
     <template #row-actions="{ row }">
       <NuxtLink
         v-if="row"
-        :to="`/virtual-network/${encodeURIComponent(String(row.id))}`"
+        :to="`/network/${encodeURIComponent(String(row.id))}`"
         class="action-item first:border-t-0"
       >
         詳細
@@ -58,20 +58,20 @@
   </DashboardLayout>
 
   <MoVirtualNetworkCreate
-    :show="activeModal === CREATE_NETWORK_ACTION"
+    :show="activeModal === `create-${NETWORK.name}`"
     @close="cancelAction"
     @success="handleSuccess"
   />
 
   <MoVirtualNetworkEdit
-    :show="activeModal === EDIT_NETWORK_ACTION"
+    :show="activeModal === `edit-${NETWORK.name}`"
     :vnet="targetForEditing"
     @close="cancelAction"
     @success="handleSuccess"
   />
 
   <MoDeleteConfirm
-    :show="activeModal === DELETE_NETWORK_ACTION"
+    :show="activeModal === `delete-${NETWORK.name}`"
     :is-loading="isDeleting"
     :message="`本当に「${targetForDeletion?.name ?? ''}」を削除しますか？`"
     @close="cancelAction"
@@ -80,24 +80,31 @@
 </template>
 
 <script setup lang="ts">
+import type { VirtualNetworkDTO } from "~~/shared/types/dto/virtual-network"; // DTO は共有型を使う
 import { computed } from "vue";
 import DashboardLayout from "@/components/DashboardLayout.vue";
 import MoVirtualNetworkCreate from "@/components/MoVirtualNetworkCreate.vue";
 import MoVirtualNetworkEdit from "@/components/MoVirtualNetworkEdit.vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
-import {
-  useVNetManagement,
-  CREATE_NETWORK_ACTION,
-  EDIT_NETWORK_ACTION,
-  DELETE_NETWORK_ACTION,
-} from "@/composables/useVNetManagement";
+import { useVNetManagement } from "~/composables/dashboard/useVNetManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import { NETWORK } from "@/utils/constants";
-import type { VNetRow } from "@/composables/useVNetManagement";
+
+/* page 内で Row 型を定義（DTO は共有型を参照して dto を保持） */
+type VNetRow = {
+  id: string;
+  name: string;
+  cidr?: string;
+  subnets?: number;
+  createdAtText?: string;
+  dto?: VirtualNetworkDTO;
+  [k: string]: any;
+};
 
 const { columns, headerButtons, rows, refresh } = useVNetManagement();
 const rowsForTable = computed(() => rows.value ?? []);
 
+/* ここでジェネリクスに VNetRow を渡す */
 const {
   activeModal,
   openModal,
@@ -117,19 +124,19 @@ const {
 
 const onHeaderAction = (action: string) => {
   if (action === "add") {
-    openModal(CREATE_NETWORK_ACTION);
+    openModal?.(`create-${NETWORK.name}`);
   }
 };
 
 function onEdit(row: VNetRow) {
   if (!row) return;
-  if (targetForEditing) targetForEditing.value = row;
-  openModal?.(EDIT_NETWORK_ACTION);
+  // usePageActions 側で target 設定とモーダル名を統一して開く
+  handleRowAction({ action: "edit", row });
 }
 
 function onDelete(row: VNetRow) {
   if (!row) return;
-  if (targetForDeletion) targetForDeletion.value = row;
-  openModal?.(DELETE_NETWORK_ACTION);
+  // usePageActions 側で target 設定とモーダル名を統一して開く
+  handleRowAction({ action: "delete", row });
 }
 </script>
