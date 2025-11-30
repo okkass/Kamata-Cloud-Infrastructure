@@ -33,7 +33,7 @@ export type VNetRow = {
   dto?: VirtualNetworkDTO;
 };
 
-function countSubnets(v: VirtualNetworkDTO | any): number {
+function countSubnets(v: VirtualNetworkDTO): number {
   return Array.isArray(v?.subnets) ? v.subnets.length : 0;
 }
 

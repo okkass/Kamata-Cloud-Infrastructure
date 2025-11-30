@@ -50,7 +50,7 @@
         type="button"
         class="action-item action-item-danger"
         :disabled="isDeleting && targetForDeletion?.id === row?.id"
-        @click.stop.prevent="row && handleRowAction({ action: 'delete', row })"
+        @click.stop.prevent="row && onDelete(row)"
       >
         削除
       </button>
@@ -124,9 +124,15 @@ const onHeaderAction = (action: string) => {
 };
 
 /* 追加: 編集ボタンが確実にモーダルを開くようにハンドラを明示 */
-function onEdit(row: any) {
+function onEdit(row: VNetRow) {
   if (!row) return;
   if (targetForEditing) targetForEditing.value = row;
   openModal?.(EDIT_NETWORK_ACTION);
+}
+
+function onDelete(row: VNetRow) {
+  if (!row) return;
+  if (targetForDeletion) targetForDeletion.value = row;
+  openModal?.(DELETE_NETWORK_ACTION);
 }
 </script>
