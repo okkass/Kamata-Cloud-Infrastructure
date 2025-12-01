@@ -1,12 +1,12 @@
 type: object
-description: サブネット更新リクエストオブジェクト
+description: サブネット更新可能オブジェクト
 properties:
   name:
     type: string
     description: サブネットの名前
   cidr:
     type: string
-    description: CIDR形式のサブネットアドレス
+    description: CIDR形式のサブネットアドレス。ブロックの最初の3つのアドレスは予約されています。
     example: 10.0.0.0/16
   possibleExternalConnection:
     type: boolean
