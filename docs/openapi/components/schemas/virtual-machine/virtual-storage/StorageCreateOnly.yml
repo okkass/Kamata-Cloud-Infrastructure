@@ -13,6 +13,5 @@ properties:
     format: uuid
     description: ストレージのバックアップ元ID(オプション)
 required:
-  - name
   - size
   - poolId

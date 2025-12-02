@@ -3,5 +3,6 @@ description: 仮想マシンに新たなストレージをアタッチするた�
 allOf:
   - $ref: "./StorageUpdatable.yml"
   - $ref: "./StorageCreateOnly.yml"
-required:
-  - name
+  - type: object
+    required:
+      - name

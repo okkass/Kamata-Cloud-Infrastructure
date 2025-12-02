@@ -2,5 +2,6 @@ type: object
 description: 仮想マシンにアタッチされたストレージの更新リクエストオブジェクト
 allOf:
   - $ref: "./StorageUpdatable.yml"
-required:
-  - name
+  - type: object
+    required:
+      - name
