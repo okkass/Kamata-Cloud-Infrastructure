@@ -1,9 +1,0 @@
-type: object
-description: 仮想マシンイメージ更新リクエストオブジェクト
-properties:
-  name:
-    type: string
-    description: 仮想マシンイメージの名前
-  description:
-    type: string
-    description: 仮想マシンイメージの説明

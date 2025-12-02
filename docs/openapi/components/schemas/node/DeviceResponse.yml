@@ -1,0 +1,4 @@
+type: object
+description: ストレージデバイス情報のレスポンスプロパティ
+allOf:
+  - $ref: "./DeviceServerBase.yml"

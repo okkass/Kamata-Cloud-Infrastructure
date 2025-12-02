@@ -1,0 +1,11 @@
+type: object
+description: セキュリティルール更新リクエストオブジェクト(PUT)
+allOf:
+  - $ref: "./SecurityRuleUpdatable.yml"
+required:
+  - name
+  - ruleType
+  - port
+  - protocol
+  - targetIp
+  - action

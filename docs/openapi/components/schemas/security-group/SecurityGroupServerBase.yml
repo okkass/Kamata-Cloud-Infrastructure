@@ -1,0 +1,26 @@
+type: object
+description: セキュリティグループオブジェクト
+properties:
+  id:
+    type: string
+    format: uuid
+    description: セキュリティグループを識別するための一意なID
+  name:
+    type: string
+    description: セキュリティグループの名前
+  description:
+    type: string
+    description: セキュリティグループの説明
+  rules:
+    type: array
+    items:
+      $ref: ./SecurityRuleServerBase.yml
+  createdAt:
+    type: string
+    format: date-time
+    description: セキュリティグループが作成された日時
+required:
+  - id
+  - name
+  - rules
+  - createdAt

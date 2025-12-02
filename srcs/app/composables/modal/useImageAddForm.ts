@@ -12,7 +12,6 @@ import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
-import type { ImageCreateRequestDTO, ImageDTO } from "~~/shared/types";
 
 // ==============================================================================
 // Validation Schema (バリデーションスキーマ)
@@ -78,8 +77,8 @@ export function useImageAddForm() {
   // useResourceCreate Composableを使ってAPIへのPOSTリクエストを管理します。
   // ============================================================================
   const { executeCreate: executeImageCreation, isCreating } = useResourceCreate<
-    ImageCreateRequestDTO,
-    ImageDTO
+    ImageCreateRequest,
+    ImageResponse
   >("images"); // APIエンドポイント '/api/images' に対応
   const { addToast } = useToast();
 

@@ -1,0 +1,30 @@
+type: object
+description: セキュリティルールバルク更新リクエストオブジェクト
+properties:
+  add:
+    type: array
+    description: 追加するセキュリティルールのリスト
+    items:
+      $ref: "./SecurityRuleCreateRequest.yml"
+  patch:
+    type: array
+    description: 更新するセキュリティルールのリスト
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 更新するセキュリティルールのID
+        data:
+          $ref: "./SecurityRuleUpdatable.yml"
+      required:
+        - id
+        - data
+  delete:
+    type: array
+    description: 削除するセキュリティルールのIDリスト
+    items:
+      type: string
+      format: uuid
+      description: セキュリティルールのID

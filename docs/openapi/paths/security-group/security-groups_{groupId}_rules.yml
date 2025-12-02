@@ -1,0 +1,36 @@
+post:
+  summary: セキュリティグループルールの追加
+  description: 指定したセキュリティグループに新しいルールを追加します。
+  tags:
+    - SecurityGroup
+  parameters:
+    - name: groupId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: セキュリティグループの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/security-group/SecurityRuleCreateRequest.yml
+  responses:
+    "201":
+      description: ルール追加成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: セキュリティグループが見つからない
+  security:
+    - BearerAuth: []

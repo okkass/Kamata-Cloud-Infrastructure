@@ -1,8 +1,9 @@
 import { validate } from "uuid";
+import { ImageResponse } from "~~/shared/types";
 
 export default defineEventHandler((event) => {
   const id = event.context.params?.id;
-  let image: ImageDTO | undefined;
+  let image: ImageResponse | undefined;
 
   if (!id) {
     throw createError({

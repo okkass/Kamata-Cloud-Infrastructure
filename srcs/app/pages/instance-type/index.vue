@@ -4,7 +4,7 @@
     :columns="columns"
     :rows="rawList"
     :headerButtons="headerButtons"
-    @header-action="() => openModal(addInstanceTypeAction)"
+    @header-action="() => openModal(ADD_INSTANCE_TYPE_ACTION)"
     @row-action="handleRowAction"
   >
     <template #cell-name="{ row }">
@@ -47,18 +47,18 @@
   </DashboardLayout>
 
   <MoInstanceTypeAdd
-    :show="activeModal === addInstanceTypeAction"
+    :show="activeModal === ADD_INSTANCE_TYPE_ACTION"
     @close="closeModal"
     @success="handleSuccess"
   />
   <MoInstanceTypeEdit
-    :show="activeModal === editInstanceTypeAction"
+    :show="activeModal === EDIT_INSTANCE_TYPE_ACTION"
     :instance-type-data="targetForEditing"
     @close="closeModal"
     @success="handleSuccess"
   />
   <MoDeleteConfirm
-    :show="activeModal === deleteInstanceTypeAction"
+    :show="activeModal === DELETE_INSTANCE_TYPE_ACTION"
     :message="`本当にインスタンスタイプ「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
@@ -67,11 +67,18 @@
 </template>
 
 <script setup lang="ts">
-import { useInstanceTypeManagement } from "~/composables/useInstanceTypeManagement";
+import { useInstanceTypeManagement } from "~/composables/dashboard/useInstanceTypeManagement";
 import { usePageActions } from "~/composables/usePageActions";
 
-const { columns, headerButtons, rawList, refresh } =
-  useInstanceTypeManagement();
+const {
+  columns,
+  headerButtons,
+  rawList,
+  refresh,
+  ADD_INSTANCE_TYPE_ACTION,
+  EDIT_INSTANCE_TYPE_ACTION,
+  DELETE_INSTANCE_TYPE_ACTION,
+} = useInstanceTypeManagement();
 
 const {
   activeModal,
