@@ -11,6 +11,7 @@ import { useForm } from "vee-validate"; // defineField は useForm の戻り値�
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
+import { useLargeFileUpload } from "~/composables/useLargeFileUpload";
 import { useResourceList } from "~/composables/useResourceList";
 import { useToast } from "~/composables/useToast";
 
@@ -27,7 +28,7 @@ const zodSchema = z.object({
   file: z.instanceof(File, { message: "イメージファイルを選択してください。" }),
   description: z.string().optional(),
   nodeId: z
-    .string({ required_error: "作成先ノードを選択してください。" })
+    .string({ message: "作成先ノードを選択してください。" })
     .min(1, "作成先ノードを選択してください。"),
 });
 
@@ -35,29 +36,12 @@ const validationSchema = toTypedSchema(zodSchema);
 type FormValues = z.infer<typeof zodSchema>;
 
 /**
- * ファイルをBase64文字列に変換するヘルパー関数
- */
-const convertFileToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => {
-      if (typeof reader.result === "string") {
-        resolve(reader.result);
-      } else {
-        reject(new Error("Failed to convert file to Base64 string"));
-      }
-    };
-    reader.onerror = (error) => reject(error);
-  });
-};
-
-/**
  * イメージ追加フォームのロジック
  */
 export function useImageAddForm() {
   const { addToast } = useToast();
-
+  const { uploadFile, cancelUpload, isUploading, progress } =
+    useLargeFileUpload();
   const { executeCreate, isCreating } = useResourceCreate<
     ImageCreateRequest,
     ImageResponse
@@ -88,20 +72,10 @@ export function useImageAddForm() {
 
   // 1. name
   const [name, nameProps] = defineField("name");
-  // ★ 重複警告回避: defineFieldが生成する props から 'name' を除外する
-  const nameAttrs = computed(() => {
-    const { name: _, ...rest } = nameProps.value;
-    return rest;
-  });
 
   // 2. description
   const [description, descriptionProps] = defineField("description");
-  // ★ 重複警告回避
-  const descriptionAttrs = computed(() => {
-    const { name: _, ...rest } = descriptionProps.value;
-    return rest;
-  });
-
+  
   // 3. file (FormDropZone用)
   const [file] = defineField("file");
 
@@ -112,41 +86,41 @@ export function useImageAddForm() {
   // Submission Handler
   // ============================================================================
   const onFormSubmit = (emit: (event: "close" | "success") => void) => {
-    return handleSubmit(async (formValues) => {
-      try {
-        const fileBase64 = await convertFileToBase64(formValues.file);
+    return handleSubmit(async (formValues: FormValues) => {
+      // バリデーション (ファイル必須チェックなど)
+      if (!formValues.file) return;
 
-        // ペイロード構築
-        const payload: any = {
+      try {
+        // ★ 1. 型安全なオブジェクトを作成 (ここで型チェックが効く！)
+        const requestData: ImageUploadRequest = {
           name: formValues.name,
-          description: formValues.description || undefined,
-          file: fileBase64,
           nodeId: formValues.nodeId,
+          description: formValues.description || undefined,
+          file: formValues.file, // Fileオブジェクトをそのまま渡す
         };
 
-        const result = await executeCreate(payload);
+        // ★ 2. ユーティリティで一発変換
+        const formData = toFormData(requestData);
+        const result = await uploadFile("/api/images", formData);
 
-        if (result.success) {
+        // 成功時の処理 (resultの形式に合わせて調整)
+        if (result && !result.error) {
           addToast({
-            message: `イメージ「${
-              result.data?.name ?? payload.name
-            }」を追加しました。`,
+            message: `イメージ「${formValues.name}」を追加しました。`,
             type: "success",
           });
           emit("success");
           emit("close");
         } else {
-          addToast({
-            message: "イメージの追加に失敗しました。",
-            type: "error",
-            details: result.error?.message,
-          });
+          // エラー処理
+          throw new Error(result?.error || "Upload failed");
         }
-      } catch (error) {
+      } catch (error: any) {
         console.error("Error:", error);
         addToast({
-          message: "処理中にエラーが発生しました。",
+          message: "アップロードに失敗しました。",
           type: "error",
+          details: error.message,
         });
       }
     });
@@ -155,17 +129,18 @@ export function useImageAddForm() {
   return {
     errors,
     name,
-    nameAttrs,
     description,
-    descriptionAttrs,
     file,
     nodeId,
     nodes,
     nodesPending,
     nodesError,
 
-    isCreating,
+    isCreating: isUploading,
     onFormSubmit,
     resetForm,
+    progress,
+    isUploading,
+    cancelUpload,
   };
 }

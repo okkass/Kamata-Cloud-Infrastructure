@@ -69,7 +69,6 @@
  */
 import { useImageAddForm } from "~/composables/modal/useImageAddForm";
 import FormInput from "~/components/Form/Input.vue";
-import FormSection from "~/components/Form/Section.vue";
 import FormDropZone from "~/components/Form/DropZone.vue";
 import FormSelect from "~/components/Form/Select.vue";
 
@@ -92,7 +91,7 @@ const {
   nodesError,
 
   isCreating,
-  onFormSubmit,
+  onFormSubmit
 } = useImageAddForm();
 
 const submitForm = onFormSubmit(emit);

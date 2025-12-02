@@ -1,16 +1,21 @@
 import { ref } from "vue";
+import { useToast } from "~/composables/useToast";
+
 export const useLargeFileUpload = () => {
   const isUploading = ref(false);
-  const progress = ref(0); // 0 〜 100 の進捗率
-  const { addToast } = useToast();
+  const progress = ref(0);
   
-  // 途中キャンセルのためのコントローラー
+  // useToastから必要な関数を取得
+  const { addToast, updateToast, removeToast } = useToast();
+  
+  // トーストIDを保持する変数
+  let toastId: string | null = null;
+  
+  // XHRオブジェクト
   let xhr: XMLHttpRequest | null = null;
 
   /**
    * ファイルアップロードを実行する
-   * @param url - APIのエンドポイント
-   * @param formData - 送信するFormData
    */
   const uploadFile = (url: string, formData: FormData): Promise<any> => {
     return new Promise((resolve, reject) => {
@@ -19,21 +24,52 @@ export const useLargeFileUpload = () => {
       isUploading.value = true;
       progress.value = 0;
 
+      // ★ 1. アップロード開始時にトーストを表示し、IDを保持
+      // duration: 0 にして自動で消えないようにする
+      toastId = addToast({
+        message: "ファイルをアップロード中...",
+        type: "info",
+        progress: 0,
+        duration: 0,
+      });
+
       xhr = new XMLHttpRequest();
 
-      // 1. 進捗イベントの監視
+      // --- 2. 進捗イベント ---
       xhr.upload.addEventListener("progress", (event) => {
         if (event.lengthComputable) {
-          // パーセンテージを計算
-          progress.value = Math.round((event.loaded / event.total) * 100);
+          const percent = Math.round((event.loaded / event.total) * 100);
+          progress.value = percent;
+
+          // ★ トーストの進捗バーを更新
+          if (toastId) {
+            updateToast(toastId, {
+              progress: percent,
+              message: `アップロード中... (${percent}%)`
+            });
+          }
         }
       });
 
-      // 2. 完了時の処理
+      // --- 3. 完了時の処理 ---
       xhr.addEventListener("load", () => {
         isUploading.value = false;
+        
         if (xhr && xhr.status >= 200 && xhr.status < 300) {
-          // レスポンスをJSONとしてパース
+          // ★ 成功トーストに更新
+          if (toastId) {
+            updateToast(toastId, {
+              type: "success",
+              message: "アップロードが完了しました！",
+              progress: undefined, // プログレスバーを消す
+            });
+            // 3秒後に消す
+            setTimeout(() => {
+              if (toastId) removeToast(toastId);
+              toastId = null;
+            }, 3000);
+          }
+
           try {
             const response = JSON.parse(xhr.responseText);
             resolve(response);
@@ -41,30 +77,40 @@ export const useLargeFileUpload = () => {
             resolve(xhr?.responseText);
           }
         } else {
-          reject(new Error(xhr?.statusText || "Upload failed"));
+          // 失敗時
+          handleError(new Error(xhr?.statusText || "Upload failed"));
         }
       });
 
-      // 3. エラー時の処理
-      xhr.addEventListener("error", () => {
+      // --- 4. エラー・中断時の共通処理 ---
+      const handleError = (error: Error) => {
         isUploading.value = false;
-        reject(new Error("Network error"));
-      });
+        // ★ エラートーストに更新
+        if (toastId) {
+          updateToast(toastId, {
+            type: "error",
+            message: "アップロードに失敗しました。",
+            details: error.message,
+            progress: undefined,
+          });
+          // 5秒後に消す
+          setTimeout(() => {
+            if (toastId) removeToast(toastId);
+            toastId = null;
+          }, 5000);
+        }
+        reject(error);
+      };
 
-      // 4. キャンセル時の処理
-      xhr.addEventListener("abort", () => {
-        isUploading.value = false;
-        reject(new Error("Aborted"));
-      });
+      xhr.addEventListener("error", () => handleError(new Error("Network error")));
+      xhr.addEventListener("abort", () => handleError(new Error("Aborted")));
 
-      // 5. リクエスト設定
+      // --- 5. 送信 ---
       xhr.open("POST", url);
-      
-      // ★重要: 必要なら認証トークンなどをヘッダーに追加してください
+      // 必要なら認証ヘッダーを追加
       // const token = useCookie('auth_token');
       // if (token.value) xhr.setRequestHeader("Authorization", `Bearer ${token.value}`);
-
-      // 6. 送信 (FormDataをそのまま送ると自動で Content-Type: multipart/form-data になる)
+      
       xhr.send(formData);
     });
   };
@@ -77,7 +123,19 @@ export const useLargeFileUpload = () => {
       xhr.abort();
       xhr = null;
       isUploading.value = false;
-      addToast({ message: "アップロードを中止しました。", type: "info" });
+      
+      // ★ キャンセル時はトーストを更新して消す
+      if (toastId) {
+        updateToast(toastId, {
+          type: "info",
+          message: "アップロードを中止しました。",
+          progress: undefined,
+        });
+        setTimeout(() => {
+          if (toastId) removeToast(toastId);
+          toastId = null;
+        }, 3000);
+      }
     }
   };
 
@@ -85,6 +143,6 @@ export const useLargeFileUpload = () => {
     uploadFile,
     cancelUpload,
     isUploading,
-    progress, // これをプログレスバーにバインドする
+    progress,
   };
 };
