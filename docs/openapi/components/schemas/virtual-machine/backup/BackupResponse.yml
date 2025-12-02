@@ -1,4 +1,4 @@
 type: object
 description: バックアップレスポンスオブジェクト
 allOf:
-  - $ref: ./BackupServerBase.yml
+  - $ref: "./BackupServerBase.yml"

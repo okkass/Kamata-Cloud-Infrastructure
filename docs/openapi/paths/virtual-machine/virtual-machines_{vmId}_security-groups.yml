@@ -19,25 +19,25 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/security-group/SecurityGroupResponse.yml
+              $ref: "../../components/schemas/security-group/SecurityGroupResponse.yml"
     "401":
       description: 認証エラー
     content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: 仮想マシンが見つからない
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 post:
@@ -70,24 +70,24 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-machine/security-group/AttachedSecurityGroupResponse.yml
+            $ref: "../../components/schemas/virtual-machine/security-group/AttachedSecurityGroupResponse.yml"
     "401":
       description: 認証エラー
     content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: 仮想マシンが見つからない
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []

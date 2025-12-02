@@ -24,25 +24,25 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml
+            $ref: "../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml"
     "401":
       description: 認証エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
     "403":
       description: 権限エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
     "404":
       description: 仮想マシンが見つからない
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
   security:
     - BearerAuth: []
 put:
@@ -70,32 +70,32 @@ put:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfacePutRequest.yml
+          $ref: "../../components/schemas/virtual-machine/network-interface/NetworkInterfacePutRequest.yml"
   responses:
     "200":
       description: 成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml
+            $ref: "../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml"
     "401":
       description: 認証エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
     "403":
       description: 権限エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
     "404":
       description: 仮想マシンが見つからない
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
   security:
     - BearerAuth: []
 patch:
@@ -123,32 +123,32 @@ patch:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfacePatchRequest.yml
+          $ref: "../../components/schemas/virtual-machine/network-interface/NetworkInterfacePatchRequest.yml"
   responses:
     "200":
       description: 成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml
+            $ref: "../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml"
     "401":
       description: 認証エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
     "403":
       description: 権限エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
     "404":
       description: 仮想マシンが見つからない
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
   security:
     - BearerAuth: []
 delete:
@@ -179,18 +179,18 @@ delete:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
     "403":
       description: 権限エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
     "404":
       description: 仮想マシンが見つからない
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorRequest.yml
+            $ref: "../../components/schemas/ErrorRequest.yml"
   security:
     - BearerAuth: []

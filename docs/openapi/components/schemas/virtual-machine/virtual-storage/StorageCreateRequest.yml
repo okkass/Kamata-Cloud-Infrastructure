@@ -1,7 +1,7 @@
 type: object
 description: 仮想マシンに新たなストレージをアタッチするためのリクエストオブジェクト
 allOf:
-  - $ref: ./StorageUpdatable.yml
-  - $ref: ./StorageCreateOnly.yml
+  - $ref: "./StorageUpdatable.yml"
+  - $ref: "./StorageCreateOnly.yml"
 required:
   - name

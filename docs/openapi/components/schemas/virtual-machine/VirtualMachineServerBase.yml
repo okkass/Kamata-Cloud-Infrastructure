@@ -34,12 +34,12 @@ properties:
     type: array
     description: アタッチされたストレージのリスト
     items:
-      $ref: ./virtual-storage/VirtualStorageResponse.yml
+      $ref: "./virtual-storage/VirtualStorageResponse.yml"
   networkInterfaces:
     type: array
     description: アタッチされたネットワークインターフェースのリスト
     items:
-      $ref: ./network-interface/NetworkInterfaceResponse.yml
+      $ref: "./network-interface/NetworkInterfaceResponse.yml"
   cpuUtilization:
     type: number
     format: float

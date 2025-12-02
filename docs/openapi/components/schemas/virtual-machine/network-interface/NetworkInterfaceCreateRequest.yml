@@ -1,7 +1,7 @@
 type: object
 description: ネットワークインターフェース作成リクエストオブジェクト
 allOf:
-  - $ref: ./NetworkInterfaceUpdatable.yml
+  - $ref: "./NetworkInterfaceUpdatable.yml"
 required:
   - name
   - subnetId

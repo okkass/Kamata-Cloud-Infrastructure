@@ -15,6 +15,6 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []

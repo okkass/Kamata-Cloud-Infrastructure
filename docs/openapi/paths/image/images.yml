@@ -17,13 +17,13 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 post:
@@ -62,18 +62,18 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/ErrorResponse.yml
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []

@@ -1,4 +1,4 @@
 type: object
 description: 仮想マシンレスポンスオブジェクト
 allOf:
-  - $ref: ./VirtualMachineServerBase.yml
+  - $ref: "./VirtualMachineServerBase.yml"

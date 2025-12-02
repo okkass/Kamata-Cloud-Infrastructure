@@ -16,7 +16,7 @@ properties:
     format: date-time
     description: スナップショットが作成された日時
   targetVirtualMachine:
-    $ref: ../VirtualMachineResponse.yml
+    $ref: "../VirtualMachineResponse.yml"
     description: スナップショット取得元の仮想マシン
 required:
   - id
