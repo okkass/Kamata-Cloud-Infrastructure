@@ -1,0 +1,124 @@
+get:
+  summary: 仮想マシンイメージの詳細取得
+  description: 指定したIDの仮想マシンイメージの詳細情報を取得します。
+  tags:
+    - Image
+  parameters:
+    - name: imageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンイメージの一意なID
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/image/ImageResponse.yml
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想マシンイメージが見つからない
+  security:
+    - BearerAuth: []
+put:
+  summary: 仮想マシンイメージの更新
+  description: 指定したIDの仮想マシンイメージ情報を更新します。descriptionが空の場合、説明は削除されます。
+  tags:
+    - Image
+  parameters:
+    - name: imageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンイメージの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/image/ImagePutRequest.yml
+  responses:
+    "200":
+      description: 更新成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/image/ImageResponse.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想マシンイメージが見つからない
+  security:
+    - BearerAuth: []
+patch:
+  summary: 仮想マシンイメージの部分更新
+  description: 指定したIDの仮想マシンイメージ情報を部分的に更新します。
+  tags:
+    - Image
+  parameters:
+    - name: imageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンイメージの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: ../../components/schemas/image/ImagePatchRequest.yml
+  responses:
+    "200":
+      description: 更新成功
+      content:
+        application/json:
+          schema:
+            $ref: ../../components/schemas/image/ImageResponse.yml
+    "400":
+      description: リクエストエラー
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想マシンイメージが見つからない
+  security:
+    - BearerAuth: []
+delete:
+  summary: 仮想マシンイメージの削除
+  description: 指定したIDの仮想マシンイメージを削除します。
+  tags:
+    - Image
+  parameters:
+    - name: imageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンイメージの一意なID
+  responses:
+    "204":
+      description: 削除成功
+    "401":
+      description: 認証エラー
+    "403":
+      description: 権限エラー
+    "404":
+      description: 仮想マシンイメージが見つからない
+  security:
+    - BearerAuth: []

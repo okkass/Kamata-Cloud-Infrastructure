@@ -139,15 +139,61 @@
       </div>
     </div>
 
-    <component
-      v-for="modal in editModals"
-      :key="modal.id"
-      :is="modal.component"
-      :show="activeModal === modal.id"
-      v-bind="modal.props"
-      @close="closeModal"
-      @success="handleSuccess"
-    />
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">利用者一覧 (API連携)</h2>
+
+      <div v-if="usersPending" class="mt-2 text-gray-500">
+        利用者一覧を読み込み中...
+      </div>
+
+      <div v-else-if="usersError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ usersError.message }}
+      </div>
+
+      <table
+        v-else-if="users && users.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">メールアドレス</th>
+            <th class="px-6 py-3">権限</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="user in users" :key="user.id" class="bg-white border-b">
+            <td class="px-6 py-4 font-medium">{{ user.name }}</td>
+            <td class="px-6 py-4">{{ user.email }}</td>
+            <td class="px-6 py-4">
+              <span v-if="user.isAdmin" class="text-blue-600 font-bold"
+                >全体管理者</span
+              >
+              <span v-else class="text-gray-500">一般</span>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <button @click="openUserEditModal(user)" class="btn-secondary">
+                編集
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="mt-2 text-gray-500">
+        表示できる利用者がありません。
+      </div>
+
+      <component
+        v-for="modal in editModals"
+        :key="modal.id"
+        :is="modal.component"
+        :show="activeModal === modal.id"
+        v-bind="modal.props"
+        @close="closeModal"
+        @success="handleSuccess"
+      />
+    </div>
   </div>
 </template>
 
@@ -158,14 +204,12 @@
  * =================================================================================
  */
 import { ref, markRaw, computed } from "vue";
-import { useResourceList } from "~/composables/useResourceList";
-// ★ 単位変換ユーティリティをインポート
-import { convertByteToUnit } from "~/utils/format";
-
-// ★ 必要な型定義をインポート
-import type { VirtualMachineDTO } from "~~/shared/types/virtual-machines";
-import type { ModelInstanceTypeDTO } from "~~/shared/types/instance-types";
-import type { ImageDTO } from "~~/shared/types/images";
+import { useResourceList } from "~/composables/useResourceList"; // ★ 単位変換ユーティリティをインポート
+import { convertByteToUnit } from "~/utils/format"; // ★ 必要な型定義をインポート
+import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine";
+import type { InstanceTypeDTO as ModelInstanceTypeDTO } from "~~/shared/types/dto/instance-type";
+import type { ImageDTO } from "~~/shared/types/dto/image";
+import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
 
 // ==============================================================================
 // コンポーネントインポート (Edit系)
@@ -173,6 +217,7 @@ import type { ImageDTO } from "~~/shared/types/images";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
+import MoUserEdit from "~/components/MoUserEdit.vue";
 
 // ==============================================================================
 // State (状態管理)
@@ -183,7 +228,6 @@ const targetResource = ref<any>(null);
 // ==============================================================================
 // API連携 (一覧取得)
 // ==============================================================================
-// --- 仮想マシン一覧 (既存) ---
 const {
   data: virtualMachines,
   pending: vmPending,
@@ -191,45 +235,59 @@ const {
   refresh: refreshVms,
 } = useResourceList<VirtualMachineDTO>("virtual-machines");
 
-// --- ★ インスタンスタイプ一覧 (新規追加) ---
 const {
   data: instanceTypes,
   pending: itPending,
   error: itError,
-  refresh: refreshInstanceTypes, // ★ リフレッシュ関数に別名
-} = useResourceList<ModelInstanceTypeDTO>("instance-types"); //
+  refresh: refreshInstanceTypes,
+} = useResourceList<ModelInstanceTypeDTO>("instance-types");
 
 const {
   data: images,
-  pending: imPending, // (vm/it と被らないよう 'im' を使用)
+  pending: imPending,
   error: imError,
-  refresh: refreshImages, // ★ リフレッシュ関数に別名
-} = useResourceList<ImageDTO>("images"); // (APIパス)
+  refresh: refreshImages,
+} = useResourceList<ImageDTO>("images");
+
+const {
+  data: users,
+  pending: usersPending,
+  error: usersError,
+  refresh: refreshUsers,
+} = useResourceList<UserServerBase>("users");
 
 // ==============================================================================
-// モーダル定義 (★ 拡張ポイント)
+// モーダル定義
 // ==============================================================================
 const editModals = computed(() => [
+  // (VM編集 ... 既存)
   {
     id: "vmEdit",
     component: markRaw(MoVirtualMachineEdit),
     props: { vmId: targetResource.value?.id },
     refreshFn: refreshVms,
   },
-  // --- ★ MoInstanceTypeEdit の定義を追加 ---
+  // (インスタンスタイプ編集 ... 既存)
   {
     id: "instanceTypeEdit",
     component: markRaw(MoInstanceTypeEdit),
-    // ★ MoInstanceTypeEdit が 'instanceTypeData' prop を受け取る
     props: { instanceTypeData: targetResource.value },
-    refreshFn: refreshInstanceTypes, // ★ 成功時に instanceTypes をリフレッシュ
+    refreshFn: refreshInstanceTypes,
   },
+  // (イメージ編集 ... 既存)
   {
     id: "imageEdit",
     component: markRaw(MoImageEdit),
-    // ★ MoImageEdit が 'imageData' prop を受け取る
     props: { imageData: targetResource.value },
-    refreshFn: refreshImages, // ★ 成功時に images をリフレッシュ
+    refreshFn: refreshImages,
+  },
+  // --- ★ MoUserEdit の定義を追加 ---
+  {
+    id: "userEdit",
+    component: markRaw(MoUserEdit),
+    // ★ MoUserEdit が 'userData' prop を受け取るようにデータを渡す
+    props: { userData: targetResource.value },
+    refreshFn: refreshUsers, // ★ 成功時に users をリフレッシュ
   },
 ]);
 
@@ -238,8 +296,6 @@ const editModals = computed(() => [
 // ==============================================================================
 /**
  * 汎用モーダルオープン関数
- * @param modalId 'vmEdit' など、editModals で定義したID
- * @param resource 編集対象のオブジェクト (vm, it など)
  */
 const openModal = (modalId: string, resource: any) => {
   targetResource.value = resource;
@@ -262,19 +318,19 @@ const handleSuccess = () => {
 };
 
 // --- モーダルを開くためのヘルパー関数 ---
-
-/** 仮想マシン編集モーダルを開く */
 const openVmEditModal = (vm: VirtualMachineDTO) => {
   openModal("vmEdit", vm);
 };
 
-/** ★ インスタンスタイプ編集モーダルを開く (新規追加) */
 const openInstanceTypeEditModal = (it: ModelInstanceTypeDTO) => {
   openModal("instanceTypeEdit", it);
 };
 
-/** ★ イメージ編集モーダルを開く (新規追加) */
 const openImageEditModal = (image: ImageDTO) => {
   openModal("imageEdit", image);
+};
+
+const openUserEditModal = (user: UserServerBase) => {
+  openModal("userEdit", user);
 };
 </script>

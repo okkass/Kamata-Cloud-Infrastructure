@@ -41,6 +41,7 @@ import { useResourceList } from "~/composables/useResourceList";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
+import type { ImageResponse } from "~~/shared/types";
 
 /**
  * ==============================================================================
@@ -89,10 +90,10 @@ const {
   data: osImages,
   pending: imagesPending,
   error: imagesError,
-} = useResourceList<ImageDTO>("images");
+} = useResourceList<ImageResponse>("images");
 const {
   data: middlewares,
   pending: middlewaresPending,
   error: middlewaresError,
-} = useResourceList<MiddleWareDTO>("middlewares");
+} = useResourceList<MiddlewareResponse>("middlewares");
 </script>

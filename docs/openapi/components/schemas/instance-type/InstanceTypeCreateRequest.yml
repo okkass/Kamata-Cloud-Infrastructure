@@ -1,0 +1,8 @@
+type: object
+description: インスタンスタイプ作成リクエストオブジェクト
+allOf:
+  - $ref: "./InstanceTypeUpdatable.yml"
+required:
+  - name
+  - cpuCore
+  - memorySize

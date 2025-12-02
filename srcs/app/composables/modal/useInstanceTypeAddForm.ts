@@ -1,123 +1,112 @@
 /**
  * =================================================================================
  * インスタンスタイプ追加フォーム Composable (useInstanceTypeAddForm.ts)
- * ---------------------------------------------------------------------------------
- * このComposableは、MoInstanceTypeAddコンポーネントで使用される
- * フォームの状態管理、バリデーション、API送信ロジックをカプセル化します。
  * =================================================================================
  */
+import { computed } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import { useResourceCreate } from "~/composables/useResourceCreate"; 
-import { useToast } from "~/composables/useToast"; 
+import { useResourceCreate } from "~/composables/useResourceCreate";
+import { useToast } from "~/composables/useToast";
+import { convertUnitToByte } from "~/utils/format";
+
+import type { InstanceTypeCreateRequest } from "~~/shared/types/dto/instance-type/InstanceTypeCreateRequest";
+import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type/InstanceTypeResponse";
 
 // ==============================================================================
 // Validation Schema (バリデーションスキーマ)
-// フォームのバリデーションルールをZodで定義します。
 // ==============================================================================
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "インスタンスタイプ名は必須です。"),
-    cpuCores: z
-      .number({
-        required_error: "CPUコア数は必須です。",
-        invalid_type_error: "数値を入力してください。",
-      })
-      .int("整数で入力してください。")
-      .min(1, "1以上の値を入力してください。"),
-    memorySizeInMb: z
-      .number({
-        required_error: "メモリサイズは必須です。",
-        invalid_type_error: "数値を入力してください。",
-      })
-      .int("整数で入力してください。")
-      .min(1, "1MB以上の値を入力してください。"),
-  })
-);
+
+const zodSchema = z.object({
+  name: z.string().min(1, "インスタンスタイプ名は必須です。"),
+  cpuCore: z
+    .number({
+      message: "数値を入力してください。",
+    })
+    .int("整数で入力してください。")
+    .min(1, "1以上の値を入力してください。"),
+  memorySizeInMb: z
+    .number({
+      message: "数値を入力してください。",
+    })
+    .int("整数で入力してください。")
+    .min(1, "1MB以上の値を入力してください。"),
+});
+
+// VeeValidate用に変換
+const validationSchema = toTypedSchema(zodSchema);
+
+type FormValues = z.infer<typeof zodSchema>;
 
 /**
- * メインのComposable関数
+ * インスタンスタイプ追加フォームのロジック
  */
 export function useInstanceTypeAddForm() {
+  const { addToast } = useToast();
+
+  const { executeCreate, isCreating } = useResourceCreate<
+    InstanceTypeCreateRequest,
+    InstanceTypeResponse
+  >(INSTANCE_TYPE.name);
+
   // ============================================================================
-  // Form Setup (フォーム設定)
-  // VeeValidateのuseFormを使って、フォーム全体を管理します。
+  // Form Setup
   // ============================================================================
-  const { errors, defineField, handleSubmit } = useForm({
-    validationSchema,
+  // ★ defineField を useForm から取得
+  const { errors, handleSubmit, resetForm, defineField } = useForm<FormValues>({
+    validationSchema, // 変換済みのスキーマを渡す
     initialValues: {
-      // フォームの初期値を設定します
-      name: "", // 名前は空で初期化
-      cpuCores: 1,
-      memorySizeInMb: 1024,
+      name: "",
+      cpuCore: undefined,
+      memorySizeInMb: undefined,
     },
   });
 
-  // 各フォームフィールドとVeeValidateを連携させます
+  // --- フィールド定義 (defineField) ---
   const [name, nameAttrs] = defineField("name");
-  const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
+  const [cpuCore, cpuCoreAttrs] = defineField("cpuCore");
   const [memorySizeInMb, memorySizeInMbAttrs] = defineField("memorySizeInMb");
 
   // ============================================================================
-  // API Submission (API送信処理)
-  // useResourceCreate Composableを使ってAPIへのPOSTリクエストを管理します。
+  // Submission Handler
   // ============================================================================
-  const { executeCreate: executeInstanceTypeCreation, isCreating } =
-    useResourceCreate<InstanceTypeCreateRequestDTO, ModelInstanceTypeDTO>(
-      "instance-types" // APIエンドポイントのパス
-    );
-  const { addToast } = useToast();
-
-  /**
-   * フォーム送信時の処理を定義します。
-   * handleSubmitでラップされているため、バリデーション通過後にのみ実行されます。
-   * @param emit - 親コンポーネントへイベントを通知するための関数 ('success', 'close')
-   */
   const onFormSubmit = (emit: (event: "success" | "close") => void) =>
     handleSubmit(async (formValues) => {
-      // APIに送信するデータ（ペイロード）を構築します。
-      // メモリサイズはMBからByteに変換します。
-      const payload: InstanceTypeCreateRequestDTO = {
+      const payload: InstanceTypeCreateRequest = {
         name: formValues.name,
-        cpuCore: formValues.cpuCores,
-        memorySize: formValues.memorySizeInMb * 1024 * 1024, // MB to Bytes
+        cpuCore: formValues.cpuCore,
+        memorySize: convertUnitToByte(formValues.memorySizeInMb, "MB"),
       };
 
-      // APIリクエストを実行します。
-      const result = await executeInstanceTypeCreation(payload);
+      const result = await executeCreate(payload);
 
-      // 結果に応じてトースト通知を表示し、親コンポーネントにイベントを通知します。
       if (result.success) {
         addToast({
           type: "success",
           message: `インスタンスタイプ「${payload.name}」が作成されました`,
         });
-        emit("success"); // 成功イベントを通知
-        emit("close"); // モーダルを閉じるイベントを通知
+        emit("success");
+        emit("close");
       } else {
         addToast({
           type: "error",
           message: "作成に失敗しました。",
-          details: result.error?.message, // エラー詳細を表示
+          details: result.error?.message,
         });
       }
     });
 
-  // ============================================================================
-  // Expose (外部への公開)
-  // コンポーネント側で利用するリアクティブな状態や関数を返却します。
-  // ============================================================================
   return {
-    errors, // バリデーションエラーオブジェクト
-    // 各フォームフィールドの値と属性 (v-model, v-bind用)
+    errors,
     name,
     nameAttrs,
-    cpuCores,
-    cpuCoresAttrs,
+    cpuCore,
+    cpuCoreAttrs,
     memorySizeInMb,
     memorySizeInMbAttrs,
-    isCreating, // API通信中のローディング状態
-    onFormSubmit, // フォーム送信ハンドラ
+    isCreating,
+    onFormSubmit,
+    resetForm,
   };
 }

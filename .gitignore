@@ -2,3 +2,5 @@
 *.tmp
 ~$*
 .pnpm-store
+dist/
+public/

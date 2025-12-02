@@ -1,0 +1,6 @@
+type: object
+description: ポートフォリオ作成リクエストオブジェクト
+allOf:
+  - $ref: "./PortfolioUpdatable.yml"
+required:
+  - title

@@ -2519,7 +2519,7 @@ components:
           type: string
           format: uuid
           description: 使用する仮想マシンイメージのID
-        middleWareId:
+        middlewareId:
           type: string
           format: uuid
           description: インストールするミドルウェアのID
@@ -2543,10 +2543,6 @@ components:
                 type: string
                 format: uuid
                 description: ストレージプールのID
-              backupId:
-                type: string
-                format: uuid
-                description: バックアップから復元する場合のバックアップID
             required:
               - name
               - size

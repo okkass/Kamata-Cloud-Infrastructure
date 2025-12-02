@@ -6,7 +6,7 @@
       :rows="images"
       rowKey="id"
       :headerButtons="headerButtons"
-      @header-action="() => openModal(addImageAction)"
+      @header-action="() => openModal(ADD_IMAGE_ACTION)"
     >
       <template #cell-name="{ row }">
         <NuxtLink :to="`/image/${row.id}`" class="table-link">
@@ -51,19 +51,19 @@
   </div>
 
   <MoDeleteConfirm
-    :show="activeModal === deleteImageAction"
+    :show="activeModal === DELETE_IMAGE_ACTION"
     :message="`本当にイメージ「${targetForDeletion?.name}」を削除しますか？`"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
   />
   <MoImageAdd
-    :show="activeModal === addImageAction"
+    :show="activeModal === ADD_IMAGE_ACTION"
     @close="closeModal"
     @success="handleSuccess"
   />
   <MoImageEdit
-    :show="activeModal === editImageAction"
+    :show="activeModal === EDIT_IMAGE_ACTION"
     :image-data="targetForEditing ?? undefined"
     @close="closeModal"
     @success="handleSuccess"
@@ -71,14 +71,21 @@
 </template>
 
 <script setup lang="ts">
-import { useImageManagement } from "~/composables/useImageManagement";
+import { useImageManagement } from "~/composables/dashboard/useImageManagement";
 import { usePageActions } from "~/composables/usePageActions";
 
-import type { UiImage } from "~/composables/useImageManagement";
+import type { UiImage } from "~/composables/dashboard/useImageManagement";
 
 // --- データロジックの取得 ---
-const { columns, images, headerButtons, refreshImageList } =
-  useImageManagement();
+const {
+  columns,
+  images,
+  headerButtons,
+  refreshImageList,
+  ADD_IMAGE_ACTION,
+  EDIT_IMAGE_ACTION,
+  DELETE_IMAGE_ACTION,
+} = useImageManagement();
 
 // --- アクションロジックの取得 ---
 const {

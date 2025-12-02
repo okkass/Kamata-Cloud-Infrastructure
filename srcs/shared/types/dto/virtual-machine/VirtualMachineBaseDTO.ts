@@ -1,0 +1,51 @@
+import { VirtualMachineStatusEnum } from "./VirtualMachineDTO";
+import type { NodeDTO } from "../node/NodeDTO";
+import type { SecurityGroupDTO } from "../security-group/SecurityGroupDTO";
+import type { AttachedStorageDTO } from "./AttachedStorageDTO";
+import type { NetworkInterfaceDTO } from "./NetworkInterfaceDTO";
+/**
+ * 仮想マシンオブジェクト(ベース)
+ */
+export interface VirtualMachineBaseDTO {
+  /**
+   * 仮想マシンを識別するための一意なID
+   */
+  id: string;
+  /**
+   * 仮想マシンの名前
+   */
+  name: string;
+  /**
+   * 仮想マシンの状態
+   */
+  status: VirtualMachineStatusEnum;
+  node: NodeDTO;
+  /**
+   * 仮想マシンが作成された日時
+   */
+  createdAt: string;
+  /**
+   * 仮想マシンに関連付けられたセキュリティグループのIDリスト
+   */
+  securityGroups: Array<SecurityGroupDTO>;
+  /**
+   * アタッチされたストレージのリスト
+   */
+  attachedStorages: Array<AttachedStorageDTO>;
+  /**
+   * アタッチされたネットワークインターフェースのリスト
+   */
+  attachedNics?: Array<NetworkInterfaceDTO>;
+  /**
+   * CPU使用率（0.0から1.0の範囲）
+   */
+  cpuUtilization?: number;
+  /**
+   * メモリ使用率（0.0から1.0の範囲）
+   */
+  memoryUtilization?: number;
+  /**
+   * ストレージ使用率（0.0から1.0の範囲）
+   */
+  storageUtilization?: number;
+}

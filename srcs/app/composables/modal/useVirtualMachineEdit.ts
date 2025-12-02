@@ -19,8 +19,8 @@ import type {
   AttachedStorageDTO,
   NetworkInterfaceDTO,
   VirtualStorageDTO, // createdAt を渡すために使用
-} from "~~/shared/types/virtual-machines"; //
-import type { ModelInstanceTypeDTO } from "~~/shared/types/instance-types"; //
+} from "~~/shared/types/dto/virtual-machine"; //
+import type { InstanceTypeDTO as ModelInstanceTypeDTO } from "~~/shared/types/dto/instance-type"; //
 
 // ★ タブコンポーネント
 import VmEditTabGeneral from "~/components/vm-edit-tabs/VmEditTabGeneral.vue"; //

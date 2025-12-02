@@ -1,0 +1,7 @@
+type: object
+description: 仮想マシンイメージ作成リクエストオブジェクト
+allOf:
+  - $ref: "./ImageClientUpdatable.yml"
+  - $ref: "./ImageCreateOnly.yml"
+required:
+  - name

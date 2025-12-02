@@ -232,7 +232,7 @@ const {
   data: templates,
   pending: templatesPending,
   error: templatesError,
-} = useResourceList<ModelInstanceTypeDTO>("instance-types");
+} = useResourceList<InstanceTypeDTO>("instance-types");
 const {
   data: backups,
   pending: backupsPending,
@@ -242,7 +242,7 @@ const {
   data: storagePools,
   pending: poolsPending,
   error: poolsError,
-} = useResourceList<LocalStoragePoolDTO>("storage-pools");
+} = useResourceList<StoragePoolDTO>("storage-pools");
 
 /**
  * ==============================================================================

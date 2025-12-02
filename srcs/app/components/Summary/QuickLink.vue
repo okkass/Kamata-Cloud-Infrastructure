@@ -46,7 +46,7 @@ const props = defineProps<{
 // 管理者用のリンク一覧
 const adminLinks = [
   { to: "/machine", text: "VM管理" },
-  { to: "/physical-node", text: "ノード管理" },
+  { to: "/node", text: "ノード管理" },
   { to: "/storage-pool", text: "ストレージ" },
   { to: "/security-group", text: "セキュリティ" },
   { to: "/user", text: "ユーザー管理" },
