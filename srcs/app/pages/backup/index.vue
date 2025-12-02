@@ -8,7 +8,7 @@
       rowKey="id"
       :headerButtons="headerButtons"
       @header-action="() => openModal(ADD_BACKUP_ACTION)"
-      @row-action="onRowAction"
+      @row-action="handleRowAction"
     >
       <template #cell-name="{ row }">
         <NuxtLink :to="`/backup/${row.id}`" class="table-link">
@@ -66,10 +66,10 @@
 
 <script setup lang="ts">
 import { useBackupManagement } from "~/composables/dashboard/usebackup";
-import { usePageActions } from "@/composables/usePageActions";
-import DashboardLayout from "@/components/DashboardLayout.vue";
-import MoBackupCreate from "@/components/MoBackupCreate.vue";
-import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
+import { usePageActions } from "~/composables/usePageActions";
+import DashboardLayout from "~/components/DashboardLayout.vue";
+import MoBackupCreate from "~/components/MoBackupCreate.vue";
+import MoDeleteConfirm from "~/components/MoDeleteConfirm.vue";
 import type { BackupRow } from "~/composables/dashboard/usebackup";
 
 /* データ / composable */
@@ -100,9 +100,4 @@ const {
   resourceLabel: "バックアップ",
   refresh,
 });
-
-/* 行アクション用ラッパ（必要なら拡張） */
-function onRowAction({ action, row }: { action: string; row: BackupRow }) {
-  handleRowAction({ action, row });
-}
 </script>
