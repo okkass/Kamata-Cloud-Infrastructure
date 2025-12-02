@@ -5,12 +5,12 @@ export default defineEventHandler(async (event) => {
     {
       devicePath: "/dev/sdb",
       deviceName: "Storage Device A",
-      capacityGB: 512,
+      size: 512 * 1024 ** 2, // 512 GB
     },
     {
       devicePath: "/dev/sdc",
       deviceName: "Storage Device B",
-      capacityGB: 1024,
+      size: 1024 * 1024 ** 2, // 1 TB
     },
   ];
 
