@@ -4447,6 +4447,11 @@ export interface components {
              * @example Hitachi SSD HUS724040ALA640
              */
             deviceName: string;
+            /**
+             * @description ストレージデバイスのサイズ（バイト単位）
+             * @example 4000787030016
+             */
+            size?: number;
         };
         /** @description ポートフォリオレスポンスオブジェクト */
         PortfolioResponse: {
