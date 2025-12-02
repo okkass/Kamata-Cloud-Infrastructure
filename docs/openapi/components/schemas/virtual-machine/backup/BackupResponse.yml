@@ -19,12 +19,12 @@ properties:
     type: number
     format: integer
     description: バックアップのサイズ(バイト単位)
-  targetVirtualStorage:
-    $ref: "../virtual-storage/VirtualStorageResponse.yml"
+  targetStorage:
+    $ref: "../storage/StorageResponse.yml"
     description: バックアップ対象の仮想ストレージ
 required:
   - id
   - name
   - createdAt
   - size
-  - targetVirtualStorage
+  - targetStorage

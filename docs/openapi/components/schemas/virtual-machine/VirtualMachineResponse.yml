@@ -34,7 +34,7 @@ properties:
     type: array
     description: アタッチされたストレージのリスト
     items:
-      $ref: "./virtual-storage/VirtualStorageResponse.yml"
+      $ref: "./storage/StorageResponse.yml"
   networkInterfaces:
     type: array
     description: アタッチされたネットワークインターフェースのリスト
