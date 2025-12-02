@@ -1,7 +1,0 @@
-type: object
-description: サブネット全部更新リクエストオブジェクト
-$ref: "./SubnetUpdatable.yml"
-required:
-  - name
-  - cidr
-  - possibleExternalConnection
