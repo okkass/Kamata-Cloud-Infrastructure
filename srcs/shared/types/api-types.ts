@@ -5319,8 +5319,8 @@ export interface components {
             /** @description 新しいパスワード */
             newPassword: string;
         };
-        /** @description 仮想ストレージオブジェクト */
-        VirtualStorageServerBase: {
+        /** @description 仮想ストレージレスポンスオブジェクト */
+        VirtualStorageResponse: {
             /**
              * Format: uuid
              * @description 仮想ストレージを識別するための一意なID
@@ -5348,12 +5348,8 @@ export interface components {
              */
             status: "attached" | "detached";
         };
-        /** @description 仮想ストレージレスポンスオブジェクト */
-        VirtualStorageResponse: {
-            virtualStorage?: components["schemas"]["VirtualStorageServerBase"];
-        };
-        /** @description バックアップオブジェクト */
-        BackupServerBase: {
+        /** @description バックアップレスポンスオブジェクト */
+        BackupResponse: {
             /**
              * Format: uuid
              * @description バックアップを識別するための一意なID
@@ -5376,8 +5372,6 @@ export interface components {
             /** @description バックアップ対象の仮想ストレージ */
             targetVirtualStorage: components["schemas"]["VirtualStorageResponse"];
         };
-        /** @description バックアップレスポンスオブジェクト */
-        BackupResponse: components["schemas"]["BackupServerBase"];
         /** @description バックアップの作成時のみ設定可能なプロパティ */
         BackupCreateOnly: {
             /**
@@ -5395,8 +5389,8 @@ export interface components {
         };
         /** @description バックアップ作成リクエストオブジェクト */
         BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & WithRequired<components["schemas"]["BackupUpdatable"], "name">;
-        /** @description ネットワークインターフェースオブジェクト */
-        NetworkInterfaceServerBase: {
+        /** @description ネットワークインターフェースレスポンスオブジェクト */
+        NetworkInterfaceResponse: {
             /**
              * Format: uuid
              * @description ネットワークインターフェースを識別するための一意なID
@@ -5421,10 +5415,8 @@ export interface components {
              */
             subnetId: string;
         };
-        /** @description ネットワークインターフェースレスポンスオブジェクト */
-        NetworkInterfaceResponse: components["schemas"]["NetworkInterfaceServerBase"];
-        /** @description 仮想マシンのサーバーサイドベースオブジェクト */
-        VirtualMachineServerBase: {
+        /** @description 仮想マシンレスポンスオブジェクト */
+        VirtualMachineResponse: {
             /**
              * Format: uuid
              * @description 仮想マシンを識別するための一意なID
@@ -5475,10 +5467,8 @@ export interface components {
             /** @description 仮想マシンに割り当てられたメモリサイズ（バイト単位） */
             memorySize: number;
         };
-        /** @description 仮想マシンレスポンスオブジェクト */
-        VirtualMachineResponse: components["schemas"]["VirtualMachineServerBase"];
-        /** @description スナップショットオブジェクト */
-        SnapshotServerBase: {
+        /** @description スナップショットレスポンスオブジェクト */
+        SnapshotResponse: {
             /**
              * Format: uuid
              * @description スナップショットを識別するための一意なID
@@ -5496,8 +5486,6 @@ export interface components {
             /** @description スナップショット取得元の仮想マシン */
             targetVirtualMachine: components["schemas"]["VirtualMachineResponse"];
         };
-        /** @description スナップショットレスポンスオブジェクト */
-        SnapshotResponse: components["schemas"]["SnapshotServerBase"];
         /** @description スナップショット更新可能なプロパティ */
         SnapshotUpdatable: {
             /** @description スナップショットの名前 */
@@ -5738,18 +5726,13 @@ export type UserCreateRequest = components['schemas']['UserCreateRequest'];
 export type UserPutRequest = components['schemas']['UserPutRequest'];
 export type UserPatchRequest = components['schemas']['UserPatchRequest'];
 export type PasswordChangeRequest = components['schemas']['PasswordChangeRequest'];
-export type VirtualStorageServerBase = components['schemas']['VirtualStorageServerBase'];
 export type VirtualStorageResponse = components['schemas']['VirtualStorageResponse'];
-export type BackupServerBase = components['schemas']['BackupServerBase'];
 export type BackupResponse = components['schemas']['BackupResponse'];
 export type BackupCreateOnly = components['schemas']['BackupCreateOnly'];
 export type BackupUpdatable = components['schemas']['BackupUpdatable'];
 export type BackupCreateRequest = components['schemas']['BackupCreateRequest'];
-export type NetworkInterfaceServerBase = components['schemas']['NetworkInterfaceServerBase'];
 export type NetworkInterfaceResponse = components['schemas']['NetworkInterfaceResponse'];
-export type VirtualMachineServerBase = components['schemas']['VirtualMachineServerBase'];
 export type VirtualMachineResponse = components['schemas']['VirtualMachineResponse'];
-export type SnapshotServerBase = components['schemas']['SnapshotServerBase'];
 export type SnapshotResponse = components['schemas']['SnapshotResponse'];
 export type SnapshotUpdatable = components['schemas']['SnapshotUpdatable'];
 export type SnapshotCreateOnly = components['schemas']['SnapshotCreateOnly'];
