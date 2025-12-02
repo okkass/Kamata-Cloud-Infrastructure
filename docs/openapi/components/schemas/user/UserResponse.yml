@@ -1,11 +1,65 @@
 type: object
 description: ユーザレスポンスオブジェクト
-allOf:
-  - $ref: "./UserServerBase.yml"
+properties:
+  id:
+    type: string
+    format: uuid
+    description: ユーザを識別するための一意なID
+  name:
+    type: string
+    description: ユーザの名前
+  email:
+    type: string
+    format: email
+    description: ユーザのメールアドレス
+  createdAt:
+    type: string
+    format: date-time
+    description: ユーザが作成された日時
+  isAdmin:
+    type: boolean
+    description: ユーザが管理者かどうかを示すフラグ
+  lastLoginAt:
+    type: string
+    format: date-time
+    description: ユーザが最後にログインした日時
+  maxCpuCore:
+    type: integer
+    description: ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
+    nullable: true
+    example: 32
+  maxMemorySize:
+    type: integer
+    description: ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
+    nullable: true
+    example: 17179869184
+  maxStorageSize:
+    type: integer
+    description: ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
+    nullable: true
+    example: 1099511627776
+  totpInfo:
+    $ref: ../auth/TotpInfo.yml
+  isImageAdmin:
+    type: boolean
+    description: ユーザがイメージ管理者かどうかを示すフラグ
+    example: false
+  isInstanceTypeAdmin:
+    type: boolean
+    description: ユーザがインスタンスタイプ管理者かどうかを示すフラグ
+    example: false
+  isPhysicalNodeAdmin:
+    type: boolean
+    description: ユーザが物理ノード管理者かどうかを示すフラグ
+    example: false
 required:
   - id
   - name
   - email
+  - isAdmin
+  - isImageAdmin
+  - isInstanceTypeAdmin
+  - isPhysicalNodeAdmin
   - createdAt
   - isAdmin
   - lastLoginAt
