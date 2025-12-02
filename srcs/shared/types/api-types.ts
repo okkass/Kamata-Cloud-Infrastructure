@@ -5319,34 +5319,29 @@ export interface components {
             /** @description 新しいパスワード */
             newPassword: string;
         };
-        /** @description 仮想ストレージレスポンスオブジェクト */
-        VirtualStorageResponse: {
+        /** @description 仮想マシンのストレージ情報を表すオブジェクト */
+        StorageResponse: {
             /**
              * Format: uuid
-             * @description 仮想ストレージを識別するための一意なID
+             * @description ストレージのID
              */
-            id: string;
-            /** @description 仮想ストレージの名前 */
-            name: string;
-            /** @description 仮想ストレージのサイズ（バイト単位） */
-            size: number;
-            /**
-             * Format: uuid
-             * @description 仮想ストレージが属するストレージプールのID
-             */
-            poolId: string;
-            /** @description 仮想ストレージのマウントポイント */
-            mountPoint?: string;
+            id?: string;
+            /** @description ストレージの名前 */
+            name?: string;
+            /** @description ストレージのサイズ（バイト単位） */
+            size?: number;
+            /** @description ストレージプール情報 */
+            pool?: components["schemas"]["StoragePoolResponse"];
             /**
              * Format: date-time
-             * @description 仮想ストレージの作成日時
+             * @description ストレージ作成日時
              */
-            createdAt: string;
+            createdAt?: string;
             /**
-             * @description 仮想ストレージの状態
-             * @enum {string}
+             * @description ストレージのデバイスパス
+             * @example /dev/vdb
              */
-            status: "attached" | "detached";
+            devicePath?: string;
         };
         /** @description バックアップレスポンスオブジェクト */
         BackupResponse: {
@@ -5370,7 +5365,7 @@ export interface components {
              */
             size: number;
             /** @description バックアップ対象の仮想ストレージ */
-            targetVirtualStorage: components["schemas"]["VirtualStorageResponse"];
+            targetStorage: components["schemas"]["StorageResponse"];
         };
         /** @description バックアップの作成時のみ設定可能なプロパティ */
         BackupCreateOnly: {
@@ -5441,7 +5436,7 @@ export interface components {
             /** @description 仮想マシンに関連付けられたセキュリティグループのリスト */
             securityGroups: components["schemas"]["SecurityGroupResponse"][];
             /** @description アタッチされたストレージのリスト */
-            storages?: components["schemas"]["VirtualStorageResponse"][];
+            storages?: components["schemas"]["StorageResponse"][];
             /** @description アタッチされたネットワークインターフェースのリスト */
             networkInterfaces?: components["schemas"]["NetworkInterfaceResponse"][];
             /**
@@ -5726,7 +5721,7 @@ export type UserCreateRequest = components['schemas']['UserCreateRequest'];
 export type UserPutRequest = components['schemas']['UserPutRequest'];
 export type UserPatchRequest = components['schemas']['UserPatchRequest'];
 export type PasswordChangeRequest = components['schemas']['PasswordChangeRequest'];
-export type VirtualStorageResponse = components['schemas']['VirtualStorageResponse'];
+export type StorageResponse = components['schemas']['StorageResponse'];
 export type BackupResponse = components['schemas']['BackupResponse'];
 export type BackupCreateOnly = components['schemas']['BackupCreateOnly'];
 export type BackupUpdatable = components['schemas']['BackupUpdatable'];
