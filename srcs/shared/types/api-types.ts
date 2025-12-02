@@ -4501,11 +4501,6 @@ export interface components {
              */
             nodeId: string;
             /**
-             * @description ストレージプールの総サイズ（バイト単位）
-             * @example 1099511627776
-             */
-            totalSize: number;
-            /**
              * @description ストレージプールが使用するデバイスのパス
              * @example /dev/sdb
              */
