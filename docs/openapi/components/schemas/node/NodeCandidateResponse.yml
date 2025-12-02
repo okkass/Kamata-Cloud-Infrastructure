@@ -1,4 +1,13 @@
 type: object
 description: 物理ノード候補レスポンスオブジェクト
-allOf:
-  - $ref: "./NodeCandidateServerBase.yml"
+properties:
+  name:
+    type: string
+    description: 物理ノードの名前
+  ipAddress:
+    type: string
+    format: ipv4
+    description: 物理ノードのIPアドレス
+required:
+  - name
+  - ipAddress

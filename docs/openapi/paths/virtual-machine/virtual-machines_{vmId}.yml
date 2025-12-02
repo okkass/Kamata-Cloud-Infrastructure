@@ -17,7 +17,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-machine/VirtualMachine.yml
+            $ref: "../../components/schemas/virtual-machine/VirtualMachine.yml"
     "401":
       description: 認証エラー
     "403":
@@ -44,14 +44,14 @@ put:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/virtual-machine/VirtualMachineUpdateRequest.yml
+          $ref: "../../components/schemas/virtual-machine/VirtualMachineUpdateRequest.yml"
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-machine/VirtualMachine.yml
+            $ref: "../../components/schemas/virtual-machine/VirtualMachine.yml"
     "400":
       description: リクエストエラー
     "401":

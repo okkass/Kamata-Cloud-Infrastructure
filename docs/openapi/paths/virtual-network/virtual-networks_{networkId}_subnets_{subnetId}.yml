@@ -23,14 +23,14 @@ put:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/virtual-network/SubnetUpdateRequest.yml
+          $ref: "../../components/schemas/virtual-network/SubnetUpdateRequest.yml"
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-network/Subnet.yml
+            $ref: "../../components/schemas/virtual-network/Subnet.yml"
     "400":
       description: リクエストエラー
     "401":
