@@ -4698,36 +4698,8 @@ export interface components {
        */
       password: string;
     };
-    /** @description RFC 9457 (Problem Details for HTTP APIs) に準拠した標準のエラーレスポンス形式 */
-    ErrorResponse: {
-      /**
-       * @description エラーの種類を示す識別子
-       * @example https://api.kci.chiffon-lab.tech/errors/invalid-request
-       */
-      type?: string;
-      /**
-       * @description エラーの簡潔な説明
-       * @example Invalid Request
-       */
-      title?: string;
-      /**
-       * @description HTTPステータスコード
-       * @example 400
-       */
-      status?: number;
-      /**
-       * @description エラーの詳細な説明
-       * @example The request parameters are invalid.
-       */
-      detail?: string;
-      /**
-       * @description エラーが発生した特定のインスタンスを示すURI
-       * @example /requests/12345
-       */
-      instance?: string;
-    };
-    /** @description 仮想マシンイメージの基本情報を表すスキーマ */
-    ImageServerBase: {
+    /** @description 仮想マシンイメージのレスポンスオブジェクト */
+    ImageResponse: {
       /**
        * Format: uuid
        * @description 仮想マシンイメージを識別するための一意なID
@@ -5385,7 +5357,7 @@ export interface components {
       newPassword: string;
     };
     /** @description 仮想ストレージオブジェクト */
-    VirtualStorageServerBase: {
+    VirtualStorage: {
       /**
        * Format: uuid
        * @description 仮想ストレージを識別するための一意なID
@@ -5400,25 +5372,14 @@ export interface components {
        * @description 仮想ストレージが属するストレージプールのID
        */
       poolId: string;
-      /** @description 仮想ストレージのマウントポイント */
-      mountPoint?: string;
       /**
        * Format: date-time
        * @description 仮想ストレージの作成日時
        */
       createdAt: string;
-      /**
-       * @description 仮想ストレージの状態
-       * @enum {string}
-       */
-      status: "attached" | "detached";
-    };
-    /** @description 仮想ストレージレスポンスオブジェクト */
-    VirtualStorageResponse: {
-      virtualStorage?: components["schemas"]["VirtualStorageServerBase"];
     };
     /** @description バックアップオブジェクト */
-    BackupServerBase: {
+    Backup: {
       /**
        * Format: uuid
        * @description バックアップを識別するための一意なID
@@ -5439,30 +5400,34 @@ export interface components {
        */
       size: number;
       /** @description バックアップ対象の仮想ストレージ */
-      targetVirtualStorage: components["schemas"]["VirtualStorageResponse"];
+      targetVirtualStorage: components["schemas"]["VirtualStorage"];
     };
-    /** @description バックアップレスポンスオブジェクト */
-    BackupResponse: components["schemas"]["BackupServerBase"];
-    /** @description バックアップの作成時のみ設定可能なプロパティ */
-    BackupCreateOnly: {
+    /** @description バックアップ作成リクエストオブジェクト */
+    BackupCreateRequest: {
+      /** @description バックアップの名前 */
+      name: string;
       /**
        * Format: uuid
        * @description バックアップ対象の仮想ストレージのID
        */
-      targetVirtualStorageId: string;
+      targetStorageId: string;
     };
-    /** @description バックアップの更新可能なプロパティ */
-    BackupUpdatable: {
-      /** @description バックアップの名前 */
-      name?: string;
-      /** @description バックアップの説明 */
-      description?: string;
+    /** @description アタッチされたストレージオブジェクト */
+    AttachedStorage: {
+      /**
+       * Format: uuid
+       * @description アタッチされたストレージを識別するための一意なID
+       */
+      id: string;
+      storage: components["schemas"]["VirtualStorage"];
+      /**
+       * @description ストレージデバイスのパス
+       * @example /dev/sda
+       */
+      path: string;
     };
-    /** @description バックアップ作成リクエストオブジェクト */
-    BackupCreateRequest: components["schemas"]["BackupCreateOnly"] &
-      WithRequired<components["schemas"]["BackupUpdatable"], "name">;
     /** @description ネットワークインターフェースオブジェクト */
-    NetworkInterfaceServerBase: {
+    NetworkInterface: {
       /**
        * Format: uuid
        * @description ネットワークインターフェースを識別するための一意なID
@@ -5487,10 +5452,8 @@ export interface components {
        */
       subnetId: string;
     };
-    /** @description ネットワークインターフェースレスポンスオブジェクト */
-    NetworkInterfaceResponse: components["schemas"]["NetworkInterfaceServerBase"];
-    /** @description 仮想マシンのサーバーサイドベースオブジェクト */
-    VirtualMachineServerBase: {
+    /** @description 仮想マシンオブジェクト */
+    VirtualMachine: {
       /**
        * Format: uuid
        * @description 仮想マシンを識別するための一意なID
@@ -5515,9 +5478,9 @@ export interface components {
       /** @description 仮想マシンに関連付けられたセキュリティグループのリスト */
       securityGroups: components["schemas"]["SecurityGroupResponse"][];
       /** @description アタッチされたストレージのリスト */
-      storages?: components["schemas"]["VirtualStorageResponse"][];
+      attachedStorages: components["schemas"]["AttachedStorage"][];
       /** @description アタッチされたネットワークインターフェースのリスト */
-      networkInterfaces?: components["schemas"]["NetworkInterfaceResponse"][];
+      attachedNics?: components["schemas"]["NetworkInterface"][];
       /**
        * Format: float
        * @description CPU使用率（0.0から1.0の範囲）
@@ -5537,14 +5500,12 @@ export interface components {
        */
       storageUtilization?: number;
       /** @description 仮想マシンに割り当てられたCPUコア数 */
-      cpuCore: number;
+      cpuCore?: number;
       /** @description 仮想マシンに割り当てられたメモリサイズ（バイト単位） */
-      memorySize: number;
+      memorySize?: number;
     };
-    /** @description 仮想マシンレスポンスオブジェクト */
-    VirtualMachineResponse: components["schemas"]["VirtualMachineServerBase"];
     /** @description スナップショットオブジェクト */
-    SnapshotServerBase: {
+    SnapShot: {
       /**
        * Format: uuid
        * @description スナップショットを識別するための一意なID
@@ -5560,62 +5521,55 @@ export interface components {
        */
       createdAt: string;
       /** @description スナップショット取得元の仮想マシン */
-      targetVirtualMachine: components["schemas"]["VirtualMachineResponse"];
+      targetVirtualMachine: components["schemas"]["VirtualMachine"];
     };
-    /** @description スナップショットレスポンスオブジェクト */
-    SnapshotResponse: components["schemas"]["SnapshotServerBase"];
-    /** @description スナップショット更新可能なプロパティ */
-    SnapshotUpdatable: {
+    /** @description スナップショット作成リクエストオブジェクト */
+    SnapShotCreateRequest: {
       /** @description スナップショットの名前 */
-      name?: string;
+      name: string;
       /** @description スナップショットの説明 */
       description?: string;
-    };
-    /** @description スナップショット作成時のみ設定可能なプロパティ */
-    SnapshotCreateOnly: {
       /**
        * Format: uuid
        * @description スナップショットを取得する仮想マシンのID
        */
       targetVmId: string;
     };
-    /** @description スナップショット作成リクエストオブジェクト */
-    SnapshotCreateRequest: WithRequired<
-      components["schemas"]["SnapshotUpdatable"],
-      "name"
-    > &
-      components["schemas"]["SnapshotCreateOnly"];
-    /** @description スナップショット更新リクエスト descriptionの記載がない場合は削除されます */
-    SnapshotPutRequest: WithRequired<
-      components["schemas"]["SnapshotUpdatable"],
-      "name"
-    >;
-    /** @description スナップショット更新リクエスト descriptionの記載がない場合は削除されます */
-    SnapshotPatchRequest: components["schemas"]["SnapshotUpdatable"];
-    /** @description 仮想マシン作成時のみに設定可能なプロパティを持つオブジェクト */
-    VirtualMachineCreateOnly: {
-      /** @description 仮想マシンに設定するSSH公開鍵 */
-      publicKey: string;
+    /** @description 仮想マシン作成リクエストオブジェクト */
+    VirtualMachineCreateRequest: {
+      /** @description 仮想マシンの名前 */
+      name: string;
       /**
        * Format: uuid
-       * @description 仮想マシンを配置するノードのID
+       * @description 使用するインスタンスタイプのID
        */
-      nodeId: string;
+      instanceTypeId?: string;
+      /** @description 仮想マシンに割り当てるCPUコア数（instanceTypeIdが指定されていない場合に必須） */
+      cpuCore?: number;
+      /** @description 仮想マシンに割り当てるメモリサイズ（バイト単位、instanceTypeIdが指定されていない場合に必須） */
+      memorySize?: number;
       /**
        * Format: uuid
-       * @description 仮想マシンにインストールするOSイメージのID
+       * @description 仮想マシンを配置するサブネットのID
+       */
+      subnetId: string;
+      /** @description 仮想マシンに設定するSSH公開鍵 */
+      publicKey?: string;
+      /**
+       * Format: uuid
+       * @description 使用する仮想マシンイメージのID
        */
       imageId: string;
       /**
        * Format: uuid
        * @description インストールするミドルウェアのID
        */
-      middlewareId: string;
+      middlewareId?: string;
       /**
        * Format: uuid
-       * @description 仮想マシンを配置するサブネットのID
+       * @description 仮想マシンを配置する物理ノードのID
        */
-      subnetId: string;
+      nodeId: string;
       /** @description 仮想マシンにアタッチするストレージのリスト */
       storages: {
         /** @description ストレージの名前 */
@@ -5631,39 +5585,26 @@ export interface components {
       /** @description 関連付けるセキュリティグループのIDリスト */
       securityGroupIds: string[];
     };
-    /** @description 仮想マシン更新可能なプロパティを持つオブジェクトのベース */
-    VirtualMachineUpdatableBase: {
+    /** @description 仮想マシン更新リクエストオブジェクト */
+    VirtualMachineUpdateRequest: {
       /** @description 仮想マシンの名前 */
       name?: string;
-    };
-    /** @description 仮想マシンをインスタンスタイプ指定で作成する場合の更新可能なプロパティを持つオブジェクト */
-    VirtualMachineWithInstanceTypeUpdatable: {
       /**
        * Format: uuid
        * @description 使用するインスタンスタイプのID
        */
       instanceTypeId?: string;
+      /** @description 仮想マシンに割り当てるCPUコア数 */
+      cpuCore?: number;
+      /** @description 仮想マシンに割り当てるメモリサイズ（バイト単位） */
+      memorySize?: number;
+      /** @description 仮想マシンに関連付けられたセキュリティグループのIDリスト */
+      securityGroupIds?: string[];
+      /** @description アタッチされたストレージのリスト */
+      attachedStorages?: components["schemas"]["AttachedStorage"][];
+      /** @description アタッチされたネットワークインターフェースのリスト */
+      attachedNics?: components["schemas"]["NetworkInterface"][];
     };
-    /** @description 仮想マシンをCPU、メモリ指定で作成する場合の更新可能なプロパティを持つオブジェクト */
-    VirtualMachineWithCustomSpecUpdatable: {
-      /** @description 仮想マシンのCPUコア数 */
-      cpu?: number;
-      /** @description 仮想マシンのメモリ容量 (バイト単位) */
-      memory?: number;
-    };
-    /** @description 仮想マシン更新可能なプロパティを持つオブジェクト */
-    VirtualMachineUpdatable: components["schemas"]["VirtualMachineUpdatableBase"] &
-      (
-        | components["schemas"]["VirtualMachineWithInstanceTypeUpdatable"]
-        | components["schemas"]["VirtualMachineWithCustomSpecUpdatable"]
-      );
-    /** @description 仮想マシン作成リクエストオブジェクト */
-    VirtualMachineCreateRequest: components["schemas"]["VirtualMachineCreateOnly"] &
-      components["schemas"]["VirtualMachineUpdatable"];
-    /** @description 仮想マシン更新リクエストオブジェクト */
-    VirtualMachinePutRequest: components["schemas"]["VirtualMachineUpdatable"];
-    /** @description 仮想マシン更新リクエストオブジェクト */
-    VirtualMachinePatchRequest: components["schemas"]["VirtualMachineUpdatable"];
     /** @description サブネットオブジェクト */
     Subnet: {
       /**
