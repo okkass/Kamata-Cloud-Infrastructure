@@ -53,8 +53,6 @@
       @success="handleSuccess"
     />
 
-    <!-- 編集は未提供なら同じCreateを流用しない（必要なら追加実装） -->
-
     <!-- 削除確認モーダル -->
     <MoDeleteConfirm
       :show="activeModal === DELETE_BACKUP_ACTION"
@@ -67,25 +65,22 @@
 </template>
 
 <script setup lang="ts">
-import { useBackupManagement } from "@/composables/usebackup";
+import { useBackupManagement } from "~/composables/dashboard/usebackup";
 import { usePageActions } from "@/composables/usePageActions";
 import DashboardLayout from "@/components/DashboardLayout.vue";
 import MoBackupCreate from "@/components/MoBackupCreate.vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
-import type { BackupRow } from "@/composables/usebackup";
-
-/* 定数 */
-const BACKUP = { name: "backups", label: "バックアップ" } as const;
-const ADD_BACKUP_ACTION = "add-backup";
-const EDIT_BACKUP_ACTION = "edit-backup";
-const DELETE_BACKUP_ACTION = "delete-backup";
+import type { BackupRow } from "~/composables/dashboard/usebackup";
 
 /* データ / composable */
+/* composable 側が提供するアクション定数を利用して重複を排除 */
 const {
   columns,
   headerButtons,
   rows: backups,
   refresh,
+  ADD_BACKUP_ACTION,
+  DELETE_BACKUP_ACTION,
 } = useBackupManagement();
 
 /* ページ共通アクション */
@@ -101,8 +96,13 @@ const {
   handleSuccess,
   cancelAction,
 } = usePageActions<BackupRow>({
-  resourceName: BACKUP.name,
-  resourceLabel: BACKUP.label,
+  resourceName: "backups",
+  resourceLabel: "バックアップ",
   refresh,
 });
+
+/* 行アクション用ラッパ（必要なら拡張） */
+function onRowAction({ action, row }: { action: string; row: BackupRow }) {
+  handleRowAction({ action, row });
+}
 </script>
