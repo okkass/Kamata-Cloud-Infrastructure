@@ -61,5 +61,4 @@ required:
   - isInstanceTypeAdmin
   - isPhysicalNodeAdmin
   - createdAt
-  - isAdmin
   - lastLoginAt
