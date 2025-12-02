@@ -3777,7 +3777,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["VirtualNetworkUpdatable"];
+                    "application/json": components["schemas"]["VirtualNetworkPutRequest"];
                 };
             };
             responses: {
@@ -5208,7 +5208,9 @@ export interface components {
             initialSubnets: components["schemas"]["SubnetUpdatable"][];
         };
         /** @description 仮想ネットワーク作成リクエストオブジェクト */
-        VirtualNetworkCreateRequest: WithRequired<components["schemas"]["VirtualNetworkUpdatable"], "name"> & components["schemas"]["VirtualNetworkCreateOnly"];
+        VirtualNetworkCreateRequest: components["schemas"]["VirtualNetworkUpdatable"] & components["schemas"]["VirtualNetworkCreateOnly"] & Record<string, never>;
+        /** @description 仮想ネットワーク更新リクエストオブジェクト */
+        VirtualNetworkPutRequest: components["schemas"]["VirtualNetworkUpdatable"] & Record<string, never>;
         /** @description サブネット全部更新リクエストオブジェクト */
         SubnetPutRequest: components["schemas"]["SubnetUpdatable"] & Record<string, never>;
         SubnetPatchRequest: components["schemas"]["SubnetUpdatable"] & Record<string, never>;
@@ -5297,6 +5299,7 @@ export type VirtualNetworkUpdatable = components['schemas']['VirtualNetworkUpdat
 export type SubnetUpdatable = components['schemas']['SubnetUpdatable'];
 export type VirtualNetworkCreateOnly = components['schemas']['VirtualNetworkCreateOnly'];
 export type VirtualNetworkCreateRequest = components['schemas']['VirtualNetworkCreateRequest'];
+export type VirtualNetworkPutRequest = components['schemas']['VirtualNetworkPutRequest'];
 export type SubnetPutRequest = components['schemas']['SubnetPutRequest'];
 export type SubnetPatchRequest = components['schemas']['SubnetPatchRequest'];
 export type $defs = Record<string, never>;
