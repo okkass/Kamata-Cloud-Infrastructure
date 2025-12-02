@@ -1,0 +1,5 @@
+type: string
+description: セキュリティルールのタイプ（インバウンドまたはアウトバウンド）
+enum:
+  - inbound
+  - outbound

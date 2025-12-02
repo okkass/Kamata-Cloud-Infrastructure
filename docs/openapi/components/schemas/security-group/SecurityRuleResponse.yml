@@ -9,10 +9,7 @@ properties:
     type: string
     description: セキュリティルールの名前
   ruleType:
-    type: string
-    enum:
-      - inbound
-      - outbound
+    $ref: "./SecurityRuleTypeEnum.yml"
     description: ルールのタイプ（インバウンドまたはアウトバウンド）
   port:
     type: integer
@@ -20,12 +17,7 @@ properties:
     description: 適用されるポート番号。nullの場合は全ポート対象
     example: 22
   protocol:
-    type: string
-    enum:
-      - tcp
-      - udp
-      - icmp
-      - any
+    $ref: "./SecurityRuleProtocolEnum.yml"
     description: 適用されるプロトコル
   targetIp:
     type: string
@@ -33,10 +25,7 @@ properties:
     description: ターゲットIPアドレス
     example: 192.0.2.0/24
   action:
-    type: string
-    enum:
-      - allow
-      - deny
+    $ref: "./SecurityRuleActionEnum.yml"
     description: ルールのアクション（許可または拒否）
   createdAt:
     type: string
