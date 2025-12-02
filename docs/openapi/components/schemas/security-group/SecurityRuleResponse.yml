@@ -1,4 +1,50 @@
 type: object
 description: セキュリティルールレスポンスオブジェクト
-allOf:
-  - $ref: ./SecurityRuleServerBase.yml
+properties:
+  id:
+    type: string
+    format: uuid
+    description: セキュリティルールを識別するための一意なID
+  name:
+    type: string
+    description: セキュリティルールの名前
+  ruleType:
+    type: string
+    enum:
+      - inbound
+      - outbound
+    description: ルールのタイプ（インバウンドまたはアウトバウンド）
+  port:
+    type: integer
+    description: 適用されるポート番号
+    example: 22
+  protocol:
+    type: string
+    enum:
+      - tcp
+      - udp
+      - icmp
+      - any
+    description: 適用されるプロトコル
+  targetIp:
+    type: string
+    format: ipv4
+    description: ターゲットIPアドレス
+    example: 192.0.2.0/24
+  action:
+    type: string
+    enum:
+      - allow
+      - deny
+    description: ルールのアクション（許可または拒否）
+  createdAt:
+    type: string
+    format: date-time
+    description: セキュリティルールが作成された日時
+required:
+  - id
+  - name
+  - ruleType
+  - protocol
+  - targetIp
+  - createdAt
