@@ -17,7 +17,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/image/ImageResponse.yml
+            $ref: "../../components/schemas/image/ImageResponse.yml"
     "401":
       description: 認証エラー
     "403":
@@ -44,14 +44,14 @@ put:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/image/ImagePutRequest.yml
+          $ref: "../../components/schemas/image/ImagePutRequest.yml"
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/image/ImageResponse.yml
+            $ref: "../../components/schemas/image/ImageResponse.yml"
     "400":
       description: リクエストエラー
     "401":
@@ -80,14 +80,14 @@ patch:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/image/ImagePatchRequest.yml
+          $ref: "../../components/schemas/image/ImagePatchRequest.yml"
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/image/ImageResponse.yml
+            $ref: "../../components/schemas/image/ImageResponse.yml"
     "400":
       description: リクエストエラー
     "401":

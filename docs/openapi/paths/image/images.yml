@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/image/ImageResponse.yml
+              $ref: "../../components/schemas/image/ImageResponse.yml"
     "401":
       description: 認証エラー
     "403":
@@ -35,7 +35,7 @@ post:
               format: binary
             # metadataはImageCreateRequest型、fileはトップレベルで分離しているにゃん
             metadata:
-              $ref: ../../components/schemas/image/ImageCreateRequest.yml
+              $ref: "../../components/schemas/image/ImageCreateRequest.yml"
           required:
             - file
             - metadata
@@ -48,7 +48,7 @@ post:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/image/ImageResponse.yml
+            $ref: "../../components/schemas/image/ImageResponse.yml"
     "400":
       description: リクエストエラー
     "401":
