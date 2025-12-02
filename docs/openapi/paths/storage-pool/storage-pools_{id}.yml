@@ -17,7 +17,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/storage-pool/StoragePoolResponse.yml
+            $ref: "../../components/schemas/storage-pool/StoragePoolResponse.yml"
     "401":
       description: 認証エラー
     "403":
@@ -44,14 +44,14 @@ put:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/storage-pool/StoragePoolPutRequest.yml
+          $ref: "../../components/schemas/storage-pool/StoragePoolPutRequest.yml"
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/storage-pool/StoragePoolResponse.yml
+            $ref: "../../components/schemas/storage-pool/StoragePoolResponse.yml"
     "400":
       description: リクエストエラー
     "401":
@@ -80,14 +80,14 @@ patch:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/storage-pool/StoragePoolPatchRequest.yml
+          $ref: "../../components/schemas/storage-pool/StoragePoolPatchRequest.yml"
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/storage-pool/StoragePoolResponse.yml
+            $ref: "../../components/schemas/storage-pool/StoragePoolResponse.yml"
     "400":
       description: リクエストエラー
     "401":

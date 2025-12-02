@@ -4,6 +4,6 @@ properties:
   rules:
     type: array
     items:
-      $ref: ./SecurityRuleCreateRequest.yml
+      $ref: "./SecurityRuleCreateRequest.yml"
 required:
   - rules
