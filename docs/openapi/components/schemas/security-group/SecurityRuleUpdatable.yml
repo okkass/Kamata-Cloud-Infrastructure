@@ -13,7 +13,7 @@ properties:
   port:
     type: integer
     nullable: true
-    description: 適用されるポート番号 NULLの場合は全ポート対象
+    description: 適用されるポート番号。NULLの場合は全ポート対象
     example: 22
   protocol:
     type: string
