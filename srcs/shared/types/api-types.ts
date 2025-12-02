@@ -4278,6 +4278,11 @@ export interface components {
              * @example Hitachi SSD HUS724040ALA640
              */
             deviceName: string;
+            /**
+             * @description ストレージデバイスのサイズ（バイト単位）
+             * @example 4000787030016
+             */
+            size: number;
         };
         /** @description ポートフォリオレスポンスオブジェクト */
         PortfolioResponse: {
@@ -4495,11 +4500,6 @@ export interface components {
              * @example 550e8400-e29b-41d4-a716-446655440000
              */
             nodeId: string;
-            /**
-             * @description ストレージプールの総サイズ（バイト単位）
-             * @example 1099511627776
-             */
-            totalSize: number;
             /**
              * @description ストレージプールが使用するデバイスのパス
              * @example /dev/sdb

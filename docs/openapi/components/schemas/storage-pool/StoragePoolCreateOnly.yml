@@ -6,10 +6,6 @@ properties:
     format: uuid
     description: ストレージプールが属する物理ノードのID
     example: 550e8400-e29b-41d4-a716-446655440000
-  totalSize:
-    type: integer
-    description: ストレージプールの総サイズ（バイト単位）
-    example: 1099511627776
   devicePath:
     type: string
     description: ストレージプールが使用するデバイスのパス
