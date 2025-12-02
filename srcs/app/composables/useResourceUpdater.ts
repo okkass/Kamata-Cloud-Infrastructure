@@ -150,6 +150,9 @@ export function useResourceUpdater<T extends { id: string }>() {
     if (config.value.collections) {
       Object.entries(config.value.collections).forEach(([key, collConfig]) => {
         const cState = state.collections[key];
+
+        if (!cState) return;
+
         // POST
         cState.added.forEach((payload) => {
           apiRequests.push(

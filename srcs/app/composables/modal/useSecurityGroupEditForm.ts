@@ -1,8 +1,6 @@
 /**
  * =================================================================================
  * セキュリティグループ編集フォーム Composable (useSecurityGroupEditForm.ts)
- * ---------------------------------------------------------------------------------
- * ★ エンドポイントのパスを修正版
  * =================================================================================
  */
 import { ref, computed, watch } from "vue";
@@ -45,18 +43,15 @@ export function useSecurityGroupEditForm(props: Props) {
     { immediate: true }
   );
 
-  // ★★★ 修正箇所: エンドポイント設定 ★★★
   function getResourceConfig(data: SecurityGroupDTO): ResourceConfig {
     return {
       // 1. セキュリティグループ本体の更新
-      // パス: /api/security-groups/{groupId}
       base: {
         endpoint: `/api/security-groups/${data.id}`,
         fields: ["name", "description"],
       },
 
       // 2. ルールの更新
-      // パス: /api/security/groups/{groupId}/rules/{ruleId}
       collections: {
         rules: {
           // useResourceUpdater が自動的に末尾に `/{ruleId}` (やPOST時のbody) を扱います。
