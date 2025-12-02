@@ -1,5 +1,5 @@
 type: object
-description: サブネット作成リクエストオブジェクト
+description: サブネット全部更新リクエストオブジェクト
 $ref: "./SubnetUpdatable.yml"
 required:
   - name

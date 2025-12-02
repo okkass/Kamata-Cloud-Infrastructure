@@ -1,6 +1,5 @@
 type: object
 description: 仮想ネットワーク更新リクエストオブジェクト
-properties:
-  name:
-    type: string
-    description: 仮想ネットワークの名前
+$ref: "./VirtualNetworkUpdatable.yml"
+required:
+  - name
