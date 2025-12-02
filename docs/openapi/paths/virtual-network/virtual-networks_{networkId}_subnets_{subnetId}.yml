@@ -77,7 +77,7 @@ put:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-network/Subnet.yml
+            $ref: "../../components/schemas/virtual-network/SubnetResponse.yml"
     "400":
       description: リクエストエラー
       content:
