@@ -4245,8 +4245,8 @@ export interface components {
              */
             password: string;
         };
-        /** @description 仮想マシンイメージの基本情報を表すスキーマ */
-        ImageServerBase: {
+        /** @description 仮想マシンイメージのレスポンスオブジェクト */
+        ImageResponse: {
             /**
              * Format: uuid
              * @description 仮想マシンイメージを識別するための一意なID
@@ -4272,8 +4272,6 @@ export interface components {
              */
             nodeId: string;
         };
-        /** @description 仮想マシンイメージのレスポンスオブジェクト */
-        ImageResponse: components["schemas"]["ImageServerBase"];
         /** @description 仮想マシンイメージのうち更新可能な情報を表すスキーマ */
         ImageClientUpdatable: {
             /**
@@ -4301,8 +4299,8 @@ export interface components {
         ImagePutRequest: WithRequired<components["schemas"]["ImageClientUpdatable"], "name">;
         /** @description 仮想マシンイメージ更新リクエスト(PATCH)オブジェクト */
         ImagePatchRequest: components["schemas"]["ImageClientUpdatable"];
-        /** @description ミドルウェアの基本情報を表すスキーマ */
-        MiddlewareServerBase: {
+        /** @description ミドルウェアのレスポンスオブジェクト */
+        MiddlewareResponse: {
             /**
              * Format: uuid
              * @description ミドルウェアを識別するための一意なID
@@ -4311,10 +4309,8 @@ export interface components {
             /** @description ミドルウェアの名前 */
             name: string;
         };
-        /** @description ミドルウェアのレスポンスオブジェクト */
-        MiddlewareResponse: components["schemas"]["MiddlewareServerBase"];
-        /** @description 仮想マシンのインスタンスタイプオブジェクト */
-        InstanceTypeServerBase: {
+        /** @description インスタンスタイプレスポンスオブジェクト */
+        InstanceTypeResponse: {
             /**
              * Format: uuid
              * @description インスタンスタイプを識別するための一意なID
@@ -4332,8 +4328,6 @@ export interface components {
             /** @description メモリサイズ（バイト単位） */
             memorySize: number;
         };
-        /** @description インスタンスタイプレスポンスオブジェクト */
-        InstanceTypeResponse: components["schemas"]["InstanceTypeServerBase"];
         /** @description インスタンスタイプのうち更新可能な情報を表すスキーマ */
         InstanceTypeUpdatable: {
             /**
@@ -4358,8 +4352,8 @@ export interface components {
         InstanceTypePutRequest: WithRequired<components["schemas"]["InstanceTypeUpdatable"], "name" | "cpuCore" | "memorySize">;
         /** @description インスタンスタイプ更新リクエストオブジェクト(PATCH) */
         InstanceTypePatchRequest: components["schemas"]["InstanceTypeUpdatable"];
-        /** @description 物理ノードオブジェクト */
-        NodeServerBase: {
+        /** @description 物理ノードレスポンスオブジェクト */
+        NodeResponse: {
             /**
              * Format: uuid
              * @description 物理ノードを識別するための一意なID
@@ -4403,8 +4397,6 @@ export interface components {
              */
             storageUtilization?: number;
         };
-        /** @description 物理ノードレスポンスオブジェクト */
-        NodeResponse: components["schemas"]["NodeServerBase"];
         /** @description 物理ノードを作成時に設定できるプロパティ */
         NodeCreateOnly: {
             /**
@@ -4429,8 +4421,8 @@ export interface components {
         };
         /** @description 物理ノード追加リクエストオブジェクト */
         NodeCreateRequest: components["schemas"]["NodeCreateOnly"] & components["schemas"]["NodeUpdatable"];
-        /** @description 物理ノード候補オブジェクト */
-        NodeCandidateServerBase: {
+        /** @description 物理ノード候補レスポンスオブジェクト */
+        NodeCandidateResponse: {
             /** @description 物理ノードの名前 */
             name: string;
             /**
@@ -4439,14 +4431,12 @@ export interface components {
              */
             ipAddress: string;
         };
-        /** @description 物理ノード候補レスポンスオブジェクト */
-        NodeCandidateResponse: components["schemas"]["NodeCandidateServerBase"];
         /** @description 物理ノード更新リクエストオブジェクト(PUT) */
         NodePutRequest: WithRequired<components["schemas"]["NodeUpdatable"], "name" | "isAdmin">;
         /** @description 物理ノード更新リクエストオブジェクト(PATCH) */
         NodePatchRequest: components["schemas"]["NodeUpdatable"];
-        /** @description ストレージデバイス情報の基本プロパティ */
-        DeviceServerBase: {
+        /** @description ストレージデバイス情報のレスポンスプロパティ */
+        DeviceResponse: {
             /**
              * @description ストレージデバイスのパス
              * @example /dev/sdb
@@ -4458,10 +4448,8 @@ export interface components {
              */
             deviceName: string;
         };
-        /** @description ストレージデバイス情報のレスポンスプロパティ */
-        DeviceResponse: components["schemas"]["DeviceServerBase"];
-        /** @description ポートフォリオオブジェクト */
-        PortfolioServerBase: {
+        /** @description ポートフォリオレスポンスオブジェクト */
+        PortfolioResponse: {
             /**
              * Format: uuid
              * @description ポートフォリオを識別するための一意なID
@@ -4485,8 +4473,6 @@ export interface components {
              */
             viewCount7Day: number;
         };
-        /** @description ポートフォリオレスポンスオブジェクト */
-        PortfolioResponse: components["schemas"]["PortfolioServerBase"];
         /** @description ポートフォリオ更新可能オブジェクト */
         PortfolioUpdatable: {
             /** @description ポートフォリオのタイトル */
@@ -4494,8 +4480,8 @@ export interface components {
         };
         /** @description ポートフォリオ作成リクエストオブジェクト */
         PortfolioCreateRequest: WithRequired<components["schemas"]["PortfolioUpdatable"], "title">;
-        /** @description セキュリティルールオブジェクト */
-        SecurityRuleServerBase: {
+        /** @description セキュリティルールレスポンスオブジェクト */
+        SecurityRuleResponse: {
             /**
              * Format: uuid
              * @description セキュリティルールを識別するための一意なID
@@ -4535,8 +4521,8 @@ export interface components {
              */
             createdAt: string;
         };
-        /** @description セキュリティグループオブジェクト */
-        SecurityGroupServerBase: {
+        /** @description セキュリティグループレスポンスオブジェクト */
+        SecurityGroupResponse: {
             /**
              * Format: uuid
              * @description セキュリティグループを識別するための一意なID
@@ -4546,15 +4532,13 @@ export interface components {
             name: string;
             /** @description セキュリティグループの説明 */
             description?: string;
-            rules: components["schemas"]["SecurityRuleServerBase"][];
+            rules: components["schemas"]["SecurityRuleResponse"][];
             /**
              * Format: date-time
              * @description セキュリティグループが作成された日時
              */
             createdAt: string;
         };
-        /** @description セキュリティグループレスポンスオブジェクト */
-        SecurityGroupResponse: components["schemas"]["SecurityGroupServerBase"];
         /** @description セキュリティグループ更新可能なプロパティ */
         SecurityGroupUpdatable: {
             /**
@@ -4611,8 +4595,6 @@ export interface components {
         SecurityGroupPutRequest: WithRequired<components["schemas"]["SecurityGroupUpdatable"], "name" | "description">;
         /** @description セキュリティグループ更新リクエストオブジェクト(PATCH) */
         SecurityGroupPatchRequest: components["schemas"]["SecurityGroupUpdatable"];
-        /** @description セキュリティルールレスポンスオブジェクト */
-        SecurityRuleResponse: components["schemas"]["SecurityRuleServerBase"];
         /** @description セキュリティルールバルク更新リクエストオブジェクト */
         SecurityRuleBulkRequest: {
             /** @description 追加するセキュリティルールのリスト */
@@ -4633,8 +4615,8 @@ export interface components {
         SecurityRulePutRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
         /** @description セキュリティルール更新リクエストオブジェクト(PATCH) */
         SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"];
-        /** @description ストレージプールオブジェクト */
-        StoragePoolServerBase: {
+        /** @description ストレージプールレスポンスオブジェクト */
+        StoragePoolResponse: {
             /**
              * Format: uuid
              * @description ストレージプールを識別するための一意なID
@@ -4674,8 +4656,6 @@ export interface components {
              */
             hasNetworkAccess: boolean;
         };
-        /** @description ストレージプールレスポンスオブジェクト */
-        StoragePoolResponse: components["schemas"]["StoragePoolServerBase"];
         /** @description ストレージプール作成時のみ設定可能なプロパティ */
         StoragePoolCreateOnly: {
             /**
@@ -4721,8 +4701,8 @@ export interface components {
             /** @description TOTP URI（QRコード生成用） */
             uri: string;
         };
-        /** @description User object */
-        UserServerBase: {
+        /** @description ユーザレスポンスオブジェクト */
+        UserResponse: {
             /**
              * Format: uuid
              * @description ユーザを識別するための一意なID
@@ -4739,14 +4719,14 @@ export interface components {
              * Format: date-time
              * @description ユーザが作成された日時
              */
-            createdAt?: string;
+            createdAt: string;
             /** @description ユーザが管理者かどうかを示すフラグ */
             isAdmin: boolean;
             /**
              * Format: date-time
              * @description ユーザが最後にログインした日時
              */
-            lastLoginAt?: string;
+            lastLoginAt: string;
             /**
              * @description ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
              * @example 32
@@ -4779,8 +4759,6 @@ export interface components {
              */
             isPhysicalNodeAdmin: boolean;
         };
-        /** @description ユーザレスポンスオブジェクト */
-        UserResponse: WithRequired<components["schemas"]["UserServerBase"], "id" | "name" | "email" | "createdAt" | "isAdmin" | "lastLoginAt">;
         /** @description ユーザ作成時のみに設定可能なプロパティ */
         UserCreateOnly: {
             /**
@@ -5222,38 +5200,30 @@ export interface components {
     pathItems: never;
 }
 export type LoginRequest = components['schemas']['LoginRequest'];
-export type ImageServerBase = components['schemas']['ImageServerBase'];
 export type ImageResponse = components['schemas']['ImageResponse'];
 export type ImageClientUpdatable = components['schemas']['ImageClientUpdatable'];
 export type ImageCreateOnly = components['schemas']['ImageCreateOnly'];
 export type ImageCreateRequest = components['schemas']['ImageCreateRequest'];
 export type ImagePutRequest = components['schemas']['ImagePutRequest'];
 export type ImagePatchRequest = components['schemas']['ImagePatchRequest'];
-export type MiddlewareServerBase = components['schemas']['MiddlewareServerBase'];
 export type MiddlewareResponse = components['schemas']['MiddlewareResponse'];
-export type InstanceTypeServerBase = components['schemas']['InstanceTypeServerBase'];
 export type InstanceTypeResponse = components['schemas']['InstanceTypeResponse'];
 export type InstanceTypeUpdatable = components['schemas']['InstanceTypeUpdatable'];
 export type InstanceTypeCreateRequest = components['schemas']['InstanceTypeCreateRequest'];
 export type InstanceTypePutRequest = components['schemas']['InstanceTypePutRequest'];
 export type InstanceTypePatchRequest = components['schemas']['InstanceTypePatchRequest'];
-export type NodeServerBase = components['schemas']['NodeServerBase'];
 export type NodeResponse = components['schemas']['NodeResponse'];
 export type NodeCreateOnly = components['schemas']['NodeCreateOnly'];
 export type NodeUpdatable = components['schemas']['NodeUpdatable'];
 export type NodeCreateRequest = components['schemas']['NodeCreateRequest'];
-export type NodeCandidateServerBase = components['schemas']['NodeCandidateServerBase'];
 export type NodeCandidateResponse = components['schemas']['NodeCandidateResponse'];
 export type NodePutRequest = components['schemas']['NodePutRequest'];
 export type NodePatchRequest = components['schemas']['NodePatchRequest'];
-export type DeviceServerBase = components['schemas']['DeviceServerBase'];
 export type DeviceResponse = components['schemas']['DeviceResponse'];
-export type PortfolioServerBase = components['schemas']['PortfolioServerBase'];
 export type PortfolioResponse = components['schemas']['PortfolioResponse'];
 export type PortfolioUpdatable = components['schemas']['PortfolioUpdatable'];
 export type PortfolioCreateRequest = components['schemas']['PortfolioCreateRequest'];
-export type SecurityRuleServerBase = components['schemas']['SecurityRuleServerBase'];
-export type SecurityGroupServerBase = components['schemas']['SecurityGroupServerBase'];
+export type SecurityRuleResponse = components['schemas']['SecurityRuleResponse'];
 export type SecurityGroupResponse = components['schemas']['SecurityGroupResponse'];
 export type SecurityGroupUpdatable = components['schemas']['SecurityGroupUpdatable'];
 export type SecurityRuleUpdatable = components['schemas']['SecurityRuleUpdatable'];
@@ -5262,11 +5232,9 @@ export type SecurityGroupCreateOnly = components['schemas']['SecurityGroupCreate
 export type SecurityGroupCreateRequest = components['schemas']['SecurityGroupCreateRequest'];
 export type SecurityGroupPutRequest = components['schemas']['SecurityGroupPutRequest'];
 export type SecurityGroupPatchRequest = components['schemas']['SecurityGroupPatchRequest'];
-export type SecurityRuleResponse = components['schemas']['SecurityRuleResponse'];
 export type SecurityRuleBulkRequest = components['schemas']['SecurityRuleBulkRequest'];
 export type SecurityRulePutRequest = components['schemas']['SecurityRulePutRequest'];
 export type SecurityRulePatchRequest = components['schemas']['SecurityRulePatchRequest'];
-export type StoragePoolServerBase = components['schemas']['StoragePoolServerBase'];
 export type StoragePoolResponse = components['schemas']['StoragePoolResponse'];
 export type StoragePoolCreateOnly = components['schemas']['StoragePoolCreateOnly'];
 export type StoragePoolUpdatable = components['schemas']['StoragePoolUpdatable'];
@@ -5274,7 +5242,6 @@ export type StoragePoolCreateRequest = components['schemas']['StoragePoolCreateR
 export type StoragePoolPutRequest = components['schemas']['StoragePoolPutRequest'];
 export type StoragePoolPatchRequest = components['schemas']['StoragePoolPatchRequest'];
 export type TotpInfo = components['schemas']['TotpInfo'];
-export type UserServerBase = components['schemas']['UserServerBase'];
 export type UserResponse = components['schemas']['UserResponse'];
 export type UserCreateOnly = components['schemas']['UserCreateOnly'];
 export type UserUpdatable = components['schemas']['UserUpdatable'];
