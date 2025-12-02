@@ -4398,7 +4398,7 @@ export interface components {
              */
             ruleType?: "inbound" | "outbound";
             /**
-             * @description 適用されるポート番号 NULLの場合は全ポート対象
+             * @description 適用されるポート番号。NULLの場合は全ポート対象
              * @example 22
              */
             port?: number | null;
