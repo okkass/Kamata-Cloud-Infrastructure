@@ -36,7 +36,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/virtual-machine/VirtualMachineCreateRequest.yml
+          $ref: "../../components/schemas/virtual-machine/VirtualMachineCreateRequest.yml"
   responses:
     "201":
       description: 作成成功

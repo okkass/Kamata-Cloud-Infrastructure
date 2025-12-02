@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/portfolio/PortfolioResponse.yml
+              $ref: "../../components/schemas/portfolio/PortfolioResponse.yml"
     "401":
       description: 認証エラー
       content:
@@ -36,14 +36,14 @@ post:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/portfolio/PortfolioCreateRequest.yml
+          $ref: "../../components/schemas/portfolio/PortfolioCreateRequest.yml"
   responses:
     "201":
       description: 作成成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/portfolio/PortfolioResponse.yml
+            $ref: "../../components/schemas/portfolio/PortfolioResponse.yml"
     "400":
       description: リクエストエラー
       content:

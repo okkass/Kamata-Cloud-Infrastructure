@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/image/MiddlewareResponse.yml
+              $ref: "../../components/schemas/image/MiddlewareResponse.yml"
     "401":
       description: 認証エラー
       content:

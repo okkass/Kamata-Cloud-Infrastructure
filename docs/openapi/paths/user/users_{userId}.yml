@@ -17,7 +17,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/user/UserResponse.yml
+            $ref: "../../components/schemas/user/UserResponse.yml"
     "401":
       description: 認証エラー
       content:
@@ -56,14 +56,14 @@ put:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/user/UserPutRequest.yml
+          $ref: "../../components/schemas/user/UserPutRequest.yml"
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/user/UserResponse.yml
+            $ref: "../../components/schemas/user/UserResponse.yml"
     "400":
       description: リクエストエラー
       content:
@@ -108,14 +108,14 @@ patch:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/user/UserPatchRequest.yml
+          $ref: "../../components/schemas/user/UserPatchRequest.yml"
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/user/UserResponse.yml
+            $ref: "../../components/schemas/user/UserResponse.yml"
     "400":
       description: リクエストエラー
       content:

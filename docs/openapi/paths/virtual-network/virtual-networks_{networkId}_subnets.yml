@@ -16,14 +16,14 @@ post:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/virtual-network/SubnetCreateRequest.yml
+          $ref: "../../components/schemas/virtual-network/SubnetCreateRequest.yml"
   responses:
     "201":
       description: サブネット追加成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/virtual-network/Subnet.yml
+            $ref: "../../components/schemas/virtual-network/Subnet.yml"
     "400":
       description: リクエストエラー
       content:

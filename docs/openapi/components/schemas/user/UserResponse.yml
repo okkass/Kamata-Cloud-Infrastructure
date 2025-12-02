@@ -39,7 +39,7 @@ properties:
     nullable: true
     example: 1099511627776
   totpInfo:
-    $ref: ../auth/TotpInfo.yml
+    $ref: "../auth/TotpInfo.yml"
   isImageAdmin:
     type: boolean
     description: ユーザがイメージ管理者かどうかを示すフラグ

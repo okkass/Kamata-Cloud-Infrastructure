@@ -20,7 +20,7 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/storage-pool/StoragePoolResponse.yml
+              $ref: "../../components/schemas/storage-pool/StoragePoolResponse.yml"
     "400":
       description: リクエストエラー
       content:
