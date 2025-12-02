@@ -24,9 +24,9 @@ properties:
     type: array
     description: アタッチされたストレージのリスト
     items:
-      $ref: ./AttachedStorage.yml
+      $ref: "./AttachedStorage.yml"
   attachedNics:
     type: array
     description: アタッチされたネットワークインターフェースのリスト
     items:
-      $ref: ./NetworkInterface.yml
+      $ref: "./NetworkInterface.yml"

@@ -14,7 +14,7 @@ properties:
   rules:
     type: array
     items:
-      $ref: ./SecurityRuleResponse.yml
+      $ref: "./SecurityRuleResponse.yml"
   createdAt:
     type: string
     format: date-time
