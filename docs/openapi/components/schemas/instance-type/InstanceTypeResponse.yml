@@ -1,4 +1,27 @@
 type: object
 description: インスタンスタイプレスポンスオブジェクト
-allOf:
-  - $ref: "./InstanceTypeServerBase.yml"
+properties:
+  id:
+    type: string
+    format: uuid
+    description: インスタンスタイプを識別するための一意なID
+  name:
+    type: string
+    description: インスタンスタイプの名前
+  createdAt:
+    type: string
+    format: date-time
+    description: インスタンスタイプが作成された日時
+  cpuCore:
+    type: integer
+    description: CPUコア数
+  memorySize:
+    type: integer
+    description: メモリサイズ（バイト単位）
+required:
+  - id
+  - name
+  - createdAt
+  - cpuCore
+  - cpuSocket
+  - memorySize
