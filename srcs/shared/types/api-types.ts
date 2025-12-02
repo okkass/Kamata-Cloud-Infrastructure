@@ -4451,7 +4451,7 @@ export interface components {
              * @description ストレージデバイスのサイズ（バイト単位）
              * @example 4000787030016
              */
-            size?: number;
+            size: number;
         };
         /** @description ポートフォリオレスポンスオブジェクト */
         PortfolioResponse: {
