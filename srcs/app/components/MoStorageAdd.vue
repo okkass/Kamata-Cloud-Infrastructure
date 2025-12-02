@@ -17,6 +17,8 @@
           label="物理ノード"
           name="storage-node"
           :options="nodes ?? []"
+          option-label="name"
+          option-value="id"
           placeholder="ノードを選択してください"
           :required="true"
           :pending="nodesPending"

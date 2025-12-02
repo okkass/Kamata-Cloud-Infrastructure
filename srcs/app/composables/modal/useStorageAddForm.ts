@@ -10,6 +10,7 @@ import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useResourceList } from "~/composables/useResourceList";
 import { useToast } from "~/composables/useToast";
+import newDevicesGet from "~~/server/api/physical-nodes/[nodeId]/new-devices.get";
 
 // デバイス情報の型 (APIレスポンス)
 interface DeviceDTO {
@@ -104,17 +105,23 @@ export function useStorageAddForm() {
         return;
       }
 
+      // ★念のため: newNodeId がオブジェクトになってしまっている場合のガード処理
+      const targetId =
+        typeof newNodeId === "object" ? (newNodeId as any).id : newNodeId;
+
       devicesPending.value = true;
       devicesError.value = null;
       devicePath.value = ""; // パス選択をリセット
 
       try {
-        const { data, error } = await useFetch<DeviceDTO[]>(
-          `/api/storage-pools/node/${newNodeId}`
+        // ★★★ 修正箇所: useFetch -> $fetch に変更 ★★★
+        // $fetch はエラー時に例外を投げるため、try-catch で捕捉します
+        const response = await $fetch<DeviceDTO[]>(
+          `/api/physical-nodes/${targetId}/new-devices`
+          // もしご自身の環境で /api/physical-nodes/... を使う場合はここを書き換えてください
         );
 
-        if (error.value) throw error.value;
-        devices.value = data.value || [];
+        devices.value = response || [];
       } catch (err) {
         console.error("デバイス一覧取得エラー:", err);
         devicesError.value = err;

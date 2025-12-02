@@ -1,7 +1,8 @@
+import { defineEventHandler, createError } from "h3";
 // 新規接続されたストレージデバイスの一覧を取得するAPIのMock
 
 export default defineEventHandler(async (event) => {
-  const { nodeId } = event.context.params as { nodeId: string };
+  const nodeId: string | undefined = event.context.params?.nodeId;
   //　のーどIDごとに返す処理
   if (
     nodeId !== "d898bae4-0a05-48aa-846e-aca5bbfd72c6" &&
