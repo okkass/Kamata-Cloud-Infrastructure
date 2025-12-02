@@ -1,4 +1,13 @@
 type: object
 description: ミドルウェアのレスポンスオブジェクト
-allOf:
-  - $ref: "./MiddlewareServerBase.yml"
+properties:
+  id:
+    type: string
+    format: uuid
+    description: ミドルウェアを識別するための一意なID
+  name:
+    type: string
+    description: ミドルウェアの名前
+required:
+  - id
+  - name

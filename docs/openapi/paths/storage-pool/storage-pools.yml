@@ -11,7 +11,7 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/storage-pool/StoragePoolResponse.yml
+              $ref: "../../components/schemas/storage-pool/StoragePoolResponse.yml"
     "401":
       description: 認証エラー
     "403":
@@ -28,14 +28,14 @@ post:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/storage-pool/StoragePoolCreateRequest.yml
+          $ref: "../../components/schemas/storage-pool/StoragePoolCreateRequest.yml"
   responses:
     "201":
       description: 作成成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/storage-pool/StoragePoolResponse.yml
+            $ref: "../../components/schemas/storage-pool/StoragePoolResponse.yml"
     "400":
       description: リクエストエラー
     "401":
