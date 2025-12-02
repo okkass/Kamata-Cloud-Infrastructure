@@ -1,0 +1,3 @@
+type: object
+description: サブネット部分更新リクエストオブジェクト
+$ref: "./SubnetUpdatable.yml"

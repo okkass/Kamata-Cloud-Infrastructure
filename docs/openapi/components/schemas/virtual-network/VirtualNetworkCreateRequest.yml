@@ -1,13 +1,7 @@
 type: object
 description: 仮想ネットワーク作成リクエストオブジェクト
-properties:
-  name:
-    type: string
-    description: 仮想ネットワークの名前
-  cidr:
-    type: string
-    description: CIDR形式のネットワークアドレス
-    example: 10.0.0.0/16
+allof:
+  - $ref: "./VirtualNetworkUpdatable.yml"
+  - $ref: "./VirtualNetworkCreateOnly.yml"
 required:
   - name
-  - cidr

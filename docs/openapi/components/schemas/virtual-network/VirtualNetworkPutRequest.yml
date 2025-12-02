@@ -1,0 +1,5 @@
+type: object
+description: 仮想ネットワーク更新リクエストオブジェクト
+$ref: "./VirtualNetworkUpdatable.yml"
+required:
+  - name

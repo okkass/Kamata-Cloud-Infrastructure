@@ -1,6 +1,6 @@
 post:
-  summary: サブネットの追加
-  description: 指定した仮想ネットワークに新しいサブネットを追加します。
+  summary: サブネットの一括更新
+  description: 指定した仮想ネットワーク内のサブネットを一括で更新します。
   tags:
     - VirtualNetwork
   parameters:
@@ -16,14 +16,16 @@ post:
     content:
       application/json:
         schema:
-          $ref: "../../components/schemas/virtual-network/SubnetCreateRequest.yml"
+          $ref: "../../components/schemas/virtual-network/SubnetBulkRequest.yml"
   responses:
-    "201":
-      description: サブネット追加成功
+    "200":
+      description: 一括更新成功
       content:
         application/json:
           schema:
-            $ref: "../../components/schemas/virtual-network/SubnetResponse.yml"
+            type: array
+            items:
+              $ref: "../../components/schemas/virtual-network/SubnetResponse.yml"
     "400":
       description: リクエストエラー
       content:

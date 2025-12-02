@@ -19,8 +19,7 @@ properties:
   subnets:
     type: array
     items:
-      $ref: ./SubnetResponse.yml
-
+      $ref: "./SubnetResponse.yml"
 required:
   - id
   - name

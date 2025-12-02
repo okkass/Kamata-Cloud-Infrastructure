@@ -1,5 +1,5 @@
 type: object
-description: 仮想ネットワークのメトリクスレスポンス
+description: 仮想ネットワークのメトリクスレスポンスオブジェクト
 properties:
   inboundTraffic:
     type: number
