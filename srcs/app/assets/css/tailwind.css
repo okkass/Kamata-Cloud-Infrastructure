@@ -314,6 +314,90 @@
     @apply flex items-center justify-center h-[250px] text-gray-400;
   }
 
+  /** =================================================
+   * Detail Page Styles (詳細ページスタイル)
+   * ==================================================
+   */
+  /* 詳細ページ全体のラッパー */
+  .detail-container {
+    @apply mx-auto max-w-6xl px-4 py-6;
+  }
+
+  /* ヘッダー全体 */
+  .detail-header {
+    @apply mb-6;
+  }
+
+  /* ヘッダー内のFlexコンテナ（タイトルとアクションの配置） */
+  .detail-header-inner {
+    @apply flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between;
+  }
+
+  /* 戻るボタンのスタイル */
+  .detail-back-button {
+    @apply mt-1.5 inline-flex items-center justify-center rounded-full p-1 text-neutral-400 hover:bg-neutral-100 hover:text-neutral-700 transition-colors;
+  }
+
+  /* タイトルテキスト */
+  .detail-title {
+    @apply text-2xl font-bold text-gray-900 sm:text-3xl;
+  }
+
+  /* サブタイトルテキスト */
+  .detail-subtitle {
+    @apply mt-1 text-sm text-gray-500;
+  }
+
+  /* タブナビゲーションのラッパー */
+  .detail-tabs-wrapper {
+    @apply mb-6 border-b border-gray-200;
+  }
+
+  /* タブのFlexコンテナ */
+  .detail-tabs-nav {
+    @apply -mb-px flex space-x-8;
+  }
+
+  /* タブボタンの基本スタイル */
+  .detail-tab-button {
+    @apply whitespace-nowrap border-b-2 py-4 px-1 text-sm font-medium transition-colors;
+  }
+
+  /* アクティブなタブ */
+  .detail-tab-active {
+    @apply border-blue-500 text-blue-600;
+  }
+
+  /* 非アクティブなタブ */
+  .detail-tab-inactive {
+    @apply border-transparent text-gray-500 hover:border-gray-300 hover:text-gray-700;
+  }
+
+  /* 操作メニュードロップダウンのボタン */
+  .detail-menu-button {
+    @apply inline-flex items-center gap-2 rounded-md border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2;
+  }
+
+  /* ドロップダウンメニュー本体 */
+  .detail-menu-dropdown {
+    @apply absolute right-0 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-50;
+  }
+
+  /* ドロップダウン内のアイテム */
+  .detail-menu-item {
+    @apply block w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100;
+  }
+
+  /* コンテンツエリアのローディング */
+  .detail-loading {
+    @apply flex justify-center py-12;
+  }
+
+  /* ローディングスピナー */
+  .detail-spinner {
+    @apply h-8 w-8 animate-spin rounded-full border-2 border-gray-200 border-t-indigo-600;
+  }
+
   /**
    * ==================================================================
    * Else (その他)
