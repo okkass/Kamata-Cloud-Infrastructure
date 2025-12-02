@@ -65,12 +65,12 @@
 </template>
 
 <script setup lang="ts">
-import { useBackupManagement } from "~/composables/dashboard/usebackup";
+import { useBackupManagement } from "~/composables/dashboard/useBackup";
 import { usePageActions } from "~/composables/usePageActions";
 import DashboardLayout from "~/components/DashboardLayout.vue";
 import MoBackupCreate from "~/components/MoBackupCreate.vue";
 import MoDeleteConfirm from "~/components/MoDeleteConfirm.vue";
-import type { BackupRow } from "~/composables/dashboard/usebackup";
+import type { BackupRow } from "~/composables/dashboard/useBackup";
 
 /* データ / composable */
 /* composable 側が提供するアクション定数を利用して重複を排除 */
