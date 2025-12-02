@@ -16,14 +16,14 @@ post:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/security-group/SecurityRuleCreateRequest.yml
+          $ref: "../../components/schemas/security-group/SecurityRuleCreateRequest.yml"
   responses:
     "201":
       description: ルール追加成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+            $ref: "../../components/schemas/security-group/SecurityRuleResponse.yml"
     "400":
       description: リクエストエラー
     "401":

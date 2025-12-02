@@ -24,7 +24,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+            $ref: "../../components/schemas/security-group/SecurityRuleResponse.yml"
     "400":
       description: リクエストエラー
     "401":
@@ -60,14 +60,14 @@ put:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/security-group/SecurityRulePutRequest.yml
+          $ref: "../../components/schemas/security-group/SecurityRulePutRequest.yml"
   responses:
     "200":
       description: ルール更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+            $ref: "../../components/schemas/security-group/SecurityRuleResponse.yml"
     "400":
       description: リクエストエラー
     "401":
@@ -103,14 +103,14 @@ patch:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/security-group/SecurityRulePatchRequest.yml
+          $ref: "../../components/schemas/security-group/SecurityRulePatchRequest.yml"
   responses:
     "200":
       description: ルール部分更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+            $ref: "../../components/schemas/security-group/SecurityRuleResponse.yml"
     "400":
       description: リクエストエラー
     "401":
