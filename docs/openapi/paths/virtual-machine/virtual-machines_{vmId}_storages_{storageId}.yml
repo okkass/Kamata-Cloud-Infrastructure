@@ -24,7 +24,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: "../../components/schemas/virtual-machine/virtual-storage/VirtualStorageResponse.yml"
+            $ref: "../../components/schemas/virtual-machine/virtual-storage/StorageResponse.yml"
     "401":
       description: 認証エラー
       content:
@@ -70,14 +70,14 @@ put:
     content:
       application/json:
         schema:
-          $ref: "../../components/schemas/virtual-machine/virtual-storage/VirtualStoragePutRequest.yml"
+          $ref: "../../components/schemas/virtual-machine/virtual-storage/StoragePutRequest.yml"
   responses:
     "200":
       description: 成功
       content:
         application/json:
           schema:
-            $ref: "../../components/schemas/virtual-machine/virtual-storage/VirtualStorageResponse.yml"
+            $ref: "../../components/schemas/virtual-machine/virtual-storage/StorageResponse.yml"
     "401":
       description: 認証エラー
       content:
@@ -123,14 +123,14 @@ patch:
     content:
       application/json:
         schema:
-          $ref: "../../components/schemas/virtual-machine/virtual-storage/VirtualStoragePatchRequest.yml"
+          $ref: "../../components/schemas/virtual-machine/virtual-storage/StoragePatchRequest.yml"
   responses:
     "200":
       description: 成功
       content:
         application/json:
           schema:
-            $ref: "../../components/schemas/virtual-machine/virtual-storage/VirtualStorageResponse.yml"
+            $ref: "../../components/schemas/virtual-machine/virtual-storage/StorageResponse.yml"
     "401":
       description: 認証エラー
       content:
