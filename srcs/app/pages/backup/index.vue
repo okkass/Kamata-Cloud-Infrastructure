@@ -79,8 +79,6 @@ const {
   headerButtons,
   rows: backups,
   refresh,
-  ADD_BACKUP_ACTION,
-  DELETE_BACKUP_ACTION,
 } = useBackupManagement();
 
 /* ページ共通アクション */
@@ -100,4 +98,8 @@ const {
   resourceLabel: "バックアップ",
   refresh,
 });
+
+/** Actions: 他 composable と同様の命名規則に合わせる */
+const ADD_BACKUP_ACTION = `add-${BACKUP.name}`;
+const DELETE_BACKUP_ACTION = `delete-${BACKUP.name}`;
 </script>
