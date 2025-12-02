@@ -16,3 +16,4 @@ properties:
 required:
   - devicePath
   - deviceName
+  - size
