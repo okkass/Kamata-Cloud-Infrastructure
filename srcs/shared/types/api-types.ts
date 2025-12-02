@@ -4231,19 +4231,961 @@ export interface paths {
 }
 export type webhooks = Record<string, never>;
 export interface components {
-  schemas: {
-    /** @description ログインリクエストオブジェクト */
-    LoginRequest: {
-      /**
-       * Format: email
-       * @description ユーザのメールアドレス
-       */
-      email: string;
-      /**
-       * Format: password
-       * @description ユーザのパスワード
-       */
-      password: string;
+    schemas: {
+        /** @description ログインリクエストオブジェクト */
+        LoginRequest: {
+            /**
+             * Format: email
+             * @description ユーザのメールアドレス
+             */
+            email: string;
+            /**
+             * Format: password
+             * @description ユーザのパスワード
+             */
+            password: string;
+        };
+        /** @description 仮想マシンイメージのレスポンスオブジェクト */
+        ImageResponse: {
+            /**
+             * Format: uuid
+             * @description 仮想マシンイメージを識別するための一意なID
+             */
+            id: string;
+            /** @description 仮想マシンイメージの名前 */
+            name: string;
+            /** @description 仮想マシンイメージの説明 */
+            description?: string;
+            /**
+             * Format: date-time
+             * @description 仮想マシンイメージが作成された日時
+             */
+            createdAt: string;
+            /**
+             * Format: integer
+             * @description 仮想マシンイメージのサイズ(バイト単位)
+             */
+            size: number;
+            /**
+             * Format: uuid
+             * @description 仮想マシンイメージが存在するノードのID
+             */
+            nodeId: string;
+        };
+        /** @description 仮想マシンイメージのうち更新可能な情報を表すスキーマ */
+        ImageClientUpdatable: {
+            /**
+             * @description 仮想マシンイメージの名前
+             * @example Ubuntu 22.04 LTS
+             */
+            name?: string;
+            /**
+             * @description 仮想マシンイメージの説明
+             * @example Ubuntu 22.04 LTS イメージ
+             */
+            description?: string;
+        };
+        /** @description イメージ作成時のみ設定可能なプロパティ */
+        ImageCreateOnly: {
+            /**
+             * Format: uuid
+             * @description イメージを作成するノードのID
+             */
+            nodeId: string;
+        };
+        /** @description 仮想マシンイメージ作成リクエストオブジェクト */
+        ImageCreateRequest: WithRequired<components["schemas"]["ImageClientUpdatable"], "name"> & components["schemas"]["ImageCreateOnly"];
+        /** @description 仮想マシンイメージ更新リクエスト(PUT)オブジェクト */
+        ImagePutRequest: WithRequired<components["schemas"]["ImageClientUpdatable"], "name">;
+        /** @description 仮想マシンイメージ更新リクエスト(PATCH)オブジェクト */
+        ImagePatchRequest: components["schemas"]["ImageClientUpdatable"];
+        /** @description ミドルウェアのレスポンスオブジェクト */
+        MiddlewareResponse: {
+            /**
+             * Format: uuid
+             * @description ミドルウェアを識別するための一意なID
+             */
+            id: string;
+            /** @description ミドルウェアの名前 */
+            name: string;
+        };
+        /** @description インスタンスタイプレスポンスオブジェクト */
+        InstanceTypeResponse: {
+            /**
+             * Format: uuid
+             * @description インスタンスタイプを識別するための一意なID
+             */
+            id: string;
+            /** @description インスタンスタイプの名前 */
+            name: string;
+            /**
+             * Format: date-time
+             * @description インスタンスタイプが作成された日時
+             */
+            createdAt: string;
+            /** @description CPUコア数 */
+            cpuCore: number;
+            /** @description メモリサイズ（バイト単位） */
+            memorySize: number;
+        };
+        /** @description インスタンスタイプのうち更新可能な情報を表すスキーマ */
+        InstanceTypeUpdatable: {
+            /**
+             * @description インスタンスタイプの名前
+             * @example micro
+             */
+            name?: string;
+            /**
+             * @description CPUコア数
+             * @example 4
+             */
+            cpuCore?: number;
+            /**
+             * @description メモリサイズ（バイト単位）
+             * @example 8589934592
+             */
+            memorySize?: number;
+        };
+        /** @description インスタンスタイプ作成リクエストオブジェクト */
+        InstanceTypeCreateRequest: WithRequired<components["schemas"]["InstanceTypeUpdatable"], "name" | "cpuCore" | "memorySize">;
+        /** @description インスタンスタイプ更新リクエストオブジェクト(PUT) */
+        InstanceTypePutRequest: WithRequired<components["schemas"]["InstanceTypeUpdatable"], "name" | "cpuCore" | "memorySize">;
+        /** @description インスタンスタイプ更新リクエストオブジェクト(PATCH) */
+        InstanceTypePatchRequest: components["schemas"]["InstanceTypeUpdatable"];
+        /** @description 物理ノードレスポンスオブジェクト */
+        NodeResponse: {
+            /**
+             * Format: uuid
+             * @description 物理ノードを識別するための一意なID
+             */
+            id: string;
+            /** @description 物理ノードの名前 */
+            name: string;
+            /**
+             * Format: ipv4
+             * @description 物理ノードのIPアドレス
+             */
+            ipAddress: string;
+            /**
+             * @description 物理ノードの状態
+             * @enum {string}
+             */
+            status: "active" | "inactive";
+            /** @description 物理ノードが管理ノードかどうかを示すフラグ */
+            isAdmin: boolean;
+            /**
+             * Format: date-time
+             * @description 物理ノードが作成された日時
+             */
+            createdAt: string;
+            /**
+             * Format: float
+             * @description CPU使用率（0.0から1.0の範囲）
+             * @example 0.75
+             */
+            cpuUtilization?: number;
+            /**
+             * Format: float
+             * @description メモリ使用率（0.0から1.0の範囲）
+             * @example 0.6
+             */
+            memoryUtilization?: number;
+            /**
+             * Format: float
+             * @description ストレージ使用率（0.0から1.0の範囲）
+             * @example 0.8
+             */
+            storageUtilization?: number;
+        };
+        /** @description 物理ノードを作成時に設定できるプロパティ */
+        NodeCreateOnly: {
+            /**
+             * Format: ipv4
+             * @description 物理ノードのIPアドレス
+             * @example 192.168.0.1
+             */
+            ipAddress: string;
+        };
+        /** @description 物理ノード更新可能なプロパティ */
+        NodeUpdatable: {
+            /**
+             * @description 物理ノードの名前
+             * @example node-01
+             */
+            name?: string;
+            /**
+             * @description 物理ノードが管理ノードかどうかを示すフラグ
+             * @example true
+             */
+            isAdmin?: boolean;
+        };
+        /** @description 物理ノード追加リクエストオブジェクト */
+        NodeCreateRequest: components["schemas"]["NodeCreateOnly"] & components["schemas"]["NodeUpdatable"];
+        /** @description 物理ノード候補レスポンスオブジェクト */
+        NodeCandidateResponse: {
+            /** @description 物理ノードの名前 */
+            name: string;
+            /**
+             * Format: ipv4
+             * @description 物理ノードのIPアドレス
+             */
+            ipAddress: string;
+        };
+        /** @description 物理ノード更新リクエストオブジェクト(PUT) */
+        NodePutRequest: WithRequired<components["schemas"]["NodeUpdatable"], "name" | "isAdmin">;
+        /** @description 物理ノード更新リクエストオブジェクト(PATCH) */
+        NodePatchRequest: components["schemas"]["NodeUpdatable"];
+        /** @description ストレージデバイス情報のレスポンスプロパティ */
+        DeviceResponse: {
+            /**
+             * @description ストレージデバイスのパス
+             * @example /dev/sdb
+             */
+            devicePath: string;
+            /**
+             * @description ストレージデバイスの名前
+             * @example Hitachi SSD HUS724040ALA640
+             */
+            deviceName: string;
+            /**
+             * @description ストレージデバイスのサイズ（バイト単位）
+             * @example 4000787030016
+             */
+            size?: number;
+        };
+        /** @description ポートフォリオレスポンスオブジェクト */
+        PortfolioResponse: {
+            /**
+             * Format: uuid
+             * @description ポートフォリオを識別するための一意なID
+             */
+            id: string;
+            /** @description ポートフォリオのタイトル */
+            title: string;
+            /**
+             * Format: date-time
+             * @description ポートフォリオの作成日時
+             */
+            createdAt: string;
+            /**
+             * Format: integer
+             * @description 過去24時間のビュー数
+             */
+            viewCount24Hour: number;
+            /**
+             * Format: integer
+             * @description 過去7日間のビュー数
+             */
+            viewCount7Day: number;
+        };
+        /** @description ポートフォリオ更新可能オブジェクト */
+        PortfolioUpdatable: {
+            /** @description ポートフォリオのタイトル */
+            title?: string;
+        };
+        /** @description ポートフォリオ作成リクエストオブジェクト */
+        PortfolioCreateRequest: WithRequired<components["schemas"]["PortfolioUpdatable"], "title">;
+        /** @description セキュリティルールレスポンスオブジェクト */
+        SecurityRuleResponse: {
+            /**
+             * Format: uuid
+             * @description セキュリティルールを識別するための一意なID
+             */
+            id: string;
+            /** @description セキュリティルールの名前 */
+            name: string;
+            /**
+             * @description ルールのタイプ（インバウンドまたはアウトバウンド）
+             * @enum {string}
+             */
+            ruleType: "inbound" | "outbound";
+            /**
+             * @description 適用されるポート番号
+             * @example 22
+             */
+            port?: number;
+            /**
+             * @description 適用されるプロトコル
+             * @enum {string}
+             */
+            protocol: "tcp" | "udp" | "icmp" | "any";
+            /**
+             * Format: ipv4
+             * @description ターゲットIPアドレス
+             * @example 192.0.2.0/24
+             */
+            targetIp: string;
+            /**
+             * @description ルールのアクション（許可または拒否）
+             * @enum {string}
+             */
+            action?: "allow" | "deny";
+            /**
+             * Format: date-time
+             * @description セキュリティルールが作成された日時
+             */
+            createdAt: string;
+        };
+        /** @description セキュリティグループレスポンスオブジェクト */
+        SecurityGroupResponse: {
+            /**
+             * Format: uuid
+             * @description セキュリティグループを識別するための一意なID
+             */
+            id: string;
+            /** @description セキュリティグループの名前 */
+            name: string;
+            /** @description セキュリティグループの説明 */
+            description?: string;
+            rules: components["schemas"]["SecurityRuleResponse"][];
+            /**
+             * Format: date-time
+             * @description セキュリティグループが作成された日時
+             */
+            createdAt: string;
+        };
+        /** @description セキュリティグループ更新可能なプロパティ */
+        SecurityGroupUpdatable: {
+            /**
+             * @description セキュリティグループの名前
+             * @example web-servers
+             */
+            name?: string;
+            /**
+             * @description セキュリティグループの説明
+             * @example Security group for web servers
+             */
+            description?: string;
+        };
+        /** @description セキュリティルール更新可能なフィールド */
+        SecurityRuleUpdatable: {
+            /** @description セキュリティルールの名前 */
+            name?: string;
+            /**
+             * @description ルールのタイプ（インバウンドまたはアウトバウンド）
+             * @enum {string}
+             */
+            ruleType?: "inbound" | "outbound";
+            /**
+             * @description 適用されるポート番号
+             * @example 22
+             */
+            port?: number;
+            /**
+             * @description 適用されるプロトコル
+             * @enum {string}
+             */
+            protocol?: "tcp" | "udp" | "icmp" | "any";
+            /**
+             * Format: ipv4
+             * @description ターゲットIPアドレス
+             * @example 192.0.2.0/24
+             */
+            targetIp?: string;
+            /**
+             * @description ルールのアクション（許可または拒否）
+             * @enum {string}
+             */
+            action?: "allow" | "deny";
+        };
+        /** @description セキュリティルール作成リクエストオブジェクト */
+        SecurityRuleCreateRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
+        /** @description セキュリティグループ作成時のみに設定可能なプロパティ */
+        SecurityGroupCreateOnly: {
+            rules: components["schemas"]["SecurityRuleCreateRequest"][];
+        };
+        /** @description セキュリティグループ作成リクエストオブジェクト */
+        SecurityGroupCreateRequest: WithRequired<components["schemas"]["SecurityGroupUpdatable"], "name"> & WithRequired<components["schemas"]["SecurityGroupCreateOnly"], "rules">;
+        /** @description セキュリティグループ更新リクエストオブジェクト(PUT) */
+        SecurityGroupPutRequest: WithRequired<components["schemas"]["SecurityGroupUpdatable"], "name" | "description">;
+        /** @description セキュリティグループ更新リクエストオブジェクト(PATCH) */
+        SecurityGroupPatchRequest: components["schemas"]["SecurityGroupUpdatable"];
+        /** @description セキュリティルールバルク更新リクエストオブジェクト */
+        SecurityRuleBulkRequest: {
+            /** @description 追加するセキュリティルールのリスト */
+            add?: components["schemas"]["SecurityRuleCreateRequest"][];
+            /** @description 更新するセキュリティルールのリスト */
+            patch?: {
+                /**
+                 * Format: uuid
+                 * @description 更新するセキュリティルールのID
+                 */
+                id: string;
+                data: components["schemas"]["SecurityRuleUpdatable"];
+            }[];
+            /** @description 削除するセキュリティルールのIDリスト */
+            delete?: string[];
+        };
+        /** @description セキュリティルール更新リクエストオブジェクト(PUT) */
+        SecurityRulePutRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
+        /** @description セキュリティルール更新リクエストオブジェクト(PATCH) */
+        SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"];
+        /** @description ストレージプールレスポンスオブジェクト */
+        StoragePoolResponse: {
+            /**
+             * Format: uuid
+             * @description ストレージプールを識別するための一意なID
+             * @example 550e8400-e29b-41d4-a716-446655440000
+             */
+            id: string;
+            /**
+             * @description ストレージプールの名前
+             * @example Node1 Pool 1
+             */
+            name: string;
+            /**
+             * Format: uuid
+             * @description ストレージプールが属する物理ノードのID
+             * @example 550e8400-e29b-41d4-a716-446655440000
+             */
+            nodeId: string;
+            /**
+             * Format: date-time
+             * @description ストレージプールが作成された日時
+             * @example 2024-01-01T12:00:00Z
+             */
+            createdAt: string;
+            /**
+             * @description ストレージプールの総サイズ（バイト単位）
+             * @example 1099511627776
+             */
+            totalSize: number;
+            /**
+             * @description ストレージプールの使用済みサイズ（バイト単位）
+             * @example 549755813888
+             */
+            usedSize: number;
+            /**
+             * @description ストレージプールがネットワークアクセス可能かどうかを示すフラグ
+             * @example true
+             */
+            hasNetworkAccess: boolean;
+        };
+        /** @description ストレージプール作成時のみ設定可能なプロパティ */
+        StoragePoolCreateOnly: {
+            /**
+             * Format: uuid
+             * @description ストレージプールが属する物理ノードのID
+             * @example 550e8400-e29b-41d4-a716-446655440000
+             */
+            nodeId: string;
+            /**
+             * @description ストレージプールの総サイズ（バイト単位）
+             * @example 1099511627776
+             */
+            totalSize: number;
+            /**
+             * @description ストレージプールが使用するデバイスのパス
+             * @example /dev/sdb
+             */
+            devicePath: string;
+        };
+        /** @description ストレージプール更新可能なプロパティ */
+        StoragePoolUpdatable: {
+            /**
+             * @description ストレージプールの名前
+             * @example Node1 Pool 1
+             */
+            name?: string;
+            /**
+             * @description ストレージプールがネットワークアクセス可能かどうかを示すフラグ
+             * @example true
+             */
+            hasNetworkAccess?: boolean;
+        };
+        /** @description ストレージプール作成リクエストオブジェクト */
+        StoragePoolCreateRequest: components["schemas"]["StoragePoolCreateOnly"] & WithRequired<components["schemas"]["StoragePoolUpdatable"], "name" | "hasNetworkAccess">;
+        /** @description ストレージプール更新リクエストオブジェクト(PUT) */
+        StoragePoolPutRequest: WithRequired<components["schemas"]["StoragePoolUpdatable"], "name" | "hasNetworkAccess">;
+        /** @description ストレージプール更新リクエストオブジェクト(PATCH) */
+        StoragePoolPatchRequest: components["schemas"]["StoragePoolUpdatable"];
+        /** @description TOTP情報オブジェクト */
+        TotpInfo: {
+            /** @description TOTPシークレットキー */
+            secret: string;
+            /** @description TOTP URI（QRコード生成用） */
+            uri: string;
+        };
+        /** @description ユーザレスポンスオブジェクト */
+        UserResponse: {
+            /**
+             * Format: uuid
+             * @description ユーザを識別するための一意なID
+             */
+            id: string;
+            /** @description ユーザの名前 */
+            name: string;
+            /**
+             * Format: email
+             * @description ユーザのメールアドレス
+             */
+            email: string;
+            /**
+             * Format: date-time
+             * @description ユーザが作成された日時
+             */
+            createdAt: string;
+            /** @description ユーザが管理者かどうかを示すフラグ */
+            isAdmin: boolean;
+            /**
+             * Format: date-time
+             * @description ユーザが最後にログインした日時
+             */
+            lastLoginAt: string;
+            /**
+             * @description ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
+             * @example 32
+             */
+            maxCpuCore?: number | null;
+            /**
+             * @description ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
+             * @example 17179869184
+             */
+            maxMemorySize?: number | null;
+            /**
+             * @description ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
+             * @example 1099511627776
+             */
+            maxStorageSize?: number | null;
+            totpInfo?: components["schemas"]["TotpInfo"];
+            /**
+             * @description ユーザがイメージ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isImageAdmin: boolean;
+            /**
+             * @description ユーザがインスタンスタイプ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isInstanceTypeAdmin: boolean;
+            /**
+             * @description ユーザが物理ノード管理者かどうかを示すフラグ
+             * @example false
+             */
+            isPhysicalNodeAdmin: boolean;
+        };
+        /** @description ユーザ作成時のみに設定可能なプロパティ */
+        UserCreateOnly: {
+            /**
+             * Format: password
+             * @description ユーザのパスワード
+             * @example StrongP@ssw0rd!
+             */
+            password: string;
+        };
+        /** @description ユーザの更新可能プロパティ */
+        UserUpdatable: {
+            /** @description ユーザの表示名 */
+            name?: string;
+            /**
+             * Format: email
+             * @description ユーザのメールアドレス
+             */
+            email?: string;
+            /**
+             * @description ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
+             * @example 32
+             */
+            maxCpuCore?: number | null;
+            /**
+             * @description ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
+             * @example 17179869184
+             */
+            maxMemorySize?: number | null;
+            /**
+             * @description ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
+             * @example 1099511627776
+             */
+            maxStorageSize?: number | null;
+            /** @description ユーザが管理者権限を持つかどうか */
+            isAdmin?: boolean;
+            /**
+             * @description ユーザがイメージ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isImageAdmin?: boolean;
+            /**
+             * @description ユーザがインスタンスタイプ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isInstanceTypeAdmin?: boolean;
+            /**
+             * @description ユーザが仮想マシン管理者かどうかを示すフラグ
+             * @example false
+             */
+            isVirtualMachineAdmin?: boolean;
+            /**
+             * @description ユーザがネットワーク管理者かどうかを示すフラグ
+             * @example false
+             */
+            isNetworkAdmin?: boolean;
+            /**
+             * @description ユーザがセキュリティグループ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isSecurityGroupAdmin?: boolean;
+            /**
+             * @description ユーザが物理ノード管理者かどうかを示すフラグ
+             * @example false
+             */
+            isPhysicalNodeAdmin?: boolean;
+        };
+        /** @description ユーザ作成リクエストオブジェクト */
+        UserCreateRequest: components["schemas"]["UserCreateOnly"] & WithRequired<components["schemas"]["UserUpdatable"], "name" | "email" | "isAdmin" | "maxCpuCore" | "maxMemorySize" | "maxStorageSize">;
+        /** @description ユーザ更新リクエストオブジェクト */
+        UserPutRequest: WithRequired<components["schemas"]["UserUpdatable"], "name" | "email" | "isAdmin" | "isImageAdmin" | "isInstanceTypeAdmin" | "isVirtualMachineAdmin" | "isNetworkAdmin" | "isSecurityGroupAdmin" | "isPhysicalNodeAdmin">;
+        /** @description ユーザ更新リクエストオブジェクト */
+        UserPatchRequest: components["schemas"]["UserUpdatable"];
+        /** @description パスワード変更リクエストオブジェクト */
+        PasswordChangeRequest: {
+            /** @description 現在のパスワード */
+            currentPassword: string;
+            /** @description 新しいパスワード */
+            newPassword: string;
+        };
+        /** @description 仮想ストレージオブジェクト */
+        VirtualStorage: {
+            /**
+             * Format: uuid
+             * @description 仮想ストレージを識別するための一意なID
+             */
+            id: string;
+            /** @description 仮想ストレージの名前 */
+            name: string;
+            /** @description 仮想ストレージのサイズ（バイト単位） */
+            size: number;
+            /**
+             * Format: uuid
+             * @description 仮想ストレージが属するストレージプールのID
+             */
+            poolId: string;
+            /**
+             * Format: date-time
+             * @description 仮想ストレージの作成日時
+             */
+            createdAt: string;
+        };
+        /** @description バックアップオブジェクト */
+        Backup: {
+            /**
+             * Format: uuid
+             * @description バックアップを識別するための一意なID
+             */
+            id: string;
+            /** @description バックアップの名前 */
+            name: string;
+            /** @description バックアップの説明 */
+            description?: string;
+            /**
+             * Format: date-time
+             * @description バックアップが作成された日時
+             */
+            createdAt: string;
+            /**
+             * Format: integer
+             * @description バックアップのサイズ(バイト単位)
+             */
+            size: number;
+            /** @description バックアップ対象の仮想ストレージ */
+            targetVirtualStorage: components["schemas"]["VirtualStorage"];
+        };
+        /** @description バックアップ作成リクエストオブジェクト */
+        BackupCreateRequest: {
+            /** @description バックアップの名前 */
+            name: string;
+            /**
+             * Format: uuid
+             * @description バックアップ対象の仮想ストレージのID
+             */
+            targetStorageId: string;
+        };
+        /** @description アタッチされたストレージオブジェクト */
+        AttachedStorage: {
+            /**
+             * Format: uuid
+             * @description アタッチされたストレージを識別するための一意なID
+             */
+            id: string;
+            storage: components["schemas"]["VirtualStorage"];
+            /**
+             * @description ストレージデバイスのパス
+             * @example /dev/sda
+             */
+            path: string;
+        };
+        /** @description ネットワークインターフェースオブジェクト */
+        NetworkInterface: {
+            /**
+             * Format: uuid
+             * @description ネットワークインターフェースを識別するための一意なID
+             */
+            id: string;
+            /** @description ネットワークインターフェースの名前 */
+            name: string;
+            /**
+             * @description ネットワークインターフェースのMACアドレス
+             * @example 02:42:ac:11:00:02
+             */
+            macAddress: string;
+            /**
+             * Format: ipv4
+             * @description ネットワークインターフェースのIPアドレス
+             * @example 10.0.0.0/32
+             */
+            ipAddress: string;
+            /**
+             * Format: uuid
+             * @description ネットワークインターフェースが属するサブネットのID
+             */
+            subnetId: string;
+        };
+        /** @description 仮想マシンオブジェクト */
+        VirtualMachine: {
+            /**
+             * Format: uuid
+             * @description 仮想マシンを識別するための一意なID
+             */
+            id: string;
+            /** @description 仮想マシンの名前 */
+            name: string;
+            /** @description 仮想マシンのインスタンスタイプ */
+            instanceType?: components["schemas"]["InstanceTypeResponse"];
+            /**
+             * @description 仮想マシンの状態
+             * @enum {string}
+             */
+            status: "running" | "stopped" | "suspended";
+            /** @description 仮想マシンが配置されている物理ノード */
+            node: components["schemas"]["NodeResponse"];
+            /**
+             * Format: date-time
+             * @description 仮想マシンが作成された日時
+             */
+            createdAt: string;
+            /** @description 仮想マシンに関連付けられたセキュリティグループのリスト */
+            securityGroups: components["schemas"]["SecurityGroupResponse"][];
+            /** @description アタッチされたストレージのリスト */
+            attachedStorages: components["schemas"]["AttachedStorage"][];
+            /** @description アタッチされたネットワークインターフェースのリスト */
+            attachedNics?: components["schemas"]["NetworkInterface"][];
+            /**
+             * Format: float
+             * @description CPU使用率（0.0から1.0の範囲）
+             * @example 0.55
+             */
+            cpuUtilization?: number;
+            /**
+             * Format: float
+             * @description メモリ使用率（0.0から1.0の範囲）
+             * @example 0.7
+             */
+            memoryUtilization?: number;
+            /**
+             * Format: float
+             * @description ストレージ使用率（0.0から1.0の範囲）
+             * @example 0.4
+             */
+            storageUtilization?: number;
+            /** @description 仮想マシンに割り当てられたCPUコア数 */
+            cpuCore?: number;
+            /** @description 仮想マシンに割り当てられたメモリサイズ（バイト単位） */
+            memorySize?: number;
+        };
+        /** @description スナップショットオブジェクト */
+        SnapShot: {
+            /**
+             * Format: uuid
+             * @description スナップショットを識別するための一意なID
+             */
+            id: string;
+            /** @description スナップショットの名前 */
+            name: string;
+            /** @description スナップショットの説明 */
+            description?: string;
+            /**
+             * Format: date-time
+             * @description スナップショットが作成された日時
+             */
+            createdAt: string;
+            /** @description スナップショット取得元の仮想マシン */
+            targetVirtualMachine: components["schemas"]["VirtualMachine"];
+        };
+        /** @description スナップショット作成リクエストオブジェクト */
+        SnapShotCreateRequest: {
+            /** @description スナップショットの名前 */
+            name: string;
+            /** @description スナップショットの説明 */
+            description?: string;
+            /**
+             * Format: uuid
+             * @description スナップショットを取得する仮想マシンのID
+             */
+            targetVmId: string;
+        };
+        /** @description 仮想マシン作成リクエストオブジェクト */
+        VirtualMachineCreateRequest: {
+            /** @description 仮想マシンの名前 */
+            name: string;
+            /**
+             * Format: uuid
+             * @description 使用するインスタンスタイプのID
+             */
+            instanceTypeId?: string;
+            /** @description 仮想マシンに割り当てるCPUコア数（instanceTypeIdが指定されていない場合に必須） */
+            cpuCore?: number;
+            /** @description 仮想マシンに割り当てるメモリサイズ（バイト単位、instanceTypeIdが指定されていない場合に必須） */
+            memorySize?: number;
+            /**
+             * Format: uuid
+             * @description 仮想マシンを配置するサブネットのID
+             */
+            subnetId: string;
+            /** @description 仮想マシンに設定するSSH公開鍵 */
+            publicKey?: string;
+            /**
+             * Format: uuid
+             * @description 使用する仮想マシンイメージのID
+             */
+            imageId: string;
+            /**
+             * Format: uuid
+             * @description インストールするミドルウェアのID
+             */
+            middlewareId?: string;
+            /**
+             * Format: uuid
+             * @description 仮想マシンを配置する物理ノードのID
+             */
+            nodeId: string;
+            /** @description 仮想マシンにアタッチするストレージのリスト */
+            storages: {
+                /** @description ストレージの名前 */
+                name: string;
+                /** @description ストレージのサイズ（バイト単位） */
+                size: number;
+                /**
+                 * Format: uuid
+                 * @description ストレージプールのID
+                 */
+                poolId: string;
+            }[];
+            /** @description 関連付けるセキュリティグループのIDリスト */
+            securityGroupIds: string[];
+        };
+        /** @description 仮想マシン更新リクエストオブジェクト */
+        VirtualMachineUpdateRequest: {
+            /** @description 仮想マシンの名前 */
+            name?: string;
+            /**
+             * Format: uuid
+             * @description 使用するインスタンスタイプのID
+             */
+            instanceTypeId?: string;
+            /** @description 仮想マシンに割り当てるCPUコア数 */
+            cpuCore?: number;
+            /** @description 仮想マシンに割り当てるメモリサイズ（バイト単位） */
+            memorySize?: number;
+            /** @description 仮想マシンに関連付けられたセキュリティグループのIDリスト */
+            securityGroupIds?: string[];
+            /** @description アタッチされたストレージのリスト */
+            attachedStorages?: components["schemas"]["AttachedStorage"][];
+            /** @description アタッチされたネットワークインターフェースのリスト */
+            attachedNics?: components["schemas"]["NetworkInterface"][];
+        };
+        /** @description サブネットオブジェクト */
+        Subnet: {
+            /**
+             * Format: uuid
+             * @description サブネットを識別するための一意なID
+             */
+            id: string;
+            /** @description サブネットの名前 */
+            name: string;
+            /**
+             * @description CIDR形式のサブネットアドレス
+             * @example 10.0.0.0/24
+             */
+            cidr: string;
+            /** @description 外部接続が可能かどうかを示すフラグ */
+            possibleExternalConnection: boolean;
+            /**
+             * Format: date-time
+             * @description サブネットが作成された日時
+             */
+            createdAt: string;
+        };
+        /** @description 仮想ネットワークオブジェクト */
+        VirtualNetwork: {
+            /**
+             * Format: uuid
+             * @description 仮想ネットワークを識別するための一意なID
+             */
+            id: string;
+            /** @description 仮想ネットワークの名前 */
+            name: string;
+            /**
+             * @description CIDR形式のネットワークアドレス
+             * @example 10.0.0.0/16
+             */
+            cidr: string;
+            /**
+             * Format: date-time
+             * @description 仮想ネットワークが作成された日時
+             */
+            createdAt: string;
+            subnets?: components["schemas"]["Subnet"][];
+            /**
+             * Format: float
+             * @description 仮想ネットワークのインバウンドトラフィック（bps単位）
+             * @example 125000
+             */
+            inboundTraffic: number;
+            /**
+             * Format: float
+             * @description 仮想ネットワークのアウトバウンドトラフィック（bps単位）
+             * @example 98000
+             */
+            outboundTraffic: number;
+        };
+        /** @description 仮想ネットワーク作成リクエストオブジェクト */
+        VirtualNetworkCreateRequest: {
+            /** @description 仮想ネットワークの名前 */
+            name: string;
+            /**
+             * @description CIDR形式のネットワークアドレス
+             * @example 10.0.0.0/16
+             */
+            cidr: string;
+        };
+        /** @description 仮想ネットワーク更新リクエストオブジェクト */
+        VirtualNetworkUpdateRequest: {
+            /** @description 仮想ネットワークの名前 */
+            name?: string;
+        };
+        /** @description サブネット作成リクエストオブジェクト */
+        SubnetCreateRequest: {
+            /** @description サブネットの名前 */
+            name: string;
+            /**
+             * @description CIDR形式のサブネットアドレス
+             * @example 10.0.0.0/16
+             */
+            cidr: string;
+            /** @description 外部接続が可能かどうかを示すフラグ */
+            possibleExternalConnection: boolean;
+        };
+        /** @description サブネット更新リクエストオブジェクト */
+        SubnetUpdateRequest: {
+            /** @description サブネットの名前 */
+            name?: string;
+            /**
+             * @description CIDR形式のサブネットアドレス
+             * @example 10.0.0.0/16
+             */
+            cidr?: string;
+            /** @description 外部接続が可能かどうかを示すフラグ */
+            possibleExternalConnection?: boolean;
+        };
     };
     /** @description 仮想マシンイメージのレスポンスオブジェクト */
     ImageResponse: {
@@ -5264,110 +6206,72 @@ export interface components {
   headers: never;
   pathItems: never;
 }
-export type LoginRequest = components["schemas"]["LoginRequest"];
-export type ImageResponse = components["schemas"]["ImageResponse"];
-export type ImageClientUpdatable =
-  components["schemas"]["ImageClientUpdatable"];
-export type ImageCreateOnly = components["schemas"]["ImageCreateOnly"];
-export type ImageCreateRequest = components["schemas"]["ImageCreateRequest"];
-export type ImagePutRequest = components["schemas"]["ImagePutRequest"];
-export type ImagePatchRequest = components["schemas"]["ImagePatchRequest"];
-export type MiddlewareResponse = components["schemas"]["MiddlewareResponse"];
-export type InstanceTypeResponse =
-  components["schemas"]["InstanceTypeResponse"];
-export type InstanceTypeUpdatable =
-  components["schemas"]["InstanceTypeUpdatable"];
-export type InstanceTypeCreateRequest =
-  components["schemas"]["InstanceTypeCreateRequest"];
-export type InstanceTypePutRequest =
-  components["schemas"]["InstanceTypePutRequest"];
-export type InstanceTypePatchRequest =
-  components["schemas"]["InstanceTypePatchRequest"];
-export type NodeResponse = components["schemas"]["NodeResponse"];
-export type NodeCreateOnly = components["schemas"]["NodeCreateOnly"];
-export type NodeUpdatable = components["schemas"]["NodeUpdatable"];
-export type NodeCreateRequest = components["schemas"]["NodeCreateRequest"];
-export type NodeCandidateResponse =
-  components["schemas"]["NodeCandidateResponse"];
-export type NodePutRequest = components["schemas"]["NodePutRequest"];
-export type NodePatchRequest = components["schemas"]["NodePatchRequest"];
-export type DeviceResponse = components["schemas"]["DeviceResponse"];
-export type PortfolioResponse = components["schemas"]["PortfolioResponse"];
-export type PortfolioUpdatable = components["schemas"]["PortfolioUpdatable"];
-export type PortfolioCreateRequest =
-  components["schemas"]["PortfolioCreateRequest"];
-export type SecurityRuleResponse =
-  components["schemas"]["SecurityRuleResponse"];
-export type SecurityGroupResponse =
-  components["schemas"]["SecurityGroupResponse"];
-export type SecurityGroupUpdatable =
-  components["schemas"]["SecurityGroupUpdatable"];
-export type SecurityRuleUpdatable =
-  components["schemas"]["SecurityRuleUpdatable"];
-export type SecurityRuleCreateRequest =
-  components["schemas"]["SecurityRuleCreateRequest"];
-export type SecurityGroupCreateOnly =
-  components["schemas"]["SecurityGroupCreateOnly"];
-export type SecurityGroupCreateRequest =
-  components["schemas"]["SecurityGroupCreateRequest"];
-export type SecurityGroupPutRequest =
-  components["schemas"]["SecurityGroupPutRequest"];
-export type SecurityGroupPatchRequest =
-  components["schemas"]["SecurityGroupPatchRequest"];
-export type SecurityRuleBulkRequest =
-  components["schemas"]["SecurityRuleBulkRequest"];
-export type SecurityRulePutRequest =
-  components["schemas"]["SecurityRulePutRequest"];
-export type SecurityRulePatchRequest =
-  components["schemas"]["SecurityRulePatchRequest"];
-export type StoragePoolResponse = components["schemas"]["StoragePoolResponse"];
-export type StoragePoolCreateOnly =
-  components["schemas"]["StoragePoolCreateOnly"];
-export type StoragePoolUpdatable =
-  components["schemas"]["StoragePoolUpdatable"];
-export type StoragePoolCreateRequest =
-  components["schemas"]["StoragePoolCreateRequest"];
-export type StoragePoolPutRequest =
-  components["schemas"]["StoragePoolPutRequest"];
-export type StoragePoolPatchRequest =
-  components["schemas"]["StoragePoolPatchRequest"];
-export type TotpInfo = components["schemas"]["TotpInfo"];
-export type UserResponse = components["schemas"]["UserResponse"];
-export type UserCreateOnly = components["schemas"]["UserCreateOnly"];
-export type UserUpdatable = components["schemas"]["UserUpdatable"];
-export type UserCreateRequest = components["schemas"]["UserCreateRequest"];
-export type UserPutRequest = components["schemas"]["UserPutRequest"];
-export type UserPatchRequest = components["schemas"]["UserPatchRequest"];
-export type PasswordChangeRequest =
-  components["schemas"]["PasswordChangeRequest"];
-export type VirtualStorage = components["schemas"]["VirtualStorage"];
-export type Backup = components["schemas"]["Backup"];
-export type BackupCreateRequest = components["schemas"]["BackupCreateRequest"];
-export type AttachedStorage = components["schemas"]["AttachedStorage"];
-export type NetworkInterface = components["schemas"]["NetworkInterface"];
-export type VirtualMachine = components["schemas"]["VirtualMachine"];
-export type SnapShot = components["schemas"]["SnapShot"];
-export type SnapShotCreateRequest =
-  components["schemas"]["SnapShotCreateRequest"];
-export type VirtualMachineCreateRequest =
-  components["schemas"]["VirtualMachineCreateRequest"];
-export type VirtualMachineUpdateRequest =
-  components["schemas"]["VirtualMachineUpdateRequest"];
-export type SubnetResponse = components["schemas"]["SubnetResponse"];
-export type VirtualNetworkResponse =
-  components["schemas"]["VirtualNetworkResponse"];
-export type ErrorResponse = components["schemas"]["ErrorResponse"];
-export type VirtualNetworkUpdatable =
-  components["schemas"]["VirtualNetworkUpdatable"];
-export type SubnetUpdatable = components["schemas"]["SubnetUpdatable"];
-export type VirtualNetworkCreateOnly =
-  components["schemas"]["VirtualNetworkCreateOnly"];
-export type VirtualNetworkCreateRequest =
-  components["schemas"]["VirtualNetworkCreateRequest"];
-export type VirtualNetworkPutRequest =
-  components["schemas"]["VirtualNetworkPutRequest"];
-export type SubnetPutRequest = components["schemas"]["SubnetPutRequest"];
-export type SubnetPatchRequest = components["schemas"]["SubnetPatchRequest"];
+export type LoginRequest = components['schemas']['LoginRequest'];
+export type ImageResponse = components['schemas']['ImageResponse'];
+export type ImageClientUpdatable = components['schemas']['ImageClientUpdatable'];
+export type ImageCreateOnly = components['schemas']['ImageCreateOnly'];
+export type ImageCreateRequest = components['schemas']['ImageCreateRequest'];
+export type ImagePutRequest = components['schemas']['ImagePutRequest'];
+export type ImagePatchRequest = components['schemas']['ImagePatchRequest'];
+export type MiddlewareResponse = components['schemas']['MiddlewareResponse'];
+export type InstanceTypeResponse = components['schemas']['InstanceTypeResponse'];
+export type InstanceTypeUpdatable = components['schemas']['InstanceTypeUpdatable'];
+export type InstanceTypeCreateRequest = components['schemas']['InstanceTypeCreateRequest'];
+export type InstanceTypePutRequest = components['schemas']['InstanceTypePutRequest'];
+export type InstanceTypePatchRequest = components['schemas']['InstanceTypePatchRequest'];
+export type NodeResponse = components['schemas']['NodeResponse'];
+export type NodeCreateOnly = components['schemas']['NodeCreateOnly'];
+export type NodeUpdatable = components['schemas']['NodeUpdatable'];
+export type NodeCreateRequest = components['schemas']['NodeCreateRequest'];
+export type NodeCandidateResponse = components['schemas']['NodeCandidateResponse'];
+export type NodePutRequest = components['schemas']['NodePutRequest'];
+export type NodePatchRequest = components['schemas']['NodePatchRequest'];
+export type DeviceResponse = components['schemas']['DeviceResponse'];
+export type PortfolioResponse = components['schemas']['PortfolioResponse'];
+export type PortfolioUpdatable = components['schemas']['PortfolioUpdatable'];
+export type PortfolioCreateRequest = components['schemas']['PortfolioCreateRequest'];
+export type SecurityRuleResponse = components['schemas']['SecurityRuleResponse'];
+export type SecurityGroupResponse = components['schemas']['SecurityGroupResponse'];
+export type SecurityGroupUpdatable = components['schemas']['SecurityGroupUpdatable'];
+export type SecurityRuleUpdatable = components['schemas']['SecurityRuleUpdatable'];
+export type SecurityRuleCreateRequest = components['schemas']['SecurityRuleCreateRequest'];
+export type SecurityGroupCreateOnly = components['schemas']['SecurityGroupCreateOnly'];
+export type SecurityGroupCreateRequest = components['schemas']['SecurityGroupCreateRequest'];
+export type SecurityGroupPutRequest = components['schemas']['SecurityGroupPutRequest'];
+export type SecurityGroupPatchRequest = components['schemas']['SecurityGroupPatchRequest'];
+export type SecurityRuleBulkRequest = components['schemas']['SecurityRuleBulkRequest'];
+export type SecurityRulePutRequest = components['schemas']['SecurityRulePutRequest'];
+export type SecurityRulePatchRequest = components['schemas']['SecurityRulePatchRequest'];
+export type StoragePoolResponse = components['schemas']['StoragePoolResponse'];
+export type StoragePoolCreateOnly = components['schemas']['StoragePoolCreateOnly'];
+export type StoragePoolUpdatable = components['schemas']['StoragePoolUpdatable'];
+export type StoragePoolCreateRequest = components['schemas']['StoragePoolCreateRequest'];
+export type StoragePoolPutRequest = components['schemas']['StoragePoolPutRequest'];
+export type StoragePoolPatchRequest = components['schemas']['StoragePoolPatchRequest'];
+export type TotpInfo = components['schemas']['TotpInfo'];
+export type UserResponse = components['schemas']['UserResponse'];
+export type UserCreateOnly = components['schemas']['UserCreateOnly'];
+export type UserUpdatable = components['schemas']['UserUpdatable'];
+export type UserCreateRequest = components['schemas']['UserCreateRequest'];
+export type UserPutRequest = components['schemas']['UserPutRequest'];
+export type UserPatchRequest = components['schemas']['UserPatchRequest'];
+export type PasswordChangeRequest = components['schemas']['PasswordChangeRequest'];
+export type VirtualStorage = components['schemas']['VirtualStorage'];
+export type Backup = components['schemas']['Backup'];
+export type BackupCreateRequest = components['schemas']['BackupCreateRequest'];
+export type AttachedStorage = components['schemas']['AttachedStorage'];
+export type NetworkInterface = components['schemas']['NetworkInterface'];
+export type VirtualMachine = components['schemas']['VirtualMachine'];
+export type SnapShot = components['schemas']['SnapShot'];
+export type SnapShotCreateRequest = components['schemas']['SnapShotCreateRequest'];
+export type VirtualMachineCreateRequest = components['schemas']['VirtualMachineCreateRequest'];
+export type VirtualMachineUpdateRequest = components['schemas']['VirtualMachineUpdateRequest'];
+export type Subnet = components['schemas']['Subnet'];
+export type VirtualNetwork = components['schemas']['VirtualNetwork'];
+export type VirtualNetworkCreateRequest = components['schemas']['VirtualNetworkCreateRequest'];
+export type VirtualNetworkUpdateRequest = components['schemas']['VirtualNetworkUpdateRequest'];
+export type SubnetCreateRequest = components['schemas']['SubnetCreateRequest'];
+export type SubnetUpdateRequest = components['schemas']['SubnetUpdateRequest'];
 export type $defs = Record<string, never>;
 type WithRequired<T, K extends keyof T> = T & {
   [P in K]-?: T[P];
