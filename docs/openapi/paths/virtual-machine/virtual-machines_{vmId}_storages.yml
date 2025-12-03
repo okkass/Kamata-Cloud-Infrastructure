@@ -19,7 +19,7 @@ get:
           schema:
             type: array
             items:
-              $ref: "../../components/schemas/virtual-machine/virtual-storage/StorageResponse.yml"
+              $ref: "../../components/schemas/virtual-machine/storage/StorageResponse.yml"
     "401":
       description: 認証エラー
     content:
@@ -58,14 +58,14 @@ post:
     content:
       application/json:
         schema:
-          $ref: "../../components/schemas/virtual-machine/virtual-storage/StorageCreateRequest.yml"
+          $ref: "../../components/schemas/virtual-machine/storage/StorageCreateRequest.yml"
   responses:
     "201":
       description: 作成成功
       content:
         application/json:
           schema:
-            $ref: "../../components/schemas/virtual-machine/virtual-storage/StorageResponse.yml"
+            $ref: "../../components/schemas/virtual-machine/storage/StorageResponse.yml"
     "401":
       description: 認証エラー
       content:
