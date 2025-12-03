@@ -10,7 +10,7 @@ import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useResourceList } from "~/composables/useResourceList";
 import { useToast } from "~/composables/useToast";
-import newDevicesGet from "~~/server/api/physical-nodes/[nodeId]/new-devices.get";
+
 
 // デバイス情報の型 (APIレスポンス)
 interface DeviceDTO {
@@ -49,13 +49,13 @@ export function useStorageAddForm() {
   const { executeCreate, isCreating } = useResourceCreate<
     StoragePoolCreateRequest,
     StoragePoolResponse
-  >("storage-pools");
+  >(STORAGE.name);
 
   const {
     data: nodes,
     pending: nodesPending,
     error: nodesError,
-  } = useResourceList<NodeResponse>("physical-nodes");
+  } = useResourceList<NodeResponse>(NODE.name);
 
   // ============================================================================
   // Form Setup
@@ -116,7 +116,7 @@ export function useStorageAddForm() {
       try {
         // $fetch はエラー時に例外を投げるため、try-catch で捕捉します
         const response = await $fetch<DeviceDTO[]>(
-          `/api/physical-nodes/${targetId}/new-devices`
+          `/api/nodes/${targetId}/new-devices`
         );
 
         devices.value = response || [];
