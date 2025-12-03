@@ -54,6 +54,8 @@ paths:
     $ref: "paths/user/users_{userId}_change-password.yml"
   /api/backups:
     $ref: "paths/virtual-machine/backups.yml"
+  /api/backups/{id}:
+    $ref: "paths/virtual-machine/backups_{id}.yml"
   /api/snapshots:
     $ref: "paths/virtual-machine/snapshots.yml"
   /api/snapshots/{id}:
@@ -62,6 +64,24 @@ paths:
     $ref: "paths/virtual-machine/virtual-machines.yml"
   /api/virtual-machines/{vmId}:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}.yml"
+  /api/virtual-machines/{vmId}/network-interfaces:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces.yml"
+  /api/virtual-machines/{vmId}/network-interfaces/bulk:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_bulk.yml"
+  /api/virtual-machines/{vmId}/network-interfaces/{nicId}:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_{nicId}.yml"
+  /api/virtual-machines/{vmId}/security-groups:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups.yml"
+  /api/virtual-machines/{vmId}/security-groups/bulk:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_bulk.yml"
+  /api/virtual-machines/{vmId}/security-groups/{sgId}:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_{sgId}.yml"
+  /api/virtual-machines/{vmId}/storages:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages.yml"
+  /api/virtual-machines/{vmId}/storages/bulk:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages_bulk.yml"
+  /api/virtual-machines/{vmId}/storages/{storageId}:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages_{storageId}.yml"
   /api/virtual-networks:
     $ref: "paths/virtual-network/virtual-networks.yml"
   /api/virtual-networks/{networkId}:
