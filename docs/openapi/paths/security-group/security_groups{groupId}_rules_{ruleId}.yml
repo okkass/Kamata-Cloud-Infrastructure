@@ -24,15 +24,31 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+            $ref: "../../components/schemas/security-group/SecurityRuleResponse.yml"
     "400":
       description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: セキュリティグループまたはルールが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 put:
@@ -60,22 +76,38 @@ put:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/security-group/SecurityRulePutRequest.yml
+          $ref: "../../components/schemas/security-group/SecurityRulePutRequest.yml"
   responses:
     "200":
       description: ルール更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+            $ref: "../../components/schemas/security-group/SecurityRuleResponse.yml"
     "400":
       description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: セキュリティグループまたはルールが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 patch:
@@ -103,22 +135,38 @@ patch:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/security-group/SecurityRulePatchRequest.yml
+          $ref: "../../components/schemas/security-group/SecurityRulePatchRequest.yml"
   responses:
     "200":
       description: ルール部分更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+            $ref: "../../components/schemas/security-group/SecurityRuleResponse.yml"
     "400":
       description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: セキュリティグループまたはルールが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 delete:
@@ -146,11 +194,27 @@ delete:
       description: ルール削除成功
     "400":
       description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: セキュリティグループまたはルールが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []

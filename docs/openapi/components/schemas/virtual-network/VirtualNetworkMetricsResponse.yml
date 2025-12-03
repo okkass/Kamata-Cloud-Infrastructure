@@ -1,0 +1,16 @@
+type: object
+description: 仮想ネットワークのメトリクスレスポンスオブジェクト
+properties:
+  inboundTraffic:
+    type: number
+    format: float
+    description: 仮想ネットワークのインバウンドトラフィック（bps単位）
+    example: 125000
+  outboundTraffic:
+    type: number
+    format: float
+    description: 仮想ネットワークのアウトバウンドトラフィック（bps単位）
+    example: 98000
+required:
+  - inboundTraffic
+  - outboundTraffic

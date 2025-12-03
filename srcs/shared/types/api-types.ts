@@ -49,14 +49,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -109,14 +113,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -160,14 +168,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -207,21 +219,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -268,21 +286,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想マシンイメージが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -320,28 +344,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想マシンイメージが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -374,21 +406,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想マシンイメージが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -428,28 +466,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想マシンイメージが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -489,14 +535,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -542,14 +592,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -585,21 +639,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -646,21 +706,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description インスタンスタイプが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -867,14 +933,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -910,21 +980,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -968,14 +1044,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1024,21 +1104,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 物理ノードが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1076,28 +1162,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 物理ノードが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1130,21 +1224,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 物理ノードが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1184,28 +1284,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 物理ノードが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1248,21 +1356,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 物理ノードが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1308,14 +1422,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1351,21 +1469,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1409,14 +1533,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1452,21 +1580,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1513,21 +1647,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description セキュリティグループが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1565,28 +1705,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description セキュリティグループが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1619,21 +1767,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description セキュリティグループが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1673,28 +1827,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description セキュリティグループが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1743,28 +1905,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description セキュリティグループが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1817,28 +1987,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description セキュリティグループが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1887,28 +2065,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description セキュリティグループまたはルールが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -1948,28 +2134,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description セキュリティグループまたはルールが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2004,28 +2198,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description セキュリティグループまたはルールが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2067,28 +2269,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description セキュリティグループまたはルールが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2171,21 +2381,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2235,21 +2451,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2298,21 +2520,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description ストレージプールが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2350,28 +2578,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description ストレージプールが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2404,21 +2640,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description ストレージプールが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2458,28 +2700,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description ストレージプールが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2519,14 +2769,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2562,21 +2816,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2620,7 +2880,9 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2669,21 +2931,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description ユーザが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2721,28 +2989,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description ユーザが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2775,21 +3051,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description ユーザが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2829,28 +3111,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description ユーザが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2897,28 +3187,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description ユーザが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2954,7 +3252,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Backup"][];
+                        "application/json": components["schemas"]["BackupResponse"][];
                     };
                 };
                 /** @description 認証エラー */
@@ -2962,14 +3260,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -2997,7 +3299,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Backup"];
+                        "application/json": components["schemas"]["BackupResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -3005,21 +3307,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3051,27 +3359,285 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description バックアップが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/backups/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * バックアップの詳細取得
+         * @description 指定したIDのバックアップの詳細情報を取得します。
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description バックアップの一意なID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BackupResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description バックアップが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * バックアップの更新
+         * @description 指定したIDのバックアップ情報を更新します。
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description バックアップの一意なID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["BackupPutRequest"];
+                };
+            };
+            responses: {
+                /** @description 更新成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BackupResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description バックアップが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /**
+         * バックアップの削除
+         * @description 指定したIDのバックアップを削除します。
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description バックアップの一意なID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 削除成功 */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description バックアップが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * バックアップの部分更新
+         * @description 指定したIDのバックアップ情報を部分的に更新します。
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description バックアップの一意なID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["BackupPatchRequest"];
+                };
+            };
+            responses: {
+                /** @description 更新成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["BackupResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description バックアップが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/api/snapshots": {
@@ -3100,7 +3666,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SnapShot"][];
+                        "application/json": components["schemas"]["SnapshotResponse"][];
                     };
                 };
                 /** @description 認証エラー */
@@ -3108,14 +3674,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3133,7 +3703,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["SnapShotCreateRequest"];
+                    "application/json": components["schemas"]["SnapshotCreateRequest"];
                 };
             };
             responses: {
@@ -3143,7 +3713,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SnapShot"];
+                        "application/json": components["schemas"]["SnapshotResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -3151,21 +3721,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3197,21 +3773,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description スナップショットが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3249,7 +3831,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SnapShot"];
+                        "application/json": components["schemas"]["SnapshotResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -3257,25 +3839,97 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description スナップショットが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
-        put?: never;
+        /**
+         * スナップショットの更新
+         * @description 指定したIDのスナップショット情報を更新します。
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description スナップショットの一意なID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SnapshotPutRequest"];
+                };
+            };
+            responses: {
+                /** @description 更新成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SnapshotResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description スナップショットが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         post?: never;
         /**
          * スナップショットの削除
@@ -3305,27 +3959,99 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description スナップショットが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * スナップショットの部分更新
+         * @description 指定したIDのスナップショット情報を部分的に更新します。
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description スナップショットの一意なID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SnapshotPatchRequest"];
+                };
+            };
+            responses: {
+                /** @description 更新成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SnapshotResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description スナップショットが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/api/virtual-machines": {
@@ -3354,7 +4080,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualMachine"][];
+                        "application/json": components["schemas"]["VirtualMachineResponse"][];
                     };
                 };
                 /** @description 認証エラー */
@@ -3362,14 +4088,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3397,7 +4127,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualMachine"];
+                        "application/json": components["schemas"]["VirtualMachineResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -3405,21 +4135,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3458,7 +4194,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualMachine"];
+                        "application/json": components["schemas"]["VirtualMachineResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -3466,21 +4202,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想マシンが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3500,7 +4242,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["VirtualMachineUpdateRequest"];
+                    "application/json": components["schemas"]["VirtualMachinePutRequest"];
                 };
             };
             responses: {
@@ -3510,7 +4252,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualMachine"];
+                        "application/json": components["schemas"]["VirtualMachineResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -3518,28 +4260,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想マシンが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3572,27 +4322,1196 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想マシンが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * 仮想マシンの部分更新
+         * @description 指定したIDの仮想マシン情報を部分的に更新します。
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["VirtualMachinePatchRequest"];
+                };
+            };
+            responses: {
+                /** @description 更新成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VirtualMachineResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/virtual-machines/{vmId}/network-interfaces": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 仮想マシンのネットワークインターフェース一覧取得
+         * @description 指定したIDの仮想マシンに関連付けられたネットワークインターフェースの一覧を取得します。
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NetworkInterfaceResponse"][];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * 仮想マシンへのネットワークインターフェースの追加
+         * @description 指定したIDの仮想マシンにネットワークインターフェースを追加します。
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NetworkInterfaceCreateRequest"];
+                };
+            };
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NetworkInterfaceResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/virtual-machines/{vmId}/network-interfaces/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 仮想マシンへのネットワークインターフェースの一括編集
+         * @description 指定したIDの仮想マシンにネットワークインターフェースを一括で編集します。
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NetworkInterfaceBulkRequest"];
+                };
+            };
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NetworkInterfaceResponse"][];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/virtual-machines/{vmId}/network-interfaces/{nicId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 仮想マシンのネットワークインターフェース詳細取得
+         * @description 指定したIDの仮想マシンに関連付けられたネットワークインターフェースの詳細を取得します。
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                    /** @description ネットワークインターフェースの一意なID */
+                    nicId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NetworkInterfaceResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        /**
+         * 仮想マシンのネットワークインターフェース編集
+         * @description 指定したIDの仮想マシンに関連付けられたネットワークインターフェースを編集します。
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                    /** @description ネットワークインターフェースの一意なID */
+                    nicId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NetworkInterfacePutRequest"];
+                };
+            };
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NetworkInterfaceResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        /**
+         * 仮想マシンのネットワークインターフェース削除
+         * @description 指定したIDの仮想マシンに関連付けられたネットワークインターフェースを削除します。
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                    /** @description ネットワークインターフェースの一意なID */
+                    nicId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
                     content?: never;
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * 仮想マシンのネットワークインターフェース部分編集
+         * @description 指定したIDの仮想マシンに関連付けられたネットワークインターフェースを部分編集します。
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                    /** @description ネットワークインターフェースの一意なID */
+                    nicId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["NetworkInterfacePatchRequest"];
+                };
+            };
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["NetworkInterfaceResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        trace?: never;
+    };
+    "/api/virtual-machines/{vmId}/security-groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 仮想マシンのセキュリティグループ一覧取得
+         * @description 指定したIDの仮想マシンに関連付けられたセキュリティグループの一覧を取得します。
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityGroupResponse"][];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * 仮想マシンへのセキュリティグループの追加
+         * @description 指定したIDの仮想マシンにセキュリティグループを追加します。
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /**
+                         * Format: uuid
+                         * @description 追加するセキュリティグループの一意なID
+                         */
+                        securityGroupId?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityGroupResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/virtual-machines/{vmId}/security-groups/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * 仮想マシンセキュリティグループの一括編集
+         * @description 指定したIDの仮想マシンにセキュリティグループを一括で編集します。
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["AttachedSecurityGroupBulkRequest"];
+                };
+            };
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityGroupResponse"][];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/virtual-machines/{vmId}/security-groups/{sgId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /**
+         * 仮想マシンのセキュリティグループ関連付け削除
+         * @description 指定したIDの仮想マシンに関連付けられたセキュリティグループの関連付けを削除します。セキュリティグループの削除ではありません。
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                    /** @description セキュリティグループの一意なID */
+                    sgId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
         options?: never;
         head?: never;
         patch?: never;
+        trace?: never;
+    };
+    "/api/virtual-machines/{vmId}/storages": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 仮想マシンのストレージ一覧取得
+         * @description 指定したIDの仮想マシンに関連付けられたストレージの一覧を取得します。
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StorageResponse"][];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        /**
+         * 仮想マシンへのストレージの追加
+         * @description 指定したIDの仮想マシンにストレージを追加します。
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StorageCreateRequest"];
+                };
+            };
+            responses: {
+                /** @description 作成成功 */
+                201: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StorageResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/virtual-machines/{vmId}/storages/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * 仮想マシンのストレージ一括編集
+         * @description 指定したIDの仮想マシンにストレージを一括で編集します。
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StorageBulkRequest"];
+                };
+            };
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StorageResponse"][];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/virtual-machines/{vmId}/storages/{storageId}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * 仮想マシンのストレージ詳細取得
+         * @description 指定したIDの仮想マシンに関連付けられたストレージの詳細を取得します。
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                    /** @description ストレージの一意なID */
+                    storageId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StorageResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        /**
+         * 仮想マシンのストレージ割り当て解除
+         * @description 指定したIDの仮想マシンに関連付けられたストレージを割り当て解除します。実際のストレージ自体は削除されません。
+         */
+        delete: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                    /** @description ストレージの一意なID */
+                    storageId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                204: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        options?: never;
+        head?: never;
+        /**
+         * 仮想マシンのストレージ部分編集
+         * @description 指定したIDの仮想マシンに関連付けられたストレージを部分編集します。
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                    /** @description ストレージの一意なID */
+                    storageId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StoragePatchRequest"];
+                };
+            };
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StorageResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/api/virtual-networks": {
@@ -3621,7 +5540,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualNetwork"][];
+                        "application/json": components["schemas"]["VirtualNetworkResponse"][];
                     };
                 };
                 /** @description 認証エラー */
@@ -3629,14 +5548,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3664,7 +5587,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualNetwork"];
+                        "application/json": components["schemas"]["VirtualNetworkResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -3672,21 +5595,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3725,91 +5654,39 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualNetwork"];
+                        "application/json": components["schemas"]["VirtualNetworkResponse"];
                     };
                 };
                 /** @description 認証エラー */
                 401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description 仮想ネットワークが見つからない */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-            };
-        };
-        /**
-         * 仮想ネットワークの更新
-         * @description 指定したIDの仮想ネットワーク情報を更新します。
-         */
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /** @description 仮想ネットワークの一意なID */
-                    networkId: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["VirtualNetworkUpdateRequest"];
-                };
-            };
-            responses: {
-                /** @description 更新成功 */
-                200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualNetwork"];
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
-                };
-                /** @description リクエストエラー */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想ネットワークが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
+        put?: never;
         post?: never;
         /**
          * 仮想ネットワークの削除
@@ -3839,27 +5716,99 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想ネットワークが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * 仮想ネットワークの更新
+         * @description 指定したIDの仮想ネットワーク情報を更新します。
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想ネットワークの一意なID */
+                    networkId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["VirtualNetworkPatchRequest"];
+                };
+            };
+            responses: {
+                /** @description 更新成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VirtualNetworkResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想ネットワークが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
     "/api/virtual-networks/{networkId}/subnets": {
@@ -3897,7 +5846,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Subnet"];
+                        "application/json": components["schemas"]["SubnetResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -3905,28 +5854,118 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想ネットワークが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/virtual-networks/{networkId}/subnets/bulk": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * サブネットの一括更新
+         * @description 指定した仮想ネットワーク内のサブネットを一括で更新します。
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想ネットワークの一意なID */
+                    networkId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SubnetBulkRequest"];
+                };
+            };
+            responses: {
+                /** @description 一括更新成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubnetResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想ネットワークが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3943,7 +5982,62 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * サブネットの詳細取得
+         * @description 指定した仮想ネットワーク内のサブネットの詳細情報を取得します。
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想ネットワークの一意なID */
+                    networkId: string;
+                    /** @description サブネットの一意なID */
+                    subnetId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubnetResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想ネットワークまたはサブネットが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         /**
          * サブネットの更新
          * @description 指定した仮想ネットワーク内のサブネット情報を更新します。
@@ -3962,7 +6056,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["SubnetUpdateRequest"];
+                    "application/json": components["schemas"]["SubnetPutRequest"];
                 };
             };
             responses: {
@@ -3972,7 +6066,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Subnet"];
+                        "application/json": components["schemas"]["SubnetResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -3980,28 +6074,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想ネットワークまたはサブネットが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -4036,27 +6138,101 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想ネットワークまたはサブネットが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * サブネットの部分更新
+         * @description 指定した仮想ネットワーク内のサブネット情報を更新します。
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想ネットワークの一意なID */
+                    networkId: string;
+                    /** @description サブネットの一意なID */
+                    subnetId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SubnetPatchRequest"];
+                };
+            };
+            responses: {
+                /** @description 更新成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubnetResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想ネットワークまたはサブネットが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
 }
@@ -4076,8 +6252,36 @@ export interface components {
              */
             password: string;
         };
-        /** @description 仮想マシンイメージの基本情報を表すスキーマ */
-        ImageServerBase: {
+        /** @description RFC 9457 (Problem Details for HTTP APIs) に準拠した標準のエラーレスポンス形式 */
+        ErrorResponse: {
+            /**
+             * @description エラーの種類を示す識別子
+             * @example https://api.kci.chiffon-lab.tech/errors/invalid-request
+             */
+            type?: string;
+            /**
+             * @description エラーの簡潔な説明
+             * @example Invalid Request
+             */
+            title?: string;
+            /**
+             * @description HTTPステータスコード
+             * @example 400
+             */
+            status?: number;
+            /**
+             * @description エラーの詳細な説明
+             * @example The request parameters are invalid.
+             */
+            detail?: string;
+            /**
+             * @description エラーが発生した特定のインスタンスを示すURI
+             * @example /requests/12345
+             */
+            instance?: string;
+        };
+        /** @description 仮想マシンイメージのレスポンスオブジェクト */
+        ImageResponse: {
             /**
              * Format: uuid
              * @description 仮想マシンイメージを識別するための一意なID
@@ -4103,8 +6307,6 @@ export interface components {
              */
             nodeId: string;
         };
-        /** @description 仮想マシンイメージのレスポンスオブジェクト */
-        ImageResponse: components["schemas"]["ImageServerBase"];
         /** @description 仮想マシンイメージのうち更新可能な情報を表すスキーマ */
         ImageClientUpdatable: {
             /**
@@ -4132,8 +6334,8 @@ export interface components {
         ImagePutRequest: WithRequired<components["schemas"]["ImageClientUpdatable"], "name">;
         /** @description 仮想マシンイメージ更新リクエスト(PATCH)オブジェクト */
         ImagePatchRequest: components["schemas"]["ImageClientUpdatable"];
-        /** @description ミドルウェアの基本情報を表すスキーマ */
-        MiddlewareServerBase: {
+        /** @description ミドルウェアのレスポンスオブジェクト */
+        MiddlewareResponse: {
             /**
              * Format: uuid
              * @description ミドルウェアを識別するための一意なID
@@ -4142,10 +6344,8 @@ export interface components {
             /** @description ミドルウェアの名前 */
             name: string;
         };
-        /** @description ミドルウェアのレスポンスオブジェクト */
-        MiddlewareResponse: components["schemas"]["MiddlewareServerBase"];
-        /** @description 仮想マシンのインスタンスタイプオブジェクト */
-        InstanceTypeServerBase: {
+        /** @description インスタンスタイプレスポンスオブジェクト */
+        InstanceTypeResponse: {
             /**
              * Format: uuid
              * @description インスタンスタイプを識別するための一意なID
@@ -4163,8 +6363,6 @@ export interface components {
             /** @description メモリサイズ（バイト単位） */
             memorySize: number;
         };
-        /** @description インスタンスタイプレスポンスオブジェクト */
-        InstanceTypeResponse: components["schemas"]["InstanceTypeServerBase"];
         /** @description インスタンスタイプのうち更新可能な情報を表すスキーマ */
         InstanceTypeUpdatable: {
             /**
@@ -4189,8 +6387,8 @@ export interface components {
         InstanceTypePutRequest: WithRequired<components["schemas"]["InstanceTypeUpdatable"], "name" | "cpuCore" | "memorySize">;
         /** @description インスタンスタイプ更新リクエストオブジェクト(PATCH) */
         InstanceTypePatchRequest: components["schemas"]["InstanceTypeUpdatable"];
-        /** @description 物理ノードオブジェクト */
-        NodeServerBase: {
+        /** @description 物理ノードレスポンスオブジェクト */
+        NodeResponse: {
             /**
              * Format: uuid
              * @description 物理ノードを識別するための一意なID
@@ -4234,8 +6432,6 @@ export interface components {
              */
             storageUtilization?: number;
         };
-        /** @description 物理ノードレスポンスオブジェクト */
-        NodeResponse: components["schemas"]["NodeServerBase"];
         /** @description 物理ノードを作成時に設定できるプロパティ */
         NodeCreateOnly: {
             /**
@@ -4260,8 +6456,8 @@ export interface components {
         };
         /** @description 物理ノード追加リクエストオブジェクト */
         NodeCreateRequest: components["schemas"]["NodeCreateOnly"] & components["schemas"]["NodeUpdatable"];
-        /** @description 物理ノード候補オブジェクト */
-        NodeCandidateServerBase: {
+        /** @description 物理ノード候補レスポンスオブジェクト */
+        NodeCandidateResponse: {
             /** @description 物理ノードの名前 */
             name: string;
             /**
@@ -4270,14 +6466,12 @@ export interface components {
              */
             ipAddress: string;
         };
-        /** @description 物理ノード候補レスポンスオブジェクト */
-        NodeCandidateResponse: components["schemas"]["NodeCandidateServerBase"];
         /** @description 物理ノード更新リクエストオブジェクト(PUT) */
         NodePutRequest: WithRequired<components["schemas"]["NodeUpdatable"], "name" | "isAdmin">;
         /** @description 物理ノード更新リクエストオブジェクト(PATCH) */
         NodePatchRequest: components["schemas"]["NodeUpdatable"];
-        /** @description ストレージデバイス情報の基本プロパティ */
-        DeviceServerBase: {
+        /** @description ストレージデバイス情報のレスポンスプロパティ */
+        DeviceResponse: {
             /**
              * @description ストレージデバイスのパス
              * @example /dev/sdb
@@ -4288,11 +6482,14 @@ export interface components {
              * @example Hitachi SSD HUS724040ALA640
              */
             deviceName: string;
+            /**
+             * @description ストレージデバイスのサイズ（バイト単位）
+             * @example 4000787030016
+             */
+            size: number;
         };
-        /** @description ストレージデバイス情報のレスポンスプロパティ */
-        DeviceResponse: components["schemas"]["DeviceServerBase"];
-        /** @description ポートフォリオオブジェクト */
-        PortfolioServerBase: {
+        /** @description ポートフォリオレスポンスオブジェクト */
+        PortfolioResponse: {
             /**
              * Format: uuid
              * @description ポートフォリオを識別するための一意なID
@@ -4316,8 +6513,6 @@ export interface components {
              */
             viewCount7Day: number;
         };
-        /** @description ポートフォリオレスポンスオブジェクト */
-        PortfolioResponse: components["schemas"]["PortfolioServerBase"];
         /** @description ポートフォリオ更新可能オブジェクト */
         PortfolioUpdatable: {
             /** @description ポートフォリオのタイトル */
@@ -4325,8 +6520,8 @@ export interface components {
         };
         /** @description ポートフォリオ作成リクエストオブジェクト */
         PortfolioCreateRequest: WithRequired<components["schemas"]["PortfolioUpdatable"], "title">;
-        /** @description セキュリティルールオブジェクト */
-        SecurityRuleServerBase: {
+        /** @description セキュリティルールレスポンスオブジェクト */
+        SecurityRuleResponse: {
             /**
              * Format: uuid
              * @description セキュリティルールを識別するための一意なID
@@ -4340,10 +6535,10 @@ export interface components {
              */
             ruleType: "inbound" | "outbound";
             /**
-             * @description 適用されるポート番号
+             * @description 適用されるポート番号。nullの場合は全ポート対象
              * @example 22
              */
-            port?: number;
+            port?: number | null;
             /**
              * @description 適用されるプロトコル
              * @enum {string}
@@ -4366,8 +6561,8 @@ export interface components {
              */
             createdAt: string;
         };
-        /** @description セキュリティグループオブジェクト */
-        SecurityGroupServerBase: {
+        /** @description セキュリティグループレスポンスオブジェクト */
+        SecurityGroupResponse: {
             /**
              * Format: uuid
              * @description セキュリティグループを識別するための一意なID
@@ -4377,15 +6572,13 @@ export interface components {
             name: string;
             /** @description セキュリティグループの説明 */
             description?: string;
-            rules: components["schemas"]["SecurityRuleServerBase"][];
+            rules: components["schemas"]["SecurityRuleResponse"][];
             /**
              * Format: date-time
              * @description セキュリティグループが作成された日時
              */
             createdAt: string;
         };
-        /** @description セキュリティグループレスポンスオブジェクト */
-        SecurityGroupResponse: components["schemas"]["SecurityGroupServerBase"];
         /** @description セキュリティグループ更新可能なプロパティ */
         SecurityGroupUpdatable: {
             /**
@@ -4409,10 +6602,10 @@ export interface components {
              */
             ruleType?: "inbound" | "outbound";
             /**
-             * @description 適用されるポート番号
+             * @description 適用されるポート番号。NULLの場合は全ポート対象
              * @example 22
              */
-            port?: number;
+            port?: number | null;
             /**
              * @description 適用されるプロトコル
              * @enum {string}
@@ -4442,8 +6635,6 @@ export interface components {
         SecurityGroupPutRequest: WithRequired<components["schemas"]["SecurityGroupUpdatable"], "name" | "description">;
         /** @description セキュリティグループ更新リクエストオブジェクト(PATCH) */
         SecurityGroupPatchRequest: components["schemas"]["SecurityGroupUpdatable"];
-        /** @description セキュリティルールレスポンスオブジェクト */
-        SecurityRuleResponse: components["schemas"]["SecurityRuleServerBase"];
         /** @description セキュリティルールバルク更新リクエストオブジェクト */
         SecurityRuleBulkRequest: {
             /** @description 追加するセキュリティルールのリスト */
@@ -4464,8 +6655,8 @@ export interface components {
         SecurityRulePutRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
         /** @description セキュリティルール更新リクエストオブジェクト(PATCH) */
         SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"];
-        /** @description ストレージプールオブジェクト */
-        StoragePoolServerBase: {
+        /** @description ストレージプールレスポンスオブジェクト */
+        StoragePoolResponse: {
             /**
              * Format: uuid
              * @description ストレージプールを識別するための一意なID
@@ -4477,12 +6668,8 @@ export interface components {
              * @example Node1 Pool 1
              */
             name: string;
-            /**
-             * Format: uuid
-             * @description ストレージプールが属する物理ノードのID
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            nodeId: string;
+            /** @description ストレージプールが属する物理ノード */
+            node: components["schemas"]["NodeResponse"];
             /**
              * Format: date-time
              * @description ストレージプールが作成された日時
@@ -4505,8 +6692,6 @@ export interface components {
              */
             hasNetworkAccess: boolean;
         };
-        /** @description ストレージプールレスポンスオブジェクト */
-        StoragePoolResponse: components["schemas"]["StoragePoolServerBase"];
         /** @description ストレージプール作成時のみ設定可能なプロパティ */
         StoragePoolCreateOnly: {
             /**
@@ -4515,11 +6700,6 @@ export interface components {
              * @example 550e8400-e29b-41d4-a716-446655440000
              */
             nodeId: string;
-            /**
-             * @description ストレージプールの総サイズ（バイト単位）
-             * @example 1099511627776
-             */
-            totalSize: number;
             /**
              * @description ストレージプールが使用するデバイスのパス
              * @example /dev/sdb
@@ -4552,8 +6732,8 @@ export interface components {
             /** @description TOTP URI（QRコード生成用） */
             uri: string;
         };
-        /** @description User object */
-        UserServerBase: {
+        /** @description ユーザレスポンスオブジェクト */
+        UserResponse: {
             /**
              * Format: uuid
              * @description ユーザを識別するための一意なID
@@ -4570,14 +6750,14 @@ export interface components {
              * Format: date-time
              * @description ユーザが作成された日時
              */
-            createdAt?: string;
+            createdAt: string;
             /** @description ユーザが管理者かどうかを示すフラグ */
             isAdmin: boolean;
             /**
              * Format: date-time
              * @description ユーザが最後にログインした日時
              */
-            lastLoginAt?: string;
+            lastLoginAt: string;
             /**
              * @description ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
              * @example 32
@@ -4610,8 +6790,6 @@ export interface components {
              */
             isPhysicalNodeAdmin: boolean;
         };
-        /** @description ユーザレスポンスオブジェクト */
-        UserResponse: WithRequired<components["schemas"]["UserServerBase"], "id" | "name" | "email" | "createdAt" | "isAdmin" | "lastLoginAt">;
         /** @description ユーザ作成時のみに設定可能なプロパティ */
         UserCreateOnly: {
             /**
@@ -4691,30 +6869,32 @@ export interface components {
             /** @description 新しいパスワード */
             newPassword: string;
         };
-        /** @description 仮想ストレージオブジェクト */
-        VirtualStorage: {
+        /** @description 仮想マシンのストレージ情報を表すオブジェクト */
+        StorageResponse: {
             /**
              * Format: uuid
-             * @description 仮想ストレージを識別するための一意なID
+             * @description ストレージのID
              */
-            id: string;
-            /** @description 仮想ストレージの名前 */
-            name: string;
-            /** @description 仮想ストレージのサイズ（バイト単位） */
-            size: number;
-            /**
-             * Format: uuid
-             * @description 仮想ストレージが属するストレージプールのID
-             */
-            poolId: string;
+            id?: string;
+            /** @description ストレージの名前 */
+            name?: string;
+            /** @description ストレージのサイズ（バイト単位） */
+            size?: number;
+            /** @description ストレージプール情報 */
+            pool?: components["schemas"]["StoragePoolResponse"];
             /**
              * Format: date-time
-             * @description 仮想ストレージの作成日時
+             * @description ストレージ作成日時
              */
-            createdAt: string;
+            createdAt?: string;
+            /**
+             * @description ストレージのデバイスパス
+             * @example /dev/vdb
+             */
+            devicePath?: string;
         };
-        /** @description バックアップオブジェクト */
-        Backup: {
+        /** @description バックアップレスポンスオブジェクト */
+        BackupResponse: {
             /**
              * Format: uuid
              * @description バックアップを識別するための一意なID
@@ -4735,213 +6915,31 @@ export interface components {
              */
             size: number;
             /** @description バックアップ対象の仮想ストレージ */
-            targetVirtualStorage: components["schemas"]["VirtualStorage"];
+            targetStorage: components["schemas"]["StorageResponse"];
         };
-        /** @description バックアップ作成リクエストオブジェクト */
-        BackupCreateRequest: {
-            /** @description バックアップの名前 */
-            name: string;
+        /** @description バックアップの作成時のみ設定可能なプロパティ */
+        BackupCreateOnly: {
             /**
              * Format: uuid
              * @description バックアップ対象の仮想ストレージのID
              */
-            targetStorageId: string;
+            targetVirtualStorageId: string;
         };
-        /** @description アタッチされたストレージオブジェクト */
-        AttachedStorage: {
-            /**
-             * Format: uuid
-             * @description アタッチされたストレージを識別するための一意なID
-             */
-            id: string;
-            storage: components["schemas"]["VirtualStorage"];
-            /**
-             * @description ストレージデバイスのパス
-             * @example /dev/sda
-             */
-            path: string;
-        };
-        /** @description ネットワークインターフェースオブジェクト */
-        NetworkInterface: {
-            /**
-             * Format: uuid
-             * @description ネットワークインターフェースを識別するための一意なID
-             */
-            id: string;
-            /** @description ネットワークインターフェースの名前 */
-            name: string;
-            /**
-             * @description ネットワークインターフェースのMACアドレス
-             * @example 02:42:ac:11:00:02
-             */
-            macAddress: string;
-            /**
-             * Format: ipv4
-             * @description ネットワークインターフェースのIPアドレス
-             * @example 10.0.0.0/32
-             */
-            ipAddress: string;
-            /**
-             * Format: uuid
-             * @description ネットワークインターフェースが属するサブネットのID
-             */
-            subnetId: string;
-        };
-        /** @description 仮想マシンオブジェクト */
-        VirtualMachine: {
-            /**
-             * Format: uuid
-             * @description 仮想マシンを識別するための一意なID
-             */
-            id: string;
-            /** @description 仮想マシンの名前 */
-            name: string;
-            /** @description 仮想マシンのインスタンスタイプ */
-            instanceType?: components["schemas"]["InstanceTypeResponse"];
-            /**
-             * @description 仮想マシンの状態
-             * @enum {string}
-             */
-            status: "running" | "stopped" | "suspended";
-            /** @description 仮想マシンが配置されている物理ノード */
-            node: components["schemas"]["NodeResponse"];
-            /**
-             * Format: date-time
-             * @description 仮想マシンが作成された日時
-             */
-            createdAt: string;
-            /** @description 仮想マシンに関連付けられたセキュリティグループのリスト */
-            securityGroups: components["schemas"]["SecurityGroupResponse"][];
-            /** @description アタッチされたストレージのリスト */
-            attachedStorages: components["schemas"]["AttachedStorage"][];
-            /** @description アタッチされたネットワークインターフェースのリスト */
-            attachedNics?: components["schemas"]["NetworkInterface"][];
-            /**
-             * Format: float
-             * @description CPU使用率（0.0から1.0の範囲）
-             * @example 0.55
-             */
-            cpuUtilization?: number;
-            /**
-             * Format: float
-             * @description メモリ使用率（0.0から1.0の範囲）
-             * @example 0.7
-             */
-            memoryUtilization?: number;
-            /**
-             * Format: float
-             * @description ストレージ使用率（0.0から1.0の範囲）
-             * @example 0.4
-             */
-            storageUtilization?: number;
-            /** @description 仮想マシンに割り当てられたCPUコア数 */
-            cpuCore?: number;
-            /** @description 仮想マシンに割り当てられたメモリサイズ（バイト単位） */
-            memorySize?: number;
-        };
-        /** @description スナップショットオブジェクト */
-        SnapShot: {
-            /**
-             * Format: uuid
-             * @description スナップショットを識別するための一意なID
-             */
-            id: string;
-            /** @description スナップショットの名前 */
-            name: string;
-            /** @description スナップショットの説明 */
-            description?: string;
-            /**
-             * Format: date-time
-             * @description スナップショットが作成された日時
-             */
-            createdAt: string;
-            /** @description スナップショット取得元の仮想マシン */
-            targetVirtualMachine: components["schemas"]["VirtualMachine"];
-        };
-        /** @description スナップショット作成リクエストオブジェクト */
-        SnapShotCreateRequest: {
-            /** @description スナップショットの名前 */
-            name: string;
-            /** @description スナップショットの説明 */
-            description?: string;
-            /**
-             * Format: uuid
-             * @description スナップショットを取得する仮想マシンのID
-             */
-            targetVmId: string;
-        };
-        /** @description 仮想マシン作成リクエストオブジェクト */
-        VirtualMachineCreateRequest: {
-            /** @description 仮想マシンの名前 */
-            name: string;
-            /**
-             * Format: uuid
-             * @description 使用するインスタンスタイプのID
-             */
-            instanceTypeId?: string;
-            /** @description 仮想マシンに割り当てるCPUコア数（instanceTypeIdが指定されていない場合に必須） */
-            cpuCore?: number;
-            /** @description 仮想マシンに割り当てるメモリサイズ（バイト単位、instanceTypeIdが指定されていない場合に必須） */
-            memorySize?: number;
-            /**
-             * Format: uuid
-             * @description 仮想マシンを配置するサブネットのID
-             */
-            subnetId: string;
-            /** @description 仮想マシンに設定するSSH公開鍵 */
-            publicKey?: string;
-            /**
-             * Format: uuid
-             * @description 使用する仮想マシンイメージのID
-             */
-            imageId: string;
-            /**
-             * Format: uuid
-             * @description インストールするミドルウェアのID
-             */
-            middlewareId?: string;
-            /**
-             * Format: uuid
-             * @description 仮想マシンを配置する物理ノードのID
-             */
-            nodeId: string;
-            /** @description 仮想マシンにアタッチするストレージのリスト */
-            storages: {
-                /** @description ストレージの名前 */
-                name: string;
-                /** @description ストレージのサイズ（バイト単位） */
-                size: number;
-                /**
-                 * Format: uuid
-                 * @description ストレージプールのID
-                 */
-                poolId: string;
-            }[];
-            /** @description 関連付けるセキュリティグループのIDリスト */
-            securityGroupIds: string[];
-        };
-        /** @description 仮想マシン更新リクエストオブジェクト */
-        VirtualMachineUpdateRequest: {
-            /** @description 仮想マシンの名前 */
+        /** @description バックアップの更新可能なプロパティ */
+        BackupUpdatable: {
+            /** @description バックアップの名前 */
             name?: string;
-            /**
-             * Format: uuid
-             * @description 使用するインスタンスタイプのID
-             */
-            instanceTypeId?: string;
-            /** @description 仮想マシンに割り当てるCPUコア数 */
-            cpuCore?: number;
-            /** @description 仮想マシンに割り当てるメモリサイズ（バイト単位） */
-            memorySize?: number;
-            /** @description 仮想マシンに関連付けられたセキュリティグループのIDリスト */
-            securityGroupIds?: string[];
-            /** @description アタッチされたストレージのリスト */
-            attachedStorages?: components["schemas"]["AttachedStorage"][];
-            /** @description アタッチされたネットワークインターフェースのリスト */
-            attachedNics?: components["schemas"]["NetworkInterface"][];
+            /** @description バックアップの説明 */
+            description?: string;
         };
+        /** @description バックアップ作成リクエストオブジェクト */
+        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & components["schemas"]["BackupUpdatable"] & Record<string, never>;
+        /** @description バックアップ更新リクエストオブジェクト */
+        BackupPutRequest: WithRequired<components["schemas"]["BackupUpdatable"], "name">;
+        /** @description バックアップ部分更新リクエストオブジェクト */
+        BackupPatchRequest: components["schemas"]["BackupUpdatable"];
         /** @description サブネットオブジェクト */
-        Subnet: {
+        SubnetResponse: {
             /**
              * Format: uuid
              * @description サブネットを識別するための一意なID
@@ -4962,8 +6960,272 @@ export interface components {
              */
             createdAt: string;
         };
+        /** @description ネットワークインターフェースレスポンスオブジェクト */
+        NetworkInterfaceResponse: {
+            /**
+             * Format: uuid
+             * @description ネットワークインターフェースを識別するための一意なID
+             */
+            id: string;
+            /** @description ネットワークインターフェースの名前 */
+            name: string;
+            /**
+             * @description ネットワークインターフェースのMACアドレス
+             * @example 02:42:ac:11:00:02
+             */
+            macAddress: string;
+            /**
+             * Format: ipv4
+             * @description ネットワークインターフェースのIPアドレス
+             * @example 10.0.0.0/32
+             */
+            ipAddress: string;
+            subnet?: components["schemas"]["SubnetResponse"];
+        };
+        /** @description 仮想マシンレスポンスオブジェクト */
+        VirtualMachineResponse: {
+            /**
+             * Format: uuid
+             * @description 仮想マシンを識別するための一意なID
+             */
+            id: string;
+            /** @description 仮想マシンの名前 */
+            name: string;
+            /**
+             * @description 仮想マシンの状態
+             * @enum {string}
+             */
+            status: "running" | "stopped" | "suspended";
+            /** @description 仮想マシンが配置されている物理ノード */
+            node: components["schemas"]["NodeResponse"];
+            /**
+             * Format: date-time
+             * @description 仮想マシンが作成された日時
+             */
+            createdAt: string;
+            /** @description 仮想マシンに関連付けられたセキュリティグループのリスト */
+            securityGroups: components["schemas"]["SecurityGroupResponse"][];
+            /** @description アタッチされたストレージのリスト */
+            storages?: components["schemas"]["StorageResponse"][];
+            /** @description アタッチされたネットワークインターフェースのリスト */
+            networkInterfaces?: components["schemas"]["NetworkInterfaceResponse"][];
+            /**
+             * Format: float
+             * @description CPU使用率（0.0から1.0の範囲）
+             * @example 0.55
+             */
+            cpuUtilization?: number;
+            /**
+             * Format: float
+             * @description メモリ使用率（0.0から1.0の範囲）
+             * @example 0.7
+             */
+            memoryUtilization?: number;
+            /**
+             * Format: float
+             * @description ストレージ使用率（0.0から1.0の範囲）
+             * @example 0.4
+             */
+            storageUtilization?: number;
+            /** @description 仮想マシンに割り当てられたCPUコア数 */
+            cpuCore: number;
+            /** @description 仮想マシンに割り当てられたメモリサイズ（バイト単位） */
+            memorySize: number;
+        };
+        /** @description スナップショットレスポンスオブジェクト */
+        SnapshotResponse: {
+            /**
+             * Format: uuid
+             * @description スナップショットを識別するための一意なID
+             */
+            id: string;
+            /** @description スナップショットの名前 */
+            name: string;
+            /** @description スナップショットの説明 */
+            description?: string;
+            /**
+             * Format: date-time
+             * @description スナップショットが作成された日時
+             */
+            createdAt: string;
+            /** @description スナップショット取得元の仮想マシン */
+            targetVirtualMachine: components["schemas"]["VirtualMachineResponse"];
+        };
+        /** @description スナップショット更新可能なプロパティ */
+        SnapshotUpdatable: {
+            /** @description スナップショットの名前 */
+            name?: string;
+            /** @description スナップショットの説明 */
+            description?: string;
+        };
+        /** @description スナップショット作成時のみ設定可能なプロパティ */
+        SnapshotCreateOnly: {
+            /**
+             * Format: uuid
+             * @description スナップショットを取得する仮想マシンのID
+             */
+            targetVmId: string;
+        };
+        /** @description スナップショット作成リクエストオブジェクト */
+        SnapshotCreateRequest: WithRequired<components["schemas"]["SnapshotUpdatable"], "name"> & components["schemas"]["SnapshotCreateOnly"];
+        /** @description スナップショット更新リクエストオブジェクト */
+        SnapshotPutRequest: components["schemas"]["SnapshotUpdatable"] & Record<string, never>;
+        /** @description スナップショット更新リクエストオブジェクト */
+        SnapshotPatchRequest: components["schemas"]["SnapshotUpdatable"];
+        /** @description 仮想マシン作成時のみに設定可能なプロパティを持つオブジェクト */
+        VirtualMachineCreateOnly: {
+            /** @description 仮想マシンに設定するSSH公開鍵 */
+            publicKey: string;
+            /**
+             * Format: uuid
+             * @description 仮想マシンを配置するノードのID
+             */
+            nodeId: string;
+            /**
+             * Format: uuid
+             * @description 仮想マシンにインストールするOSイメージのID
+             */
+            imageId: string;
+            /**
+             * Format: uuid
+             * @description インストールするミドルウェアのID
+             */
+            middlewareId: string;
+            /**
+             * Format: uuid
+             * @description 仮想マシンを配置するサブネットのID
+             */
+            subnetId: string;
+            /** @description 仮想マシンにアタッチするストレージのリスト */
+            storages: {
+                /** @description ストレージの名前 */
+                name: string;
+                /** @description ストレージのサイズ（バイト単位） */
+                size: number;
+                /**
+                 * Format: uuid
+                 * @description ストレージプールのID
+                 */
+                poolId: string;
+            }[];
+            /** @description 関連付けるセキュリティグループのIDリスト */
+            securityGroupIds: string[];
+        };
+        /** @description 仮想マシン更新可能なプロパティを持つオブジェクトのベース */
+        VirtualMachineUpdatableBase: {
+            /** @description 仮想マシンの名前 */
+            name?: string;
+        };
+        /** @description 仮想マシンをインスタンスタイプ指定で作成する場合の更新可能なプロパティを持つオブジェクト */
+        VirtualMachineWithInstanceTypeUpdatable: {
+            /**
+             * Format: uuid
+             * @description 使用するインスタンスタイプのID
+             */
+            instanceTypeId?: string;
+        };
+        /** @description 仮想マシンをCPU、メモリ指定で作成する場合の更新可能なプロパティを持つオブジェクト */
+        VirtualMachineWithCustomSpecUpdatable: {
+            /** @description 仮想マシンのCPUコア数 */
+            cpu?: number;
+            /** @description 仮想マシンのメモリ容量 (バイト単位) */
+            memory?: number;
+        };
+        /** @description 仮想マシン更新可能なプロパティを持つオブジェクト */
+        VirtualMachineUpdatable: components["schemas"]["VirtualMachineUpdatableBase"] & (components["schemas"]["VirtualMachineWithInstanceTypeUpdatable"] | components["schemas"]["VirtualMachineWithCustomSpecUpdatable"]);
+        /** @description 仮想マシン作成リクエストオブジェクト */
+        VirtualMachineCreateRequest: components["schemas"]["VirtualMachineCreateOnly"] & components["schemas"]["VirtualMachineUpdatable"];
+        /** @description 仮想マシン更新リクエストオブジェクト */
+        VirtualMachinePutRequest: components["schemas"]["VirtualMachineUpdatable"];
+        /** @description 仮想マシン更新リクエストオブジェクト */
+        VirtualMachinePatchRequest: components["schemas"]["VirtualMachineUpdatable"];
+        /** @description ネットワークインターフェース更新可能オブジェクト */
+        NetworkInterfaceUpdatable: {
+            /** @description ネットワークインターフェースの名前 */
+            name?: string;
+            /**
+             * Format: uuid
+             * @description ネットワークインターフェースが属するサブネットのID
+             */
+            subnetId?: string;
+        };
+        /** @description ネットワークインターフェース作成リクエストオブジェクト */
+        NetworkInterfaceCreateRequest: WithRequired<components["schemas"]["NetworkInterfaceUpdatable"], "name" | "subnetId">;
+        /** @description ネットワークインターフェースバルク更新リクエストオブジェクト */
+        NetworkInterfaceBulkRequest: {
+            /** @description 追加するネットワークインターフェースのリスト */
+            add?: components["schemas"]["NetworkInterfaceCreateRequest"][];
+            /** @description 更新するネットワークインターフェースのリスト */
+            patch?: {
+                /**
+                 * Format: uuid
+                 * @description 更新するネットワークインターフェースのID
+                 */
+                id: string;
+                data: components["schemas"]["NetworkInterfaceUpdatable"];
+            }[];
+            /** @description 削除するネットワークインターフェースのIDリスト */
+            delete?: string[];
+        } | unknown | unknown | unknown;
+        /** @description ネットワークインターフェース更新リクエストオブジェクト */
+        NetworkInterfacePutRequest: WithRequired<components["schemas"]["NetworkInterfaceUpdatable"], "name" | "subnetId">;
+        /** @description ネットワークインターフェース更新リクエストオブジェクト */
+        NetworkInterfacePatchRequest: components["schemas"]["NetworkInterfaceUpdatable"];
+        /** @description セキュリティグループバルク更新リクエストオブジェクト */
+        AttachedSecurityGroupBulkRequest: {
+            /** @description 追加するセキュリティグループのリスト */
+            add?: {
+                /**
+                 * Format: uuid
+                 * @description 追加するセキュリティグループのID
+                 */
+                id?: string;
+            }[];
+            /** @description 削除するセキュリティグループのIDリスト */
+            delete?: string[];
+        };
+        /** @description 仮想マシンのストレージの更新可能プロパティを表すオブジェクト */
+        StorageUpdatable: {
+            /** @description ストレージの名前 */
+            name?: string;
+        };
+        /** @description 仮想マシンに新たなストレージをアタッチするとき設定可能なオブジェクト */
+        StorageCreateOnly: {
+            /** @description アタッチするストレージのサイズ（バイト単位） */
+            size: number;
+            /**
+             * Format: uuid
+             * @description ストレージプールのID
+             */
+            poolId: string;
+            /**
+             * Format: uuid
+             * @description ストレージのバックアップ元ID(オプション)
+             */
+            backupId?: string;
+        };
+        /** @description 仮想マシンに新たなストレージをアタッチするためのリクエストオブジェクト */
+        StorageCreateRequest: components["schemas"]["StorageUpdatable"] & components["schemas"]["StorageCreateOnly"] & Record<string, never>;
+        /** @description 仮想ストレージバルク更新リクエストオブジェクト */
+        StorageBulkRequest: {
+            /** @description 追加する仮想ストレージのリスト */
+            add?: components["schemas"]["StorageCreateRequest"][];
+            /** @description 更新する仮想ストレージのリスト */
+            patch?: {
+                /**
+                 * Format: uuid
+                 * @description 更新する仮想ストレージのID
+                 */
+                id: string;
+                data: components["schemas"]["StorageUpdatable"];
+            }[];
+            /** @description 削除する仮想ストレージのIDリスト */
+            delete?: string[];
+        };
+        /** @description 仮想マシンにアタッチされたストレージの更新リクエストオブジェクト */
+        StoragePatchRequest: components["schemas"]["StorageUpdatable"];
         /** @description 仮想ネットワークオブジェクト */
-        VirtualNetwork: {
+        VirtualNetworkResponse: {
             /**
              * Format: uuid
              * @description 仮想ネットワークを識別するための一意なID
@@ -4981,59 +7243,60 @@ export interface components {
              * @description 仮想ネットワークが作成された日時
              */
             createdAt: string;
-            subnets?: components["schemas"]["Subnet"][];
-            /**
-             * Format: float
-             * @description 仮想ネットワークのインバウンドトラフィック（bps単位）
-             * @example 125000
-             */
-            inboundTraffic: number;
-            /**
-             * Format: float
-             * @description 仮想ネットワークのアウトバウンドトラフィック（bps単位）
-             * @example 98000
-             */
-            outboundTraffic: number;
+            subnets?: components["schemas"]["SubnetResponse"][];
         };
-        /** @description 仮想ネットワーク作成リクエストオブジェクト */
-        VirtualNetworkCreateRequest: {
-            /** @description 仮想ネットワークの名前 */
-            name: string;
-            /**
-             * @description CIDR形式のネットワークアドレス
-             * @example 10.0.0.0/16
-             */
-            cidr: string;
-        };
-        /** @description 仮想ネットワーク更新リクエストオブジェクト */
-        VirtualNetworkUpdateRequest: {
+        /** @description 仮想ネットワークの更新可能なプロパティ */
+        VirtualNetworkUpdatable: {
             /** @description 仮想ネットワークの名前 */
             name?: string;
         };
-        /** @description サブネット作成リクエストオブジェクト */
-        SubnetCreateRequest: {
-            /** @description サブネットの名前 */
-            name: string;
-            /**
-             * @description CIDR形式のサブネットアドレス
-             * @example 10.0.0.0/16
-             */
-            cidr: string;
-            /** @description 外部接続が可能かどうかを示すフラグ */
-            possibleExternalConnection: boolean;
-        };
-        /** @description サブネット更新リクエストオブジェクト */
-        SubnetUpdateRequest: {
+        /** @description サブネットの更新可能なプロパティ */
+        SubnetUpdatable: {
             /** @description サブネットの名前 */
             name?: string;
             /**
              * @description CIDR形式のサブネットアドレス
-             * @example 10.0.0.0/16
+             * @example 192.168.1.0/24
              */
             cidr?: string;
             /** @description 外部接続が可能かどうかを示すフラグ */
             possibleExternalConnection?: boolean;
         };
+        /** @description サブネット作成リクエストオブジェクト */
+        SubnetCreateRequest: components["schemas"]["SubnetUpdatable"] & Record<string, never>;
+        /** @description 仮想ネットワークの作成時のみに更新可能なフィールド */
+        VirtualNetworkCreateOnly: {
+            /**
+             * @description CIDR形式のネットワークアドレス
+             * @example 10.0.0.0/16
+             */
+            cidr: string;
+            /** @description 仮想ネットワーク作成時に同時に作成するサブネットのリスト */
+            initialSubnets: components["schemas"]["SubnetCreateRequest"][];
+        };
+        /** @description 仮想ネットワーク作成リクエストオブジェクト */
+        VirtualNetworkCreateRequest: components["schemas"]["VirtualNetworkUpdatable"] & components["schemas"]["VirtualNetworkCreateOnly"] & Record<string, never>;
+        /** @description 仮想ネットワーク更新リクエストオブジェクト */
+        VirtualNetworkPatchRequest: components["schemas"]["VirtualNetworkUpdatable"];
+        /** @description サブネットバルク更新リクエスト */
+        SubnetBulkRequest: {
+            /** @description 作成するサブネットのリスト */
+            create?: components["schemas"]["SubnetCreateRequest"][];
+            /** @description 更新するサブネットのリスト */
+            patch?: {
+                /**
+                 * Format: uuid
+                 * @description 更新するサブネットのID
+                 */
+                id: string;
+                data: components["schemas"]["SubnetUpdatable"];
+            }[];
+            /** @description 削除するサブネットのIDリスト */
+            delete?: string[];
+        };
+        /** @description サブネット全部更新リクエストオブジェクト */
+        SubnetPutRequest: components["schemas"]["SubnetUpdatable"] & Record<string, never>;
+        SubnetPatchRequest: components["schemas"]["SubnetUpdatable"] & Record<string, never>;
     };
     responses: never;
     parameters: never;
@@ -5041,6 +7304,102 @@ export interface components {
     headers: never;
     pathItems: never;
 }
+export type LoginRequest = components['schemas']['LoginRequest'];
+export type ErrorResponse = components['schemas']['ErrorResponse'];
+export type ImageResponse = components['schemas']['ImageResponse'];
+export type ImageClientUpdatable = components['schemas']['ImageClientUpdatable'];
+export type ImageCreateOnly = components['schemas']['ImageCreateOnly'];
+export type ImageCreateRequest = components['schemas']['ImageCreateRequest'];
+export type ImagePutRequest = components['schemas']['ImagePutRequest'];
+export type ImagePatchRequest = components['schemas']['ImagePatchRequest'];
+export type MiddlewareResponse = components['schemas']['MiddlewareResponse'];
+export type InstanceTypeResponse = components['schemas']['InstanceTypeResponse'];
+export type InstanceTypeUpdatable = components['schemas']['InstanceTypeUpdatable'];
+export type InstanceTypeCreateRequest = components['schemas']['InstanceTypeCreateRequest'];
+export type InstanceTypePutRequest = components['schemas']['InstanceTypePutRequest'];
+export type InstanceTypePatchRequest = components['schemas']['InstanceTypePatchRequest'];
+export type NodeResponse = components['schemas']['NodeResponse'];
+export type NodeCreateOnly = components['schemas']['NodeCreateOnly'];
+export type NodeUpdatable = components['schemas']['NodeUpdatable'];
+export type NodeCreateRequest = components['schemas']['NodeCreateRequest'];
+export type NodeCandidateResponse = components['schemas']['NodeCandidateResponse'];
+export type NodePutRequest = components['schemas']['NodePutRequest'];
+export type NodePatchRequest = components['schemas']['NodePatchRequest'];
+export type DeviceResponse = components['schemas']['DeviceResponse'];
+export type PortfolioResponse = components['schemas']['PortfolioResponse'];
+export type PortfolioUpdatable = components['schemas']['PortfolioUpdatable'];
+export type PortfolioCreateRequest = components['schemas']['PortfolioCreateRequest'];
+export type SecurityRuleResponse = components['schemas']['SecurityRuleResponse'];
+export type SecurityGroupResponse = components['schemas']['SecurityGroupResponse'];
+export type SecurityGroupUpdatable = components['schemas']['SecurityGroupUpdatable'];
+export type SecurityRuleUpdatable = components['schemas']['SecurityRuleUpdatable'];
+export type SecurityRuleCreateRequest = components['schemas']['SecurityRuleCreateRequest'];
+export type SecurityGroupCreateOnly = components['schemas']['SecurityGroupCreateOnly'];
+export type SecurityGroupCreateRequest = components['schemas']['SecurityGroupCreateRequest'];
+export type SecurityGroupPutRequest = components['schemas']['SecurityGroupPutRequest'];
+export type SecurityGroupPatchRequest = components['schemas']['SecurityGroupPatchRequest'];
+export type SecurityRuleBulkRequest = components['schemas']['SecurityRuleBulkRequest'];
+export type SecurityRulePutRequest = components['schemas']['SecurityRulePutRequest'];
+export type SecurityRulePatchRequest = components['schemas']['SecurityRulePatchRequest'];
+export type StoragePoolResponse = components['schemas']['StoragePoolResponse'];
+export type StoragePoolCreateOnly = components['schemas']['StoragePoolCreateOnly'];
+export type StoragePoolUpdatable = components['schemas']['StoragePoolUpdatable'];
+export type StoragePoolCreateRequest = components['schemas']['StoragePoolCreateRequest'];
+export type StoragePoolPutRequest = components['schemas']['StoragePoolPutRequest'];
+export type StoragePoolPatchRequest = components['schemas']['StoragePoolPatchRequest'];
+export type TotpInfo = components['schemas']['TotpInfo'];
+export type UserResponse = components['schemas']['UserResponse'];
+export type UserCreateOnly = components['schemas']['UserCreateOnly'];
+export type UserUpdatable = components['schemas']['UserUpdatable'];
+export type UserCreateRequest = components['schemas']['UserCreateRequest'];
+export type UserPutRequest = components['schemas']['UserPutRequest'];
+export type UserPatchRequest = components['schemas']['UserPatchRequest'];
+export type PasswordChangeRequest = components['schemas']['PasswordChangeRequest'];
+export type StorageResponse = components['schemas']['StorageResponse'];
+export type BackupResponse = components['schemas']['BackupResponse'];
+export type BackupCreateOnly = components['schemas']['BackupCreateOnly'];
+export type BackupUpdatable = components['schemas']['BackupUpdatable'];
+export type BackupCreateRequest = components['schemas']['BackupCreateRequest'];
+export type BackupPutRequest = components['schemas']['BackupPutRequest'];
+export type BackupPatchRequest = components['schemas']['BackupPatchRequest'];
+export type SubnetResponse = components['schemas']['SubnetResponse'];
+export type NetworkInterfaceResponse = components['schemas']['NetworkInterfaceResponse'];
+export type VirtualMachineResponse = components['schemas']['VirtualMachineResponse'];
+export type SnapshotResponse = components['schemas']['SnapshotResponse'];
+export type SnapshotUpdatable = components['schemas']['SnapshotUpdatable'];
+export type SnapshotCreateOnly = components['schemas']['SnapshotCreateOnly'];
+export type SnapshotCreateRequest = components['schemas']['SnapshotCreateRequest'];
+export type SnapshotPutRequest = components['schemas']['SnapshotPutRequest'];
+export type SnapshotPatchRequest = components['schemas']['SnapshotPatchRequest'];
+export type VirtualMachineCreateOnly = components['schemas']['VirtualMachineCreateOnly'];
+export type VirtualMachineUpdatableBase = components['schemas']['VirtualMachineUpdatableBase'];
+export type VirtualMachineWithInstanceTypeUpdatable = components['schemas']['VirtualMachineWithInstanceTypeUpdatable'];
+export type VirtualMachineWithCustomSpecUpdatable = components['schemas']['VirtualMachineWithCustomSpecUpdatable'];
+export type VirtualMachineUpdatable = components['schemas']['VirtualMachineUpdatable'];
+export type VirtualMachineCreateRequest = components['schemas']['VirtualMachineCreateRequest'];
+export type VirtualMachinePutRequest = components['schemas']['VirtualMachinePutRequest'];
+export type VirtualMachinePatchRequest = components['schemas']['VirtualMachinePatchRequest'];
+export type NetworkInterfaceUpdatable = components['schemas']['NetworkInterfaceUpdatable'];
+export type NetworkInterfaceCreateRequest = components['schemas']['NetworkInterfaceCreateRequest'];
+export type NetworkInterfaceBulkRequest = components['schemas']['NetworkInterfaceBulkRequest'];
+export type NetworkInterfacePutRequest = components['schemas']['NetworkInterfacePutRequest'];
+export type NetworkInterfacePatchRequest = components['schemas']['NetworkInterfacePatchRequest'];
+export type AttachedSecurityGroupBulkRequest = components['schemas']['AttachedSecurityGroupBulkRequest'];
+export type StorageUpdatable = components['schemas']['StorageUpdatable'];
+export type StorageCreateOnly = components['schemas']['StorageCreateOnly'];
+export type StorageCreateRequest = components['schemas']['StorageCreateRequest'];
+export type StorageBulkRequest = components['schemas']['StorageBulkRequest'];
+export type StoragePatchRequest = components['schemas']['StoragePatchRequest'];
+export type VirtualNetworkResponse = components['schemas']['VirtualNetworkResponse'];
+export type VirtualNetworkUpdatable = components['schemas']['VirtualNetworkUpdatable'];
+export type SubnetUpdatable = components['schemas']['SubnetUpdatable'];
+export type SubnetCreateRequest = components['schemas']['SubnetCreateRequest'];
+export type VirtualNetworkCreateOnly = components['schemas']['VirtualNetworkCreateOnly'];
+export type VirtualNetworkCreateRequest = components['schemas']['VirtualNetworkCreateRequest'];
+export type VirtualNetworkPatchRequest = components['schemas']['VirtualNetworkPatchRequest'];
+export type SubnetBulkRequest = components['schemas']['SubnetBulkRequest'];
+export type SubnetPutRequest = components['schemas']['SubnetPutRequest'];
+export type SubnetPatchRequest = components['schemas']['SubnetPatchRequest'];
 export type $defs = Record<string, never>;
 type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];

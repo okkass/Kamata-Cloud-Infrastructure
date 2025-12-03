@@ -16,7 +16,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/security-group/SecurityRuleBulkRequest.yml
+          $ref: "../../components/schemas/security-group/SecurityRuleBulkRequest.yml"
   responses:
     "200":
       description: ルール一括操作成功
@@ -25,14 +25,30 @@ post:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+              $ref: "../../components/schemas/security-group/SecurityRuleResponse.yml"
     "400":
       description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: セキュリティグループが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
