@@ -17,7 +17,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: "../../components/schemas/virtual-network/VirtualNetwork.yml"
+            $ref: "../../components/schemas/virtual-network/VirtualNetworkResponse.yml"
     "401":
       description: 認証エラー
       content:
@@ -48,7 +48,7 @@ put:
     content:
       application/json:
         schema:
-          $ref: "../../components/schemas/virtual-network/VirtualNetworkUpdateRequest.yml"
+          $ref: "../../components/schemas/virtual-network/VirtualNetworkPutRequest.yml"
   parameters:
     - name: networkId
       in: path
@@ -63,7 +63,7 @@ put:
       content:
         application/json:
           schema:
-            $ref: "../../components/schemas/virtual-network/VirtualNetwork.yml"
+            $ref: "../../components/schemas/virtual-network/VirtualNetworkResponse.yml"
     "400":
       description: リクエストエラー
       content:

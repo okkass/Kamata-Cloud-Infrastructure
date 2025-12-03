@@ -1,0 +1,30 @@
+type: object
+description: サブネットバルク更新リクエスト
+properties:
+  create:
+    type: array
+    description: 作成するサブネットのリスト
+    items:
+      $ref: "./SubnetCreateRequest.yml"
+  patch:
+    type: array
+    description: 更新するサブネットのリスト
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 更新するサブネットのID
+        data:
+          $ref: "./SubnetUpdatable.yml"
+      required:
+        - id
+        - data
+  delete:
+    type: array
+    description: 削除するサブネットのIDリスト
+    items:
+      type: string
+      format: uuid
+      description: サブネットのID
