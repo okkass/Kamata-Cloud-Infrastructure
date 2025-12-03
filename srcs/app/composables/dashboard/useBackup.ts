@@ -31,7 +31,7 @@ export function useBackupManagement() {
     pending,
     refresh,
     error,
-  } = useResourceList<BackupDTO>("backups");
+  } = useResourceList<BackupDTO>(BACKUP.name);
 
   const columns = [
     { key: "name", label: "バックアップ名", align: "left" as const },
