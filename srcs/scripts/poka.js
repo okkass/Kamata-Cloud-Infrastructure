@@ -83,6 +83,8 @@ async function main() {
     lineWidth: -1,
     noRefs: true,
     sortKeys: false,
+    quotingType: '"',
+    forceQuotes: true,
   });
 
   if (args.dry) {

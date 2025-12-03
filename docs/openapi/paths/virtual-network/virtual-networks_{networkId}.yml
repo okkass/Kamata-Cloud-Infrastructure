@@ -48,7 +48,7 @@ patch:
     content:
       application/json:
         schema:
-          $ref: "../../components/schemas/virtual-network/VirtualNetworkPutRequest.yml"
+          $ref: "../../components/schemas/virtual-network/VirtualNetworkPatchRequest.yml"
   parameters:
     - name: networkId
       in: path

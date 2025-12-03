@@ -1,8 +1,8 @@
-openapi: 3.0.3
+openapi: "3.0.3"
 info:
-  title: KCI API
-  description: KCI API documentation
-  version: 0.45.1
+  title: "KCI API"
+  description: "KCI API documentation"
+  version: "0.45.1"
 paths:
   /api/login:
     $ref: "paths/auth/login.yml"
@@ -68,33 +68,35 @@ paths:
     $ref: "paths/virtual-network/virtual-networks_{networkId}.yml"
   /api/virtual-networks/{networkId}/subnets:
     $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets.yml"
+  /api/virtual-networks/{networkId}/subnets/bulk:
+    $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_bulk.yml"
   /api/virtual-networks/{networkId}/subnets/{subnetId}:
     $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}.yml"
 components:
   securitySchemes:
     BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: JWTを使用した認証方式
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"
+      description: "JWTを使用した認証方式"
 tags:
-  - name: Auth
-    description: 認証関連の操作
-  - name: Image
-    description: 仮想マシンイメージ関連の操作
-  - name: InstanceType
-    description: インスタンスタイプ関連の操作
-  - name: Node
-    description: 物理ノード関連の操作
-  - name: Portfolio
-    description: ポートフォリオ関連の操作
-  - name: SecurityGroup
-    description: セキュリティグループ関連の操作
-  - name: StoragePool
-    description: ストレージプール関連の操作
-  - name: User
-    description: ユーザ関連の操作
-  - name: VirtualMachine
-    description: 仮想マシン関連の操作
-  - name: VirtualNetwork
-    description: 仮想ネットワーク関連の操作
+  - name: "Auth"
+    description: "認証関連の操作"
+  - name: "Image"
+    description: "仮想マシンイメージ関連の操作"
+  - name: "InstanceType"
+    description: "インスタンスタイプ関連の操作"
+  - name: "Node"
+    description: "物理ノード関連の操作"
+  - name: "Portfolio"
+    description: "ポートフォリオ関連の操作"
+  - name: "SecurityGroup"
+    description: "セキュリティグループ関連の操作"
+  - name: "StoragePool"
+    description: "ストレージプール関連の操作"
+  - name: "User"
+    description: "ユーザ関連の操作"
+  - name: "VirtualMachine"
+    description: "仮想マシン関連の操作"
+  - name: "VirtualNetwork"
+    description: "仮想ネットワーク関連の操作"
