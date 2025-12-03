@@ -79,15 +79,11 @@
  * =================================================================================
  */
 import { useSecurityGroupForm } from "~/composables/modal/useSecurityGroupCreateForm";
-// RuleTableのインポートパスがプロジェクト構成と合っているか確認してください
 import RuleTable from "~/components/RuleTable.vue";
 
-// --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 
-// --- Composableからフォームロジックを取得 ---
-// useSecurityGroupCreateForm.ts の戻り値と変数名を一致させる
 const {
   errors,
   name,
@@ -96,6 +92,7 @@ const {
   descriptionAttrs,
   inboundRules,
   outboundRules,
+  // 操作関数
   addInboundRule,
   removeInboundRule,
   addOutboundRule,
@@ -104,7 +101,6 @@ const {
   onFormSubmit,
 } = useSecurityGroupForm();
 
-// --- イベントハンドラ ---
 const submitHandler = onFormSubmit(emit);
 const submitForm = () => {
   submitHandler();

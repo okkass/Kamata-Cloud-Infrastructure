@@ -39,7 +39,7 @@
               <label class="block text-xs text-gray-500 mb-1">プロトコル</label>
               <select
                 v-model="rule.protocol"
-                @change="handleProtocolChange(rule)"
+                @change="onProtocolChange(rule)"
                 class="form-select-sm w-full"
               >
                 <option value="tcp">TCP</option>
@@ -123,7 +123,7 @@
  */
 import type { PropType } from "vue";
 
-// ルールの型定義（最低限必要なプロパティ）
+// ルールの型定義
 interface RuleItem {
   id: string;
   name: string;
@@ -142,7 +142,6 @@ const props = defineProps({
     type: Array as PropType<RuleItem[]>,
     default: () => [],
   },
-  // エラーオブジェクト (undefined許容)
   errors: {
     type: Object as PropType<Record<string, string | undefined>>,
     default: () => ({}),
@@ -155,58 +154,41 @@ const props = defineProps({
 
 defineEmits(["add-rule", "delete-rule"]);
 
-// --- ロジック追加部分 ---
+// --- ヘルパーメソッド ---
 
-/**
- * ポート入力を無効化すべきプロトコルかどうか判定
- * ICMP または Any の場合はポート指定不要のため true を返す
- */
-const isPortDisabled = (protocol: string): boolean => {
+// ポート入力が無効かどうか判定 (ICMP/Any)
+const isPortDisabled = (protocol: string) => {
   const p = protocol.toLowerCase();
   return p === "icmp" || p === "any";
 };
 
-/**
- * プロトコル変更時のハンドラ
- * ICMP等に変更された場合、入力済みのポート番号をクリアする
- */
-const handleProtocolChange = (rule: RuleItem) => {
+// プロトコル変更時の処理 (ポートをクリア)
+const onProtocolChange = (rule: RuleItem) => {
   if (isPortDisabled(rule.protocol)) {
     rule.port = null;
   }
 };
 
-// --- エラー判定ロジック (既存のまま) ---
+// --- エラー判定ロジック ---
 
 const getError = (rule: RuleItem, index: number, field: string) => {
-  const idKey = `${rule.id}.${field}`;
-  if (props.errors[idKey]) return props.errors[idKey];
-
-  const indexKey = `${props.fieldNamePrefix}[${index}].${field}`;
-  if (props.errors[indexKey]) return props.errors[indexKey];
-
-  return undefined;
+  // VeeValidateのエラーキー "fieldName[index].propName" を探す
+  const key = `${props.fieldNamePrefix}[${index}].${field}`;
+  return props.errors[key];
 };
 
 const hasRowError = (rule: RuleItem, index: number) => {
-  const idPrefix = `${rule.id}.`;
-  const indexPrefix = `${props.fieldNamePrefix}[${index}].`;
-
-  return Object.keys(props.errors).some(
-    (k) => k.startsWith(idPrefix) || k.startsWith(indexPrefix)
-  );
+  const prefix = `${props.fieldNamePrefix}[${index}].`;
+  return Object.keys(props.errors).some((k) => k.startsWith(prefix));
 };
 
 const getRowErrorMessage = (rule: RuleItem, index: number) => {
-  const nameErr = getError(rule, index, "name");
-  const targetErr = getError(rule, index, "targetIp");
-  const portErr = getError(rule, index, "port");
-
-  const messages = [];
-  if (nameErr) messages.push(`名前: ${nameErr}`);
-  if (targetErr) messages.push(`IP: ${targetErr}`);
-  if (portErr) messages.push(`ポート: ${portErr}`);
-
+  const messages: string[] = [];
+  const fields = ["name", "port", "targetIp"];
+  fields.forEach((f) => {
+    const err = getError(rule, index, f);
+    if (err) messages.push(err);
+  });
   return messages;
 };
 </script>
@@ -222,7 +204,6 @@ const getRowErrorMessage = (rule: RuleItem, index: number) => {
 .rule-row:last-child {
   @apply border-b-0 pb-0 mb-0;
 }
-/* 無効化時のスタイル補助 (Tailwindクラスで対応済みだが念のため) */
 .cursor-not-allowed {
   cursor: not-allowed;
 }
