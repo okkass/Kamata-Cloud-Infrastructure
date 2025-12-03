@@ -97,8 +97,7 @@ const {
   nameAttrs,
   nodeId,
   devicePath,
-  hasNetworkAccess, // 変数名変更
-
+  hasNetworkAccess,
   nodes,
   nodesPending,
   nodesError,
@@ -111,7 +110,7 @@ const {
 } = useStorageAddForm();
 
 // --- 定数 ---
-// ★★★ 修正: Selectコンポーネントが要求する { id, name } 形式にする ★★★
+// Selectコンポーネントが要求する { id, name } 形式にする
 // id は文字列にする必要があります
 const networkOptions = [
   { id: "true", name: "許可 (True)" },

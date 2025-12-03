@@ -14,7 +14,7 @@ import newDevicesGet from "~~/server/api/physical-nodes/[nodeId]/new-devices.get
 
 // デバイス情報の型 (APIレスポンス)
 interface DeviceDTO {
-  path: string;
+  devicePath: string;
 }
 
 // Selectコンポーネントが要求する型
@@ -105,7 +105,7 @@ export function useStorageAddForm() {
         return;
       }
 
-      // ★念のため: newNodeId がオブジェクトになってしまっている場合のガード処理
+      // 念のため: newNodeId がオブジェクトになってしまっている場合のガード処理
       const targetId =
         typeof newNodeId === "object" ? (newNodeId as any).id : newNodeId;
 
@@ -114,11 +114,9 @@ export function useStorageAddForm() {
       devicePath.value = ""; // パス選択をリセット
 
       try {
-        // ★★★ 修正箇所: useFetch -> $fetch に変更 ★★★
         // $fetch はエラー時に例外を投げるため、try-catch で捕捉します
         const response = await $fetch<DeviceDTO[]>(
           `/api/physical-nodes/${targetId}/new-devices`
-          // もしご自身の環境で /api/physical-nodes/... を使う場合はここを書き換えてください
         );
 
         devices.value = response || [];
@@ -135,8 +133,8 @@ export function useStorageAddForm() {
   // デバイス一覧を SelectOption[] ({id, name}) に変換する
   const deviceOptions = computed<SelectOption[]>(() => {
     return devices.value.map((d) => ({
-      id: d.path,
-      name: d.path,
+      id: d.devicePath,
+      name: d.devicePath,
     }));
   });
 
@@ -182,7 +180,7 @@ export function useStorageAddForm() {
     nodes,
     nodesPending,
     nodesError,
-    // ★ 整形済みのオプションを返す
+    // 整形済みのオプションを返す
     deviceOptions,
     devicesPending,
     devicesError,
