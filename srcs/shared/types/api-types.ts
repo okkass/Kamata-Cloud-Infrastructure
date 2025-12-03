@@ -4316,21 +4316,6 @@ export interface components {
         };
         /** @description ポートフォリオ作成リクエストオブジェクト */
         PortfolioCreateRequest: WithRequired<components["schemas"]["PortfolioUpdatable"], "title">;
-        /**
-         * @description セキュリティルールのタイプ（インバウンドまたはアウトバウンド）
-         * @enum {string}
-         */
-        SecurityRuleTypeEnum: "inbound" | "outbound";
-        /**
-         * @description 適用されるプロトコル
-         * @enum {string}
-         */
-        SecurityRuleProtocolEnum: "tcp" | "udp" | "icmp" | "any";
-        /**
-         * @description ルールのアクション（許可または拒否）
-         * @enum {string}
-         */
-        SecurityRuleActionEnum: "allow" | "deny";
         /** @description セキュリティルールレスポンスオブジェクト */
         SecurityRuleResponse: {
             /**
@@ -4340,23 +4325,32 @@ export interface components {
             id: string;
             /** @description セキュリティルールの名前 */
             name: string;
-            /** @description ルールのタイプ（インバウンドまたはアウトバウンド） */
-            ruleType: components["schemas"]["SecurityRuleTypeEnum"];
+            /**
+             * @description ルールのタイプ（インバウンドまたはアウトバウンド）
+             * @enum {string}
+             */
+            ruleType: "inbound" | "outbound";
             /**
              * @description 適用されるポート番号。nullの場合は全ポート対象
              * @example 22
              */
             port?: number | null;
-            /** @description 適用されるプロトコル */
-            protocol: components["schemas"]["SecurityRuleProtocolEnum"];
+            /**
+             * @description 適用されるプロトコル
+             * @enum {string}
+             */
+            protocol: "tcp" | "udp" | "icmp" | "any";
             /**
              * Format: ipv4
              * @description ターゲットIPアドレス
              * @example 192.0.2.0/24
              */
             targetIp: string;
-            /** @description ルールのアクション（許可または拒否） */
-            action?: components["schemas"]["SecurityRuleActionEnum"];
+            /**
+             * @description ルールのアクション（許可または拒否）
+             * @enum {string}
+             */
+            action?: "allow" | "deny";
             /**
              * Format: date-time
              * @description セキュリティルールが作成された日時
@@ -4398,23 +4392,32 @@ export interface components {
         SecurityRuleUpdatable: {
             /** @description セキュリティルールの名前 */
             name?: string;
-            /** @description ルールのタイプ（インバウンドまたはアウトバウンド） */
-            ruleType?: components["schemas"]["SecurityRuleTypeEnum"];
+            /**
+             * @description ルールのタイプ（インバウンドまたはアウトバウンド）
+             * @enum {string}
+             */
+            ruleType?: "inbound" | "outbound";
             /**
              * @description 適用されるポート番号。NULLの場合は全ポート対象
              * @example 22
              */
             port?: number | null;
-            /** @description 適用されるプロトコル */
-            protocol?: components["schemas"]["SecurityRuleProtocolEnum"];
+            /**
+             * @description 適用されるプロトコル
+             * @enum {string}
+             */
+            protocol?: "tcp" | "udp" | "icmp" | "any";
             /**
              * Format: ipv4
              * @description ターゲットIPアドレス
              * @example 192.0.2.0/24
              */
             targetIp?: string;
-            /** @description ルールのアクション（許可または拒否） */
-            action?: components["schemas"]["SecurityRuleActionEnum"];
+            /**
+             * @description ルールのアクション（許可または拒否）
+             * @enum {string}
+             */
+            action?: "allow" | "deny";
         };
         /** @description セキュリティルール作成リクエストオブジェクト */
         SecurityRuleCreateRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
@@ -4447,7 +4450,13 @@ export interface components {
         /** @description セキュリティルール更新リクエストオブジェクト(PUT) */
         SecurityRulePutRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
         /** @description セキュリティルール更新リクエストオブジェクト(PATCH) */
-        SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"];
+        SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"] & {
+            /**
+             * Format: uuid
+             * @description セキュリティルールを識別するための一意なID
+             */
+            id?: string;
+        };
         /** @description ストレージプールレスポンスオブジェクト */
         StoragePoolResponse: {
             /**
@@ -5040,9 +5049,6 @@ export type DeviceResponse = components['schemas']['DeviceResponse'];
 export type PortfolioResponse = components['schemas']['PortfolioResponse'];
 export type PortfolioUpdatable = components['schemas']['PortfolioUpdatable'];
 export type PortfolioCreateRequest = components['schemas']['PortfolioCreateRequest'];
-export type SecurityRuleTypeEnum = components['schemas']['SecurityRuleTypeEnum'];
-export type SecurityRuleProtocolEnum = components['schemas']['SecurityRuleProtocolEnum'];
-export type SecurityRuleActionEnum = components['schemas']['SecurityRuleActionEnum'];
 export type SecurityRuleResponse = components['schemas']['SecurityRuleResponse'];
 export type SecurityGroupResponse = components['schemas']['SecurityGroupResponse'];
 export type SecurityGroupUpdatable = components['schemas']['SecurityGroupUpdatable'];
