@@ -1,5 +1,5 @@
 <template>
-  <div class="border rounded-md overflow-hidden">
+  <div class="border rounded-md overflow-hidden bg-white">
     <div
       class="bg-gray-100 px-4 py-2 border-b flex justify-between items-center"
     >
@@ -13,20 +13,16 @@
       </button>
     </div>
 
-    <div class="p-4 bg-white">
+    <div class="p-4">
       <div
-        v-if="!rules || rules.length === 0"
+        v-if="rules.length === 0"
         class="text-center text-gray-400 py-4 text-sm"
       >
         ルールがありません。
       </div>
 
       <div v-else class="space-y-4">
-        <div
-          v-for="(rule, index) in rules"
-          :key="rule.id || index"
-          class="rule-row"
-        >
+        <div v-for="(rule, index) in rules" :key="rule.id" class="rule-row">
           <div class="grid grid-cols-12 gap-2 items-start">
             <div class="col-span-4">
               <label class="block text-xs text-gray-500 mb-1">名前</label>
@@ -34,7 +30,7 @@
                 type="text"
                 v-model="rule.name"
                 class="form-input-sm w-full"
-                :class="{ 'border-red-500': getError(index, 'name') }"
+                :class="{ 'border-red-500': getError(rule, index, 'name') }"
                 placeholder="ルール名"
               />
             </div>
@@ -56,13 +52,14 @@
                 v-model.number="rule.port"
                 class="form-input-sm w-full"
                 placeholder="Any"
+                :class="{ 'border-red-500': getError(rule, index, 'port') }"
               />
             </div>
 
-            <div class="col-span-2 flex justify-end pt-5">
+            <div class="col-span-2 flex justify-end pt-6">
               <button
                 type="button"
-                @click="$emit('delete-rule', rule)"
+                @click="$emit('delete-rule', rule.id)"
                 class="text-red-500 hover:text-red-700 p-1"
                 title="削除"
               >
@@ -93,7 +90,7 @@
                 type="text"
                 v-model="rule.targetIp"
                 class="form-input-sm w-full"
-                :class="{ 'border-red-500': getError(index, 'targetIp') }"
+                :class="{ 'border-red-500': getError(rule, index, 'targetIp') }"
                 placeholder="0.0.0.0/0"
               />
             </div>
@@ -107,8 +104,11 @@
             </div>
           </div>
 
-          <div v-if="hasRowError(index)" class="text-xs text-red-500 mt-1">
-            {{ getRowErrorMessage(index) }}
+          <div
+            v-if="hasRowError(rule, index)"
+            class="text-xs text-red-500 mt-1 pl-1"
+          >
+            {{ getRowErrorMessage(rule, index) }}
           </div>
         </div>
       </div>
@@ -117,54 +117,67 @@
 </template>
 
 <script setup lang="ts">
-/**
- * =================================================================================
- * ルール編集テーブル (RuleTable.vue)
- * =================================================================================
- */
-import type { PropType } from "vue";
+import { type PropType } from "vue";
+// 型定義はプロジェクトに合わせてください (Create用DTOなど)
+interface RuleItem {
+  id: string; // 必須！
+  name: string;
+  protocol: string;
+  port?: number | null;
+  targetIp: string;
+  action: string;
+}
 
 const props = defineProps({
-  title: {
-    type: String,
-    default: "ルール",
-  },
-  rules: {
-    type: Array as PropType<any[]>,
-    default: () => [],
-  },
+  title: { type: String, default: "ルール" },
+  rules: { type: Array as PropType<any[]>, default: () => [] },
   errors: {
-    type: Object as PropType<Record<string, string>>,
+    type: Object as PropType<Record<string, string | undefined>>,
     default: () => ({}),
   },
-  fieldNamePrefix: {
-    type: String,
-    required: true, // 例: 'inboundRules'
-  },
+  fieldNamePrefix: { type: String, required: true }, // 'inboundRules' など
 });
 
-defineEmits(["add-rule", "delete-rule"]);
+defineEmits<{
+  (e: "add-rule"): void;
+  (e: "delete-rule", id: string): void;
+}>();
 
-// エラー判定ヘルパー
-const getError = (index: number, field: string) => {
-  // rules[0].name のような形式でエラーが来ていると仮定
-  const key = `${props.fieldNamePrefix}[${index}].${field}`;
-  return props.errors[key];
+// --- ハイブリッドエラー判定 ---
+// 編集画面は「IDベース」、作成画面(VeeValidate)は「Indexベース」でエラーが来るため、両方チェックする
+
+const getError = (rule: RuleItem, index: number, field: string) => {
+  // パターン1: IDベース (編集画面) -> "uuid-123.name"
+  const idKey = `${rule.id}.${field}`;
+  if (props.errors[idKey]) return props.errors[idKey];
+
+  // パターン2: Indexベース (VeeValidate/作成画面) -> "inboundRules[0].name"
+  const indexKey = `${props.fieldNamePrefix}[${index}].${field}`;
+  if (props.errors[indexKey]) return props.errors[indexKey];
+
+  return undefined;
 };
 
-// 行全体のエラー有無
-const hasRowError = (index: number) => {
-  const prefix = `${props.fieldNamePrefix}[${index}].`;
-  return Object.keys(props.errors).some((k) => k.startsWith(prefix));
+const hasRowError = (rule: RuleItem, index: number) => {
+  const idPrefix = `${rule.id}.`;
+  const indexPrefix = `${props.fieldNamePrefix}[${index}].`;
+
+  return Object.keys(props.errors).some(
+    (k) => k.startsWith(idPrefix) || k.startsWith(indexPrefix)
+  );
 };
 
-// 行のエラーメッセージ取得 (簡易版)
-const getRowErrorMessage = (index: number) => {
-  const nameErr = getError(index, "name");
-  const targetErr = getError(index, "targetIp");
-  if (nameErr) return `名前: ${nameErr}`;
-  if (targetErr) return `IP: ${targetErr}`;
-  return "";
+const getRowErrorMessage = (rule: RuleItem, index: number) => {
+  const nameErr = getError(rule, index, "name");
+  const targetErr = getError(rule, index, "targetIp");
+  const portErr = getError(rule, index, "port");
+
+  const messages = [];
+  if (nameErr) messages.push(`名前: ${nameErr}`);
+  if (targetErr) messages.push(`IP: ${targetErr}`);
+  if (portErr) messages.push(`ポート: ${portErr}`);
+
+  return messages.join(" / ");
 };
 </script>
 

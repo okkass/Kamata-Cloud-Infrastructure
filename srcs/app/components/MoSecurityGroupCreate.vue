@@ -30,7 +30,7 @@
 
       <RuleTable
         title="インバウンドルール"
-        :rules="inboundRuleFields"
+        :rules="inboundRules"
         :errors="errors"
         field-name-prefix="inboundRules"
         @add-rule="addInboundRule"
@@ -39,7 +39,7 @@
 
       <RuleTable
         title="アウトバウンドルール"
-        :rules="outboundRuleFields"
+        :rules="outboundRules"
         :errors="errors"
         field-name-prefix="outboundRules"
         @add-rule="addOutboundRule"
@@ -84,6 +84,8 @@ const {
   nameAttrs,
   description,
   descriptionAttrs,
+  inboundRules,
+  outboundRules,
   inboundRuleFields,
   outboundRuleFields,
   addInboundRule,

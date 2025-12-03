@@ -1,8 +1,3 @@
-/**
- * =================================================================================
- * セキュリティグループ編集フォーム Composable (useSecurityGroupEditForm.ts)
- * =================================================================================
- */
 import { ref, computed, watch } from "vue";
 import { useToast } from "~/composables/useToast";
 import {
@@ -10,54 +5,49 @@ import {
   type ResourceConfig,
 } from "~/composables/useResourceUpdater";
 
-import type { SecurityGroupDTO } from "~~/shared/types/dto/security-group/SecurityGroupDTO";
-import {
-  SecurityRuleProtocolEnum,
-  SecurityRuleActionEnum,
-  SecurityRuleRuleTypeEnum,
-} from "~~/shared/types/dto/security-group/SecurityRuleDTO";
+type SecurityRuleProtocol = "tcp" | "udp" | "icmp" | "any";
+type SecurityRuleAction = "allow" | "deny";
+type SecurityRuleType = "inbound" | "outbound";
 
 interface Props {
   show: boolean;
-  securityGroupData: SecurityGroupDTO | null;
+  securityGroupData: SecurityGroupResponse | null;
 }
+
+export const PROTOCOL_OPTIONS: SecurityRuleProtocol[] = [
+  "tcp",
+  "udp",
+  "icmp",
+  "any",
+];
+export const ACTION_OPTIONS: SecurityRuleAction[] = ["allow", "deny"];
 
 export function useSecurityGroupEditForm(props: Props) {
   const { addToast } = useToast();
 
-  // useResourceUpdater から editedData と init を受け取る
   const { editedData, init, save, isDirty, isSaving } =
-    useResourceUpdater<SecurityGroupDTO>();
+    useResourceUpdater<SecurityGroupResponse>();
 
-  // モーダルが開いたとき、またはデータが変わったときに初期化
+  // --- 初期化ロジック ---
   watch(
-    () => [props.show, props.securityGroupData],
+    () => [props.show, props.securityGroupData] as const,
     ([show, data]) => {
       if (show && data) {
-        init(
-          data as SecurityGroupDTO,
-          getResourceConfig(data as SecurityGroupDTO)
-        );
+        init(data, getResourceConfig(data));
       }
     },
     { immediate: true }
   );
 
-  function getResourceConfig(data: SecurityGroupDTO): ResourceConfig {
+  function getResourceConfig(data: SecurityGroupResponse): ResourceConfig {
     return {
-      // 1. セキュリティグループ本体の更新
       base: {
         endpoint: `/api/security-groups/${data.id}`,
         fields: ["name", "description"],
       },
-
-      // 2. ルールの更新
       collections: {
         rules: {
-          // useResourceUpdater が自動的に末尾に `/{ruleId}` (やPOST時のbody) を扱います。
-          // ここではベースとなる `.../rules` までを指定します。
           endpoint: `/api/security-groups/${data.id}/rules`,
-
           idKey: "id",
           newIdPrefix: "new-",
           fields: [
@@ -78,27 +68,22 @@ export function useSecurityGroupEditForm(props: Props) {
 
   const validate = (): boolean => {
     errors.value = {};
-    let isValid = true;
-
     if (!editedData.value) return false;
 
-    if (!editedData.value.name) {
+    if (!editedData.value.name?.trim()) {
       errors.value.name = "グループ名は必須です。";
-      isValid = false;
     }
 
-    editedData.value.rules?.forEach((rule: any, index: number) => {
-      if (!rule.name) {
-        errors.value[`rules[${index}].name`] = "必須";
-        isValid = false;
+    editedData.value.rules?.forEach((rule, index) => {
+      if (!rule.name?.trim()) {
+        errors.value[`${rule.id}.name`] = "必須";
       }
-      if (!rule.targetIp) {
-        errors.value[`rules[${index}].targetIp`] = "必須";
-        isValid = false;
+      if (!rule.targetIp?.trim()) {
+        errors.value[`${rule.id}.targetIp`] = "必須";
       }
     });
 
-    return isValid;
+    return Object.keys(errors.value).length === 0;
   };
 
   // --- 送信ハンドラ ---
@@ -119,75 +104,78 @@ export function useSecurityGroupEditForm(props: Props) {
         emit("success");
         emit("close");
       } else {
-        addToast({
-          type: "error",
-          message: "更新に失敗しました。",
-        });
+        addToast({ type: "error", message: "更新に失敗しました。" });
       }
     };
   };
 
   // --- ルール操作ヘルパー ---
-  const createNewRule = (type: SecurityRuleRuleTypeEnum): any => ({
-    id: `new-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+
+  // 新規ルール作成のファクトリ関数
+  const createNewRule = (type: SecurityRuleType): SecurityRuleResponse => ({
+    // 一時ID生成 (UUIDの簡易版としてランダム文字列を使用)
+    id: `new-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     name: "New Rule",
     ruleType: type,
-    protocol: SecurityRuleProtocolEnum.Tcp,
+    protocol: "tcp", // 文字列リテラルで指定
     port: null,
     targetIp: "0.0.0.0/0",
-    action: SecurityRuleActionEnum.Allow,
+    action: "allow", // 文字列リテラルで指定
+    createdAt: new Date().toISOString(),
   });
 
-  const addInboundRule = () => {
+  // 共通化されたルール追加関数
+  const addRule = (type: SecurityRuleType) => {
     if (!editedData.value) return;
-    if (!editedData.value.rules) editedData.value.rules = [];
-    editedData.value.rules.push(
-      createNewRule(SecurityRuleRuleTypeEnum.Inbound)
-    );
+
+    // rules が未定義の場合は空配列で初期化
+    if (!editedData.value.rules) {
+      editedData.value.rules = [];
+    }
+
+    editedData.value.rules.push(createNewRule(type));
   };
 
-  const addOutboundRule = () => {
-    if (!editedData.value) return;
-    if (!editedData.value.rules) editedData.value.rules = [];
-    editedData.value.rules.push(
-      createNewRule(SecurityRuleRuleTypeEnum.Outbound)
-    );
-  };
-
-  const removeRule = (index: number) => {
+  // 特定のIDを持つルールを削除
+  const removeRule = (ruleId: string) => {
     if (!editedData.value?.rules) return;
-    editedData.value.rules.splice(index, 1);
+
+    const index = editedData.value.rules.findIndex((r) => r.id === ruleId);
+    if (index !== -1) {
+      editedData.value.rules.splice(index, 1);
+    }
   };
 
-  const inboundRules = computed(() =>
-    (editedData.value?.rules || []).filter(
-      (r: any) => r.ruleType === SecurityRuleRuleTypeEnum.Inbound
-    )
-  );
-  const outboundRules = computed(() =>
-    (editedData.value?.rules || []).filter(
-      (r: any) => r.ruleType === SecurityRuleRuleTypeEnum.Outbound
-    )
+  // Computed: フィルタリング
+  const inboundRules = computed(
+    () => editedData.value?.rules?.filter((r) => r.ruleType === "inbound") ?? []
   );
 
-  const getOriginalIndex = (rule: any) => {
-    return (
-      editedData.value?.rules?.findIndex((r: any) => r.id === rule.id) ?? -1
-    );
-  };
+  const outboundRules = computed(
+    () =>
+      editedData.value?.rules?.filter((r) => r.ruleType === "outbound") ?? []
+  );
 
   return {
+    // State
     editedData,
     errors,
     isDirty,
     isSaving,
-    onFormSubmit,
+
+    // Options (定数を返す)
+    protocolOptions: PROTOCOL_OPTIONS,
+    actionOptions: ACTION_OPTIONS,
+
+    // Computed Lists
     inboundRules,
     outboundRules,
-    addInboundRule,
-    addOutboundRule,
-    removeRule: (rule: any) => removeRule(getOriginalIndex(rule)),
-    protocolOptions: Object.values(SecurityRuleProtocolEnum),
-    actionOptions: Object.values(SecurityRuleActionEnum),
+
+    // Methods
+    onFormSubmit,
+    addInboundRule: () => addRule("inbound"),
+    addOutboundRule: () => addRule("outbound"),
+    // テンプレート側からは id を渡すだけで済むように変更
+    removeRule,
   };
 }

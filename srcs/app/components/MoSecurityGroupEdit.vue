@@ -70,7 +70,6 @@
  * =================================================================================
  */
 import { useSecurityGroupEditForm } from "~/composables/modal/useSecurityGroupEditForm";
-import type { SecurityGroupDTO } from "~~/shared/types/dto/security-group/SecurityGroupDTO";
 
 import FormInput from "~/components/Form/Input.vue";
 import FormTextarea from "~/components/Form/Textarea.vue"; // パス修正の可能性あり
@@ -81,7 +80,7 @@ import RuleTable from "~/components/RuleTable.vue";
 const props = defineProps({
   show: { type: Boolean, required: true },
   securityGroupData: {
-    type: Object as PropType<SecurityGroupDTO | null>,
+    type: Object as PropType<SecurityGroupResponse | null>,
     default: null,
   },
 });

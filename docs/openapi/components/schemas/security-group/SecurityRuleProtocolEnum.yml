@@ -1,7 +1,0 @@
-type: string
-description: 適用されるプロトコル
-enum:
-  - tcp
-  - udp
-  - icmp
-  - any
