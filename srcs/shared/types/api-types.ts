@@ -4934,7 +4934,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["SecurityGroupResponse"][];
+                        "application/json": components["schemas"]["SecurityGroupResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -6931,7 +6931,7 @@ export interface components {
             description?: string;
         };
         /** @description バックアップ作成リクエストオブジェクト */
-        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & WithRequired<components["schemas"]["BackupUpdatable"], "name">;
+        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & components["schemas"]["BackupUpdatable"] & Record<string, never>;
         /** @description バックアップ更新リクエストオブジェクト */
         BackupPutRequest: WithRequired<components["schemas"]["BackupUpdatable"], "name">;
         /** @description バックアップ部分更新リクエストオブジェクト */
@@ -7068,7 +7068,7 @@ export interface components {
         SnapshotCreateRequest: WithRequired<components["schemas"]["SnapshotUpdatable"], "name"> & components["schemas"]["SnapshotCreateOnly"];
         /** @description スナップショット更新リクエスト descriptionの記載がない場合は削除されます */
         SnapshotPutRequest: WithRequired<components["schemas"]["SnapshotUpdatable"], "name">;
-        /** @description スナップショット更新リクエスト descriptionの記載がない場合は削除されます */
+        /** @description スナップショット更新リクエストオブジェクト */
         SnapshotPatchRequest: components["schemas"]["SnapshotUpdatable"];
         /** @description 仮想マシン作成時のみに設定可能なプロパティを持つオブジェクト */
         VirtualMachineCreateOnly: {
