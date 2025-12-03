@@ -1,5 +1,5 @@
 type: object
-description: サブネット更新リクエストオブジェクト
+description: サブネットの更新可能なプロパティ
 properties:
   name:
     type: string
@@ -7,7 +7,7 @@ properties:
   cidr:
     type: string
     description: CIDR形式のサブネットアドレス
-    example: 10.0.0.0/16
+    example: 192.168.1.0/24
   possibleExternalConnection:
     type: boolean
     description: 外部接続が可能かどうかを示すフラグ

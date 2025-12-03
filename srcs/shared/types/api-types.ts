@@ -3621,7 +3621,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualNetwork"][];
+                        "application/json": components["schemas"]["VirtualNetworkResponse"][];
                     };
                 };
                 /** @description 認証エラー */
@@ -3629,14 +3629,18 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3664,7 +3668,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualNetwork"];
+                        "application/json": components["schemas"]["VirtualNetworkResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -3725,7 +3729,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualNetwork"];
+                        "application/json": components["schemas"]["VirtualNetworkResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -3733,21 +3737,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想ネットワークが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3767,7 +3777,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["VirtualNetworkUpdateRequest"];
+                    "application/json": components["schemas"]["VirtualNetworkPutRequest"];
                 };
             };
             responses: {
@@ -3777,7 +3787,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["VirtualNetwork"];
+                        "application/json": components["schemas"]["VirtualNetworkResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -3785,28 +3795,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想ネットワークが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3839,21 +3857,27 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想ネットワークが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3887,7 +3911,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["SubnetCreateRequest"];
+                    "application/json": components["schemas"]["SubnetUpdatable"];
                 };
             };
             responses: {
@@ -3897,7 +3921,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Subnet"];
+                        "application/json": components["schemas"]["SubnetResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -3905,28 +3929,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想ネットワークが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -3943,7 +3975,62 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * サブネットの詳細取得
+         * @description 指定した仮想ネットワーク内のサブネットの詳細情報を取得します。
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想ネットワークの一意なID */
+                    networkId: string;
+                    /** @description サブネットの一意なID */
+                    subnetId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubnetResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想ネットワークまたはサブネットが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         /**
          * サブネットの更新
          * @description 指定した仮想ネットワーク内のサブネット情報を更新します。
@@ -3962,7 +4049,7 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["SubnetUpdateRequest"];
+                    "application/json": components["schemas"]["SubnetPutRequest"];
                 };
             };
             responses: {
@@ -3972,7 +4059,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": components["schemas"]["Subnet"];
+                        "application/json": components["schemas"]["SubnetResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -3980,28 +4067,36 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想ネットワークまたはサブネットが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -4036,27 +4131,101 @@ export interface paths {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 仮想ネットワークまたはサブネットが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
         options?: never;
         head?: never;
-        patch?: never;
+        /**
+         * サブネットの部分更新
+         * @description 指定した仮想ネットワーク内のサブネット情報を更新します。
+         */
+        patch: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想ネットワークの一意なID */
+                    networkId: string;
+                    /** @description サブネットの一意なID */
+                    subnetId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["SubnetPatchRequest"];
+                };
+            };
+            responses: {
+                /** @description 更新成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SubnetResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想ネットワークまたはサブネットが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         trace?: never;
     };
 }
@@ -4919,7 +5088,7 @@ export interface components {
             attachedNics?: components["schemas"]["NetworkInterface"][];
         };
         /** @description サブネットオブジェクト */
-        Subnet: {
+        SubnetResponse: {
             /**
              * Format: uuid
              * @description サブネットを識別するための一意なID
@@ -4941,7 +5110,7 @@ export interface components {
             createdAt: string;
         };
         /** @description 仮想ネットワークオブジェクト */
-        VirtualNetwork: {
+        VirtualNetworkResponse: {
             /**
              * Format: uuid
              * @description 仮想ネットワークを識別するための一意なID
@@ -4959,59 +5128,70 @@ export interface components {
              * @description 仮想ネットワークが作成された日時
              */
             createdAt: string;
-            subnets?: components["schemas"]["Subnet"][];
-            /**
-             * Format: float
-             * @description 仮想ネットワークのインバウンドトラフィック（bps単位）
-             * @example 125000
-             */
-            inboundTraffic: number;
-            /**
-             * Format: float
-             * @description 仮想ネットワークのアウトバウンドトラフィック（bps単位）
-             * @example 98000
-             */
-            outboundTraffic: number;
+            subnets?: components["schemas"]["SubnetResponse"][];
         };
-        /** @description 仮想ネットワーク作成リクエストオブジェクト */
-        VirtualNetworkCreateRequest: {
-            /** @description 仮想ネットワークの名前 */
-            name: string;
+        /** @description RFC 9457 (Problem Details for HTTP APIs) に準拠した標準のエラーレスポンス形式 */
+        ErrorResponse: {
             /**
-             * @description CIDR形式のネットワークアドレス
-             * @example 10.0.0.0/16
+             * @description エラーの種類を示す識別子
+             * @example https://api.kci.chiffon-lab.tech/errors/invalid-request
              */
-            cidr: string;
+            type?: string;
+            /**
+             * @description エラーの簡潔な説明
+             * @example Invalid Request
+             */
+            title?: string;
+            /**
+             * @description HTTPステータスコード
+             * @example 400
+             */
+            status?: number;
+            /**
+             * @description エラーの詳細な説明
+             * @example The request parameters are invalid.
+             */
+            detail?: string;
+            /**
+             * @description エラーが発生した特定のインスタンスを示すURI
+             * @example /requests/12345
+             */
+            instance?: string;
         };
-        /** @description 仮想ネットワーク更新リクエストオブジェクト */
-        VirtualNetworkUpdateRequest: {
+        /** @description 仮想ネットワークの更新可能なプロパティ */
+        VirtualNetworkUpdatable: {
             /** @description 仮想ネットワークの名前 */
             name?: string;
         };
-        /** @description サブネット作成リクエストオブジェクト */
-        SubnetCreateRequest: {
-            /** @description サブネットの名前 */
-            name: string;
-            /**
-             * @description CIDR形式のサブネットアドレス
-             * @example 10.0.0.0/16
-             */
-            cidr: string;
-            /** @description 外部接続が可能かどうかを示すフラグ */
-            possibleExternalConnection: boolean;
-        };
-        /** @description サブネット更新リクエストオブジェクト */
-        SubnetUpdateRequest: {
+        /** @description サブネットの更新可能なプロパティ */
+        SubnetUpdatable: {
             /** @description サブネットの名前 */
             name?: string;
             /**
              * @description CIDR形式のサブネットアドレス
-             * @example 10.0.0.0/16
+             * @example 192.168.1.0/24
              */
             cidr?: string;
             /** @description 外部接続が可能かどうかを示すフラグ */
             possibleExternalConnection?: boolean;
         };
+        /** @description 仮想ネットワークの作成時のみに更新可能なフィールド */
+        VirtualNetworkCreateOnly: {
+            /**
+             * @description CIDR形式のネットワークアドレス
+             * @example 10.0.0.0/16
+             */
+            cidr: string;
+            /** @description 仮想ネットワーク作成時に同時に作成するサブネットのリスト */
+            initialSubnets: components["schemas"]["SubnetUpdatable"][];
+        };
+        /** @description 仮想ネットワーク作成リクエストオブジェクト */
+        VirtualNetworkCreateRequest: components["schemas"]["VirtualNetworkUpdatable"] & components["schemas"]["VirtualNetworkCreateOnly"] & Record<string, never>;
+        /** @description 仮想ネットワーク更新リクエストオブジェクト */
+        VirtualNetworkPutRequest: components["schemas"]["VirtualNetworkUpdatable"] & Record<string, never>;
+        /** @description サブネット全部更新リクエストオブジェクト */
+        SubnetPutRequest: components["schemas"]["SubnetUpdatable"] & Record<string, never>;
+        SubnetPatchRequest: components["schemas"]["SubnetUpdatable"] & Record<string, never>;
     };
     responses: never;
     parameters: never;
@@ -5079,12 +5259,16 @@ export type SnapShot = components['schemas']['SnapShot'];
 export type SnapShotCreateRequest = components['schemas']['SnapShotCreateRequest'];
 export type VirtualMachineCreateRequest = components['schemas']['VirtualMachineCreateRequest'];
 export type VirtualMachineUpdateRequest = components['schemas']['VirtualMachineUpdateRequest'];
-export type Subnet = components['schemas']['Subnet'];
-export type VirtualNetwork = components['schemas']['VirtualNetwork'];
+export type SubnetResponse = components['schemas']['SubnetResponse'];
+export type VirtualNetworkResponse = components['schemas']['VirtualNetworkResponse'];
+export type ErrorResponse = components['schemas']['ErrorResponse'];
+export type VirtualNetworkUpdatable = components['schemas']['VirtualNetworkUpdatable'];
+export type SubnetUpdatable = components['schemas']['SubnetUpdatable'];
+export type VirtualNetworkCreateOnly = components['schemas']['VirtualNetworkCreateOnly'];
 export type VirtualNetworkCreateRequest = components['schemas']['VirtualNetworkCreateRequest'];
-export type VirtualNetworkUpdateRequest = components['schemas']['VirtualNetworkUpdateRequest'];
-export type SubnetCreateRequest = components['schemas']['SubnetCreateRequest'];
-export type SubnetUpdateRequest = components['schemas']['SubnetUpdateRequest'];
+export type VirtualNetworkPutRequest = components['schemas']['VirtualNetworkPutRequest'];
+export type SubnetPutRequest = components['schemas']['SubnetPutRequest'];
+export type SubnetPatchRequest = components['schemas']['SubnetPatchRequest'];
 export type $defs = Record<string, never>;
 type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];

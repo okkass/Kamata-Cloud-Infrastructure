@@ -1,0 +1,15 @@
+type: object
+description: 仮想ネットワークの作成時のみに更新可能なフィールド
+properties:
+  cidr:
+    type: string
+    description: CIDR形式のネットワークアドレス
+    example: 10.0.0.0/16
+  initialSubnets:
+    type: array
+    description: 仮想ネットワーク作成時に同時に作成するサブネットのリスト
+    items:
+      $ref: "./SubnetCreateRequest.yml"
+required:
+  - cidr
+  - initialSubnets
