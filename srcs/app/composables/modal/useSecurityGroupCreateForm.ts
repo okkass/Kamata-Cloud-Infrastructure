@@ -1,23 +1,22 @@
 /**
  * =================================================================================
  * セキュリティグループ作成フォーム Composable (useSecurityGroupCreateForm.ts)
+ * ---------------------------------------------------------------------------------
+ * ★ 修正版: useFieldArray を使用し、正しいエラーキー生成とReadonly回避を両立
  * =================================================================================
  */
-import { ref, watch } from "vue";
-import { useForm } from "vee-validate";
+import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
 
-// ==============================================================================
-// 1. 定数・型定義
-// ==============================================================================
+import type { SecurityGroupCreateRequestDTO } from "~~/shared/types/dto/security-group/SecurityGroupCreateRequestDTO";
+import type { SecurityGroupDTO } from "~~/shared/types/dto/security-group/SecurityGroupDTO";
 
 export const PROTOCOL_OPTIONS = ["tcp", "udp", "icmp", "any"] as const;
 export const ACTION_OPTIONS = ["allow", "deny"] as const;
 
-// フォーム内のルールの型
 interface RuleFormValues {
   id: string;
   name: string;
@@ -28,7 +27,6 @@ interface RuleFormValues {
   ruleType: "inbound" | "outbound";
 }
 
-// フォーム全体の型
 interface FormValues {
   name: string;
   description: string;
@@ -36,10 +34,7 @@ interface FormValues {
   outboundRules: RuleFormValues[];
 }
 
-// ==============================================================================
-// 2. Validation Schema (Zod)
-// ==============================================================================
-
+// Zod Schema
 const ruleSchema = z.object({
   id: z.string(),
   name: z.string().min(1, "ルール名は必須です。"),
@@ -68,58 +63,40 @@ const zodSchema = z.object({
 
 const validationSchema = toTypedSchema(zodSchema);
 
-// ==============================================================================
-// 3. Main Composable
-// ==============================================================================
-
 export function useSecurityGroupForm() {
   const { addToast } = useToast();
   const { executeCreate, isCreating } = useResourceCreate<
-    SecurityGroupCreateRequest,
-    SecurityGroupResponse
+    SecurityGroupCreateRequestDTO,
+    SecurityGroupDTO
   >("security-groups");
 
-  // --- フォーム初期化 ---
-  // setFieldValue を取得して手動同期に使用します
-  const { errors, handleSubmit, defineField, setFieldValue } =
-    useForm<FormValues>({
-      validationSchema,
-      initialValues: {
-        name: "",
-        description: "",
-        inboundRules: [],
-        outboundRules: [],
-      },
-    });
+  const { errors, handleSubmit, defineField } = useForm<FormValues>({
+    validationSchema,
+    initialValues: {
+      name: "",
+      description: "",
+      inboundRules: [],
+      outboundRules: [],
+    },
+  });
 
-  // --- 基本フィールド ---
   const [name, nameAttrs] = defineField("name");
   const [description, descriptionAttrs] = defineField("description");
 
-  // --- ルール配列 (ローカル管理) ---
-  // ここを ref で定義することで、確実に書き込み可能(Mutable)にします
-  const inboundRules = ref<RuleFormValues[]>([]);
-  const outboundRules = ref<RuleFormValues[]>([]);
+  // ★★★ 修正: useFieldArray を使用 ★★★
+  // fields はリアクティブな配列であり、各要素は書き込み可能です（{value: ...}形式）
+  const {
+    fields: inboundRules,
+    push: pushInbound,
+    remove: removeInbound,
+  } = useFieldArray<RuleFormValues>("inboundRules");
 
-  // --- 同期処理 (Local -> VeeValidate) ---
-  // ローカルの変更を監視し、VeeValidate のフォーム値に反映させます
-  watch(
-    inboundRules,
-    (newVal) => {
-      setFieldValue("inboundRules", newVal);
-    },
-    { deep: true }
-  );
+  const {
+    fields: outboundRules,
+    push: pushOutbound,
+    remove: removeOutbound,
+  } = useFieldArray<RuleFormValues>("outboundRules");
 
-  watch(
-    outboundRules,
-    (newVal) => {
-      setFieldValue("outboundRules", newVal);
-    },
-    { deep: true }
-  );
-
-  // --- ヘルパー: 新規ルール生成 ---
   const createEmptyRule = (type: "inbound" | "outbound"): RuleFormValues => ({
     id: `new-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
     name: "",
@@ -130,27 +107,13 @@ export function useSecurityGroupForm() {
     ruleType: type,
   });
 
-  // --- 操作関数 ---
-  // ローカルの ref を直接操作します
-  const addInboundRule = () => {
-    inboundRules.value.push(createEmptyRule("inbound"));
-  };
-  const removeInboundRule = (idx: number) => {
-    inboundRules.value.splice(idx, 1);
-  };
+  const addInboundRule = () => pushInbound(createEmptyRule("inbound"));
+  const removeInboundRule = (idx: number) => removeInbound(idx);
+  const addOutboundRule = () => pushOutbound(createEmptyRule("outbound"));
+  const removeOutboundRule = (idx: number) => removeOutbound(idx);
 
-  const addOutboundRule = () => {
-    outboundRules.value.push(createEmptyRule("outbound"));
-  };
-  const removeOutboundRule = (idx: number) => {
-    outboundRules.value.splice(idx, 1);
-  };
-
-  // --- 送信処理 ---
   const onFormSubmit = (emit: (event: "close" | "success") => void) => {
-    // handleSubmit の引数 formValues には、同期された最新の値が入っています
     return handleSubmit(async (formValues) => {
-      // APIリクエスト形式に変換
       const mapRule = (r: RuleFormValues) => ({
         name: r.name,
         ruleType: r.ruleType,
@@ -160,7 +123,7 @@ export function useSecurityGroupForm() {
         action: r.action,
       });
 
-      const payload: SecurityGroupCreateRequest = {
+      const payload: SecurityGroupCreateRequestDTO = {
         name: formValues.name,
         description: formValues.description,
         rules: [
@@ -194,11 +157,9 @@ export function useSecurityGroupForm() {
     nameAttrs,
     description,
     descriptionAttrs,
-
-    // ref をそのまま返すので、Vue コンポーネント側で自由に書き換え可能です
+    // useFieldArray の戻り値 (fields) をそのまま返す
     inboundRules,
     outboundRules,
-
     addInboundRule,
     removeInboundRule,
     addOutboundRule,

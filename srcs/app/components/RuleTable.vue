@@ -22,7 +22,11 @@
       </div>
 
       <div v-else class="space-y-4">
-        <div v-for="(rule, index) in rules" :key="rule.id" class="rule-row">
+        <div
+          v-for="(rule, index) in displayRules"
+          :key="getKey(rule, index)"
+          class="rule-row"
+        >
           <div class="grid grid-cols-12 gap-2 items-start">
             <div class="col-span-4">
               <label class="block text-xs text-gray-500 mb-1">名前</label>
@@ -30,9 +34,15 @@
                 type="text"
                 v-model="rule.name"
                 class="form-input-sm w-full"
-                :class="{ 'border-red-500': getError(rule, index, 'name') }"
+                :class="{ 'border-red-500': getError(index, 'name') }"
                 placeholder="ルール名"
               />
+              <p
+                v-if="getError(index, 'name')"
+                class="text-xs text-red-500 mt-1"
+              >
+                {{ getError(index, "name") }}
+              </p>
             </div>
 
             <div class="col-span-3">
@@ -56,22 +66,40 @@
                 v-model.number="rule.port"
                 class="form-input-sm w-full"
                 :class="{
-                  'border-red-500': getError(rule, index, 'port'),
+                  'border-red-500': getError(index, 'port'),
                   'bg-gray-100 text-gray-400 cursor-not-allowed':
                     isPortDisabled(rule.protocol),
                 }"
                 placeholder="Any"
                 :disabled="isPortDisabled(rule.protocol)"
               />
+              <p
+                v-if="getError(index, 'port')"
+                class="text-xs text-red-500 mt-1"
+              >
+                {{ getError(index, "port") }}
+              </p>
             </div>
 
-            <div class="col-span-2 flex justify-end pt-6">
+            <div class="col-span-2 flex justify-end pt-5">
               <button
                 type="button"
                 @click="$emit('delete-rule', index)"
-                class="text-red-500 hover:text-red-700 text-xs underline"
+                class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50"
+                title="削除"
               >
-                削除
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
               </button>
             </div>
           </div>
@@ -85,11 +113,15 @@
                 type="text"
                 v-model="rule.targetIp"
                 class="form-input-sm w-full"
-                :class="{
-                  'border-red-500': getError(rule, index, 'targetIp'),
-                }"
+                :class="{ 'border-red-500': getError(index, 'targetIp') }"
                 placeholder="0.0.0.0/0"
               />
+              <p
+                v-if="getError(index, 'targetIp')"
+                class="text-xs text-red-500 mt-1"
+              >
+                {{ getError(index, "targetIp") }}
+              </p>
             </div>
             <div class="col-span-4">
               <label class="block text-xs text-gray-500 mb-1">アクション</label>
@@ -99,16 +131,6 @@
               </select>
             </div>
           </div>
-
-          <div v-if="hasRowError(rule, index)" class="mt-1">
-            <p
-              v-for="msg in getRowErrorMessage(rule, index)"
-              :key="msg"
-              class="text-xs text-red-500"
-            >
-              {{ msg }}
-            </p>
-          </div>
         </div>
       </div>
     </div>
@@ -116,14 +138,9 @@
 </template>
 
 <script setup lang="ts">
-/**
- * =================================================================================
- * ルール編集テーブル (RuleTable.vue)
- * =================================================================================
- */
+import { computed } from "vue";
 import type { PropType } from "vue";
 
-// ルールの型定義
 interface RuleItem {
   id: string;
   name: string;
@@ -134,35 +151,42 @@ interface RuleItem {
 }
 
 const props = defineProps({
-  title: {
-    type: String,
-    default: "ルール",
-  },
-  rules: {
-    type: Array as PropType<RuleItem[]>,
-    default: () => [],
-  },
+  title: { type: String, default: "ルール" },
+  // どんな形式の配列でも受け取れるように any[] に緩和
+  rules: { type: Array as PropType<any[]>, default: () => [] },
   errors: {
     type: Object as PropType<Record<string, string | undefined>>,
     default: () => ({}),
   },
-  fieldNamePrefix: {
-    type: String,
-    required: true,
-  },
+  fieldNamePrefix: { type: String, required: true },
 });
 
 defineEmits(["add-rule", "delete-rule"]);
 
-// --- ヘルパーメソッド ---
+// ★★★ データ整形: displayRules ★★★
+// rules の中身が { value: {...} } (VeeValidate形式) でも、普通のオブジェクトでも
+// 統一して扱えるように変換する
+const displayRules = computed(() => {
+  return props.rules.map((item) => {
+    // もし .value プロパティを持っていればそれを返す（VeeValidate useFieldArray対策）
+    // なければ item そのものを返す
+    return item && typeof item === "object" && "value" in item
+      ? item.value
+      : item;
+  });
+});
 
-// ポート入力が無効かどうか判定 (ICMP/Any)
+// v-forのキー取得用
+const getKey = (rule: any, index: number) => {
+  return rule.id || index;
+};
+
+// --- ヘルパーメソッド ---
 const isPortDisabled = (protocol: string) => {
-  const p = protocol.toLowerCase();
+  const p = protocol ? protocol.toLowerCase() : "";
   return p === "icmp" || p === "any";
 };
 
-// プロトコル変更時の処理 (ポートをクリア)
 const onProtocolChange = (rule: RuleItem) => {
   if (isPortDisabled(rule.protocol)) {
     rule.port = null;
@@ -170,26 +194,14 @@ const onProtocolChange = (rule: RuleItem) => {
 };
 
 // --- エラー判定ロジック ---
+// 引数から `rule` を削除し、index だけで判定するように変更 (displayRulesを使うため)
+const getError = (index: number, field: string) => {
+  // ブラケット記法 (inboundRules[0].name)
+  const bracketKey = `${props.fieldNamePrefix}[${index}].${field}`;
+  // ドット記法 (inboundRules.0.name)
+  const dotKey = `${props.fieldNamePrefix}.${index}.${field}`;
 
-const getError = (rule: RuleItem, index: number, field: string) => {
-  // VeeValidateのエラーキー "fieldName[index].propName" を探す
-  const key = `${props.fieldNamePrefix}[${index}].${field}`;
-  return props.errors[key];
-};
-
-const hasRowError = (rule: RuleItem, index: number) => {
-  const prefix = `${props.fieldNamePrefix}[${index}].`;
-  return Object.keys(props.errors).some((k) => k.startsWith(prefix));
-};
-
-const getRowErrorMessage = (rule: RuleItem, index: number) => {
-  const messages: string[] = [];
-  const fields = ["name", "port", "targetIp"];
-  fields.forEach((f) => {
-    const err = getError(rule, index, f);
-    if (err) messages.push(err);
-  });
-  return messages;
+  return props.errors[bracketKey] || props.errors[dotKey];
 };
 </script>
 
