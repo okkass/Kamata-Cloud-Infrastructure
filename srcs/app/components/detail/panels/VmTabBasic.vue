@@ -13,7 +13,7 @@
 
       <div>
         <div class="text-xs text-neutral-500">作成日時</div>
-        <div class="text-sm">
+        <div class="text-sm text-neutral-900 font-medium ">
           {{ vm.createdAt || "-" }}
         </div>
       </div>
@@ -27,7 +27,7 @@
         <div class="space-y-1">
           <div>
             <span class="text-xs text-neutral-500">名前：</span>
-            <span class="text-sm font-medium">{{ vm.node?.name || "-" }}</span>
+            <span class="text-sm text-neutral-900 font-medium ">{{ vm.node?.name || "-" }}</span>
           </div>
           <div>
             <span class="text-xs text-neutral-500">IPアドレス：</span>

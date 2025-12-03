@@ -7,15 +7,15 @@
       <!-- CPU / メモリ -->
       <dl class="space-y-3 text-sm">
         <div>
-          <dt class="font-medium">CPUコア</dt>
-          <dd class="mt-0.5 text-neutral-800">
+          <dt class="text-xs text-neutral-500">CPUコア</dt>
+          <dd class="text-sm text-neutral-900 font-medium ">
             {{ context.cpuCore }}
           </dd>
         </div>
 
         <div>
-          <dt class="font-medium">メモリサイズ</dt>
-          <dd class="mt-0.5 text-neutral-800">
+          <dt class="text-xs text-neutral-500">メモリサイズ</dt>
+          <dd class="text-sm text-neutral-900 font-medium ">
             {{ convertByteToUnit(context.memorySize, "MB") }}MB
           </dd>
         </div>
@@ -33,14 +33,14 @@
             :key="index"
             class="rounded-lg border border-neutral-200 px-4 py-3"
           >
-            <p class="text-sm font-medium">
+            <p class="text-xs text-neutral-500">
               {{ item.storage.name }}
             </p>
-            <p class="text-xs text-neutral-600">
+            <p class="text-sm text-neutral-900 font-medium">
               サイズ：
               {{ convertByteToUnit(item.storage.size, "GB") }}GB
             </p>
-            <p class="text-xs text-neutral-600">
+            <p class="text-sm text-neutral-900 font-medium">
               プール:
               {{ item.storage.pool }}
             </p>
