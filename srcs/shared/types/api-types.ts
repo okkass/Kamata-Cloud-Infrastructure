@@ -6952,8 +6952,6 @@ export interface components {
              * @example 10.0.0.0/24
              */
             cidr: string;
-            /** @description 外部接続が可能かどうかを示すフラグ */
-            possibleExternalConnection: boolean;
             /**
              * Format: date-time
              * @description サブネットが作成された日時
