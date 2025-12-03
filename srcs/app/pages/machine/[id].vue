@@ -16,6 +16,15 @@
       @back="goBack"
       @action="handleAction"
     />
+
+    <!-- 編集モーダル -->
+    <MoVirtualMachineEdit
+      v-if="vm"
+      :show="isEditOpen"
+      :vm-id="vm.id"
+      @close="handleEditClose"
+      @success="handleEditSuccess"
+    />
   </div>
 </template>
 
@@ -26,6 +35,7 @@ import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import { vmTabs } from "~/composables/detail/usevmtabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
 import { useToast } from "@/composables/useToast";
+import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 
 const { addToast } = useToast();
 
@@ -54,6 +64,8 @@ const {
   data: vm,
   pending,
   error,
+  // useResourceDetail に refresh 相当があれば拾う想定（なければ undefined のままでOK）
+  refresh,
 } = await useResourceDetail<VmDetail>(
   "virtual-machines",
   route.params.id as string
@@ -64,7 +76,7 @@ const goBack = () => {
   router.back();
 };
 
-// 操作メニューの中身（モック API に合わせた値）
+// 操作メニュー（編集含む）
 const actions = ref([
   { label: "起動", value: "start" },
   { label: "停止", value: "stop" },
@@ -74,7 +86,7 @@ const actions = ref([
   { label: "編集", value: "edit" },
 ]);
 
-// value → 実際のエンドポイント末尾
+// value → エンドポイント末尾
 const actionEndpointMap: Record<string, string> = {
   start: "start",
   stop: "stop",
@@ -92,9 +104,46 @@ const actionSuccessMessage: Record<string, string> = {
   reset: "VMをリセットしました",
 };
 
-// detail-test.vue っぽい handleAction（＋API呼び出し付き）
+// 編集モーダル表示状態
+const isEditOpen = ref(false);
+
+const openEditModal = () => {
+  if (!vm.value) return;
+  isEditOpen.value = true;
+};
+
+const handleEditClose = () => {
+  isEditOpen.value = false;
+};
+
+const handleEditSuccess = async () => {
+  isEditOpen.value = false;
+
+  // 編集完了トースト
+  addToast({
+    message: "仮想マシンの情報を更新しました",
+    type: "success",
+  });
+
+  // useResourceDetail に refresh がある場合は再取得（なければ何も起きない）
+  if (typeof refresh === "function") {
+    try {
+      await refresh();
+    } catch (e) {
+      console.error("VM再取得に失敗しました", e);
+    }
+  }
+};
+
+// detail-test 風 + API 呼び出し + 編集モーダル起動
 const handleAction = async (action: { label: string; value: string }) => {
   if (!vm.value) return;
+
+  // 🔹 編集はモーダル起動
+  if (action.value === "edit") {
+    openEditModal();
+    return;
+  }
 
   const endpoint = actionEndpointMap[action.value];
 
@@ -128,7 +177,6 @@ const handleAction = async (action: { label: string; value: string }) => {
       };
     }
 
-    // detail-test っぽくトーストでフィードバック
     addToast({
       message: actionSuccessMessage[action.value] ?? res.message,
       type: "success",
