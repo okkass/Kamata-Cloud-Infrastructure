@@ -1,9 +1,11 @@
 <template>
   <div class="mx-auto max-w-6xl px-4 py-6">
     <div v-if="pending" class="text-sm text-neutral-500">読み込み中…</div>
+
     <div v-else-if="error" class="text-sm text-red-500">
       エラーが発生しました：{{ error.message }}
     </div>
+
     <ResourceDetailShell
       v-else
       title="仮想マシン詳細"
@@ -12,7 +14,7 @@
       :context="vm!"
       :actions="actions"
       @back="goBack"
-      @action="onAction"
+      @action="handleAction"
     />
   </div>
 </template>
@@ -23,63 +25,120 @@ import { useRoute, useRouter } from "vue-router";
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import { vmTabs } from "~/composables/detail/usevmtabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
+import { useToast } from "@/composables/useToast";
 
-// ---- 型（APIの戻りに合わせて適宜修正してOK） ----
+const { addToast } = useToast();
+
 type VmDetail = {
   id: string;
   name: string;
   createdAt: string;
-  node: string;
   status: string;
-  cpuCore: number;
-  memorySize: string | number;
+  node?: {
+    name?: string;
+    ipAddress?: string;
+    status?: string;
+  };
+  cpuCore?: number;
+  memorySize?: number | string;
   attachedStorages?: { id: string; name: string; size: number }[];
-  securityGroups?: { id: string; name: string }[];
+  securityGroups?: { id: string; name: string; createdAt?: string }[];
   nics?: { id: string; name: string; ip: string }[];
-  // 使用率グラフなどがあればここに追加
 };
 
 const route = useRoute();
 const router = useRouter();
 
-// ---- 詳細取得（投げてもらった useResourceDetail を利用） ----
-// ※ エンドポイント名は実際のAPIに合わせて 'machines' 部分を変えてね
+// VM 詳細取得
 const {
   data: vm,
   pending,
   error,
-} = await useResourceDetail<VmDetail>("virtual-machines", route.params.id as string);
+} = await useResourceDetail<VmDetail>(
+  "virtual-machines",
+  route.params.id as string
+);
 
-// ---- 戻る（前のURLに戻る想定） ----
+// 戻るボタン
 const goBack = () => {
   router.back();
 };
 
-// ---- 操作ボタンの中身（ここで全部定義） ----
+// 操作メニューの中身（モック API に合わせた値）
 const actions = ref([
-  { label: "スタート", value: "start" },
+  { label: "起動", value: "start" },
+  { label: "停止", value: "stop" },
   { label: "シャットダウン", value: "shutdown" },
   { label: "再起動", value: "reboot" },
-  { label: "強制再起動", value: "force-reboot" },
-  { label: "強制停止", value: "force-stop" },
+  { label: "リセット", value: "reset" },
   { label: "編集", value: "edit" },
 ]);
 
-// ---- 操作実行（API 呼び出し） ----
-const onAction = async (action: { label: string; value: string }) => {
+// value → 実際のエンドポイント末尾
+const actionEndpointMap: Record<string, string> = {
+  start: "start",
+  stop: "stop",
+  shutdown: "shutdown",
+  reboot: "reboot",
+  reset: "reset",
+};
+
+// アクションごとの日本語メッセージ
+const actionSuccessMessage: Record<string, string> = {
+  start: "VMを起動しました",
+  stop: "VMを停止しました",
+  shutdown: "VMをシャットダウンしました",
+  reboot: "VMを再起動しました",
+  reset: "VMをリセットしました",
+};
+
+// detail-test.vue っぽい handleAction（＋API呼び出し付き）
+const handleAction = async (action: { label: string; value: string }) => {
   if (!vm.value) return;
 
-  // ここは実際のAPI仕様に合わせてパスを調整してください
-  // 例: POST /api/machines/:id/actions/:action
-  try {
-    await $fetch(`/api/machines/${vm.value.id}/actions/${action.value}`, {
-      method: "POST",
+  const endpoint = actionEndpointMap[action.value];
+
+  if (!endpoint) {
+    console.warn("未対応のアクション:", action.value);
+    addToast({
+      message: `未対応のアクションです: ${action.label}`,
+      type: "error",
     });
-    console.log("操作成功:", action.value);
-    // 必要なら再取得
-    // await refreshNuxtData(`useResourceDetail-machines-${vm.value.id}`);
+    return;
+  }
+
+  try {
+    const res = await $fetch<{
+      message: string;
+      data: { id: string; status?: string };
+    }>(`/api/virtual-machines/${vm.value.id}/${endpoint}`, {
+      method: "POST",
+      body: {
+        action: action.value,
+      },
+    });
+
+    console.log("操作成功:", action.value, res);
+
+    // API からステータスが返ってくる場合は vm.status を更新
+    if (res.data?.status) {
+      vm.value = {
+        ...vm.value,
+        status: res.data.status,
+      };
+    }
+
+    // detail-test っぽくトーストでフィードバック
+    addToast({
+      message: actionSuccessMessage[action.value] ?? res.message,
+      type: "success",
+    });
   } catch (e) {
     console.error("操作失敗:", action.value, e);
+    addToast({
+      message: `操作に失敗しました: ${action.label}`,
+      type: "error",
+    });
   }
 };
 </script>

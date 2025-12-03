@@ -46,7 +46,7 @@
       <div class="pt-3 border-t border-neutral-200">
         <div class="text-xs text-neutral-500 mb-1">ステータス</div>
         <div class="text-sm font-medium">
-          {{ vm.statusJa || vm.status || "-" }}
+          {{ vmStatusText }}
         </div>
       </div>
     </div>
@@ -60,10 +60,10 @@ const props = defineProps<{
   context: any;
 }>();
 
-// null ガードしておく
+// null ガード
 const vm = computed(() => props.context ?? {});
 
-// ノードステータスを日本語に
+// ノードステータス（日本語）
 const nodeStatusJa = computed(() => {
   const s = vm.value.node?.status;
   if (!s) return "-";
@@ -71,10 +71,32 @@ const nodeStatusJa = computed(() => {
   switch (s) {
     case "active":
       return "稼働中";
+    case "inactive":
     case "down":
       return "停止";
     default:
-      return s; // そのまま出す
+      return s;
+  }
+});
+
+// VMステータス（日本語）
+const vmStatusText = computed(() => {
+  // APIが日本語を返してくる場合
+  if (vm.value.statusJa) return vm.value.statusJa;
+
+  const s = vm.value.status;
+  if (!s) return "-";
+
+  switch (s) {
+    case "running":
+      return "稼働中";
+    case "stopped":
+      return "停止中";
+    case "error":
+      return "エラー";
+    default:
+      // 想定外（例: provisioning, creating など）はそのまま返す
+      return s;
   }
 });
 </script>
