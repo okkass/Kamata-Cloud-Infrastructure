@@ -1,0 +1,7 @@
+type: object
+description: 仮想マシン更新可能なプロパティを持つオブジェクト
+allOf:
+  - $ref: "./VirtualMachineUpdatableBase.yml"
+  - oneOf:
+      - $ref: "./VirtualMachineWithInstanceTypeUpdatable.yml"
+      - $ref: "./VirtualMachineWithCustomSpecUpdatable.yml"

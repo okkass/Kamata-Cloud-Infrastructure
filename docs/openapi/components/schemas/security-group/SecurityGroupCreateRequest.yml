@@ -1,8 +1,8 @@
 type: object
 description: セキュリティグループ作成リクエストオブジェクト
 allOf:
-  - $ref: ./SecurityGroupUpdatable.yml
-  - $ref: ./SecurityGroupCreateOnly.yml
+  - $ref: "./SecurityGroupUpdatable.yml"
+  - $ref: "./SecurityGroupCreateOnly.yml"
 required:
   - name
   - rules

@@ -10,14 +10,14 @@ on:
       - "docs/openapi/**"
       - ".github/workflows/create-types.yml"
   workflow_dispatch:
-  
+
 permissions:
   contents: write # 生成したコードをリポジトリへプッシュするために必要
 
 jobs:
   generate-and-push:
     runs-on: ubuntu-latest
-    
+
     steps:
       # 1. リポジトリのチェックアウト
       - name: Checkout repository
@@ -43,21 +43,15 @@ jobs:
         run: |
           pnpm install --frozen-lockfile
 
-      # 5. OpenAPI定義のバンドル (結合)
-      # ルートディレクトリで実行。redoclyは依存に入れず dlx で実行するのが手軽
-      - name: Bundle API Docs
-        run: |
-          pnpm --package=@redocly/cli dlx redocly bundle docs/openapi/openapi.yml -o public/api.yml
-
-      # 6. 型定義の生成
+      # 5. 型定義の生成
       # srcsディレクトリで実行し、devDependenciesに入っている openapi-typescript を利用
       - name: Generate Types
         working-directory: ./srcs
         run: |
-          # ../public/api.yml はルートにあるファイルを指す
-          pnpm openapi-typescript ../public/api.yml --output ./shared/types/api-types.ts
+          # ../docs/openapi/openapi.yml はルートにあるファイルを指す
+          pnpm openapi-typescript ../docs/openapi/openapi.yml --root-types=true --root-types-no-schema-prefix=true --output ./shared/types/api-types.ts
 
-      # 7. 変更の検知とプッシュ
+      # 6. 変更の検知とプッシュ
       - name: Commit and Push Generated Types
         run: |
           git config --global user.name 'github-actions[bot]'
