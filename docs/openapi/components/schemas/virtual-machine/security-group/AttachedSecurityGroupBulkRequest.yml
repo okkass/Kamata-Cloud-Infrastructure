@@ -1,0 +1,20 @@
+type: object
+description: セキュリティグループバルク更新リクエストオブジェクト
+properties:
+  add:
+    type: array
+    description: 追加するセキュリティグループのリスト
+    items:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: 追加するセキュリティグループのID
+  delete:
+    type: array
+    description: 削除するセキュリティグループのIDリスト
+    items:
+      type: string
+      format: uuid
+      description: セキュリティグループのID

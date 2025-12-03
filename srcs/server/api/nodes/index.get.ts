@@ -1,5 +1,5 @@
 export default defineEventHandler(() => {
-  const physicalNodes: Array<PhysicalNodeDTO> = [
+  const physicalNodes: Array<NodeDTO> = [
     {
       id: "d898bae4-0a05-48aa-846e-aca5bbfd72c6",
       name: "Node 1",

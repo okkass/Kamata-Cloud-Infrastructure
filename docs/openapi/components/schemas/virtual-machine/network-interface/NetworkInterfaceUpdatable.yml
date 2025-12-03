@@ -1,0 +1,10 @@
+type: object
+description: ネットワークインターフェース更新可能オブジェクト
+properties:
+  name:
+    type: string
+    description: ネットワークインターフェースの名前
+  subnetId:
+    type: string
+    format: uuid
+    description: ネットワークインターフェースが属するサブネットのID

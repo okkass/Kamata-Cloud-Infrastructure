@@ -6,7 +6,7 @@
  */
 export const useToast = () => {
   // NuxtのuseStateを使い、単一の共有stateを生成
-  const toasts = useState<Toast[]>('toasts', () => []);
+  const toasts = useState<Toast[]>("toasts", () => []);
 
   /**
    * 指定されたIDのトーストをリストから削除する
@@ -20,26 +20,33 @@ export const useToast = () => {
    * 新しいトーストを追加する
    * @param payload - 表示するトーストの情報
    */
-  const addToast = (payload: ToastPayload) => {
+  const addToast = (payload: ToastPayload): string => {
     const id = crypto.randomUUID();
+    const type = payload.type ?? "info";
+    // アップロード中は自動で消えないように duration を 0 (無制限) にする等の制御も可能
+    const duration = payload.duration ?? (type === "error" ? 6000 : 3000);
 
-    // デフォルトのtypeを 'info' に設定
-    const type = payload.type ?? 'info';
-
-    // デフォルトの表示時間をtypeに応じて設定
-    const defaultDuration = type === 'error' ? 6000 : 3000;
-    const duration = payload.duration ?? defaultDuration;
-
-    // 新しいトーストをリストの末尾に追加
     toasts.value.push({ id, ...payload, type, duration });
 
-    // 指定時間が経過したら自動的にトーストを削除
-    setTimeout(() => removeToast(id), duration);
+    if (duration > 0) {
+      setTimeout(() => removeToast(id), duration);
+    }
+
+    return id; // ★ IDを返す
+  };
+
+  const updateToast = (id: string, updates: Partial<ToastPayload>) => {
+    const toast = toasts.value.find((t) => t.id === id);
+    if (toast) {
+      // オブジェクトの内容を書き換える（リアクティブに反映される）
+      Object.assign(toast, updates);
+    }
   };
 
   return {
     toasts,
     addToast,
     removeToast,
+    updateToast,
   };
 };

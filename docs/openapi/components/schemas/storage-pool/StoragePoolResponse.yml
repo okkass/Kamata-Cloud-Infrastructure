@@ -10,11 +10,9 @@ properties:
     type: string
     description: ストレージプールの名前
     example: Node1 Pool 1
-  nodeId:
-    type: string
-    format: uuid
-    description: ストレージプールが属する物理ノードのID
-    example: 550e8400-e29b-41d4-a716-446655440000
+  node:
+    description: ストレージプールが属する物理ノード
+    $ref: "../node/NodeResponse.yml"
   createdAt:
     type: string
     format: date-time
@@ -35,7 +33,7 @@ properties:
 required:
   - id
   - name
-  - nodeId
+  - node
   - createdAt
   - totalSize
   - usedSize
