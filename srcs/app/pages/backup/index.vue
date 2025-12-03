@@ -113,8 +113,8 @@ const {
   handleSuccess,
   cancelAction,
 } = usePageActions<BackupRow>({
-  resourceName: "backups",
-  resourceLabel: "バックアップ",
+  resourceName: BACKUP.name,
+  resourceLabel: BACKUP.label,
   refresh,
 });
 

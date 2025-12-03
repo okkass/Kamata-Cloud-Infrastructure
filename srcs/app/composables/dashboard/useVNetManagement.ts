@@ -2,7 +2,15 @@
 import { computed } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 import { formatDateTime } from "@/utils/date";
-import type { VirtualNetworkDTO } from "~~/shared/types/dto/virtual-network";
+
+export interface VnetRow {
+  id: string;
+  name: string;
+  cidr: string;
+  subnets: number;
+  createdAtText: string;
+  dto: VirtualNetwork;
+}
 
 /**
  * useVNetManagement
@@ -15,7 +23,7 @@ export function useVNetManagement() {
     pending,
     refresh,
     error,
-  } = useResourceList<VirtualNetworkDTO>("virtual-networks");
+  } = useResourceList<VirtualNetwork>("virtual-networks");
 
   const columns: TableColumn[] = [
     { key: "name", label: "名前", align: "left" },
@@ -29,8 +37,8 @@ export function useVNetManagement() {
     { action: "add", label: "仮想ネットワーク作成", primary: true },
   ];
 
-  const rows = computed(() =>
-    (rawList.value ?? []).map((v: VirtualNetworkDTO) => ({
+  const rows: ComputedRef<VnetRow[]> = computed(() =>
+    (rawList.value ?? []).map((v: VirtualNetwork) => ({
       id: v.id,
       name: v.name ?? "-",
       cidr: v.cidr ?? "-",

@@ -3,7 +3,7 @@
     title="仮想ネットワーク"
     :columns="columns"
     :rows="rowsForTable"
-    :rowKey="id"
+    rowKey="id"
     :headerButtons="headerButtons"
     @header-action="onHeaderAction"
     @row-action="handleRowAction"
@@ -41,7 +41,7 @@
       <button
         type="button"
         class="action-item"
-        @click.stop.prevent="row && onEdit(row)"
+        @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
       >
         編集
       </button>
@@ -50,7 +50,7 @@
         type="button"
         class="action-item action-item-danger"
         :disabled="isDeleting && targetForDeletion?.id === row?.id"
-        @click.stop.prevent="row && onDelete(row)"
+        @click.stop.prevent="row && handleRowAction({ action: 'delete', row })"
       >
         削除
       </button>
@@ -80,7 +80,6 @@
 </template>
 
 <script setup lang="ts">
-import type { VirtualNetworkDTO } from "~~/shared/types/dto/virtual-network"; // DTO は共有型を使う
 import { computed } from "vue";
 import DashboardLayout from "@/components/DashboardLayout.vue";
 import MoVirtualNetworkCreate from "@/components/MoVirtualNetworkCreate.vue";
@@ -89,6 +88,7 @@ import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
 import { useVNetManagement } from "~/composables/dashboard/useVNetManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import { NETWORK } from "@/utils/constants";
+import type { VnetRow } from "~/composables/dashboard/useVNetManagement";
 
 const { columns, headerButtons, rows, refresh } = useVNetManagement();
 const rowsForTable = computed(() => rows.value ?? []);
@@ -97,7 +97,6 @@ const rowsForTable = computed(() => rows.value ?? []);
 const {
   activeModal,
   openModal,
-  closeModal,
   targetForDeletion,
   targetForEditing,
   isDeleting,
@@ -105,7 +104,7 @@ const {
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<VNetRow>({
+} = usePageActions<VnetRow>({
   resourceName: NETWORK.name,
   resourceLabel: NETWORK.label,
   refresh,
@@ -116,16 +115,4 @@ const onHeaderAction = (action: string) => {
     openModal?.(`create-${NETWORK.name}`);
   }
 };
-
-function onEdit(row: VNetRow) {
-  if (!row) return;
-  // usePageActions 側で target 設定とモーダル名を統一して開く
-  handleRowAction({ action: "edit", row });
-}
-
-function onDelete(row: VNetRow) {
-  if (!row) return;
-  // usePageActions 側で target 設定とモーダル名を統一して開く
-  handleRowAction({ action: "delete", row });
-}
 </script>
