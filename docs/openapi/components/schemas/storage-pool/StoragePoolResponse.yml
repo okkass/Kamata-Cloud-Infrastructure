@@ -33,7 +33,7 @@ properties:
 required:
   - id
   - name
-  - nodeId
+  - node
   - createdAt
   - totalSize
   - usedSize
