@@ -1,8 +1,6 @@
 /**
  * =================================================================================
  * セキュリティグループ作成フォーム Composable (useSecurityGroupCreateForm.ts)
- * ---------------------------------------------------------------------------------
- * ★ 修正版: useFieldArray を使用し、正しいエラーキー生成とReadonly回避を両立
  * =================================================================================
  */
 import { useForm, useFieldArray } from "vee-validate";
@@ -10,9 +8,6 @@ import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
-
-import type { SecurityGroupCreateRequestDTO } from "~~/shared/types/dto/security-group/SecurityGroupCreateRequestDTO";
-import type { SecurityGroupDTO } from "~~/shared/types/dto/security-group/SecurityGroupDTO";
 
 export const PROTOCOL_OPTIONS = ["tcp", "udp", "icmp", "any"] as const;
 export const ACTION_OPTIONS = ["allow", "deny"] as const;
@@ -66,8 +61,8 @@ const validationSchema = toTypedSchema(zodSchema);
 export function useSecurityGroupForm() {
   const { addToast } = useToast();
   const { executeCreate, isCreating } = useResourceCreate<
-    SecurityGroupCreateRequestDTO,
-    SecurityGroupDTO
+    SecurityGroupCreateRequest,
+    SecurityGroupResponse
   >("security-groups");
 
   const { errors, handleSubmit, defineField } = useForm<FormValues>({
@@ -123,7 +118,7 @@ export function useSecurityGroupForm() {
         action: r.action,
       });
 
-      const payload: SecurityGroupCreateRequestDTO = {
+      const payload: SecurityGroupCreateRequest = {
         name: formValues.name,
         description: formValues.description,
         rules: [

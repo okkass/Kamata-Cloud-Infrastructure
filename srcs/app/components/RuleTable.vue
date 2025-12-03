@@ -163,7 +163,7 @@ const props = defineProps({
 
 defineEmits(["add-rule", "delete-rule"]);
 
-// ★★★ データ整形: displayRules ★★★
+// データ整形: displayRules
 // rules の中身が { value: {...} } (VeeValidate形式) でも、普通のオブジェクトでも
 // 統一して扱えるように変換する
 const displayRules = computed(() => {
