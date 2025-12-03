@@ -4715,12 +4715,8 @@ export interface components {
              * @example Node1 Pool 1
              */
             name: string;
-            /**
-             * Format: uuid
-             * @description ストレージプールが属する物理ノードのID
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            nodeId: string;
+            /** @description ストレージプールが属する物理ノード */
+            node: components["schemas"]["NodeResponse"];
             /**
              * Format: date-time
              * @description ストレージプールが作成された日時
