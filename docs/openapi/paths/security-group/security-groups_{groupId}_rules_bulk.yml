@@ -16,7 +16,7 @@ post:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/security-group/SecurityRuleBulkRequest.yml
+          $ref: "../../components/schemas/security-group/SecurityRuleBulkRequest.yml"
   responses:
     "200":
       description: ルール一括操作成功
@@ -25,7 +25,7 @@ post:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/security-group/SecurityRuleResponse.yml
+              $ref: "../../components/schemas/security-group/SecurityRuleResponse.yml"
     "400":
       description: リクエストエラー
     "401":

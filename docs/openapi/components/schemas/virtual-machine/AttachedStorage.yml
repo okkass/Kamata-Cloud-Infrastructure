@@ -6,7 +6,7 @@ properties:
     format: uuid
     description: アタッチされたストレージを識別するための一意なID
   storage:
-    $ref: ./VirtualStorage.yml
+    $ref: "./VirtualStorage.yml"
   path:
     type: string
     description: ストレージデバイスのパス

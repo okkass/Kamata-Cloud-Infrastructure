@@ -19,7 +19,7 @@ get:
           schema:
             type: array
             items:
-              $ref: ../../components/schemas/node/DeviceResponse.yml
+              $ref: "../../components/schemas/node/DeviceResponse.yml"
     "401":
       description: 認証エラー
     "403":

@@ -19,7 +19,7 @@ properties:
   subnets:
     type: array
     items:
-      $ref: ./Subnet.yml
+      $ref: "./Subnet.yml"
   inboundTraffic:
     type: number
     format: float
