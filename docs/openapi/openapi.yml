@@ -92,6 +92,8 @@ paths:
     $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_bulk.yml"
   /api/virtual-networks/{networkId}/subnets/{subnetId}:
     $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}.yml"
+  /api/virtual-networks/{networkId}/subnets/{subnetId}/virtual-machines:
+    $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}_virtual-machines.yml"
 components:
   securitySchemes:
     BearerAuth:

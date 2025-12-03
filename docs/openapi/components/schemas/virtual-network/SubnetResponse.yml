@@ -12,9 +12,6 @@ properties:
     type: string
     description: CIDR形式のサブネットアドレス
     example: 10.0.0.0/24
-  possibleExternalConnection:
-    type: boolean
-    description: 外部接続が可能かどうかを示すフラグ
   createdAt:
     type: string
     format: date-time
@@ -24,4 +21,3 @@ required:
   - name
   - cidr
   - createdAt
-  - possibleExternalConnection

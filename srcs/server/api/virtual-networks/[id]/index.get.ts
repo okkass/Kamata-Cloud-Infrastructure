@@ -22,7 +22,7 @@ export default defineEventHandler(async (event) => {
         {
           id: "6146ccd7-ddf8-42c3-9edf-66ce6f7a2c4b",
           name: "subnet-2",
-          cidr: "10.0.0.1/24",
+          cidr: "10.0.1.0/24",
           possibleExternalConnection: false,
           createdAt: new Date().toISOString(),
         },
