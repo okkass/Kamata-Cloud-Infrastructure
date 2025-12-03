@@ -23,9 +23,9 @@ get:
     "401":
       description: 認証エラー
     content:
-        application/json:
-          schema:
-            $ref: "../../components/schemas/ErrorResponse.yml"
+      application/json:
+        schema:
+          $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
       content:
@@ -70,13 +70,15 @@ post:
       content:
         application/json:
           schema:
-            $ref: "../../components/schemas/virtual-machine/security-group/AttachedSecurityGroupResponse.yml"
+            type: array
+            items:
+              $ref: "../../components/schemas/security-group/SecurityGroupResponse.yml"
     "401":
       description: 認証エラー
     content:
-        application/json:
-          schema:
-            $ref: "../../components/schemas/ErrorResponse.yml"
+      application/json:
+        schema:
+          $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
       content:
