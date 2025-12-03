@@ -38,7 +38,7 @@ get:
             $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
-put:
+patch:
   summary: 仮想ネットワークの更新
   description: 指定したIDの仮想ネットワーク情報を更新します。
   tags:
