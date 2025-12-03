@@ -4500,10 +4500,10 @@ export interface components {
              */
             ruleType: "inbound" | "outbound";
             /**
-             * @description 適用されるポート番号
+             * @description 適用されるポート番号。nullの場合は全ポート対象
              * @example 22
              */
-            port?: number;
+            port?: number | null;
             /**
              * @description 適用されるプロトコル
              * @enum {string}
@@ -4567,10 +4567,10 @@ export interface components {
              */
             ruleType?: "inbound" | "outbound";
             /**
-             * @description 適用されるポート番号
+             * @description 適用されるポート番号。nullの場合は全ポート対象
              * @example 22
              */
-            port?: number;
+            port?: number | null;
             /**
              * @description 適用されるプロトコル
              * @enum {string}
