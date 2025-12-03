@@ -20,4 +20,9 @@ export const vnTabs: VnTabConfig[] = [
     value: "subnets",
     loader: () => import("~/components/detail/panels/VnTabSubnets.vue"),
   },
+  {
+    label: "接続リソース",
+    value: "attachments",
+    loader: () => import("~/components/detail/panels/VnTabAttachments.vue"),
+  },
 ];
