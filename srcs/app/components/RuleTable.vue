@@ -37,7 +37,11 @@
 
             <div class="col-span-3">
               <label class="block text-xs text-gray-500 mb-1">プロトコル</label>
-              <select v-model="rule.protocol" class="form-select-sm w-full">
+              <select
+                v-model="rule.protocol"
+                @change="handleProtocolChange(rule)"
+                class="form-select-sm w-full"
+              >
                 <option value="tcp">TCP</option>
                 <option value="udp">UDP</option>
                 <option value="icmp">ICMP</option>
@@ -51,32 +55,23 @@
                 type="number"
                 v-model.number="rule.port"
                 class="form-input-sm w-full"
+                :class="{
+                  'border-red-500': getError(rule, index, 'port'),
+                  'bg-gray-100 text-gray-400 cursor-not-allowed':
+                    isPortDisabled(rule.protocol),
+                }"
                 placeholder="Any"
-                :class="{ 'border-red-500': getError(rule, index, 'port') }"
+                :disabled="isPortDisabled(rule.protocol)"
               />
             </div>
 
             <div class="col-span-2 flex justify-end pt-6">
               <button
                 type="button"
-                @click="$emit('delete-rule', rule.id)"
-                class="text-red-500 hover:text-red-700 p-1"
-                title="削除"
+                @click="$emit('delete-rule', index)"
+                class="text-red-500 hover:text-red-700 text-xs underline"
               >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke-width="1.5"
-                  stroke="currentColor"
-                  class="w-5 h-5"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12.977 0c-.043.051-.084.102-.125.153m12.702 0c.043.051.084.102.125.153m-12.452 0c-.342.052-.682.107-1.022.166"
-                  />
-                </svg>
+                削除
               </button>
             </div>
           </div>
@@ -90,11 +85,12 @@
                 type="text"
                 v-model="rule.targetIp"
                 class="form-input-sm w-full"
-                :class="{ 'border-red-500': getError(rule, index, 'targetIp') }"
+                :class="{
+                  'border-red-500': getError(rule, index, 'targetIp'),
+                }"
                 placeholder="0.0.0.0/0"
               />
             </div>
-
             <div class="col-span-4">
               <label class="block text-xs text-gray-500 mb-1">アクション</label>
               <select v-model="rule.action" class="form-select-sm w-full">
@@ -104,11 +100,14 @@
             </div>
           </div>
 
-          <div
-            v-if="hasRowError(rule, index)"
-            class="text-xs text-red-500 mt-1 pl-1"
-          >
-            {{ getRowErrorMessage(rule, index) }}
+          <div v-if="hasRowError(rule, index)" class="mt-1">
+            <p
+              v-for="msg in getRowErrorMessage(rule, index)"
+              :key="msg"
+              class="text-xs text-red-500"
+            >
+              {{ msg }}
+            </p>
           </div>
         </div>
       </div>
@@ -117,41 +116,72 @@
 </template>
 
 <script setup lang="ts">
-import { type PropType } from "vue";
-// 型定義はプロジェクトに合わせてください (Create用DTOなど)
+/**
+ * =================================================================================
+ * ルール編集テーブル (RuleTable.vue)
+ * =================================================================================
+ */
+import type { PropType } from "vue";
+
+// ルールの型定義（最低限必要なプロパティ）
 interface RuleItem {
-  id: string; // 必須！
+  id: string;
   name: string;
   protocol: string;
-  port?: number | null;
+  port: number | null;
   targetIp: string;
   action: string;
 }
 
 const props = defineProps({
-  title: { type: String, default: "ルール" },
-  rules: { type: Array as PropType<any[]>, default: () => [] },
+  title: {
+    type: String,
+    default: "ルール",
+  },
+  rules: {
+    type: Array as PropType<RuleItem[]>,
+    default: () => [],
+  },
+  // エラーオブジェクト (undefined許容)
   errors: {
     type: Object as PropType<Record<string, string | undefined>>,
     default: () => ({}),
   },
-  fieldNamePrefix: { type: String, required: true }, // 'inboundRules' など
+  fieldNamePrefix: {
+    type: String,
+    required: true,
+  },
 });
 
-defineEmits<{
-  (e: "add-rule"): void;
-  (e: "delete-rule", id: string): void;
-}>();
+defineEmits(["add-rule", "delete-rule"]);
 
-// --- ハイブリッドエラー判定 ---
-// 編集画面は「IDベース」、作成画面(VeeValidate)は「Indexベース」でエラーが来るため、両方チェックする
+// --- ロジック追加部分 ---
+
+/**
+ * ポート入力を無効化すべきプロトコルかどうか判定
+ * ICMP または Any の場合はポート指定不要のため true を返す
+ */
+const isPortDisabled = (protocol: string): boolean => {
+  const p = protocol.toLowerCase();
+  return p === "icmp" || p === "any";
+};
+
+/**
+ * プロトコル変更時のハンドラ
+ * ICMP等に変更された場合、入力済みのポート番号をクリアする
+ */
+const handleProtocolChange = (rule: RuleItem) => {
+  if (isPortDisabled(rule.protocol)) {
+    rule.port = null;
+  }
+};
+
+// --- エラー判定ロジック (既存のまま) ---
 
 const getError = (rule: RuleItem, index: number, field: string) => {
-  // パターン1: IDベース (編集画面) -> "uuid-123.name"
   const idKey = `${rule.id}.${field}`;
   if (props.errors[idKey]) return props.errors[idKey];
 
-  // パターン2: Indexベース (VeeValidate/作成画面) -> "inboundRules[0].name"
   const indexKey = `${props.fieldNamePrefix}[${index}].${field}`;
   if (props.errors[indexKey]) return props.errors[indexKey];
 
@@ -177,19 +207,23 @@ const getRowErrorMessage = (rule: RuleItem, index: number) => {
   if (targetErr) messages.push(`IP: ${targetErr}`);
   if (portErr) messages.push(`ポート: ${portErr}`);
 
-  return messages.join(" / ");
+  return messages;
 };
 </script>
 
 <style scoped>
 .form-input-sm,
 .form-select-sm {
-  @apply border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500;
+  @apply border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-500;
 }
 .rule-row {
   @apply border-b border-gray-100 pb-4 mb-4;
 }
 .rule-row:last-child {
   @apply border-b-0 pb-0 mb-0;
+}
+/* 無効化時のスタイル補助 (Tailwindクラスで対応済みだが念のため) */
+.cursor-not-allowed {
+  cursor: not-allowed;
 }
 </style>
