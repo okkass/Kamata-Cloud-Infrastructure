@@ -1,48 +1,118 @@
 <template>
-  <div class="vnet-page min-h-screen bg-slate-100 p-8">
-    <DashboardLayout
-      title="仮想ネットワーク"
-      :columns="columns"
-      :rows="rows"
-      row-key="name"
-      :header-buttons="headerButtons"
-      :row-actions="rowActions"
-      @header-action="onHeaderAction"
-      @row-action="onRowAction"
-    />
-  </div>
+  <DashboardLayout
+    title="仮想ネットワーク"
+    :columns="columns"
+    :rows="rowsForTable"
+    rowKey="id"
+    :headerButtons="headerButtons"
+    @header-action="onHeaderAction"
+    @row-action="handleRowAction"
+  >
+    <template #cell-name="{ row }">
+      <NuxtLink
+        :to="`network/${encodeURIComponent(String(row.id))}`"
+        class="table-link"
+      >
+        {{ row.name }}
+      </NuxtLink>
+    </template>
+
+    <template #cell-cidr="{ row }">
+      <span class="font-mono">{{ row.cidr }}</span>
+    </template>
+
+    <template #cell-subnets="{ row }">
+      <span class="font-mono">{{ row.subnets }}</span>
+    </template>
+
+    <template #cell-createdAtText="{ row }">
+      <span>{{ row.createdAtText }}</span>
+    </template>
+
+    <template #row-actions="{ row }">
+      <NuxtLink
+        v-if="row"
+        :to="`/network/${encodeURIComponent(String(row.id))}`"
+        class="action-item first:border-t-0"
+      >
+        詳細
+      </NuxtLink>
+
+      <button
+        type="button"
+        class="action-item"
+        @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
+      >
+        編集
+      </button>
+
+      <button
+        type="button"
+        class="action-item action-item-danger"
+        :disabled="isDeleting && targetForDeletion?.id === row?.id"
+        @click.stop.prevent="row && handleRowAction({ action: 'delete', row })"
+      >
+        削除
+      </button>
+    </template>
+  </DashboardLayout>
+
+  <MoVirtualNetworkCreate
+    :show="activeModal === `create-${NETWORK.name}`"
+    @close="cancelAction"
+    @success="handleSuccess"
+  />
+
+  <MoVirtualNetworkEdit
+    :show="activeModal === `edit-${NETWORK.name}`"
+    :vnet="targetForEditing"
+    @close="cancelAction"
+    @success="handleSuccess"
+  />
+
+  <MoDeleteConfirm
+    :show="activeModal === `delete-${NETWORK.name}`"
+    :is-loading="isDeleting"
+    :message="`本当に「${targetForDeletion?.name ?? ''}」を削除しますか？`"
+    @close="cancelAction"
+    @confirm="handleDelete"
+  />
 </template>
+
 <script setup lang="ts">
+import { computed } from "vue";
 import DashboardLayout from "@/components/DashboardLayout.vue";
+import MoVirtualNetworkCreate from "@/components/MoVirtualNetworkCreate.vue";
+import MoVirtualNetworkEdit from "@/components/MoVirtualNetworkEdit.vue";
+import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
+import { useVNetManagement } from "~/composables/dashboard/useVNetManagement";
+import { usePageActions } from "@/composables/usePageActions";
+import { NETWORK } from "@/utils/constants";
+import type { VnetRow } from "~/composables/dashboard/useVNetManagement";
 
-type VNet = { name: string; cidr: string; subnets: number };
-type ColumnDef = { key: keyof VNet | string; label: string };
+const { columns, headerButtons, rows, refresh } = useVNetManagement();
+const rowsForTable = computed(() => rows.value ?? []);
 
-const columns: ColumnDef[] = [
-  { key: "name", label: "仮想ネットワーク名" },
-  { key: "cidr", label: "アドレス範囲" },
-  { key: "subnets", label: "サブネット数" },
-]; // ← as const は付けない
+/* ここでジェネリクスに VNetRow を渡す */
+const {
+  activeModal,
+  openModal,
+  targetForDeletion,
+  targetForEditing,
+  isDeleting,
+  handleRowAction,
+  handleDelete,
+  handleSuccess,
+  cancelAction,
+} = usePageActions<VnetRow>({
+  resourceName: NETWORK.name,
+  resourceLabel: NETWORK.label,
+  refresh,
+});
 
-const rows: VNet[] = [
-  { name: "dev-network", cidr: "192.168.0.0/16", subnets: 2 },
-  { name: "test-network", cidr: "10.0.0.0/8", subnets: 1 },
-];
-
-const headerButtons = [
-  { label: "＋ 仮想ネットワーク新規作成", action: "create" },
-];
-const rowActions = [
-  { label: "編集", action: "edit" },
-  { label: "一時停止", action: "pause" },
-  { label: "削除", action: "delete" },
-  { label: "ちんぽを出す", action: "chimpo" },
-];
-
-function onHeaderAction(action: string) {
-  if (action === "create") console.log("create vnet");
-}
-function onRowAction(e: { action: string; row: VNet }) {
-  console.log(e.action, e.row);
-}
+const onHeaderAction = (action: string) => {
+  if (action === "add") {
+    openModal?.(`create-${NETWORK.name}`);
+  }
+};
 </script>
