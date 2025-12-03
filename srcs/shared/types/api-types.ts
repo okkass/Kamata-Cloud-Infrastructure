@@ -4716,7 +4716,7 @@ export interface components {
              */
             name: string;
             /** @description ストレージプールが属する物理ノード */
-            node?: components["schemas"]["NodeResponse"];
+            node: components["schemas"]["NodeResponse"];
             /**
              * Format: date-time
              * @description ストレージプールが作成された日時
