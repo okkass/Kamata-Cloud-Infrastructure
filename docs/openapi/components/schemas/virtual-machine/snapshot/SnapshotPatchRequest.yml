@@ -1,4 +1,4 @@
 type: object
-description: スナップショット更新リクエスト descriptionの記載がない場合は削除されます
+description: スナップショット更新リクエストオブジェクト
 allOf:
   - $ref: "./SnapshotUpdatable.yml"

@@ -70,9 +70,7 @@ post:
       content:
         application/json:
           schema:
-            type: array
-            items:
-              $ref: "../../components/schemas/security-group/SecurityGroupResponse.yml"
+            $ref: "../../components/schemas/security-group/SecurityGroupResponse.yml"
     "401":
       description: 認証エラー
     content:
