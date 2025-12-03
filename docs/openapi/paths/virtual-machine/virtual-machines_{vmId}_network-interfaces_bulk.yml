@@ -1,0 +1,48 @@
+post:
+  summary: 仮想マシンへのネットワークインターフェースの一括編集
+  description: 指定したIDの仮想マシンにネットワークインターフェースを一括で編集します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../components/schemas/virtual-machine/network-interface/NetworkInterfaceBulkRequest.yml"
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            type: array
+            items:
+              $ref: "../../components/schemas/virtual-machine/network-interface/NetworkInterfaceResponse.yml"
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "403":
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "404":
+      description: 仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+  security:
+    - BearerAuth: []
