@@ -22,10 +22,10 @@ get:
               $ref: "../../components/schemas/security-group/SecurityGroupResponse.yml"
     "401":
       description: 認証エラー
-    content:
-      application/json:
-        schema:
-          $ref: "../../components/schemas/ErrorResponse.yml"
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
       content:
@@ -73,10 +73,10 @@ post:
             $ref: "../../components/schemas/security-group/SecurityGroupResponse.yml"
     "401":
       description: 認証エラー
-    content:
-      application/json:
-        schema:
-          $ref: "../../components/schemas/ErrorResponse.yml"
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
       content:
