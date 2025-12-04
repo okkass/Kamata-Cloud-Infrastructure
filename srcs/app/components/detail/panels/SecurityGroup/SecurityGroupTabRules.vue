@@ -8,6 +8,7 @@
         <h3 class="mb-2 text-sm font-semibold text-neutral-800">
           インバウンドルール
         </h3>
+
         <p v-if="inboundRules.length === 0" class="text-sm text-neutral-500">
           インバウンドルールは設定されていません。
         </p>
@@ -63,6 +64,7 @@
         <h3 class="mb-2 text-sm font-semibold text-neutral-800">
           アウトバウンドルール
         </h3>
+
         <p v-if="outboundRules.length === 0" class="text-sm text-neutral-500">
           アウトバウンドルールは設定されていません。
         </p>
@@ -166,25 +168,18 @@ const protocolLabel = (p: SecurityRule["protocol"]) => {
   }
 };
 
-const portLabel = (port?: number | null) => {
-  if (port == null) return "全ポート";
-  return String(port);
-};
+const portLabel = (port?: number | null) =>
+  port == null ? "全ポート" : String(port);
 
-const actionLabel = (a?: SecurityRule["action"]) => {
-  if (a === "deny") return "拒否";
-  return "許可"; // 未設定は allow 扱い
-};
+const actionLabel = (a?: SecurityRule["action"]) =>
+  a === "deny" ? "拒否" : "許可";
 
-const actionClass = (a?: SecurityRule["action"]) => {
-  if (a === "deny") {
-    return "bg-rose-50 text-rose-700 border border-rose-200";
-  }
-  return "bg-emerald-50 text-emerald-700 border border-emerald-200";
-};
+const actionClass = (a?: SecurityRule["action"]) =>
+  a === "deny"
+    ? "bg-rose-50 text-rose-700 border border-rose-200"
+    : "bg-emerald-50 text-emerald-700 border border-emerald-200";
 
-function formatDate(value?: string) {
-  if (!value) return "—";
+function formatDate(value: string) {
   const d = new Date(value);
   if (Number.isNaN(d.getTime())) return value;
   return d.toLocaleString("ja-JP", {

@@ -14,7 +14,7 @@ export const securityGroupTabs: SecurityGroupTabConfig[] = [
     value: "basic",
     loader: () =>
       import(
-        "~/components/detail/panels/SecurityGroup/SgTabBasic.vue"
+        "~/components/detail/panels/SecurityGroup/SecurityGroupTabBasic.vue"
       ),
   },
   {
@@ -22,7 +22,7 @@ export const securityGroupTabs: SecurityGroupTabConfig[] = [
     value: "rules",
     loader: () =>
       import(
-        "~/components/detail/panels/SecurityGroup/SgTabRules.vue"
+        "~/components/detail/panels/SecurityGroup/SecurityGroupTabRules.vue"
       ),
   },
 ];

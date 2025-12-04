@@ -18,16 +18,25 @@
     />
   </div>
 
-  <!-- 今後 編集モーダル等を足したい場合はここに MoSecurityGroupEdit を置く -->
+  <!-- 編集モーダル（モック） -->
+  <MoSecurityGroupEdit
+    v-if="securityGroup"
+    :show="isEditOpen"
+    :security-group-data="securityGroup"
+    @close="handleEditClose"
+    @success="handleEditSuccess"
+  />
 </template>
 
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import { securityGroupTabs } from "~/composables/detail/useSecurityGroupTabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
 import { SECURITY_GROUP } from "@/utils/constants";
+import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 
 type SecurityRule = {
   id: string;
@@ -61,12 +70,27 @@ const {
   route.params.id as string
 );
 
-// 操作（今は編集プレースホルダーだけ）
+// 操作メニュー
 const actions = ref([{ label: "編集", value: "edit" }]);
 
+// 編集モーダルの開閉
+const isEditOpen = ref(false);
+
 const handleAction = (action: { label: string; value: string }) => {
-  console.log("SecurityGroup action:", action.value);
-  // 将来 MoSecurityGroupEdit を開く処理をここに追加
+  if (action.value === "edit") {
+    isEditOpen.value = true;
+  }
+};
+
+const handleEditClose = () => {
+  isEditOpen.value = false;
+};
+
+const handleEditSuccess = () => {
+  // モックなので今は閉じるだけ
+  // 必要になったらここで再取得などを呼ぶ
+  isEditOpen.value = false;
+  console.log("SecurityGroup edited (mock)");
 };
 
 const goBack = () => {

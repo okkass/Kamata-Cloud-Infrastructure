@@ -19,7 +19,7 @@
         </div>
       </div>
 
-      <!-- 作成日時 -->
+      <!-- 作成日時 & ルール数 -->
       <div class="pt-3 border-t border-neutral-200 grid gap-3 md:grid-cols-2">
         <div>
           <div class="text-xs text-neutral-500 mb-1">作成日時</div>
@@ -33,7 +33,8 @@
           <div class="text-sm font-medium text-neutral-900">
             合計 {{ totalRules }} 件
             <span class="ml-2 text-xs text-neutral-600">
-              （インバウンド {{ inboundCount }} / アウトバウンド {{ outboundCount }}）
+              （インバウンド {{ inboundCount }} / アウトバウンド
+              {{ outboundCount }}）
             </span>
           </div>
         </div>
