@@ -32,16 +32,6 @@ export default defineEventHandler(async (event) => {
           action: "allow",
           createdAt: new Date().toISOString(),
         },
-        {
-          id: "rgsedfg-1234-5678-9101-abcdefghijklm",
-          name: "Allow HTTP",
-          ruleType: "inbound",
-          port: 80,
-          protocol: "tcp",
-          targetIp: "0.0.0.0/0",
-          action: "allow",
-          createdAt: new Date().toISOString(),
-        },
       ],
       createdAt: new Date().toISOString(),
     },
@@ -75,9 +65,7 @@ export default defineEventHandler(async (event) => {
     },
   ];
 
-  const securityGroup: SecurityGroupDTO | undefined = mock.find(
-    (sg) => sg.id === id
-  );
+  const securityGroup: SecurityGroupDTO | undefined = mock.find((sg) => sg.id === id);
   if (!securityGroup) {
     createError({ statusCode: 404, message: "Security group not found" });
   }
