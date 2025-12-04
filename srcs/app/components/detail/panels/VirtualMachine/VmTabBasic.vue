@@ -5,7 +5,7 @@
     <!-- 基本情報カード -->
     <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
       <div>
-        <div class="text-xs text-neutral-500">Name</div>
+        <div class="text-xs text-neutral-500">名前</div>
         <div class="text-base font-medium">
           {{ vm.name }}
         </div>

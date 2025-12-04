@@ -40,9 +40,14 @@
               class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm flex flex-col gap-1"
             >
               <div class="flex items-center justify-between">
-                <div class="font-medium text-neutral-900">
+                <!-- ★ VM名を詳細ページへのリンクに変更 -->
+                <NuxtLink
+                  :to="`/machine/${encodeURIComponent(String(vm.id))}`"
+                  class="table-link font-medium"
+                >
                   {{ vm.name }}
-                </div>
+                </NuxtLink>
+
                 <span
                   class="text-xs px-2 py-0.5 rounded-full"
                   :class="statusClass(vm.status)"
@@ -129,7 +134,6 @@ onMounted(async () => {
     const all: VmAttachment[] = [];
 
     for (const subnet of subnets) {
-      // ★ここを virtual-machines に変更
       const raw = await $fetch<any[]>(
         `/api/virtual-networks/${vnetId}/subnets/${subnet.id}/virtual-machines`
       );
