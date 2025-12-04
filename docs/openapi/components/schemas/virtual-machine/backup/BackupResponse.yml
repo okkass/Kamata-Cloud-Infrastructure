@@ -22,6 +22,9 @@ properties:
   targetStorage:
     $ref: "../storage/StorageResponse.yml"
     description: バックアップ対象の仮想ストレージ
+  targetVirtualMachine:
+    $ref: "../VirtualMachineResponse.yml"
+    description: バックアップ取得元の仮想マシン（存在する場合）
 required:
   - id
   - name

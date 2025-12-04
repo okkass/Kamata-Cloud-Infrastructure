@@ -36,6 +36,10 @@ properties:
           type: string
           format: uuid
           description: ストレージプールのID
+        backupId:
+          type: string
+          format: uuid
+          description: ストレージのバックアップID（バックアップから復元する場合に指定）
       required:
         - name
         - size
