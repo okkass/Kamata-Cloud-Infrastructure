@@ -39,8 +39,12 @@
           </div>
           <div>
             <span class="text-xs text-neutral-500">状態：</span>
-            <span class="text-sm font-medium">
-              {{ nodeStatusJa }}
+            <!-- ★ Node ステータス：status.ts の定義を使用 -->
+            <span
+              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+              :class="nodeStatusDisplay.class"
+            >
+              {{ nodeStatusDisplay.text }}
             </span>
           </div>
         </div>
@@ -49,9 +53,13 @@
       <!-- ステータス -->
       <div class="pt-3 border-t border-neutral-200">
         <div class="text-xs text-neutral-500 mb-1">ステータス</div>
-        <div class="text-sm font-medium">
-          {{ vmStatusText }}
-        </div>
+        <!-- ★ VM ステータス：status.ts の定義を使用 -->
+        <span
+          class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+          :class="vmStatusDisplay.class"
+        >
+          {{ vmStatusDisplay.text }}
+        </span>
       </div>
     </div>
   </section>
@@ -60,8 +68,9 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine/VirtualMachineDTO";
+import { getNodeStatusDisplay, getVmStatusDisplay } from "@/utils/status";
 
-// API の DTO をベースに、画面用に statusJa だけ足した型
+// API の DTO をベースに、画面用に statusJa だけ足した型（互換のためそのまま残しておく）
 type VmContext = VirtualMachineDTO & {
   statusJa?: string;
 };
@@ -73,42 +82,16 @@ const props = defineProps<{
 // context は ResourceDetailShell 側で必ず渡される想定なので、そのまま使う
 const vm = computed(() => props.context);
 
-// ノードステータス（日本語）
-const nodeStatusJa = computed(() => {
-  const s = vm.value.node?.status;
-  if (!s) return "-";
-
-  switch (s) {
-    case "active":
-      return "稼働中";
-    case "inactive":
-      return "停止中";
-    // @ts-ignore  ← TS の型チェックだけ無視させる
-    case "down":
-      return "停止";
-    default:
-      return s;
-  }
+// ノードステータス（status.ts を使用）
+const nodeStatusDisplay = computed(() => {
+  const status = vm.value.node?.status ?? "";
+  return getNodeStatusDisplay(status);
 });
 
-// VMステータス（日本語）
-const vmStatusText = computed(() => {
-  // API が日本語を返してくる場合（任意フィールド）
-  if (vm.value.statusJa) return vm.value.statusJa;
-
-  const s = vm.value.status;
-  if (!s) return "-";
-
-  switch (s) {
-    case "running":
-      return "稼働中";
-    case "stopped":
-      return "停止中";
-    case "error":
-      return "エラー";
-    default:
-      // 想定外（例: provisioning, creating など）はそのまま返す
-      return s;
-  }
+// VMステータス（status.ts を使用）
+const vmStatusDisplay = computed(() => {
+  // statusJa を使う運用をやめて、status.ts を単一の定義元にする
+  const status = vm.value.status ?? "";
+  return getVmStatusDisplay(status);
 });
 </script>
