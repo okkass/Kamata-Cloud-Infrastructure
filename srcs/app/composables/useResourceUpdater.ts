@@ -129,6 +129,8 @@ export function useResourceUpdater<T extends { id: string }>() {
 
   // 保存処理
   const save = async (): Promise<boolean> => {
+    const runtimeConfig = useRuntimeConfig();
+
     if (!config.value || !isDirty.value) return false;
     isSaving.value = true;
     errorMessage.value = null;
@@ -140,6 +142,7 @@ export function useResourceUpdater<T extends { id: string }>() {
     if (config.value.base && Object.keys(state.base).length > 0) {
       apiRequests.push(
         $fetch(config.value.base.endpoint, {
+          baseURL: runtimeConfig.public.apiBaseUrl,
           method: "PATCH",
           body: state.base,
         })
@@ -156,19 +159,27 @@ export function useResourceUpdater<T extends { id: string }>() {
         // POST
         cState.added.forEach((payload) => {
           apiRequests.push(
-            $fetch(collConfig.endpoint, { method: "POST", body: payload })
+            $fetch(collConfig.endpoint, {
+              baseURL: runtimeConfig.public.apiBaseUrl,
+              method: "POST",
+              body: payload,
+            })
           );
         });
         // DELETE
         cState.removed.forEach((id) => {
           apiRequests.push(
-            $fetch(`${collConfig.endpoint}/${id}`, { method: "DELETE" })
+            $fetch(`${collConfig.endpoint}/${id}`, {
+              baseURL: runtimeConfig.public.apiBaseUrl,
+              method: "DELETE",
+            })
           );
         });
         // PATCH
         cState.updated.forEach((u) => {
           apiRequests.push(
             $fetch(`${collConfig.endpoint}/${u.id}`, {
+              baseURL: runtimeConfig.public.apiBaseUrl,
               method: "PATCH",
               body: u.payload,
             })

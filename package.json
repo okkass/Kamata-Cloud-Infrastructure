@@ -1,0 +1,20 @@
+{
+  "name": "workspace",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "gen-apipath": "node scripts/poka.mjs",
+    "mock": "cd mock && pnpm run dev",
+    "app": "cd srcs && pnpm run dev",
+    "mock-app": "concurrently -n MOCK,APP -c blue,green \"pnpm mock\" \"pnpm app\""
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.11.0",
+  "devDependencies": {
+    "concurrently": "^9.2.1",
+    "js-yaml": "^4.1.1"
+  }
+}
