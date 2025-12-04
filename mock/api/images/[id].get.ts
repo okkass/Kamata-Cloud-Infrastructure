@@ -1,38 +1,17 @@
 import { validate } from "uuid";
-import { ImageResponse } from "~~/shared/types";
+import { images } from "./images";
+import type { ErrorResponse } from "~/types/api-types";
 
 export default defineEventHandler((event) => {
-  const id = event.context.params?.id;
-  let image: ImageResponse | undefined;
-
-  if (!id) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Error",
-    });
-  } else if (!validate(id)) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: "Invalid format",
-    });
-  } else {
-    if (id == "057a9f47-380e-43fe-b3c4-22a46cd97220") {
-      image = {
-        id: "057a9f47-380e-43fe-b3c4-22a46cd97220",
-        name: "Ubuntu 22.04",
-        description: "Setumei",
-        createdAt: new Date().toISOString(),
-        size: 19190 * 1024 * 1024, // 19190MB(19.19GB)をバイトで表現
-      };
-    } else {
-      image = {
-        id: "da4d9350-30f2-4280-82ce-0e5547209c1d",
-        name: "Debian bookwarm",
-        description: "Setumei",
-        createdAt: new Date().toISOString(),
-        size: 45450 * 1024 * 1024, // 45450MB(45.45GB)をバイトで表現
-      };
-    }
+  const { id } = event.context.params as { id: string };
+  if (!validate(id)) {
+    const errorResponse: ErrorResponse = {
+      type: "error",
+      title: "Invalid ID",
+      status: 400,
+      detail: "The provided ID is not a valid UUID.",
+    };
+    event.statusCode = 400;
+    return errorResponse;
   }
-  return image;
 });
