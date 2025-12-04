@@ -3,7 +3,7 @@
 import type { MiddlewareServerBase } from "./MiddlewareServerBase";
 
 /**
- * ミドルウェアのレスポンスオブジェクトのインターフェースにゃん
+ * ミドルウェアのレスポンスオブジェクトのインターフェース
  * MiddlewareServerBase を継承
  */
 export interface MiddlewareResponse extends MiddlewareServerBase {}

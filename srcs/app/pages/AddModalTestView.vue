@@ -50,10 +50,9 @@ import MoAddNodeToCluster from "~/components/MoAddNodeToCluster.vue";
 import MoImageAdd from "~/components/MoImageAdd.vue";
 import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue";
 import MoSecurityGroupCreate from "~/components/MoSecurityGroupCreate.vue";
-import MoNetworkStorageAdd from "~/components/MoNetworkStorageAdd.vue";
 import MoUserAdd from "~/components/MoUserAdd.vue";
 import MoVirtualNetworkCreate from "~/components/MoVirtualNetworkCreate.vue";
-import MoLocalStorageAdd from "~/components/MoLocalStorageAdd.vue";
+import MoStorageAdd from "~/components/MoStorageAdd.vue";
 import MoBackupCreate from "~/components/MoBackupCreate.vue";
 import MoSnapshotCreate from "~/components/MoSnapshotCreate.vue";
 
@@ -83,17 +82,11 @@ const createAddModals = computed(() => [
   {
     id: "storageAdd", // ローカルストレージ追加
     buttonText: "ストレージ追加",
-    component: markRaw(MoLocalStorageAdd),
+    component: markRaw(MoStorageAdd),
     // props: { nodes: [], availableDisks: [] }, // 必要に応じてAPI連携
     props: {}, // ダミーデータ削除
   },
-  {
-    id: "networkStorageAdd",
-    buttonText: "NWストレージ追加",
-    component: markRaw(MoNetworkStorageAdd),
-    // props: { nodes: [], localStorages: [] }, // 必要に応じてAPI連携
-    props: {}, // ダミーデータ削除
-  },
+
   {
     id: "nodeAdd",
     buttonText: "クラスターにノード追加",

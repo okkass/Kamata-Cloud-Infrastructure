@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     // example subnet id -> list of VMs
     "effdf1f8-3be5-4cae-819a-5832fc053b1b": [
       {
-        id: "8874840c-fe85-4eb9-985f-a856eee1faa2",
+        id: "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
         name: "vm-web-01",
         status: "running",
         node: {

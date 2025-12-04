@@ -1,7 +1,7 @@
 // ImageClientUpdatable.ts
 // openapi ImageClientUpdatable.yml から自動生成
 /**
- * 仮想マシンイメージのうち更新可能な情報を表すインターフェースにゃん
+ * 仮想マシンイメージのうち更新可能な情報を表すインターフェース
  */
 export interface ImageClientUpdatable {
   /** 仮想マシンイメージの名前 */
