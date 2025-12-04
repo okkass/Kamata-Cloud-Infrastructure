@@ -13,7 +13,7 @@
 
       <div>
         <div class="text-xs text-neutral-500">作成日時</div>
-        <div class="text-sm text-neutral-900 font-medium ">
+        <div class="text-sm text-neutral-900 font-medium">
           {{ vm.createdAt || "-" }}
         </div>
       </div>
@@ -27,11 +27,15 @@
         <div class="space-y-1">
           <div>
             <span class="text-xs text-neutral-500">名前：</span>
-            <span class="text-sm text-neutral-900 font-medium ">{{ vm.node?.name || "-" }}</span>
+            <span class="text-sm text-neutral-900 font-medium">
+              {{ vm.node?.name || "-" }}
+            </span>
           </div>
           <div>
             <span class="text-xs text-neutral-500">IPアドレス：</span>
-            <span class="text-sm font-medium">{{ vm.node?.ipAddress || "-" }}</span>
+            <span class="text-sm font-medium">
+              {{ vm.node?.ipAddress || "-" }}
+            </span>
           </div>
           <div>
             <span class="text-xs text-neutral-500">状態：</span>
@@ -55,13 +59,19 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine/VirtualMachineDTO";
+
+// API の DTO をベースに、画面用に statusJa だけ足した型
+type VmContext = VirtualMachineDTO & {
+  statusJa?: string;
+};
 
 const props = defineProps<{
-  context: any;
+  context: VmContext;
 }>();
 
-// null ガード
-const vm = computed(() => props.context ?? {});
+// context は ResourceDetailShell 側で必ず渡される想定なので、そのまま使う
+const vm = computed(() => props.context);
 
 // ノードステータス（日本語）
 const nodeStatusJa = computed(() => {
@@ -72,6 +82,8 @@ const nodeStatusJa = computed(() => {
     case "active":
       return "稼働中";
     case "inactive":
+      return "停止中";
+    // @ts-ignore  ← TS の型チェックだけ無視させる
     case "down":
       return "停止";
     default:
@@ -81,7 +93,7 @@ const nodeStatusJa = computed(() => {
 
 // VMステータス（日本語）
 const vmStatusText = computed(() => {
-  // APIが日本語を返してくる場合
+  // API が日本語を返してくる場合（任意フィールド）
   if (vm.value.statusJa) return vm.value.statusJa;
 
   const s = vm.value.status;

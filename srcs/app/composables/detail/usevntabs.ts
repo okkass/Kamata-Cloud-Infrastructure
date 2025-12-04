@@ -13,16 +13,19 @@ export const vnTabs: VnTabConfig[] = [
   {
     label: "基本情報",
     value: "basic",
-    loader: () => import("~/components/detail/panels/VnTabBasic.vue"),
+    loader: () =>
+      import("~/components/detail/panels/VirtualNetwork/VnTabBasic.vue"),
   },
   {
     label: "サブネット",
     value: "subnets",
-    loader: () => import("~/components/detail/panels/VnTabSubnets.vue"),
+    loader: () =>
+      import("~/components/detail/panels/VirtualNetwork/VnTabSubnets.vue"),
   },
   {
     label: "接続リソース",
     value: "attachments",
-    loader: () => import("~/components/detail/panels/VnTabAttachments.vue"),
+    loader: () =>
+      import("~/components/detail/panels/VirtualNetwork/VnTabAttachments.vue"),
   },
 ];
