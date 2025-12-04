@@ -6730,7 +6730,13 @@ export interface components {
         /** @description セキュリティルール更新リクエストオブジェクト(PUT) */
         SecurityRulePutRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
         /** @description セキュリティルール更新リクエストオブジェクト(PATCH) */
-        SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"];
+        SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"] & {
+            /**
+             * Format: uuid
+             * @description セキュリティルールを識別するための一意なID
+             */
+            id?: string;
+        };
         /** @description ストレージプールレスポンスオブジェクト */
         StoragePoolResponse: {
             /**

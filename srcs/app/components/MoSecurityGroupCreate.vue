@@ -30,7 +30,7 @@
 
       <RuleTable
         title="インバウンドルール"
-        :rules="inboundRuleFields"
+        :rules="inboundRules"
         :errors="errors"
         field-name-prefix="inboundRules"
         @add-rule="addInboundRule"
@@ -39,7 +39,7 @@
 
       <RuleTable
         title="アウトバウンドルール"
-        :rules="outboundRuleFields"
+        :rules="outboundRules"
         :errors="errors"
         field-name-prefix="outboundRules"
         @add-rule="addOutboundRule"
@@ -68,24 +68,23 @@
  * セキュリティグループ作成モーダル (MoSecurityGroupCreate.vue)
  * =================================================================================
  */
-import { useSecurityGroupForm } from "~/composables/modal/useSecurityGroupForm";
+import { useSecurityGroupForm } from "~/composables/modal/useSecurityGroupCreateForm";
 import FormInput from "~/components/Form/Input.vue";
 import FormTextarea from "~/components/Form/Textarea.vue";
 import RuleTable from "~/components/RuleTable.vue";
 
-// --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 
-// --- Composableからフォームロジックを取得 ---
 const {
   errors,
   name,
   nameAttrs,
   description,
   descriptionAttrs,
-  inboundRuleFields,
-  outboundRuleFields,
+  inboundRules,
+  outboundRules,
+  // 操作関数
   addInboundRule,
   removeInboundRule,
   addOutboundRule,
@@ -94,7 +93,6 @@ const {
   onFormSubmit,
 } = useSecurityGroupForm();
 
-// --- イベントハンドラ ---
 const submitHandler = onFormSubmit(emit);
 const submitForm = () => {
   submitHandler();
