@@ -40,14 +40,20 @@
               class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm flex flex-col gap-1"
             >
               <div class="flex items-center justify-between">
-                <div class="font-medium text-neutral-900">
+                <!-- VM 詳細へのリンク -->
+                <NuxtLink
+                  :to="`/machine/${encodeURIComponent(String(vm.id))}`"
+                  class="table-link font-medium"
+                >
                   {{ vm.name }}
-                </div>
+                </NuxtLink>
+
+                <!-- ★ ステータスは getVmStatusDisplay を呼び出して表示 -->
                 <span
                   class="text-xs px-2 py-0.5 rounded-full"
-                  :class="statusClass(vm.status)"
+                  :class="getVmStatusDisplay(vm.status).class"
                 >
-                  {{ statusLabel(vm.status) }}
+                  {{ getVmStatusDisplay(vm.status).text }}
                 </span>
               </div>
 
@@ -88,6 +94,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import { getVmStatusDisplay } from "@/utils/status";
 
 const props = defineProps<{
   context?: {
@@ -129,7 +136,6 @@ onMounted(async () => {
     const all: VmAttachment[] = [];
 
     for (const subnet of subnets) {
-      // ★ここを virtual-machines に変更
       const raw = await $fetch<any[]>(
         `/api/virtual-networks/${vnetId}/subnets/${subnet.id}/virtual-machines`
       );
@@ -180,33 +186,6 @@ const subnetGroups = computed(() => {
 
   return Array.from(map.values());
 });
-
-// ステータス表示用
-const statusLabel = (status: string) => {
-  switch (status) {
-    case "running":
-      return "稼働中";
-    case "stopped":
-      return "停止中";
-    case "error":
-      return "エラー";
-    default:
-      return status || "不明";
-  }
-};
-
-const statusClass = (status: string) => {
-  switch (status) {
-    case "running":
-      return "bg-emerald-50 text-emerald-700 border border-emerald-200";
-    case "stopped":
-      return "bg-rose-50 text-rose-700 border border-rose-200";
-    case "error":
-      return "bg-amber-50 text-amber-700 border border-amber-200";
-    default:
-      return "bg-slate-100 text-slate-700 border border-slate-200";
-  }
-};
 
 function formatDate(value?: string) {
   if (!value) return "—";
