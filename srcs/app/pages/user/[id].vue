@@ -17,15 +17,24 @@
       @action="handleAction"
     />
   </div>
+
+  <!-- ★ 編集モーダル -->
+  <MoUserEdit
+    :show="isEditOpen"
+    :user-data="userForEdit"
+    @close="handleEditClose"
+    @success="handleEditSuccess"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { computed, ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import { userTabs } from "~/composables/detail/useUserTabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
 import { USER } from "@/utils/constants";
+import MoUserEdit from "~/components/MoUserEdit.vue";
 
 type UserDetail = {
   id: string;
@@ -49,6 +58,7 @@ type UserDetail = {
 const route = useRoute();
 const router = useRouter();
 
+// /api/users/:id を叩く想定
 const {
   data: user,
   pending,
@@ -58,13 +68,41 @@ const {
   route.params.id as string
 );
 
-const goBack = () => {
-  router.back();
-};
-
+// --------------------
+// 操作メニュー
+// --------------------
 const actions = ref([{ label: "編集", value: "edit" }]);
 
+// 編集モーダルの開閉状態
+const isEditOpen = ref(false);
+
+// モーダルに渡すユーザーデータ
+const userForEdit = computed(() => user.value ?? null);
+
+// 操作ボタンのハンドラ
 const handleAction = (action: { label: string; value: string }) => {
-  console.log("ユーザー詳細 操作:", action.value);
+  if (action.value === "edit") {
+    isEditOpen.value = true;
+  }
+};
+
+// モーダル close
+const handleEditClose = () => {
+  isEditOpen.value = false;
+};
+
+// モーダル保存成功時
+const handleEditSuccess = (updated?: UserDetail) => {
+  // composable側で更新後のユーザーデータを emit してくれるなら反映する
+  if (updated) {
+    // ref なので代入で上書きしてOK
+    (user as any).value = updated;
+  }
+  isEditOpen.value = false;
+};
+
+// 戻る
+const goBack = () => {
+  router.back();
 };
 </script>
