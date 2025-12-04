@@ -1,6 +1,6 @@
 post:
   summary: バックアップを仮想マシンに復元する
-  description: 指定したIDのバックアップを仮想マシンに復元します。復元先の仮想マシンがない場合復元は失敗します。
+  description: 指定したIDのバックアップを、バックアップ元の仮想マシンに復元します。復元先の仮想マシンが削除されている場合、復元は失敗します。
   tags:
     - VirtualMachine
   parameters:

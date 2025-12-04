@@ -56,6 +56,8 @@ paths:
     $ref: "paths/virtual-machine/backups.yml"
   /api/backups/{id}:
     $ref: "paths/virtual-machine/backups_{id}.yml"
+  /api/backups/{id}/restore:
+    $ref: "paths/virtual-machine/backups_{id}_restore.yml"
   /api/snapshots:
     $ref: "paths/virtual-machine/snapshots.yml"
   /api/snapshots/{id}:
