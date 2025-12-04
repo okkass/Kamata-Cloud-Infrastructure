@@ -5,5 +5,10 @@ properties:
     type: string
     format: uuid
     description: イメージを作成するノードのID
+  file:
+    type: string
+    format: binary
+    description: アップロードするイメージファイル
 required:
   - nodeId
+  - file

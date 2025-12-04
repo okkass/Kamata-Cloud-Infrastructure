@@ -6398,6 +6398,11 @@ export interface components {
              * @description イメージを作成するノードのID
              */
             nodeId: string;
+            /**
+             * Format: binary
+             * @description アップロードするイメージファイル
+             */
+            file: string;
         };
         /** @description 仮想マシンイメージ作成リクエストオブジェクト */
         ImageCreateRequest: WithRequired<components["schemas"]["ImageClientUpdatable"], "name"> & components["schemas"]["ImageCreateOnly"];
@@ -6725,7 +6730,13 @@ export interface components {
         /** @description セキュリティルール更新リクエストオブジェクト(PUT) */
         SecurityRulePutRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
         /** @description セキュリティルール更新リクエストオブジェクト(PATCH) */
-        SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"];
+        SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"] & {
+            /**
+             * Format: uuid
+             * @description セキュリティルールを識別するための一意なID
+             */
+            id?: string;
+        };
         /** @description ストレージプールレスポンスオブジェクト */
         StoragePoolResponse: {
             /**

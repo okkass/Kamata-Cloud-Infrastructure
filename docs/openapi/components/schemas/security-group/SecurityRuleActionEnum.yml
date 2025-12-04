@@ -1,0 +1,5 @@
+type: string
+description: ルールのアクション（許可または拒否）
+enum:
+  - allow
+  - deny
