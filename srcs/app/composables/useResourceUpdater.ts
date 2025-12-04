@@ -72,6 +72,8 @@ export function useResourceUpdater<T extends Record<string, any>>(
   const errorMessage = ref<string | null>(null);
   const dirtyState = ref<DirtyState>(createEmptyDirtyState());
 
+  const runtimeConfig = useRuntimeConfig();
+
   /** 空の差分状態オブジェクトを生成するヘルパー */
   function createEmptyDirtyState(): DirtyState {
     return { base: {}, collections: {} };
@@ -261,6 +263,7 @@ export function useResourceUpdater<T extends Record<string, any>>(
     if (Object.keys(dirtyState.value.base).length > 0 && config.base) {
       apiRequests.push(
         $fetch(config.base.endpoint, {
+          baseURL: runtimeConfig.public.apiBaseUrl,
           method: "PATCH",
           body: dirtyState.value.base,
         })
@@ -278,14 +281,21 @@ export function useResourceUpdater<T extends Record<string, any>>(
       // POST (Added)
       state.added.forEach((payload) => {
         apiRequests.push(
-          $fetch(collConfig.endpoint, { method: "POST", body: payload })
+          $fetch(collConfig.endpoint, {
+            baseURL: runtimeConfig.public.apiBaseUrl,
+            method: "POST",
+            body: payload,
+          })
         );
       });
 
       // DELETE (Removed)
       state.removed.forEach((id) => {
         apiRequests.push(
-          $fetch(`${collConfig.endpoint}/${id}`, { method: "DELETE" })
+          $fetch(`${collConfig.endpoint}/${id}`, {
+            baseURL: runtimeConfig.public.apiBaseUrl,
+            method: "DELETE",
+          })
         );
       });
 
@@ -293,6 +303,7 @@ export function useResourceUpdater<T extends Record<string, any>>(
       state.updated.forEach((update) => {
         apiRequests.push(
           $fetch(`${collConfig.endpoint}/${update.id}`, {
+            baseURL: runtimeConfig.public.apiBaseUrl,
             method: "PATCH",
             body: update.payload,
           })
