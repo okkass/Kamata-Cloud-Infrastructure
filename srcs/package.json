@@ -5,7 +5,8 @@
   "packageManager": "pnpm@10.23.0",
   "scripts": {
     "build": "nuxt build",
-    "dev": "nuxt dev",
+    "dev": "nuxt dev --dotenv .env.development",
+    "dev:real": "nuxt dev --dotenv .env.development.real",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
     "postinstall": "nuxt prepare"

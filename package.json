@@ -4,7 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "gen-apipath": "node scripts/poka.mjs"
+    "gen-apipath": "node scripts/poka.mjs",
+    "mock": "cd mock && pnpm run dev",
+    "app": "cd srcs && pnpm run dev",
+    "mock-app": "concurrently -n MOCK,APP -c blue,green \"pnpm mock\" \"pnpm app\""
   },
   "keywords": [],
   "author": "",

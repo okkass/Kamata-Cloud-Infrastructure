@@ -29,7 +29,7 @@
           "typescript",
           "typescriptreact"
         ],
-        "terminal.integrated.cwd": "srcs",
+        "terminal.integrated.cwd": "/workspace",
         "editor.quickSuggestions": {
           "strings": true
         },
