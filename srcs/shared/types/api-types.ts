@@ -6235,6 +6235,77 @@ export interface paths {
         };
         trace?: never;
     };
+    "/api/virtual-networks/{networkId}/subnets/{subnetId}/virtual-machines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * サブネットに接続されている仮想マシンの一覧取得
+         * @description 指定した仮想ネットワーク内のサブネットに接続されている仮想マシンの一覧を取得します。
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想ネットワークの一意なID */
+                    networkId: string;
+                    /** @description サブネットの一意なID */
+                    subnetId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VirtualMachineResponse"][];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想ネットワークまたはサブネットが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -6327,6 +6398,11 @@ export interface components {
              * @description イメージを作成するノードのID
              */
             nodeId: string;
+            /**
+             * Format: binary
+             * @description アップロードするイメージファイル
+             */
+            file: string;
         };
         /** @description 仮想マシンイメージ作成リクエストオブジェクト */
         ImageCreateRequest: WithRequired<components["schemas"]["ImageClientUpdatable"], "name"> & components["schemas"]["ImageCreateOnly"];
@@ -6654,7 +6730,13 @@ export interface components {
         /** @description セキュリティルール更新リクエストオブジェクト(PUT) */
         SecurityRulePutRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
         /** @description セキュリティルール更新リクエストオブジェクト(PATCH) */
-        SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"];
+        SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"] & {
+            /**
+             * Format: uuid
+             * @description セキュリティルールを識別するための一意なID
+             */
+            id?: string;
+        };
         /** @description ストレージプールレスポンスオブジェクト */
         StoragePoolResponse: {
             /**
@@ -6952,8 +7034,6 @@ export interface components {
              * @example 10.0.0.0/24
              */
             cidr: string;
-            /** @description 外部接続が可能かどうかを示すフラグ */
-            possibleExternalConnection: boolean;
             /**
              * Format: date-time
              * @description サブネットが作成された日時
