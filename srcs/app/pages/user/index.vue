@@ -10,7 +10,7 @@
       @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink :to="`/users/${row.id}`" class="table-link">
+        <NuxtLink :to="`/user/${row.id}`" class="table-link">
           {{ row.name }}
         </NuxtLink>
       </template>

@@ -32,7 +32,7 @@
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
-import { vmTabs } from "~/composables/detail/usevmtabs";
+import { vmTabs } from "~/composables/detail/useVmtabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
 import { useToast } from "@/composables/useToast";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
