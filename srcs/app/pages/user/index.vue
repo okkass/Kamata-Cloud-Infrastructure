@@ -25,7 +25,7 @@
 
       <template #row-actions="{ row }">
         <div v-if="row">
-          <NuxtLink :to="`/users/${row.id}`" class="action-item">詳細</NuxtLink>
+          <NuxtLink :to="`/user/${row.id}`" class="action-item">詳細</NuxtLink>
 
           <button
             class="action-item"
