@@ -8,7 +8,7 @@ export default defineEventHandler(async (event) => {
     nodeId !== "d898bae4-0a05-48aa-846e-aca5bbfd72c6" &&
     nodeId !== "ba49196a-dfa7-4ce2-99c0-e4c4767f7b39"
   ) {
-    createError({
+    throw createError({
       statusCode: 404,
       statusMessage: "Physical node not found",
     });
