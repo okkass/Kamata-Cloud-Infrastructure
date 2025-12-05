@@ -36,7 +36,7 @@
           >
             <td class="px-6 py-4 font-medium">{{ vm.name }}</td>
             <td class="px-6 py-4">{{ vm.status }}</td>
-            <td class="px-6 py-4">{{ vm.nodeName }}</td>
+            <td class="px-6 py-4">{{ vm.node }}</td>
             <td class="px-6 py-4 text-center">
               <div class="flex justify-center gap-2">
                 <button
@@ -372,8 +372,8 @@ const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
 const openImageEditModal = (image: ImageResponse) =>
   openModal("imageEdit", image);
 const openUserEditModal = (user: UserResponse) => openModal("userEdit", user);
-/*const openSecurityGroupEditModal = (sg: SecurityGroupDTO) =>
-  openModal("securityGroupEdit", sg);*/
+const openSecurityGroupEditModal = (sg: SecurityGroupResponse) =>
+  openModal("securityGroupEdit", sg);
 const openStorageEditModal = (sp: StoragePoolResponse) =>
   openModal("storageEdit", sp);
 </script>
