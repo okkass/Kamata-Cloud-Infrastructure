@@ -1,3 +1,13 @@
 export default defineNitroConfig({
-  // ここに設定を追加できます（例：パブリックディレクトリ、APIルートの場所など）
+  routeRules: {
+    "/api/**": {
+      cors: true,
+      headers: {
+        "Access-Control-Allow-Origin": "http://localhost:3000",
+        "Access-Control-Allow-Methods":
+          "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+    },
+  },
 });
