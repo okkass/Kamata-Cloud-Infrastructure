@@ -6986,7 +6986,7 @@ export interface components {
              */
             usedCpu: number;
             /**
-             * @description ノード/各VMのメモリ総量(バイト単位 )
+             * @description ノード/各VMのメモリ総量(バイト単位)
              * @example 57899069440
              */
             totalMemory: number;
