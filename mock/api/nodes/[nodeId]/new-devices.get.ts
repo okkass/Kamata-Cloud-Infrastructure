@@ -3,7 +3,7 @@ import { defineEventHandler, createError } from "h3";
 
 export default defineEventHandler(async (event) => {
   const nodeId: string | undefined = event.context.params?.nodeId;
-  //　のーどIDごとに返す処理
+  // ノードIDごとに返す処理
   if (
     nodeId !== "d898bae4-0a05-48aa-846e-aca5bbfd72c6" &&
     nodeId !== "ba49196a-dfa7-4ce2-99c0-e4c4767f7b39"
