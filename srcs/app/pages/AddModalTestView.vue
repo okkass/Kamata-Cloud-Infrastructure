@@ -80,13 +80,12 @@ const createAddModals = computed(() => [
     props: {},
   },
   {
-    id: "storageAdd", // ローカルストレージ追加
+    id: "storageAdd",
     buttonText: "ストレージ追加",
     component: markRaw(MoStorageAdd),
     // props: { nodes: [], availableDisks: [] }, // 必要に応じてAPI連携
     props: {}, // ダミーデータ削除
   },
-
   {
     id: "nodeAdd",
     buttonText: "クラスターにノード追加",
