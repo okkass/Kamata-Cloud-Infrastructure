@@ -62,6 +62,7 @@ export default defineEventHandler(async (event) => {
 
     // Node.jsのRawリクエストストリームをBusboyに流し込む
     // h3の event.node.req は ReadableStream なのでそのまま pipe できる
+    event.node.req.on("error", reject); // 雲嶽山の守りの型！エラーは逃さず捕まえる！
     event.node.req.pipe(busboy);
   });
 
