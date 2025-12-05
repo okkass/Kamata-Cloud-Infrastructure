@@ -7035,23 +7035,23 @@ export interface components {
              * Format: uuid
              * @description ストレージのID
              */
-            id?: string;
+            id: string;
             /** @description ストレージの名前 */
-            name?: string;
+            name: string;
             /** @description ストレージのサイズ（バイト単位） */
-            size?: number;
+            size: number;
             /** @description ストレージプール情報 */
-            pool?: components["schemas"]["StoragePoolResponse"];
+            pool: components["schemas"]["StoragePoolResponse"];
             /**
              * Format: date-time
              * @description ストレージ作成日時
              */
-            createdAt?: string;
+            createdAt: string;
             /**
              * @description ストレージのデバイスパス
              * @example /dev/vdb
              */
-            devicePath?: string;
+            devicePath: string;
         };
         /** @description サブネットオブジェクト */
         SubnetResponse: {
@@ -7166,8 +7166,8 @@ export interface components {
              * @description バックアップのサイズ(バイト単位)
              */
             size: number;
-            /** @description バックアップ対象の仮想ストレージ */
-            targetStorage: components["schemas"]["StorageResponse"];
+            /** @description バックアップ対象の仮想ストレージ(存在する場合) */
+            targetStorage?: components["schemas"]["StorageResponse"];
             /** @description バックアップ取得元の仮想マシン（存在する場合） */
             targetVirtualMachine?: components["schemas"]["VirtualMachineResponse"];
         };
