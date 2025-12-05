@@ -52,7 +52,7 @@ import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue";
 import MoSecurityGroupCreate from "~/components/MoSecurityGroupCreate.vue";
 import MoUserAdd from "~/components/MoUserAdd.vue";
 import MoVirtualNetworkCreate from "~/components/MoVirtualNetworkCreate.vue";
-import MoLocalStorageAdd from "~/components/MoStorageAdd.vue";
+import MoStorageAdd from "~/components/MoStorageAdd.vue";
 import MoBackupCreate from "~/components/MoBackupCreate.vue";
 import MoSnapshotCreate from "~/components/MoSnapshotCreate.vue";
 

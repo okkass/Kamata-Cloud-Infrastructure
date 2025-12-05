@@ -11,7 +11,6 @@ import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useResourceList } from "~/composables/useResourceList";
 import { useToast } from "~/composables/useToast";
 
-
 // デバイス情報の型 (APIレスポンス)
 interface DeviceDTO {
   devicePath: string;
@@ -22,6 +21,9 @@ interface SelectOption {
   id: string;
   name: string;
 }
+
+// API Clientの定義
+const api = useApiClient();
 
 // ==============================================================================
 // Validation Schema
@@ -114,9 +116,8 @@ export function useStorageAddForm() {
       devicePath.value = ""; // パス選択をリセット
 
       try {
-        // $fetch はエラー時に例外を投げるため、try-catch で捕捉します
-        const response = await $fetch<DeviceDTO[]>(
-          `/api/nodes/${targetId}/new-devices`
+        const response = await api.get<DeviceDTO[]>(
+          `nodes/${targetId}/new-devices`
         );
 
         devices.value = response || [];
