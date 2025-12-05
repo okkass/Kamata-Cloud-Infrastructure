@@ -1,7 +1,6 @@
 import Busboy from "busboy";
 import fs from "node:fs";
 import path from "node:path";
-import { Readable } from "node:stream";
 
 export default defineEventHandler(async (event) => {
   // リクエストヘッダーから content-type を取得
