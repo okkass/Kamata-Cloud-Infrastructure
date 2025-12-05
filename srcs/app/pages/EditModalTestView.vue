@@ -38,9 +38,22 @@
             <td class="px-6 py-4">{{ vm.status }}</td>
             <td class="px-6 py-4">{{ vm.nodeName }}</td>
             <td class="px-6 py-4 text-center">
-              <button @click="openVmEditModal(vm)" class="btn-secondary">
-                編集
-              </button>
+              <div class="flex justify-center gap-2">
+                <button
+                  @click="openVmEditModal(vm)"
+                  class="btn-secondary text-xs px-3 py-1"
+                  title="仮想マシン編集"
+                >
+                  編集
+                </button>
+                <button
+                  @click="openBackupRestoreModal(vm)"
+                  class="btn-secondary text-xs px-3 py-1 bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
+                  title="バックアップ復元 (テスト)"
+                >
+                  復元
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -218,19 +231,13 @@
 import { ref, markRaw, computed } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
 
-// --- 型定義 ---
-import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine";
-import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type";
-import type { ImageResponse } from "~~/shared/types/dto/image";
-import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
-import type { SecurityGroupDTO } from "~~/shared/types/dto/security-group/SecurityGroupDTO";
-
 // --- コンポーネント ---
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
 import MoUserEdit from "~/components/MoUserEdit.vue";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
+import MoBackupRestore from "~/components/MoBackupRestor.vue";
 
 // --- State ---
 const activeModal = ref<string | null>(null);
@@ -244,7 +251,7 @@ const {
   pending: vmPending,
   error: vmError,
   refresh: refreshVms,
-} = useResourceList<VirtualMachineDTO>("virtual-machines");
+} = useResourceList<VirtualMachineResponse>("virtual-machines");
 
 // 2. インスタンスタイプ
 const {
@@ -268,7 +275,7 @@ const {
   pending: usersPending,
   error: usersError,
   refresh: refreshUsers,
-} = useResourceList<UserServerBase>("users");
+} = useResourceList<UserResponse>("users");
 
 // 5. セキュリティグループ
 const {
@@ -276,7 +283,7 @@ const {
   pending: sgPending,
   error: sgError,
   refresh: refreshSecurityGroups,
-} = useResourceList<SecurityGroupDTO>("security-groups");
+} = useResourceList<SecurityGroupResponse>("security-groups");
 
 // --- モーダル定義 ---
 const editModals = computed(() => [
@@ -284,6 +291,13 @@ const editModals = computed(() => [
     id: "vmEdit",
     component: markRaw(MoVirtualMachineEdit),
     props: { vmId: targetResource.value?.id },
+    refreshFn: refreshVms,
+  },
+  {
+    id: "backupRestore",
+    component: markRaw(MoBackupRestore),
+    // 復元モーダルには backupData としてデータを渡す
+    props: { backupData: targetResource.value },
     refreshFn: refreshVms,
   },
   {
@@ -333,12 +347,14 @@ const handleSuccess = () => {
 };
 
 // Open Helpers
-const openVmEditModal = (vm: VirtualMachineDTO) => openModal("vmEdit", vm);
+const openVmEditModal = (vm: VirtualMachineResponse) => openModal("vmEdit", vm);
+const openBackupRestoreModal = (vm: VirtualMachineResponse) =>
+  openModal("backupRestore", vm);
 const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
   openModal("instanceTypeEdit", it);
 const openImageEditModal = (image: ImageResponse) =>
   openModal("imageEdit", image);
-const openUserEditModal = (user: UserServerBase) => openModal("userEdit", user);
-const openSecurityGroupEditModal = (sg: SecurityGroupDTO) =>
+const openUserEditModal = (user: UserResponse) => openModal("userEdit", user);
+const openSecurityGroupEditModal = (sg: SecurityGroupResponse) =>
   openModal("securityGroupEdit", sg);
 </script>
