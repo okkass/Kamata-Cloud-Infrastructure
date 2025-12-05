@@ -17,7 +17,7 @@ get:
       content:
         application/json:
           schema:
-            $ref: "../components/schemas/summary/SummaryResponse.yml"
+            $ref: "../../components/schemas/summary/SummaryResponse.yml"
     "400":
       description: リクエストエラー
       content:
