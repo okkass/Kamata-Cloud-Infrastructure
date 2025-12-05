@@ -22,3 +22,10 @@ properties:
     type: string
     description: ストレージのデバイスパス
     example: /dev/vdb
+required:
+  - id
+  - name
+  - size
+  - pool
+  - createdAt
+  - devicePath
