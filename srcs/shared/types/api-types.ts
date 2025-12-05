@@ -7035,23 +7035,23 @@ export interface components {
              * Format: uuid
              * @description ストレージのID
              */
-            id?: string;
+            id: string;
             /** @description ストレージの名前 */
-            name?: string;
+            name: string;
             /** @description ストレージのサイズ（バイト単位） */
-            size?: number;
+            size: number;
             /** @description ストレージプール情報 */
-            pool?: components["schemas"]["StoragePoolResponse"];
+            pool: components["schemas"]["StoragePoolResponse"];
             /**
              * Format: date-time
              * @description ストレージ作成日時
              */
-            createdAt?: string;
+            createdAt: string;
             /**
              * @description ストレージのデバイスパス
              * @example /dev/vdb
              */
-            devicePath?: string;
+            devicePath: string;
         };
         /** @description サブネットオブジェクト */
         SubnetResponse: {
