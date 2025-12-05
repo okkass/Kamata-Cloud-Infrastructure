@@ -6925,7 +6925,7 @@ export interface components {
         StoragePoolPutRequest: WithRequired<components["schemas"]["StoragePoolUpdatable"], "name" | "hasNetworkAccess">;
         /** @description ストレージプール更新リクエストオブジェクト(PATCH) */
         StoragePoolPatchRequest: components["schemas"]["StoragePoolUpdatable"];
-        /** @description ノード/各VMのメトリクスデータ */
+        /** @description ノード/各VMのメトリクス履歴の1データポイント */
         HistoryItem: {
             /**
              * @description ノード/各VMのメトリクスデータのタイムスタンプ(UNIXTIME)
@@ -6938,7 +6938,7 @@ export interface components {
              */
             value: number;
         };
-        /** @description ノード/各VMのメトリクスデータ */
+        /** @description ノード/各VMのメトリクス履歴データ */
         HistoryData: {
             /**
              * @description ノード/各VMのID
