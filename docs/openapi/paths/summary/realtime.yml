@@ -8,6 +8,7 @@ get:
     - name: admin
       in: query
       required: true
+      description: "管理者権限フラグ、trueの場合はノードのメトリクスデータ、falseの場合はユーザに割り当てられたVMのメトリクスデータを返す"
       schema:
         type: boolean
   responses:

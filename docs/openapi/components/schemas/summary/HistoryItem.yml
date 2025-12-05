@@ -3,7 +3,7 @@ description: "ノード/各VMのメトリクスデータ"
 properties:
   timestamp:
     type: number
-    description: "ノード/各VMのメトリクスデータのタイムスタンプ"
+    description: "ノード/各VMのメトリクスデータのタイムスタンプ(UNIXTIME)"
     example: 1722672000000
   value:
     type: number

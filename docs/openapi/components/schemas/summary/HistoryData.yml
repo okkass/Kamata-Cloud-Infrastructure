@@ -11,30 +11,30 @@ properties:
     example: "node1/vm6001"
   totalCpu:
     type: number
-    description: "ノード/各VMのCPU使用率"
-    example: 10.31
+    description: "ノード/各VMのトータルCPU数(コア数単位)"
+    example: 80
   totalMemory:
     type: number
-    description: "ノード/各VMのメモリ使用率"
-    example: 20.56
+    description: "ノード/各VMのメモリ総量(バイト単位)"
+    example: 57899069440
   cpuHistory:
     type: array
-    description: "ノード/各VMのCPU使用率履歴"
+    description: "ノード/各VMのCPU使用数履歴(コア数単位)"
     items:
       $ref: "./HistoryItem.yml"
   memHistory:
     type: array
-    description: "ノード/各VMのメモリ使用率履歴"
+    description: "ノード/各VMのメモリ使用数履歴(バイト単位)"
     items:
       $ref: "./HistoryItem.yml"
   networkINHistory:
     type: array
-    description: "ノード/各VMのネットワーク入力履歴"
+    description: "ノード/各VMのネットワーク入力履歴(バイト単位)"
     items:
       $ref: "./HistoryItem.yml"
   networkOUTHistory:
     type: array
-    description: "ノード/各VMのネットワーク出力履歴"
+    description: "ノード/各VMのネットワーク出力履歴(バイト単位)"
     items:
       $ref: "./HistoryItem.yml"
 required:
