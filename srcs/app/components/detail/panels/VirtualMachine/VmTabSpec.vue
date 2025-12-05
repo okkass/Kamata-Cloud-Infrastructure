@@ -2,30 +2,23 @@
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">構成</h2>
 
-    <!-- ★ 基本情報タブと同じカードレイアウトに統一 -->
-    <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
-      <!-- CPU / メモリ -->
-      <dl class="space-y-3 text-sm">
+    <div class="detail-card">
+      <dl class="detail-grid-2col">
         <div>
-          <dt class="text-xs text-neutral-500">CPUコア</dt>
-          <dd class="text-sm text-neutral-900 font-medium ">
-            {{ context.cpuCore }}
-          </dd>
+          <dt class="detail-label">CPUコア</dt>
+          <dd class="detail-value">{{ context.cpuCore }} コア</dd>
         </div>
 
         <div>
-          <dt class="text-xs text-neutral-500">メモリサイズ</dt>
-          <dd class="text-sm text-neutral-900 font-medium ">
-            {{ convertByteToUnit(context.memorySize, "MB") }}MB
+          <dt class="detail-label">メモリサイズ</dt>
+          <dd class="detail-value">
+            {{ convertByteToUnit(context.memorySize, "MB") }} MB
           </dd>
         </div>
       </dl>
 
-      <!-- アタッチストレージ -->
-      <div class="pt-3 border-t border-neutral-200">
-        <h3 class="mb-2 text-sm font-semibold text-neutral-700">
-          ストレージ
-        </h3>
+      <div class="detail-card-section">
+        <h3 class="detail-heading-sm">ストレージ</h3>
 
         <div class="space-y-2">
           <article
@@ -33,17 +26,26 @@
             :key="index"
             class="rounded-lg border border-neutral-200 px-4 py-3"
           >
-            <p class="text-xs text-neutral-500">
-              {{ item.storage.name }}
-            </p>
-            <p class="text-sm text-neutral-900 font-medium">
-              サイズ：
-              {{ convertByteToUnit(item.storage.size, "GB") }}GB
-            </p>
-            <p class="text-sm text-neutral-900 font-medium">
-              プール:
-              {{ item.storage.pool }}
-            </p>
+            <div class="mb-2">
+              <div class="detail-value">
+                {{ item.storage.name }}
+              </div>
+            </div>
+
+            <dl class="grid gap-2 grid-cols-2">
+              <div>
+                <dt class="detail-label">サイズ</dt>
+                <dd class="detail-value text-xs">
+                  {{ convertByteToUnit(item.storage.size, "GB") }} GB
+                </dd>
+              </div>
+              <div>
+                <dt class="detail-label">プール</dt>
+                <dd class="detail-value text-xs font-mono">
+                  {{ item.storage.pool }}
+                </dd>
+              </div>
+            </dl>
           </article>
         </div>
       </div>
@@ -54,10 +56,12 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
+// 本来は shared/types から import するのが理想ですが、元のコードに合わせて any を許容
 const props = defineProps<{
   context: any;
 }>();
 
-// props をそのまま使いやすくするだけ（型崩れ防止）
 const context = computed(() => props.context ?? {});
+
+// ※ convertByteToUnit は auto-import か何かで使えている想定で残しています
 </script>

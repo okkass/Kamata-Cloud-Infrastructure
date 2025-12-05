@@ -2,39 +2,35 @@
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">基本情報</h2>
 
-    <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
-      <!-- 名前 -->
+    <div class="detail-card">
       <div>
-        <div class="text-xs text-neutral-500">名前</div>
-        <div class="text-base font-medium text-neutral-900">
+        <div class="detail-label">名前</div>
+        <div class="detail-value text-base">
           {{ group.name || "—" }}
         </div>
       </div>
 
-      <!-- 説明 -->
       <div>
-        <div class="text-xs text-neutral-500">説明</div>
-        <div class="text-sm text-neutral-900">
+        <div class="detail-label">説明</div>
+        <div class="detail-value">
           {{ group.description || "—" }}
         </div>
       </div>
 
-      <!-- 作成日時 & ルール数 -->
-      <div class="pt-3 border-t border-neutral-200 grid gap-3 md:grid-cols-2">
+      <div class="detail-card-section detail-grid-2col">
         <div>
-          <div class="text-xs text-neutral-500 mb-1">作成日時</div>
-          <div class="text-sm font-medium text-neutral-900">
+          <div class="detail-heading-sm">作成日時</div>
+          <div class="detail-value">
             {{ formatDateTime(group.createdAt) }}
           </div>
         </div>
 
         <div>
-          <div class="text-xs text-neutral-500 mb-1">ルール数</div>
-          <div class="text-sm font-medium text-neutral-900">
+          <div class="detail-heading-sm">ルール数</div>
+          <div class="detail-value">
             合計 {{ totalRules }} 件
-            <span class="ml-2 text-xs text-neutral-600">
-              （インバウンド {{ inboundCount }} / アウトバウンド
-              {{ outboundCount }}）
+            <span class="ml-2 text-xs text-neutral-500 font-normal">
+              (In: {{ inboundCount }} / Out: {{ outboundCount }})
             </span>
           </div>
         </div>

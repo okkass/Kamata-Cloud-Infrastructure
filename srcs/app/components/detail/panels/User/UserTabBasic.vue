@@ -1,71 +1,70 @@
-<!-- srcs/app/components/detail/panels/User/UserTabBasic.vue -->
 <template>
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">基本情報</h2>
 
-    <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
-      <!-- 名前 -->
+    <div class="detail-card">
       <div>
-        <div class="text-xs text-neutral-500">名前</div>
-        <div class="text-base font-medium text-neutral-900">
+        <div class="detail-label">名前</div>
+        <div class="detail-value text-base">
           {{ user.name || "—" }}
         </div>
       </div>
 
-      <!-- メールアドレス -->
       <div>
-        <div class="text-xs text-neutral-500">メールアドレス</div>
-        <div class="text-sm font-mono text-neutral-900">
+        <div class="detail-label">メールアドレス</div>
+        <div class="detail-value font-mono">
           {{ user.email || "—" }}
         </div>
       </div>
 
-      <!-- 作成日時 / 最終ログイン -->
-      <div class="pt-3 border-t border-neutral-200 grid gap-3 md:grid-cols-2">
+      <div class="detail-card-section detail-grid-2col">
         <div>
-          <div class="text-xs text-neutral-500 mb-1">作成日時</div>
-          <div class="text-sm text-neutral-900 font-medium">
+          <div class="detail-heading-sm">作成日時</div>
+          <div class="detail-value">
             {{ formatDateTime(user.createdAt) }}
           </div>
         </div>
         <div>
-          <div class="text-xs text-neutral-500 mb-1">最終ログイン日時</div>
-          <div class="text-sm text-neutral-900 font-medium">
+          <div class="detail-heading-sm">最終ログイン日時</div>
+          <div class="detail-value">
             {{ formatDateTime(user.lastLoginAt) }}
           </div>
         </div>
       </div>
 
-      <!-- 権限系フラグ -->
-      <div class="pt-3 border-t border-neutral-200 space-y-2">
-        <div class="text-xs text-neutral-500 mb-1">権限</div>
+      <div class="detail-card-section">
+        <div class="detail-heading-sm">権限</div>
 
-        <div class="flex flex-wrap gap-2 text-xs">
+        <div class="flex flex-wrap gap-2">
           <span
-            class="inline-flex items-center rounded-full px-2 py-0.5 font-medium"
-            :class="user.isAdmin ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'"
+            class="detail-pill"
+            :class="user.isAdmin ? 'detail-pill-yes' : 'detail-pill-no'"
           >
             管理者: {{ user.isAdmin ? "はい" : "いいえ" }}
           </span>
 
           <span
-            class="inline-flex items-center rounded-full px-2 py-0.5 font-medium"
-            :class="user.isImageAdmin ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'"
+            class="detail-pill"
+            :class="user.isImageAdmin ? 'detail-pill-yes' : 'detail-pill-no'"
           >
             イメージ管理者: {{ user.isImageAdmin ? "はい" : "いいえ" }}
           </span>
 
           <span
-            class="inline-flex items-center rounded-full px-2 py-0.5 font-medium"
-            :class="user.isInstanceTypeAdmin ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'"
+            class="detail-pill"
+            :class="
+              user.isInstanceTypeAdmin ? 'detail-pill-yes' : 'detail-pill-no'
+            "
           >
             インスタンスタイプ管理者:
             {{ user.isInstanceTypeAdmin ? "はい" : "いいえ" }}
           </span>
 
           <span
-            class="inline-flex items-center rounded-full px-2 py-0.5 font-medium"
-            :class="user.isPhysicalNodeAdmin ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-slate-100 text-slate-600 border border-slate-200'"
+            class="detail-pill"
+            :class="
+              user.isPhysicalNodeAdmin ? 'detail-pill-yes' : 'detail-pill-no'
+            "
           >
             物理ノード管理者:
             {{ user.isPhysicalNodeAdmin ? "はい" : "いいえ" }}
@@ -73,41 +72,36 @@
         </div>
       </div>
 
-      <!-- リソース上限 -->
-      <div class="pt-3 border-t border-neutral-200 space-y-2">
-        <div class="text-xs text-neutral-500 mb-1">リソース上限</div>
+      <div class="detail-card-section">
+        <div class="detail-heading-sm">リソース上限</div>
 
-        <dl class="space-y-1 text-sm">
-          <div class="flex flex-wrap gap-2">
-            <dt class="w-32 text-neutral-500">CPUコア</dt>
-            <dd class="font-medium text-neutral-900">
+        <dl class="space-y-1">
+          <div class="flex flex-wrap gap-2 items-baseline">
+            <dt class="detail-label w-32">CPUコア</dt>
+            <dd class="detail-value">
               {{ cpuLimitText }}
             </dd>
           </div>
 
-          <div class="flex flex-wrap gap-2">
-            <dt class="w-32 text-neutral-500">メモリ</dt>
-            <dd class="font-medium text-neutral-900">
+          <div class="flex flex-wrap gap-2 items-baseline">
+            <dt class="detail-label w-32">メモリ</dt>
+            <dd class="detail-value">
               {{ memoryLimitText }}
             </dd>
           </div>
 
-          <div class="flex flex-wrap gap-2">
-            <dt class="w-32 text-neutral-500">ストレージ</dt>
-            <dd class="font-medium text-neutral-900">
+          <div class="flex flex-wrap gap-2 items-baseline">
+            <dt class="detail-label w-32">ストレージ</dt>
+            <dd class="detail-value">
               {{ storageLimitText }}
             </dd>
           </div>
         </dl>
       </div>
 
-      <!-- MFA 情報（あれば） -->
-      <div
-        v-if="user.totpInfo"
-        class="pt-3 border-t border-neutral-200 space-y-1"
-      >
-        <div class="text-xs text-neutral-500 mb-1">多要素認証 (TOTP)</div>
-        <p class="text-sm text-neutral-900">
+      <div v-if="user.totpInfo" class="detail-card-section">
+        <div class="detail-heading-sm">多要素認証 (TOTP)</div>
+        <p class="detail-value">
           設定済み（シークレットキー／QRコード情報あり）
         </p>
       </div>

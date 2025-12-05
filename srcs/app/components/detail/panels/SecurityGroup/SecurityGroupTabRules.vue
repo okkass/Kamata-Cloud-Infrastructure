@@ -2,8 +2,7 @@
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">ルール一覧</h2>
 
-    <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-6">
-      <!-- インバウンド -->
+    <div class="detail-card space-y-6">
       <div>
         <h3 class="mb-2 text-sm font-semibold text-neutral-800">
           インバウンドルール
@@ -17,50 +16,46 @@
           <article
             v-for="rule in inboundRules"
             :key="rule.id"
-            class="rounded-lg border border-neutral-200 px-4 py-3 text-sm"
+            class="rounded-lg border border-neutral-200 px-4 py-3"
           >
-            <div class="flex items-center justify-between gap-3">
-              <p class="font-medium text-neutral-900">
+            <div class="flex items-center justify-between gap-3 mb-2">
+              <p class="detail-value">
                 {{ rule.name || "（名称未設定）" }}
               </p>
-              <span
-                class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-                :class="actionClass(rule.action)"
-              >
+              <span class="detail-pill" :class="actionClass(rule.action)">
                 {{ actionLabel(rule.action) }}
               </span>
             </div>
 
-            <dl class="mt-2 grid gap-2 md:grid-cols-3">
+            <dl class="grid gap-2 md:grid-cols-3">
               <div>
-                <dt class="text-[11px] text-neutral-500">プロトコル</dt>
-                <dd class="text-xs font-medium text-neutral-900">
+                <dt class="detail-label">プロトコル</dt>
+                <dd class="detail-value text-xs">
                   {{ protocolLabel(rule.protocol) }}
                 </dd>
               </div>
               <div>
-                <dt class="text-[11px] text-neutral-500">ポート</dt>
-                <dd class="text-xs font-medium text-neutral-900">
+                <dt class="detail-label">ポート</dt>
+                <dd class="detail-value text-xs">
                   {{ portLabel(rule.port) }}
                 </dd>
               </div>
               <div>
-                <dt class="text-[11px] text-neutral-500">ターゲットIP</dt>
-                <dd class="text-xs font-mono text-neutral-900">
+                <dt class="detail-label">ターゲットIP</dt>
+                <dd class="detail-value text-xs font-mono">
                   {{ rule.targetIp }}
                 </dd>
               </div>
             </dl>
 
-            <p class="mt-2 text-[11px] text-neutral-500">
-              作成日時：{{ formatDate(rule.createdAt) }}
+            <p class="mt-2 text-[10px] text-neutral-400 text-right">
+              {{ formatDateTime(rule.createdAt) }}
             </p>
           </article>
         </div>
       </div>
 
-      <!-- アウトバウンド -->
-      <div class="pt-4 border-t border-neutral-200">
+      <div class="detail-card-section pt-4">
         <h3 class="mb-2 text-sm font-semibold text-neutral-800">
           アウトバウンドルール
         </h3>
@@ -73,43 +68,40 @@
           <article
             v-for="rule in outboundRules"
             :key="rule.id"
-            class="rounded-lg border border-neutral-200 px-4 py-3 text-sm"
+            class="rounded-lg border border-neutral-200 px-4 py-3"
           >
-            <div class="flex items-center justify-between gap-3">
-              <p class="font-medium text-neutral-900">
+            <div class="flex items-center justify-between gap-3 mb-2">
+              <p class="detail-value">
                 {{ rule.name || "（名称未設定）" }}
               </p>
-              <span
-                class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-                :class="actionClass(rule.action)"
-              >
+              <span class="detail-pill" :class="actionClass(rule.action)">
                 {{ actionLabel(rule.action) }}
               </span>
             </div>
 
-            <dl class="mt-2 grid gap-2 md:grid-cols-3">
+            <dl class="grid gap-2 md:grid-cols-3">
               <div>
-                <dt class="text-[11px] text-neutral-500">プロトコル</dt>
-                <dd class="text-xs font-medium text-neutral-900">
+                <dt class="detail-label">プロトコル</dt>
+                <dd class="detail-value text-xs">
                   {{ protocolLabel(rule.protocol) }}
                 </dd>
               </div>
               <div>
-                <dt class="text-[11px] text-neutral-500">ポート</dt>
-                <dd class="text-xs font-medium text-neutral-900">
+                <dt class="detail-label">ポート</dt>
+                <dd class="detail-value text-xs">
                   {{ portLabel(rule.port) }}
                 </dd>
               </div>
               <div>
-                <dt class="text-[11px] text-neutral-500">ターゲットIP</dt>
-                <dd class="text-xs font-mono text-neutral-900">
+                <dt class="detail-label">ターゲットIP</dt>
+                <dd class="detail-value text-xs font-mono">
                   {{ rule.targetIp }}
                 </dd>
               </div>
             </dl>
 
-            <p class="mt-2 text-[11px] text-neutral-500">
-              作成日時：{{ formatDate(rule.createdAt) }}
+            <p class="mt-2 text-[10px] text-neutral-400 text-right">
+              {{ formatDateTime(rule.createdAt) }}
             </p>
           </article>
         </div>
@@ -175,19 +167,5 @@ const actionLabel = (a?: SecurityRule["action"]) =>
   a === "deny" ? "拒否" : "許可";
 
 const actionClass = (a?: SecurityRule["action"]) =>
-  a === "deny"
-    ? "bg-rose-50 text-rose-700 border border-rose-200"
-    : "bg-emerald-50 text-emerald-700 border border-emerald-200";
-
-function formatDate(value: string) {
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleString("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+  a === "deny" ? "bg-rose-50 text-rose-700 border-rose-200" : "detail-pill-yes";
 </script>
