@@ -1,0 +1,23 @@
+type: object
+description: RFC 9457 (Problem Details for HTTP APIs) に準拠した標準のエラーレスポンス形式
+properties:
+  type:
+    type: string
+    description: エラーの種類を示す識別子
+    example: "https://api.kci.chiffon-lab.tech/errors/invalid-request"
+  title:
+    type: string
+    description: エラーの簡潔な説明
+    example: "Invalid Request"
+  status:
+    type: integer
+    description: HTTPステータスコード
+    example: 400
+  detail:
+    type: string
+    description: エラーの詳細な説明
+    example: "The request parameters are invalid."
+  instance:
+    type: string
+    description: エラーが発生した特定のインスタンスを示すURI
+    example: "/requests/12345"

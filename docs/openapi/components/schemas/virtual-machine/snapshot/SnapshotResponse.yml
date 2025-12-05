@@ -1,0 +1,25 @@
+type: object
+description: スナップショットレスポンスオブジェクト
+properties:
+  id:
+    type: string
+    format: uuid
+    description: スナップショットを識別するための一意なID
+  name:
+    type: string
+    description: スナップショットの名前
+  description:
+    type: string
+    description: スナップショットの説明
+  createdAt:
+    type: string
+    format: date-time
+    description: スナップショットが作成された日時
+  targetVirtualMachine:
+    $ref: "../VirtualMachineResponse.yml"
+    description: スナップショット取得元の仮想マシン
+required:
+  - id
+  - name
+  - createdAt
+  - targetVirtualMachine

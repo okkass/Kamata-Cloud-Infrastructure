@@ -1,0 +1,17 @@
+type: object
+description: 仮想マシンに新たなストレージをアタッチするとき設定可能なオブジェクト
+properties:
+  size:
+    type: integer
+    description: アタッチするストレージのサイズ（バイト単位）
+  poolId:
+    type: string
+    format: uuid
+    description: ストレージプールのID
+  backupId:
+    type: string
+    format: uuid
+    description: ストレージのバックアップ元ID(オプション)
+required:
+  - size
+  - poolId

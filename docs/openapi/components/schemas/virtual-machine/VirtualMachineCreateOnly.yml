@@ -1,0 +1,60 @@
+type: object
+description: 仮想マシン作成時のみに設定可能なプロパティを持つオブジェクト
+properties:
+  publicKey:
+    type: string
+    description: 仮想マシンに設定するSSH公開鍵
+  nodeId:
+    type: string
+    format: uuid
+    description: 仮想マシンを配置するノードのID
+  imageId:
+    type: string
+    format: uuid
+    description: 仮想マシンにインストールするOSイメージのID
+  middlewareId:
+    type: string
+    format: uuid
+    description: インストールするミドルウェアのID
+  subnetId:
+    type: string
+    format: uuid
+    description: 仮想マシンを配置するサブネットのID
+  storages:
+    type: array
+    description: 仮想マシンにアタッチするストレージのリスト
+    items:
+      type: object
+      properties:
+        name:
+          type: string
+          description: ストレージの名前
+        size:
+          type: integer
+          description: ストレージのサイズ（バイト単位）
+        poolId:
+          type: string
+          format: uuid
+          description: ストレージプールのID
+        backupId:
+          type: string
+          format: uuid
+          description: ストレージのバックアップID（バックアップから復元する場合に指定）
+      required:
+        - name
+        - size
+        - poolId
+  securityGroupIds:
+    type: array
+    items:
+      type: string
+      format: uuid
+    description: 関連付けるセキュリティグループのIDリスト
+required:
+  - publicKey
+  - nodeId
+  - imageId
+  - middlewareId
+  - subnetId
+  - storages
+  - securityGroupIds

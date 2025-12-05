@@ -1,0 +1,64 @@
+name: Generate API Types
+
+on:
+  push:
+    # mainブランチ以外へのプッシュで発火
+    branches-ignore:
+      - main
+    # 無限ループや無駄な実行を防ぐため、OpenAPI定義かこのWorkflow自体が変更された時のみ実行
+    paths:
+      - "docs/openapi/**"
+      - ".github/workflows/create-types.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: write # 生成したコードをリポジトリへプッシュするために必要
+
+jobs:
+  generate-and-push:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1. リポジトリのチェックアウト
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2. pnpmの有効化
+      - name: Set up Corepack
+        run: corepack enable
+
+      # 3. Node.jsのセットアップ
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "pnpm"
+          # package.jsonがサブディレクトリにあるため、ロックファイルのパスを明示
+          cache-dependency-path: "srcs/pnpm-lock.yaml"
+
+      # 4. 依存関係のインストール (srcsディレクトリ内)
+      - name: Install dependencies
+        working-directory: ./srcs
+        # CI環境では frozen-lockfile を使うのがベストプラクティス
+        run: |
+          pnpm install
+
+      # 5. 型定義の生成
+      # srcsディレクトリで実行し、devDependenciesに入っている openapi-typescript を利用
+      - name: Generate Types
+        working-directory: ./srcs
+        run: |
+          # ../docs/openapi/openapi.yml はルートにあるファイルを指す
+          pnpm openapi-typescript ../docs/openapi/openapi.yml --root-types=true --root-types-no-schema-prefix=true --output ./shared/types/api-types.ts
+
+      # 6. 変更の検知とプッシュ
+      - name: Commit and Push Generated Types
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email 'github-actions[bot]@users.noreply.github.com'
+          git add ./srcs/shared/types/api-types.ts
+          git commit -m 'Generate types from OpenAPI spec' || echo "No changes to commit"
+          echo "Pushing changes to branch ${{ github.ref_name }}"
+          git push origin HEAD:${{ github.ref_name }}
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

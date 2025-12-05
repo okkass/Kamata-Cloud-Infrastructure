@@ -1,0 +1,7 @@
+type: object
+description: ネットワークインターフェース更新リクエストオブジェクト
+allOf:
+  - $ref: "./NetworkInterfaceUpdatable.yml"
+required:
+  - name
+  - subnetId

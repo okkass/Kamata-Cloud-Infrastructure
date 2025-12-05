@@ -1,0 +1,24 @@
+type: object
+description: ポートフォリオ記事レスポンスオブジェクト
+properties:
+  id:
+    type: string
+    format: uuid
+    description: ポートフォリオ記事を識別するための一意なID
+  title:
+    type: string
+    description: ポートフォリオ記事のタイトル
+  createdAt:
+    type: string
+    format: date-time
+    description: ポートフォリオ記事が作成された日時
+  status:
+    type: string
+    enum:
+      - published
+      - draft
+required:
+  - id
+  - title
+  - createdAt
+  - status

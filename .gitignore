@@ -3,3 +3,5 @@
 ~$*
 .pnpm-store
 dist/
+public/
+node_modules/

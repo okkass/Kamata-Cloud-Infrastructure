@@ -1,0 +1,23 @@
+type: object
+description: サブネットオブジェクト
+properties:
+  id:
+    type: string
+    format: uuid
+    description: サブネットを識別するための一意なID
+  name:
+    type: string
+    description: サブネットの名前
+  cidr:
+    type: string
+    description: CIDR形式のサブネットアドレス
+    example: 10.0.0.0/24
+  createdAt:
+    type: string
+    format: date-time
+    description: サブネットが作成された日時
+required:
+  - id
+  - name
+  - cidr
+  - createdAt

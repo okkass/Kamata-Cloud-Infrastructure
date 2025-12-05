@@ -1,3 +1,4 @@
+// srcs/app/composables/usetabs.ts
 export const tabs = [
   {
     label: "詳細",
@@ -16,4 +17,5 @@ export const tabs = [
   },
 ];
 
-//loaderを使わず直接読み込みたい場合 component: DetailTabGeneral のように指定できます
+// loaderを使わず直接読み込みたい場合：
+// component: DetailTabGeneral のように指定してもOK（ResourceDetailShell側で対応済み）

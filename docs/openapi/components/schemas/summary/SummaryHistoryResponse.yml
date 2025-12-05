@@ -1,0 +1,9 @@
+type: object
+description: "ノード/各VMのメトリクス履歴データ"
+properties:
+  data:
+    type: array
+    items:
+      $ref: "./HistoryData.yml"
+required:
+  - data

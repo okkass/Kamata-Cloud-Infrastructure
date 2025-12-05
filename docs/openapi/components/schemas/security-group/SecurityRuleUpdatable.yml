@@ -1,0 +1,36 @@
+type: object
+description: セキュリティルール更新可能なフィールド
+properties:
+  name:
+    type: string
+    description: セキュリティルールの名前
+  ruleType:
+    type: string
+    enum:
+      - inbound
+      - outbound
+    description: ルールのタイプ（インバウンドまたはアウトバウンド）
+  port:
+    type: integer
+    nullable: true
+    description: 適用されるポート番号。NULLの場合は全ポート対象
+    example: 22
+  protocol:
+    type: string
+    enum:
+      - tcp
+      - udp
+      - icmp
+      - any
+    description: 適用されるプロトコル
+  targetIp:
+    type: string
+    format: ipv4
+    description: ターゲットIPアドレス
+    example: 192.0.2.0/24
+  action:
+    type: string
+    enum:
+      - allow
+      - deny
+    description: ルールのアクション（許可または拒否）

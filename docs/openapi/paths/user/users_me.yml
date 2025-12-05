@@ -9,8 +9,12 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/user/UserResponse.yml
+            $ref: "../../components/schemas/user/UserResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
