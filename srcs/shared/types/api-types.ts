@@ -7166,8 +7166,8 @@ export interface components {
              * @description バックアップのサイズ(バイト単位)
              */
             size: number;
-            /** @description バックアップ対象の仮想ストレージ */
-            targetStorage: components["schemas"]["StorageResponse"];
+            /** @description バックアップ対象の仮想ストレージ(存在する場合) */
+            targetStorage?: components["schemas"]["StorageResponse"];
             /** @description バックアップ取得元の仮想マシン（存在する場合） */
             targetVirtualMachine?: components["schemas"]["VirtualMachineResponse"];
         };
