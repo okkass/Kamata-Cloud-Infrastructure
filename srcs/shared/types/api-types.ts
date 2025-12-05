@@ -2735,6 +2735,46 @@ export interface paths {
         };
         trace?: never;
     };
+    "/api/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * ノード/各VMのメトリクス履歴データを取得
+         * @description ノード/各VMのメトリクス履歴データを取得
+         */
+        get: operations["getSummaryHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/realtime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * ノード/各VMのメトリクスデータを取得
+         * @description ノード/各VMのメトリクスデータを取得
+         */
+        get: operations["getSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users": {
         parameters: {
             query?: never;
@@ -6885,6 +6925,91 @@ export interface components {
         StoragePoolPutRequest: WithRequired<components["schemas"]["StoragePoolUpdatable"], "name" | "hasNetworkAccess">;
         /** @description ストレージプール更新リクエストオブジェクト(PATCH) */
         StoragePoolPatchRequest: components["schemas"]["StoragePoolUpdatable"];
+        /** @description ノード/各VMのメトリクスデータ */
+        HistoryItem: {
+            /**
+             * @description ノード/各VMのメトリクスデータのタイムスタンプ(UNIXTIME)
+             * @example 1722672000000
+             */
+            timestamp: number;
+            /**
+             * @description ノード/各VMのメトリクスデータの値
+             * @example 1.031
+             */
+            value: number;
+        };
+        /** @description ノード/各VMのメトリクスデータ */
+        HistoryData: {
+            /**
+             * @description ノード/各VMのID
+             * @example node1/6001
+             */
+            id: string;
+            /**
+             * @description ノード/各VMの名前
+             * @example node1/vm6001
+             */
+            name: string;
+            /**
+             * @description ノード/各VMのトータルCPU数(コア数単位)
+             * @example 80
+             */
+            totalCpu: number;
+            /**
+             * @description ノード/各VMのメモリ総量(バイト単位)
+             * @example 57899069440
+             */
+            totalMemory: number;
+            /** @description ノード/各VMのCPU使用数履歴(コア数単位) */
+            cpuHistory: components["schemas"]["HistoryItem"][];
+            /** @description ノード/各VMのメモリ使用数履歴(バイト単位) */
+            memHistory: components["schemas"]["HistoryItem"][];
+            /** @description ノード/各VMのネットワーク入力履歴(バイト単位) */
+            networkINHistory: components["schemas"]["HistoryItem"][];
+            /** @description ノード/各VMのネットワーク出力履歴(バイト単位) */
+            networkOUTHistory: components["schemas"]["HistoryItem"][];
+        };
+        /** @description ノード/各VMのメトリクス履歴データ */
+        SummaryHistoryResponse: {
+            data: components["schemas"]["HistoryData"][];
+        };
+        /** @description ノード/各VMのメトリクスデータ */
+        Summary: {
+            /**
+             * @description ノード/各VMのトータルCPU数(コア数単位)
+             * @example 80
+             */
+            totalCpu: number;
+            /**
+             * @description ノード/各VMのCPU使用数(コア数単位)
+             * @example 0.58
+             */
+            usedCpu: number;
+            /**
+             * @description ノード/各VMのメモリ総量(バイト単位 )
+             * @example 57899069440
+             */
+            totalMemory: number;
+            /**
+             * @description ノード/各VMのメモリ使用量(バイト単位)
+             * @example 16743878656
+             */
+            usedMemory: number;
+            /**
+             * @description ノード/各VMのストレージ総量(バイト単位)
+             * @example 21395853312
+             */
+            totalStorage: number;
+            /**
+             * @description ノード/各VMのストレージ使用量(バイト単位)
+             * @example 13995106304
+             */
+            usedStorage: number;
+        };
+        /** @description ノード/各VMのメトリクスデータ */
+        SummaryResponse: {
+            clusterSummary: components["schemas"]["Summary"];
+        };
         /** @description TOTP情報オブジェクト */
         TotpInfo: {
             /** @description TOTPシークレットキー */
@@ -7512,6 +7637,11 @@ export type StoragePoolUpdatable = components['schemas']['StoragePoolUpdatable']
 export type StoragePoolCreateRequest = components['schemas']['StoragePoolCreateRequest'];
 export type StoragePoolPutRequest = components['schemas']['StoragePoolPutRequest'];
 export type StoragePoolPatchRequest = components['schemas']['StoragePoolPatchRequest'];
+export type HistoryItem = components['schemas']['HistoryItem'];
+export type HistoryData = components['schemas']['HistoryData'];
+export type SummaryHistoryResponse = components['schemas']['SummaryHistoryResponse'];
+export type Summary = components['schemas']['Summary'];
+export type SummaryResponse = components['schemas']['SummaryResponse'];
 export type TotpInfo = components['schemas']['TotpInfo'];
 export type UserResponse = components['schemas']['UserResponse'];
 export type UserCreateOnly = components['schemas']['UserCreateOnly'];
@@ -7566,7 +7696,108 @@ export type SubnetBulkRequest = components['schemas']['SubnetBulkRequest'];
 export type SubnetPutRequest = components['schemas']['SubnetPutRequest'];
 export type SubnetPatchRequest = components['schemas']['SubnetPatchRequest'];
 export type $defs = Record<string, never>;
+export interface operations {
+    getSummaryHistory: {
+        parameters: {
+            query: {
+                /** @description 管理者権限フラグ、trueの場合はノードのメトリクス履歴データ、falseの場合はユーザに割り当てられたVMのメトリクス履歴データを返す */
+                admin: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ノード/各VMのメトリクス履歴データを取得 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryHistoryResponse"];
+                };
+            };
+            /** @description リクエストエラー */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 認証エラー */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 権限エラー */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getSummary: {
+        parameters: {
+            query: {
+                /** @description 管理者権限フラグ、trueの場合はノードのメトリクスデータ、falseの場合はユーザに割り当てられたVMのメトリクスデータを返す */
+                admin: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ノード/各VMのメトリクスデータを取得 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryResponse"];
+                };
+            };
+            /** @description リクエストエラー */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 認証エラー */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 権限エラー */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+}
 type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];
 };
-export type operations = Record<string, never>;
