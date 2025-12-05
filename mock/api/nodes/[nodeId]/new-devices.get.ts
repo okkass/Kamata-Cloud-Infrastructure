@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
       {
         devicePath: "/dev/sdd",
         deviceName: "Storage Device C",
-        size: 256 * 1024 ** 2, // 256 GB
+        size: 256 * 1024 ** 3, // 256 GB
       },
       {
         devicePath: "/dev/sde",
