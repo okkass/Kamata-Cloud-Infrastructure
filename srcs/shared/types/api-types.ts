@@ -3640,6 +3640,84 @@ export interface paths {
         };
         trace?: never;
     };
+    "/api/backups/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * バックアップを仮想マシンに復元する
+         * @description 指定したIDのバックアップを、バックアップ元の仮想マシンに復元します。復元先の仮想マシンが削除されている場合、復元は失敗します。
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description バックアップの一意なID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 復元リクエスト受理 */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VirtualMachineResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description バックアップまたは仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/snapshots": {
         parameters: {
             query?: never;
@@ -6975,51 +7053,6 @@ export interface components {
              */
             devicePath?: string;
         };
-        /** @description バックアップレスポンスオブジェクト */
-        BackupResponse: {
-            /**
-             * Format: uuid
-             * @description バックアップを識別するための一意なID
-             */
-            id: string;
-            /** @description バックアップの名前 */
-            name: string;
-            /** @description バックアップの説明 */
-            description?: string;
-            /**
-             * Format: date-time
-             * @description バックアップが作成された日時
-             */
-            createdAt: string;
-            /**
-             * Format: integer
-             * @description バックアップのサイズ(バイト単位)
-             */
-            size: number;
-            /** @description バックアップ対象の仮想ストレージ */
-            targetStorage: components["schemas"]["StorageResponse"];
-        };
-        /** @description バックアップの作成時のみ設定可能なプロパティ */
-        BackupCreateOnly: {
-            /**
-             * Format: uuid
-             * @description バックアップ対象の仮想ストレージのID
-             */
-            targetVirtualStorageId: string;
-        };
-        /** @description バックアップの更新可能なプロパティ */
-        BackupUpdatable: {
-            /** @description バックアップの名前 */
-            name?: string;
-            /** @description バックアップの説明 */
-            description?: string;
-        };
-        /** @description バックアップ作成リクエストオブジェクト */
-        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & components["schemas"]["BackupUpdatable"] & Record<string, never>;
-        /** @description バックアップ更新リクエストオブジェクト */
-        BackupPutRequest: WithRequired<components["schemas"]["BackupUpdatable"], "name">;
-        /** @description バックアップ部分更新リクエストオブジェクト */
-        BackupPatchRequest: components["schemas"]["BackupUpdatable"];
         /** @description サブネットオブジェクト */
         SubnetResponse: {
             /**
@@ -7112,6 +7145,53 @@ export interface components {
             /** @description 仮想マシンに割り当てられたメモリサイズ（バイト単位） */
             memorySize: number;
         };
+        /** @description バックアップレスポンスオブジェクト */
+        BackupResponse: {
+            /**
+             * Format: uuid
+             * @description バックアップを識別するための一意なID
+             */
+            id: string;
+            /** @description バックアップの名前 */
+            name: string;
+            /** @description バックアップの説明 */
+            description?: string;
+            /**
+             * Format: date-time
+             * @description バックアップが作成された日時
+             */
+            createdAt: string;
+            /**
+             * Format: integer
+             * @description バックアップのサイズ(バイト単位)
+             */
+            size: number;
+            /** @description バックアップ対象の仮想ストレージ */
+            targetStorage: components["schemas"]["StorageResponse"];
+            /** @description バックアップ取得元の仮想マシン（存在する場合） */
+            targetVirtualMachine?: components["schemas"]["VirtualMachineResponse"];
+        };
+        /** @description バックアップの作成時のみ設定可能なプロパティ */
+        BackupCreateOnly: {
+            /**
+             * Format: uuid
+             * @description バックアップ対象の仮想ストレージのID
+             */
+            targetVirtualStorageId: string;
+        };
+        /** @description バックアップの更新可能なプロパティ */
+        BackupUpdatable: {
+            /** @description バックアップの名前 */
+            name?: string;
+            /** @description バックアップの説明 */
+            description?: string;
+        };
+        /** @description バックアップ作成リクエストオブジェクト */
+        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & components["schemas"]["BackupUpdatable"] & Record<string, never>;
+        /** @description バックアップ更新リクエストオブジェクト */
+        BackupPutRequest: WithRequired<components["schemas"]["BackupUpdatable"], "name">;
+        /** @description バックアップ部分更新リクエストオブジェクト */
+        BackupPatchRequest: components["schemas"]["BackupUpdatable"];
         /** @description スナップショットレスポンスオブジェクト */
         SnapshotResponse: {
             /**
@@ -7187,6 +7267,11 @@ export interface components {
                  * @description ストレージプールのID
                  */
                 poolId: string;
+                /**
+                 * Format: uuid
+                 * @description ストレージのバックアップID（バックアップから復元する場合に指定）
+                 */
+                backupId?: string;
             }[];
             /** @description 関連付けるセキュリティグループのIDリスト */
             securityGroupIds: string[];
@@ -7436,15 +7521,15 @@ export type UserPutRequest = components['schemas']['UserPutRequest'];
 export type UserPatchRequest = components['schemas']['UserPatchRequest'];
 export type PasswordChangeRequest = components['schemas']['PasswordChangeRequest'];
 export type StorageResponse = components['schemas']['StorageResponse'];
+export type SubnetResponse = components['schemas']['SubnetResponse'];
+export type NetworkInterfaceResponse = components['schemas']['NetworkInterfaceResponse'];
+export type VirtualMachineResponse = components['schemas']['VirtualMachineResponse'];
 export type BackupResponse = components['schemas']['BackupResponse'];
 export type BackupCreateOnly = components['schemas']['BackupCreateOnly'];
 export type BackupUpdatable = components['schemas']['BackupUpdatable'];
 export type BackupCreateRequest = components['schemas']['BackupCreateRequest'];
 export type BackupPutRequest = components['schemas']['BackupPutRequest'];
 export type BackupPatchRequest = components['schemas']['BackupPatchRequest'];
-export type SubnetResponse = components['schemas']['SubnetResponse'];
-export type NetworkInterfaceResponse = components['schemas']['NetworkInterfaceResponse'];
-export type VirtualMachineResponse = components['schemas']['VirtualMachineResponse'];
 export type SnapshotResponse = components['schemas']['SnapshotResponse'];
 export type SnapshotUpdatable = components['schemas']['SnapshotUpdatable'];
 export type SnapshotCreateOnly = components['schemas']['SnapshotCreateOnly'];
