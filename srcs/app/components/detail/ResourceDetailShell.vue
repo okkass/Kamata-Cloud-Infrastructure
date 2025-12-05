@@ -148,6 +148,9 @@ const onAction = (action: PageAction) => {
   emit("action", action);
   isMenuOpen.value = false;
 };
+const emitAction = (action: PageAction) => {
+  emit("action", action);
+};
 
 // メニュー外クリックで閉じる処理
 const handleClickOutside = (event: MouseEvent) => {
