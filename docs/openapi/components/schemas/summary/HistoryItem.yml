@@ -1,5 +1,5 @@
 type: object
-description: "ノード/各VMのメトリクスデータ"
+description: "ノード/各VMのメトリクス履歴の1データポイント"
 properties:
   timestamp:
     type: number
