@@ -36,6 +36,8 @@ export default defineEventHandler(async (event) => {
 
       // ストリームをパイプで繋ぐ (メモリに溜めずにディスクに書く)
       fileStream.pipe(writeStream);
+      // 雲嶽山流：fileStreamのエラーも見逃さずに捕まえる！
+      fileStream.on("error", reject);
 
       fileStream.on("data", (chunk) => {
         size += chunk.length;
