@@ -1,0 +1,48 @@
+type: object
+description: "ノード/各VMのメトリクスデータ"
+properties:
+  id:
+    type: string
+    description: "ノード/各VMのID"
+    example: "node1/6001"
+  name:
+    type: string
+    description: "ノード/各VMの名前"
+    example: "node1/vm6001"
+  totalCpu:
+    type: number
+    description: "ノード/各VMのCPU使用率"
+    example: 10.31
+  totalMemory:
+    type: number
+    description: "ノード/各VMのメモリ使用率"
+    example: 20.56
+  cpuHistory:
+    type: array
+    description: "ノード/各VMのCPU使用率履歴"
+    items:
+      $ref: "./HistoryItem.yml"
+  memHistory:
+    type: array
+    description: "ノード/各VMのメモリ使用率履歴"
+    items:
+      $ref: "./HistoryItem.yml"
+  networkINHistory:
+    type: array
+    description: "ノード/各VMのネットワーク入力履歴"
+    items:
+      $ref: "./HistoryItem.yml"
+  networkOUTHistory:
+    type: array
+    description: "ノード/各VMのネットワーク出力履歴"
+    items:
+      $ref: "./HistoryItem.yml"
+required:
+  - id
+  - name
+  - totalCpu
+  - totalMemory
+  - cpuHistory
+  - memHistory
+  - networkINHistory
+  - networkOUTHistory
