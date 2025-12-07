@@ -1,0 +1,34 @@
+type: object
+description: "ノード/各VMのメトリクスデータ"
+properties:
+  totalCpu:
+    type: number
+    description: "ノード/各VMのトータルCPU数(コア数単位)"
+    example: 80
+  usedCpu:
+    type: number
+    description: "ノード/各VMのCPU使用数(コア数単位)"
+    example: 0.58
+  totalMemory:
+    type: number
+    description: "ノード/各VMのメモリ総量(バイト単位)"
+    example: 57899069440
+  usedMemory:
+    type: number
+    description: "ノード/各VMのメモリ使用量(バイト単位)"
+    example: 16743878656
+  totalStorage:
+    type: number
+    description: "ノード/各VMのストレージ総量(バイト単位)"
+    example: 21395853312
+  usedStorage:
+    type: number
+    description: "ノード/各VMのストレージ使用量(バイト単位)"
+    example: 13995106304
+required:
+  - totalCpu
+  - usedCpu
+  - totalMemory
+  - usedMemory
+  - totalStorage
+  - usedStorage

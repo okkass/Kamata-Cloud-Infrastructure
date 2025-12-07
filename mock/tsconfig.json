@@ -2,9 +2,8 @@
   "extends": "./.nitro/types/tsconfig.json",
   "compilerOptions": {
     "strict": true,
-    "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"]
+      "~~/*": ["../srcs/*"]
     }
   }
 }
