@@ -1869,7 +1869,69 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        get?: never;
+        /**
+         * セキュリティグループルールの一覧取得
+         * @description 指定したセキュリティグループに関連付けられたすべてのルールを取得します。
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description セキュリティグループの一意なID */
+                    groupId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description ルール一覧取得成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["SecurityRuleResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description セキュリティグループが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         put?: never;
         /**
          * セキュリティグループルールの追加
@@ -6818,7 +6880,7 @@ export interface components {
             action?: "allow" | "deny";
         };
         /** @description セキュリティルール作成リクエストオブジェクト */
-        SecurityRuleCreateRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
+        SecurityRuleCreateRequest: components["schemas"]["SecurityRuleUpdatable"] & Record<string, never>;
         /** @description セキュリティグループ作成時のみに設定可能なプロパティ */
         SecurityGroupCreateOnly: {
             rules: components["schemas"]["SecurityRuleCreateRequest"][];
