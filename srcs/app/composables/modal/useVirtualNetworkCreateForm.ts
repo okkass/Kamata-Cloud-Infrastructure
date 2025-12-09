@@ -1,8 +1,6 @@
 /**
  * =================================================================================
  * 仮想ネットワーク作成フォーム Composable (useVirtualNetworkCreateForm.ts)
- * ---------------------------------------------------------------------------------
- * ・バリデーションに z.cidrv4() を使用
  * =================================================================================
  */
 import { useForm, useFieldArray } from "vee-validate";
@@ -25,7 +23,6 @@ const subnetSchema = z.object({
 // フォーム全体のスキーマ
 const zodSchema = z.object({
   name: z.string().min(1, "ネットワーク名は必須です。"),
-  // ★★★ 修正箇所: z.cidrv4() を使用 ★★★
   cidr: z.cidrv4(),
   initialSubnets: z.array(subnetSchema),
 });
