@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: "20"
           cache: "pnpm"
-          cache-dependency-path: "srcs/pnpm-lock.yaml"
+          cache-dependency-path: "./pnpm-lock.yaml"
 
       # 4. 必要なパッケージをすべてインストール
       - name: Install dependencies
