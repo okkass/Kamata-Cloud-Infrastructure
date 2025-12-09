@@ -1,17 +1,13 @@
 import type {
   VirtualMachineResponse,
   NetworkInterfaceResponse,
-  BackupResponse,
   StorageResponse,
-  BackupCreateRequest,
 } from "@app/shared/types";
 import { getNodeById } from "./nodesService";
 import { getSecurityGroupById } from "./securityGroupService";
 import { getStoragePoolById } from "./storagePoolService";
 
 let virtualMachines: Array<VirtualMachineResponse> | null = null;
-
-let backups: Array<BackupResponse> | null = null;
 
 export const initVirtualMachines = (): Array<VirtualMachineResponse> => {
   return [
@@ -139,49 +135,9 @@ export const getStorage = (
   storageId: string,
   vmId: string
 ): StorageResponse | undefined => {
+  console.log("Getting storage with ID", storageId, "for VM ID", vmId);
   const storages = getStorageByVirtualMachineId(vmId);
+  console.log("Storages for VM ID", vmId, ":", storages);
+  console.log(storages?.find((storage) => storage.id === storageId));
   return storages?.find((storage) => storage.id === storageId);
-};
-
-export const initBackups = (): Array<BackupResponse> => {
-  return [
-    {
-      id: "b6a12898-1a61-4584-9cba-4e89e1fdf23b",
-      name: "Vm-01-backup-2024-05-01",
-      description: "バックアップ元のVM現存パターン",
-      createdAt: new Date().toISOString(),
-      size: 100 * 1024 * 1024 * 1024, // 100 GB
-      targetStorage: getStorageByVirtualMachineId(
-        "fd8467e4-f334-4827-bf69-79d6434a176e"
-      )![1],
-      targetVirtualMachine: getVirtualMachineById(
-        "fd8467e4-f334-4827-bf69-79d6434a176e"
-      )!,
-    },
-    {
-      id: "8b0975a9-9ecc-46f1-896a-d0c6a92d3736",
-      name: "Vm-00-No-Machine-backup-2024-05-01",
-      description: "バックアップ元のVMが削除済みパターン",
-      createdAt: new Date().toISOString(),
-      size: 80 * 1024 * 1024 * 1024, // 80 GB
-    },
-  ];
-};
-
-export const getBackups = (): Array<BackupResponse> => {
-  if (!backups) {
-    backups = initBackups();
-  }
-  return backups!;
-};
-
-export const getBackupById = (id: string): BackupResponse | undefined => {
-  return getBackups().find((backup) => backup.id === id);
-};
-
-export const addBackup = (backup: BackupCreateRequest): BackupResponse => {
-  const uuid = crypto.randomUUID();
-  const newBackup: BackupResponse = {
-    id: uuid,
-    name: backup.name
 };

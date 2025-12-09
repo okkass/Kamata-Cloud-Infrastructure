@@ -5,10 +5,10 @@ properties:
     type: string
     format: uuid
     description: バックアップ対象の仮想マシンのID
-  targetVirtualStorageId:
+  targetStorageId:
     type: string
     format: uuid
     description: バックアップ対象の仮想ストレージのID
 required:
   - targetVirtualMachineId
-  - targetVirtualStorageId
+  - targetStorageId

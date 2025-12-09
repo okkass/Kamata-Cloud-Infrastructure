@@ -1,3 +1,5 @@
+import { resolve } from "node:path";
+
 export default defineNitroConfig({
   routeRules: {
     "/api/**": {
@@ -9,5 +11,9 @@ export default defineNitroConfig({
         "Access-Control-Allow-Headers": "Content-Type, Authorization",
       },
     },
+  },
+  alias: {
+    "@app": resolve(__dirname, "../srcs"),
+    "@utils": resolve(__dirname, "./utils"),
   },
 });

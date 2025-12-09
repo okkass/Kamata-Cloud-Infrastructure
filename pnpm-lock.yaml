@@ -17,6 +17,9 @@ importers:
 
   mock:
     dependencies:
+      '@types/uuid':
+        specifier: ^11.0.0
+        version: 11.0.0
       nitro:
         specifier: 3.0.1-alpha.1
         version: 3.0.1-alpha.1(@electric-sql/pglite@0.3.2)(chokidar@4.0.3)(ioredis@5.8.2)(lru-cache@11.2.4)(mysql2@3.15.3)(rollup@4.53.3)(vite@7.2.6(@types/node@24.10.1)(jiti@2.6.1)(terser@5.44.1)(tsx@4.21.0)(yaml@2.8.2))
@@ -26,6 +29,9 @@ importers:
       uuid:
         specifier: ^13.0.0
         version: 13.0.0
+      zod:
+        specifier: ^4.1.13
+        version: 4.1.13
 
   srcs:
     dependencies:
