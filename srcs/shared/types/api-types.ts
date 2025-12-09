@@ -7549,11 +7549,9 @@ export interface components {
              * @example 192.168.1.0/24
              */
             cidr?: string;
-            /** @description 外部接続が可能かどうかを示すフラグ */
-            possibleExternalConnection?: boolean;
         };
         /** @description サブネット作成リクエストオブジェクト */
-        SubnetCreateRequest: WithRequired<components["schemas"]["SubnetUpdatable"], "name" | "cidr" | "possibleExternalConnection">;
+        SubnetCreateRequest: WithRequired<components["schemas"]["SubnetUpdatable"], "name" | "cidr">;
         /** @description 仮想ネットワークの作成時のみに更新可能なフィールド */
         VirtualNetworkCreateOnly: {
             /**
@@ -7585,7 +7583,7 @@ export interface components {
             delete?: string[];
         };
         /** @description サブネット全部更新リクエストオブジェクト */
-        SubnetPutRequest: WithRequired<components["schemas"]["SubnetUpdatable"], "name" | "cidr" | "possibleExternalConnection">;
+        SubnetPutRequest: WithRequired<components["schemas"]["SubnetUpdatable"], "name" | "cidr">;
         SubnetPatchRequest: components["schemas"]["SubnetUpdatable"] & Record<string, never>;
     };
     responses: never;
