@@ -13,10 +13,12 @@ import type { StoragePoolResponse } from "~~/shared/types";
 const RESOURCE_NAME = STORAGE.name;
 
 type PoolRaw = Partial<
-  Pick<
-    StoragePoolResponse,
-    "id" | "name" | "totalSize" | "usedSize" | "hasNetworkAccess" | "node"
-  > & { type?: string; node?: string; size?: string; used?: string }
+  Omit<StoragePoolResponse, "node"> & {
+    node?: string;
+    type?: string;
+    size?: string;
+    used?: string;
+  }
 >;
 
 export type StorageRow = {
@@ -84,11 +86,13 @@ export function useStorageManagement() {
 
   const nodeNameMap = computed<Record<string, string>>(() => {
     const map: Record<string, string> = {};
-    (nodeList.value ?? []).forEach((node: any) => {
-      const nodeId = String(node?.id ?? "");
-      if (!nodeId) return;
-      map[nodeId] = node?.name ?? node?.hostname ?? nodeId;
-    });
+    (nodeList.value ?? []).forEach(
+      (node: { id: string; name?: string; hostname?: string }) => {
+        const nodeId = String(node?.id ?? "");
+        if (!nodeId) return;
+        map[nodeId] = node?.name ?? node?.hostname ?? nodeId;
+      }
+    );
     return map;
   });
 
