@@ -1,28 +1,21 @@
 /**
  * =================================================================================
  * ノード追加フォーム Composable (useAddNodeForm.ts)
- * ---------------------------------------------------------------------------------
- * ・自動検知されたノード候補の一覧取得 (GET /api/nodes/candidates)
- * ・ノードの追加実行 (POST /api/nodes)
  * =================================================================================
  */
 import { useResourceList } from "~/composables/useResourceList";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
 
-// 型定義は自動インポート (NodeResponse, NodeCreateRequest)
-
 export function useAddNodeForm() {
   const { addToast } = useToast();
 
-  // 1. ノード候補一覧の取得
-  // エンドポイントは仮定です。実環境に合わせて変更してください。
   const {
     data: candidateNodes,
     pending: candidatesPending,
     error: candidatesError,
     refresh: refreshCandidates,
-  } = useResourceList<NodeResponse>("nodes/candidates");
+  } = useResourceList<NodeResponse>("nodes");
 
   // 2. ノード追加 API (POST /api/nodes)
   const { executeCreate, isCreating } = useResourceCreate<
