@@ -42,7 +42,7 @@ export const getBackups = (): Array<BackupResponse> => {
   if (!backups) {
     backups = initBackups();
   }
-  return backups!;
+  return backups;
 };
 
 export const getBackupById = (id: string): BackupResponse | undefined => {
