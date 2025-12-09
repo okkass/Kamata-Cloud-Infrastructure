@@ -1,5 +1,8 @@
 import { addBackup } from "../../services/backupService";
-import { getStorage } from "../../services/virtualMachineService";
+import {
+  getStorage,
+  getVirtualMachineById,
+} from "../../services/virtualMachineService";
 import type { BackupCreateRequest, ErrorResponse } from "@app/shared/types";
 import { z } from "zod";
 
@@ -24,15 +27,22 @@ export default defineEventHandler(async (event) => {
 
   const data = res.data as BackupCreateRequest;
 
-  const storage = await getStorage(
-    data.targetStorageId,
-    data.targetVirtualMachineId
-  );
+  if (!getVirtualMachineById(data.targetVirtualMachineId)) {
+    event.node.res.statusCode = 404;
+    const errorResponse: ErrorResponse = {
+      type: "Not Found",
+      detail: "Target virtual machine not found",
+      status: 404,
+    };
+    return errorResponse;
+  }
+
+  const storage = getStorage(data.targetStorageId, data.targetVirtualMachineId);
   if (!storage) {
     event.node.res.statusCode = 404;
     const errorResponse: ErrorResponse = {
       type: "Not Found",
-      detail: "Target storage or virtual machine not found",
+      detail: "Target storage not found",
       status: 404,
     };
     return errorResponse;

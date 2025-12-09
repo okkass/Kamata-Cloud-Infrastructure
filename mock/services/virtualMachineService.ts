@@ -135,9 +135,6 @@ export const getStorage = (
   storageId: string,
   vmId: string
 ): StorageResponse | undefined => {
-  console.log("Getting storage with ID", storageId, "for VM ID", vmId);
   const storages = getStorageByVirtualMachineId(vmId);
-  console.log("Storages for VM ID", vmId, ":", storages);
-  console.log(storages?.find((storage) => storage.id === storageId));
   return storages?.find((storage) => storage.id === storageId);
 };

@@ -11,6 +11,8 @@ import {
   getStorage,
 } from "./virtualMachineService";
 
+import crypto from "crypto";
+
 let backups: Array<BackupResponse> | null = null;
 
 export const initBackups = (): Array<BackupResponse> => {
