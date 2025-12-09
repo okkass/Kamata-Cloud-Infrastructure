@@ -6880,7 +6880,7 @@ export interface components {
             action?: "allow" | "deny";
         };
         /** @description セキュリティルール作成リクエストオブジェクト */
-        SecurityRuleCreateRequest: components["schemas"]["SecurityRuleUpdatable"] & Record<string, never>;
+        SecurityRuleCreateRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
         /** @description セキュリティグループ作成時のみに設定可能なプロパティ */
         SecurityGroupCreateOnly: {
             rules: components["schemas"]["SecurityRuleCreateRequest"][];
