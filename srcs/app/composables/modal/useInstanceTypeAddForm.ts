@@ -17,7 +17,6 @@ import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type/Ins
 // ==============================================================================
 // Validation Schema (バリデーションスキーマ)
 // ==============================================================================
-
 const zodSchema = z.object({
   name: z.string().min(1, "インスタンスタイプ名は必須です。"),
   cpuCore: z

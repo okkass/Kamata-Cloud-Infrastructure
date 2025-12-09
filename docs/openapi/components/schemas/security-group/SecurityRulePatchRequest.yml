@@ -1,4 +1,10 @@
-type: object
 description: セキュリティルール更新リクエストオブジェクト(PATCH)
 allOf:
   - $ref: "./SecurityRuleUpdatable.yml"
+  - type: object
+    description: セキュリティルール更新リクエストオブジェクト(PATCH)
+    properties: 
+      id:
+        type: string
+        format: uuid
+        description: セキュリティルールを識別するための一意なID

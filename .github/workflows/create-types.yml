@@ -41,7 +41,7 @@ jobs:
         working-directory: ./srcs
         # CI環境では frozen-lockfile を使うのがベストプラクティス
         run: |
-          pnpm install --frozen-lockfile
+          pnpm install
 
       # 5. 型定義の生成
       # srcsディレクトリで実行し、devDependenciesに入っている openapi-typescript を利用

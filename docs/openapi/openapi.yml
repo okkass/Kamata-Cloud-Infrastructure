@@ -2,7 +2,7 @@ openapi: "3.0.3"
 info:
   title: "KCI API"
   description: "KCI API documentation"
-  version: "0.45.1"
+  version: "0.45.2"
 paths:
   /api/login:
     $ref: "paths/auth/login.yml"
@@ -44,6 +44,10 @@ paths:
     $ref: "paths/storage-pool/storage-pools_node_{nodeId}.yml"
   /api/storage-pools/{id}:
     $ref: "paths/storage-pool/storage-pools_{id}.yml"
+  /api/history:
+    $ref: "paths/summary/history.yml"
+  /api/realtime:
+    $ref: "paths/summary/realtime.yml"
   /api/users:
     $ref: "paths/user/users.yml"
   /api/users/me:
@@ -56,6 +60,8 @@ paths:
     $ref: "paths/virtual-machine/backups.yml"
   /api/backups/{id}:
     $ref: "paths/virtual-machine/backups_{id}.yml"
+  /api/backups/{id}/restore:
+    $ref: "paths/virtual-machine/backups_{id}_restore.yml"
   /api/snapshots:
     $ref: "paths/virtual-machine/snapshots.yml"
   /api/snapshots/{id}:
@@ -92,6 +98,8 @@ paths:
     $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_bulk.yml"
   /api/virtual-networks/{networkId}/subnets/{subnetId}:
     $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}.yml"
+  /api/virtual-networks/{networkId}/subnets/{subnetId}/virtual-machines:
+    $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}_virtual-machines.yml"
 components:
   securitySchemes:
     BearerAuth:

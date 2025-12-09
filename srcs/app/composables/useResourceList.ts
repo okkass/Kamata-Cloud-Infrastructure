@@ -13,9 +13,13 @@ export const useResourceList = <T>(
   // APIのエンドポイントURLを構築
   const url = `/api/${resourceName}`;
 
+  const runtimeConfig = useRuntimeConfig();
+
   // 取得したデータ(data)、ローディング状態(pending)、エラー情報(error)、
   // そしてデータを再取得するための関数(refresh)をオブジェクトとして返す。
+
   return useFetch<T[]>(url, {
+    baseURL: runtimeConfig.public.apiBaseUrl,
     params,
     default: () => [],
   });

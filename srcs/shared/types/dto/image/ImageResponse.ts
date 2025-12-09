@@ -3,7 +3,7 @@
 import type { ImageServerBase } from "./ImageServerBase";
 
 /**
- * 仮想マシンイメージのレスポンスオブジェクトのインターフェースにゃん
+ * 仮想マシンイメージのレスポンスオブジェクトのインターフェース
  * ImageServerBase を継承
  */
 export interface ImageResponse extends ImageServerBase {}

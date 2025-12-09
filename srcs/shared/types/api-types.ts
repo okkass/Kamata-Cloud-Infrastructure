@@ -2735,6 +2735,46 @@ export interface paths {
         };
         trace?: never;
     };
+    "/api/history": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * ノード/各VMのメトリクス履歴データを取得
+         * @description ノード/各VMのメトリクス履歴データを取得
+         */
+        get: operations["getSummaryHistory"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/realtime": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * ノード/各VMのメトリクスデータを取得
+         * @description ノード/各VMのメトリクスデータを取得
+         */
+        get: operations["getSummary"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/users": {
         parameters: {
             query?: never;
@@ -3638,6 +3678,84 @@ export interface paths {
                 };
             };
         };
+        trace?: never;
+    };
+    "/api/backups/{id}/restore": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * バックアップを仮想マシンに復元する
+         * @description 指定したIDのバックアップを、バックアップ元の仮想マシンに復元します。復元先の仮想マシンが削除されている場合、復元は失敗します。
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description バックアップの一意なID */
+                    id: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 復元リクエスト受理 */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VirtualMachineResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description バックアップまたは仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/api/snapshots": {
@@ -6235,6 +6353,77 @@ export interface paths {
         };
         trace?: never;
     };
+    "/api/virtual-networks/{networkId}/subnets/{subnetId}/virtual-machines": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * サブネットに接続されている仮想マシンの一覧取得
+         * @description 指定した仮想ネットワーク内のサブネットに接続されている仮想マシンの一覧を取得します。
+         */
+        get: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想ネットワークの一意なID */
+                    networkId: string;
+                    /** @description サブネットの一意なID */
+                    subnetId: string;
+                };
+                cookie?: never;
+            };
+            requestBody?: never;
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VirtualMachineResponse"][];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想ネットワークまたはサブネットが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
@@ -6327,6 +6516,11 @@ export interface components {
              * @description イメージを作成するノードのID
              */
             nodeId: string;
+            /**
+             * Format: binary
+             * @description アップロードするイメージファイル
+             */
+            file: string;
         };
         /** @description 仮想マシンイメージ作成リクエストオブジェクト */
         ImageCreateRequest: WithRequired<components["schemas"]["ImageClientUpdatable"], "name"> & components["schemas"]["ImageCreateOnly"];
@@ -6654,7 +6848,13 @@ export interface components {
         /** @description セキュリティルール更新リクエストオブジェクト(PUT) */
         SecurityRulePutRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
         /** @description セキュリティルール更新リクエストオブジェクト(PATCH) */
-        SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"];
+        SecurityRulePatchRequest: components["schemas"]["SecurityRuleUpdatable"] & {
+            /**
+             * Format: uuid
+             * @description セキュリティルールを識別するための一意なID
+             */
+            id?: string;
+        };
         /** @description ストレージプールレスポンスオブジェクト */
         StoragePoolResponse: {
             /**
@@ -6725,6 +6925,91 @@ export interface components {
         StoragePoolPutRequest: WithRequired<components["schemas"]["StoragePoolUpdatable"], "name" | "hasNetworkAccess">;
         /** @description ストレージプール更新リクエストオブジェクト(PATCH) */
         StoragePoolPatchRequest: components["schemas"]["StoragePoolUpdatable"];
+        /** @description ノード/各VMのメトリクス履歴の1データポイント */
+        HistoryItem: {
+            /**
+             * @description ノード/各VMのメトリクスデータのタイムスタンプ(UNIXTIME)
+             * @example 1722672000000
+             */
+            timestamp: number;
+            /**
+             * @description ノード/各VMのメトリクスデータの値
+             * @example 1.031
+             */
+            value: number;
+        };
+        /** @description ノード/各VMのメトリクス履歴データ */
+        HistoryData: {
+            /**
+             * @description ノード/各VMのID
+             * @example node1/6001
+             */
+            id: string;
+            /**
+             * @description ノード/各VMの名前
+             * @example node1/vm6001
+             */
+            name: string;
+            /**
+             * @description ノード/各VMのトータルCPU数(コア数単位)
+             * @example 80
+             */
+            totalCpu: number;
+            /**
+             * @description ノード/各VMのメモリ総量(バイト単位)
+             * @example 57899069440
+             */
+            totalMemory: number;
+            /** @description ノード/各VMのCPU使用数履歴(コア数単位) */
+            cpuHistory: components["schemas"]["HistoryItem"][];
+            /** @description ノード/各VMのメモリ使用数履歴(バイト単位) */
+            memHistory: components["schemas"]["HistoryItem"][];
+            /** @description ノード/各VMのネットワーク入力履歴(バイト単位) */
+            networkINHistory: components["schemas"]["HistoryItem"][];
+            /** @description ノード/各VMのネットワーク出力履歴(バイト単位) */
+            networkOUTHistory: components["schemas"]["HistoryItem"][];
+        };
+        /** @description ノード/各VMのメトリクス履歴データ */
+        SummaryHistoryResponse: {
+            data: components["schemas"]["HistoryData"][];
+        };
+        /** @description ノード/各VMのメトリクスデータ */
+        Summary: {
+            /**
+             * @description ノード/各VMのトータルCPU数(コア数単位)
+             * @example 80
+             */
+            totalCpu: number;
+            /**
+             * @description ノード/各VMのCPU使用数(コア数単位)
+             * @example 0.58
+             */
+            usedCpu: number;
+            /**
+             * @description ノード/各VMのメモリ総量(バイト単位)
+             * @example 57899069440
+             */
+            totalMemory: number;
+            /**
+             * @description ノード/各VMのメモリ使用量(バイト単位)
+             * @example 16743878656
+             */
+            usedMemory: number;
+            /**
+             * @description ノード/各VMのストレージ総量(バイト単位)
+             * @example 21395853312
+             */
+            totalStorage: number;
+            /**
+             * @description ノード/各VMのストレージ使用量(バイト単位)
+             * @example 13995106304
+             */
+            usedStorage: number;
+        };
+        /** @description ノード/各VMのメトリクスデータ */
+        SummaryResponse: {
+            clusterSummary: components["schemas"]["Summary"];
+        };
         /** @description TOTP情報オブジェクト */
         TotpInfo: {
             /** @description TOTPシークレットキー */
@@ -6875,69 +7160,24 @@ export interface components {
              * Format: uuid
              * @description ストレージのID
              */
-            id?: string;
+            id: string;
             /** @description ストレージの名前 */
-            name?: string;
+            name: string;
             /** @description ストレージのサイズ（バイト単位） */
-            size?: number;
+            size: number;
             /** @description ストレージプール情報 */
-            pool?: components["schemas"]["StoragePoolResponse"];
+            pool: components["schemas"]["StoragePoolResponse"];
             /**
              * Format: date-time
              * @description ストレージ作成日時
              */
-            createdAt?: string;
+            createdAt: string;
             /**
              * @description ストレージのデバイスパス
              * @example /dev/vdb
              */
-            devicePath?: string;
+            devicePath: string;
         };
-        /** @description バックアップレスポンスオブジェクト */
-        BackupResponse: {
-            /**
-             * Format: uuid
-             * @description バックアップを識別するための一意なID
-             */
-            id: string;
-            /** @description バックアップの名前 */
-            name: string;
-            /** @description バックアップの説明 */
-            description?: string;
-            /**
-             * Format: date-time
-             * @description バックアップが作成された日時
-             */
-            createdAt: string;
-            /**
-             * Format: integer
-             * @description バックアップのサイズ(バイト単位)
-             */
-            size: number;
-            /** @description バックアップ対象の仮想ストレージ */
-            targetStorage: components["schemas"]["StorageResponse"];
-        };
-        /** @description バックアップの作成時のみ設定可能なプロパティ */
-        BackupCreateOnly: {
-            /**
-             * Format: uuid
-             * @description バックアップ対象の仮想ストレージのID
-             */
-            targetVirtualStorageId: string;
-        };
-        /** @description バックアップの更新可能なプロパティ */
-        BackupUpdatable: {
-            /** @description バックアップの名前 */
-            name?: string;
-            /** @description バックアップの説明 */
-            description?: string;
-        };
-        /** @description バックアップ作成リクエストオブジェクト */
-        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & components["schemas"]["BackupUpdatable"] & Record<string, never>;
-        /** @description バックアップ更新リクエストオブジェクト */
-        BackupPutRequest: WithRequired<components["schemas"]["BackupUpdatable"], "name">;
-        /** @description バックアップ部分更新リクエストオブジェクト */
-        BackupPatchRequest: components["schemas"]["BackupUpdatable"];
         /** @description サブネットオブジェクト */
         SubnetResponse: {
             /**
@@ -6952,8 +7192,6 @@ export interface components {
              * @example 10.0.0.0/24
              */
             cidr: string;
-            /** @description 外部接続が可能かどうかを示すフラグ */
-            possibleExternalConnection: boolean;
             /**
              * Format: date-time
              * @description サブネットが作成された日時
@@ -7032,6 +7270,53 @@ export interface components {
             /** @description 仮想マシンに割り当てられたメモリサイズ（バイト単位） */
             memorySize: number;
         };
+        /** @description バックアップレスポンスオブジェクト */
+        BackupResponse: {
+            /**
+             * Format: uuid
+             * @description バックアップを識別するための一意なID
+             */
+            id: string;
+            /** @description バックアップの名前 */
+            name: string;
+            /** @description バックアップの説明 */
+            description?: string;
+            /**
+             * Format: date-time
+             * @description バックアップが作成された日時
+             */
+            createdAt: string;
+            /**
+             * Format: integer
+             * @description バックアップのサイズ(バイト単位)
+             */
+            size: number;
+            /** @description バックアップ対象の仮想ストレージ(存在する場合) */
+            targetStorage?: components["schemas"]["StorageResponse"];
+            /** @description バックアップ取得元の仮想マシン（存在する場合） */
+            targetVirtualMachine?: components["schemas"]["VirtualMachineResponse"];
+        };
+        /** @description バックアップの作成時のみ設定可能なプロパティ */
+        BackupCreateOnly: {
+            /**
+             * Format: uuid
+             * @description バックアップ対象の仮想ストレージのID
+             */
+            targetVirtualStorageId: string;
+        };
+        /** @description バックアップの更新可能なプロパティ */
+        BackupUpdatable: {
+            /** @description バックアップの名前 */
+            name?: string;
+            /** @description バックアップの説明 */
+            description?: string;
+        };
+        /** @description バックアップ作成リクエストオブジェクト */
+        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & components["schemas"]["BackupUpdatable"] & Record<string, never>;
+        /** @description バックアップ更新リクエストオブジェクト */
+        BackupPutRequest: WithRequired<components["schemas"]["BackupUpdatable"], "name">;
+        /** @description バックアップ部分更新リクエストオブジェクト */
+        BackupPatchRequest: components["schemas"]["BackupUpdatable"];
         /** @description スナップショットレスポンスオブジェクト */
         SnapshotResponse: {
             /**
@@ -7107,6 +7392,11 @@ export interface components {
                  * @description ストレージプールのID
                  */
                 poolId: string;
+                /**
+                 * Format: uuid
+                 * @description ストレージのバックアップID（バックアップから復元する場合に指定）
+                 */
+                backupId?: string;
             }[];
             /** @description 関連付けるセキュリティグループのIDリスト */
             securityGroupIds: string[];
@@ -7347,6 +7637,11 @@ export type StoragePoolUpdatable = components['schemas']['StoragePoolUpdatable']
 export type StoragePoolCreateRequest = components['schemas']['StoragePoolCreateRequest'];
 export type StoragePoolPutRequest = components['schemas']['StoragePoolPutRequest'];
 export type StoragePoolPatchRequest = components['schemas']['StoragePoolPatchRequest'];
+export type HistoryItem = components['schemas']['HistoryItem'];
+export type HistoryData = components['schemas']['HistoryData'];
+export type SummaryHistoryResponse = components['schemas']['SummaryHistoryResponse'];
+export type Summary = components['schemas']['Summary'];
+export type SummaryResponse = components['schemas']['SummaryResponse'];
 export type TotpInfo = components['schemas']['TotpInfo'];
 export type UserResponse = components['schemas']['UserResponse'];
 export type UserCreateOnly = components['schemas']['UserCreateOnly'];
@@ -7356,15 +7651,15 @@ export type UserPutRequest = components['schemas']['UserPutRequest'];
 export type UserPatchRequest = components['schemas']['UserPatchRequest'];
 export type PasswordChangeRequest = components['schemas']['PasswordChangeRequest'];
 export type StorageResponse = components['schemas']['StorageResponse'];
+export type SubnetResponse = components['schemas']['SubnetResponse'];
+export type NetworkInterfaceResponse = components['schemas']['NetworkInterfaceResponse'];
+export type VirtualMachineResponse = components['schemas']['VirtualMachineResponse'];
 export type BackupResponse = components['schemas']['BackupResponse'];
 export type BackupCreateOnly = components['schemas']['BackupCreateOnly'];
 export type BackupUpdatable = components['schemas']['BackupUpdatable'];
 export type BackupCreateRequest = components['schemas']['BackupCreateRequest'];
 export type BackupPutRequest = components['schemas']['BackupPutRequest'];
 export type BackupPatchRequest = components['schemas']['BackupPatchRequest'];
-export type SubnetResponse = components['schemas']['SubnetResponse'];
-export type NetworkInterfaceResponse = components['schemas']['NetworkInterfaceResponse'];
-export type VirtualMachineResponse = components['schemas']['VirtualMachineResponse'];
 export type SnapshotResponse = components['schemas']['SnapshotResponse'];
 export type SnapshotUpdatable = components['schemas']['SnapshotUpdatable'];
 export type SnapshotCreateOnly = components['schemas']['SnapshotCreateOnly'];
@@ -7401,7 +7696,108 @@ export type SubnetBulkRequest = components['schemas']['SubnetBulkRequest'];
 export type SubnetPutRequest = components['schemas']['SubnetPutRequest'];
 export type SubnetPatchRequest = components['schemas']['SubnetPatchRequest'];
 export type $defs = Record<string, never>;
+export interface operations {
+    getSummaryHistory: {
+        parameters: {
+            query: {
+                /** @description 管理者権限フラグ、trueの場合はノードのメトリクス履歴データ、falseの場合はユーザに割り当てられたVMのメトリクス履歴データを返す */
+                admin: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ノード/各VMのメトリクス履歴データを取得 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryHistoryResponse"];
+                };
+            };
+            /** @description リクエストエラー */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 認証エラー */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 権限エラー */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getSummary: {
+        parameters: {
+            query: {
+                /** @description 管理者権限フラグ、trueの場合はノードのメトリクスデータ、falseの場合はユーザに割り当てられたVMのメトリクスデータを返す */
+                admin: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description ノード/各VMのメトリクスデータを取得 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SummaryResponse"];
+                };
+            };
+            /** @description リクエストエラー */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 認証エラー */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 権限エラー */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+}
 type WithRequired<T, K extends keyof T> = T & {
     [P in K]-?: T[P];
 };
-export type operations = Record<string, never>;

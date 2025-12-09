@@ -24,4 +24,10 @@ export default defineNuxtConfig({
   },
 
   css: ["~/assets/css/tailwind.css"],
+
+  runtimeConfig: {
+    public: {
+      apiBaseUrl: "",
+    },
+  },
 });
