@@ -231,17 +231,17 @@ const {
   data: templates,
   pending: templatesPending,
   error: templatesError,
-} = useResourceList<InstanceTypeDTO>("instance-types");
+} = useResourceList<InstanceTypeResponse>("instance-types");
 const {
   data: backups,
   pending: backupsPending,
   error: backupsError,
-} = useResourceList<BackupDTO>("backups");
+} = useResourceList<BackupResponse>("backups");
 const {
   data: storagePools,
   pending: poolsPending,
   error: poolsError,
-} = useResourceList<StoragePoolDTO>("storage-pools");
+} = useResourceList<StoragePoolResponse>("storage-pools");
 
 /**
  * ==============================================================================
@@ -286,7 +286,7 @@ watch(backupId, (newBackupId) => {
         id: `backup-${selectedBackupData.id}`,
         name: `backup-${selectedBackupData.name}`,
         size: convertByteToUnit(
-          selectedBackupData.targetVirtualStorage?.size ?? 0,
+          selectedBackupData.targetStorage?.size ?? 0,
           "GB"
         ),
         poolId: "", // プールはユーザーに選択させる

@@ -52,7 +52,11 @@
       v-model:attrs="securityGroupIdAttrs"
     />
 
-    <FormDropZone label="キーペア (公開鍵)" v-model="keyPairFile" accept=".pub" />
+    <FormDropZone
+      label="キーペア (公開鍵)"
+      v-model="keyPairFile"
+      accept=".pub"
+    />
   </div>
 </template>
 
@@ -127,12 +131,12 @@ const {
   data: networks,
   pending: networksPending,
   error: networksError,
-} = useResourceList<VirtualNetwork>("virtual-networks");
+} = useResourceList<VirtualNetworkResponse>("virtual-networks");
 const {
   data: securityGroups,
   pending: sgPending,
   error: sgError,
-} = useResourceList<SecurityGroupDTO>("security-groups");
+} = useResourceList<SecurityGroupResponse>("security-groups");
 
 /**
  * ==============================================================================

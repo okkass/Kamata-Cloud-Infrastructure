@@ -88,7 +88,7 @@ export function useVmWizardForm() {
         })) ?? [],
     };
 
-    let payload: VirtualMachineCreateRequestDTO;
+    let payload: VirtualMachineCreateRequest;
 
     if (configData?.templateId) {
       // パターンA: インスタンスタイプIDがある場合
