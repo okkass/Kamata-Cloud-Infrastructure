@@ -7558,6 +7558,21 @@ export interface components {
              * @example false
              */
             isPhysicalNodeAdmin: boolean;
+            /**
+             * @description ユーザが仮想マシン管理者かどうかを示すフラグ
+             * @example false
+             */
+            isVirtualMachineAdmin: boolean;
+            /**
+             * @description ユーザがネットワーク管理者かどうかを示すフラグ
+             * @example false
+             */
+            isNetworkAdmin: boolean;
+            /**
+             * @description ユーザがセキュリティグループ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isSecurityGroupAdmin: boolean;
         };
         /** @description ユーザ作成時のみに設定可能なプロパティ */
         UserCreateOnly: {
