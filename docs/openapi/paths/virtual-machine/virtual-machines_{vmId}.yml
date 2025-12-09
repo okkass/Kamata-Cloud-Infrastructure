@@ -1,0 +1,180 @@
+get:
+  summary: 仮想マシンの詳細取得
+  description: 指定したIDの仮想マシンの詳細情報を取得します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/virtual-machine/VirtualMachineResponse.yml"
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "403":
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "404":
+      description: 仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+  security:
+    - BearerAuth: []
+put:
+  summary: 仮想マシンの更新
+  description: 指定したIDの仮想マシン情報を更新します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../components/schemas/virtual-machine/VirtualMachinePutRequest.yml"
+  responses:
+    "200":
+      description: 更新成功
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/virtual-machine/VirtualMachineResponse.yml"
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "403":
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "404":
+      description: 仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+  security:
+    - BearerAuth: []
+patch:
+  summary: 仮想マシンの部分更新
+  description: 指定したIDの仮想マシン情報を部分的に更新します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../components/schemas/virtual-machine/VirtualMachinePatchRequest.yml"
+  responses:
+    "200":
+      description: 更新成功
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/virtual-machine/VirtualMachineResponse.yml"
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "403":
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "404":
+      description: 仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+  security:
+    - BearerAuth: []
+delete:
+  summary: 仮想マシンの削除
+  description: 指定したIDの仮想マシンを削除します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+  responses:
+    "204":
+      description: 削除成功
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "403":
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "404":
+      description: 仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+  security:
+    - BearerAuth: []
