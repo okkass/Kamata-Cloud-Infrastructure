@@ -25,9 +25,9 @@ import type { VirtualMachineDTO, AttachedStorageDTO } from "~~/shared/types"; //
 // ==============================================================================
 const zodSchema = z.object({
   name: z.string().min(1, "バックアップ名は必須です。"),
-  targetVmId: z.string({ required_error: "仮想マシンを選択してください。" }),
+  targetVmId: z.string({ message: "仮想マシンを選択してください。" }),
   targetStorageId: z.string({
-    required_error: "ストレージを選択してください。",
+    message: "ストレージを選択してください。",
   }),
 });
 
