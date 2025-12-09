@@ -80,7 +80,7 @@ import { STORAGE } from "@/utils/constants";
 import {
   useStorageManagement,
   type StorageRow,
-} from "@/composables/dashboard/UseStorageManagement";
+} from "~/composables/dashboard/useStorageManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import DashboardLayout from "~/components/DashboardLayout.vue";
 import MoStorageAdd from "~/components/MoStorageAdd.vue";
