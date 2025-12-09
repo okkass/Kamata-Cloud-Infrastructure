@@ -1,0 +1,7 @@
+type: object
+description: "ノード/各VMのメトリクスデータ"
+properties:
+  clusterSummary:
+    $ref: "./Summary.yml"
+required:
+  - clusterSummary

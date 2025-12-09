@@ -15,6 +15,8 @@ export const useResourceDelete = (resourceName: string) => {
   // 処理の実行中状態を管理するための、このComposable専用のref
   const isLoading = ref(false);
 
+  const runtimeConfig = useRuntimeConfig();
+
   /**
    * 削除を実行し、詳細な結果オブジェクトを返す
    * @param {string} id - 削除するリソースのID
@@ -40,6 +42,7 @@ export const useResourceDelete = (resourceName: string) => {
       // $fetchを直接呼び出してDELETEリクエストを送信
       // 成功した場合、この行は例外を投げずに完了する
       await $fetch(`/api/${resourceName}/${id}`, {
+        baseURL: runtimeConfig.public.apiBaseUrl,
         method: "DELETE",
         // 注: 認証ヘッダーなどは$fetchのグローバル設定(plugins/api.tsなど)で行うのが望ましい
       });

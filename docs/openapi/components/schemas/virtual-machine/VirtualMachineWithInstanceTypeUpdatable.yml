@@ -1,0 +1,7 @@
+type: object
+description: 仮想マシンをインスタンスタイプ指定で作成する場合の更新可能なプロパティを持つオブジェクト
+properties:
+  instanceTypeId:
+    type: string
+    format: uuid
+    description: 使用するインスタンスタイプのID

@@ -2,7 +2,7 @@ openapi: "3.0.3"
 info:
   title: "KCI API"
   description: "KCI API documentation"
-  version: "0.45.1"
+  version: "0.45.2"
 paths:
   /api/login:
     $ref: "paths/auth/login.yml"
@@ -44,6 +44,10 @@ paths:
     $ref: "paths/storage-pool/storage-pools_node_{nodeId}.yml"
   /api/storage-pools/{id}:
     $ref: "paths/storage-pool/storage-pools_{id}.yml"
+  /api/history:
+    $ref: "paths/summary/history.yml"
+  /api/realtime:
+    $ref: "paths/summary/realtime.yml"
   /api/users:
     $ref: "paths/user/users.yml"
   /api/users/me:
@@ -54,6 +58,10 @@ paths:
     $ref: "paths/user/users_{userId}_change-password.yml"
   /api/backups:
     $ref: "paths/virtual-machine/backups.yml"
+  /api/backups/{id}:
+    $ref: "paths/virtual-machine/backups_{id}.yml"
+  /api/backups/{id}/restore:
+    $ref: "paths/virtual-machine/backups_{id}_restore.yml"
   /api/snapshots:
     $ref: "paths/virtual-machine/snapshots.yml"
   /api/snapshots/{id}:
@@ -62,6 +70,24 @@ paths:
     $ref: "paths/virtual-machine/virtual-machines.yml"
   /api/virtual-machines/{vmId}:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}.yml"
+  /api/virtual-machines/{vmId}/network-interfaces:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces.yml"
+  /api/virtual-machines/{vmId}/network-interfaces/bulk:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_bulk.yml"
+  /api/virtual-machines/{vmId}/network-interfaces/{nicId}:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_{nicId}.yml"
+  /api/virtual-machines/{vmId}/security-groups:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups.yml"
+  /api/virtual-machines/{vmId}/security-groups/bulk:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_bulk.yml"
+  /api/virtual-machines/{vmId}/security-groups/{sgId}:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_{sgId}.yml"
+  /api/virtual-machines/{vmId}/storages:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages.yml"
+  /api/virtual-machines/{vmId}/storages/bulk:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages_bulk.yml"
+  /api/virtual-machines/{vmId}/storages/{storageId}:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages_{storageId}.yml"
   /api/virtual-networks:
     $ref: "paths/virtual-network/virtual-networks.yml"
   /api/virtual-networks/{networkId}:
@@ -72,6 +98,8 @@ paths:
     $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_bulk.yml"
   /api/virtual-networks/{networkId}/subnets/{subnetId}:
     $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}.yml"
+  /api/virtual-networks/{networkId}/subnets/{subnetId}/virtual-machines:
+    $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}_virtual-machines.yml"
 components:
   securitySchemes:
     BearerAuth:

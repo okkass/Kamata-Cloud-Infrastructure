@@ -1,0 +1,31 @@
+type: object
+description: 仮想マシンのストレージ情報を表すオブジェクト
+properties:
+  id:
+    type: string
+    format: uuid
+    description: ストレージのID
+  name:
+    type: string
+    description: ストレージの名前
+  size:
+    type: integer
+    description: ストレージのサイズ（バイト単位）
+  pool:
+    $ref: "../../storage-pool/StoragePoolResponse.yml"
+    description: ストレージプール情報
+  createdAt:
+    type: string
+    format: date-time
+    description: ストレージ作成日時
+  devicePath:
+    type: string
+    description: ストレージのデバイスパス
+    example: /dev/vdb
+required:
+  - id
+  - name
+  - size
+  - pool
+  - createdAt
+  - devicePath

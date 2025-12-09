@@ -11,11 +11,19 @@ get:
           schema:
             type: array
             items:
-              $ref: "../../components/schemas/virtual-machine/Backup.yml"
+              $ref: "../../components/schemas/virtual-machine/backup/BackupResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 post:
@@ -28,20 +36,32 @@ post:
     content:
       application/json:
         schema:
-          $ref: "../../components/schemas/virtual-machine/BackupCreateRequest.yml"
+          $ref: "../../components/schemas/virtual-machine/backup/BackupCreateRequest.yml"
   responses:
     "201":
       description: 作成成功
       content:
         application/json:
           schema:
-            $ref: "../../components/schemas/virtual-machine/Backup.yml"
+            $ref: "../../components/schemas/virtual-machine/backup/BackupResponse.yml"
     "400":
       description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 delete:
@@ -62,9 +82,21 @@ delete:
       description: 削除成功
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: バックアップが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []

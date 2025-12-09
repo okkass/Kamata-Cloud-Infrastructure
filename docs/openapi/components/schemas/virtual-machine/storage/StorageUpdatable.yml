@@ -1,0 +1,6 @@
+type: object
+description: 仮想マシンのストレージの更新可能プロパティを表すオブジェクト
+properties:
+  name:
+    type: string
+    description: ストレージの名前
