@@ -1,5 +1,4 @@
 // srcs/app/composables/detail/useUserTabs.ts
-
 import type { Component } from "vue";
 
 export type UserTabConfig = {
@@ -18,5 +17,12 @@ export const userTabs: UserTabConfig[] = [
         "~/components/detail/panels/User/UserTabBasic.vue"
       ),
   },
-  // 将来タブを増やしたくなったらここに足していく
+  {
+    label: "権限・リソース上限",
+    value: "permissions",
+    loader: () =>
+      import(
+        "~/components/detail/panels/User/UserTabPermissions.vue"
+      ),
+  },
 ];
