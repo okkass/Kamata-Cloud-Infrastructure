@@ -2,11 +2,10 @@ type: object
 description: セキュリティルール作成リクエストオブジェクト
 allOf:
   - $ref: "./SecurityRuleUpdatable.yml"
-  - type: object
-    required:
-      - name
-      - ruleType
-      - port
-      - protocol
-      - targetIp
-      - action
+required:
+  - name
+  - ruleType
+  - port
+  - protocol
+  - targetIp
+  - action
