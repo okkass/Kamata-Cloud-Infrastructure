@@ -100,7 +100,7 @@ export const getVirtualMachines = (): Array<VirtualMachineResponse> => {
   if (!virtualMachines) {
     virtualMachines = initVirtualMachines();
   }
-  return virtualMachines!;
+  return virtualMachines;
 };
 
 export const getVirtualMachineById = (
