@@ -113,14 +113,13 @@ const storageSchema = z.object({
     (val) => (val === "" ? undefined : val),
     z
       .number({
-        required_error: "サイズは必須です。",
-        invalid_type_error: "数値を入力してください。",
+        message: "サイズは必須です。",
       })
       .int("整数で入力してください。")
       .min(1, "1以上の値を入力してください。")
   ),
   poolId: z
-    .string({ required_error: "プールを選択してください。" })
+    .string({ message: "プールを選択してください。" })
     .min(1, "プールを選択してください。"),
   type: z.string().optional(),
 });
@@ -130,11 +129,11 @@ const baseSchema = z
     templateId: z.string().optional().nullable(),
     cpuCore: z.preprocess(
       (val) => (val === "" ? null : val),
-      z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
+      z.number({ message: "数値を入力してください。" }).nullable()
     ),
     memorySize: z.preprocess(
       (val) => (val === "" ? null : val),
-      z.number({ invalid_type_error: "数値を入力してください。" }).nullable()
+      z.number({ message: "数値を入力してください。" }).nullable()
     ),
     backupId: z.string().optional().nullable(),
     storages: z.array(storageSchema),

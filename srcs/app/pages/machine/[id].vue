@@ -39,21 +39,65 @@ import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 
 const { addToast } = useToast();
 
+/**
+ * VM詳細画面用の「表示用型」
+ * ※ DTO（Response 型）は import せず、この画面で使うフィールドだけ定義
+ */
+type VmInstanceType = {
+  id: string;
+  name: string;
+  createdAt: string;
+  cpuCore: number;
+  memorySize: number; // bytes
+};
+
+type VmNode = {
+  id: string;
+  name: string;
+  ipAddress: string;
+  status: string;
+  isAdmin: boolean;
+  createdAt: string;
+};
+
+type VmSecurityGroupSummary = {
+  id: string;
+  name: string;
+  createdAt: string;
+};
+
+type VmAttachedStorage = {
+  storage: {
+    id: string;
+    name: string;
+    size: number; // bytes
+    pool: string;
+  };
+  path: string; // "/dev/sda" など
+};
+
+type VmAttachedNic = {
+  id: string;
+  subnetId: string;
+  ipAddress?: string;
+};
+
 type VmDetail = {
   id: string;
   name: string;
   createdAt: string;
   status: string;
-  node?: {
-    name?: string;
-    ipAddress?: string;
-    status?: string;
-  };
+  // API が日本語ステータスを返す場合用（なければ undefined のまま）
+  statusJa?: string;
+  instanceType?: VmInstanceType;
+  node?: VmNode;
+  securityGroups?: VmSecurityGroupSummary[];
+  attachedStorages?: VmAttachedStorage[];
+  attachedNics?: VmAttachedNic[];
+
+  // 将来カスタム構成VMが来る場合に備えて optional で保持
   cpuCore?: number;
-  memorySize?: number | string;
-  attachedStorages?: { id: string; name: string; size: number }[];
-  securityGroups?: { id: string; name: string; createdAt?: string }[];
-  nics?: { id: string; name: string; ip: string }[];
+  memorySize?: number; // bytes
 };
 
 const route = useRoute();
