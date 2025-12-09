@@ -7312,7 +7312,7 @@ export interface components {
             description?: string;
         };
         /** @description バックアップ作成リクエストオブジェクト */
-        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & components["schemas"]["BackupUpdatable"] & Record<string, never>;
+        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & WithRequired<components["schemas"]["BackupUpdatable"], "name">;
         /** @description バックアップ更新リクエストオブジェクト */
         BackupPutRequest: WithRequired<components["schemas"]["BackupUpdatable"], "name">;
         /** @description バックアップ部分更新リクエストオブジェクト */
@@ -7354,7 +7354,7 @@ export interface components {
         /** @description スナップショット作成リクエストオブジェクト */
         SnapshotCreateRequest: WithRequired<components["schemas"]["SnapshotUpdatable"], "name"> & components["schemas"]["SnapshotCreateOnly"];
         /** @description スナップショット更新リクエストオブジェクト */
-        SnapshotPutRequest: components["schemas"]["SnapshotUpdatable"] & Record<string, never>;
+        SnapshotPutRequest: WithRequired<components["schemas"]["SnapshotUpdatable"], "name" | "description">;
         /** @description スナップショット更新リクエストオブジェクト */
         SnapshotPatchRequest: components["schemas"]["SnapshotUpdatable"];
         /** @description 仮想マシン作成時のみに設定可能なプロパティを持つオブジェクト */
@@ -7495,7 +7495,7 @@ export interface components {
             backupId?: string;
         };
         /** @description 仮想マシンに新たなストレージをアタッチするためのリクエストオブジェクト */
-        StorageCreateRequest: components["schemas"]["StorageUpdatable"] & components["schemas"]["StorageCreateOnly"] & Record<string, never>;
+        StorageCreateRequest: WithRequired<components["schemas"]["StorageUpdatable"], "name"> & components["schemas"]["StorageCreateOnly"];
         /** @description 仮想ストレージバルク更新リクエストオブジェクト */
         StorageBulkRequest: {
             /** @description 追加する仮想ストレージのリスト */
@@ -7553,7 +7553,7 @@ export interface components {
             possibleExternalConnection?: boolean;
         };
         /** @description サブネット作成リクエストオブジェクト */
-        SubnetCreateRequest: components["schemas"]["SubnetUpdatable"] & Record<string, never>;
+        SubnetCreateRequest: WithRequired<components["schemas"]["SubnetUpdatable"], "name" | "cidr" | "possibleExternalConnection">;
         /** @description 仮想ネットワークの作成時のみに更新可能なフィールド */
         VirtualNetworkCreateOnly: {
             /**
@@ -7565,7 +7565,7 @@ export interface components {
             initialSubnets: components["schemas"]["SubnetCreateRequest"][];
         };
         /** @description 仮想ネットワーク作成リクエストオブジェクト */
-        VirtualNetworkCreateRequest: components["schemas"]["VirtualNetworkUpdatable"] & components["schemas"]["VirtualNetworkCreateOnly"] & Record<string, never>;
+        VirtualNetworkCreateRequest: WithRequired<components["schemas"]["VirtualNetworkUpdatable"], "name"> & components["schemas"]["VirtualNetworkCreateOnly"];
         /** @description 仮想ネットワーク更新リクエストオブジェクト */
         VirtualNetworkPatchRequest: components["schemas"]["VirtualNetworkUpdatable"];
         /** @description サブネットバルク更新リクエスト */
@@ -7585,7 +7585,7 @@ export interface components {
             delete?: string[];
         };
         /** @description サブネット全部更新リクエストオブジェクト */
-        SubnetPutRequest: components["schemas"]["SubnetUpdatable"] & Record<string, never>;
+        SubnetPutRequest: WithRequired<components["schemas"]["SubnetUpdatable"], "name" | "cidr" | "possibleExternalConnection">;
         SubnetPatchRequest: components["schemas"]["SubnetUpdatable"] & Record<string, never>;
     };
     responses: never;
