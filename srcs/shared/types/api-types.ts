@@ -6634,6 +6634,11 @@ export interface components {
              * @example 192.168.0.1
              */
             ipAddress: string;
+            /**
+             * @description 物理ノードのrootパスワード
+             * @example strongpassword123
+             */
+            rootPassword: string;
         };
         /** @description 物理ノード更新可能なプロパティ */
         NodeUpdatable: {
