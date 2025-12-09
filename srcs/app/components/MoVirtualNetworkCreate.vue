@@ -1,41 +1,134 @@
 <template>
   <BaseModal :show="show" title="仮想ネットワーク作成" @close="$emit('close')">
-    <form @submit.prevent="submitForm" class="modal-space">
-      <div>
-        <label for="network-name-create" class="form-label">
-          ネットワーク名 <span class="required-asterisk">*</span>
-        </label>
-        <input
-          id="network-name-create"
+    <form @submit.prevent="submitForm" class="space-y-6">
+      <div class="space-y-4">
+        <FormInput
+          label="ネットワーク名"
+          name="network-name"
           type="text"
           v-model="name"
           v-bind="nameAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.name }"
-          placeholder="例: vpc-frontend"
+          :error="errors.name"
+          :required="true"
+          placeholder="例: my-vpc-01"
         />
-        <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
-      </div>
 
-      <div>
-        <label for="ip-address-create" class="form-label">
-          IPアドレス / CIDR <span class="required-asterisk">*</span>
-        </label>
-        <input
-          id="ip-address-create"
+        <FormInput
+          label="ネットワークアドレス (CIDR)"
+          name="network-cidr"
           type="text"
           v-model="cidr"
           v-bind="cidrAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.cidr }"
-          placeholder="例: 192.168.0.0/16"
+          :error="errors.cidr"
+          :required="true"
+          placeholder="例: 10.0.0.0/16"
         />
-        <p v-if="errors.cidr" class="text-error mt-1">{{ errors.cidr }}</p>
+
+        <div class="border rounded-md overflow-hidden bg-white mt-6">
+          <div
+            class="bg-gray-100 px-4 py-2 border-b flex justify-between items-center"
+          >
+            <h3 class="font-bold text-sm text-gray-700">初期サブネット</h3>
+            <button
+              type="button"
+              @click="addSubnet"
+              class="text-xs bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-2 py-1 rounded shadow-sm transition-colors"
+            >
+              + 追加
+            </button>
+          </div>
+
+          <div class="p-4 bg-gray-50">
+            <div
+              v-if="initialSubnets.length === 0"
+              class="text-center text-gray-400 py-2 text-sm"
+            >
+              サブネットがありません。追加ボタンから作成してください。
+            </div>
+
+            <div v-else class="space-y-4">
+              <div
+                v-for="(subnet, index) in displaySubnets"
+                :key="getKey(subnet, index)"
+                class="bg-white p-3 rounded border border-gray-200 shadow-sm"
+              >
+                <div class="grid grid-cols-12 gap-3 items-start">
+                  <div class="col-span-5">
+                    <label class="block text-xs text-gray-500 mb-1">名前</label>
+                    <input
+                      type="text"
+                      v-model="subnet.name"
+                      class="form-input-sm w-full"
+                      :class="{ 'border-red-500': getError(index, 'name') }"
+                      placeholder="例: public-subnet"
+                    />
+                    <p
+                      v-if="getError(index, 'name')"
+                      class="text-xs text-red-500 mt-1"
+                    >
+                      {{ getError(index, "name") }}
+                    </p>
+                  </div>
+
+                  <div class="col-span-4">
+                    <label class="block text-xs text-gray-500 mb-1">CIDR</label>
+                    <input
+                      type="text"
+                      v-model="subnet.cidr"
+                      class="form-input-sm w-full"
+                      :class="{ 'border-red-500': getError(index, 'cidr') }"
+                      placeholder="例: 10.0.1.0/24"
+                    />
+                    <p
+                      v-if="getError(index, 'cidr')"
+                      class="text-xs text-red-500 mt-1"
+                    >
+                      {{ getError(index, "cidr") }}
+                    </p>
+                  </div>
+
+                  <div
+                    class="col-span-3 flex flex-col items-end justify-between h-full"
+                  >
+                    <div class="flex items-center gap-1 mt-6">
+                      <input
+                        type="checkbox"
+                        :id="`ext-${index}`"
+                        v-model="subnet.possibleExternalConnection"
+                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
+                      />
+                      <label
+                        :for="`ext-${index}`"
+                        class="text-xs text-gray-600 cursor-pointer select-none"
+                      >
+                        外部接続
+                      </label>
+                    </div>
+
+                    <button
+                      type="button"
+                      @click="removeSubnet(index)"
+                      class="text-red-500 text-xs hover:underline mt-2"
+                    >
+                      削除
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </form>
+
     <template #footer>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" :disabled="isCreating">
+        <button
+          type="button"
+          @click="submitForm"
+          class="btn btn-primary"
+          :disabled="isCreating"
+        >
           {{ isCreating ? "作成中..." : "作成" }}
         </button>
       </div>
@@ -47,34 +140,62 @@
 /**
  * =================================================================================
  * 仮想ネットワーク作成モーダル (MoVirtualNetworkCreate.vue)
- * ---------------------------------------------------------------------------------
- * UIの表示に特化したコンポーネントです。
- * 実際のフォームの状態管理やAPI送信ロジックは `useVirtualNetworkCreateForm` Composable に
- * 分離されています。
  * =================================================================================
  */
-// Composable をインポート (パスはプロジェクトに合わせて調整してください)
+import { computed } from "vue";
 import { useVirtualNetworkCreateForm } from "~/composables/modal/useVirtualNetworkCreateForm";
+import FormInput from "~/components/Form/Input.vue";
 
-// --- 親コンポーネントとの連携 ---
-defineProps({
-  show: { type: Boolean, required: true },
-});
+// --- Props & Emits ---
+defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 
-// --- Composable からフォームロジックと状態を取得 ---
+// --- Composable ---
 const {
-  errors, // エラーオブジェクト
-  name, // ネットワーク名の v-model 用
-  nameAttrs, // ネットワーク名の v-bind 用
-  cidr, // CIDRの v-model 用
-  cidrAttrs, // CIDRの v-bind 用
-  isCreating, // API通信中のローディング状態
-  onFormSubmit, // Composable が提供する送信ハンドラ
+  errors,
+  name,
+  nameAttrs,
+  cidr,
+  cidrAttrs,
+  initialSubnets,
+  addSubnet,
+  removeSubnet,
+  isCreating,
+  onFormSubmit,
 } = useVirtualNetworkCreateForm();
 
-// --- イベントハンドラ ---
-// Composable から受け取った `onFormSubmit` 関数に、
-// このコンポーネントの `emit` 関数を渡して実行するラッパー関数。
-const submitForm = onFormSubmit(emit);
+// --- Computed: 表示用サブネット ---
+const displaySubnets = computed(() => {
+  return initialSubnets.value.map((item: any) => {
+    // .value があればそれを使う (アンラップ)
+    return item && typeof item === "object" && "value" in item
+      ? item.value
+      : item;
+  });
+});
+
+// キー取得用
+const getKey = (item: any, index: number) => {
+  return item.key || index;
+};
+
+// --- Helper: エラー取得 ---
+const getError = (index: number, field: string) => {
+  const key = `initialSubnets[${index}].${field}`;
+
+  const errs = errors.value as Record<string, string | undefined>;
+  return errs[key];
+};
+
+// --- Handler ---
+const submitHandler = onFormSubmit(emit);
+const submitForm = () => {
+  submitHandler();
+};
 </script>
+
+<style scoped>
+.form-input-sm {
+  @apply border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500;
+}
+</style>
