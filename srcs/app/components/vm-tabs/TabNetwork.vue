@@ -1,22 +1,23 @@
 <template>
-  <div class="modal-space">
+  <div class="modal-space space-y-4">
     <FormSelect
       label="仮想ネットワーク (VPC)"
       name="vpcId"
       :options="networks ?? []"
+      option-label="name"
+      option-value="id"
       placeholder="VPCを選択してください"
       :required="true"
       :pending="networksPending"
       :error="networksError"
       :error-message="errors.vpcId"
-      :placeholder-value="undefined"
       v-model="vpcId"
-      v-model:attrs="vpcIdAttrs"
+      v-bind="vpcIdAttrs"
     >
       <template #option="{ option }">
         {{ option.name }}
-        <span v-if="option.cidr" class="text-gray-500">
-          ({{ option.cidr }})</span
+        <span v-if="option.cidr" class="text-gray-500"
+          >({{ option.cidr }})</span
         >
       </template>
     </FormSelect>
@@ -25,15 +26,16 @@
       label="サブネット"
       name="subnetId"
       :options="availableSubnets"
+      option-label="name"
+      option-value="id"
       placeholder="サブネットを選択してください"
       :required="true"
       :pending="networksPending"
       :disabled="!vpcId"
       :error="networksError"
       :error-message="errors.subnetId"
-      :placeholder-value="undefined"
       v-model="subnetId"
-      v-model:attrs="subnetIdAttrs"
+      v-bind="subnetIdAttrs"
     >
       <template #option="{ option }">
         {{ option.name }} <span class="text-gray-500">({{ option.cidr }})</span>
@@ -44,18 +46,23 @@
       label="セキュリティグループ"
       name="securityGroupId"
       :options="securityGroups ?? []"
+      option-label="name"
+      option-value="id"
       placeholder="なし"
       :pending="sgPending"
       :error="sgError"
-      :placeholder-value="null"
+      :error-message="errors.securityGroupId"
       v-model="securityGroupId"
-      v-model:attrs="securityGroupIdAttrs"
+      v-bind="securityGroupIdAttrs"
     />
 
-    <FormDropZone
-      label="キーペア (公開鍵)"
-      v-model="keyPairFile"
+    <DropZone
+      label="公開鍵 (任意)"
+      name="keyPairFile"
       accept=".pub"
+      :error="errors.keyPairFile"
+      v-model="keyPairFile"
+      v-bind="keyPairFileAttrs"
     />
   </div>
 </template>
@@ -65,11 +72,8 @@
  * =================================================================================
  * ネットワーク/セキュリティ タブ (TabNetwork.vue)
  * ---------------------------------------------------------------------------------
- * 仮想マシン作成ウィザードのネットワーク関連の設定を担当するタブ。
- * - VPCとサブネットの依存関係を持つプルダウン
- * - セキュリティグループの選択
- * - SSH公開鍵のアップロード
- * といった機能を提供します。
+ * 仮想マシン作成ウィザードのネットワーク設定を行うタブ。
+ * VPC、サブネット、セキュリティグループ、SSH公開鍵の設定を行います。
  * =================================================================================
  */
 import { computed, watch } from "vue";
@@ -78,27 +82,37 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 
+// 共通コンポーネント
+import FormSelect from "~/components/Form/Select.vue";
+// ★ InputFile を DropZone に変更
+import DropZone from "~/components/Form/DropZone.vue";
+
+// 型定義 (自動インポート)
+// type VirtualNetworkResponse
+// type SecurityGroupResponse
+
 /**
  * ==============================================================================
- * Validation Schema (バリデーションスキーマ)
- * ------------------------------------------------------------------------------
- * このタブ内のフォームフィールドに対する入力ルールをZodで定義します。
+ * Validation Schema
  * ==============================================================================
  */
 const validationSchema = toTypedSchema(
   z.object({
-    vpcId: z.string({ message: "VPCを選択してください。" }),
-    subnetId: z.string({ message: "サブネットを選択してください。" }),
-    securityGroupId: z.string().nullable(),
-    keyPairFile: z.any().nullable(),
+    vpcId: z
+      .string({ message: "VPCを選択してください。" })
+      .min(1, "VPCを選択してください。"),
+    subnetId: z
+      .string({ message: "サブネットを選択してください。" })
+      .min(1, "サブネットを選択してください。"),
+    securityGroupId: z.string().nullable().optional(),
+    // ファイルオブジェクト(File) または undefined
+    keyPairFile: z.any().optional(),
   })
 );
 
 /**
  * ==============================================================================
- * Form State Management (フォーム状態管理)
- * ------------------------------------------------------------------------------
- * VeeValidateのuseFormを使い、このタブのフォーム状態を管理します。
+ * Form State Management
  * ==============================================================================
  */
 const { errors, defineField, values, meta, setFieldValue } = useForm({
@@ -107,31 +121,28 @@ const { errors, defineField, values, meta, setFieldValue } = useForm({
     vpcId: undefined,
     subnetId: undefined,
     securityGroupId: null,
-    keyPairFile: null,
+    keyPairFile: undefined,
   },
 });
 
-// 各フォームフィールドとVeeValidateを連携
 const [vpcId, vpcIdAttrs] = defineField("vpcId");
 const [subnetId, subnetIdAttrs] = defineField("subnetId");
 const [securityGroupId, securityGroupIdAttrs] = defineField("securityGroupId");
-const [keyPairFile] = defineField("keyPairFile");
-
-// 親コンポーネント（ウィザードの統括役）に、このタブのデータとバリデーション状態を公開
-defineExpose({ formData: values, isValid: meta });
+const [keyPairFile, keyPairFileAttrs] = defineField("keyPairFile");
 
 /**
  * ==============================================================================
- * API Data Fetching (APIデータ取得)
- * ------------------------------------------------------------------------------
- * 各プルダウンの選択肢となるデータをAPIから取得します。
+ * API Data Fetching
  * ==============================================================================
  */
+// 1. 仮想ネットワーク (VPC)
 const {
   data: networks,
   pending: networksPending,
   error: networksError,
 } = useResourceList<VirtualNetworkResponse>("virtual-networks");
+
+// 2. セキュリティグループ
 const {
   data: securityGroups,
   pending: sgPending,
@@ -140,27 +151,35 @@ const {
 
 /**
  * ==============================================================================
- * UI Logic (UIロジック)
- * ------------------------------------------------------------------------------
- * ユーザー操作に応じたインタラクティブな挙動を定義します。
+ * UI Logic
  * ==============================================================================
  */
 
-/**
- * 選択されたVPCに属するサブネットのリストを動的に計算します。
- * @returns {Array} 選択可能なサブネットの配列
- */
+// 選択されたVPCに紐づくサブネットリストを計算
 const availableSubnets = computed(() => {
   if (!vpcId.value || !networks.value) return [];
   const selectedVPC = networks.value.find((net) => net.id === vpcId.value);
   return selectedVPC?.subnets || [];
 });
 
-/**
- * VPCの選択が変更されたことを監視し、サブネットの選択をリセットします。
- * これにより、ユーザーがVPCを変更した際に、古いサブネットが選択されたままになるのを防ぎます。
- */
+// VPCが変更されたら、選択中のサブネットをリセットする
 watch(vpcId, () => {
   setFieldValue("subnetId", undefined);
 });
+
+/**
+ * ==============================================================================
+ * Expose
+ * ==============================================================================
+ */
+defineExpose({
+  formData: values,
+  isValid: meta,
+});
 </script>
+
+<style scoped>
+.modal-space {
+  @apply p-1;
+}
+</style>

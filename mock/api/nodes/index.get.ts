@@ -1,5 +1,7 @@
+import { NodeResponse } from "~~/shared/types";
+
 export default defineEventHandler(() => {
-  const physicalNodes: Array<NodeDTO> = [
+  const physicalNodes: Array<NodeResponse> = [
     {
       id: "d898bae4-0a05-48aa-846e-aca5bbfd72c6",
       name: "Node 1",

@@ -71,20 +71,30 @@ export function useVmWizardForm() {
 
     const basePayload = {
       name: generalData?.name ?? "",
-      nodeId: generalData?.nodeId ?? null,
-      subnetId: networkData?.subnetId ?? null,
+      nodeId: generalData?.nodeId ?? "", // null ではなく "" にする
+      subnetId: networkData?.subnetId ?? "", // null ではなく "" にする
+
+      // null の可能性がある場合は空文字 "" を渡す
       publicKey: networkData?.keyPairFile
         ? await readFileAsText(networkData.keyPairFile)
-        : null,
-      securityGroupId: networkData?.securityGroupId ?? null,
-      imageId: osData?.osImageId ?? null,
-      middleWareId: osData?.middlewareId,
+        : "",
+
+      // 【重要修正1】名前を複数形にし、値を配列 [ ] で囲む
+      securityGroupIds: networkData?.securityGroupId
+        ? [networkData.securityGroupId]
+        : [],
+
+      imageId: osData?.osImageId ?? "",
+
+      // 【重要修正2】W を小文字の w に直す
+      middlewareId: osData?.middlewareId ?? "",
+
       storages:
         configData?.storages.map((storage: any) => ({
           name: storage.name,
           size: convertUnitToByte(storage.size, "GB"),
           poolId: storage.poolId,
-          backupId: storage.type === "backup" ? configData.backupId : null,
+          backupId: storage.type === "backup" ? configData.backupId : undefined,
         })) ?? [],
     };
 
@@ -100,8 +110,8 @@ export function useVmWizardForm() {
       // パターンB: CPUとメモリをカスタム指定する場合
       payload = {
         ...basePayload,
-        cpuCore: configData?.cpuCore,
-        memorySize: convertUnitToByte(configData?.memorySize, "MB"),
+        cpu: configData?.cpu,
+        memory: convertUnitToByte(configData?.memorySize, "MB"),
       };
     }
     return payload;
