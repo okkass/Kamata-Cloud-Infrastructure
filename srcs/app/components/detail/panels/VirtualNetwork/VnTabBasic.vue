@@ -3,6 +3,7 @@
     <h2 class="text-lg font-semibold">基本情報</h2>
 
     <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
+      
       <div>
         <div class="text-xs text-neutral-500">名前</div>
         <div class="text-sm text-neutral-900 font-medium">
@@ -20,7 +21,7 @@
       <div>
         <div class="text-xs text-neutral-500">作成日時</div>
         <div class="text-sm text-neutral-900 font-medium">
-          {{ vnet.createdAt || "—" }}
+          {{ formatDateTime(vnet.createdAt) }}
         </div>
       </div>
 
@@ -36,11 +37,11 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { formatDateTime } from "@/utils/date";
 
 const props = defineProps<{
   context: any;
 }>();
 
-// VM と同じく context をそのまま握り替えるだけ
 const vnet = computed(() => props.context ?? {});
 </script>

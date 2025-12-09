@@ -23,7 +23,7 @@
           <div>
             <div class="text-xs text-neutral-500">作成日時</div>
             <div class="text-sm text-neutral-900 font-medium">
-              {{ formatDate(subnet.createdAt) }}
+              {{ formatDateTime(subnet.createdAt) }}
             </div>
           </div>
 
@@ -41,6 +41,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { formatDateTime } from "@/utils/date";
 
 const props = defineProps<{
   context?: {
@@ -55,18 +56,4 @@ const props = defineProps<{
 }>();
 
 const subnets = computed(() => props.context?.subnets ?? []);
-
-function formatDate(value?: string) {
-  if (!value) return "—";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
-
-  return d.toLocaleString("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 </script>

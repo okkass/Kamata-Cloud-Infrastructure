@@ -34,26 +34,21 @@
 
           <!-- VM一覧 -->
           <div class="space-y-2">
-            <div
+            <NuxtLink
               v-for="vm in group.vms"
               :key="vm.id"
-              class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm flex flex-col gap-1"
+              :to="`/machine/${vm.id}`"
+              class="block rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm hover:border-indigo-300 hover:shadow-sm transition"
             >
               <div class="flex items-center justify-between">
-                <!-- VM 詳細へのリンク -->
-                <NuxtLink
-                  :to="`/machine/${encodeURIComponent(String(vm.id))}`"
-                  class="table-link font-medium"
-                >
+                <div class="font-medium text-neutral-900">
                   {{ vm.name }}
-                </NuxtLink>
-
-                <!-- ★ ステータスは getVmStatusDisplay を呼び出して表示 -->
+                </div>
                 <span
                   class="text-xs px-2 py-0.5 rounded-full"
-                  :class="getVmStatusDisplay(vm.status).class"
+                  :class="statusDisplay(vm.status).class"
                 >
-                  {{ getVmStatusDisplay(vm.status).text }}
+                  {{ statusDisplay(vm.status).text }}
                 </span>
               </div>
 
@@ -74,10 +69,10 @@
               <div class="text-xs text-neutral-600">
                 作成日時：
                 <span>
-                  {{ formatDate(vm.createdAt) }}
+                  {{ formatDateTime(vm.createdAt) }}
                 </span>
               </div>
-            </div>
+            </NuxtLink>
           </div>
 
           <hr class="border-neutral-200" />
@@ -94,22 +89,17 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+import { formatDateTime } from "@/utils/date";
 import { getVmStatusDisplay } from "@/utils/status";
 
-const props = defineProps<{
-  context?: {
-    id: string;
-    subnets?: {
-      id: string;
-      name: string;
-      cidr: string;
-      possibleExternalConnection?: boolean;
-      createdAt?: string;
-    }[];
-  };
-}>();
+// ===== 表示用型（仮） ====================================
+type VnetSubnetView = {
+  id: string;
+  name: string;
+  cidr: string;
+};
 
-type VmAttachment = {
+type VmAttachmentView = {
   id: string;
   name: string;
   status: string;
@@ -121,9 +111,17 @@ type VmAttachment = {
   cidr?: string;
 };
 
+const props = defineProps<{
+  context?: {
+    id: string;
+    subnets?: VnetSubnetView[];
+  };
+}>();
+// ========================================================
+
 const loading = ref(false);
 const error = ref<unknown | null>(null);
-const attachments = ref<VmAttachment[]>([]);
+const attachments = ref<VmAttachmentView[]>([]);
 
 onMounted(async () => {
   const vnetId = props.context?.id;
@@ -133,7 +131,7 @@ onMounted(async () => {
 
   loading.value = true;
   try {
-    const all: VmAttachment[] = [];
+    const all: VmAttachmentView[] = [];
 
     for (const subnet of subnets) {
       const raw = await $fetch<any[]>(
@@ -169,7 +167,7 @@ const hasData = computed(() => attachments.value.length > 0);
 const subnetGroups = computed(() => {
   const map = new Map<
     string,
-    { subnetId: string; subnetName?: string; cidr?: string; vms: VmAttachment[] }
+    { subnetId: string; subnetName?: string; cidr?: string; vms: VmAttachmentView[] }
   >();
 
   for (const vm of attachments.value) {
@@ -187,16 +185,6 @@ const subnetGroups = computed(() => {
   return Array.from(map.values());
 });
 
-function formatDate(value?: string) {
-  if (!value) return "—";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleString("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+// ステータス表示（utils/status.ts を利用）
+const statusDisplay = (status: string) => getVmStatusDisplay(status);
 </script>
