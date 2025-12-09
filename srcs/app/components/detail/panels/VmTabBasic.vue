@@ -13,7 +13,7 @@
 
       <div>
         <div class="text-xs text-neutral-500">作成日時</div>
-        <div class="text-sm text-neutral-900 font-medium ">
+        <div class="text-sm text-neutral-900 font-medium">
           {{ vm.createdAt || "-" }}
         </div>
       </div>
@@ -27,16 +27,23 @@
         <div class="space-y-1">
           <div>
             <span class="text-xs text-neutral-500">名前：</span>
-            <span class="text-sm text-neutral-900 font-medium ">{{ vm.node?.name || "-" }}</span>
+            <span class="text-sm text-neutral-900 font-medium">
+              {{ vm.node?.name || "-" }}
+            </span>
           </div>
           <div>
             <span class="text-xs text-neutral-500">IPアドレス：</span>
-            <span class="text-sm font-medium">{{ vm.node?.ipAddress || "-" }}</span>
+            <span class="text-sm font-medium">
+              {{ vm.node?.ipAddress || "-" }}
+            </span>
           </div>
           <div>
             <span class="text-xs text-neutral-500">状態：</span>
-            <span class="text-sm font-medium">
-              {{ nodeStatusJa }}
+            <span
+              class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+              :class="nodeStatus.class"
+            >
+              {{ nodeStatus.text }}
             </span>
           </div>
         </div>
@@ -45,9 +52,12 @@
       <!-- ステータス -->
       <div class="pt-3 border-t border-neutral-200">
         <div class="text-xs text-neutral-500 mb-1">ステータス</div>
-        <div class="text-sm font-medium">
-          {{ vmStatusText }}
-        </div>
+        <span
+          class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+          :class="vmStatus.class"
+        >
+          {{ vmStatus.text }}
+        </span>
       </div>
     </div>
   </section>
@@ -55,48 +65,50 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { getVmStatusDisplay, getNodeStatusDisplay } from "~/utils/status";
+
+/**
+ * このタブで使う分だけの「表示用型」
+ * DTO（Response 型）は使わず、画面で参照するフィールドだけ定義
+ */
+type VmBasicContext = {
+  id?: string;
+  name?: string;
+  createdAt?: string;
+  status?: string;
+  statusJa?: string;
+  node?: {
+    name?: string;
+    ipAddress?: string;
+    status?: string;
+  };
+};
 
 const props = defineProps<{
-  context: any;
+  context: VmBasicContext | null | undefined;
 }>();
 
-// null ガード
-const vm = computed(() => props.context ?? {});
+// null / undefined ガード
+const vm = computed<VmBasicContext>(() => props.context ?? {});
 
-// ノードステータス（日本語）
-const nodeStatusJa = computed(() => {
-  const s = vm.value.node?.status;
-  if (!s) return "-";
-
-  switch (s) {
-    case "active":
-      return "稼働中";
-    case "inactive":
-    case "down":
-      return "停止";
-    default:
-      return s;
-  }
+// ノードステータス（バッジ表示用）
+const nodeStatus = computed(() => {
+  const raw = vm.value.node?.status ?? "";
+  return getNodeStatusDisplay(raw);
 });
 
-// VMステータス（日本語）
-const vmStatusText = computed(() => {
-  // APIが日本語を返してくる場合
-  if (vm.value.statusJa) return vm.value.statusJa;
+// VMステータス（バッジ表示用）
+const vmStatus = computed(() => {
+  const raw = vm.value.status ?? "";
 
-  const s = vm.value.status;
-  if (!s) return "-";
-
-  switch (s) {
-    case "running":
-      return "稼働中";
-    case "stopped":
-      return "停止中";
-    case "error":
-      return "エラー";
-    default:
-      // 想定外（例: provisioning, creating など）はそのまま返す
-      return s;
+  // API が日本語を返してくる場合は text だけ差し替え
+  const base = getVmStatusDisplay(raw);
+  if (vm.value.statusJa) {
+    return {
+      ...base,
+      text: vm.value.statusJa,
+    };
   }
+  return base;
 });
 </script>
