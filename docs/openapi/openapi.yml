@@ -76,12 +76,22 @@ paths:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_bulk.yml"
   /api/virtual-machines/{vmId}/network-interfaces/{nicId}:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_{nicId}.yml"
+  /api/virtual-machines/{vmId}/reboot:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_reboot.yml"
+  /api/virtual-machines/{vmId}/reset:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_reset.yml"
   /api/virtual-machines/{vmId}/security-groups:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups.yml"
   /api/virtual-machines/{vmId}/security-groups/bulk:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_bulk.yml"
   /api/virtual-machines/{vmId}/security-groups/{sgId}:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_{sgId}.yml"
+  /api/virtual-machines/{vmId}/shutdown:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_shutdown.yml"
+  /api/virtual-machines/{vmId}/start:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_start.yml"
+  /api/virtual-machines/{vmId}/stop:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_stop.yml"
   /api/virtual-machines/{vmId}/storages:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages.yml"
   /api/virtual-machines/{vmId}/storages/bulk:
