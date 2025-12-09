@@ -46,7 +46,7 @@ import { ref, markRaw, computed } from "vue";
 // コンポーネントインポート (Create/Add系のみ)
 // ==============================================================================
 import MoVirtualMachineCreate from "~/components/MoVirtualMachineCreate.vue";
-import MoAddNodeToCluster from "~/components/MoAddNodeToCluster.vue";
+import MoAddNodeToCluster from "~/components/MoAddNode.vue";
 import MoImageAdd from "~/components/MoImageAdd.vue";
 import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue";
 import MoSecurityGroupCreate from "~/components/MoSecurityGroupCreate.vue";
