@@ -5,3 +5,4 @@ allOf:
   - $ref: "./VirtualMachineUpdatable.yml"
 required:
   - name
+  - spec

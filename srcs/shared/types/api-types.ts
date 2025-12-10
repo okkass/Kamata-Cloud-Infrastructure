@@ -4304,6 +4304,15 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
+                /** @description 別のリクエストを処理中 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -4364,7 +4373,7 @@ export interface paths {
         put?: never;
         /**
          * 仮想マシンの作成
-         * @description 新しい仮想マシンを作成します。
+         * @description 新しい仮想マシンを作成します。インスタンスタイプとカスタムスペックの両方が指定された場合、カスタムスペックが優先されます。
          */
         post: {
             parameters: {
@@ -7968,32 +7977,32 @@ export interface components {
             /** @description 関連付けるセキュリティグループのIDリスト */
             securityGroupIds: string[];
         };
-        /** @description 仮想マシン更新可能なプロパティを持つオブジェクトのベース */
-        VirtualMachineUpdatableBase: {
-            /** @description 仮想マシンの名前 */
-            name?: string;
-        };
         /** @description 仮想マシンをインスタンスタイプ指定で作成する場合の更新可能なプロパティを持つオブジェクト */
         VirtualMachineWithInstanceTypeUpdatable: {
             /**
              * Format: uuid
              * @description 使用するインスタンスタイプのID
              */
-            instanceTypeId?: string;
+            instanceTypeId: string;
         };
         /** @description 仮想マシンをCPU、メモリ指定で作成する場合の更新可能なプロパティを持つオブジェクト */
         VirtualMachineWithCustomSpecUpdatable: {
             /** @description 仮想マシンのCPUコア数 */
-            cpu?: number;
+            cpu: number;
             /** @description 仮想マシンのメモリ容量 (バイト単位) */
-            memory?: number;
+            memory: number;
         };
         /** @description 仮想マシン更新可能なプロパティを持つオブジェクト */
-        VirtualMachineUpdatable: components["schemas"]["VirtualMachineUpdatableBase"] & (components["schemas"]["VirtualMachineWithInstanceTypeUpdatable"] | components["schemas"]["VirtualMachineWithCustomSpecUpdatable"]);
+        VirtualMachineUpdatable: {
+            /** @description 仮想マシンの名前 */
+            name?: string;
+            /** @description 仮想マシンのスペック情報 */
+            spec?: components["schemas"]["VirtualMachineWithInstanceTypeUpdatable"] | components["schemas"]["VirtualMachineWithCustomSpecUpdatable"];
+        };
         /** @description 仮想マシン作成リクエストオブジェクト */
-        VirtualMachineCreateRequest: components["schemas"]["VirtualMachineCreateOnly"] & components["schemas"]["VirtualMachineUpdatable"];
+        VirtualMachineCreateRequest: components["schemas"]["VirtualMachineCreateOnly"] & WithRequired<components["schemas"]["VirtualMachineUpdatable"], "name" | "spec">;
         /** @description 仮想マシン更新リクエストオブジェクト */
-        VirtualMachinePutRequest: components["schemas"]["VirtualMachineUpdatable"];
+        VirtualMachinePutRequest: WithRequired<components["schemas"]["VirtualMachineUpdatable"], "name">;
         /** @description 仮想マシン更新リクエストオブジェクト */
         VirtualMachinePatchRequest: components["schemas"]["VirtualMachineUpdatable"];
         /** @description ネットワークインターフェース更新可能オブジェクト */
@@ -8232,7 +8241,6 @@ export type SnapshotCreateRequest = components['schemas']['SnapshotCreateRequest
 export type SnapshotPutRequest = components['schemas']['SnapshotPutRequest'];
 export type SnapshotPatchRequest = components['schemas']['SnapshotPatchRequest'];
 export type VirtualMachineCreateOnly = components['schemas']['VirtualMachineCreateOnly'];
-export type VirtualMachineUpdatableBase = components['schemas']['VirtualMachineUpdatableBase'];
 export type VirtualMachineWithInstanceTypeUpdatable = components['schemas']['VirtualMachineWithInstanceTypeUpdatable'];
 export type VirtualMachineWithCustomSpecUpdatable = components['schemas']['VirtualMachineWithCustomSpecUpdatable'];
 export type VirtualMachineUpdatable = components['schemas']['VirtualMachineUpdatable'];
