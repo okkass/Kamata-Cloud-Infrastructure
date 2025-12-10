@@ -23,14 +23,6 @@ export default defineEventHandler(async (event) => {
   const data = res.data as NodeCreateRequest;
 
   const newNode = addNode(data);
-  if (!newNode) {
-    event.node.res.statusCode = 500;
-    return {
-      type: "Internal Server Error",
-      detail: "Failed to create node",
-      status: 500,
-    };
-  }
 
   event.node.res.statusCode = 201;
   return newNode;
