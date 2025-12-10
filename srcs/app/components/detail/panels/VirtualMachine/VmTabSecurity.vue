@@ -2,40 +2,42 @@
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">セキュリティグループ</h2>
 
-    <div class="detail-card">
-      <div v-if="groups.length > 0" class="space-y-2">
-        <article
-          v-for="g in groups"
-          :key="g.id"
-          class="rounded-lg border border-neutral-200 px-4 py-3"
-        >
-          <div class="mb-2">
-            <div class="detail-value">
+    <!-- ★ 外枠カードのみ -->
+    <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
+      
+      <div v-if="groups.length > 0" class="space-y-6">
+        <div v-for="g in groups" :key="g.id" class="space-y-3">
+
+          <div>
+            <div class="text-xs text-neutral-500">ID</div>
+            <div class="text-sm text-neutral-900 font-medium">
+              {{ g.id }}
+            </div>
+          </div>
+
+          <div>
+            <div class="text-xs text-neutral-500">名前</div>
+            <div class="text-sm text-neutral-900 font-medium">
               {{ g.name }}
             </div>
           </div>
 
-          <dl class="grid gap-2 grid-cols-2">
-            <div>
-              <dt class="detail-label">ID</dt>
-              <dd class="detail-value text-xs font-mono text-neutral-600">
-                {{ g.id }}
-              </dd>
+          <div>
+            <div class="text-xs text-neutral-500">作成日時</div>
+            <div class="text-sm text-neutral-900 font-medium">
+              {{ formatDateTime(g.createdAt) }}
             </div>
+          </div>
 
-            <div>
-              <dt class="detail-label">作成日時</dt>
-              <dd class="detail-value text-xs text-right">
-                {{ formatDateTime(g.createdAt) }}
-              </dd>
-            </div>
-          </dl>
-        </article>
+          <hr v-if="groups.length > 1" class="border-neutral-200 pt-2" />
+
+        </div>
       </div>
 
       <p v-else class="text-sm text-neutral-500">
         セキュリティグループは登録されていません。
       </p>
+
     </div>
   </section>
 </template>
@@ -48,4 +50,21 @@ const props = defineProps<{
 }>();
 
 const groups = props.context?.securityGroups ?? [];
+
+/**
+ * 日付文字列を 'YYYY/MM/DD HH:mm' 形式にフォーマットする
+ * ※ もともとの formatDate と同じロジックで、関数名だけ formatDateTime に変更
+ */
+function formatDateTime(value?: string) {
+  if (!value) return "-";
+  const d = new Date(value);
+  if (isNaN(d.getTime())) return value;
+  return d.toLocaleString("ja-JP", {
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
 </script>

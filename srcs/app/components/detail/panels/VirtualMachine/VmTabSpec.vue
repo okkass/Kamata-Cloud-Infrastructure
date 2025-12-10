@@ -2,23 +2,30 @@
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">構成</h2>
 
-    <div class="detail-card">
-      <dl class="detail-grid-2col">
+    <!-- ★ 基本情報タブと同じカードレイアウトに統一 -->
+    <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
+      <!-- CPU / メモリ -->
+      <dl class="space-y-3 text-sm">
         <div>
-          <dt class="detail-label">CPUコア</dt>
-          <dd class="detail-value">{{ context.cpuCore }} コア</dd>
+          <dt class="text-xs text-neutral-500">CPUコア</dt>
+          <dd class="text-sm text-neutral-900 font-medium ">
+            {{ cpuDisplay }}
+          </dd>
         </div>
 
         <div>
-          <dt class="detail-label">メモリサイズ</dt>
-          <dd class="detail-value">
-            {{ convertByteToUnit(context.memorySize, "MB") }} MB
+          <dt class="text-xs text-neutral-500">メモリサイズ</dt>
+          <dd class="text-sm text-neutral-900 font-medium ">
+            {{ memoryDisplay }}
           </dd>
         </div>
       </dl>
 
-      <div class="detail-card-section">
-        <h3 class="detail-heading-sm">ストレージ</h3>
+      <!-- アタッチストレージ -->
+      <div class="pt-3 border-t border-neutral-200">
+        <h3 class="mb-2 text-sm font-semibold text-neutral-700">
+          ストレージ
+        </h3>
 
         <div class="space-y-2">
           <article
@@ -26,26 +33,17 @@
             :key="index"
             class="rounded-lg border border-neutral-200 px-4 py-3"
           >
-            <div class="mb-2">
-              <div class="detail-value">
-                {{ item.storage.name }}
-              </div>
-            </div>
-
-            <dl class="grid gap-2 grid-cols-2">
-              <div>
-                <dt class="detail-label">サイズ</dt>
-                <dd class="detail-value text-xs">
-                  {{ convertByteToUnit(item.storage.size, "GB") }} GB
-                </dd>
-              </div>
-              <div>
-                <dt class="detail-label">プール</dt>
-                <dd class="detail-value text-xs font-mono">
-                  {{ item.storage.pool }}
-                </dd>
-              </div>
-            </dl>
+            <p class="text-xs text-neutral-500">
+              {{ item.storage.name }}
+            </p>
+            <p class="text-sm text-neutral-900 font-medium">
+              サイズ：
+              {{ convertByteToUnit(item.storage.size, "GB") }}GB
+            </p>
+            <p class="text-sm text-neutral-900 font-medium">
+              プール:
+              {{ item.storage.pool }}
+            </p>
           </article>
         </div>
       </div>
@@ -55,13 +53,67 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { convertByteToUnit } from "~/utils/format";
 
-// 本来は shared/types から import するのが理想ですが、元のコードに合わせて any を許容
+/**
+ * このタブで使う分だけの「表示用型」
+ * DTO は使わず、必要なフィールドだけ定義
+ */
+type VmSpecContext = {
+  cpuCore?: number;
+  memorySize?: number; // bytes
+  instanceType?: {
+    cpuCore?: number;
+    memorySize?: number; // bytes
+  };
+  attachedStorages?: {
+    storage: {
+      name: string;
+      size: number;
+      pool: string;
+    };
+  }[];
+};
+
 const props = defineProps<{
-  context: any;
+  context: VmSpecContext | null | undefined;
 }>();
 
-const context = computed(() => props.context ?? {});
+// null / undefined ガード
+const context = computed(() => (props.context ?? {}) as VmSpecContext);
 
-// ※ convertByteToUnit は auto-import か何かで使えている想定で残しています
+/**
+ * CPUコア
+ * - instanceType.cpuCore があれば優先
+ * - なければ context.cpuCore
+ */
+const cpuDisplay = computed(() => {
+  const cores =
+    context.value.instanceType?.cpuCore ?? context.value.cpuCore;
+
+  if (typeof cores !== "number" || !Number.isFinite(cores)) {
+    return "—";
+  }
+
+  // ラベル側に「CPUコア」とあるので数値だけでOK
+  return cores;
+});
+
+/**
+ * メモリサイズ（MB）
+ * - instanceType.memorySize があれば優先
+ * - なければ context.memorySize
+ * - 不正な値は "—" にして NaNMB を防ぐ
+ */
+const memoryDisplay = computed(() => {
+  const bytes =
+    context.value.instanceType?.memorySize ?? context.value.memorySize;
+
+  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes <= 0) {
+    return "—";
+  }
+
+  const mb = convertByteToUnit(bytes, "MB");
+  return `${mb}MB`;
+});
 </script>
