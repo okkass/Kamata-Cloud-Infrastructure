@@ -7,7 +7,7 @@ import type {
 
 import {
   getVirtualMachineById,
-  getStorageByVirtualMachineId,
+  getStoragesByVirtualMachineId,
   getStorage,
 } from "./virtualMachineService";
 
@@ -23,7 +23,7 @@ export const initBackups = (): Array<BackupResponse> => {
       description: "バックアップ元のVM現存パターン",
       createdAt: new Date().toISOString(),
       size: 100 * 1024 * 1024 * 1024, // 100 GB
-      targetStorage: getStorageByVirtualMachineId(
+      targetStorage: getStoragesByVirtualMachineId(
         "fd8467e4-f334-4827-bf69-79d6434a176e"
       )![1],
       targetVirtualMachine: getVirtualMachineById(

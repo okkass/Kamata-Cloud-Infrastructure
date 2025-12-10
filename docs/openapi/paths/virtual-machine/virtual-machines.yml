@@ -28,7 +28,7 @@ get:
     - BearerAuth: []
 post:
   summary: 仮想マシンの作成
-  description: 新しい仮想マシンを作成します。
+  description: 新しい仮想マシンを作成します。インスタンスタイプとカスタムスペックの両方が指定された場合、カスタムスペックが優先されます。
   tags:
     - VirtualMachine
   requestBody:

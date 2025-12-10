@@ -2,8 +2,9 @@ import type {
   VirtualMachineResponse,
   NetworkInterfaceResponse,
   StorageResponse,
+  SecurityGroupResponse,
 } from "@app/shared/types";
-import { getNodeById } from "./nodesService";
+import { getNodeById } from "./nodeService";
 import { getSecurityGroupById } from "./securityGroupService";
 import { getStoragePoolById } from "./storagePoolService";
 
@@ -124,7 +125,7 @@ export const getNetworkInterface = (
   return nics?.find((nic) => nic.id === nicId);
 };
 
-export const getStorageByVirtualMachineId = (
+export const getStoragesByVirtualMachineId = (
   id: string
 ): StorageResponse[] | undefined => {
   const vm = getVirtualMachineById(id);
@@ -135,6 +136,13 @@ export const getStorage = (
   storageId: string,
   vmId: string
 ): StorageResponse | undefined => {
-  const storages = getStorageByVirtualMachineId(vmId);
+  const storages = getStoragesByVirtualMachineId(vmId);
   return storages?.find((storage) => storage.id === storageId);
+};
+
+export const getSecurityGroupsByVirtualMachineId = (
+  id: string
+): SecurityGroupResponse[] | undefined => {
+  const vm = getVirtualMachineById(id);
+  return vm?.securityGroups;
 };
