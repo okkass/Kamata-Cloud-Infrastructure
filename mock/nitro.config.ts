@@ -1,3 +1,19 @@
+import { resolve } from "node:path";
+
 export default defineNitroConfig({
-  // ここに設定を追加できます（例：パブリックディレクトリ、APIルートの場所など）
+  routeRules: {
+    "/api/**": {
+      headers: {
+        "Access-Control-Allow-Origin": "http://localhost:3000",
+        "Access-Control-Allow-Methods":
+          "GET, POST, PUT, PATCH, DELETE, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      },
+    },
+  },
+  alias: {
+    "@app": resolve(__dirname, "../srcs"),
+    "@utils": resolve(__dirname, "./utils"),
+    "@": resolve(__dirname, "./"),
+  },
 });

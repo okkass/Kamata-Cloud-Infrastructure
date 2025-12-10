@@ -12,7 +12,10 @@
   "license": "ISC",
   "packageManager": "pnpm@10.11.0",
   "dependencies": {
+    "@types/uuid": "^11.0.0",
     "nitro": "3.0.1-alpha.1",
-    "nitropack": "^2.12.9"
+    "nitropack": "^2.12.9",
+    "uuid": "^13.0.0",
+    "zod": "^4.1.13"
   }
 }

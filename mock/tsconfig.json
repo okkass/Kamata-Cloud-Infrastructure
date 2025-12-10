@@ -1,6 +1,11 @@
 {
   "extends": "./.nitro/types/tsconfig.json",
   "compilerOptions": {
-    "strict": true
+    "strict": true,
+    "paths": {
+      "@app/*": ["../srcs/*"],
+      "@utils/*": ["./utils/*"],
+      "@/*": ["./*"]
+    }
   }
 }
