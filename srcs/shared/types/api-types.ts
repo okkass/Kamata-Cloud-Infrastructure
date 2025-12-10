@@ -7992,7 +7992,7 @@ export interface components {
             /** @description 仮想マシンのメモリ容量 (バイト単位) */
             memory: number;
         };
-        /** @description 仮想マシン更新可能なプロパティを持つオブジェクトのベース */
+        /** @description 仮想マシン更新可能なプロパティを持つオブジェクト */
         VirtualMachineUpdatable: {
             /** @description 仮想マシンの名前 */
             name?: string;
