@@ -34,6 +34,7 @@
 
           <!-- VM一覧 -->
           <div class="space-y-2">
+            <!-- ★ 変更: VM行を NuxtLink にして、仮想マシン詳細ページへ遷移できるように -->
             <NuxtLink
               v-for="vm in group.vms"
               :key="vm.id"
@@ -44,6 +45,7 @@
                 <div class="font-medium text-neutral-900">
                   {{ vm.name }}
                 </div>
+                <!-- ★ 変更: status.ts の getVmStatusDisplay から class / text を取得 -->
                 <span
                   class="text-xs px-2 py-0.5 rounded-full"
                   :class="statusDisplay(vm.status).class"
@@ -68,6 +70,7 @@
 
               <div class="text-xs text-neutral-600">
                 作成日時：
+                <!-- ★ 変更: ローカルの formatDate をやめて formatDateTime を使用 -->
                 <span>
                   {{ formatDateTime(vm.createdAt) }}
                 </span>
@@ -89,17 +92,28 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+// ★ 変更: 日付は共通ユーティリティ formatDateTime を利用
 import { formatDateTime } from "@/utils/date";
+// ★ 変更: ステータス表示は utils/status.ts の定義を利用
 import { getVmStatusDisplay } from "@/utils/status";
 
-// ===== 表示用型（仮） ====================================
-type VnetSubnetView = {
+// ★ 変更: context の型を VirtualNetworkResponse に合わせた形に整理
+type SubnetView = {
   id: string;
   name: string;
   cidr: string;
+  createdAt: string;
 };
 
-type VmAttachmentView = {
+const props = defineProps<{
+  context?: {
+    id: string;
+    subnets?: SubnetView[];
+  };
+}>();
+
+// このタブ内で使う VM 表示用のローカル型（API レスポンスをざっくり受ける想定）
+type VmAttachment = {
   id: string;
   name: string;
   status: string;
@@ -111,17 +125,9 @@ type VmAttachmentView = {
   cidr?: string;
 };
 
-const props = defineProps<{
-  context?: {
-    id: string;
-    subnets?: VnetSubnetView[];
-  };
-}>();
-// ========================================================
-
 const loading = ref(false);
 const error = ref<unknown | null>(null);
-const attachments = ref<VmAttachmentView[]>([]);
+const attachments = ref<VmAttachment[]>([]);
 
 onMounted(async () => {
   const vnetId = props.context?.id;
@@ -131,9 +137,10 @@ onMounted(async () => {
 
   loading.value = true;
   try {
-    const all: VmAttachmentView[] = [];
+    const all: VmAttachment[] = [];
 
     for (const subnet of subnets) {
+      // ★ 変更: エンドポイントは /virtual-machines 固定（設計どおり）
       const raw = await $fetch<any[]>(
         `/api/virtual-networks/${vnetId}/subnets/${subnet.id}/virtual-machines`
       );
@@ -162,12 +169,14 @@ onMounted(async () => {
   }
 });
 
+// データ有無
 const hasData = computed(() => attachments.value.length > 0);
 
+// サブネットごとに VM をグルーピング
 const subnetGroups = computed(() => {
   const map = new Map<
     string,
-    { subnetId: string; subnetName?: string; cidr?: string; vms: VmAttachmentView[] }
+    { subnetId: string; subnetName?: string; cidr?: string; vms: VmAttachment[] }
   >();
 
   for (const vm of attachments.value) {
@@ -185,6 +194,6 @@ const subnetGroups = computed(() => {
   return Array.from(map.values());
 });
 
-// ステータス表示（utils/status.ts を利用）
+// ★ 変更: status.ts の getVmStatusDisplay を薄ラップして使いやすく
 const statusDisplay = (status: string) => getVmStatusDisplay(status);
 </script>
