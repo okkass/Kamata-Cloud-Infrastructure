@@ -1,6 +1,6 @@
 {
   "ipAddress": "10.0.0.100",
-  "rootPassword": "MyStr0ngP@ssw0rd!",
+  "rootPassword": "TestPassword123!",
   "name": "poka",
   "isAdmin": false
 }
