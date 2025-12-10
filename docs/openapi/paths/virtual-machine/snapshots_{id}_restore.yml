@@ -42,5 +42,11 @@ post:
         application/json:
           schema:
             $ref: "../../components/schemas/ErrorResponse.yml"
+    "409":
+      description: 別のリクエストを処理中
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
