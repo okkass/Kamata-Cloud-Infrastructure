@@ -40,17 +40,17 @@ import { NETWORK } from "@/utils/constants";
 
 const { addToast } = useToast();
 
+// ★ 変更: VirtualNetworkResponse を元にした画面用ローカル型に揃えた
 type VirtualNetworkDetail = {
   id: string;
   name: string;
-  cidr?: string;
-  createdAt?: string;
-  description?: string;
+  cidr: string;        // ← 必須に変更（?: を削除）
+  createdAt: string;   // ← 必須に変更（?: を削除）
   subnets?: {
     id: string;
     name: string;
     cidr: string;
-    external: boolean;
+    createdAt: string; // ← external ではなく createdAt に統一
   }[];
 };
 
@@ -90,6 +90,7 @@ const handleEditClose = () => {
 };
 
 // モーダル側で emit("save", editableNetwork) されたとき
+// ★ 変更: 引数の型も VirtualNetworkDetail に揃えた
 const handleEditSave = async (updated: VirtualNetworkDetail) => {
   // ひとまずローカルの表示を更新
   vnet.value = updated;

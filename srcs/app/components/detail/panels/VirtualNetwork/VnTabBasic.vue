@@ -19,15 +19,9 @@
 
       <div>
         <div class="text-xs text-neutral-500">作成日時</div>
+        <!-- ★ 変更: 生の createdAt ではなく formatDateTime() を使う -->
         <div class="text-sm text-neutral-900 font-medium">
-          {{ vnet.createdAt || "—" }}
-        </div>
-      </div>
-
-      <div v-if="vnet.description" class="pt-3 border-t border-neutral-200">
-        <div class="text-xs text-neutral-500 mb-1">説明</div>
-        <div class="text-sm text-neutral-900">
-          {{ vnet.description }}
+          {{ formatDateTime(vnet.createdAt) }}
         </div>
       </div>
     </div>
@@ -36,11 +30,23 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+// ★ 変更: 独自の formatDate ではなく、既存の formatDateTime を利用
+import { formatDateTime } from "@/utils/date";
 
+// ★ 変更: VirtualNetworkResponse を元にした「画面用のローカル型」
+//   - DTO/Response 型は import せず、このファイル内だけで完結させる想定
+type VirtualNetworkView = {
+  id: string;
+  name: string;
+  cidr: string;
+  createdAt: string;
+};
+
+// ★ 変更: context:any ではなく VirtualNetworkView を受け取るようにした
 const props = defineProps<{
-  context: any;
+  context: VirtualNetworkView;
 }>();
 
-// VM と同じく context をそのまま握り替えるだけ
-const vnet = computed(() => props.context ?? {});
+// ★ 変更: vnet を computed でラップ（以前は props.context ?? {} だったはず）
+const vnet = computed(() => props.context);
 </script>

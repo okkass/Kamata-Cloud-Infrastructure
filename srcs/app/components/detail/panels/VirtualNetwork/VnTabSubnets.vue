@@ -22,8 +22,9 @@
 
           <div>
             <div class="text-xs text-neutral-500">作成日時</div>
+            <!-- ★ 変更: ローカルの formatDate ではなく formatDateTime を使用 -->
             <div class="text-sm text-neutral-900 font-medium">
-              {{ formatDate(subnet.createdAt) }}
+              {{ formatDateTime(subnet.createdAt) }}
             </div>
           </div>
 
@@ -41,32 +42,25 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+// ★ 変更: 日付表示は共通 util の formatDateTime に統一
+import { formatDateTime } from "@/utils/date";
 
+// ★ 変更: VirtualNetworkResponse.subnets を元にした画面用のローカル型
+//   - id / name / cidr / createdAt だけを持つ
+type SubnetView = {
+  id: string;
+  name: string;
+  cidr: string;
+  createdAt: string;
+};
+
+// ★ 変更: context の型を VirtualNetworkResponse に揃えた形にする
 const props = defineProps<{
   context?: {
-    subnets?: {
-      id: string;
-      name: string;
-      cidr: string;
-      possibleExternalConnection?: boolean;
-      createdAt?: string;
-    }[];
+    subnets?: SubnetView[];
   };
 }>();
 
+// ★ 変更: computed でサブネット配列を取り出し（デフォルトは []）
 const subnets = computed(() => props.context?.subnets ?? []);
-
-function formatDate(value?: string) {
-  if (!value) return "—";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
-
-  return d.toLocaleString("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 </script>
