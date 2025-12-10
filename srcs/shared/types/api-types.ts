@@ -4304,6 +4304,15 @@ export interface paths {
                         "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
+                /** @description 別のリクエストを処理中 */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
             };
         };
         delete?: never;
@@ -4364,7 +4373,7 @@ export interface paths {
         put?: never;
         /**
          * 仮想マシンの作成
-         * @description 新しい仮想マシンを作成します。
+         * @description 新しい仮想マシンを作成します。インスタンスタイプとカスタムスペックの両方が指定された場合、カスタムスペックが優先されます。
          */
         post: {
             parameters: {
@@ -7979,14 +7988,14 @@ export interface components {
              * Format: uuid
              * @description 使用するインスタンスタイプのID
              */
-            instanceTypeId?: string;
+            instanceTypeId: string;
         };
         /** @description 仮想マシンをCPU、メモリ指定で作成する場合の更新可能なプロパティを持つオブジェクト */
         VirtualMachineWithCustomSpecUpdatable: {
             /** @description 仮想マシンのCPUコア数 */
-            cpu?: number;
+            cpu: number;
             /** @description 仮想マシンのメモリ容量 (バイト単位) */
-            memory?: number;
+            memory: number;
         };
         /** @description 仮想マシン更新可能なプロパティを持つオブジェクト */
         VirtualMachineUpdatable: components["schemas"]["VirtualMachineUpdatableBase"] & (components["schemas"]["VirtualMachineWithInstanceTypeUpdatable"] | components["schemas"]["VirtualMachineWithCustomSpecUpdatable"]);
