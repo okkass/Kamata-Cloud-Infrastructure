@@ -14,5 +14,6 @@ export default defineNitroConfig({
   alias: {
     "@app": resolve(__dirname, "../srcs"),
     "@utils": resolve(__dirname, "./utils"),
+    "@": resolve(__dirname, "./"),
   },
 });
