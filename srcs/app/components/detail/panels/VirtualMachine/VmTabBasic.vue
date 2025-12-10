@@ -5,7 +5,7 @@
     <!-- 基本情報カード -->
     <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-3">
       <div>
-        <div class="text-xs text-neutral-500">名前</div>
+        <div class="text-xs text-neutral-500">Name</div>
         <div class="text-base font-medium">
           {{ vm.name }}
         </div>
@@ -39,12 +39,11 @@
           </div>
           <div>
             <span class="text-xs text-neutral-500">状態：</span>
-            <!-- ★ Node ステータス：status.ts の定義を使用 -->
             <span
               class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-              :class="nodeStatusDisplay.class"
+              :class="nodeStatus.class"
             >
-              {{ nodeStatusDisplay.text }}
+              {{ nodeStatus.text }}
             </span>
           </div>
         </div>
@@ -53,12 +52,11 @@
       <!-- ステータス -->
       <div class="pt-3 border-t border-neutral-200">
         <div class="text-xs text-neutral-500 mb-1">ステータス</div>
-        <!-- ★ VM ステータス：status.ts の定義を使用 -->
         <span
           class="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
-          :class="vmStatusDisplay.class"
+          :class="vmStatus.class"
         >
-          {{ vmStatusDisplay.text }}
+          {{ vmStatus.text }}
         </span>
       </div>
     </div>
@@ -67,31 +65,50 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine/VirtualMachineDTO";
-import { getNodeStatusDisplay, getVmStatusDisplay } from "@/utils/status";
+import { getVmStatusDisplay, getNodeStatusDisplay } from "~/utils/status";
 
-// API の DTO をベースに、画面用に statusJa だけ足した型（互換のためそのまま残しておく）
-type VmContext = VirtualMachineDTO & {
+/**
+ * このタブで使う分だけの「表示用型」
+ * DTO（Response 型）は使わず、画面で参照するフィールドだけ定義
+ */
+type VmBasicContext = {
+  id?: string;
+  name?: string;
+  createdAt?: string;
+  status?: string;
   statusJa?: string;
+  node?: {
+    name?: string;
+    ipAddress?: string;
+    status?: string;
+  };
 };
 
 const props = defineProps<{
-  context: VmContext;
+  context: VmBasicContext | null | undefined;
 }>();
 
-// context は ResourceDetailShell 側で必ず渡される想定なので、そのまま使う
-const vm = computed(() => props.context);
+// null / undefined ガード
+const vm = computed<VmBasicContext>(() => props.context ?? {});
 
-// ノードステータス（status.ts を使用）
-const nodeStatusDisplay = computed(() => {
-  const status = vm.value.node?.status ?? "";
-  return getNodeStatusDisplay(status);
+// ノードステータス（バッジ表示用）
+const nodeStatus = computed(() => {
+  const raw = vm.value.node?.status ?? "";
+  return getNodeStatusDisplay(raw);
 });
 
-// VMステータス（status.ts を使用）
-const vmStatusDisplay = computed(() => {
-  // statusJa を使う運用をやめて、status.ts を単一の定義元にする
-  const status = vm.value.status ?? "";
-  return getVmStatusDisplay(status);
+// VMステータス（バッジ表示用）
+const vmStatus = computed(() => {
+  const raw = vm.value.status ?? "";
+
+  // API が日本語を返してくる場合は text だけ差し替え
+  const base = getVmStatusDisplay(raw);
+  if (vm.value.statusJa) {
+    return {
+      ...base,
+      text: vm.value.statusJa,
+    };
+  }
+  return base;
 });
 </script>

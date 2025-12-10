@@ -102,6 +102,7 @@ type VmDetail = {
 
 const route = useRoute();
 const router = useRouter();
+const api = useApiClient();
 
 // VM 詳細取得
 const {
@@ -110,10 +111,7 @@ const {
   error,
   // useResourceDetail に refresh 相当があれば拾う想定（なければ undefined のままでOK）
   refresh,
-} = await useResourceDetail<VmDetail>(
-  "virtual-machines",
-  route.params.id as string
-);
+} = await useResourceDetail<VmDetail>(MACHINE.name, route.params.id as string);
 
 // 戻るボタン
 const goBack = () => {
@@ -201,15 +199,12 @@ const handleAction = async (action: { label: string; value: string }) => {
   }
 
   try {
-    const res = await $fetch<{
-      message: string;
-      data: { id: string; status?: string };
-    }>(`/api/virtual-machines/${vm.value.id}/${endpoint}`, {
-      method: "POST",
-      body: {
+    const res = await api.post<{ message: string; data?: { status: string } }>(
+      `virtual-machines/${vm.value.id}/${endpoint}`,
+      {
         action: action.value,
-      },
-    });
+      }
+    );
 
     console.log("操作成功:", action.value, res);
 

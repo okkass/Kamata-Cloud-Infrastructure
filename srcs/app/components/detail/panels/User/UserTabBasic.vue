@@ -11,7 +11,6 @@
         </div>
       </div>
 
-      <!-- メールアドレス -->
       <div>
         <div class="text-xs text-neutral-500">メールアドレス</div>
         <div class="text-sm text-neutral-900 font-medium font-mono">
