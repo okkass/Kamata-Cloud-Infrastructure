@@ -1,4 +1,5 @@
-// srcs/app/composables/detail/useUserTabs.ts
+// /workspace/srcs/app/composables/detail/useusertabs.ts
+
 import type { Component } from "vue";
 
 export type UserTabConfig = {
@@ -8,6 +9,7 @@ export type UserTabConfig = {
   component?: Component;
 };
 
+// ★ ユーザー詳細のタブ構成
 export const userTabs: UserTabConfig[] = [
   {
     label: "基本情報",
@@ -18,7 +20,7 @@ export const userTabs: UserTabConfig[] = [
       ),
   },
   {
-    label: "権限・リソース上限",
+    label: "権限・リソース",
     value: "permissions",
     loader: () =>
       import(

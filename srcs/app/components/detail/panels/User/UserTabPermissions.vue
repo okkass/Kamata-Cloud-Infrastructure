@@ -3,115 +3,113 @@
     <h2 class="text-lg font-semibold">権限・リソース上限</h2>
 
     <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-6">
-
-      <!-- 権限 -->
+      <!-- 管理者権限 -->
       <div>
-        <h3 class="text-sm font-semibold text-neutral-800 mb-2">管理者権限</h3>
+        <div class="text-xs text-neutral-500 mb-2">管理者権限</div>
 
-        <div class="grid gap-2 md:grid-cols-2">
-          <PermissionItem label="全体管理者" :value="user.isAdmin" />
-          <PermissionItem label="イメージ管理" :value="user.isImageAdmin" />
-          <PermissionItem label="インスタンスタイプ管理" :value="user.isInstanceTypeAdmin" />
-          <PermissionItem label="物理ノード管理" :value="user.isPhysicalNodeAdmin" />
+        <div v-if="hasAnyAdmin" class="flex flex-wrap gap-2 text-xs">
+          <span
+            v-for="item in adminFlags"
+            :key="item.key"
+            class="inline-flex items-center rounded-full px-3 py-1 border"
+            :class="
+              item.enabled
+                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
+                : 'bg-slate-50 text-slate-400 border-slate-200'
+            "
+          >
+            {{ item.label }}
+          </span>
         </div>
+
+        <p v-else class="text-sm text-neutral-500">
+          管理者権限は付与されていません。
+        </p>
       </div>
 
       <!-- リソース上限 -->
       <div class="pt-4 border-t border-neutral-200">
-        <h3 class="text-sm font-semibold text-neutral-800 mb-2">リソース上限</h3>
+        <div class="text-xs text-neutral-500 mb-2">リソース上限</div>
 
-        <dl class="grid gap-3 md:grid-cols-3 text-sm">
+        <div
+          class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3"
+        >
           <div>
-            <dt class="text-xs text-neutral-500 mb-1">最大 vCPU (コア)</dt>
-            <dd class="font-medium text-neutral-900">
-              {{ cpuLimitText }}
-            </dd>
+            <div class="text-xs text-neutral-500">最大 vCPU (コア)</div>
+            <div class="text-sm text-neutral-900 font-medium">
+              {{ maxCpuText }}
+            </div>
           </div>
-
           <div>
-            <dt class="text-xs text-neutral-500 mb-1">最大メモリ</dt>
-            <dd class="font-medium text-neutral-900">
-              {{ memoryLimitText }}
-            </dd>
+            <div class="text-xs text-neutral-500">最大メモリ</div>
+            <div class="text-sm text-neutral-900 font-medium">
+              {{ maxMemoryText }}
+            </div>
           </div>
-
           <div>
-            <dt class="text-xs text-neutral-500 mb-1">最大ストレージ</dt>
-            <dd class="font-medium text-neutral-900">
-              {{ storageLimitText }}
-            </dd>
+            <div class="text-xs text-neutral-500">最大ストレージ</div>
+            <div class="text-sm text-neutral-900 font-medium">
+              {{ maxStorageText }}
+            </div>
           </div>
-        </dl>
+        </div>
       </div>
-
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
-import { computed, defineComponent } from "vue";
-
-type UserDetailView = {
-  id: string;
-  name: string;
-  email: string;
-  createdAt?: string;
-  lastLoginAt?: string;
-  isAdmin: boolean;
-  isImageAdmin: boolean;
-  isInstanceTypeAdmin: boolean;
-  isPhysicalNodeAdmin: boolean;
-  maxCpuCore?: number | null;
-  maxMemorySize?: number | null;
-  maxStorageSize?: number | null;
-};
+import { computed } from "vue";
+import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
 
 const props = defineProps<{
-  context: UserDetailView;
+  context: UserServerBase;
 }>();
 
 const user = computed(() => props.context);
 
+// 管理者フラグを配列にまとめる
+const adminFlags = computed(() => [
+  {
+    key: "admin",
+    label: "全体管理者",
+    enabled: user.value.isAdmin,
+  },
+  {
+    key: "image",
+    label: "イメージ管理",
+    enabled: user.value.isImageAdmin,
+  },
+  {
+    key: "instanceType",
+    label: "インスタンスタイプ管理",
+    enabled: user.value.isInstanceTypeAdmin,
+  },
+  {
+    key: "physicalNode",
+    label: "物理ノード管理",
+    enabled: user.value.isPhysicalNodeAdmin,
+  },
+]);
+
+const hasAnyAdmin = computed(() =>
+  adminFlags.value.some((flag) => flag.enabled)
+);
+
 // リソース上限表示
-const cpuLimitText = computed(() => {
-  const v = user.value.maxCpuCore;
-  return v == null ? "制限なし" : `${v} コア`;
-});
+const maxCpuText = computed(() =>
+  user.value.maxCpuCore == null ? "制限なし" : `${user.value.maxCpuCore} コア`
+);
 
-const memoryLimitText = computed(() => {
-  const bytes = user.value.maxMemorySize;
-  if (bytes == null) return "制限なし";
-  return `${Math.round(bytes / 1024 ** 3)} GB`;
-});
+const maxMemoryText = computed(() =>
+  user.value.maxMemorySize == null
+    ? "制限なし"
+    : `${Math.round(user.value.maxMemorySize / (1024 * 1024 * 1024))} GB`
+);
 
-const storageLimitText = computed(() => {
-  const bytes = user.value.maxStorageSize;
-  if (bytes == null) return "制限なし";
-  return `${Math.round(bytes / 1024 ** 3)} GB`;
-});
-
-// PermissionItem（ローカルコンポーネント）
-const PermissionItem = defineComponent({
-  name: "PermissionItem",
-  props: {
-    label: { type: String, required: true },
-    value: { type: Boolean, required: true },
-  },
-  setup(props) {
-    const text = computed(() => (props.value ? "有効" : "無効"));
-    const cls = computed(() =>
-      props.value
-        ? "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-emerald-50 text-emerald-700 border border-emerald-200"
-        : "inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium bg-slate-50 text-slate-700 border border-slate-200"
-    );
-
-    return { text, cls };
-  },
-  template: `
-    <div class="flex items-center justify-between rounded-md border border-neutral-200 px-3 py-2">
-      <span class="text-xs text-neutral-700">{{ label }}</span>
-      <span :class="cls">{{ text }}</span>
-    </div>
-  `,
-});
+const maxStorageText = computed(() =>
+  user.value.maxStorageSize == null
+    ? "制限なし"
+    : `${Math.round(user.value.maxStorageSize / (1024 * 1024 * 1024))} GB`
+);
 </script>
