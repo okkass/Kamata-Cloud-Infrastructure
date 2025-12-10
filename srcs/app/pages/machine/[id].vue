@@ -36,38 +36,29 @@ import { vmTabs } from "~/composables/detail/useVmtabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
 import { useToast } from "@/composables/useToast";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
+// ★ OpenAPI 生成型から正式なレスポンス型を利用
+import type { components } from "~~/shared/types";
 
 const { addToast } = useToast();
 
-type VmDetail = {
-  id: string;
-  name: string;
-  createdAt: string;
-  status: string;
-  node?: {
-    name?: string;
-    ipAddress?: string;
-    status?: string;
-  };
-  cpuCore?: number;
-  memorySize?: number | string;
-  attachedStorages?: { id: string; name: string; size: number }[];
-  securityGroups?: { id: string; name: string; createdAt?: string }[];
-  nics?: { id: string; name: string; ip: string }[];
-};
+// ★ 自作の VmDetail 型をやめて正式型で統一
+type VirtualMachineResponse =
+  components["schemas"]["VirtualMachineResponse"];
 
 const route = useRoute();
 const router = useRouter();
-const api = useApiClient();
 
 // VM 詳細取得
 const {
   data: vm,
   pending,
   error,
-  // useResourceDetail に refresh 相当があれば拾う想定（なければ undefined のままでOK）
+  // useResourceDetail に refresh 相当があれば拾う（なければ undefined のまま）
   refresh,
-} = await useResourceDetail<VmDetail>(MACHINE.name, route.params.id as string);
+} = await useResourceDetail<VirtualMachineResponse>(
+  "virtual-machines",
+  route.params.id as string
+);
 
 // 戻るボタン
 const goBack = () => {
@@ -123,7 +114,7 @@ const handleEditSuccess = async () => {
     type: "success",
   });
 
-  // useResourceDetail に refresh がある場合は再取得（なければ何も起きない）
+  // useResourceDetail に refresh がある場合は再取得
   if (typeof refresh === "function") {
     try {
       await refresh();
@@ -155,12 +146,15 @@ const handleAction = async (action: { label: string; value: string }) => {
   }
 
   try {
-    const res = await api.post<{ message: string; data?: { status: string } }>(
-      `virtual-machines/${vm.value.id}/${endpoint}`,
-      {
+    const res = await $fetch<{
+      message: string;
+      data: { id: string; status?: string };
+    }>(`/api/virtual-machines/${vm.value.id}/${endpoint}`, {
+      method: "POST",
+      body: {
         action: action.value,
-      }
-    );
+      },
+    });
 
     console.log("操作成功:", action.value, res);
 
