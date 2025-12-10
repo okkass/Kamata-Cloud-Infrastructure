@@ -2,8 +2,6 @@ type: object
 description: サブネット作成リクエストオブジェクト
 allOf:
   - $ref: "./SubnetUpdatable.yml"
-  - type: object
-    required:
-      - name
-      - cidr
-      - possibleExternalConnection
+required:
+  - name
+  - cidr

@@ -6,5 +6,10 @@ properties:
     format: ipv4
     description: 物理ノードのIPアドレス
     example: 192.168.0.1
+  rootPassword:
+    type: string
+    description: 物理ノードのrootパスワード
+    example: strongpassword123
 required:
   - ipAddress
+  - rootPassword

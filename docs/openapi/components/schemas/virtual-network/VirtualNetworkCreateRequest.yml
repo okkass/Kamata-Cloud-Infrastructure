@@ -3,6 +3,5 @@ description: 仮想ネットワーク作成リクエストオブジェクト
 allOf:
   - $ref: "./VirtualNetworkUpdatable.yml"
   - $ref: "./VirtualNetworkCreateOnly.yml"
-  - type: object
-    required:
-      - name
+required:
+  - name
