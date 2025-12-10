@@ -1,4 +1,4 @@
-import { NodeStatusEnum } from "../dto/node/NodeDTO";
+import type { NodeResponse } from "../api-types";
 
 /**
  * UI表示用に整形された物理ノードのデータ型。
@@ -27,7 +27,7 @@ export type UiNode = {
   /**
    * 物理ノードの状態
    */
-  status: NodeStatusEnum;
+  status: NodeResponse["status"];
 
   /**
    * CPU使用率 (UI表示用のパーセント文字列)
