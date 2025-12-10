@@ -15,10 +15,16 @@ import { useToast } from "~/composables/useToast";
 // ==============================================================================
 const zodSchema = z.object({
   name: z.string().min(1, "スナップショット名は必須です。"),
+<<<<<<< HEAD
   vmId: z
     .string({ message: "対象の仮想マシンを選択してください。" })
     .min(1, "対象の仮想マシンを選択してください。"),
   description: z.string().optional(),
+=======
+  targetVmId: z.string({
+    message: "対象仮想マシンを選択してください。",
+  }),
+>>>>>>> main
 });
 
 const validationSchema = toTypedSchema(zodSchema);

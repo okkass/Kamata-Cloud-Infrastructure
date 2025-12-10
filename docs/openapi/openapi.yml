@@ -2,7 +2,7 @@ openapi: "3.0.3"
 info:
   title: "KCI API"
   description: "KCI API documentation"
-  version: "0.45.1"
+  version: "0.46.0"
 paths:
   /api/login:
     $ref: "paths/auth/login.yml"
@@ -44,6 +44,10 @@ paths:
     $ref: "paths/storage-pool/storage-pools_node_{nodeId}.yml"
   /api/storage-pools/{id}:
     $ref: "paths/storage-pool/storage-pools_{id}.yml"
+  /api/history:
+    $ref: "paths/summary/history.yml"
+  /api/realtime:
+    $ref: "paths/summary/realtime.yml"
   /api/users:
     $ref: "paths/user/users.yml"
   /api/users/me:
@@ -56,6 +60,8 @@ paths:
     $ref: "paths/virtual-machine/backups.yml"
   /api/backups/{id}:
     $ref: "paths/virtual-machine/backups_{id}.yml"
+  /api/backups/{id}/restore:
+    $ref: "paths/virtual-machine/backups_{id}_restore.yml"
   /api/snapshots:
     $ref: "paths/virtual-machine/snapshots.yml"
   /api/snapshots/{id}:
@@ -70,12 +76,22 @@ paths:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_bulk.yml"
   /api/virtual-machines/{vmId}/network-interfaces/{nicId}:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_{nicId}.yml"
+  /api/virtual-machines/{vmId}/reboot:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_reboot.yml"
+  /api/virtual-machines/{vmId}/reset:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_reset.yml"
   /api/virtual-machines/{vmId}/security-groups:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups.yml"
   /api/virtual-machines/{vmId}/security-groups/bulk:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_bulk.yml"
   /api/virtual-machines/{vmId}/security-groups/{sgId}:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_{sgId}.yml"
+  /api/virtual-machines/{vmId}/shutdown:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_shutdown.yml"
+  /api/virtual-machines/{vmId}/start:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_start.yml"
+  /api/virtual-machines/{vmId}/stop:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_stop.yml"
   /api/virtual-machines/{vmId}/storages:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages.yml"
   /api/virtual-machines/{vmId}/storages/bulk:

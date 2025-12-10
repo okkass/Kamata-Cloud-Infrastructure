@@ -1,0 +1,14 @@
+type: object
+description: "ノード/各VMのメトリクス履歴の1データポイント"
+properties:
+  timestamp:
+    type: number
+    description: "ノード/各VMのメトリクスデータのタイムスタンプ(UNIXTIME)"
+    example: 1722672000000
+  value:
+    type: number
+    description: "ノード/各VMのメトリクスデータの値"
+    example: 1.031
+required:
+  - timestamp
+  - value
