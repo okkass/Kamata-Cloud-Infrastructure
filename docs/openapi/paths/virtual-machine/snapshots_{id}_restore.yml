@@ -1,0 +1,46 @@
+post:
+  summary: スナップショットを仮想マシンに復元する
+  description: 指定したIDのスナップショットを、スナップショット元の仮想マシンに復元します。復元先の仮想マシンが削除されている場合、復元は失敗します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: スナップショットの一意なID
+  responses:
+    "202":
+      description: 復元リクエスト受理
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/virtual-machine/VirtualMachineResponse.yml"
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "403":
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "404":
+      description: スナップショットまたは仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+  security:
+    - BearerAuth: []
