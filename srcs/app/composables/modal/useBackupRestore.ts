@@ -5,9 +5,11 @@
  */
 import { ref } from "vue";
 import { useToast } from "~/composables/useToast";
+import { useResourceCreate } from "~/composables/useResourceCreate";
 
 export function useBackupRestore() {
   const { addToast } = useToast();
+  // UI側のボタン無効化に使用するフラグ
   const isRestoring = ref(false);
 
   /**
@@ -21,28 +23,39 @@ export function useBackupRestore() {
       "【警告】\n本当に復元しますか？\n\n現在の仮想マシンの状態はこのバックアップの内容で上書きされ、元に戻すことはできません。"
     );
 
-    if (!isConfirmed) {
-      return false;
-    }
+    if (!isConfirmed) return false;
+
+    // 2. useResourceCreate の初期化
+    const { executeCreate } = useResourceCreate<Record<string, never>, any>(
+      `backups/${id}/restore`
+    );
 
     isRestoring.value = true;
 
     try {
-      await $fetch(`backups/${id}/restore`, {
-        method: "POST",
-      });
+      // 3. APIリクエスト実行 (ペイロードは空オブジェクト)
+      const result = await executeCreate({});
 
-      addToast({
-        type: "success",
-        message: `バックアップ「${name}」からの復元を開始しました。`,
-      });
-      return true;
-    } catch (error: any) {
-      console.error("Restore failed:", error);
+      if (result.success) {
+        addToast({
+          type: "success",
+          message: `バックアップ「${name}」からの復元を開始しました。`,
+        });
+        return true;
+      } else {
+        // useResourceCreateが返したエラーメッセージを表示
+        addToast({
+          type: "error",
+          message: "復元に失敗しました。",
+          details: result.error?.message,
+        });
+        return false;
+      }
+    } catch (err: any) {
       addToast({
         type: "error",
-        message: "復元に失敗しました。",
-        details: error?.data?.message || error.message,
+        message: "予期しないエラーが発生しました。",
+        details: err.message,
       });
       return false;
     } finally {
