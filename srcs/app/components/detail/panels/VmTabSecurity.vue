@@ -2,9 +2,7 @@
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">セキュリティグループ</h2>
 
-    <!-- ★ 外枠カードのみ -->
     <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
-      
       <div v-if="groups.length > 0" class="space-y-6">
         <div v-for="g in groups" :key="g.id" class="space-y-3">
 
@@ -43,18 +41,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from "vue";
+
 const props = defineProps<{
   context?: {
     securityGroups?: { id: string; name: string; createdAt: string }[];
   };
 }>();
 
-const groups = props.context?.securityGroups ?? [];
+// ★ リアクティブに変更（重要）
+const groups = computed(
+  () => props.context?.securityGroups ?? []
+);
 
-/**
- * 日付文字列を 'YYYY/MM/DD HH:mm' 形式にフォーマットする
- * ※ もともとの formatDate と同じロジックで、関数名だけ formatDateTime に変更
- */
 function formatDateTime(value?: string) {
   if (!value) return "-";
   const d = new Date(value);
