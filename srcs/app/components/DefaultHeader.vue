@@ -3,7 +3,7 @@
     <div class="flex items-center justify-between h-16">
       <div class="flex items-center">
         <nuxt-link to="/" class="text-lg font-bold flex items-center">
-          <Icon name="images:logo" size="3em" class="" />
+          <Icon name="images:logo" size="3em" />
           <span class="ml-2">Kamata-Cloud-Infrastrucuture</span>
         </nuxt-link>
       </div>
