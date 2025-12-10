@@ -16,93 +16,95 @@
       @back="goBack"
       @action="handleAction"
     />
-  </div>
 
-  <!-- ★ 編集モーダル -->
-  <MoUserEdit
-    :show="isEditOpen"
-    :user-data="userForEdit"
-    @close="handleEditClose"
-    @success="handleEditSuccess"
-  />
+    <!-- 編集モーダル -->
+    <MoUserEdit
+      v-if="user"
+      :show="isEditOpen"
+      :user-data="user"
+      @close="handleEditClose"
+      @success="handleEditSuccess"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from "vue";
+import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import { userTabs } from "~/composables/detail/useUserTabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
 import { USER } from "@/utils/constants";
 import MoUserEdit from "~/components/MoUserEdit.vue";
+import { useToast } from "@/composables/useToast";
 
-type UserDetail = {
+const { addToast } = useToast();
+
+// 画面用の User 型（DTO / Response はインポートしない）
+type UserDetailView = {
   id: string;
   name: string;
   email: string;
-  createdAt: string;
+  createdAt?: string;
+  lastLoginAt?: string;
   isAdmin: boolean;
-  lastLoginAt: string;
-  maxCpuCore?: number | null;
-  maxMemorySize?: number | null;
-  maxStorageSize?: number | null;
-  totpInfo?: {
-    secret: string;
-    uri: string;
-  };
   isImageAdmin: boolean;
   isInstanceTypeAdmin: boolean;
   isPhysicalNodeAdmin: boolean;
+  maxCpuCore?: number | null;
+  maxMemorySize?: number | null;
+  maxStorageSize?: number | null;
 };
 
 const route = useRoute();
 const router = useRouter();
 
-// /api/users/:id を叩く想定
 const {
   data: user,
   pending,
   error,
-} = await useResourceDetail<UserDetail>(
+  refresh,
+} = await useResourceDetail<UserDetailView>(
   USER.name, // "users"
   route.params.id as string
 );
 
-// --------------------
-// 操作メニュー
-// --------------------
+const goBack = () => {
+  router.back();
+};
+
+// 操作メニュー（とりあえず編集のみ）
 const actions = ref([{ label: "編集", value: "edit" }]);
 
-// 編集モーダルの開閉状態
+// 編集モーダル開閉
 const isEditOpen = ref(false);
 
-// モーダルに渡すユーザーデータ
-const userForEdit = computed(() => user.value ?? null);
-
-// 操作ボタンのハンドラ
 const handleAction = (action: { label: string; value: string }) => {
+  if (!user.value) return;
   if (action.value === "edit") {
     isEditOpen.value = true;
   }
 };
 
-// モーダル close
 const handleEditClose = () => {
   isEditOpen.value = false;
 };
 
-// モーダル保存成功時
-const handleEditSuccess = (updated?: UserDetail) => {
-  // composable側で更新後のユーザーデータを emit してくれるなら反映する
-  if (updated) {
-    // ref なので代入で上書きしてOK
-    (user as any).value = updated;
-  }
+const handleEditSuccess = async () => {
   isEditOpen.value = false;
-};
 
-// 戻る
-const goBack = () => {
-  router.back();
+  addToast({
+    message: "利用者情報を更新しました（モック）",
+    type: "success",
+  });
+
+  if (typeof refresh === "function") {
+    try {
+      await refresh();
+    } catch (e) {
+      console.error("利用者情報の再取得に失敗しました", e);
+    }
+  }
 };
 </script>

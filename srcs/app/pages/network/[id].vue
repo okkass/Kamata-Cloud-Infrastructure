@@ -1,29 +1,36 @@
 <template>
   <div class="mx-auto max-w-6xl px-4 py-6">
-    <div v-if="pending" class="text-sm text-neutral-500">読み込み中…</div>
+    <!-- ローディング -->
+    <div v-if="pending" class="text-sm text-neutral-500">
+      読み込み中…
+    </div>
 
+    <!-- エラー -->
     <div v-else-if="error" class="text-sm text-red-500">
       エラーが発生しました：{{ error.message }}
     </div>
 
+    <!-- 詳細本体 -->
+    <!-- ★ コメントはタグの外に出す -->
+    <!-- ユーザー用タブ (基本情報 / 権限など) は userTabs で定義 -->
     <ResourceDetailShell
       v-else
-      title="仮想ネットワーク詳細"
-      subtitle="Virtual Network Information"
-      :tabs="vnTabs"
-      :context="vnet!"
+      title="利用者詳細"
+      subtitle="User Information"
+      :tabs="userTabs"
+      :context="user!"
       :actions="actions"
       @back="goBack"
       @action="handleAction"
     />
 
-    <!-- 編集モーダル（MoVirtualNetworkEdit の仕様に合わせた） -->
-    <MoVirtualNetworkEdit
-      v-if="vnet"
+    <!-- 編集モーダル -->
+    <MoUserEdit
+      v-if="user"
       :show="isEditOpen"
-      :network-data="vnet"
+      :user-data="user"
       @close="handleEditClose"
-      @save="handleEditSave"
+      @success="handleEditSuccess"
     />
   </div>
 </template>
@@ -32,11 +39,13 @@
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
-import { vnTabs } from "~/composables/detail/useVntabs";
+import { userTabs } from "~/composables/detail/useusertabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
+import MoUserEdit from "@/components/MoUserEdit.vue";
 import { useToast } from "@/composables/useToast";
-import MoVirtualNetworkEdit from "@/components/MoVirtualNetworkEdit.vue";
-import { NETWORK } from "@/utils/constants";
+import { USER } from "@/utils/constants";
+// ★ サーバ側のベース型をインポート（MoUserEdit でも使っているやつ）
+import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
 
 const { addToast } = useToast();
 
@@ -58,33 +67,36 @@ const route = useRoute();
 const router = useRouter();
 
 const {
-  data: vnet,
+  data: user,
   pending,
   error,
   refresh,
-} = await useResourceDetail<VirtualNetworkDetail>(
-  NETWORK.name, // "virtual-networks"
+} = await useResourceDetail<UserDetail>(
+  USER.name, // "users"
   route.params.id as string
 );
 
+// 戻るボタン
 const goBack = () => {
   router.back();
 };
 
-// 操作メニュー（とりあえず編集のみ）
+// ★ 操作メニュー（とりあえず「編集」のみ）
 const actions = ref([{ label: "編集", value: "edit" }]);
 
-// 編集モーダル開閉
+// 編集モーダル表示フラグ
 const isEditOpen = ref(false);
 
+// 操作ボタン押下時
 const handleAction = (action: { label: string; value: string }) => {
-  if (!vnet.value) return;
+  if (!user.value) return;
 
   if (action.value === "edit") {
     isEditOpen.value = true;
   }
 };
 
+// モーダル close
 const handleEditClose = () => {
   isEditOpen.value = false;
 };
@@ -97,16 +109,15 @@ const handleEditSave = async (updated: VirtualNetworkDetail) => {
   isEditOpen.value = false;
 
   addToast({
-    message: "仮想ネットワークの情報を更新しました（ダミー）",
+    message: "利用者情報を更新しました（ダミー）",
     type: "success",
   });
 
-  // 将来 API 実装したらサーバの内容を取り直したい場合：
   if (typeof refresh === "function") {
     try {
       await refresh();
     } catch (e) {
-      console.error("仮想ネットワーク再取得に失敗しました", e);
+      console.error("ユーザー情報の再取得に失敗しました", e);
     }
   }
 };
