@@ -86,64 +86,64 @@ import StorageConfigTable from "~/components/StorageConfigTable.vue";
  * Validation Schema
  * ==============================================================================
  */
-const validationSchema = z
-  .object({
-    templateId: z.string().optional(),
-    cpuCore: z.preprocess(
-      (val) => (val === "" || val === null ? undefined : Number(val)),
-      z.number().min(1, "1コア以上を指定してください").optional()
-    ),
-    memorySize: z.preprocess(
-      (val) => (val === "" || val === null ? undefined : Number(val)),
-      z.number().min(512, "512MB以上を指定してください").optional()
-    ),
-    backupId: z.string().optional().nullable(),
-    storages: z.array(
-      z.object({
-        id: z.any(),
-        name: z.string().min(1, "必須"),
-        size: z.number().min(1, "1GB以上"),
-        poolId: z.string().min(1, "必須"),
-        type: z.enum(["manual", "backup"]).default("manual"),
-      })
-    ),
-  })
-  .superRefine((data, ctx) => {
-    // テンプレート未選択時は CPU/メモリ が必須
-    if (!data.templateId) {
-      if (!data.cpuCore) {
+const validationSchema = toTypedSchema(
+  z
+    .object({
+      templateId: z.string().optional(),
+      cpuCore: z.preprocess(
+        (val) => (val === "" || val === null ? undefined : Number(val)),
+        z.number().min(1, "1コア以上を指定してください").optional()
+      ),
+      memorySize: z.preprocess(
+        (val) => (val === "" || val === null ? undefined : Number(val)),
+        z.number().min(512, "512MB以上を指定してください").optional()
+      ),
+      backupId: z.string().optional().nullable(),
+      storages: z.array(
+        z.object({
+          id: z.any(),
+          name: z.string().min(1, "必須"),
+          size: z.number().min(1, "1GB以上"),
+          poolId: z.string().min(1, "必須"),
+          type: z.enum(["manual", "backup"]).default("manual"),
+        })
+      ),
+    })
+    .superRefine((data, ctx) => {
+      // テンプレート未選択時は CPU/メモリ が必須
+      if (!data.templateId) {
+        if (!data.cpuCore) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["cpuCore"],
+            message: "CPUコア数は必須です",
+          });
+        }
+        if (!data.memorySize) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            path: ["memorySize"],
+            message: "メモリサイズは必須です",
+          });
+        }
+      }
+      // ストレージは1つ以上必須
+      if (data.storages.length === 0) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
-          path: ["cpuCore"],
-          message: "CPUコア数は必須です",
+          path: ["storages"],
+          message: "少なくとも1つのストレージが必要です",
         });
       }
-      if (!data.memorySize) {
-        ctx.addIssue({
-          code: z.ZodIssueCode.custom,
-          path: ["memorySize"],
-          message: "メモリサイズは必須です",
-        });
-      }
-    }
-    // ストレージは1つ以上必須
-    if (data.storages.length === 0) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["storages"],
-        message: "少なくとも1つのストレージが必要です",
-      });
-    }
-  });
-
-type ConfigFormValues = z.infer<typeof validationSchema>;
+    })
+);
 
 /**
  * ==============================================================================
  * Form State Management
  * ==============================================================================
  */
-const { errors, defineField, values, meta } = useForm<ConfigFormValues>({
+const { errors, defineField, values, meta } = useForm({
   validationSchema,
   initialValues: {
     templateId: undefined,
