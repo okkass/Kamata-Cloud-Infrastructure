@@ -37,11 +37,7 @@ importers:
     dependencies:
       '@prisma/client':
         specifier: ^7.0.0
-<<<<<<< HEAD
-        version: 7.0.1(prisma@7.0.1(@types/react@19.2.7)(magicast@0.5.1)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3))(typescript@5.9.3)
-=======
         version: 7.1.0(prisma@7.1.0(@types/react@19.2.7)(magicast@0.5.1)(react-dom@19.2.1(react@19.2.1))(react@19.2.1)(typescript@5.9.3))(typescript@5.9.3)
->>>>>>> main
       '@types/busboy':
         specifier: ^1.5.4
         version: 1.5.4
@@ -7236,11 +7232,7 @@ snapshots:
 
   '@types/busboy@1.5.4':
     dependencies:
-<<<<<<< HEAD
-      '@types/node': 24.10.1
-=======
       '@types/node': 24.10.2
->>>>>>> main
 
   '@types/eslint-scope@3.7.7':
     dependencies:
