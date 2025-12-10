@@ -3,7 +3,7 @@ import type {
   NetworkInterfaceResponse,
   StorageResponse,
 } from "@app/shared/types";
-import { getNodeById } from "./nodesService";
+import { getNodeById } from "./nodeService";
 import { getSecurityGroupById } from "./securityGroupService";
 import { getStoragePoolById } from "./storagePoolService";
 

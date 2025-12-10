@@ -1,4 +1,4 @@
-import { getDevices } from "../../../services/nodeService";
+import { deleteNode } from "../../../services/nodeService";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
@@ -14,9 +14,15 @@ export default defineEventHandler(async (event) => {
       status: 400,
     };
   }
-  // これモックなので、常に同じデバイスリストを返す
-  const nodeId = res.data;
-  const devices = getDevices();
-
-  return devices;
+  const deleted = deleteNode(res.data);
+  if (!deleted) {
+    event.node.res.statusCode = 404;
+    return {
+      type: "Not Found",
+      detail: "Node not found",
+      status: 404,
+    };
+  }
+  event.node.res.statusCode = 204;
+  return;
 });

@@ -5,7 +5,7 @@ import type {
   StoragePoolPutRequest,
 } from "@app/shared/types";
 import crypto from "crypto";
-import { getNodeById } from "./nodesService";
+import { getNodeById } from "./nodeService";
 import { getRandomInt } from "@utils/mathUtils";
 
 let storagePools: Array<StoragePoolResponse> = [

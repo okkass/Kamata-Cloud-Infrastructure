@@ -1,4 +1,4 @@
-import { getNodes } from "../../services/nodesService";
+import { getNodes } from "../../services/nodeService";
 
 export default defineEventHandler(() => {
   return getNodes();
