@@ -9,14 +9,14 @@
         <div>
           <dt class="text-xs text-neutral-500">CPUコア</dt>
           <dd class="text-sm text-neutral-900 font-medium ">
-            {{ context.cpuCore }}
+            {{ cpuDisplay }}
           </dd>
         </div>
 
         <div>
           <dt class="text-xs text-neutral-500">メモリサイズ</dt>
           <dd class="text-sm text-neutral-900 font-medium ">
-            {{ convertByteToUnit(context.memorySize, "MB") }}MB
+            {{ memoryDisplay }}
           </dd>
         </div>
       </dl>
@@ -53,11 +53,67 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { convertByteToUnit } from "~/utils/format";
+
+/**
+ * このタブで使う分だけの「表示用型」
+ * DTO は使わず、必要なフィールドだけ定義
+ */
+type VmSpecContext = {
+  cpuCore?: number;
+  memorySize?: number; // bytes
+  instanceType?: {
+    cpuCore?: number;
+    memorySize?: number; // bytes
+  };
+  attachedStorages?: {
+    storage: {
+      name: string;
+      size: number;
+      pool: string;
+    };
+  }[];
+};
 
 const props = defineProps<{
-  context: any;
+  context: VmSpecContext | null | undefined;
 }>();
 
-// props をそのまま使いやすくするだけ（型崩れ防止）
-const context = computed(() => props.context ?? {});
+// null / undefined ガード
+const context = computed(() => (props.context ?? {}) as VmSpecContext);
+
+/**
+ * CPUコア
+ * - instanceType.cpuCore があれば優先
+ * - なければ context.cpuCore
+ */
+const cpuDisplay = computed(() => {
+  const cores =
+    context.value.instanceType?.cpuCore ?? context.value.cpuCore;
+
+  if (typeof cores !== "number" || !Number.isFinite(cores)) {
+    return "—";
+  }
+
+  // ラベル側に「CPUコア」とあるので数値だけでOK
+  return cores;
+});
+
+/**
+ * メモリサイズ（MB）
+ * - instanceType.memorySize があれば優先
+ * - なければ context.memorySize
+ * - 不正な値は "—" にして NaNMB を防ぐ
+ */
+const memoryDisplay = computed(() => {
+  const bytes =
+    context.value.instanceType?.memorySize ?? context.value.memorySize;
+
+  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes <= 0) {
+    return "—";
+  }
+
+  const mb = convertByteToUnit(bytes, "MB");
+  return `${mb}MB`;
+});
 </script>

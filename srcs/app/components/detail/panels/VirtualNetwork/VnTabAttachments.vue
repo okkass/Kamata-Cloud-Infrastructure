@@ -34,26 +34,23 @@
 
           <!-- VM一覧 -->
           <div class="space-y-2">
-            <div
+            <!-- ★ 変更: VM行を NuxtLink にして、仮想マシン詳細ページへ遷移できるように -->
+            <NuxtLink
               v-for="vm in group.vms"
               :key="vm.id"
-              class="rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm flex flex-col gap-1"
+              :to="`/machine/${vm.id}`"
+              class="block rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm hover:border-indigo-300 hover:shadow-sm transition"
             >
               <div class="flex items-center justify-between">
-                <!-- VM 詳細へのリンク -->
-                <NuxtLink
-                  :to="`/machine/${encodeURIComponent(String(vm.id))}`"
-                  class="table-link font-medium"
-                >
+                <div class="font-medium text-neutral-900">
                   {{ vm.name }}
-                </NuxtLink>
-
-                <!-- ★ ステータスは getVmStatusDisplay を呼び出して表示 -->
+                </div>
+                <!-- ★ 変更: status.ts の getVmStatusDisplay から class / text を取得 -->
                 <span
                   class="text-xs px-2 py-0.5 rounded-full"
-                  :class="getVmStatusDisplay(vm.status).class"
+                  :class="statusDisplay(vm.status).class"
                 >
-                  {{ getVmStatusDisplay(vm.status).text }}
+                  {{ statusDisplay(vm.status).text }}
                 </span>
               </div>
 
@@ -73,11 +70,12 @@
 
               <div class="text-xs text-neutral-600">
                 作成日時：
+                <!-- ★ 変更: ローカルの formatDate をやめて formatDateTime を使用 -->
                 <span>
-                  {{ formatDate(vm.createdAt) }}
+                  {{ formatDateTime(vm.createdAt) }}
                 </span>
               </div>
-            </div>
+            </NuxtLink>
           </div>
 
           <hr class="border-neutral-200" />
@@ -94,21 +92,27 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+// ★ 変更: 日付は共通ユーティリティ formatDateTime を利用
+import { formatDateTime } from "@/utils/date";
+// ★ 変更: ステータス表示は utils/status.ts の定義を利用
 import { getVmStatusDisplay } from "@/utils/status";
+
+// ★ 変更: context の型を VirtualNetworkResponse に合わせた形に整理
+type SubnetView = {
+  id: string;
+  name: string;
+  cidr: string;
+  createdAt: string;
+};
 
 const props = defineProps<{
   context?: {
     id: string;
-    subnets?: {
-      id: string;
-      name: string;
-      cidr: string;
-      possibleExternalConnection?: boolean;
-      createdAt?: string;
-    }[];
+    subnets?: SubnetView[];
   };
 }>();
 
+// このタブ内で使う VM 表示用のローカル型（API レスポンスをざっくり受ける想定）
 type VmAttachment = {
   id: string;
   name: string;
@@ -136,6 +140,7 @@ onMounted(async () => {
     const all: VmAttachment[] = [];
 
     for (const subnet of subnets) {
+      // ★ 変更: エンドポイントは /virtual-machines 固定（設計どおり）
       const raw = await $fetch<any[]>(
         `/api/virtual-networks/${vnetId}/subnets/${subnet.id}/virtual-machines`
       );
@@ -164,8 +169,10 @@ onMounted(async () => {
   }
 });
 
+// データ有無
 const hasData = computed(() => attachments.value.length > 0);
 
+// サブネットごとに VM をグルーピング
 const subnetGroups = computed(() => {
   const map = new Map<
     string,
@@ -187,16 +194,6 @@ const subnetGroups = computed(() => {
   return Array.from(map.values());
 });
 
-function formatDate(value?: string) {
-  if (!value) return "—";
-  const d = new Date(value);
-  if (Number.isNaN(d.getTime())) return value;
-  return d.toLocaleString("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
+// ★ 変更: status.ts の getVmStatusDisplay を薄ラップして使いやすく
+const statusDisplay = (status: string) => getVmStatusDisplay(status);
 </script>

@@ -25,7 +25,7 @@
           <div>
             <div class="text-xs text-neutral-500">作成日時</div>
             <div class="text-sm text-neutral-900 font-medium">
-              {{ formatDate(g.createdAt) }}
+              {{ formatDateTime(g.createdAt) }}
             </div>
           </div>
 
@@ -51,7 +51,11 @@ const props = defineProps<{
 
 const groups = props.context?.securityGroups ?? [];
 
-function formatDate(value?: string) {
+/**
+ * 日付文字列を 'YYYY/MM/DD HH:mm' 形式にフォーマットする
+ * ※ もともとの formatDate と同じロジックで、関数名だけ formatDateTime に変更
+ */
+function formatDateTime(value?: string) {
   if (!value) return "-";
   const d = new Date(value);
   if (isNaN(d.getTime())) return value;

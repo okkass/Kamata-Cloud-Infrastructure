@@ -49,8 +49,19 @@ import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
 
 const { addToast } = useToast();
 
-// ★ 画面用の型は UserServerBase をそのまま使う（不足プロパティエラーを防ぐ）
-type UserDetail = UserServerBase;
+// ★ 変更: VirtualNetworkResponse を元にした画面用ローカル型に揃えた
+type VirtualNetworkDetail = {
+  id: string;
+  name: string;
+  cidr: string;        // ← 必須に変更（?: を削除）
+  createdAt: string;   // ← 必須に変更（?: を削除）
+  subnets?: {
+    id: string;
+    name: string;
+    cidr: string;
+    createdAt: string; // ← external ではなく createdAt に統一
+  }[];
+};
 
 const route = useRoute();
 const router = useRouter();
@@ -90,12 +101,11 @@ const handleEditClose = () => {
   isEditOpen.value = false;
 };
 
-// ★ MoUserEdit から emit("success", updatedUser?) されたとき
-const handleEditSuccess = async (updated?: UserDetail) => {
-  if (updated) {
-    user.value = updated;
-  }
-
+// モーダル側で emit("save", editableNetwork) されたとき
+// ★ 変更: 引数の型も VirtualNetworkDetail に揃えた
+const handleEditSave = async (updated: VirtualNetworkDetail) => {
+  // ひとまずローカルの表示を更新
+  vnet.value = updated;
   isEditOpen.value = false;
 
   addToast({
