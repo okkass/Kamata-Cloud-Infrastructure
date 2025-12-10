@@ -83,8 +83,8 @@ import * as z from "zod";
  */
 const validationSchema = toTypedSchema(
   z.object({
-    vpcId: z.string({ required_error: "VPCを選択してください。" }),
-    subnetId: z.string({ required_error: "サブネットを選択してください。" }),
+    vpcId: z.string({ message: "VPCを選択してください。" }),
+    subnetId: z.string({ message: "サブネットを選択してください。" }),
     securityGroupId: z.string().nullable(),
     keyPairFile: z.any().nullable(),
   })

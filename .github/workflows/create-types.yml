@@ -34,7 +34,7 @@ jobs:
           node-version: "20"
           cache: "pnpm"
           # package.jsonがサブディレクトリにあるため、ロックファイルのパスを明示
-          cache-dependency-path: "srcs/pnpm-lock.yaml"
+          cache-dependency-path: "./pnpm-lock.yaml"
 
       # 4. 依存関係のインストール (srcsディレクトリ内)
       - name: Install dependencies

@@ -78,7 +78,7 @@ const { data: nodes, pending, error } = useResourceList<NodeDTO>("nodes");
 const validationSchema = toTypedSchema(
   z.object({
     name: z.string().min(1, "仮想マシン名は必須です。"),
-    nodeId: z.string({ required_error: "ノードを選択してください。" }),
+    nodeId: z.string({ message: "ノードを選択してください。" }),
   })
 );
 
