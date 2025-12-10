@@ -4,7 +4,7 @@ import type { NodePatchRequest } from "@app/shared/types";
 
 export default defineEventHandler(async (event) => {
   const bodySchema = z.object({
-    name: z.string().min(1).max(255).optional(),
+    name: z.string().min(1).max(50).optional(),
     isAdmin: z.boolean().optional(),
   });
 
