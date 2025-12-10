@@ -6,6 +6,6 @@ properties:
     description: 仮想マシンの名前
   spec:
     description: 仮想マシンのスペック情報
-    oneOf:
+    anyOf:
       - $ref: "./VirtualMachineWithInstanceTypeUpdatable.yml"
       - $ref: "./VirtualMachineWithCustomSpecUpdatable.yml"
