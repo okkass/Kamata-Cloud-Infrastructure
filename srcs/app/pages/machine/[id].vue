@@ -36,81 +36,24 @@ import { vmTabs } from "~/composables/detail/usevmtabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
 import { useToast } from "@/composables/useToast";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
+import type { components } from "~~/shared/types"; // ★ 追加
+
+// ★ OpenAPI 由来の型を使用
+type VirtualMachineResponse =
+  components["schemas"]["VirtualMachineResponse"];
 
 const { addToast } = useToast();
-
-/**
- * VM詳細画面用の「表示用型」
- * ※ DTO（Response 型）は import せず、この画面で使うフィールドだけ定義
- */
-type VmInstanceType = {
-  id: string;
-  name: string;
-  createdAt: string;
-  cpuCore: number;
-  memorySize: number; // bytes
-};
-
-type VmNode = {
-  id: string;
-  name: string;
-  ipAddress: string;
-  status: string;
-  isAdmin: boolean;
-  createdAt: string;
-};
-
-type VmSecurityGroupSummary = {
-  id: string;
-  name: string;
-  createdAt: string;
-};
-
-type VmAttachedStorage = {
-  storage: {
-    id: string;
-    name: string;
-    size: number; // bytes
-    pool: string;
-  };
-  path: string; // "/dev/sda" など
-};
-
-type VmAttachedNic = {
-  id: string;
-  subnetId: string;
-  ipAddress?: string;
-};
-
-type VmDetail = {
-  id: string;
-  name: string;
-  createdAt: string;
-  status: string;
-  // API が日本語ステータスを返す場合用（なければ undefined のまま）
-  statusJa?: string;
-  instanceType?: VmInstanceType;
-  node?: VmNode;
-  securityGroups?: VmSecurityGroupSummary[];
-  attachedStorages?: VmAttachedStorage[];
-  attachedNics?: VmAttachedNic[];
-
-  // 将来カスタム構成VMが来る場合に備えて optional で保持
-  cpuCore?: number;
-  memorySize?: number; // bytes
-};
 
 const route = useRoute();
 const router = useRouter();
 
-// VM 詳細取得
+// VM 詳細取得（VmDetail → VirtualMachineResponse に変更）
 const {
   data: vm,
   pending,
   error,
-  // useResourceDetail に refresh 相当があれば拾う想定（なければ undefined のままでOK）
   refresh,
-} = await useResourceDetail<VmDetail>(
+} = await useResourceDetail<VirtualMachineResponse>(
   "virtual-machines",
   route.params.id as string
 );
@@ -169,7 +112,7 @@ const handleEditSuccess = async () => {
     type: "success",
   });
 
-  // useResourceDetail に refresh がある場合は再取得（なければ何も起きない）
+  // useResourceDetail に refresh がある場合は再取得
   if (typeof refresh === "function") {
     try {
       await refresh();
@@ -183,7 +126,7 @@ const handleEditSuccess = async () => {
 const handleAction = async (action: { label: string; value: string }) => {
   if (!vm.value) return;
 
-  // 🔹 編集はモーダル起動
+  // 編集はモーダル起動
   if (action.value === "edit") {
     openEditModal();
     return;
