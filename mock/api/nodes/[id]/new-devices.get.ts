@@ -15,7 +15,6 @@ export default defineEventHandler(async (event) => {
     };
   }
   // これモックなので、常に同じデバイスリストを返す
-  const nodeId = res.data;
   const devices = getDevices();
 
   return devices;
