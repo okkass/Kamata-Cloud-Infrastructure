@@ -1,5 +1,5 @@
 type: object
-description: 仮想マシン更新可能なプロパティを持つオブジェクトのベース
+description: 仮想マシン更新可能なプロパティを持つオブジェクト
 properties:
   name:
     type: string
