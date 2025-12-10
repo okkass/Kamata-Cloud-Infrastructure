@@ -4,4 +4,7 @@ export default defineEventHandler((event) => {
     event.node.res.statusCode = 204;
     return "";
   }
+
+  // それ以外はそのまま続行
+  return;
 });
