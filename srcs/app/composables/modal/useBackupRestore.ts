@@ -6,9 +6,6 @@ export function useBackupRestore() {
   const { addToast } = useToast();
   const isRestoring = ref(false);
 
-  /**
-   * 復元をAPI実行する (UIでの確認が済んだ後に呼ばれる)
-   */
   const executeRestoreApi = async (
     id: string,
     name: string

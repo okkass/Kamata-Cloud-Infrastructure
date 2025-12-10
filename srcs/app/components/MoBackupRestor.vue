@@ -33,9 +33,6 @@
               {{ formatDate(backupData?.createdAt) }}
             </div>
 
-            <div class="text-gray-500">物理ノード</div>
-            <div class="col-span-2">{{ backupData?.node?.name || "-" }}</div>
-
             <div class="text-gray-500">ID</div>
             <div class="col-span-2 text-xs text-gray-400 break-all">
               {{ backupData?.id || "-" }}

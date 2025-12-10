@@ -374,7 +374,7 @@ const {
   refresh: refreshStoragePools,
 } = useResourceList<StoragePoolResponse>("storage-pools");
 
-// ★★★ 追加: 7. バックアップ ★★★
+// 7. バックアップ
 const {
   data: backups,
   pending: bkPending,
@@ -390,13 +390,11 @@ const editModals = computed(() => [
     props: { vmId: targetResource.value?.id },
     refreshFn: refreshVms,
   },
-  // ★★★ 修正: バックアップ復元モーダル ★★★
   {
     id: "backupRestore",
     component: markRaw(MoBackupRestore),
-    // バックアップデータ(BackupResponse)を渡す
     props: { backupData: targetResource.value },
-    refreshFn: refreshBackups, // 必要に応じて refreshVms などに変更可
+    refreshFn: refreshBackups,
   },
   {
     id: "instanceTypeEdit",
@@ -452,10 +450,8 @@ const handleSuccess = () => {
 
 // Open Helpers
 const openVmEditModal = (vm: VirtualMachineResponse) => openModal("vmEdit", vm);
-
 const openBackupRestoreModal = (backup: BackupResponse) =>
   openModal("backupRestore", backup);
-
 const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
   openModal("instanceTypeEdit", it);
 const openImageEditModal = (image: ImageResponse) =>
