@@ -7977,11 +7977,6 @@ export interface components {
             /** @description 関連付けるセキュリティグループのIDリスト */
             securityGroupIds: string[];
         };
-        /** @description 仮想マシン更新可能なプロパティを持つオブジェクトのベース */
-        VirtualMachineUpdatableBase: {
-            /** @description 仮想マシンの名前 */
-            name?: string;
-        };
         /** @description 仮想マシンをインスタンスタイプ指定で作成する場合の更新可能なプロパティを持つオブジェクト */
         VirtualMachineWithInstanceTypeUpdatable: {
             /**
@@ -7997,12 +7992,17 @@ export interface components {
             /** @description 仮想マシンのメモリ容量 (バイト単位) */
             memory: number;
         };
-        /** @description 仮想マシン更新可能なプロパティを持つオブジェクト */
-        VirtualMachineUpdatable: components["schemas"]["VirtualMachineUpdatableBase"] & (components["schemas"]["VirtualMachineWithInstanceTypeUpdatable"] | components["schemas"]["VirtualMachineWithCustomSpecUpdatable"]);
+        /** @description 仮想マシン更新可能なプロパティを持つオブジェクトのベース */
+        VirtualMachineUpdatable: {
+            /** @description 仮想マシンの名前 */
+            name?: string;
+            /** @description 仮想マシンのスペック情報 */
+            spec?: components["schemas"]["VirtualMachineWithInstanceTypeUpdatable"] | components["schemas"]["VirtualMachineWithCustomSpecUpdatable"];
+        };
         /** @description 仮想マシン作成リクエストオブジェクト */
-        VirtualMachineCreateRequest: components["schemas"]["VirtualMachineCreateOnly"] & components["schemas"]["VirtualMachineUpdatable"];
+        VirtualMachineCreateRequest: components["schemas"]["VirtualMachineCreateOnly"] & WithRequired<components["schemas"]["VirtualMachineUpdatable"], "name" | "spec">;
         /** @description 仮想マシン更新リクエストオブジェクト */
-        VirtualMachinePutRequest: components["schemas"]["VirtualMachineUpdatable"];
+        VirtualMachinePutRequest: WithRequired<components["schemas"]["VirtualMachineUpdatable"], "name">;
         /** @description 仮想マシン更新リクエストオブジェクト */
         VirtualMachinePatchRequest: components["schemas"]["VirtualMachineUpdatable"];
         /** @description ネットワークインターフェース更新可能オブジェクト */
@@ -8241,7 +8241,6 @@ export type SnapshotCreateRequest = components['schemas']['SnapshotCreateRequest
 export type SnapshotPutRequest = components['schemas']['SnapshotPutRequest'];
 export type SnapshotPatchRequest = components['schemas']['SnapshotPatchRequest'];
 export type VirtualMachineCreateOnly = components['schemas']['VirtualMachineCreateOnly'];
-export type VirtualMachineUpdatableBase = components['schemas']['VirtualMachineUpdatableBase'];
 export type VirtualMachineWithInstanceTypeUpdatable = components['schemas']['VirtualMachineWithInstanceTypeUpdatable'];
 export type VirtualMachineWithCustomSpecUpdatable = components['schemas']['VirtualMachineWithCustomSpecUpdatable'];
 export type VirtualMachineUpdatable = components['schemas']['VirtualMachineUpdatable'];
