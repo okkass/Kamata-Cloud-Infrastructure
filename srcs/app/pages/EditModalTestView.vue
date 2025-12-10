@@ -36,24 +36,15 @@
           >
             <td class="px-6 py-4 font-medium">{{ vm.name }}</td>
             <td class="px-6 py-4">{{ vm.status }}</td>
-            <td class="px-6 py-4">{{ vm.node }}</td>
+            <td class="px-6 py-4">{{ vm.node?.name || "-" }}</td>
             <td class="px-6 py-4 text-center">
-              <div class="flex justify-center gap-2">
-                <button
-                  @click="openVmEditModal(vm)"
-                  class="btn-secondary text-xs px-3 py-1"
-                  title="仮想マシン編集"
-                >
-                  編集
-                </button>
-                <button
-                  @click="openBackupRestoreModal(vm)"
-                  class="btn-secondary text-xs px-3 py-1 bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
-                  title="バックアップ復元 (テスト)"
-                >
-                  復元
-                </button>
-              </div>
+              <button
+                @click="openVmEditModal(vm)"
+                class="btn-secondary text-xs px-3 py-1"
+                title="仮想マシン編集"
+              >
+                編集
+              </button>
             </td>
           </tr>
         </tbody>
@@ -215,6 +206,95 @@
       </div>
     </div>
 
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">ストレージプール一覧 (API連携)</h2>
+      <div v-if="spPending" class="mt-2 text-gray-500">一覧を読み込み中...</div>
+      <div v-else-if="spError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ spError.message }}
+      </div>
+      <table
+        v-else-if="storagePools && storagePools.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">ノード</th>
+            <th class="px-6 py-3">デバイスパス</th>
+            <th class="px-6 py-3">NWアクセス</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="sp in storagePools" :key="sp.id" class="bg-white border-b">
+            <td class="px-6 py-4 font-medium">{{ sp.name }}</td>
+            <td class="px-6 py-4">{{ sp.node?.name || sp.nodeId }}</td>
+            <td class="px-6 py-4">{{ sp.devicePath }}</td>
+            <td class="px-6 py-4">
+              <span v-if="sp.hasNetworkAccess" class="text-green-600 font-bold"
+                >許可</span
+              >
+              <span v-else class="text-gray-500">拒否</span>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <button @click="openStorageEditModal(sp)" class="btn-secondary">
+                編集
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">バックアップ一覧 (API連携)</h2>
+      <div v-if="bkPending" class="mt-2 text-gray-500">
+        バックアップ一覧を読み込み中...
+      </div>
+      <div v-else-if="bkError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ bkError.message }}
+      </div>
+      <table
+        v-else-if="backups && backups.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">サイズ</th>
+            <th class="px-6 py-3">作成日時</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="bk in backups" :key="bk.id" class="bg-white border-b">
+            <td class="px-6 py-4 font-medium">{{ bk.name }}</td>
+            <td class="px-6 py-4">
+              {{
+                bk.size
+                  ? (bk.size / (1024 * 1024 * 1024)).toFixed(2) + " GB"
+                  : "-"
+              }}
+            </td>
+            <td class="px-6 py-4">
+              {{ new Date(bk.createdAt).toLocaleString() }}
+            </td>
+            <td class="px-6 py-4 text-center">
+              <button
+                @click="openBackupRestoreModal(bk)"
+                class="btn-secondary text-xs px-3 py-1 bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
+              >
+                復元
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="mt-2 text-gray-500">
+        表示できるバックアップがありません。
+      </div>
+    </div>
+
     <component
       v-for="modal in editModals"
       :key="modal.id"
@@ -238,6 +318,7 @@ import MoImageEdit from "~/components/MoImageEdit.vue";
 import MoUserEdit from "~/components/MoUserEdit.vue";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 import MoBackupRestore from "~/components/MoBackupRestor.vue";
+import MoStorageEdit from "~/components/MoStorageEdit.vue";
 
 // --- State ---
 const activeModal = ref<string | null>(null);
@@ -285,6 +366,22 @@ const {
   refresh: refreshSecurityGroups,
 } = useResourceList<SecurityGroupResponse>("security-groups");
 
+// 6. ストレージプール
+const {
+  data: storagePools,
+  pending: spPending,
+  error: spError,
+  refresh: refreshStoragePools,
+} = useResourceList<StoragePoolResponse>("storage-pools");
+
+// ★★★ 追加: 7. バックアップ ★★★
+const {
+  data: backups,
+  pending: bkPending,
+  error: bkError,
+  refresh: refreshBackups,
+} = useResourceList<BackupResponse>("backups");
+
 // --- モーダル定義 ---
 const editModals = computed(() => [
   {
@@ -293,12 +390,13 @@ const editModals = computed(() => [
     props: { vmId: targetResource.value?.id },
     refreshFn: refreshVms,
   },
+  // ★★★ 修正: バックアップ復元モーダル ★★★
   {
     id: "backupRestore",
     component: markRaw(MoBackupRestore),
-    // 復元モーダルには backupData としてデータを渡す
+    // バックアップデータ(BackupResponse)を渡す
     props: { backupData: targetResource.value },
-    refreshFn: refreshVms,
+    refreshFn: refreshBackups, // 必要に応じて refreshVms などに変更可
   },
   {
     id: "instanceTypeEdit",
@@ -324,6 +422,12 @@ const editModals = computed(() => [
     props: { securityGroupData: targetResource.value },
     refreshFn: refreshSecurityGroups,
   },
+  {
+    id: "storageEdit",
+    component: markRaw(MoStorageEdit),
+    props: { storageData: targetResource.value },
+    refreshFn: refreshStoragePools,
+  },
 ]);
 
 // --- Methods ---
@@ -348,8 +452,10 @@ const handleSuccess = () => {
 
 // Open Helpers
 const openVmEditModal = (vm: VirtualMachineResponse) => openModal("vmEdit", vm);
-const openBackupRestoreModal = (vm: VirtualMachineResponse) =>
-  openModal("backupRestore", vm);
+
+const openBackupRestoreModal = (backup: BackupResponse) =>
+  openModal("backupRestore", backup);
+
 const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
   openModal("instanceTypeEdit", it);
 const openImageEditModal = (image: ImageResponse) =>
@@ -357,4 +463,6 @@ const openImageEditModal = (image: ImageResponse) =>
 const openUserEditModal = (user: UserResponse) => openModal("userEdit", user);
 const openSecurityGroupEditModal = (sg: SecurityGroupResponse) =>
   openModal("securityGroupEdit", sg);
+const openStorageEditModal = (sp: StoragePoolResponse) =>
+  openModal("storageEdit", sp);
 </script>
