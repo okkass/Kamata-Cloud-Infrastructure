@@ -1,8 +1,8 @@
 import { validate } from "uuid";
-import { UserResponse } from "~~/shared/types";
+import { UserResponse } from "@app/shared/types";
 
 export default defineEventHandler((event) => {
-  let user: UserDTO | undefined;
+  let user: UserResponse | undefined;
   const id = event.context.params?.id;
 
   if (!id) {
@@ -27,6 +27,9 @@ export default defineEventHandler((event) => {
         isImageAdmin: true,
         isInstanceTypeAdmin: true,
         isPhysicalNodeAdmin: true,
+        isNetworkAdmin: true,
+        isVirtualMachineAdmin: true,
+        isSecurityGroupAdmin: true,
       },
       {
         id: "ff09658a-6b02-4c99-bb05-cf8487411d1f",
@@ -41,6 +44,9 @@ export default defineEventHandler((event) => {
         isImageAdmin: false,
         isInstanceTypeAdmin: false,
         isPhysicalNodeAdmin: false,
+        isNetworkAdmin: false,
+        isVirtualMachineAdmin: false,
+        isSecurityGroupAdmin: false,
       },
     ];
     user = users.find((u) => u.id === id);

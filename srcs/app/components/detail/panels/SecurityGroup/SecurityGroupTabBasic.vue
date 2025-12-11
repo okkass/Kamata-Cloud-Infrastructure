@@ -43,24 +43,6 @@
 import { computed } from "vue";
 import { formatDateTime } from "@/utils/date";
 
-type SecurityRule = {
-  id: string;
-  name: string;
-  ruleType: "inbound" | "outbound";
-  port?: number | null;
-  protocol: "tcp" | "udp" | "icmp" | "any";
-  targetIp: string;
-  action?: "allow" | "deny";
-  createdAt: string;
-};
-
-type SecurityGroupResponse = {
-  id: string;
-  name: string;
-  description?: string;
-  rules: SecurityRule[];
-  createdAt: string;
-};
 
 const props = defineProps<{
   context: SecurityGroupResponse;
