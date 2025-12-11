@@ -17,7 +17,7 @@
       @action="handleAction"
     />
 
-    <!-- 編集モーダル（MoVirtualNetworkEdit の仕様に合わせた） -->
+    <!-- 編集モーダル -->
     <MoVirtualNetworkEdit
       v-if="vnet"
       :show="isEditOpen"
@@ -101,7 +101,7 @@ const handleEditSave = async (updated: VirtualNetworkDetail) => {
     type: "success",
   });
 
-  // 将来 API 実装したらサーバの内容を取り直したい場合：
+  // 将来 API を実装したらサーバの内容を取り直したい場合：
   if (typeof refresh === "function") {
     try {
       await refresh();
