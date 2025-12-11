@@ -52,6 +52,18 @@ properties:
     type: boolean
     description: ユーザが物理ノード管理者かどうかを示すフラグ
     example: false
+  isVirtualMachineAdmin:
+    type: boolean
+    description: ユーザが仮想マシン管理者かどうかを示すフラグ
+    example: false
+  isNetworkAdmin:
+    type: boolean
+    description: ユーザがネットワーク管理者かどうかを示すフラグ
+    example: false
+  isSecurityGroupAdmin:
+    type: boolean
+    description: ユーザがセキュリティグループ管理者かどうかを示すフラグ
+    example: false
 required:
   - id
   - name
@@ -60,5 +72,8 @@ required:
   - isImageAdmin
   - isInstanceTypeAdmin
   - isPhysicalNodeAdmin
+  - isVirtualMachineAdmin
+  - isNetworkAdmin
+  - isSecurityGroupAdmin
   - createdAt
   - lastLoginAt

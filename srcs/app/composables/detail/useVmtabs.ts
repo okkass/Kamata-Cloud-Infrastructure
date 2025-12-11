@@ -15,22 +15,26 @@ export const vmTabs: VmTabConfig[] = [
   {
     label: "基本情報",
     value: "basic",
-    loader: () => import("~/components/detail/panels/VmTabBasic.vue"),
+    loader: () =>
+      import("~/components/detail/panels/VirtualMachine/VmTabBasic.vue"),
   },
   {
     label: "構成",
     value: "spec",
-    loader: () => import("~/components/detail/panels/VmTabSpec.vue"),
+    loader: () =>
+      import("~/components/detail/panels/VirtualMachine/VmTabSpec.vue"),
   },
   {
     label: "セキュリティグループ",
     value: "security",
-    loader: () => import("~/components/detail/panels/VmTabSecurity.vue"),
+    loader: () =>
+      import("~/components/detail/panels/VirtualMachine/VmTabSecurity.vue"),
   },
   {
     label: "ネットワークインターフェース",
     value: "nic",
-    loader: () => import("~/components/detail/panels/VmTabNic.vue"),
+    loader: () =>
+      import("~/components/detail/panels/VirtualMachine/VmTabNic.vue"),
   },
 ];
 

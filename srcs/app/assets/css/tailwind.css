@@ -323,6 +323,51 @@
     @apply mx-auto max-w-6xl px-4 py-6;
   }
 
+  /* 汎用ディテールカード（中身に space を持たせる） */
+  .detail-card {
+    @apply rounded-lg border border-neutral-200 bg-white p-4 space-y-3;
+  }
+
+  /* カード内セクションの区切り */
+  .detail-card-section {
+    @apply border-t border-neutral-200 pt-3 space-y-1;
+  }
+
+  /* ラベル用のテキスト */
+  .detail-label {
+    @apply text-xs text-neutral-500;
+  }
+
+  /* 値表示用のテキスト */
+  .detail-value {
+    @apply text-sm font-medium text-neutral-900;
+  }
+
+  /* 見出し用のテキスト（小見出し） */
+  .detail-heading-sm {
+    @apply mb-1 text-xs font-semibold text-neutral-500;
+  }
+
+  /* 2カラム表示用の簡易グリッド */
+  .detail-grid-2col {
+    @apply grid gap-3 md:grid-cols-2;
+  }
+
+  /* バッジ／ピルのベース */
+  .detail-pill {
+    @apply inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium border;
+  }
+
+  /* ピル（Yes/Active 系） */
+  .detail-pill-yes {
+    @apply bg-emerald-50 text-emerald-700 border-emerald-200;
+  }
+
+  /* ピル（No/Inactive 系） */
+  .detail-pill-no {
+    @apply bg-slate-100 text-slate-600 border-slate-200;
+  }
+
   /* ヘッダー全体 */
   .detail-header {
     @apply mb-6;

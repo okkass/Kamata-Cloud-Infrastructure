@@ -32,76 +32,33 @@
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
-import { vmTabs } from "~/composables/detail/usevmtabs";
+import { vmTabs } from "~/composables/detail/useVmtabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
 import { useToast } from "@/composables/useToast";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 
 const { addToast } = useToast();
 
-/**
- * VM詳細画面用の「表示用型」
- * ※ DTO（Response 型）は import せず、この画面で使うフィールドだけ定義
- */
-type VmInstanceType = {
-  id: string;
-  name: string;
-  createdAt: string;
-  cpuCore: number;
-  memorySize: number; // bytes
-};
-
-type VmNode = {
-  id: string;
-  name: string;
-  ipAddress: string;
-  status: string;
-  isAdmin: boolean;
-  createdAt: string;
-};
-
-type VmSecurityGroupSummary = {
-  id: string;
-  name: string;
-  createdAt: string;
-};
-
-type VmAttachedStorage = {
-  storage: {
-    id: string;
-    name: string;
-    size: number; // bytes
-    pool: string;
-  };
-  path: string; // "/dev/sda" など
-};
-
-type VmAttachedNic = {
-  id: string;
-  subnetId: string;
-  ipAddress?: string;
-};
-
 type VmDetail = {
   id: string;
   name: string;
   createdAt: string;
   status: string;
-  // API が日本語ステータスを返す場合用（なければ undefined のまま）
-  statusJa?: string;
-  instanceType?: VmInstanceType;
-  node?: VmNode;
-  securityGroups?: VmSecurityGroupSummary[];
-  attachedStorages?: VmAttachedStorage[];
-  attachedNics?: VmAttachedNic[];
-
-  // 将来カスタム構成VMが来る場合に備えて optional で保持
+  node?: {
+    name?: string;
+    ipAddress?: string;
+    status?: string;
+  };
   cpuCore?: number;
-  memorySize?: number; // bytes
+  memorySize?: number | string;
+  attachedStorages?: { id: string; name: string; size: number }[];
+  securityGroups?: { id: string; name: string; createdAt?: string }[];
+  nics?: { id: string; name: string; ip: string }[];
 };
 
 const route = useRoute();
 const router = useRouter();
+const api = useApiClient();
 
 // VM 詳細取得
 const {
@@ -110,10 +67,7 @@ const {
   error,
   // useResourceDetail に refresh 相当があれば拾う想定（なければ undefined のままでOK）
   refresh,
-} = await useResourceDetail<VmDetail>(
-  "virtual-machines",
-  route.params.id as string
-);
+} = await useResourceDetail<VmDetail>(MACHINE.name, route.params.id as string);
 
 // 戻るボタン
 const goBack = () => {
@@ -201,15 +155,12 @@ const handleAction = async (action: { label: string; value: string }) => {
   }
 
   try {
-    const res = await $fetch<{
-      message: string;
-      data: { id: string; status?: string };
-    }>(`/api/virtual-machines/${vm.value.id}/${endpoint}`, {
-      method: "POST",
-      body: {
+    const res = await api.post<{ message: string; data?: { status: string } }>(
+      `virtual-machines/${vm.value.id}/${endpoint}`,
+      {
         action: action.value,
-      },
-    });
+      }
+    );
 
     console.log("操作成功:", action.value, res);
 
