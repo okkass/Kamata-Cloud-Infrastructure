@@ -6,7 +6,7 @@ get:
   parameters:
     - name: scope
       in: query
-      description: 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine)
+      description: 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine)。
       required: false
       schema:
         type: string
