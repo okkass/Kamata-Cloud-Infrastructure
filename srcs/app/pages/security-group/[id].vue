@@ -38,8 +38,6 @@ import { useResourceDetail } from "~/composables/useResourceDetail";
 import { SECURITY_GROUP } from "@/utils/constants";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 
-type SecurityGroupResponse = components["schemas"]["SecurityGroupResponse"];
-
 const route = useRoute();
 const router = useRouter();
 
