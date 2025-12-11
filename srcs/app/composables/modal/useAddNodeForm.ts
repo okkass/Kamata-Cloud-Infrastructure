@@ -10,6 +10,7 @@ import { useToast } from "~/composables/useToast";
 export function useAddNodeForm() {
   const { addToast } = useToast();
 
+  // 1. ノード候補一覧の取得
   const {
     data: candidateNodes,
     pending: candidatesPending,
@@ -24,25 +25,22 @@ export function useAddNodeForm() {
   >("nodes");
 
   /**
-   * ノード追加処理
-   * 確認ダイアログを表示し、OKなら追加を実行する
+   * ノード追加実行処理
+   * @param node 対象ノード
+   * @param password 入力されたパスワード
+   * @param emit イベントエミッター
    */
   const handleAddNode = async (
     node: NodeResponse,
+    password: string,
     emit: (event: "success" | "close") => void
   ) => {
-    // 確認ダイアログ
-    const confirmed = confirm(
-      `ノード「${node.name} (${node.ipAddress})」をクラスターに追加しますか？\n\n※この操作は取り消せません。`
-    );
-
-    if (!confirmed) return;
-
     // リクエストペイロード作成
-    const payload: NodeCreateRequest = {
+    const payload: any = {
       name: node.name,
       ipAddress: node.ipAddress,
-      isAdmin: false, // 一般ノードとして追加
+      isAdmin: false,
+      rootPassword: password,
     };
 
     // API実行
@@ -53,16 +51,17 @@ export function useAddNodeForm() {
         type: "success",
         message: `ノード「${node.name}」を追加しました。`,
       });
-      // 成功したら一覧を再取得して、追加されたノードを候補から消す等の更新を行う
+      // 成功したら一覧を再取得
       await refreshCandidates();
       emit("success");
-      // 連続追加できるよう、モーダルは閉じない仕様にします（必要なら close を呼んでください）
+      return true;
     } else {
       addToast({
         type: "error",
         message: "ノードの追加に失敗しました。",
         details: result.error?.message,
       });
+      return false;
     }
   };
 
