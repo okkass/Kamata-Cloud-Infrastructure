@@ -1,0 +1,52 @@
+post:
+  summary: 仮想マシンのシャットダウン
+  description: 指定したIDの仮想マシンをシャットダウンします。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+  responses:
+    "200":
+      description: 成功(すでにシャットダウンしている場合)
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/virtual-machine/VirtualMachineResponse.yml"
+    "202":
+      description: リクエストを受理しました
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/virtual-machine/VirtualMachineResponse.yml"
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "403":
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "404":
+      description: 仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "409":
+      description: 別のリクエストを処理中
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+  security:
+    - BearerAuth: []

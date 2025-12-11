@@ -1,9 +1,14 @@
 type: object
 description: バックアップの作成時のみ設定可能なプロパティ
 properties:
-  targetVirtualStorageId:
+  targetVirtualMachineId:
+    type: string
+    format: uuid
+    description: バックアップ対象の仮想マシンのID
+  targetStorageId:
     type: string
     format: uuid
     description: バックアップ対象の仮想ストレージのID
 required:
-  - targetVirtualStorageId
+  - targetVirtualMachineId
+  - targetStorageId

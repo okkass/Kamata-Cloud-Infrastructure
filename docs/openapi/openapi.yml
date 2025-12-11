@@ -2,7 +2,7 @@ openapi: "3.0.3"
 info:
   title: "KCI API"
   description: "KCI API documentation"
-  version: "0.45.2"
+  version: "0.46.0"
 paths:
   /api/login:
     $ref: "paths/auth/login.yml"
@@ -66,6 +66,8 @@ paths:
     $ref: "paths/virtual-machine/snapshots.yml"
   /api/snapshots/{id}:
     $ref: "paths/virtual-machine/snapshots_{id}.yml"
+  /api/snapshots/{id}/restore:
+    $ref: "paths/virtual-machine/snapshots_{id}_restore.yml"
   /api/virtual-machines:
     $ref: "paths/virtual-machine/virtual-machines.yml"
   /api/virtual-machines/{vmId}:
@@ -76,12 +78,22 @@ paths:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_bulk.yml"
   /api/virtual-machines/{vmId}/network-interfaces/{nicId}:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_{nicId}.yml"
+  /api/virtual-machines/{vmId}/reboot:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_reboot.yml"
+  /api/virtual-machines/{vmId}/reset:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_reset.yml"
   /api/virtual-machines/{vmId}/security-groups:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups.yml"
   /api/virtual-machines/{vmId}/security-groups/bulk:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_bulk.yml"
   /api/virtual-machines/{vmId}/security-groups/{sgId}:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_{sgId}.yml"
+  /api/virtual-machines/{vmId}/shutdown:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_shutdown.yml"
+  /api/virtual-machines/{vmId}/start:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_start.yml"
+  /api/virtual-machines/{vmId}/stop:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_stop.yml"
   /api/virtual-machines/{vmId}/storages:
     $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages.yml"
   /api/virtual-machines/{vmId}/storages/bulk:

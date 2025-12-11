@@ -3,7 +3,6 @@ import { resolve } from "node:path";
 export default defineNitroConfig({
   routeRules: {
     "/api/**": {
-      cors: true,
       headers: {
         "Access-Control-Allow-Origin": "http://localhost:3000",
         "Access-Control-Allow-Methods":
@@ -15,5 +14,6 @@ export default defineNitroConfig({
   alias: {
     "@app": resolve(__dirname, "../srcs"),
     "@utils": resolve(__dirname, "./utils"),
+    "@": resolve(__dirname, "./"),
   },
 });

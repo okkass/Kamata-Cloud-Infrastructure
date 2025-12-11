@@ -91,7 +91,7 @@ export function useSummary(isAdmin: Ref<boolean>) {
     pending: summaryPending,
     error: summaryError,
     refresh: summaryRefresh,
-  } = useFetch<SummaryResponse>("/api/summary/realtime", {
+  } = useResourceList<SummaryResponse>("summary/realtime", {
     params: apiParams,
     lazy: true,
     server: false,
@@ -103,7 +103,7 @@ export function useSummary(isAdmin: Ref<boolean>) {
     pending: historyPending,
     error: historyError,
     refresh: historyRefresh,
-  } = useFetch<SummaryHistoryResponse>("/api/summary/history", {
+  } = useResourceList<SummaryHistoryResponse>("summary/history", {
     params: apiParams,
     lazy: true,
     server: false,
