@@ -104,9 +104,9 @@ const validationSchema = toTypedSchema(
     subnetId: z
       .string({ message: "サブネットを選択してください。" })
       .min(1, "サブネットを選択してください。"),
-    securityGroupId: z.string().nullable().optional(),
+    securityGroupId: z.string().optional(),
     // ファイルオブジェクト(File) または undefined
-    keyPairFile: z.any().optional(),
+    keyPairFile: z.any().optional().nullable(),
   })
 );
 
@@ -120,7 +120,7 @@ const { errors, defineField, values, meta, setFieldValue } = useForm({
   initialValues: {
     vpcId: undefined,
     subnetId: undefined,
-    securityGroupId: null,
+    securityGroupId: undefined,
     keyPairFile: undefined,
   },
 });

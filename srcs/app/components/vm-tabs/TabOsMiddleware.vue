@@ -56,7 +56,7 @@ const validationSchema = toTypedSchema(
     osImageId: z
       .string({ message: "OSイメージを選択してください。" })
       .min(1, "OSイメージを選択してください。"),
-    middlewareId: z.string().nullable().optional(),
+    middlewareId: z.string().nullable(),
   })
 );
 
