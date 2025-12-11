@@ -3,7 +3,9 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "~~/*": ["../srcs/*"]
+      "@app/*": ["../srcs/*"],
+      "@utils/*": ["./utils/*"],
+      "@/*": ["./*"]
     }
   }
 }
