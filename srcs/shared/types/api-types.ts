@@ -1512,7 +1512,10 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine) */
+                    scope?: "mine" | "all";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -3341,7 +3344,10 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine) */
+                    scope?: "mine" | "all";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -3833,7 +3839,10 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine) */
+                    scope?: "mine" | "all";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -4334,7 +4343,10 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine) */
+                    scope?: "mine" | "all";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -6211,7 +6223,10 @@ export interface paths {
          */
         get: {
             parameters: {
-                query?: never;
+                query?: {
+                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine) */
+                    scope?: "mine" | "all";
+                };
                 header?: never;
                 path?: never;
                 cookie?: never;
@@ -7644,7 +7659,7 @@ export interface components {
              * @description ユーザが物理ノード管理者かどうかを示すフラグ
              * @example false
              */
-            isPhysicalNodeAdmin: boolean;
+            isNodeAdmin: boolean;
             /**
              * @description ユーザが仮想マシン管理者かどうかを示すフラグ
              * @example false
@@ -7725,12 +7740,12 @@ export interface components {
              * @description ユーザが物理ノード管理者かどうかを示すフラグ
              * @example false
              */
-            isPhysicalNodeAdmin?: boolean;
+            isNodeAdmin?: boolean;
         };
         /** @description ユーザ作成リクエストオブジェクト */
         UserCreateRequest: components["schemas"]["UserCreateOnly"] & WithRequired<components["schemas"]["UserUpdatable"], "name" | "email" | "isAdmin" | "maxCpuCore" | "maxMemorySize" | "maxStorageSize">;
         /** @description ユーザ更新リクエストオブジェクト */
-        UserPutRequest: WithRequired<components["schemas"]["UserUpdatable"], "name" | "email" | "isAdmin" | "isImageAdmin" | "isInstanceTypeAdmin" | "isVirtualMachineAdmin" | "isNetworkAdmin" | "isSecurityGroupAdmin" | "isPhysicalNodeAdmin">;
+        UserPutRequest: WithRequired<components["schemas"]["UserUpdatable"], "name" | "email" | "isAdmin" | "isImageAdmin" | "isInstanceTypeAdmin" | "isVirtualMachineAdmin" | "isNetworkAdmin" | "isSecurityGroupAdmin" | "isNodeAdmin">;
         /** @description ユーザ更新リクエストオブジェクト */
         UserPatchRequest: components["schemas"]["UserUpdatable"];
         /** @description パスワード変更リクエストオブジェクト */
