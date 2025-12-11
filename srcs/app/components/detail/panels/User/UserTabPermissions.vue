@@ -56,21 +56,13 @@
 import { computed } from "vue";
 import { convertByteToUnit } from "@/utils/format";
 import { DISABLE_ROUNDING } from "@/utils/constants";
+import { keyof } from "zod";
 
 // ★ 画面用の最小限 User 型（このファイル内だけで完結）
 //   - DTO / Response 型は import しない
-type UserPermView = {
-  isAdmin: boolean;
-  isImageAdmin: boolean;
-  isInstanceTypeAdmin: boolean;
-  isPhysicalNodeAdmin: boolean;
-  maxCpuCore?: number | null;
-  maxMemorySize?: number | null;
-  maxStorageSize?: number | null;
-};
 
 const props = defineProps<{
-  context: UserPermView;
+  context: UserResponse;
 }>();
 
 const user = computed(() => props.context);
@@ -97,6 +89,21 @@ const adminFlags = computed(() => [
     label: "物理ノード管理",
     enabled: user.value.isPhysicalNodeAdmin,
   },
+  {
+    key: "network",
+    label: "ネットワーク管理",
+    enabled: user.value.isNetworkAdmin,
+  },
+  {
+    key: "virtualMachine",
+    label: "仮想マシン管理",
+    enabled: user.value.isVirtualMachineAdmin,
+  },
+  {
+    key: "securityGroup",
+    label: "セキュリティグループ管理",
+    enabled: user.value.isSecurityGroupAdmin,
+  }
 ]);
 
 const hasAnyAdmin = computed(() =>

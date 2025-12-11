@@ -34,19 +34,6 @@
           {{ formatDateTime(user.lastLoginAt) }}
         </div>
       </div>
-
-      <!-- 全体管理者フラグ -->
-      <div class="detail-card-section">
-        <div class="detail-label">全体管理者</div>
-        <div>
-          <span
-            class="detail-pill"
-            :class="user.isAdmin ? 'detail-pill-yes' : 'detail-pill-no'"
-          >
-            {{ user.isAdmin ? "有効" : "無効" }}
-          </span>
-        </div>
-      </div>
     </div>
   </section>
 </template>
@@ -57,20 +44,9 @@ import { formatDateTime } from "@/utils/date";
 
 // ★ 画面用の最小限 User 型（ローカル定義のみ）
 //   - DTO / Response 型は import しない
-type UserView = {
-  id: string;
-  name: string;
-  email: string;
-  createdAt?: string | null;
-  lastLoginAt?: string | null;
-  isAdmin: boolean;
-  isImageAdmin: boolean;
-  isInstanceTypeAdmin: boolean;
-  isPhysicalNodeAdmin: boolean;
-};
 
 const props = defineProps<{
-  context: UserView;
+  context: UserResponse;
 }>();
 
 const user = computed(() => props.context);

@@ -82,7 +82,7 @@ const {
   pending,
   error,
   refresh,
-} = await useResourceDetail<UserDetailView>(USER.name, route.params.id as string);
+} = await useResourceDetail<UserResponse>(USER.name, route.params.id as string);
 
 // ------------------------------------------------------
 // 戻るボタン
