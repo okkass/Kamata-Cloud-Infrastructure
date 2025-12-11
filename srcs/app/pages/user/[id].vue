@@ -1,8 +1,8 @@
 <template>
-  <div class="mx-auto max-w-6xl px-4 py-6">
-    <div v-if="pending" class="text-sm text-neutral-500">読み込み中…</div>
+  <div class="detail-container">
+    <div v-if="pending" class="text-loading">読み込み中…</div>
 
-    <div v-else-if="error" class="text-sm text-red-500">
+    <div v-else-if="error" class="error-text">
       エラーが発生しました：{{ error.message }}
     </div>
 
@@ -17,7 +17,7 @@
       @action="handleAction"
     />
 
-    <!-- 編集モーダル -->
+    <!-- 編集モーダル（範囲外なので触らない） -->
     <MoUserEdit
       v-if="user"
       :show="isEditOpen"
@@ -29,6 +29,13 @@
 </template>
 
 <script setup lang="ts">
+/**
+ * User 詳細ページ 完全版
+ * - 自作型禁止 → ローカル表示型のみ使用
+ * - タブ側と型を完全一致
+ * - UI は ResourceDetailShell 前提の構造に統一
+ */
+
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
@@ -41,47 +48,57 @@ import { useToast } from "@/composables/useToast";
 
 const { addToast } = useToast();
 
-// 画面用の User 型（DTO / Response はインポートしない）
+// ------------------------------------------------------
+// 画面用の最小限 User 型（タブ2つと完全一致）
+// ------------------------------------------------------
 type UserDetailView = {
   id: string;
   name: string;
   email: string;
-  createdAt?: string;
-  lastLoginAt?: string;
+  createdAt?: string | null;
+  lastLoginAt?: string | null;
+
+  // 管理者権限
   isAdmin: boolean;
   isImageAdmin: boolean;
   isInstanceTypeAdmin: boolean;
   isPhysicalNodeAdmin: boolean;
+
+  // リソース上限
   maxCpuCore?: number | null;
   maxMemorySize?: number | null;
   maxStorageSize?: number | null;
 };
 
+// ------------------------------------------------------
+// ルーティング
+// ------------------------------------------------------
 const route = useRoute();
 const router = useRouter();
 
+// ------------------------------------------------------
+// データ取得
+// ------------------------------------------------------
 const {
   data: user,
   pending,
   error,
   refresh,
-} = await useResourceDetail<UserDetailView>(
-  USER.name, // "users"
-  route.params.id as string
-);
+} = await useResourceDetail<UserDetailView>(USER.name, route.params.id as string);
 
-const goBack = () => {
-  router.back();
-};
+// ------------------------------------------------------
+// 戻る
+// ------------------------------------------------------
+const goBack = () => router.back();
 
-// 操作メニュー（とりあえず編集のみ）
+// ------------------------------------------------------
+// 操作メニュー
+// ------------------------------------------------------
 const actions = ref([{ label: "編集", value: "edit" }]);
 
-// 編集モーダル開閉
 const isEditOpen = ref(false);
 
 const handleAction = (action: { label: string; value: string }) => {
-  if (!user.value) return;
   if (action.value === "edit") {
     isEditOpen.value = true;
   }
@@ -91,6 +108,7 @@ const handleEditClose = () => {
   isEditOpen.value = false;
 };
 
+// 編集成功時
 const handleEditSuccess = async () => {
   isEditOpen.value = false;
 
