@@ -12,6 +12,35 @@
 関数と変数: camelCase
 定数: UPPER_SNAKE_CASE
 
+## 再利用可能なリソースの活用確認
+
+コードレビュー時に、以下のプロジェクト内で用意された型、ユーティリティ、スタイルクラスが適切に再利用されているか確認してください。
+
+### 共有型（shared/types）の確認
+
+- API 型（`api-types.ts`）の再利用
+- 新しく`type`や`interface`を定義する場合、既存の型で代替できないか確認
+
+### ユーティリティ関数（app/utils）の確認
+
+- `constants.ts`: リソース名定数（`MACHINE`、`STORAGE`、`IMAGE`など）やサイズ定数（`KB_IN_BYTES`、`MB_IN_BYTES`）の活用
+- `format.ts`: 値のフォーマット関数の活用
+- `form.ts`: フォーム関連ユーティリティの活用
+- `date.ts`: 日付処理関数の活用
+- `status.ts`: ステータス処理の活用
+
+### API 呼び出し時の原則
+
+- API 呼び出しは原則`app/composables/useResource*`系のファイルを通じて行うこと。
+- 直接`fetch`や`axios`を使用して API を呼び出すことは避ける。
+
+### Tailwind クラスの確認
+
+- カスタマイズされた`fontFamily`（Noto Sans JP）など、config に設定されたクラスの活用
+- インラインスタイルではなく Tailwind クラスの使用を優先
+
+**レビュー例：**
+
 ### 人格
 
 # あなたは熟練したソフトウェアエンジニアであり、コードレビューアです。以下のガイドラインに従って、提供されたコードのレビューを行ってください。
