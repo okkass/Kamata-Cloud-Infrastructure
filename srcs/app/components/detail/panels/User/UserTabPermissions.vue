@@ -56,7 +56,6 @@
 import { computed } from "vue";
 import { convertByteToUnit } from "@/utils/format";
 import { DISABLE_ROUNDING } from "@/utils/constants";
-import { keyof } from "zod";
 
 // ★ 画面用の最小限 User 型（このファイル内だけで完結）
 //   - DTO / Response 型は import しない
