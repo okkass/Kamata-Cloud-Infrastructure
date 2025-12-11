@@ -1,3 +1,4 @@
+<!-- /workspace/srcs/app/pages/user/[id].vue -->
 <template>
   <div class="detail-container">
     <div v-if="pending" class="text-loading">読み込み中…</div>
@@ -30,10 +31,10 @@
 
 <script setup lang="ts">
 /**
- * User 詳細ページ 完全版
- * - 自作型禁止 → ローカル表示型のみ使用
- * - タブ側と型を完全一致
- * - UI は ResourceDetailShell 前提の構造に統一
+ * User 詳細ページ (トースト削除済み)
+ * - ローカル表示用型のみ使用
+ * - タブと完全一致
+ * - ResourceDetailShell 前提のレイアウト
  */
 
 import { ref } from "vue";
@@ -44,12 +45,9 @@ import { userTabs } from "~/composables/detail/useUserTabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
 import { USER } from "@/utils/constants";
 import MoUserEdit from "~/components/MoUserEdit.vue";
-import { useToast } from "@/composables/useToast";
-
-const { addToast } = useToast();
 
 // ------------------------------------------------------
-// 画面用の最小限 User 型（タブ2つと完全一致）
+// 画面専用 User 型（タブに合わせた最小構成）
 // ------------------------------------------------------
 type UserDetailView = {
   id: string;
@@ -87,12 +85,12 @@ const {
 } = await useResourceDetail<UserDetailView>(USER.name, route.params.id as string);
 
 // ------------------------------------------------------
-// 戻る
+// 戻るボタン
 // ------------------------------------------------------
 const goBack = () => router.back();
 
 // ------------------------------------------------------
-// 操作メニュー
+// 操作メニュー（編集のみ）
 // ------------------------------------------------------
 const actions = ref([{ label: "編集", value: "edit" }]);
 
@@ -112,11 +110,9 @@ const handleEditClose = () => {
 const handleEditSuccess = async () => {
   isEditOpen.value = false;
 
-  addToast({
-    message: "利用者情報を更新しました（モック）",
-    type: "success",
-  });
+  // トースト削除済み → 何も表示しない
 
+  // 再取得
   if (typeof refresh === "function") {
     try {
       await refresh();
