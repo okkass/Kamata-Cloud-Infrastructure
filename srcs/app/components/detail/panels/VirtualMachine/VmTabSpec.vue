@@ -2,39 +2,29 @@
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">構成</h2>
 
-    <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
-      <!-- CPU / メモリ -->
+    <div class="detail-card space-y-4">
       <dl class="space-y-3 text-sm">
         <div>
-          <dt class="text-xs text-neutral-500">CPUコア</dt>
-          <dd class="text-sm text-neutral-900 font-medium">
-            {{ cpuDisplay }}
-          </dd>
+          <dt class="detail-label">CPUコア</dt>
+          <dd class="detail-value">{{ cpuDisplay }}</dd>
         </div>
 
         <div>
-          <dt class="text-xs text-neutral-500">メモリサイズ</dt>
-          <dd class="text-sm text-neutral-900 font-medium">
-            {{ memoryDisplay }}
-          </dd>
+          <dt class="detail-label">メモリサイズ</dt>
+          <dd class="detail-value">{{ memoryDisplay }}</dd>
         </div>
       </dl>
 
-      <!-- ストレージ -->
-      <div class="pt-3 border-t border-neutral-200">
-        <h3 class="mb-2 text-sm font-semibold text-neutral-700">
-          ストレージ
-        </h3>
+      <div class="detail-card-section">
+        <h3 class="text-sm font-semibold text-neutral-700">ストレージ</h3>
 
-        <div class="space-y-2">
+        <div class="space-y-2 mt-2">
           <article
             v-for="s in storages"
             :key="s.id"
             class="rounded-lg border border-neutral-200 px-4 py-3"
           >
-            <p class="text-xs text-neutral-500">
-              {{ s.name }}
-            </p>
+            <p class="text-xs text-neutral-500">{{ s.name }}</p>
             <p class="text-sm text-neutral-900 font-medium">
               サイズ：{{ sizeGb(s.size) }}GB
             </p>
@@ -43,10 +33,7 @@
             </p>
           </article>
 
-          <p
-            v-if="storages.length === 0"
-            class="text-sm text-neutral-500"
-          >
+          <p v-if="storages.length === 0" class="text-sm text-neutral-500">
             ストレージは接続されていません。
           </p>
         </div>
@@ -58,12 +45,10 @@
 <script setup lang="ts">
 import { computed } from "vue";
 import { convertByteToUnit } from "~/utils/format";
-import type { components } from "~~/shared/types";
 
 type VirtualMachineResponse =
   components["schemas"]["VirtualMachineResponse"];
 
-// 表示用ストレージ型
 type StorageView = {
   id: string;
   name: string;
@@ -71,40 +56,25 @@ type StorageView = {
   poolLabel: string;
 };
 
-// ★ 必要なフィールドだけ Pick（cpuCore / memorySize / storages）
-type VmSpecContext = Pick<
-  VirtualMachineResponse,
-  "cpuCore" | "memorySize" | "storages"
->;
-
 const props = defineProps<{
-  context?: VmSpecContext | null;
+  context?: VirtualMachineResponse | null;
 }>();
 
-const vm = computed(() => props.context ?? ({} as VmSpecContext));
+const vm = computed(() => props.context);
 
-/** CPU コア数 */
 const cpuDisplay = computed(() => {
-  const cores = vm.value.cpuCore;
-  if (typeof cores !== "number" || !Number.isFinite(cores)) {
-    return "—";
-  }
-  return cores;
+  const cores = vm.value?.cpuCore;
+  return typeof cores === "number" ? cores : "—";
 });
 
-/** メモリサイズ（byte → MB） */
 const memoryDisplay = computed(() => {
-  const bytes = vm.value.memorySize;
-  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes <= 0) {
-    return "—";
-  }
-  const mb = convertByteToUnit(bytes, "MB");
-  return `${mb}MB`;
+  const bytes = vm.value?.memorySize;
+  if (!bytes || typeof bytes !== "number") return "—";
+  return `${convertByteToUnit(bytes, "MB")}MB`;
 });
 
-/** ストレージ一覧 */
 const storages = computed<StorageView[]>(() => {
-  const list = vm.value.storages ?? [];
+  const list = vm.value?.storages ?? [];
   if (!Array.isArray(list)) return [];
 
   return list.map((s) => ({
@@ -116,9 +86,7 @@ const storages = computed<StorageView[]>(() => {
 });
 
 const sizeGb = (bytes: number) => {
-  if (typeof bytes !== "number" || !Number.isFinite(bytes) || bytes < 0) {
-    return "—";
-  }
+  if (!bytes || typeof bytes !== "number") return "—";
   return convertByteToUnit(bytes, "GB");
 };
 </script>
