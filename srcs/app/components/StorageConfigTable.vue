@@ -1,0 +1,169 @@
+<template>
+  <div class="border rounded-md overflow-hidden bg-white">
+    <div
+      class="bg-gray-100 px-4 py-2 border-b flex justify-between items-center"
+    >
+      <h3 class="font-bold text-sm text-gray-700">ディスク一覧</h3>
+      <button
+        type="button"
+        @click="$emit('add')"
+        class="text-xs bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-2 py-1 rounded shadow-sm transition-colors"
+      >
+        + 追加
+      </button>
+    </div>
+
+    <div class="p-4">
+      <div
+        v-if="storages.length === 0"
+        class="text-center text-gray-400 py-4 text-sm"
+      >
+        ストレージがありません。
+      </div>
+
+      <div v-else class="space-y-3">
+        <div
+          v-for="(storage, index) in storages"
+          :key="storage.id || index"
+          class="border-b border-gray-100 pb-3 last:border-0 last:pb-0"
+        >
+          <div class="grid grid-cols-12 gap-2 items-end">
+            <div class="col-span-4">
+              <label class="block text-xs text-gray-500 mb-1">名前</label>
+              <input
+                type="text"
+                v-model="storage.name"
+                class="form-input-sm w-full"
+                :class="{ 'border-red-500': getError(index, 'name') }"
+                placeholder="disk-1"
+              />
+            </div>
+
+            <div class="col-span-3">
+              <label class="block text-xs text-gray-500 mb-1"
+                >サイズ (GB)</label
+              >
+              <input
+                type="number"
+                v-model.number="storage.size"
+                class="form-input-sm w-full"
+                :class="{ 'border-red-500': getError(index, 'size') }"
+                :disabled="storage.type === 'backup'"
+                :title="
+                  storage.type === 'backup'
+                    ? 'バックアップ元のサイズに固定されています'
+                    : ''
+                "
+              />
+            </div>
+
+            <div class="col-span-4">
+              <label class="block text-xs text-gray-500 mb-1"
+                >保存先プール</label
+              >
+              <select
+                v-model="storage.poolId"
+                class="form-select-sm w-full"
+                :class="{ 'border-red-500': getError(index, 'poolId') }"
+              >
+                <option value="" disabled>プールを選択</option>
+                <option
+                  v-for="pool in storagePools ?? []"
+                  :key="pool.id"
+                  :value="pool.id"
+                >
+                  {{ pool.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="col-span-1 flex justify-end pb-1">
+              <button
+                type="button"
+                @click="$emit('remove', index)"
+                class="text-gray-400 hover:text-red-500 p-1"
+                title="削除"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  class="w-5 h-5"
+                >
+                  <path
+                    fill-rule="evenodd"
+                    d="M16.5 4.478v.227a48.816 48.816 0 013.878.512.75.75 0 11-.256 1.478l-.209-.035-1.005 13.07a3 3 0 01-2.991 2.77H8.084a3 3 0 01-2.991-2.77L4.087 6.66l-.209.035a.75.75 0 01-.256-1.478A48.567 48.567 0 017.5 4.705v-.227c0-1.564 1.213-2.9 2.816-2.951a52.662 52.662 0 013.369 0c1.603.051 2.815 1.387 2.815 2.951zm-6.136-1.452a51.196 51.196 0 013.273 0C14.39 3.05 15 3.684 15 4.478v.113a49.488 49.488 0 00-6 0v-.113c0-.794.609-1.428 1.364-1.452zm-.355 5.945a.75.75 0 10-1.5.058l.347 9a.75.75 0 101.499-.058l-.346-9zm5.48.058a.75.75 0 10-1.498-.058l-.347 9a.75.75 0 001.5.058l.345-9z"
+                    clip-rule="evenodd"
+                  />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <div class="mt-1 space-y-1">
+            <p v-if="getError(index, 'name')" class="text-xs text-red-500">
+              名前: {{ getError(index, "name") }}
+            </p>
+            <p v-if="getError(index, 'size')" class="text-xs text-red-500">
+              サイズ: {{ getError(index, "size") }}
+            </p>
+            <p v-if="getError(index, 'poolId')" class="text-xs text-red-500">
+              プール: {{ getError(index, "poolId") }}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</template>
+
+<script setup lang="ts">
+import type { PropType } from "vue";
+// 型定義は環境に合わせて適宜調整してください
+// import type { StoragePoolResponse } from "~~/shared/types";
+
+const props = defineProps({
+  // 親でアンラップ済みのストレージ配列を受け取る
+  storages: {
+    type: Array as PropType<any[]>,
+    default: () => [],
+  },
+  // ストレージプールの選択肢
+  storagePools: {
+    type: Array as PropType<any[]>,
+    default: () => [],
+  },
+  // バリデーションエラーオブジェクト
+  errors: {
+    type: Object as PropType<Record<string, string | undefined>>,
+    default: () => ({}),
+  },
+  // エラーキーのプレフィックス (例: "storages")
+  fieldNamePrefix: {
+    type: String,
+    default: "storages",
+  },
+});
+
+defineEmits(["add", "remove"]);
+
+// エラー取得ヘルパー
+const getError = (index: number, field: string) => {
+  const prefix = props.fieldNamePrefix;
+  // 配列形式のエラーキーに対応 (storages[0].name または storages.0.name)
+  return (
+    props.errors[`${prefix}[${index}].${field}`] ||
+    props.errors[`${prefix}.${index}.${field}`]
+  );
+};
+</script>
+
+<style scoped>
+.form-input-sm,
+.form-select-sm {
+  @apply border border-gray-300 rounded px-2 py-1 text-xs w-full focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white;
+}
+.form-input-sm:disabled {
+  @apply bg-gray-100 text-gray-500 cursor-not-allowed;
+}
+</style>
