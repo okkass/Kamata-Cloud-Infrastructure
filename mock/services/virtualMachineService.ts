@@ -1,5 +1,6 @@
 import type {
   VirtualMachineResponse,
+  VirtualMachineCreateRequest,
   NetworkInterfaceResponse,
   StorageResponse,
   SecurityGroupResponse,
@@ -108,6 +109,12 @@ export const getVirtualMachineById = (
   id: string
 ): VirtualMachineResponse | undefined => {
   return getVirtualMachines().find((vm) => vm.id === id);
+};
+
+export const addVirtualMachine = (
+  request: VirtualMachineCreateRequest
+): VirtualMachineResponse | undefined => {
+  return undefined;
 };
 
 export const getNetworkInterfacesByVirtualMachineId = (

@@ -1,3 +1,7 @@
+import type { VirtualMachineCreateRequest } from "@app/shared/types";
+import { z } from "zod";
+import { addVirtualMachine } from "@/services/virtualMachineService";
+
 export default defineEventHandler(async (event) => {
   // リクエストのボディをJSONとして読み込む
   const body = await readBody(event);
