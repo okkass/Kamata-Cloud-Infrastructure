@@ -1,30 +1,32 @@
 <template>
-  <div class="modal-space">
+  <div class="modal-space space-y-4">
     <FormSelect
       label="OSイメージ"
       name="os-image-select"
+      :options="osImages ?? []"
+      option-label="name"
+      option-value="id"
       :pending="imagesPending"
       :error="imagesError"
-      :options="osImages ?? []"
       placeholder="OSイメージを選択してください"
       :required="true"
       :error-message="errors.osImageId"
-      :placeholder-value="undefined"
       v-model="osImageId"
-      v-model:attrs="osImageIdAttrs"
+      v-bind="osImageIdAttrs"
     />
 
     <FormSelect
       label="ミドルウェア"
       name="middleware-select"
+      :options="middlewares ?? []"
+      option-label="name"
+      option-value="id"
       :pending="middlewaresPending"
       :error="middlewaresError"
-      :options="middlewares ?? []"
       placeholder="なし"
       :error-message="errors.middlewareId"
-      :placeholder-value="null"
       v-model="middlewareId"
-      v-model:attrs="middlewareIdAttrs"
+      v-bind="middlewareIdAttrs"
     />
   </div>
 </template>
@@ -41,59 +43,71 @@ import { useResourceList } from "~/composables/useResourceList";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import type { ImageResponse } from "~~/shared/types";
+
+import FormSelect from "~/components/Form/Select.vue";
 
 /**
  * ==============================================================================
- * Validation Schema (バリデーションスキーマ)
- * ------------------------------------------------------------------------------
- * このフォームの入力ルールをZodで定義します。
+ * Validation Schema
  * ==============================================================================
  */
 const validationSchema = toTypedSchema(
   z.object({
-    osImageId: z.string({ message: "OSイメージを選択してください。" }),
+    osImageId: z
+      .string({ message: "OSイメージを選択してください。" })
+      .min(1, "OSイメージを選択してください。"),
     middlewareId: z.string().nullable(),
   })
 );
 
 /**
  * ==============================================================================
- * Form State Management (フォーム状態管理)
- * ------------------------------------------------------------------------------
- * VeeValidateのuseFormを使い、このタブのフォーム状態を管理します。
+ * Form State Management
  * ==============================================================================
  */
 const { errors, defineField, values, meta } = useForm({
   validationSchema,
   initialValues: {
-    osImageId: undefined, // 必須項目はundefinedで初期化し、プレースホルダーを表示
-    middlewareId: null, // 任意項目はnullで初期化し、「なし」を選択状態に
+    osImageId: undefined,
+    middlewareId: null,
   },
 });
 
-// 各フォームフィールドとVeeValidateを連携
 const [osImageId, osImageIdAttrs] = defineField("osImageId");
 const [middlewareId, middlewareIdAttrs] = defineField("middlewareId");
 
-// 親コンポーネントにフォームデータと状態を公開
-defineExpose({ formData: values, isValid: meta });
-
 /**
  * ==============================================================================
- * API Data Fetching (APIデータ取得)
- * ------------------------------------------------------------------------------
- * プルダウンの選択肢をAPIから非同期で取得します。
+ * API Data Fetching
  * ==============================================================================
  */
+// 1. OSイメージ
 const {
   data: osImages,
   pending: imagesPending,
   error: imagesError,
 } = useResourceList<ImageResponse>("images");
+
+// 2. ミドルウェア
 const {
   data: middlewares,
   pending: middlewaresPending,
   error: middlewaresError,
 } = useResourceList<MiddlewareResponse>("middlewares");
+
+/**
+ * ==============================================================================
+ * Expose
+ * ==============================================================================
+ */
+defineExpose({
+  formData: values,
+  isValid: meta,
+});
 </script>
+
+<style scoped>
+.modal-space {
+  @apply p-1;
+}
+</style>
