@@ -17,7 +17,7 @@
       @action="handleAction"
     />
 
-    <!-- 編集モーダル（MoVirtualNetworkEdit の仕様に合わせた） -->
+    <!-- 編集モーダル -->
     <MoVirtualNetworkEdit
       v-if="vnet"
       :show="isEditOpen"
