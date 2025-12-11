@@ -218,13 +218,6 @@
 import { ref, markRaw, computed } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
 
-// --- 型定義 ---
-import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine";
-import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type";
-import type { ImageResponse } from "~~/shared/types/dto/image";
-import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
-import type { SecurityGroupDTO } from "~~/shared/types/dto/security-group/SecurityGroupDTO";
-
 // --- コンポーネント ---
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
@@ -244,7 +237,7 @@ const {
   pending: vmPending,
   error: vmError,
   refresh: refreshVms,
-} = useResourceList<VirtualMachineDTO>("virtual-machines");
+} = useResourceList<VirtualMachineResponse>("virtual-machines");
 
 // 2. インスタンスタイプ
 const {
@@ -268,7 +261,7 @@ const {
   pending: usersPending,
   error: usersError,
   refresh: refreshUsers,
-} = useResourceList<UserServerBase>("users");
+} = useResourceList<UserResponse>("users");
 
 // 5. セキュリティグループ
 const {
@@ -276,7 +269,7 @@ const {
   pending: sgPending,
   error: sgError,
   refresh: refreshSecurityGroups,
-} = useResourceList<SecurityGroupDTO>("security-groups");
+} = useResourceList<SecurityGroupResponse>("security-groups");
 
 // --- モーダル定義 ---
 const editModals = computed(() => [
@@ -333,12 +326,12 @@ const handleSuccess = () => {
 };
 
 // Open Helpers
-const openVmEditModal = (vm: VirtualMachineDTO) => openModal("vmEdit", vm);
+const openVmEditModal = (vm: VirtualMachineResponse) => openModal("vmEdit", vm);
 const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
   openModal("instanceTypeEdit", it);
 const openImageEditModal = (image: ImageResponse) =>
   openModal("imageEdit", image);
-const openUserEditModal = (user: UserServerBase) => openModal("userEdit", user);
-const openSecurityGroupEditModal = (sg: SecurityGroupDTO) =>
+const openUserEditModal = (user: UserResponse) => openModal("userEdit", user);
+const openSecurityGroupEditModal = (sg: SecurityGroupResponse) =>
   openModal("securityGroupEdit", sg);
 </script>
