@@ -20,7 +20,7 @@ users {
     varchar(256) name
     varchar(256) email
     datetime created_at
-    boolean is_admin
+    bigint permission_id
     datetime last_login_at
     int cpu_limit_cores "0 for unlimited"
     int memory_limit_mb "0 for unlimited"
@@ -32,25 +32,17 @@ user_credentials {
     varchar(256) hashed_password
 }
 
-permissions {
-    int id PK
-    varchar name
+permission {
+    bigint id PK
+    boolean is_admin
+    boolean is_image_admin
+    boolean is_instance_type_admin
+    boolean is_virtual_machine_admin
+    boolean is_network_admin
+    boolean is_security_group_admin
+    boolean is_node_admin
 }
 
-roles {
-    int id PK
-    varchar(256) name
-}
-
-role_permissions {
-    int role_id FK, PK
-    int permission_id FK, PK
-}
-
-user_roles {
-    bigint user_id FK, PK
-    int role_id FK, PK
-}
 
 backups {
     bigint id PK
@@ -60,11 +52,13 @@ backups {
     datetime created_at
     int size
     bigint virtual_storage_id FK
+    bigint source_virtual_machine_id FK
 }
 
 snapshots {
     bigint id PK
     binary(16) uuid
+    varchar(256) name "max 40 characters"
     text description
     datetime created_at
     bigint target_virtual_machine_id FK
@@ -85,7 +79,6 @@ instance_types {
     varchar(256) name
     int cpu_core
     int memory_size
-    is_template boolean ""
     datetime created_at
 }
 
@@ -106,7 +99,7 @@ network_interfaces {
     bigint virtual_machine_id FK
 }
 
-physical_nodes {
+nodes {
     bigint id PK
     binary(16) uuid
     datetime created_at
@@ -141,7 +134,9 @@ storage_pools {
     bigint id PK
     binary(16) uuid
     varchar(256) name
-    varchar type "enum('local', 'network')"
+    boolean has_network_access
+    bigint available_size
+    bigint used_size
     datetime created_at
     bigint total_size
 }
@@ -154,22 +149,18 @@ virtual_storages {
     bigint storage_pool_id FK
 }
 
-attached_storages {
-    bigint id PK
-    bigint virtual_storage_id FK
-    varchar(255) path
-}
-
 virtual_machine_attached_storage {
-        bigint virtual_machine_id FK, PK
-        bigint virtual_storage_id FK, PK
+    bigint virtual_machine_id FK, PK
+    bigint virtual_storage_id FK, PK
+    varchar(255) path
 }
 
 virtual_networks {
     bigint id PK
     binary(16) uuid
-    varchar(256) name
+    varchar(256) name "max 8 characters"
     varchar(15) cidr
+    bigint user_id FK
     datetime created_at
 }
 
@@ -191,18 +182,18 @@ virtual_machines {
     bigint id PK
     binary(16) uuid
     varchar(256) name
-    varchar status "enum('running', 'stopped', 'suspended')"
-    bigint physical_node_id FK
+    varchar status "enum('running', 'stopped', 'pending')"
+    bigint node_id FK
     bigint image_id FK
-    bigint instance_type_id FK
+    int cpu
+    int memory
     bigint user_id FK
     datetime created_at
 }
 
-physical_nodes ||--o{ virtual_machines : "has many"
+nodes ||--o{ virtual_machines : "has many"
 
 images ||--o{ virtual_machines : "has"
-instance_types ||--o{ virtual_machines : "has"
 
 virtual_machines }o--o{ virtual_machine_attached_storage : "attaches"
 virtual_storages }o--o{ virtual_machine_attached_storage : "is attached to"
@@ -210,10 +201,6 @@ virtual_storages ||--o{ backups : "has many"
 virtual_storages ||--o{ attached_storages : "has many"
 storage_pools ||--o{ virtual_storages : "many"
 
-%% virtual_machine_attached_nic {
-%%     bigint virtual_machine_id FK, PK
-%%     bigint network_interface_id FK, PK
-%% }
 subnets ||--o{ network_interfaces : "belongs to"
 virtual_machines ||--o{ network_interfaces : "has"
 virtual_networks ||--o{ subnets : "many"
@@ -225,7 +212,3 @@ security_groups }o--o{ virtual_machine_security_groups : "is applied to"
 users ||--o{ portfolios : "owns"
 portfolios ||--o{ portfolio_articles : "contains"
 users |o--|| user_credentials : "has"
-users }o--o{ user_roles : "has"
-roles }o--o{ user_roles : "is assigned to"
-roles }o--o{ role_permissions : "has"
-permissions }o--o{ role_permissions : "is granted to"
