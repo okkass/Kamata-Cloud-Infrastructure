@@ -1513,7 +1513,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine) */
+                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine)。 */
                     scope?: "mine" | "all";
                 };
                 header?: never;
@@ -3345,7 +3345,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine) */
+                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine。) */
                     scope?: "mine" | "all";
                 };
                 header?: never;
@@ -3840,7 +3840,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine) */
+                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine。) */
                     scope?: "mine" | "all";
                 };
                 header?: never;
@@ -4344,7 +4344,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine) */
+                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine)。 */
                     scope?: "mine" | "all";
                 };
                 header?: never;
@@ -6224,7 +6224,7 @@ export interface paths {
         get: {
             parameters: {
                 query?: {
-                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine) */
+                    /** @description 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine。) */
                     scope?: "mine" | "all";
                 };
                 header?: never;
