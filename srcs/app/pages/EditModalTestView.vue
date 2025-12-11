@@ -189,7 +189,6 @@
           <tr>
             <th class="px-6 py-3">名前</th>
             <th class="px-6 py-3">ノード</th>
-            <th class="px-6 py-3">デバイスパス</th>
             <th class="px-6 py-3">NWアクセス</th>
             <th class="px-6 py-3 text-center">操作</th>
           </tr>
@@ -197,8 +196,7 @@
         <tbody>
           <tr v-for="sp in storagePools" :key="sp.id" class="bg-white border-b">
             <td class="px-6 py-4 font-medium">{{ sp.name }}</td>
-            <td class="px-6 py-4">{{ sp.nodeName || sp.nodeId }}</td>
-            <td class="px-6 py-4">{{ sp.devicePath }}</td>
+            <td class="px-6 py-4">{{ sp.node }}</td>
             <td class="px-6 py-4">
               <span v-if="sp.hasNetworkAccess" class="text-green-600 font-bold"
                 >許可</span
