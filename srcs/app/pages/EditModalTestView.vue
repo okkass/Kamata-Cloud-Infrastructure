@@ -220,7 +220,6 @@
           <tr>
             <th class="px-6 py-3">名前</th>
             <th class="px-6 py-3">ノード</th>
-            <th class="px-6 py-3">デバイスパス</th>
             <th class="px-6 py-3">NWアクセス</th>
             <th class="px-6 py-3 text-center">操作</th>
           </tr>
@@ -228,8 +227,7 @@
         <tbody>
           <tr v-for="sp in storagePools" :key="sp.id" class="bg-white border-b">
             <td class="px-6 py-4 font-medium">{{ sp.name }}</td>
-            <td class="px-6 py-4">{{ sp.node?.name || sp.nodeId }}</td>
-            <td class="px-6 py-4">{{ sp.devicePath }}</td>
+            <td class="px-6 py-4">{{ sp.node?.name || sp.node }}</td>
             <td class="px-6 py-4">
               <span v-if="sp.hasNetworkAccess" class="text-green-600 font-bold"
                 >許可</span
@@ -246,71 +244,92 @@
       </table>
     </div>
 
-    <div class="mt-8 pt-4 border-t">
-      <h2 class="font-semibold text-lg">バックアップ一覧 (API連携)</h2>
-      <div v-if="bkPending" class="mt-2 text-gray-500">
-        バックアップ一覧を読み込み中...
+    <div class="p-8 space-y-8">
+      <div class="mt-8 pt-4 border-t">
+        <h2 class="font-semibold text-lg">バックアップ一覧 (API連携)</h2>
+        <div v-if="bkPending" class="mt-2 text-gray-500">
+          バックアップ一覧を読み込み中...
+        </div>
+        <div v-else-if="bkError" class="mt-2 text-red-600">
+          一覧の取得に失敗しました: {{ bkError.message }}
+        </div>
+        <table
+          v-else-if="backups && backups.length > 0"
+          class="w-full mt-2 text-sm text-left"
+        >
+          <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+            <tr>
+              <th class="px-6 py-3">名前</th>
+              <th class="px-6 py-3">サイズ</th>
+              <th class="px-6 py-3">作成日時</th>
+              <th class="px-6 py-3 text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="bk in backups" :key="bk.id" class="bg-white border-b">
+              <td class="px-6 py-4 font-medium">
+                {{ bk.name }}
+                <span
+                  v-if="!isRestorable(bk)"
+                  class="ml-2 text-xs text-red-500 bg-red-50 px-1 rounded"
+                >
+                  復元不可
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                {{
+                  bk.size
+                    ? (bk.size / (1024 * 1024 * 1024)).toFixed(2) + " GB"
+                    : "-"
+                }}
+              </td>
+              <td class="px-6 py-4">
+                {{ new Date(bk.createdAt).toLocaleString() }}
+              </td>
+              <td class="px-6 py-4 text-center">
+                <button
+                  @click="openBackupRestoreModal(bk)"
+                  :disabled="!isRestorable(bk)"
+                  class="text-xs px-3 py-1 rounded border transition-colors"
+                  :class="
+                    isRestorable(bk)
+                      ? 'btn-secondary bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100'
+                      : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                  "
+                  :title="
+                    isRestorable(bk)
+                      ? ''
+                      : '復元先のVMまたはストレージ情報が不足しています'
+                  "
+                >
+                  復元
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-else class="mt-2 text-gray-500">
+          表示できるバックアップがありません。
+        </div>
       </div>
-      <div v-else-if="bkError" class="mt-2 text-red-600">
-        一覧の取得に失敗しました: {{ bkError.message }}
-      </div>
-      <table
-        v-else-if="backups && backups.length > 0"
-        class="w-full mt-2 text-sm text-left"
-      >
-        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-          <tr>
-            <th class="px-6 py-3">名前</th>
-            <th class="px-6 py-3">サイズ</th>
-            <th class="px-6 py-3">作成日時</th>
-            <th class="px-6 py-3 text-center">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="bk in backups" :key="bk.id" class="bg-white border-b">
-            <td class="px-6 py-4 font-medium">{{ bk.name }}</td>
-            <td class="px-6 py-4">
-              {{
-                bk.size
-                  ? (bk.size / (1024 * 1024 * 1024)).toFixed(2) + " GB"
-                  : "-"
-              }}
-            </td>
-            <td class="px-6 py-4">
-              {{ new Date(bk.createdAt).toLocaleString() }}
-            </td>
-            <td class="px-6 py-4 text-center">
-              <button
-                @click="openBackupRestoreModal(bk)"
-                class="btn-secondary text-xs px-3 py-1 bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
-              >
-                復元
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-      <div v-else class="mt-2 text-gray-500">
-        表示できるバックアップがありません。
-      </div>
-    </div>
 
-    <component
-      v-for="modal in editModals"
-      :key="modal.id"
-      :is="modal.component"
-      :show="activeModal === modal.id"
-      v-bind="modal.props"
-      @close="closeModal"
-      @success="handleSuccess"
-    />
+      <component
+        v-for="modal in editModals"
+        :key="modal.id"
+        :is="modal.component"
+        :show="activeModal === modal.id"
+        v-bind="modal.props"
+        @close="closeModal"
+        @success="handleSuccess"
+      />
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, markRaw, computed } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
-
+import { useBackupValidator } from "~/composables/useBackupValidator";
 // --- コンポーネント ---
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
@@ -319,6 +338,8 @@ import MoUserEdit from "~/components/MoUserEdit.vue";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 import MoBackupRestore from "~/components/MoBackupRestor.vue";
 import MoStorageEdit from "~/components/MoStorageEdit.vue";
+
+const { isRestorable } = useBackupValidator();
 
 // --- State ---
 const activeModal = ref<string | null>(null);
