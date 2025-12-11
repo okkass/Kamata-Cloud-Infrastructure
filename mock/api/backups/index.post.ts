@@ -7,14 +7,14 @@ import type { BackupCreateRequest, ErrorResponse } from "@app/shared/types";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
-  const querySchema = z.object({
+  const bodySchema = z.object({
     targetStorageId: z.uuid(),
     targetVirtualMachineId: z.uuid(),
     name: z.string().min(1).max(255),
     description: z.string().max(1024).optional(),
   });
 
-  const res = querySchema.safeParse(await readBody<BackupCreateRequest>(event));
+  const res = bodySchema.safeParse(await readBody<BackupCreateRequest>(event));
   if (!res.success) {
     event.node.res.statusCode = 400;
     const errorResponse: ErrorResponse = {
