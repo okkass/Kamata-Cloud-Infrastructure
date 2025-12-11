@@ -64,7 +64,7 @@
       @success="handleSuccess"
     />
 
-    <!-- 削除確認モーダル（スナップショットと同じ構え） -->
+    <!-- 削除確認モーダル -->
     <MoDeleteConfirm
       :show="activeModal === DELETE_STORAGE_ACTION"
       :message="`本当にストレージプール「${targetForDeletion?.name}」を削除しますか？`"

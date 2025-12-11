@@ -1,27 +1,12 @@
-// app/composables/dashboard/useStorageManagement.ts
-import { computed } from "vue";
+import { computed, ref } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 import { STORAGE } from "@/utils/constants";
-import {
-  toSize,
-  convertUnitToByte,
-  BYTE_UNITS,
-  type ByteUnit,
-} from "@/utils/format";
+import { toSize, type ByteUnit } from "@/utils/format";
+import { formatAsPercent } from "@/utils/status";
 import type { StoragePoolResponse } from "~~/shared/types";
 
-const RESOURCE_NAME = STORAGE.name;
-
-type PoolRaw = Partial<
-  Omit<StoragePoolResponse, "node"> & {
-    node?: string;
-    type?: string;
-    size?: string;
-    used?: string;
-  }
->;
-
-export type StorageRow = {
+/* =========================== Types =========================== */
+export type StoragePoolRow = {
   id: string;
   name: string;
   type: "ローカル" | "ネットワーク";
@@ -29,53 +14,24 @@ export type StorageRow = {
   size: string;
   used: string;
   usage: string;
-  originalData?: StoragePoolResponse | PoolRaw;
+  originalData?: StoragePoolResponse; // 編集用に元のDTOを保持
 };
 
+/* =========================== Constants =========================== */
+const RESOURCE_NAME = STORAGE.name;
 export const ADD_STORAGE_ACTION = `add-${RESOURCE_NAME}`;
 export const EDIT_STORAGE_ACTION = `edit-${RESOURCE_NAME}`;
 export const DELETE_STORAGE_ACTION = `delete-${RESOURCE_NAME}`;
 
-/**
- * [必須] サイズ文字列をバイト数に変換する
- * 型安全な実装で、不正な単位は安全にハンドリング
- * @param s - サイズ文字列（例: "100 GB", "1.5TB"）
- * @returns バイト数、不正な形式なら 0
- */
-const parseSizeStringToBytes = (s?: string): number => {
-  if (!s) return 0;
-
-  const match = s.trim().match(/^([\d.]+)\s*([A-Z]*)$/i);
-  if (!match) return 0;
-
-  const num = parseFloat(match[1]);
-  if (!isFinite(num) || num < 0) return 0;
-
-  // [必須] ユーザー入力を大文字に変換
-  const unitStr = (match[2] || "GB").toUpperCase();
-
-  // [必須] 型安全なチェック：BYTE_UNITS に存在する単位か確認
-  if (!(unitStr in BYTE_UNITS)) {
-    // 不正な単位が入力された場合、ログして 0 を返す（安全な失敗！）
-    console.warn(`[parseSizeStringToBytes] 不正な単位: "${unitStr}"`);
-    return 0;
-  }
-
-  // [推奨] 型ガード後、安全に convert を呼び出し
-  const unit = unitStr as ByteUnit;
-  return convertUnitToByte(num, unit);
-};
-
-const calcUsage = (total: number, used: number) =>
-  total ? `${Math.round((used / total) * 100)}%` : "0%";
-
+/* =========================== Main Composable =========================== */
 export function useStorageManagement() {
+  // APIデータ取得
   const {
     data: rawList,
     pending,
     refresh,
     error,
-  } = useResourceList<StoragePoolResponse | PoolRaw>(RESOURCE_NAME);
+  } = useResourceList<StoragePoolResponse>(RESOURCE_NAME);
 
   // ノード一覧を取得して id -> name マップを作成
   const { data: nodeList } = useResourceList<{
@@ -98,7 +54,7 @@ export function useStorageManagement() {
 
   const columns = [
     { key: "name", label: "ストレージプール名", align: "left" as const },
-    { key: "type", label: "タイプ", align: "left" as const },
+    { key: "type", label: "要素", align: "left" as const },
     { key: "node", label: "ノード名", align: "left" as const },
     { key: "size", label: "サイズ", align: "right" as const },
     { key: "used", label: "使用済みデータ量", align: "right" as const },
@@ -107,48 +63,54 @@ export function useStorageManagement() {
 
   const headerButtons = [{ action: "add", label: "＋ストレージ追加" }];
 
-  const rows = computed<StorageRow[]>(() =>
+  // データ整形
+  const rows = computed<StoragePoolRow[]>(() =>
     (rawList.value ?? []).map((r) => {
-      const totalBytes =
-        typeof (r as any).totalSize === "number"
-          ? (r as any).totalSize
-          : parseSizeStringToBytes((r as any).size);
-      const usedBytes =
-        typeof (r as any).usedSize === "number"
-          ? (r as any).usedSize
-          : parseSizeStringToBytes((r as any).used);
+      // [必須] APIから返ってくるバイト数をそのまま使う（存在することが保証されてる！）
+      const totalBytes = r.totalSize ?? 0;
+      const usedBytes = r.usedSize ?? 0;
 
-      const size = toSize(totalBytes ?? 0);
-      const used = toSize(usedBytes ?? 0);
-      const usage = calcUsage(totalBytes ?? 0, usedBytes ?? 0);
+      // サイズを人間が読みやすい形に変換
+      const size = toSize(totalBytes);
+      const used = toSize(usedBytes);
 
-      let nodeId: string | null = null;
+      // [必須] 使用率を計算（format.ts の formatAsPercent を活用！）
+      const ratio = totalBytes ? usedBytes / totalBytes : 0;
+      const usage = formatAsPercent(ratio);
+
+      // [必須] ノード名の抽出ロジック（nodeはオブジェクト！）
       let nodeName = "-";
-      const nodeData = (r as any).node;
+      const nodeData = r.node;
 
       if (nodeData && typeof nodeData === "object") {
-        nodeId = String(nodeData.Id ?? nodeData.id ?? "");
-        nodeName = String(nodeData.Name ?? nodeData.name ?? nodeId);
+        // nodeData がオブジェクト（{ id: "...", name: "...", hostname: "..." }）
+        const nodeId = String(nodeData.id ?? "");
+
+        // 優先度順で名前を決定
+        if (nodeData.name) {
+          nodeName = String(nodeData.name);
+        } else if ((nodeData as any).hostname) {
+          nodeName = String((nodeData as any).hostname);
+        } else if (nodeId) {
+          // name がなければ nodeNameMap で引く（backup）
+          nodeName = nodeNameMap.value[nodeId] ?? nodeId;
+        }
       } else if (nodeData) {
-        nodeId = String(nodeData);
-        nodeName = nodeNameMap.value[nodeId] ?? nodeId;
-      } else if ((r as any).nodeId) {
-        nodeId = String((r as any).nodeId);
+        // nodeData が文字列（ID）の場合（念のため）
+        const nodeId = String(nodeData);
         nodeName = nodeNameMap.value[nodeId] ?? nodeId;
       }
 
       return {
-        id: String((r as any).id ?? `p${Date.now()}`),
-        name: (r as any).name ?? "unknown",
-        type:
-          (r as any).hasNetworkAccess || (r as any).type === "ネットワーク"
-            ? "ネットワーク"
-            : "ローカル",
+        id: String(r.id ?? `p${Date.now()}`),
+        name: r.name ?? "unknown",
+        // [必須] hasNetworkAccess でタイプを判定（APIが提供してくれてる！）
+        type: r.hasNetworkAccess ? "ネットワーク共有" : "ローカルのみ",
         node: nodeName,
         size,
         used,
         usage,
-        originalData: r as StoragePoolResponse | PoolRaw,
+        originalData: r,
       };
     })
   );
