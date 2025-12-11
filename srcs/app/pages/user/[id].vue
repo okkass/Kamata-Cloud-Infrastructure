@@ -60,7 +60,7 @@ type UserDetailView = {
   isAdmin: boolean;
   isImageAdmin: boolean;
   isInstanceTypeAdmin: boolean;
-  isPhysicalNodeAdmin: boolean;
+  isNodeAdmin: boolean;
 
   // リソース上限
   maxCpuCore?: number | null;
