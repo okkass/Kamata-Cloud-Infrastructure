@@ -2,8 +2,8 @@ import { z } from "zod";
 import { getNodeById } from "../../../services/nodeService";
 
 export default defineEventHandler(async (event) => {
-  const querySchema = z.uuid();
-  const res = querySchema.safeParse(event.context.params?.id);
+  const paramsSchema = z.uuid();
+  const res = paramsSchema.safeParse(event.context.params?.id);
 
   if (!res.success) {
     event.node.res.statusCode = 400;
