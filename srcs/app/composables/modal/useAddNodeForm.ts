@@ -1,6 +1,9 @@
 /**
  * =================================================================================
  * ノード追加フォーム Composable (useAddNodeForm.ts)
+ * ---------------------------------------------------------------------------------
+ * ・自動検知されたノード候補の一覧取得
+ * ・ノードの追加実行 (パスワード必須)
  * =================================================================================
  */
 import { useResourceList } from "~/composables/useResourceList";
@@ -27,7 +30,7 @@ export function useAddNodeForm() {
   /**
    * ノード追加実行処理
    * @param node 対象ノード
-   * @param password 入力されたパスワード
+   * @param password 入力されたルートパスワード
    * @param emit イベントエミッター
    */
   const handleAddNode = async (
@@ -35,8 +38,10 @@ export function useAddNodeForm() {
     password: string,
     emit: (event: "success" | "close") => void
   ) => {
+    // [変更] ブラウザ標準のconfirmは廃止し、呼出し元で確認モーダルを制御する設計に変更
+
     // リクエストペイロード作成
-    const payload: any = {
+    const payload: NodeCreateRequest = {
       name: node.name,
       ipAddress: node.ipAddress,
       isAdmin: false,
@@ -51,9 +56,15 @@ export function useAddNodeForm() {
         type: "success",
         message: `ノード「${node.name}」を追加しました。`,
       });
-      // 成功したら一覧を再取得
+
+      // 成功したら一覧を再取得（追加済みのノードをリストから消すため）
       await refreshCandidates();
+
+      // [質問への回答] 連続追加を可能にするため、ここでは 'success' のみを通知し、
+      // 'close' イベントは発火させない仕様とします。
+      // ※ 親コンポーネントが @success でモーダルを閉じる実装になっている場合は親側の修正が必要です。
       emit("success");
+
       return true;
     } else {
       addToast({

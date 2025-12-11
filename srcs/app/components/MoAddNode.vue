@@ -29,8 +29,30 @@
             </button>
           </div>
 
-          <div v-if="candidatesPending" class="p-8 text-center text-gray-500">
-            <span class="loading-spinner mr-2"></span>
+          <div
+            v-if="candidatesPending"
+            class="p-8 text-center text-gray-500 flex justify-center items-center"
+          >
+            <svg
+              class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
             候補を検索中...
           </div>
 
@@ -103,19 +125,21 @@
         <div class="text-sm text-gray-600">
           ノード <strong>{{ selectedNode?.name }}</strong> ({{
             selectedNode?.ipAddress
-          }}) を追加します。<br />
+          }}) をクラスターに追加します。<br />
+          <span class="text-red-500 font-bold">※この操作は取り消せません。</span
+          ><br />
           認証用パスワードを入力してください。
         </div>
 
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1"
-            >パスワード</label
+            >ルートパスワード</label
           >
           <input
             type="password"
             v-model="password"
             class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-            placeholder="Password"
+            placeholder="8文字以上で入力してください"
             required
             ref="passwordInput"
           />
@@ -171,12 +195,12 @@ const {
 
 // --- Local State for Password Modal ---
 const showPasswordModal = ref(false);
-const selectedNode = ref<any>(null);
+const selectedNode = ref<NodeResponse | null>(null); // [推奨] anyをやめ型を指定
 const password = ref("");
 const passwordInput = ref<HTMLInputElement | null>(null);
 
 // パスワードモーダルを開く
-const openPasswordModal = (node: any) => {
+const openPasswordModal = (node: NodeResponse) => {
   selectedNode.value = node;
   password.value = "";
   showPasswordModal.value = true;
@@ -201,24 +225,11 @@ const submitAddNode = async () => {
   const success = await handleAddNode(selectedNode.value, password.value, emit);
 
   if (success) {
+    // 追加に成功した場合、パスワードモーダルのみを閉じ、
+    // メインモーダルは開いたままにする（連続追加のため）
     closePasswordModal();
   }
 };
 </script>
 
-<style scoped>
-.loading-spinner {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border: 2px solid currentColor;
-  border-radius: 50%;
-  border-right-color: transparent;
-  animation: spin 1s linear infinite;
-}
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-</style>
+<style scoped></style>
