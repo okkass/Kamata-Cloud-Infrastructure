@@ -42,7 +42,7 @@ import { vmTabs } from "~/composables/detail/useVmTabs";
 
 // composables
 import { useResourceDetail } from "~/composables/useResourceDetail";
-import { useToast } from "@/composables/useToast";
+import { useToast } from "~/composables/useToast";
 
 const { addToast } = useToast();
 const apiClient = useApiClient();
