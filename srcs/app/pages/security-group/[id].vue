@@ -38,25 +38,6 @@ import { useResourceDetail } from "~/composables/useResourceDetail";
 import { SECURITY_GROUP } from "@/utils/constants";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 
-type SecurityRule = {
-  id: string;
-  name: string;
-  ruleType: "inbound" | "outbound";
-  port?: number | null;
-  protocol: "tcp" | "udp" | "icmp" | "any";
-  targetIp: string;
-  action?: "allow" | "deny";
-  createdAt: string;
-};
-
-type SecurityGroupResponse = {
-  id: string;
-  name: string;
-  description?: string;
-  rules: SecurityRule[];
-  createdAt: string;
-};
-
 const route = useRoute();
 const router = useRouter();
 
@@ -66,14 +47,12 @@ const {
   pending,
   error,
 } = await useResourceDetail<SecurityGroupResponse>(
-  SECURITY_GROUP.name, // "security-groups"
+  SECURITY_GROUP.name,
   route.params.id as string
 );
 
-// 操作メニュー
 const actions = ref([{ label: "編集", value: "edit" }]);
 
-// 編集モーダルの開閉
 const isEditOpen = ref(false);
 
 const handleAction = (action: { label: string; value: string }) => {
@@ -87,8 +66,6 @@ const handleEditClose = () => {
 };
 
 const handleEditSuccess = () => {
-  // モックなので今は閉じるだけ
-  // 必要になったらここで再取得などを呼ぶ
   isEditOpen.value = false;
   console.log("SecurityGroup edited (mock)");
 };

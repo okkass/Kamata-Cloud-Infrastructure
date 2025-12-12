@@ -1,54 +1,48 @@
 <template>
   <section class="space-y-4">
-    <h2 class="text-lg font-semibold">権限・リソース上限</h2>
+    <h2 class="detail-heading-sm">権限・リソース上限</h2>
 
-    <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-6">
+    <div class="detail-card space-y-6">
       <!-- 管理者権限 -->
       <div>
-        <div class="text-xs text-neutral-500 mb-2">管理者権限</div>
+        <div class="detail-label">管理者権限</div>
 
-        <div v-if="hasAnyAdmin" class="flex flex-wrap gap-2 text-xs">
+        <div v-if="hasAnyAdmin" class="mt-2 flex flex-wrap gap-2">
           <span
             v-for="item in adminFlags"
             :key="item.key"
-            class="inline-flex items-center rounded-full px-3 py-1 border"
-            :class="
-              item.enabled
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-                : 'bg-slate-50 text-slate-400 border-slate-200'
-            "
+            class="detail-pill"
+            :class="item.enabled ? 'detail-pill-yes' : 'detail-pill-no'"
           >
             {{ item.label }}
           </span>
         </div>
 
-        <p v-else class="text-sm text-neutral-500">
+        <p v-else class="mt-2 text-sm text-neutral-500">
           管理者権限は付与されていません。
         </p>
       </div>
 
       <!-- リソース上限 -->
-      <div class="pt-4 border-t border-neutral-200">
-        <div class="text-xs text-neutral-500 mb-2">リソース上限</div>
+      <div class="detail-card-section">
+        <div class="detail-label">リソース上限</div>
 
-        <div
-          class="grid grid-cols-1 gap-4 text-sm sm:grid-cols-3"
-        >
+        <div class="mt-2 detail-grid-2col">
           <div>
-            <div class="text-xs text-neutral-500">最大 vCPU (コア)</div>
-            <div class="text-sm text-neutral-900 font-medium">
+            <div class="detail-label">最大 vCPU (コア)</div>
+            <div class="detail-value">
               {{ maxCpuText }}
             </div>
           </div>
           <div>
-            <div class="text-xs text-neutral-500">最大メモリ</div>
-            <div class="text-sm text-neutral-900 font-medium">
+            <div class="detail-label">最大メモリ</div>
+            <div class="detail-value">
               {{ maxMemoryText }}
             </div>
           </div>
           <div>
-            <div class="text-xs text-neutral-500">最大ストレージ</div>
-            <div class="text-sm text-neutral-900 font-medium">
+            <div class="detail-label">最大ストレージ</div>
+            <div class="detail-value">
               {{ maxStorageText }}
             </div>
           </div>
@@ -60,10 +54,14 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
+import { convertByteToUnit } from "@/utils/format";
+import { DISABLE_ROUNDING } from "@/utils/constants";
+
+// ★ 画面用の最小限 User 型（このファイル内だけで完結）
+//   - DTO / Response 型は import しない
 
 const props = defineProps<{
-  context: UserServerBase;
+  context: UserResponse;
 }>();
 
 const user = computed(() => props.context);
@@ -90,6 +88,21 @@ const adminFlags = computed(() => [
     label: "物理ノード管理",
     enabled: user.value.isPhysicalNodeAdmin,
   },
+  {
+    key: "network",
+    label: "ネットワーク管理",
+    enabled: user.value.isNetworkAdmin,
+  },
+  {
+    key: "virtualMachine",
+    label: "仮想マシン管理",
+    enabled: user.value.isVirtualMachineAdmin,
+  },
+  {
+    key: "securityGroup",
+    label: "セキュリティグループ管理",
+    enabled: user.value.isSecurityGroupAdmin,
+  }
 ]);
 
 const hasAnyAdmin = computed(() =>
@@ -101,15 +114,19 @@ const maxCpuText = computed(() =>
   user.value.maxCpuCore == null ? "制限なし" : `${user.value.maxCpuCore} コア`
 );
 
-const maxMemoryText = computed(() =>
-  user.value.maxMemorySize == null
-    ? "制限なし"
-    : `${Math.round(user.value.maxMemorySize / (1024 * 1024 * 1024))} GB`
-);
+const maxMemoryText = computed(() => {
+  const size = user.value.maxMemorySize;
+  if (size == null) return "制限なし";
 
-const maxStorageText = computed(() =>
-  user.value.maxStorageSize == null
-    ? "制限なし"
-    : `${Math.round(user.value.maxStorageSize / (1024 * 1024 * 1024))} GB`
-);
+  const gb = convertByteToUnit(size, "GB", !DISABLE_ROUNDING);
+  return `${gb} GB`;
+});
+
+const maxStorageText = computed(() => {
+  const size = user.value.maxStorageSize;
+  if (size == null) return "制限なし";
+
+  const gb = convertByteToUnit(size, "GB", !DISABLE_ROUNDING);
+  return `${gb} GB`;
+});
 </script>
