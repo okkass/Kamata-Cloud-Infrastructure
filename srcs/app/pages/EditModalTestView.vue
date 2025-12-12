@@ -336,7 +336,7 @@ import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
 import MoUserEdit from "~/components/MoUserEdit.vue";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
-import MoBackupRestore from "~/components/MoBackupRestor.vue";
+import MoBackupRestore from "~/components/MoBackupRestore.vue";
 import MoStorageEdit from "~/components/MoStorageEdit.vue";
 
 const { isRestorable } = useBackupValidator();
