@@ -118,11 +118,57 @@
   }
   /* モーダルのフッターエリア */
   .modal-footer {
-    @apply flex justify-end items-center mt-6 pt-4 border-t border-gray-200;
+    @apply flex justify-end items-center gap-2 mt-6 pt-4 border-t border-gray-200;
   }
   /* モーダル内のセクションタイトル */
   .modal-section-title {
     @apply text-base font-semibold text-gray-800;
+  }
+
+  /**
+   * ==================================================================
+   * Info Panel Styles (情報パネルスタイル)
+   * ==================================================================
+   */
+  /* 情報パネル基本 */
+  .info-panel {
+    @apply border-l-4 p-4;
+  }
+  /* 情報（青） */
+  .info-panel-blue {
+    @apply bg-blue-50 border-blue-400;
+  }
+  /* 警告（黄） */
+  .info-panel-yellow {
+    @apply bg-yellow-50 border-yellow-400;
+  }
+  /* アイコン */
+  .info-panel-icon {
+    @apply h-5 w-5;
+  }
+  /* アイコン（青） */
+  .info-panel-icon-blue {
+    @apply text-blue-400;
+  }
+  /* アイコン（黄） */
+  .info-panel-icon-yellow {
+    @apply text-yellow-400;
+  }
+  /* タイトル（青） */
+  .info-panel-title-blue {
+    @apply text-sm font-medium text-blue-800;
+  }
+  /* タイトル（黄） */
+  .info-panel-title-yellow {
+    @apply text-sm font-medium text-yellow-800;
+  }
+  /* テキスト（青） */
+  .info-panel-text-blue {
+    @apply text-sm text-blue-700;
+  }
+  /* テキスト（黄） */
+  .info-panel-text-yellow {
+    @apply text-sm text-yellow-700;
   }
 
   /**
