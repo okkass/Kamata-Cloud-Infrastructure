@@ -27,6 +27,7 @@ users {
     int storage_limit_gb "0 for unlimited"
 }
 
+
 user_credentials {
     bigint user_id PK, FK
     varchar(256) hashed_password
@@ -111,6 +112,7 @@ nodes {
 security_groups {
     bigint id PK
     binary(16) uuid
+    varchar(256) name "max 18 characters"
     text description
     datetime created_at
 }
@@ -127,7 +129,6 @@ security_rules {
     varchar action "enum('allow', 'deny')"
     datetime created_at
 }
-
 
 
 storage_pools {
