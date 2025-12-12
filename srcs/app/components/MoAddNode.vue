@@ -2,11 +2,11 @@
   <div>
     <BaseModal :show="show" title="ノード追加" @close="$emit('close')">
       <div class="space-y-6">
-        <div class="bg-blue-50 border-l-4 border-blue-400 p-4">
+        <div class="info-panel info-panel-blue">
           <div class="flex">
             <div class="flex-shrink-0">
               <svg
-                class="h-5 w-5 text-blue-400"
+                class="info-panel-icon info-panel-icon-blue"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -19,7 +19,7 @@
               </svg>
             </div>
             <div class="ml-3">
-              <p class="text-sm text-blue-700">
+              <p class="info-panel-text-blue">
                 ネットワーク内で自動検知されたノード候補が表示されています。<br />
                 追加したいノードの「追加」ボタンをクリックしてください。
               </p>
@@ -82,28 +82,29 @@
           </div>
 
           <table v-else class="w-full text-sm text-left">
-            <thead class="text-xs text-gray-700 uppercase bg-gray-50 border-b">
+            <thead class="table-header border-b">
               <tr>
-                <th class="px-6 py-3">ノード名</th>
-                <th class="px-6 py-3">IPアドレス</th>
-                <th class="px-6 py-3 text-center">操作</th>
+                <th class="table-header-cell">ノード名</th>
+                <th class="table-header-cell">IPアドレス</th>
+                <th class="table-header-cell text-center">操作</th>
               </tr>
             </thead>
             <tbody>
               <tr
                 v-for="node in candidateNodes"
                 :key="node.id || node.ipAddress"
-                class="border-b hover:bg-gray-50"
+                class="table-row hover:bg-gray-50"
               >
-                <td class="px-6 py-4 font-medium text-gray-900">
+                <td class="table-cell table-cell-title">
                   {{ node.name }}
                 </td>
-                <td class="px-6 py-4 text-gray-600">{{ node.ipAddress }}</td>
-                <td class="px-6 py-4 text-center">
+                <td class="table-cell text-gray-600">{{ node.ipAddress }}</td>
+                <td class="table-cell text-center">
                   <button
                     type="button"
                     @click="openPasswordModal(node)"
                     class="btn btn-primary text-xs py-1 px-3"
+                    :disabled="isCreating"
                   >
                     追加
                   </button>
@@ -122,11 +123,11 @@
       size="sm"
     >
       <form @submit.prevent="submitAddNode" class="space-y-4">
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
+        <div class="info-panel info-panel-yellow">
           <div class="flex">
             <div class="flex-shrink-0">
               <svg
-                class="h-5 w-5 text-yellow-400"
+                class="info-panel-icon info-panel-icon-yellow"
                 xmlns="http://www.w3.org/2000/svg"
                 viewBox="0 0 20 20"
                 fill="currentColor"
@@ -139,8 +140,8 @@
               </svg>
             </div>
             <div class="ml-3">
-              <h3 class="text-sm font-medium text-yellow-800">実行確認</h3>
-              <div class="mt-2 text-sm text-yellow-700">
+              <h3 class="info-panel-title-yellow">実行確認</h3>
+              <div class="mt-2 info-panel-text-yellow">
                 <p>
                   ノード <strong>{{ selectedNode?.name }}</strong> ({{
                     selectedNode?.ipAddress
@@ -154,28 +155,24 @@
           </div>
         </div>
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1"
-            >ルートパスワード</label
-          >
-          <input
-            type="password"
-            v-model="password"
-            class="w-full border border-gray-300 rounded px-3 py-2 text-sm focus:ring-blue-500 focus:border-blue-500"
-            placeholder="8文字以上で入力してください"
-            required
-            minlength="8"
-            ref="passwordInput"
-          />
-        </div>
+        <FormInput
+          label="ルートパスワード"
+          name="password"
+          type="password"
+          v-model="password"
+          placeholder="8文字以上で入力してください"
+          :minlength="8"
+          required
+          ref="passwordInput"
+        />
       </form>
 
       <template #footer>
-        <div class="modal-footer flex justify-end gap-2">
+        <div class="modal-footer">
           <button
             type="button"
             @click="closePasswordModal"
-            class="btn btn-secondary"
+            class="btn btn-back"
             :disabled="isCreating"
           >
             キャンセル
@@ -184,7 +181,7 @@
             type="button"
             @click="submitAddNode"
             class="btn btn-primary"
-            :disabled="isCreating || !password"
+            :disabled="isCreating || !password || password.length < 8"
           >
             {{ isCreating ? "追加中..." : "追加を実行" }}
           </button>
@@ -202,6 +199,7 @@
  */
 import { ref, nextTick } from "vue";
 import { useAddNodeForm } from "~/composables/modal/useAddNodeForm";
+import FormInput from "~/components/Form/Input.vue";
 
 // --- Props & Emits ---
 defineProps({ show: { type: Boolean, required: true } });
@@ -251,8 +249,7 @@ const submitAddNode = async () => {
 
   if (success) {
     closePasswordModal();
+    emit("success");
   }
 };
 </script>
-
-<style scoped></style>

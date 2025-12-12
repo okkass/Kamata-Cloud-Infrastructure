@@ -16,13 +16,13 @@ export function useAddNodeForm() {
     pending: candidatesPending,
     error: candidatesError,
     refresh: refreshCandidates,
-  } = useResourceList<NodeResponse>("nodes/candidates");
+  } = useResourceList<NodeResponse>(NODE.name + "/candidates");
 
   // 2. ノード追加 API (POST /api/nodes)
   const { executeCreate, isCreating } = useResourceCreate<
     NodeCreateRequest,
     NodeResponse
-  >("nodes");
+  >(NODE.name);
 
   /**
    * ノード追加実行処理
@@ -56,11 +56,6 @@ export function useAddNodeForm() {
 
       // 成功したら一覧を再取得（追加済みのノードをリストから消すため）
       await refreshCandidates();
-
-      // [質問への回答] 連続追加を可能にするため、ここでは 'success' のみを通知し、
-      // 'close' イベントは発火させない仕様とします。
-      // ※ 親コンポーネントが @success でモーダルを閉じる実装になっている場合は親側の修正が必要です。
-      emit("success");
 
       return true;
     } else {
