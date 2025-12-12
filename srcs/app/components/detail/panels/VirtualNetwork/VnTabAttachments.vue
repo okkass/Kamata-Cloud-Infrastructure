@@ -2,14 +2,14 @@
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">接続リソース</h2>
 
-    <div class="detail-card space-y-4">
+    <div class="rounded-lg border border-neutral-200 bg-white p-4 space-y-4">
       <!-- ローディング -->
-      <p v-if="loading" class="text-loading">
+      <p v-if="loading" class="text-sm text-neutral-500">
         接続されているリソースを取得しています…
       </p>
 
       <!-- エラー -->
-      <p v-else-if="error" class="text-error">
+      <p v-else-if="error" class="text-sm text-red-500">
         接続リソースの取得に失敗しました：
         {{ (error as any).message || (error as any).statusMessage || error }}
       </p>
@@ -23,8 +23,8 @@
         >
           <!-- サブネット見出し -->
           <div>
-            <div class="detail-label">サブネット</div>
-            <div class="detail-value">
+            <div class="text-xs text-neutral-500">サブネット</div>
+            <div class="text-sm text-neutral-900 font-medium">
               {{ group.subnetName || "（名称未設定）" }}
               <span class="ml-2 font-mono text-xs text-neutral-600">
                 ({{ group.cidr || "CIDR 未設定" }})
@@ -34,6 +34,7 @@
 
           <!-- VM一覧 -->
           <div class="space-y-2">
+            <!-- ★ 変更: VM行を NuxtLink にして、仮想マシン詳細ページへ遷移できるように -->
             <NuxtLink
               v-for="vm in group.vms"
               :key="vm.id"
@@ -44,6 +45,7 @@
                 <div class="font-medium text-neutral-900">
                   {{ vm.name }}
                 </div>
+                <!-- ★ 変更: status.ts の getVmStatusDisplay から class / text を取得 -->
                 <span
                   class="text-xs px-2 py-0.5 rounded-full"
                   :class="statusDisplay(vm.status).class"
@@ -55,21 +57,22 @@
               <div class="text-xs text-neutral-600">
                 ノード：
                 <span class="font-medium text-neutral-900">
-                  {{ vm.node?.name || "—" }}
+                  {{ vm.nodeName || "—" }}
                 </span>
               </div>
 
               <div class="text-xs text-neutral-600">
                 IPアドレス：
                 <span class="font-mono">
-                  {{ vm.networkInterfaces?.[0]?.ipAddress || "—" }}
+                  {{ vm.ipAddress || "—" }}
                 </span>
               </div>
 
               <div class="text-xs text-neutral-600">
                 作成日時：
+                <!-- ★ 変更: ローカルの formatDate をやめて formatDateTime を使用 -->
                 <span>
-                  {{ vm.createdAt ? formatDateTime(vm.createdAt) : "—" }}
+                  {{ formatDateTime(vm.createdAt) }}
                 </span>
               </div>
             </NuxtLink>
@@ -89,25 +92,42 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref } from "vue";
+// ★ 変更: 日付は共通ユーティリティ formatDateTime を利用
 import { formatDateTime } from "@/utils/date";
+// ★ 変更: ステータス表示は utils/status.ts の定義を利用
 import { getVmStatusDisplay } from "@/utils/status";
 
+// ★ 変更: context の型を VirtualNetworkResponse に合わせた形に整理
+type SubnetView = {
+  id: string;
+  name: string;
+  cidr: string;
+  createdAt: string;
+};
+
 const props = defineProps<{
-  context?: VirtualNetworkResponse;
+  context?: {
+    id: string;
+    subnets?: SubnetView[];
+  };
 }>();
+
+// このタブ内で使う VM 表示用のローカル型（API レスポンスをざっくり受ける想定）
+type VmAttachment = {
+  id: string;
+  name: string;
+  status: string;
+  nodeName: string;
+  ipAddress: string;
+  createdAt?: string;
+  subnetId: string;
+  subnetName?: string;
+  cidr?: string;
+};
 
 const loading = ref(false);
 const error = ref<unknown | null>(null);
-
-// サブネットごとの VM グループ
-const attachments = ref<
-  {
-    subnetId: string;
-    subnetName?: string;
-    cidr?: string;
-    vms: VirtualMachineResponse[];
-  }[]
->([]);
+const attachments = ref<VmAttachment[]>([]);
 
 onMounted(async () => {
   const vnetId = props.context?.id;
@@ -117,22 +137,30 @@ onMounted(async () => {
 
   loading.value = true;
   try {
-    const groups: typeof attachments.value = [];
+    const all: VmAttachment[] = [];
 
     for (const subnet of subnets) {
-      const vms = await $fetch<VirtualMachineResponse[]>(
+      // ★ 変更: エンドポイントは /virtual-machines 固定（設計どおり）
+      const raw = await $fetch<any[]>(
         `/api/virtual-networks/${vnetId}/subnets/${subnet.id}/virtual-machines`
       );
 
-      groups.push({
-        subnetId: subnet.id,
-        subnetName: subnet.name,
-        cidr: subnet.cidr,
-        vms,
-      });
+      for (const vm of raw) {
+        all.push({
+          id: vm.id,
+          name: vm.name,
+          status: vm.status,
+          nodeName: vm.node?.name ?? "",
+          ipAddress: vm.networkInterfaces?.[0]?.ipAddress ?? "",
+          createdAt: vm.createdAt,
+          subnetId: subnet.id,
+          subnetName: subnet.name,
+          cidr: subnet.cidr,
+        });
+      }
     }
 
-    attachments.value = groups;
+    attachments.value = all;
   } catch (e) {
     console.error("接続リソース取得エラー", e);
     error.value = e;
@@ -142,13 +170,30 @@ onMounted(async () => {
 });
 
 // データ有無
-const hasData = computed(() =>
-  attachments.value.some((group) => group.vms.length > 0)
-);
+const hasData = computed(() => attachments.value.length > 0);
 
-// そのままテンプレに渡す
-const subnetGroups = computed(() => attachments.value);
+// サブネットごとに VM をグルーピング
+const subnetGroups = computed(() => {
+  const map = new Map<
+    string,
+    { subnetId: string; subnetName?: string; cidr?: string; vms: VmAttachment[] }
+  >();
 
-// status.ts の getVmStatusDisplay を薄ラップして使いやすく
+  for (const vm of attachments.value) {
+    if (!map.has(vm.subnetId)) {
+      map.set(vm.subnetId, {
+        subnetId: vm.subnetId,
+        subnetName: vm.subnetName,
+        cidr: vm.cidr,
+        vms: [],
+      });
+    }
+    map.get(vm.subnetId)!.vms.push(vm);
+  }
+
+  return Array.from(map.values());
+});
+
+// ★ 変更: status.ts の getVmStatusDisplay を薄ラップして使いやすく
 const statusDisplay = (status: string) => getVmStatusDisplay(status);
 </script>
