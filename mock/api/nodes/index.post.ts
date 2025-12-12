@@ -22,6 +22,8 @@ export default defineEventHandler(async (event) => {
 
   const data = res.data as NodeCreateRequest;
 
+  console.log("Adding node:", data);
+
   const newNode = addNode(data);
 
   event.node.res.statusCode = 201;

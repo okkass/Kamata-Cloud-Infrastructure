@@ -43,6 +43,7 @@ export const useResourceCreate = <
         method: "POST",
         body: payload,
       });
+      console.log(responseData);
       return { success: true, data: responseData };
     } catch (err: any) {
       const error = err as FetchError;
