@@ -1,63 +1,31 @@
-import { addBackup } from "../../services/backupService";
-import {
-  getStorage,
-  getVirtualMachineById,
-} from "../../services/virtualMachineService";
-import type { BackupCreateRequest, ErrorResponse } from "@app/shared/types";
-import { z } from "zod";
+import { backupService } from "../../services/backupService";
+import { backupCreateSchema } from "@/schemas/backupSchemas";
+import { validateBody } from "@utils/validate";
+import type { BackupCreateRequest } from "@app/shared/types";
 
 export default defineEventHandler(async (event) => {
-  const bodySchema = z.object({
-    targetStorageId: z.uuid(),
-    targetVirtualMachineId: z.uuid(),
-    name: z.string().min(1).max(255),
-    description: z.string().max(1024).optional(),
-  });
-
-  const res = bodySchema.safeParse(await readBody<BackupCreateRequest>(event));
-  if (!res.success) {
-    event.node.res.statusCode = 400;
-    const errorResponse: ErrorResponse = {
-      type: "Invalid request",
-      detail: z.treeifyError(res.error).errors.join(", "),
-      status: 400,
-    };
-    return errorResponse;
+  // リクエストボディの読み取り
+  const body = (await readBody<BackupCreateRequest>(
+    event
+  )) as BackupCreateRequest;
+  // バリデーションの実行
+  const validateRes = validateBody<BackupCreateRequest>(
+    body,
+    backupCreateSchema
+  );
+  // バリデーションエラー時の処理
+  if (!validateRes.success) {
+    setResponseStatus(event, validateRes.error.status);
+    return validateRes.error;
   }
-
-  const data = res.data as BackupCreateRequest;
-
-  if (!getVirtualMachineById(data.targetVirtualMachineId)) {
-    event.node.res.statusCode = 404;
-    const errorResponse: ErrorResponse = {
-      type: "Not Found",
-      detail: "Target virtual machine not found",
-      status: 404,
-    };
-    return errorResponse;
+  // バックアップ作成のサービス呼び出し
+  const result = backupService.create(validateRes.data);
+  // レスポンスステータスの設定と結果の返却
+  if (!result.success) {
+    setResponseStatus(event, result.status ?? 500);
+    return result.error;
   }
-
-  const storage = getStorage(data.targetStorageId, data.targetVirtualMachineId);
-  if (!storage) {
-    event.node.res.statusCode = 404;
-    const errorResponse: ErrorResponse = {
-      type: "Not Found",
-      detail: "Target storage not found",
-      status: 404,
-    };
-    return errorResponse;
-  }
-
-  const backup = addBackup(data);
-  if (!backup) {
-    event.node.res.statusCode = 500;
-    const errorResponse: ErrorResponse = {
-      type: "Internal Server Error",
-      detail: "Failed to create backup",
-      status: 500,
-    };
-    return errorResponse;
-  }
-
-  return backup;
+  // 成功時の処理
+  setResponseStatus(event, result.status ?? 201);
+  return result.data;
 });

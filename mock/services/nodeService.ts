@@ -8,6 +8,9 @@ import type {
   DeviceResponse,
 } from "@app/shared/types";
 
+import type { ServiceResult } from "./common.ts";
+import { create404Error } from "@utils/errors.js";
+
 let nodes: Array<NodeResponse> = [
   {
     id: "a2dcd604-49cb-4e1c-826a-2071d50404a3",
@@ -68,15 +71,15 @@ let devices: Array<DeviceResponse> = [
   },
 ];
 
-export const getNodes = (): Array<NodeResponse> => {
+const getNodes = (): Array<NodeResponse> => {
   return nodes;
 };
 
-export const getNodeById = (id: string): NodeResponse | undefined => {
+const getNodeById = (id: string): NodeResponse | undefined => {
   return nodes.find((node) => node.id === id);
 };
 
-export const addNode = (node: NodeCreateRequest): NodeResponse => {
+const addNode = (node: NodeCreateRequest): NodeResponse => {
   const uuid = crypto.randomUUID();
   const newNode: NodeResponse = {
     id: uuid,
@@ -93,11 +96,11 @@ export const addNode = (node: NodeCreateRequest): NodeResponse => {
   return newNode;
 };
 
-export const getNodeCandidates = (): Array<NodeCandidateResponse> => {
+const getNodeCandidates = (): Array<NodeCandidateResponse> => {
   return nodeCandidates;
 };
 
-export const updateNode = (
+const updateNode = (
   id: string,
   updateFields: NodePutRequest | NodePatchRequest
 ): NodeResponse | undefined => {
@@ -112,12 +115,78 @@ export const updateNode = (
   return target;
 };
 
-export const deleteNode = (id: string): boolean => {
+const deleteNode = (id: string): boolean => {
   const initialLength = nodes.length;
   nodes = nodes.filter((node) => node.id !== id);
   return nodes.length < initialLength;
 };
 
-export const getDevices = (): Array<DeviceResponse> => {
+const getDevices = (): Array<DeviceResponse> => {
   return devices;
+};
+
+const list = (): ServiceResult<Array<NodeResponse>> => {
+  return { success: true, data: getNodes() };
+};
+
+const get = (id: string): ServiceResult<NodeResponse> => {
+  const node = getNodeById(id);
+  if (!node) {
+    return {
+      success: false,
+      error: create404Error("Node not found"),
+      status: 404,
+    };
+  }
+  return { success: true, data: node };
+};
+
+const create = (node: NodeCreateRequest): ServiceResult<NodeResponse> => {
+  const newNode = addNode(node);
+  return { success: true, data: newNode, status: 201 };
+};
+
+const update = (
+  id: string,
+  updateFields: NodePutRequest | NodePatchRequest
+): ServiceResult<NodeResponse> => {
+  const updatedNode = updateNode(id, updateFields);
+  if (!updatedNode) {
+    return {
+      success: false,
+      error: create404Error("Node not found"),
+      status: 404,
+    };
+  }
+  return { success: true, data: updatedNode };
+};
+
+const remove = (id: string): ServiceResult<null> => {
+  const deleted = deleteNode(id);
+  if (!deleted) {
+    return {
+      success: false,
+      error: create404Error("Node not found"),
+      status: 404,
+    };
+  }
+  return { success: true, data: null, status: 204 };
+};
+
+const listCandidates = (): ServiceResult<Array<NodeCandidateResponse>> => {
+  return { success: true, data: getNodeCandidates() };
+};
+
+const listDevices = (): ServiceResult<Array<DeviceResponse>> => {
+  return { success: true, data: getDevices() };
+};
+
+export const nodeService = {
+  list,
+  get,
+  create,
+  update,
+  remove,
+  listCandidates,
+  listDevices,
 };

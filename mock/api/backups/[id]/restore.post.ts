@@ -1,42 +1,19 @@
-import { z } from "zod";
-import { getStorage } from "../../../services/virtualMachineService";
-import { getBackupById } from "../../../services/backupService";
-import type { VirtualMachineResponse } from "@app/shared/types";
+import { validateUuid } from "@utils/validate";
+import { backupService } from "../../../services/backupService";
 
 export default defineEventHandler(async (event) => {
-  const paramsSchema = z.uuid();
-
   const id = event.context.params?.id;
-  const res = paramsSchema.safeParse(id);
-  if (!res.success) {
-    event.node.res.statusCode = 400;
-    return {
-      type: "Invalid request",
-      detail: z.treeifyError(res.error).errors.join(", "),
-      status: 400,
-    };
+  const uuidValidation = validateUuid(id as string);
+  if (!uuidValidation.success) {
+    setResponseStatus(event, uuidValidation.error.status);
+    return uuidValidation.error;
   }
 
-  const backupId = res.data;
-
-  const backup = getBackupById(backupId);
-  if (!backup) {
-    event.node.res.statusCode = 404;
-    return {
-      type: "Not Found",
-      detail: "Backup not found",
-      status: 404,
-    };
+  const result = backupService.restore(uuidValidation.data);
+  if (!result.success) {
+    setResponseStatus(event, result.status ?? 500);
+    return result.error;
   }
-
-  if (!backup.targetVirtualMachine || !backup.targetStorage) {
-    event.node.res.statusCode = 400;
-    return {
-      type: "Invalid Backup",
-      detail: "Backup is missing target virtual machine or storage information",
-      status: 400,
-    };
-  }
-
-  return backup.targetVirtualMachine as VirtualMachineResponse;
+  setResponseStatus(event, result.status ?? 200);
+  return result.data;
 });
