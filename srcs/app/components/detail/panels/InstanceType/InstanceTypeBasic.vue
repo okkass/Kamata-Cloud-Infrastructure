@@ -45,15 +45,13 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { formatDateTime } from "~/utils/date";
-import { convertByteToUnit } from "~/utils/format";
 
 const props = defineProps<{
   context: InstanceTypeResponse;
 }>();
 
-const instanceType = props.context;
+const instanceType = computed(() => props.context);
 
-const formattedCreatedAt = computed(() => formatDateTime(instanceType.createdAt));
-const memoryGB = computed(() => convertByteToUnit(instanceType.memorySize, "GB"));
+const formattedCreatedAt = computed(() => formatDateTime(instanceType.value.createdAt));
+const memoryGB = computed(() => convertByteToUnit(instanceType.value.memorySize, "GB"));
 </script>
