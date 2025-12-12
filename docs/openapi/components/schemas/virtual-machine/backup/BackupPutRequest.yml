@@ -1,0 +1,6 @@
+type: object
+description: バックアップ更新リクエストオブジェクト
+allOf:
+  - $ref: "./BackupUpdatable.yml"
+required:
+  - name

@@ -1,0 +1,12 @@
+type: object
+description: 仮想マシンをCPU、メモリ指定で作成する場合の更新可能なプロパティを持つオブジェクト
+properties:
+  cpu:
+    type: integer
+    description: 仮想マシンのCPUコア数
+  memory:
+    type: integer
+    description: 仮想マシンのメモリ容量 (バイト単位)
+required:
+  - cpu
+  - memory

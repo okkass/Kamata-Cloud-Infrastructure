@@ -1,68 +1,8 @@
 type: object
 description: 仮想マシン作成リクエストオブジェクト
-properties:
-  name:
-    type: string
-    description: 仮想マシンの名前
-  instanceTypeId:
-    type: string
-    format: uuid
-    description: 使用するインスタンスタイプのID
-  cpuCore:
-    type: integer
-    description: 仮想マシンに割り当てるCPUコア数（instanceTypeIdが指定されていない場合に必須）
-  memorySize:
-    type: integer
-    description: 仮想マシンに割り当てるメモリサイズ（バイト単位、instanceTypeIdが指定されていない場合に必須）
-  subnetId:
-    type: string
-    format: uuid
-    description: 仮想マシンを配置するサブネットのID
-  publicKey:
-    type: string
-    description: 仮想マシンに設定するSSH公開鍵
-  imageId:
-    type: string
-    format: uuid
-    description: 使用する仮想マシンイメージのID
-  middlewareId:
-    type: string
-    format: uuid
-    description: インストールするミドルウェアのID
-  nodeId:
-    type: string
-    format: uuid
-    description: 仮想マシンを配置する物理ノードのID
-  storages:
-    type: array
-    description: 仮想マシンにアタッチするストレージのリスト
-    items:
-      type: object
-      properties:
-        name:
-          type: string
-          description: ストレージの名前
-        size:
-          type: integer
-          description: ストレージのサイズ（バイト単位）
-        poolId:
-          type: string
-          format: uuid
-          description: ストレージプールのID
-      required:
-        - name
-        - size
-        - poolId
-  securityGroupIds:
-    type: array
-    items:
-      type: string
-      format: uuid
-    description: 関連付けるセキュリティグループのIDリスト
+allOf:
+  - $ref: "./VirtualMachineCreateOnly.yml"
+  - $ref: "./VirtualMachineUpdatable.yml"
 required:
   - name
-  - subnetId
-  - imageId
-  - storages
-  - nodeId
-  - securityGroupIds
+  - spec

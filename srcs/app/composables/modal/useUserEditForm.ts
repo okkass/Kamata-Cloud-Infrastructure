@@ -14,13 +14,13 @@ import { useToast } from "~/composables/useToast";
 import { convertUnitToByte, convertByteToUnit } from "~/utils/format";
 
 // ★ 指定された型定義をインポート
-import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
-import type { UserPutRequest } from "~~/shared/types/dto/user/UserPutRequest";
+import type { UserResponse } from "~~/shared/types";
+import type { UserPutRequest } from "~~/shared/types";
 
 // Props の型定義
 interface UserEditProps {
   show: boolean;
-  userData: UserServerBase | null; // ★ UserDTO -> UserServerBase に変更
+  userData: UserResponse | null; // ★ UserDTO -> UserServerBase に変更
 }
 
 // =============================================================================
@@ -53,7 +53,7 @@ const validationSchema = toTypedSchema(
     isImageAdmin: z.boolean(),
     isInstanceTypeAdmin: z.boolean(),
     isNetworkAdmin: z.boolean(),
-    isPhysicalNodeAdmin: z.boolean(),
+    isNodeAdmin: z.boolean(),
     isSecurityGroupAdmin: z.boolean(),
     isVirtualMachineAdmin: z.boolean(),
   })
@@ -68,7 +68,7 @@ export function useUserEditForm(props: UserEditProps) {
   // ★ 更新用 Composable の型引数を変更
   const { executeUpdate, isUpdating } = useResourceUpdate<
     UserPutRequest, // リクエスト型
-    UserServerBase // レスポンス型
+    UserResponse // レスポンス型
   >("users");
 
   // ============================================================================
@@ -86,7 +86,7 @@ export function useUserEditForm(props: UserEditProps) {
       isImageAdmin: false,
       isInstanceTypeAdmin: false,
       isNetworkAdmin: false,
-      isPhysicalNodeAdmin: false,
+      isNodeAdmin: false,
       isSecurityGroupAdmin: false,
       isVirtualMachineAdmin: false,
     },
@@ -107,7 +107,7 @@ export function useUserEditForm(props: UserEditProps) {
   const [isImageAdmin] = defineField("isImageAdmin");
   const [isInstanceTypeAdmin] = defineField("isInstanceTypeAdmin");
   const [isNetworkAdmin] = defineField("isNetworkAdmin");
-  const [isPhysicalNodeAdmin] = defineField("isPhysicalNodeAdmin");
+  const [isNodeAdmin] = defineField("isNodeAdmin");
   const [isSecurityGroupAdmin] = defineField("isSecurityGroupAdmin");
   const [isVirtualMachineAdmin] = defineField("isVirtualMachineAdmin");
 
@@ -137,7 +137,7 @@ export function useUserEditForm(props: UserEditProps) {
             isImageAdmin: newData.isImageAdmin,
             isInstanceTypeAdmin: newData.isInstanceTypeAdmin,
             isNetworkAdmin: newData.isNetworkAdmin,
-            isPhysicalNodeAdmin: newData.isPhysicalNodeAdmin,
+            isNodeAdmin: newData.isNodeAdmin,
             isSecurityGroupAdmin: newData.isSecurityGroupAdmin,
             isVirtualMachineAdmin: newData.isVirtualMachineAdmin,
           },
@@ -175,7 +175,7 @@ export function useUserEditForm(props: UserEditProps) {
         isImageAdmin: values.isImageAdmin,
         isInstanceTypeAdmin: values.isInstanceTypeAdmin,
         isNetworkAdmin: values.isNetworkAdmin,
-        isPhysicalNodeAdmin: values.isPhysicalNodeAdmin,
+        isNodeAdmin: values.isNodeAdmin,
         isSecurityGroupAdmin: values.isSecurityGroupAdmin,
         isVirtualMachineAdmin: values.isVirtualMachineAdmin,
       };
@@ -220,7 +220,7 @@ export function useUserEditForm(props: UserEditProps) {
     isImageAdmin,
     isInstanceTypeAdmin,
     isNetworkAdmin,
-    isPhysicalNodeAdmin,
+    isNodeAdmin,
     isSecurityGroupAdmin,
     isVirtualMachineAdmin,
 

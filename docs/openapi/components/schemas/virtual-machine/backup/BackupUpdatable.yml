@@ -1,0 +1,9 @@
+type: object
+description: バックアップの更新可能なプロパティ
+properties:
+  name:
+    type: string
+    description: バックアップの名前
+  description:
+    type: string
+    description: バックアップの説明

@@ -46,7 +46,7 @@ properties:
     type: boolean
     description: ユーザがセキュリティグループ管理者かどうかを示すフラグ
     example: false
-  isPhysicalNodeAdmin:
+  isNodeAdmin:
     type: boolean
     description: ユーザが物理ノード管理者かどうかを示すフラグ
     example: false

@@ -15,6 +15,8 @@ export const useResourceCreate = <
 ) => {
   const isCreating = ref(false);
 
+  const runtimeConfig = useRuntimeConfig();
+
   /**
    * リソースの作成を実行し、詳細な結果オブジェクトを返す
    * @param payload - 作成するリソースのデータ
@@ -37,9 +39,11 @@ export const useResourceCreate = <
 
     try {
       const responseData = await $fetch<TResponse>(`/api/${resourceName}`, {
+        baseURL: runtimeConfig.public.apiBaseUrl,
         method: "POST",
         body: payload,
       });
+      console.log(responseData);
       return { success: true, data: responseData };
     } catch (err: any) {
       const error = err as FetchError;

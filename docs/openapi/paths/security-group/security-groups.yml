@@ -3,6 +3,16 @@ get:
   description: すべてのセキュリティグループのリストを取得します。
   tags:
     - SecurityGroup
+  parameters:
+    - name: scope
+      in: query
+      description: 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine)。
+      required: false
+      schema:
+        type: string
+        enum:
+          - mine
+          - all
   responses:
     "200":
       description: 成功
@@ -14,8 +24,16 @@ get:
               $ref: "../../components/schemas/security-group/SecurityGroupResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 post:
@@ -38,9 +56,21 @@ post:
             $ref: "../../components/schemas/security-group/SecurityGroupResponse.yml"
     "400":
       description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []

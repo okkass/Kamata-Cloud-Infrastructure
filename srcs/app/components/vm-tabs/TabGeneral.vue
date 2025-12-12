@@ -1,5 +1,5 @@
 <template>
-  <div class="modal-space">
+  <div class="modal-space space-y-4">
     <FormInput
       label="仮想マシン名"
       name="vm-name"
@@ -8,21 +8,22 @@
       :required="true"
       :error="errors.name"
       v-model="name"
-      v-model:attrs="nameAttrs"
+      v-bind="nameAttrs"
     />
 
     <FormSelect
       label="ノード"
       name="node-select"
+      :options="nodes ?? []"
+      option-label="name"
+      option-value="id"
       :pending="pending"
       :error="error"
-      :options="nodes ?? []"
       placeholder="ノードを選択してください"
       :required="true"
       :error-message="errors.nodeId"
-      :placeholder-value="undefined"
       v-model="nodeId"
-      v-model:attrs="nodeIdAttrs"
+      v-bind="nodeIdAttrs"
     />
   </div>
 </template>
@@ -33,7 +34,7 @@
  * 概要タブ (TabGeneral.vue)
  * ---------------------------------------------------------------------------------
  * 仮想マシン作成ウィザードの最初のタブ。
- * 主に仮想マシン名や配置先ノードといった、基本的な情報を入力する役割を担います。
+ * 仮想マシン名や配置先ノードといった基本情報を入力します。
  * =================================================================================
  */
 import { useResourceList } from "~/composables/useResourceList";
@@ -41,27 +42,30 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 
+// 共通コンポーネントのインポート (自動インポートされない場合のために念のため記述)
+import FormInput from "~/components/Form/Input.vue";
+import FormSelect from "~/components/Form/Select.vue";
+
+// 型定義 (自動インポート)
+// type NodeResponse
+
 /**
  * ==============================================================================
- * Validation Schema (バリデーションスキーマ)
- * ------------------------------------------------------------------------------
- * このフォームの入力ルールをZodで定義します。
- * `name`と`nodeId`が必須項目であることを指定しています。
+ * Validation Schema
  * ==============================================================================
  */
 const validationSchema = toTypedSchema(
   z.object({
     name: z.string().min(1, "仮想マシン名は必須です。"),
-    nodeId: z.string({ required_error: "ノードを選択してください。" }),
+    nodeId: z
+      .string({ message: "ノードを選択してください。" })
+      .min(1, "ノードを選択してください。"),
   })
 );
 
 /**
  * ==============================================================================
- * Form State Management (フォーム状態管理)
- * ------------------------------------------------------------------------------
- * VeeValidateのuseFormを使って、フォーム全体の状態を管理します。
- * これにより、入力値、エラー、バリデーション状態などがリアクティブに扱えます。
+ * Form State Management
  * ==============================================================================
  */
 const { errors, defineField, values, meta } = useForm({
@@ -72,31 +76,32 @@ const { errors, defineField, values, meta } = useForm({
   },
 });
 
-// `defineField`を使い、各フォームフィールドとVeeValidateを連携させます。
-// 戻り値の配列: [リアクティブな値(v-model用), 属性(v-bind用)]
+// 各フィールドの定義
 const [name, nameAttrs] = defineField("name");
 const [nodeId, nodeIdAttrs] = defineField("nodeId");
 
 /**
  * ==============================================================================
- * Expose to Parent (親コンポーネントへの公開)
+ * API Data Fetching
+ * ==============================================================================
+ */
+const { data: nodes, pending, error } = useResourceList<NodeResponse>("nodes");
+
+/**
+ * ==============================================================================
+ * Expose to Parent
  * ------------------------------------------------------------------------------
- * `defineExpose`を使い、このコンポーネントのデータと状態を親から参照できるようにします。
- * 親は`tabRefs`を通じて`formData`や`isValid`にアクセスできます。
+ * 親コンポーネント (MoVirtualMachineCreate) がデータを吸い上げるために公開
  * ==============================================================================
  */
 defineExpose({
   formData: values,
   isValid: meta,
 });
-
-/**
- * ==============================================================================
- * API Data Fetching (APIデータ取得)
- * ------------------------------------------------------------------------------
- * `useResourceList` Composableを使い、「ノード選択」プルダウンの選択肢を
- * APIから非同期で取得します。
- * ==============================================================================
- */
-const { data: nodes, pending, error } = useResourceList<NodeDTO>("nodes");
 </script>
+
+<style scoped>
+.modal-space {
+  @apply p-1;
+}
+</style>

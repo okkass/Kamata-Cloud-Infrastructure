@@ -3,6 +3,16 @@ get:
   description: すべての仮想マシンのリストを取得します。
   tags:
     - VirtualMachine
+  parameters:
+    - name: scope
+      in: query
+      description: 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine)。
+      required: false
+      schema:
+        type: string
+        enum:
+          - mine
+          - all
   responses:
     "200":
       description: 成功
@@ -11,16 +21,24 @@ get:
           schema:
             type: array
             items:
-              $ref: "../../components/schemas/virtual-machine/VirtualMachine.yml"
+              $ref: "../../components/schemas/virtual-machine/VirtualMachineResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 post:
   summary: 仮想マシンの作成
-  description: 新しい仮想マシンを作成します。
+  description: 新しい仮想マシンを作成します。インスタンスタイプとカスタムスペックの両方が指定された場合、カスタムスペックが優先されます。
   tags:
     - VirtualMachine
   requestBody:
@@ -35,12 +53,24 @@ post:
       content:
         application/json:
           schema:
-            $ref: "../../components/schemas/virtual-machine/VirtualMachine.yml"
+            $ref: "../../components/schemas/virtual-machine/VirtualMachineResponse.yml"
     "400":
       description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
