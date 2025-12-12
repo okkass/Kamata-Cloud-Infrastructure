@@ -1,3 +1,5 @@
+import { z } from "zod";
+
 export default defineEventHandler(async (event) => {
   const bodySchema = z.object({
     targetStorageId: z.uuid(),
