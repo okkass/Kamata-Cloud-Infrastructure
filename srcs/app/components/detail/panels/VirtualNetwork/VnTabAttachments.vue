@@ -69,7 +69,7 @@
               <div class="text-xs text-neutral-600">
                 作成日時：
                 <span>
-                  {{ vm.createdAt ? formatDateTime(vm.createdAt) : "—" }}
+                  {{ formatDateTime(vm.createdAt) }}
                 </span>
               </div>
             </NuxtLink>
