@@ -55,21 +55,21 @@
               <div class="text-xs text-neutral-600">
                 ノード：
                 <span class="font-medium text-neutral-900">
-                  {{ vm.nodeName || "—" }}
+                  {{ vm.node?.name || "—" }}
                 </span>
               </div>
 
               <div class="text-xs text-neutral-600">
                 IPアドレス：
                 <span class="font-mono">
-                  {{ vm.ipAddress || "—" }}
+                  {{ vm.networkInterfaces?.[0]?.ipAddress || "—" }}
                 </span>
               </div>
 
               <div class="text-xs text-neutral-600">
                 作成日時：
                 <span>
-                  {{ formatDateTime(vm.createdAt) }}
+                  {{ vm.createdAt ? formatDateTime(vm.createdAt) : "—" }}
                 </span>
               </div>
             </NuxtLink>
@@ -99,8 +99,15 @@ const props = defineProps<{
 const loading = ref(false);
 const error = ref<unknown | null>(null);
 
-// VM の接続情報を保持（自作型は定義せず any で受ける）
-const attachments = ref<any[]>([]);
+// サブネットごとの VM グループ
+const attachments = ref<
+  {
+    subnetId: string;
+    subnetName?: string;
+    cidr?: string;
+    vms: VirtualMachineResponse[];
+  }[]
+>([]);
 
 onMounted(async () => {
   const vnetId = props.context?.id;
@@ -110,30 +117,22 @@ onMounted(async () => {
 
   loading.value = true;
   try {
-    const all: any[] = [];
+    const groups: typeof attachments.value = [];
 
     for (const subnet of subnets) {
-      // エンドポイントは /virtual-machines 固定（設計どおり）
-      const raw = await $fetch<any[]>(
+      const vms = await $fetch<VirtualMachineResponse[]>(
         `/api/virtual-networks/${vnetId}/subnets/${subnet.id}/virtual-machines`
       );
 
-      for (const vm of raw) {
-        all.push({
-          id: vm.id,
-          name: vm.name,
-          status: vm.status,
-          nodeName: vm.node?.name ?? "",
-          ipAddress: vm.networkInterfaces?.[0]?.ipAddress ?? "",
-          createdAt: vm.createdAt,
-          subnetId: subnet.id,
-          subnetName: subnet.name,
-          cidr: subnet.cidr,
-        });
-      }
+      groups.push({
+        subnetId: subnet.id,
+        subnetName: subnet.name,
+        cidr: subnet.cidr,
+        vms,
+      });
     }
 
-    attachments.value = all;
+    attachments.value = groups;
   } catch (e) {
     console.error("接続リソース取得エラー", e);
     error.value = e;
@@ -143,26 +142,12 @@ onMounted(async () => {
 });
 
 // データ有無
-const hasData = computed(() => attachments.value.length > 0);
+const hasData = computed(() =>
+  attachments.value.some((group) => group.vms.length > 0)
+);
 
-// サブネットごとに VM をグルーピング
-const subnetGroups = computed(() => {
-  const map = new Map<string, any>();
-
-  for (const vm of attachments.value) {
-    if (!map.has(vm.subnetId)) {
-      map.set(vm.subnetId, {
-        subnetId: vm.subnetId,
-        subnetName: vm.subnetName,
-        cidr: vm.cidr,
-        vms: [] as any[],
-      });
-    }
-    map.get(vm.subnetId)!.vms.push(vm);
-  }
-
-  return Array.from(map.values());
-});
+// そのままテンプレに渡す
+const subnetGroups = computed(() => attachments.value);
 
 // status.ts の getVmStatusDisplay を薄ラップして使いやすく
 const statusDisplay = (status: string) => getVmStatusDisplay(status);
