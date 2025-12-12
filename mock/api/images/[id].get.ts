@@ -23,6 +23,14 @@ export default defineEventHandler((event) => {
         description: "Setumei",
         createdAt: new Date().toISOString(),
         size: 19190 * 1024 * 1024, // 19190MB(19.19GB)をバイトで表現
+        node: {
+          id: "a2dcd604-49cb-4e1c-826a-2071d50404a3",
+          name: "node-1",
+          ipAddress: "192.168.3.19",
+          status: "active",
+          isAdmin: false,
+          createdAt: new Date().toISOString(),
+        },
       };
     } else {
       image = {
@@ -31,6 +39,14 @@ export default defineEventHandler((event) => {
         description: "Setumei",
         createdAt: new Date().toISOString(),
         size: 45450 * 1024 * 1024, // 45450MB(45.45GB)をバイトで表現
+        node: {
+          id: "a2dcd604-49cb-4e1c-826a-2071d50404a3",
+          name: "node-1",
+          ipAddress: "192.168.3.19",
+          status: "active",
+          isAdmin: false,
+          createdAt: new Date().toISOString(),
+        },
       };
     }
   }
