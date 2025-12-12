@@ -1,8 +1,11 @@
+<!-- /workspace/srcs/app/components/detail/panels/VirtualMachine/VmTabSpec.vue -->
 <template>
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">構成</h2>
 
     <div class="detail-card space-y-4">
+
+      <!-- CPU / メモリ -->
       <dl class="space-y-3 text-sm">
         <div>
           <dt class="detail-label">CPUコア</dt>
@@ -15,6 +18,7 @@
         </div>
       </dl>
 
+      <!-- ストレージ -->
       <div class="detail-card-section">
         <h3 class="text-sm font-semibold text-neutral-700">ストレージ</h3>
 
@@ -25,9 +29,11 @@
             class="rounded-lg border border-neutral-200 px-4 py-3"
           >
             <p class="text-xs text-neutral-500">{{ s.name }}</p>
+
             <p class="text-sm text-neutral-900 font-medium">
-              サイズ：{{ sizeGb(s.size) }}GB
+              サイズ：{{ convertByteToUnit(s.size, "GB") }}GB
             </p>
+
             <p class="text-sm text-neutral-900 font-medium">
               プール: {{ s.poolLabel }}
             </p>
@@ -38,6 +44,7 @@
           </p>
         </div>
       </div>
+
     </div>
   </section>
 </template>
@@ -62,17 +69,20 @@ const props = defineProps<{
 
 const vm = computed(() => props.context);
 
+/** CPU コア数 */
 const cpuDisplay = computed(() => {
   const cores = vm.value?.cpuCore;
   return typeof cores === "number" ? cores : "—";
 });
 
+/** メモリサイズ（byte → MB） */
 const memoryDisplay = computed(() => {
   const bytes = vm.value?.memorySize;
-  if (!bytes || typeof bytes !== "number") return "—";
+  if (typeof bytes !== "number" || !Number.isFinite(bytes)) return "—";
   return `${convertByteToUnit(bytes, "MB")}MB`;
 });
 
+/** ストレージ一覧 */
 const storages = computed<StorageView[]>(() => {
   const list = vm.value?.storages ?? [];
   if (!Array.isArray(list)) return [];
@@ -84,9 +94,4 @@ const storages = computed<StorageView[]>(() => {
     poolLabel: s.pool?.name ?? s.pool?.id ?? "—",
   }));
 });
-
-const sizeGb = (bytes: number) => {
-  if (!bytes || typeof bytes !== "number") return "—";
-  return convertByteToUnit(bytes, "GB");
-};
 </script>

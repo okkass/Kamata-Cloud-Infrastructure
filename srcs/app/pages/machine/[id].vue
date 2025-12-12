@@ -1,8 +1,6 @@
 <template>
   <div class="mx-auto max-w-6xl px-4 py-6">
-    <div v-if="pending" class="text-sm text-neutral-500">
-      読み込み中…
-    </div>
+    <div v-if="pending" class="text-sm text-neutral-500">読み込み中…</div>
 
     <div v-else-if="error" class="text-sm text-red-500">
       エラーが発生しました：{{ error.message }}
@@ -33,13 +31,14 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { MACHINE } from "~/utils/constants";
+
 
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 
 // Tabs
 import { vmTabs } from "~/composables/detail/useVmTabs";
-
 
 // composables
 import { useResourceDetail } from "~/composables/useResourceDetail";
@@ -55,9 +54,9 @@ const {
   data: vm,
   pending,
   error,
-  refresh
+  refresh,
 } = await useResourceDetail<VirtualMachineResponse>(
-  "virtual-machines",
+  MACHINE.name,
   route.params.id as string
 );
 
