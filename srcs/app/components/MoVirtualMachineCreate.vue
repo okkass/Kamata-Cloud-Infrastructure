@@ -100,7 +100,7 @@ const {
 const {
   executeCreate: executeVirtualMachineCreation, // 関数名をより具体的に
   isCreating,
-} = useResourceCreate<VirtualMachineCreateRequestDTO, VirtualMachineDTO>(
+} = useResourceCreate<VirtualMachineCreateRequest, VirtualMachineResponse>(
   "virtual-machines"
 );
 

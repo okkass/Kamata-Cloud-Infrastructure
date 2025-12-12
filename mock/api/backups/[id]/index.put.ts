@@ -3,14 +3,14 @@ import { updateBackup } from "../../../services/backupService";
 import type { BackupResponse, BackupPutRequest } from "@app/shared/types";
 
 export default defineEventHandler(async (event) => {
-  const idSchema = z.uuid();
+  const paramsSchema = z.uuid();
   const bodySchema = z.object({
     name: z.string().min(1).max(255),
     description: z.string().max(1024).optional(),
   });
 
   const id = event.context.params?.id;
-  const idRes = idSchema.safeParse(id);
+  const idRes = paramsSchema.safeParse(id);
   if (!idRes.success) {
     event.node.res.statusCode = 400;
     return {
