@@ -8,10 +8,10 @@ export default defineEventHandler(async (event) => {
     isAdmin: z.boolean(),
   });
 
-  const querySchema = z.uuid();
+  const paramsSchema = z.uuid();
 
   const id = event.context.params?.id;
-  const res = querySchema.safeParse(id);
+  const res = paramsSchema.safeParse(id);
   if (!res.success) {
     event.node.res.statusCode = 400;
     return {

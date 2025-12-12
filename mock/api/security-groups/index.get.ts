@@ -1,7 +1,8 @@
+import { SecurityGroupResponse } from "@app/shared/types";
 import { create } from "domain";
 
 export default defineEventHandler(() => {
-  const securityGroups: Array<SecurityGroupDTO> = [
+  const securityGroups: Array<SecurityGroupResponse> = [
     {
       id: "399f4fd6-8335-46f7-bd80-4e53eb0fbe9b",
       name: "default",
