@@ -2,30 +2,12 @@
   <div>
     <BaseModal :show="show" title="ノード追加" @close="$emit('close')">
       <div class="space-y-6">
-        <div class="info-panel info-panel-blue">
-          <div class="flex">
-            <div class="flex-shrink-0">
-              <svg
-                class="info-panel-icon info-panel-icon-blue"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
-            <div class="ml-3">
-              <p class="info-panel-text-blue">
-                ネットワーク内で自動検知されたノード候補が表示されています。<br />
-                追加したいノードの「追加」ボタンをクリックしてください。
-              </p>
-            </div>
-          </div>
-        </div>
+        <UiBaseAlert>
+          <p>
+            ネットワーク内で自動検知されたノード候補が表示されています。<br />
+            追加したいノードの「追加」ボタンをクリックしてください。
+          </p>
+        </UiBaseAlert>
 
         <div class="border rounded-md overflow-hidden bg-white">
           <div
@@ -43,32 +25,9 @@
             </button>
           </div>
 
-          <div
-            v-if="candidatesPending"
-            class="p-8 text-center text-gray-500 flex justify-center items-center"
-          >
-            <svg
-              class="animate-spin -ml-1 mr-3 h-5 w-5 text-gray-500"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
+          <UiBaseLoading v-if="candidatesPending">
             候補を検索中...
-          </div>
+          </UiBaseLoading>
 
           <div v-else-if="candidatesError" class="p-8 text-center text-red-500">
             一覧の取得に失敗しました: {{ candidatesError.message }}
@@ -123,38 +82,14 @@
       size="sm"
     >
       <form @submit.prevent="submitAddNode" class="space-y-4">
-        <div class="info-panel info-panel-yellow">
-          <div class="flex">
-            <div class="flex-shrink-0">
-              <svg
-                class="info-panel-icon info-panel-icon-yellow"
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z"
-                  clip-rule="evenodd"
-                />
-              </svg>
-            </div>
-            <div class="ml-3">
-              <h3 class="info-panel-title-yellow">実行確認</h3>
-              <div class="mt-2 info-panel-text-yellow">
-                <p>
-                  ノード <strong>{{ selectedNode?.name }}</strong> ({{
-                    selectedNode?.ipAddress
-                  }}) をクラスターに追加します。
-                </p>
-                <p class="font-bold mt-1">
-                  ※この操作は取り消すことができません。
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-
+        <UiBaseAlert type="warning" title="実行確認">
+          <p>
+            ノード <strong>{{ selectedNode?.name }}</strong> ({{
+              selectedNode?.ipAddress
+            }}) をクラスターに追加します。
+          </p>
+          <p class="font-bold mt-1">※この操作は取り消すことができません。</p>
+        </UiBaseAlert>
         <FormInput
           label="ルートパスワード"
           name="password"
