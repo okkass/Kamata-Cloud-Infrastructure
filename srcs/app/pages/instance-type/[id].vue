@@ -35,7 +35,7 @@ import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
-import { INSTANCE_TYPE } from "~/utils/constants";
+import { INSTANCE_TYPE } from "@/utils/constants";
 import { instanceTypeTabs } from "~/composables/detail/useInstanceTypeTabs";
 import { useResourceDetail } from "~/composables/useResourceDetail";
 
