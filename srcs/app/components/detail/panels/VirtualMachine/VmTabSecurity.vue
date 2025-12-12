@@ -34,8 +34,7 @@
 <script setup lang="ts">
 import { computed } from "vue";
 
-type VirtualMachineResponse =
-  components["schemas"]["VirtualMachineResponse"];
+type VirtualMachineResponse = components["schemas"]["VirtualMachineResponse"];
 
 const props = defineProps<{
   context?: VirtualMachineResponse | null;

@@ -54,8 +54,7 @@
 import { computed } from "vue";
 import { getVmStatusDisplay, getNodeStatusDisplay } from "~/utils/status";
 
-type VirtualMachineResponse =
-  components["schemas"]["VirtualMachineResponse"];
+type VirtualMachineResponse = components["schemas"]["VirtualMachineResponse"];
 
 const props = defineProps<{
   context?: VirtualMachineResponse | null;

@@ -33,7 +33,6 @@ import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { MACHINE } from "~/utils/constants";
 
-
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 

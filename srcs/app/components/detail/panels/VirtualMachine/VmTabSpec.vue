@@ -1,10 +1,8 @@
-<!-- /workspace/srcs/app/components/detail/panels/VirtualMachine/VmTabSpec.vue -->
 <template>
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">構成</h2>
 
     <div class="detail-card space-y-4">
-
       <!-- CPU / メモリ -->
       <dl class="space-y-3 text-sm">
         <div>
@@ -44,7 +42,6 @@
           </p>
         </div>
       </div>
-
     </div>
   </section>
 </template>
@@ -53,8 +50,7 @@
 import { computed } from "vue";
 import { convertByteToUnit } from "~/utils/format";
 
-type VirtualMachineResponse =
-  components["schemas"]["VirtualMachineResponse"];
+type VirtualMachineResponse = components["schemas"]["VirtualMachineResponse"];
 
 type StorageView = {
   id: string;
