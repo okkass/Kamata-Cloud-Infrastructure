@@ -113,18 +113,6 @@
           </table>
         </div>
       </div>
-
-      <template #footer>
-        <div class="modal-footer">
-          <button
-            type="button"
-            @click="$emit('close')"
-            class="btn btn-secondary"
-          >
-            閉じる
-          </button>
-        </div>
-      </template>
     </BaseModal>
 
     <BaseModal
