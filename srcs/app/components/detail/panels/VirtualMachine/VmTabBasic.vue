@@ -13,7 +13,7 @@
       <div>
         <div class="detail-label">作成日時</div>
         <div class="detail-value">
-          {{ vm?.createdAt || "-" }}
+          {{ formatDateTime(vm?.createdAt) }}
         </div>
       </div>
 
