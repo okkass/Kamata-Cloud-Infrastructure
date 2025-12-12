@@ -16,7 +16,7 @@ export function useAddNodeForm() {
     pending: candidatesPending,
     error: candidatesError,
     refresh: refreshCandidates,
-  } = useResourceList<NodeResponse>("nodes");
+  } = useResourceList<NodeResponse>("nodes/candidates");
 
   // 2. ノード追加 API (POST /api/nodes)
   const { executeCreate, isCreating } = useResourceCreate<
