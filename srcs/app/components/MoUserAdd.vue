@@ -94,8 +94,8 @@
           <label class="checkbox-label">
             <input
               type="checkbox"
-              v-model="isPhysicalNodeAdmin"
-              v-bind="isPhysicalNodeAdminAttrs"
+              v-model="isNodeAdmin"
+              v-bind="isNodeAdminAttrs"
             />
             物理ノード管理
           </label>
@@ -174,8 +174,8 @@ const {
   isInstanceTypeAdminAttrs,
   isNetworkAdmin,
   isNetworkAdminAttrs,
-  isPhysicalNodeAdmin,
-  isPhysicalNodeAdminAttrs,
+  isNodeAdmin,
+  isNodeAdminAttrs,
   isSecurityGroupAdmin,
   isSecurityGroupAdminAttrs,
   isVirtualMachineAdmin,
