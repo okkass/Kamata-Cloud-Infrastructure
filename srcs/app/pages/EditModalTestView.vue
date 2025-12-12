@@ -202,6 +202,63 @@
       </div>
     </div>
 
+    <div class="mt-8 pt-4 border-t"></div>
+
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">スナップショット一覧 (API連携)</h2>
+      <div v-if="ssPending" class="mt-2 text-gray-500">
+        スナップショット一覧を読み込み中...
+      </div>
+      <div v-else-if="ssError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ ssError.message }}
+      </div>
+      <table
+        v-else-if="snapshots && snapshots.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">説明</th>
+            <th class="px-6 py-3">作成日時</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="ss in snapshots" :key="ss.id" class="bg-white border-b">
+            <td class="px-6 py-4 font-medium">{{ ss.name }}</td>
+            <td class="px-6 py-4 text-gray-500">
+              {{ ss.description || "-" }}
+            </td>
+            <td class="px-6 py-4">
+              {{ new Date(ss.createdAt).toLocaleString() }}
+            </td>
+            <td class="px-6 py-4 text-center">
+              <button
+                @click="openSnapshotRestoreModal(ss)"
+                class="btn-secondary text-xs px-3 py-1 bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
+              >
+                復元
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="mt-2 text-gray-500">
+        表示できるスナップショットがありません。
+      </div>
+
+      <component
+        v-for="modal in editModals"
+        :key="modal.id"
+        :is="modal.component"
+        :show="activeModal === modal.id"
+        v-bind="modal.props"
+        @close="closeModal"
+        @success="handleSuccess"
+      />
+    </div>
+
     <component
       v-for="modal in editModals"
       :key="modal.id"
@@ -218,19 +275,13 @@
 import { ref, markRaw, computed } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
 
-// --- 型定義 ---
-import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine";
-import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type";
-import type { ImageResponse } from "~~/shared/types/dto/image";
-import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
-import type { SecurityGroupDTO } from "~~/shared/types/dto/security-group/SecurityGroupDTO";
-
 // --- コンポーネント ---
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
 import MoUserEdit from "~/components/MoUserEdit.vue";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
+import MoSnapshotRestore from "~/components/MoSnapshotRestore.vue";
 
 // --- State ---
 const activeModal = ref<string | null>(null);
@@ -244,7 +295,7 @@ const {
   pending: vmPending,
   error: vmError,
   refresh: refreshVms,
-} = useResourceList<VirtualMachineDTO>("virtual-machines");
+} = useResourceList<VirtualMachineResponse>("virtual-machines");
 
 // 2. インスタンスタイプ
 const {
@@ -268,7 +319,7 @@ const {
   pending: usersPending,
   error: usersError,
   refresh: refreshUsers,
-} = useResourceList<UserServerBase>("users");
+} = useResourceList<UserResponse>("users");
 
 // 5. セキュリティグループ
 const {
@@ -276,7 +327,14 @@ const {
   pending: sgPending,
   error: sgError,
   refresh: refreshSecurityGroups,
-} = useResourceList<SecurityGroupDTO>("security-groups");
+} = useResourceList<SecurityGroupResponse>("security-groups");
+
+const {
+  data: snapshots,
+  pending: ssPending,
+  error: ssError,
+  refresh: refreshSnapshots,
+} = useResourceList<SnapshotResponse>("snapshots");
 
 // --- モーダル定義 ---
 const editModals = computed(() => [
@@ -310,6 +368,13 @@ const editModals = computed(() => [
     props: { securityGroupData: targetResource.value },
     refreshFn: refreshSecurityGroups,
   },
+  {
+    id: "snapshotRestore",
+    component: markRaw(MoSnapshotRestore),
+    // モーダル側で定義した props 名 (snapshotData) に合わせる
+    props: { snapshotData: targetResource.value },
+    refreshFn: refreshSnapshots,
+  },
 ]);
 
 // --- Methods ---
@@ -333,12 +398,14 @@ const handleSuccess = () => {
 };
 
 // Open Helpers
-const openVmEditModal = (vm: VirtualMachineDTO) => openModal("vmEdit", vm);
+const openVmEditModal = (vm: VirtualMachineResponse) => openModal("vmEdit", vm);
 const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
   openModal("instanceTypeEdit", it);
 const openImageEditModal = (image: ImageResponse) =>
   openModal("imageEdit", image);
-const openUserEditModal = (user: UserServerBase) => openModal("userEdit", user);
-const openSecurityGroupEditModal = (sg: SecurityGroupDTO) =>
+const openUserEditModal = (user: UserResponse) => openModal("userEdit", user);
+const openSecurityGroupEditModal = (sg: SecurityGroupResponse) =>
   openModal("securityGroupEdit", sg);
+const openSnapshotRestoreModal = (ss: SnapshotResponse) =>
+  openModal("snapshotRestore", ss);
 </script>
