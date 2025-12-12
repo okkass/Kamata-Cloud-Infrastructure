@@ -32,6 +32,7 @@
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { MACHINE } from "~/utils/constants";
+import { useApiClient } from "~/composables/useResourceClient";
 
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
@@ -44,6 +45,7 @@ import { useResourceDetail } from "~/composables/useResourceDetail";
 import { useToast } from "@/composables/useToast";
 
 const { addToast } = useToast();
+const apiClient = useApiClient();
 
 const route = useRoute();
 const router = useRouter();
@@ -140,13 +142,18 @@ const handleAction = async (action: { label: string; value: string }) => {
   }
 
   try {
-    const res = await $fetch<{
+    type VmActionResponse = {
       message: string;
-      data: { id: string; status?: string };
-    }>(`/api/virtual-machines/${vm.value.id}/${endpoint}`, {
-      method: "POST",
-      body: { action: action.value },
-    });
+      data: {
+        id: string;
+        status?: VirtualMachineResponse["status"];
+      };
+    };
+
+    const res = await apiClient.post<VmActionResponse>(
+      `${MACHINE.name}/${vm.value.id}/${endpoint}`,
+      { action: action.value }
+    );
 
     // ステータス反映
     if (res.data?.status) {
