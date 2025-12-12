@@ -6,43 +6,49 @@
       @close="$emit('close')"
     >
       <div class="space-y-6">
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-          <div class="flex">
-            <div class="ml-3">
-              <p class="text-sm text-yellow-700">
-                この操作を行うと、現在の仮想マシンのデータは完全に上書きされます。<br />
-                復元を実行する前に、現在の状態のバックアップを取得することをお勧めします。
-              </p>
-            </div>
+        <UiBaseAlert type="warning">
+          <p>
+            この操作を行うと、現在の仮想マシンのデータは完全に上書きされます。<br />
+            復元を実行する前に、現在の状態のバックアップを取得することをお勧めします。
+          </p>
+        </UiBaseAlert>
+
+        <div class="border rounded-md bg-white overflow-hidden">
+          <div class="bg-gray-50 px-4 py-2 border-b">
+            <h4 class="font-bold text-sm text-gray-700">復元対象データ</h4>
           </div>
-        </div>
 
-        <div class="border rounded-md p-4 bg-gray-50 space-y-3">
-          <h4 class="font-bold text-gray-700 border-b pb-2 mb-2">
-            復元対象データ
-          </h4>
-
-          <div class="grid grid-cols-3 gap-4 text-sm">
-            <div class="text-gray-500">名前</div>
-            <div class="col-span-2 font-medium">
-              {{ backupData?.name || "-" }}
+          <div
+            class="p-4 grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 text-sm"
+          >
+            <div>
+              <span class="block text-xs text-gray-500 mb-1"
+                >バックアップ名</span
+              >
+              <span class="font-medium text-gray-900">{{
+                backupData?.name || "-"
+              }}</span>
             </div>
 
-            <div class="text-gray-500">作成日時</div>
-            <div class="col-span-2">
-              {{ formatDate(backupData?.createdAt) }}
+            <div>
+              <span class="block text-xs text-gray-500 mb-1">作成日時</span>
+              <span class="text-gray-900">{{
+                formatDateTime(backupData?.createdAt)
+              }}</span>
             </div>
 
-            <div class="text-gray-500">ID</div>
-            <div class="col-span-2 text-xs text-gray-400 break-all">
-              {{ backupData?.id || "-" }}
+            <div class="sm:col-span-2">
+              <span class="block text-xs text-gray-500 mb-1">ID</span>
+              <span class="text-xs text-gray-400 font-mono break-all">{{
+                backupData?.id || "-"
+              }}</span>
             </div>
           </div>
         </div>
       </div>
 
       <template #footer>
-        <div class="modal-footer flex justify-between items-center w-full">
+        <div class="modal-footer flex justify-end gap-2">
           <button
             type="button"
             @click="$emit('close')"
@@ -55,10 +61,10 @@
           <button
             type="button"
             @click="openConfirm"
-            class="btn bg-red-600 text-white hover:bg-red-700 border-transparent shadow-sm"
+            class="btn btn-danger"
             :disabled="isRestoring || !backupData?.id"
           >
-            復元を実行
+            {{ isRestoring ? "復元中..." : "復元を実行" }}
           </button>
         </div>
       </template>
@@ -69,6 +75,7 @@
       title="復元の最終確認"
       message="現在の仮想マシンの状態はこのバックアップの内容で上書きされ、元に戻すことはできません。よろしいですか？"
       confirm-text="復元する"
+      confirm-button-class="btn-danger"
       @confirm="onConfirmed"
       @cancel="showConfirm = false"
     />
@@ -111,28 +118,5 @@ const onConfirmed = async () => {
     emit("success");
     emit("close");
   }
-};
-
-// --- ヘルパー関数 ---
-
-// 日時フォーマット
-const formatDate = (dateString: string | undefined) => {
-  if (!dateString) return "-";
-  return new Date(dateString).toLocaleString("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
-
-// メモリサイズフォーマット (Byte -> GB/MB)
-const formatMemory = (bytes: number | undefined) => {
-  if (bytes === undefined || bytes === null) return "-";
-  if (bytes >= 1073741824) {
-    return `${(bytes / 1073741824).toFixed(1)} GB`;
-  }
-  return `${Math.round(bytes / 1048576)} MB`;
 };
 </script>
