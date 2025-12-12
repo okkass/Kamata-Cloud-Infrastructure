@@ -45,7 +45,7 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import { formatDateTime } from "~/utils/date";
+import { formatDateTime } from "@/utils/date";
 import { convertByteToUnit } from "~/utils/format";
 
 const props = defineProps<{
