@@ -36,11 +36,24 @@
           >
             <td class="px-6 py-4 font-medium">{{ vm.name }}</td>
             <td class="px-6 py-4">{{ vm.status }}</td>
-            <td class="px-6 py-4">{{ vm.nodeName }}</td>
+            <td class="px-6 py-4">{{ vm.node }}</td>
             <td class="px-6 py-4 text-center">
-              <button @click="openVmEditModal(vm)" class="btn-secondary">
-                編集
-              </button>
+              <div class="flex justify-center gap-2">
+                <button
+                  @click="openVmEditModal(vm)"
+                  class="btn-secondary text-xs px-3 py-1"
+                  title="仮想マシン編集"
+                >
+                  編集
+                </button>
+                <button
+                  @click="openBackupRestoreModal(vm)"
+                  class="btn-secondary text-xs px-3 py-1 bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
+                  title="バックアップ復元 (テスト)"
+                >
+                  復元
+                </button>
+              </div>
             </td>
           </tr>
         </tbody>
@@ -48,46 +61,6 @@
       <div v-else class="mt-2 text-gray-500">
         表示できる仮想マシンがありません。
       </div>
-    </div>
-
-    <div class="mt-8 pt-4 border-t">
-      <h2 class="font-semibold text-lg">インスタンスタイプ一覧 (API連携)</h2>
-      <div v-if="itPending" class="mt-2 text-gray-500">一覧を読み込み中...</div>
-      <div v-else-if="itError" class="mt-2 text-red-600">
-        一覧の取得に失敗しました: {{ itError.message }}
-      </div>
-      <table
-        v-else-if="instanceTypes && instanceTypes.length > 0"
-        class="w-full mt-2 text-sm text-left"
-      >
-        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-          <tr>
-            <th class="px-6 py-3">名前</th>
-            <th class="px-6 py-3">CPU</th>
-            <th class="px-6 py-3">メモリ</th>
-            <th class="px-6 py-3 text-center">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="it in instanceTypes"
-            :key="it.id"
-            class="bg-white border-b"
-          >
-            <td class="px-6 py-4 font-medium">{{ it.name }}</td>
-            <td class="px-6 py-4">{{ it.cpuCore }} vCPU</td>
-            <td class="px-6 py-4">{{ it.memorySize }} Byte</td>
-            <td class="px-6 py-4 text-center">
-              <button
-                @click="openInstanceTypeEditModal(it)"
-                class="btn-secondary"
-              >
-                編集
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
 
     <div class="mt-8 pt-4 border-t">
@@ -202,6 +175,47 @@
       </div>
     </div>
 
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">ストレージプール一覧 (API連携)</h2>
+      <div v-if="spPending" class="mt-2 text-gray-500">一覧を読み込み中...</div>
+      <div v-else-if="spError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ spError.message }}
+      </div>
+      <table
+        v-else-if="storagePools && storagePools.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">ノード</th>
+            <th class="px-6 py-3">NWアクセス</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="sp in storagePools" :key="sp.id" class="bg-white border-b">
+            <td class="px-6 py-4 font-medium">{{ sp.name }}</td>
+            <td class="px-6 py-4">{{ sp.node }}</td>
+            <td class="px-6 py-4">
+              <span v-if="sp.hasNetworkAccess" class="text-green-600 font-bold"
+                >許可</span
+              >
+              <span v-else class="text-gray-500">拒否</span>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <button @click="openStorageEditModal(sp)" class="btn-secondary">
+                編集
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="mt-2 text-gray-500">
+        表示できるストレージプールがありません。
+      </div>
+    </div>
+
     <component
       v-for="modal in editModals"
       :key="modal.id"
@@ -218,19 +232,14 @@
 import { ref, markRaw, computed } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
 
-// --- 型定義 ---
-import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine";
-import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type";
-import type { ImageResponse } from "~~/shared/types/dto/image";
-import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
-import type { SecurityGroupDTO } from "~~/shared/types/dto/security-group/SecurityGroupDTO";
-
 // --- コンポーネント ---
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
 import MoUserEdit from "~/components/MoUserEdit.vue";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
+//import MoBackupRestore from "~/components/MoBuckupRestor.vue";
+import MoStorageEdit from "~/components/MoStorageEdit.vue";
 
 // --- State ---
 const activeModal = ref<string | null>(null);
@@ -244,7 +253,7 @@ const {
   pending: vmPending,
   error: vmError,
   refresh: refreshVms,
-} = useResourceList<VirtualMachineDTO>("virtual-machines");
+} = useResourceList<VirtualMachineResponse>("virtual-machines");
 
 // 2. インスタンスタイプ
 const {
@@ -268,7 +277,7 @@ const {
   pending: usersPending,
   error: usersError,
   refresh: refreshUsers,
-} = useResourceList<UserServerBase>("users");
+} = useResourceList<UserResponse>("users");
 
 // 5. セキュリティグループ
 const {
@@ -276,7 +285,14 @@ const {
   pending: sgPending,
   error: sgError,
   refresh: refreshSecurityGroups,
-} = useResourceList<SecurityGroupDTO>("security-groups");
+} = useResourceList<SecurityGroupResponse>("security-groups");
+
+const {
+  data: storagePools,
+  pending: spPending,
+  error: spError,
+  refresh: refreshStoragePools,
+} = useResourceList<StoragePoolResponse>("storage-pools");
 
 // --- モーダル定義 ---
 const editModals = computed(() => [
@@ -286,6 +302,13 @@ const editModals = computed(() => [
     props: { vmId: targetResource.value?.id },
     refreshFn: refreshVms,
   },
+  /*{
+    id: "backupRestore",
+    component: markRaw(MoBackupRestore),
+    // 復元モーダルには backupData としてデータを渡す
+    props: { backupData: targetResource.value },
+    refreshFn: refreshVms,
+  },*/
   {
     id: "instanceTypeEdit",
     component: markRaw(MoInstanceTypeEdit),
@@ -310,6 +333,12 @@ const editModals = computed(() => [
     props: { securityGroupData: targetResource.value },
     refreshFn: refreshSecurityGroups,
   },
+  {
+    id: "storageEdit",
+    component: markRaw(MoStorageEdit),
+    props: { storageData: targetResource.value },
+    refreshFn: refreshStoragePools,
+  },
 ]);
 
 // --- Methods ---
@@ -333,12 +362,16 @@ const handleSuccess = () => {
 };
 
 // Open Helpers
-const openVmEditModal = (vm: VirtualMachineDTO) => openModal("vmEdit", vm);
+const openVmEditModal = (vm: VirtualMachineResponse) => openModal("vmEdit", vm);
+const openBackupRestoreModal = (vm: VirtualMachineResponse) =>
+  openModal("backupRestore", vm);
 const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
   openModal("instanceTypeEdit", it);
 const openImageEditModal = (image: ImageResponse) =>
   openModal("imageEdit", image);
-const openUserEditModal = (user: UserServerBase) => openModal("userEdit", user);
-const openSecurityGroupEditModal = (sg: SecurityGroupDTO) =>
+const openUserEditModal = (user: UserResponse) => openModal("userEdit", user);
+const openSecurityGroupEditModal = (sg: SecurityGroupResponse) =>
   openModal("securityGroupEdit", sg);
+const openStorageEditModal = (sp: StoragePoolResponse) =>
+  openModal("storageEdit", sp);
 </script>
