@@ -115,6 +115,7 @@ security_groups {
     varchar(256) name "max 18 characters"
     text description
     datetime created_at
+    bigint user_id FK
 }
 
 security_rules {
@@ -137,7 +138,6 @@ storage_pools {
     varchar(256) name
     boolean has_network_access
     bigint available_size
-    bigint used_size
     datetime created_at
     bigint total_size
 }
