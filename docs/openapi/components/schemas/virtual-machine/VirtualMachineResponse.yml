@@ -58,6 +58,9 @@ properties:
   memorySize:
     type: integer
     description: 仮想マシンに割り当てられたメモリサイズ（バイト単位）
+  owner:
+    description: 仮想マシンの所有者情報(scope=allのときのみ)
+    $ref: "../user/UserResponse.yml"
 required:
   - id
   - name
