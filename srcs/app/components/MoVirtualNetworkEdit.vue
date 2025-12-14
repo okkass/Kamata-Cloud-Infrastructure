@@ -18,33 +18,22 @@
       </div>
 
       <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            ネットワーク名
-          </label>
-          <input
-            type="text"
-            v-model="editedData.name"
-            class="form-input w-full"
-            placeholder="my-vpc-01"
-            required
-          />
-        </div>
+        <FormInput
+          label="ネットワーク名"
+          name="network-name"
+          v-model="editedData.name"
+          placeholder="my-vpc-01"
+          required
+          class="w-full"
+        />
 
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">
-            ネットワークアドレス (CIDR)
-            <span class="text-xs text-gray-400 font-normal ml-2"
-              >※作成後の変更不可</span
-            >
-          </label>
-          <input
-            type="text"
-            :value="editedData.cidr"
-            class="form-input w-full bg-gray-100 text-gray-500 cursor-not-allowed"
-            readonly
-          />
-        </div>
+        <FormInput
+          label="ネットワークアドレス (CIDR) ※作成後の変更不可"
+          name="network-cidr"
+          v-model="editedData.cidr"
+          class="w-full bg-gray-100 text-gray-500 cursor-not-allowed"
+          readonly
+        />
 
         <div class="border rounded-md overflow-hidden bg-white mt-6">
           <div
@@ -76,28 +65,28 @@
               >
                 <div class="grid grid-cols-12 gap-3 items-end">
                   <div class="col-span-5">
-                    <label class="block text-xs text-gray-500 mb-1">名前</label>
-                    <input
-                      type="text"
+                    <FormInput
+                      label="名前"
+                      :name="`subnet-name-${index}`"
                       v-model="subnet.name"
-                      class="form-input-sm w-full"
                       placeholder="例: public-subnet"
                       required
+                      class="w-full"
                     />
                   </div>
 
                   <div class="col-span-5">
-                    <label class="block text-xs text-gray-500 mb-1">CIDR</label>
-                    <input
-                      type="text"
+                    <FormInput
+                      label="CIDR"
+                      :name="`subnet-cidr-${index}`"
                       v-model="subnet.cidr"
-                      class="form-input-sm w-full"
                       placeholder="例: 10.0.1.0/24"
                       required
+                      class="w-full"
                     />
                   </div>
 
-                  <div class="col-span-2 flex justify-end pb-1">
+                  <div class="col-span-2 flex justify-end pb-3">
                     <button
                       type="button"
                       @click="removeSubnet(index)"
@@ -106,7 +95,7 @@
                     >
                       <svg
                         xmlns="http://www.w3.org/2000/svg"
-                        class="h-4 w-4"
+                        class="h-5 w-5"
                         fill="none"
                         viewBox="0 0 24 24"
                         stroke="currentColor"
@@ -155,6 +144,8 @@
 <script setup lang="ts">
 import { watch, type PropType } from "vue";
 import { useVirtualNetworkEditForm } from "~/composables/modal/useVirtualNetworkEditForm";
+// 共通コンポーネントのインポート
+import FormInput from "~/components/Form/Input.vue";
 
 // 型定義 (VirtualNetworkResponse) は自動インポート前提
 
@@ -195,12 +186,3 @@ const submitForm = () => {
   save(emit);
 };
 </script>
-
-<style scoped>
-.form-input {
-  @apply border border-gray-300 rounded px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500;
-}
-.form-input-sm {
-  @apply border border-gray-300 rounded px-2 py-1 text-xs focus:outline-none focus:ring-1 focus:ring-blue-500 focus:border-blue-500;
-}
-</style>
