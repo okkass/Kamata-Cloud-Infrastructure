@@ -9,4 +9,5 @@ export default defineNitroConfig({
     "@app": resolve(__dirname, "../srcs"),
     "@": resolve(__dirname, "./server"),
   },
+  errorHandler: "@/errorHandler",
 });

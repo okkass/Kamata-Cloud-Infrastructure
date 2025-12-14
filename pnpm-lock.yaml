@@ -16,6 +16,10 @@ importers:
         version: 4.1.1
 
   mock:
+    dependencies:
+      zod:
+        specifier: ^4.1.13
+        version: 4.1.13
     devDependencies:
       h3:
         specifier: ^1.15.4
