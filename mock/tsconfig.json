@@ -26,6 +26,10 @@
     // "noUnusedParameters": true,
 
     // Libs & paths
-    "lib": ["ESNext", "DOM"]
+    "lib": ["ESNext", "DOM"],
+    "paths": {
+      "@app/*": ["../srcs/*"],
+      "@/*": ["./server/*"]
+    }
   }
 }
