@@ -1,19 +1,7 @@
-import { resolve } from "node:path";
+import { defineNitroConfig } from "nitropack/config";
 
+// https://nitro.build/config
 export default defineNitroConfig({
-  routeRules: {
-    "/api/**": {
-      headers: {
-        "Access-Control-Allow-Origin": "http://localhost:3000",
-        "Access-Control-Allow-Methods":
-          "GET, POST, PUT, PATCH, DELETE, OPTIONS",
-        "Access-Control-Allow-Headers": "Content-Type, Authorization",
-      },
-    },
-  },
-  alias: {
-    "@app": resolve(__dirname, "../srcs"),
-    "@utils": resolve(__dirname, "./utils"),
-    "@": resolve(__dirname, "./"),
-  },
+  compatibilityDate: "latest",
+  srcDir: "server",
 });
