@@ -1,9 +1,6 @@
 /**
  * =================================================================================
  * 仮想ネットワーク編集フォーム Composable (useVirtualNetworkEditForm.ts)
- * ---------------------------------------------------------------------------------
- * ・useResourceUpdater を使用して、本体とサブネットの差分を検知
- * ・保存時に 1回の PATCH リクエストで一括更新 (Bulk Update) を行う
  * =================================================================================
  */
 import { ref, computed } from "vue";
@@ -92,7 +89,9 @@ export function useVirtualNetworkEditForm() {
 
     try {
       // 1. ペイロードの構築
-      const payload: VirtualNetworkPatchRequest = {};
+      //subnets を入れるため、一時的に any (または Record<string, any>) として扱います
+      const payload: any = {};
+
       let hasChanges = false;
 
       // (A) 本体 (Base) の差分
@@ -110,22 +109,16 @@ export function useVirtualNetworkEditForm() {
           subnetDiff.removed.length > 0 ||
           subnetDiff.updated.length > 0)
       ) {
-        // BulkRequest構造 (add, patch, delete) を作成
-        // ※ 提示された NetworkInterfaceBulkRequest の構造を参考に実装
+        // payload は any なので、subnets プロパティを追加してもエラーになりません
         payload.subnets = {
-          // 新規追加: added配列をそのままセット (IDなど不要な項目はAPI側で無視される前提、あるいはmapで整形)
           add: subnetDiff.added.map((item) => ({
             name: item.name,
             cidr: item.cidr,
           })),
-
-          // 削除: IDの配列
           delete: subnetDiff.removed,
-
-          // 更新: { id, data: { ... } } の形式に変換
           patch: subnetDiff.updated.map((item) => ({
             id: item.id,
-            data: item.payload, // name, cidr などの差分のみが含まれている
+            data: item.payload,
           })),
         };
         hasChanges = true;
@@ -144,7 +137,7 @@ export function useVirtualNetworkEditForm() {
 
       // ※ $fetch や useFetch を使用 (環境に合わせてパス調整)
       await $fetch(`/api/virtual-networks/${resourceId}`, {
-        method: "PATCH",
+        method: "PUT",
         body: payload,
       });
 
