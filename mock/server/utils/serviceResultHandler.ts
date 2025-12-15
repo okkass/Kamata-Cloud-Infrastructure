@@ -1,6 +1,6 @@
-import type { FetchFunc, CreateFunc } from "@/types";
+import type { FetchFunc, CreateFunc, UpdateFunc, DeleteFunc } from "@/types";
 import { NotFoundError, ForbiddenError, UserPermissions } from "@/types";
-import { validateQuery, validateUUID } from "./validate";
+import { validateBody, validateQuery, validateUUID } from "./validate";
 import { z } from "zod";
 
 export interface HandlerResult<T> {
@@ -40,6 +40,20 @@ interface ResourceCreatePayload<TRequest, TResponse> {
   body: TRequest | undefined;
   bodySchema: z.ZodType;
   createFunc: CreateFunc<TRequest, TResponse>;
+}
+
+interface ResourceUpdatePayload<TRequest, TResponse> {
+  userPermissions: UserPermissions;
+  id: string | undefined;
+  body: TRequest | undefined;
+  bodySchema: z.ZodType;
+  updateFunc: UpdateFunc<TRequest, TResponse>;
+}
+
+interface ResourceDeletePayload {
+  userPermissions: UserPermissions;
+  id: string | undefined;
+  deleteFunc: DeleteFunc;
 }
 
 // リソースのリストを取得する共通ハンドラー
@@ -90,4 +104,69 @@ export const getResource = <T>(
 // リソースを新規作成する共通ハンドラー
 export const createResource = <TRequest, TResponse>(
   inparam: ResourceCreatePayload<TRequest, TResponse>
-): HandlerResult<TResponse> => {};
+): HandlerResult<TResponse> => {
+  // bodyをバリデート
+  const body = validateBody<TRequest>(inparam.body, inparam.bodySchema);
+
+  // createFuncを呼び出す
+  const result = inparam.createFunc({
+    userPermissions: inparam.userPermissions,
+    body: body,
+  });
+
+  // エラーが返ってきたら例外を投げる
+  if (!result.success) {
+    throwServiceError(result.error);
+  }
+
+  // この時点でresultは成功していることが保証されている
+  return { status: 201, data: (result as { data: TResponse }).data };
+};
+
+// リソースを更新する共通ハンドラー(PUT/PATCH共通)
+export const updateResource = <TRequest, TResponse>(
+  inparam: ResourceUpdatePayload<TRequest, TResponse>
+): HandlerResult<TResponse> => {
+  // idをバリデート
+  const id = validateUUID(inparam.id);
+
+  // bodyをバリデート
+  const body = validateBody<TRequest>(inparam.body, inparam.bodySchema);
+
+  // updateFuncを呼び出す
+  const result = inparam.updateFunc({
+    userPermissions: inparam.userPermissions,
+    id: id,
+    body: body,
+  });
+
+  // エラーが返ってきたら例外を投げる
+  if (!result.success) {
+    throwServiceError(result.error);
+  }
+
+  // この時点でresultは成功していることが保証されている
+  return { status: 200, data: (result as { data: TResponse }).data };
+};
+
+// リソースを削除する共通ハンドラー
+export const deleteResource = (
+  inparam: ResourceDeletePayload
+): HandlerResult<null> => {
+  // idをバリデート
+  const id = validateUUID(inparam.id);
+
+  // deleteFuncを呼び出す
+  const result = inparam.deleteFunc({
+    userPermissions: inparam.userPermissions,
+    id: id,
+  });
+
+  // エラーが返ってきたら例外を投げる
+  if (!result.success) {
+    throwServiceError(result.error);
+  }
+
+  // この時点でresultは成功していることが保証されている
+  return { status: 204, data: null };
+};

@@ -12,8 +12,25 @@ interface CreatePayload<T> {
   body: T;
 }
 
+interface UpdatePayload<T> {
+  userPermissions: UserPermissions;
+  id: string;
+  body: T;
+}
+
+interface DeletePayload {
+  userPermissions: UserPermissions;
+  id: string;
+}
+
 export type FetchFunc<T> = (payload: FetchPayload) => ServiceResult<T>;
 
 export type CreateFunc<TRequest, TResponse> = (
   payload: CreatePayload<TRequest>
 ) => ServiceResult<TResponse>;
+
+export type UpdateFunc<TRequest, TResponse> = (
+  payload: UpdatePayload<TRequest>
+) => ServiceResult<TResponse>;
+
+export type DeleteFunc = (payload: DeletePayload) => ServiceResult<null>;
