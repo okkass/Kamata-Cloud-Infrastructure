@@ -12,10 +12,395 @@ datasource db {
   provider = "mysql"
 }
 
-model Test {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String? 
-  published Boolean  @default(false)
-  createdAt DateTime @default(now())
+// ---------------------------------------------------------
+//  ENUMS
+// ---------------------------------------------------------
+
+enum VmStatus {
+  running
+  stopped
+  pending
+}
+
+enum RuleRoleType {
+  inbound
+  outbound
+}
+
+enum RuleProtocol {
+  tcp
+  udp
+  icmp
+  any
+}
+
+enum RuleAction {
+  allow
+  deny
+}
+
+// ---------------------------------------------------------
+//  USER & AUTHENTICATION
+// ---------------------------------------------------------
+
+model User {
+  id          BigInt    @id @default(autoincrement())
+  uuid        String    @unique @default(uuid())
+  name        String    @db.VarChar(256)
+  email       String    @unique @db.VarChar(256)
+  createdAt   DateTime  @default(now()) @map("created_at")
+  lastLoginAt DateTime? @map("last_login_at")
+
+  // Quotas (0 for unlimited)
+  cpuLimitCores  Int @default(0) @map("cpu_limit_cores")
+  memoryLimitMb  Int @default(0) @map("memory_limit_mb")
+  storageLimitGb Int @default(0) @map("storage_limit_gb")
+
+  // Foreign Keys
+  permissionId BigInt @map("permission_id")
+
+  // Relations
+  permission      Permission       @relation(fields: [permissionId], references: [id])
+  credentials     UserCredential?
+  portfolios      Portfolio[]
+  virtualMachines VirtualMachine[]
+  securityGroups  SecurityGroup[]
+  virtualNetworks VirtualNetwork[]
+  operationLogs   OperationLog[]
+
+  @@map("users")
+}
+
+model UserCredential {
+  userId         BigInt @id @map("user_id")
+  hashedPassword String @map("hashed_password") @db.VarChar(256)
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("user_credentials")
+}
+
+model Permission {
+  id                    BigInt  @id @default(autoincrement())
+  isAdmin               Boolean @default(false) @map("is_admin")
+  isImageAdmin          Boolean @default(false) @map("is_image_admin")
+  isInstanceTypeAdmin   Boolean @default(false) @map("is_instance_type_admin")
+  isVirtualMachineAdmin Boolean @default(false) @map("is_virtual_machine_admin")
+  isNetworkAdmin        Boolean @default(false) @map("is_network_admin")
+  isSecurityGroupAdmin  Boolean @default(false) @map("is_security_group_admin")
+  isNodeAdmin           Boolean @default(false) @map("is_node_admin")
+
+  // Relations
+  users User[]
+
+  @@map("permissions")
+}
+
+model Portfolio {
+  id        BigInt   @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    BigInt   @map("user_id")
+
+  // Relations
+  user     User               @relation(fields: [userId], references: [id])
+  articles PortfolioArticle[]
+
+  @@map("portfolios")
+}
+
+model PortfolioArticle {
+  id          BigInt   @id @default(autoincrement())
+  uuid        String   @unique @default(uuid())
+  title       String   @db.VarChar(256)
+  createdAt   DateTime @default(now()) @map("created_at")
+  portfolioId BigInt   @map("portfolio_id")
+
+  // Relations
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
+
+  @@map("portfolio_articles")
+}
+
+// ---------------------------------------------------------
+//  COMPUTE
+// ---------------------------------------------------------
+
+model VirtualMachine {
+  id        BigInt   @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  name      String   @db.VarChar(256)
+  status    VmStatus @default(pending)
+  cpu       Int
+  memory    Int
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Foreign Keys
+  nodeId  BigInt @map("node_id")
+  imageId BigInt @map("image_id")
+  userId  BigInt @map("user_id")
+
+  // Relations
+  node              Node                            @relation(fields: [nodeId], references: [id])
+  image             Image                           @relation(fields: [imageId], references: [id])
+  user              User                            @relation(fields: [userId], references: [id])
+  networkInterfaces NetworkInterface[]
+  attachedStorages  VirtualMachineAttachedStorage[]
+  snapshots         Snapshot[]
+  securityGroups    VirtualMachineSecurityGroup[]
+  backups           Backup[] // source vm for backups
+
+  @@map("virtual_machines")
+}
+
+model Node {
+  id        BigInt   @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  name      String   @db.VarChar(256)
+  ipAddress String   @map("ip_address") @db.VarChar(15)
+  isAdmin   Boolean  @default(false) @map("is_admin")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  // Relations
+  virtualMachines VirtualMachine[]
+  images          Image[] // images owned by node
+
+  @@map("nodes")
+}
+
+model Image {
+  id          BigInt   @id @default(autoincrement())
+  uuid        String   @unique @default(uuid())
+  name        String   @db.VarChar(256)
+  description String?  @db.Text
+  size        Int
+  createdAt   DateTime @default(now()) @map("created_at")
+  ownNodeId   BigInt   @map("own_node_id")
+
+  // Relations
+  ownNode         Node             @relation(fields: [ownNodeId], references: [id])
+  virtualMachines VirtualMachine[]
+
+  @@map("images")
+}
+
+model InstanceType {
+  id         BigInt   @id @default(autoincrement())
+  uuid       String   @unique @default(uuid())
+  name       String   @db.VarChar(256)
+  cpuCore    Int      @map("cpu_core")
+  memorySize Int      @map("memory_size")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  @@map("instance_types")
+}
+
+model Middleware {
+  id        BigInt   @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  name      String   @db.VarChar(256)
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("middlewares")
+}
+
+// ---------------------------------------------------------
+//  STORAGE
+// ---------------------------------------------------------
+
+model StoragePool {
+  id               BigInt   @id @default(autoincrement())
+  uuid             String   @unique @default(uuid())
+  name             String   @db.VarChar(256)
+  hasNetworkAccess Boolean  @default(false) @map("has_network_access")
+  availableSize    BigInt   @map("available_size")
+  totalSize        BigInt   @map("total_size")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  // Relations
+  virtualStorages VirtualStorage[]
+
+  @@map("storage_pools")
+}
+
+model VirtualStorage {
+  id            BigInt   @id @default(autoincrement())
+  uuid          String   @unique @default(uuid())
+  name          String   @db.VarChar(256)
+  size          BigInt
+  createdAt     DateTime @default(now()) @map("created_at")
+  storagePoolId BigInt   @map("storage_pool_id")
+
+  // Relations
+  storagePool StoragePool                     @relation(fields: [storagePoolId], references: [id])
+  attachedTo  VirtualMachineAttachedStorage[]
+  backups     Backup[]
+
+  @@map("virtual_storages")
+}
+
+// Many-to-Many explicit relation table for VM <-> Storage
+model VirtualMachineAttachedStorage {
+  virtualMachineId BigInt @map("virtual_machine_id")
+  virtualStorageId BigInt @map("virtual_storage_id")
+  path             String @db.VarChar(255)
+
+  // Relations
+  virtualMachine VirtualMachine @relation(fields: [virtualMachineId], references: [id])
+  virtualStorage VirtualStorage @relation(fields: [virtualStorageId], references: [id])
+
+  @@id([virtualMachineId, virtualStorageId])
+  @@map("virtual_machine_attached_storage")
+}
+
+model Backup {
+  id                     BigInt   @id @default(autoincrement())
+  uuid                   String   @unique @default(uuid())
+  name                   String   @db.VarChar(256)
+  description            String?  @db.Text
+  size                   Int
+  createdAt              DateTime @default(now()) @map("created_at")
+  virtualStorageId       BigInt   @map("virtual_storage_id")
+  sourceVirtualMachineId BigInt   @map("source_virtual_machine_id")
+
+  // Relations
+  virtualStorage       VirtualStorage @relation(fields: [virtualStorageId], references: [id])
+  sourceVirtualMachine VirtualMachine @relation(fields: [sourceVirtualMachineId], references: [id])
+
+  @@map("backups")
+}
+
+model Snapshot {
+  id                     BigInt   @id @default(autoincrement())
+  uuid                   String   @unique @default(uuid())
+  name                   String   @db.VarChar(256)
+  description            String?  @db.Text
+  createdAt              DateTime @default(now()) @map("created_at")
+  targetVirtualMachineId BigInt   @map("target_virtual_machine_id")
+
+  // Relations
+  targetVirtualMachine VirtualMachine @relation(fields: [targetVirtualMachineId], references: [id])
+
+  @@map("snapshots")
+}
+
+// ---------------------------------------------------------
+//  NETWORK
+// ---------------------------------------------------------
+
+model VirtualNetwork {
+  id        BigInt   @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  name      String   @db.VarChar(256)
+  cidr      String   @db.VarChar(15)
+  createdAt DateTime @default(now()) @map("created_at")
+  userId    BigInt   @map("user_id")
+
+  // Relations
+  user    User     @relation(fields: [userId], references: [id])
+  subnets Subnet[]
+
+  @@map("virtual_networks")
+}
+
+model Subnet {
+  id               BigInt   @id @default(autoincrement())
+  uuid             String   @unique @default(uuid())
+  name             String   @db.VarChar(256)
+  cidr             String   @db.VarChar(15)
+  createdAt        DateTime @default(now()) @map("created_at")
+  virtualNetworkId BigInt   @map("virtual_network_id")
+
+  // Relations
+  virtualNetwork    VirtualNetwork     @relation(fields: [virtualNetworkId], references: [id])
+  networkInterfaces NetworkInterface[]
+
+  @@map("subnets")
+}
+
+model NetworkInterface {
+  id               BigInt   @id @default(autoincrement())
+  uuid             String   @unique @default(uuid())
+  name             String   @db.VarChar(256)
+  ipAddress        String   @map("ip_address") @db.VarChar(15)
+  macAddress       String   @map("mac_address") @db.VarChar(15)
+  createdAt        DateTime @default(now()) @map("created_at")
+  subnetId         BigInt   @map("subnet_id")
+  virtualMachineId BigInt   @map("virtual_machine_id")
+
+  // Relations
+  subnet         Subnet         @relation(fields: [subnetId], references: [id])
+  virtualMachine VirtualMachine @relation(fields: [virtualMachineId], references: [id])
+
+  @@map("network_interfaces")
+}
+
+model SecurityGroup {
+  id          BigInt   @id @default(autoincrement())
+  uuid        String   @unique @default(uuid())
+  name        String   @db.VarChar(256)
+  description String?  @db.Text
+  createdAt   DateTime @default(now()) @map("created_at")
+  userId      BigInt   @map("user_id")
+
+  // Relations
+  user            User                          @relation(fields: [userId], references: [id])
+  rules           SecurityRule[]
+  virtualMachines VirtualMachineSecurityGroup[]
+
+  @@map("security_groups")
+}
+
+model SecurityRule {
+  id              BigInt       @id @default(autoincrement())
+  uuid            String       @unique @default(uuid())
+  name            String       @db.VarChar(256)
+  roleType        RuleRoleType @map("role_type")
+  port            Int
+  protocol        RuleProtocol @map("rule_protocol")
+  targetIp        String       @map("target_ip") @db.VarChar(15)
+  action          RuleAction
+  createdAt       DateTime     @default(now()) @map("created_at")
+  securityGroupId BigInt       @map("security_group_id")
+
+  // Relations
+  securityGroup SecurityGroup @relation(fields: [securityGroupId], references: [id])
+
+  @@map("security_rules")
+}
+
+// Many-to-Many explicit relation table for VM <-> SecurityGroup
+model VirtualMachineSecurityGroup {
+  virtualMachineId BigInt @map("virtual_machine_id")
+  securityGroupId  BigInt @map("security_group_id")
+
+  // Relations
+  virtualMachine VirtualMachine @relation(fields: [virtualMachineId], references: [id])
+  securityGroup  SecurityGroup  @relation(fields: [securityGroupId], references: [id])
+
+  @@id([virtualMachineId, securityGroupId])
+  @@map("virtual_machine_security_groups")
+}
+
+// ---------------------------------------------------------
+//  LOGGING
+// ---------------------------------------------------------
+
+model OperationLog {
+  id         BigInt   @id @default(autoincrement())
+  uuid       String   @unique @default(uuid())
+  action     String // "操作内容"
+  targetType String   @map("target_type") // "対象リソース名"
+  targetUuid String   @map("target_uuid") // "対象リソースUUID" (String since UUID is binary/string)
+  payload    String?  @db.Text // "変更内容JSON"
+  result     String // "SUCCESS/FAILURE"
+  ipAddress  String   @map("ip_address")
+  createdAt  DateTime @default(now()) @map("created_at")
+  userId     BigInt   @map("user_id")
+
+  // Relations
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("operation_logs")
 }

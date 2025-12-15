@@ -1,215 +1,264 @@
 erDiagram
 
-portfolios {
-    bigint id PK
-    binary(16) uuid
-    bigint user_id FK
-}
+%% ==========================================================
+%%  USER & AUTHENTICATION (ユーザー・権限・ポートフォリオ)
+%% ==========================================================
 
-portfolio_articles {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) title
-    bigint portfolio_id FK
-}
+    users {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name
+        varchar(256) email
+        datetime created_at
+        bigint permission_id FK
+        datetime last_login_at
+        int cpu_limit_cores "0 for unlimited"
+        int memory_limit_mb "0 for unlimited"
+        int storage_limit_gb "0 for unlimited"
+    }
 
+    user_credentials {
+        bigint user_id PK "FK"
+        varchar(256) hashed_password
+    }
 
-users {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    varchar(256) email
-    datetime created_at
-    bigint permission_id
-    datetime last_login_at
-    int cpu_limit_cores "0 for unlimited"
-    int memory_limit_mb "0 for unlimited"
-    int storage_limit_gb "0 for unlimited"
-}
+    permissions {
+        bigint id PK
+        boolean is_admin
+        boolean is_image_admin
+        boolean is_instance_type_admin
+        boolean is_virtual_machine_admin
+        boolean is_network_admin
+        boolean is_security_group_admin
+        boolean is_node_admin
+    }
 
+    portfolios {
+        bigint id PK
+        binary(16) uuid
+        bigint user_id FK
+        datetime created_at
+    }
 
-user_credentials {
-    bigint user_id PK, FK
-    varchar(256) hashed_password
-}
+    portfolio_articles {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) title
+        bigint portfolio_id FK
+        datetime created_at
+    }
 
-permission {
-    bigint id PK
-    boolean is_admin
-    boolean is_image_admin
-    boolean is_instance_type_admin
-    boolean is_virtual_machine_admin
-    boolean is_network_admin
-    boolean is_security_group_admin
-    boolean is_node_admin
-}
-
-
-backups {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    text description
-    datetime created_at
-    int size
-    bigint virtual_storage_id FK
-    bigint source_virtual_machine_id FK
-}
-
-snapshots {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name "max 40 characters"
-    text description
-    datetime created_at
-    bigint target_virtual_machine_id FK
-}
-
-images {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    text description
-    datetime created_at
-    int size
-}
-
-instance_types {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    int cpu_core
-    int memory_size
-    datetime created_at
-}
-
-middlewares {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    datetime created_at
-}
-
-network_interfaces {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    varchar(15) ip_address
-    varchar(15) mac_address
-    bigint subnet_id FK
-    bigint virtual_machine_id FK
-}
-
-nodes {
-    bigint id PK
-    binary(16) uuid
-    datetime created_at
-    varchar(256) name
-    varchar(15) ip_address
-    boolean is_admin
-}
-
-security_groups {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name "max 18 characters"
-    text description
-    datetime created_at
-    bigint user_id FK
-}
-
-security_rules {
-    bigint id PK
-    bigint security_group_id FK
-    binary(16) uuid
-    varchar(256) name
-    varchar role_type "enum('inbound', 'outbound')"
-    int port
-    varchar rule_protocol "enum('tcp', 'udp', 'icmp', 'any')"
-    varchar(15) target_ip
-    varchar action "enum('allow', 'deny')"
-    datetime created_at
-}
+    %% Relationships
+    users ||--|| user_credentials : "has"
+    permissions ||--o{ users : "grants"
+    users ||--o{ portfolios : "owns"
+    portfolios ||--o{ portfolio_articles : "contains"
 
 
-storage_pools {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    boolean has_network_access
-    bigint available_size
-    datetime created_at
-    bigint total_size
-}
+%% ==========================================================
+%%  COMPUTE (仮想マシン・ノード・イメージ)
+%% ==========================================================
 
-virtual_storages {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    bigint size
-    bigint storage_pool_id FK
-}
+    virtual_machines {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name
+        varchar status "enum('running', 'stopped', 'pending')"
+        bigint node_id FK
+        bigint image_id FK
+        int cpu
+        int memory
+        bigint user_id FK
+        datetime created_at
+    }
 
-virtual_machine_attached_storage {
-    bigint virtual_machine_id FK, PK
-    bigint virtual_storage_id FK, PK
-    varchar(255) path
-}
+    nodes {
+        bigint id PK
+        binary(16) uuid
+        datetime created_at
+        varchar(256) name
+        varchar(15) ip_address
+        boolean is_admin
+    }
 
-virtual_networks {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name "max 8 characters"
-    varchar(15) cidr
-    bigint user_id FK
-    datetime created_at
-}
+    images {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name
+        text description
+        datetime created_at
+        bigint own_node_id FK
+        int size
+    }
 
-subnets {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    varchar(15) cidr
-    datetime created_at
-    bigint virtual_network_id FK
-}
+    instance_types {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name
+        int cpu_core
+        int memory_size
+        datetime created_at
+    }
 
-virtual_machine_security_groups {
-        bigint virtual_machine_id FK, PK
-        bigint security_group_id FK, PK
-}
+    middlewares {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name
+        datetime created_at
+    }
 
-virtual_machines {
-    bigint id PK
-    binary(16) uuid
-    varchar(256) name
-    varchar status "enum('running', 'stopped', 'pending')"
-    bigint node_id FK
-    bigint image_id FK
-    int cpu
-    int memory
-    bigint user_id FK
-    datetime created_at
-}
+    %% Relationships
+    nodes ||--o{ virtual_machines : "hosts"
+    images ||--o{ virtual_machines : "is used by"
+    users ||--o{ virtual_machines : "owns"
+    nodes ||--o{ images : "owns"
 
-nodes ||--o{ virtual_machines : "has many"
 
-images ||--o{ virtual_machines : "has"
+%% ==========================================================
+%%  STORAGE (ストレージ・バックアップ・スナップショット)
+%% ==========================================================
 
-virtual_machines }o--o{ virtual_machine_attached_storage : "attaches"
-virtual_storages }o--o{ virtual_machine_attached_storage : "is attached to"
-virtual_storages ||--o{ backups : "has many"
-virtual_storages ||--o{ attached_storages : "has many"
-storage_pools ||--o{ virtual_storages : "many"
+    storage_pools {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name
+        boolean has_network_access
+        bigint available_size
+        datetime created_at
+        bigint total_size
+    }
 
-subnets ||--o{ network_interfaces : "belongs to"
-virtual_machines ||--o{ network_interfaces : "has"
-virtual_networks ||--o{ subnets : "many"
+    virtual_storages {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name
+        bigint size
+        bigint storage_pool_id FK
+        datetime created_at
+    }
 
-security_groups ||--o{ security_rules : "many"
-virtual_machines }o--o{ virtual_machine_security_groups : "applies"
-security_groups }o--o{ virtual_machine_security_groups : "is applied to"
+    virtual_machine_attached_storage {
+        bigint virtual_machine_id PK "FK"
+        bigint virtual_storage_id PK "FK"
+        varchar(255) path
+    }
 
-users ||--o{ portfolios : "owns"
-portfolios ||--o{ portfolio_articles : "contains"
-users |o--|| user_credentials : "has"
+    backups {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name
+        text description
+        datetime created_at
+        int size
+        bigint virtual_storage_id FK
+        bigint source_virtual_machine_id FK
+    }
+
+    snapshots {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name "max 40 characters"
+        text description
+        datetime created_at
+        bigint target_virtual_machine_id FK
+    }
+
+    %% Relationships
+    storage_pools ||--o{ virtual_storages : "provides space for"
+    virtual_machines }o--o{ virtual_machine_attached_storage : "mounts"
+    virtual_storages }o--o{ virtual_machine_attached_storage : "is mounted on"
+    virtual_storages ||--o{ backups : "has backups"
+    virtual_machines ||--o{ snapshots : "has snapshots"
+
+
+%% ==========================================================
+%%  NETWORK (ネットワーク・セキュリティグループ)
+%% ==========================================================
+
+    virtual_networks {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name "max 8 characters"
+        varchar(15) cidr
+        bigint user_id FK
+        datetime created_at
+    }
+
+    subnets {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name
+        varchar(15) cidr
+        datetime created_at
+        bigint virtual_network_id FK
+    }
+
+    network_interfaces {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name
+        varchar(15) ip_address
+        varchar(15) mac_address
+        bigint subnet_id FK
+        bigint virtual_machine_id FK
+        datetime created_at
+    }
+
+    security_groups {
+        bigint id PK
+        binary(16) uuid
+        varchar(256) name "max 18 characters"
+        text description
+        datetime created_at
+        bigint user_id FK
+    }
+
+    security_rules {
+        bigint id PK
+        bigint security_group_id FK
+        binary(16) uuid
+        varchar(256) name
+        varchar role_type "enum('inbound', 'outbound')"
+        int port
+        varchar rule_protocol "enum('tcp', 'udp', 'icmp', 'any')"
+        varchar(15) target_ip
+        varchar action "enum('allow', 'deny')"
+        datetime created_at
+    }
+
+    virtual_machine_security_groups {
+        bigint virtual_machine_id PK "FK"
+        bigint security_group_id PK "FK"
+    }
+
+    %% Relationships
+    virtual_networks ||--o{ subnets : "contains"
+    subnets ||--o{ network_interfaces : "allocates IP to"
+    virtual_machines ||--o{ network_interfaces : "has"
+    users ||--o{ virtual_networks : "owns"
+    
+    users ||--o{ security_groups : "manages"
+    security_groups ||--o{ security_rules : "contains"
+    virtual_machines }o--o{ virtual_machine_security_groups : "applies"
+    security_groups }o--o{ virtual_machine_security_groups : "is applied to"
+
+
+%% ==========================================================
+%%  LOGGING (操作ログ)
+%% ==========================================================
+
+    operation_logs {
+        bigint id PK
+        binary(16) uuid
+        bigint user_id FK
+        varchar action "操作内容"
+        varchar target_type "対象リソース名"
+        binary(16) target_uuid "対象リソースUUID"
+        text payload "変更内容JSON"
+        varchar result "SUCCESS/FAILURE"
+        varchar ip_address
+        datetime created_at
+    }
+
+    %% Relationships
+    users ||--o{ operation_logs : "generates"
