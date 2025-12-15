@@ -1,86 +1,79 @@
-/**
- * =================================================================================
- * 仮想ネットワーク編集フォーム Composable (useVirtualNetworkEditForm.ts)
- * =================================================================================
- */
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useToast } from "~/composables/useToast";
-import { useResourceUpdater } from "~/composables/useResourceUpdater";
+import {
+  useResourceUpdater,
+  type ResourceConfig,
+} from "~/composables/useResourceUpdater";
 
-// 型定義は自動インポート前提
-// VirtualNetworkResponse, VirtualNetworkPatchRequest, SubnetResponse など
-
-export function useVirtualNetworkEditForm() {
+export const useVirtualNetworkEditForm = () => {
+  // useToast から addToast を取得
   const { addToast } = useToast();
 
-  // 差分検知ロジック (useResourceUpdater)
-  const {
-    init,
-    editedData,
-    dirtyState,
-    isSaving,
-    errorMessage: updaterError,
-  } = useResourceUpdater<VirtualNetworkResponse>();
+  // リソース更新用コンポーザブルの初期化
+  // 返り値にヘルパー関数が含まれていないため、editedDataなどを取得
+  const { editedData, dirtyState, isSaving, init } =
+    useResourceUpdater<VirtualNetworkResponse>();
 
-  // サブネットの新規ID採番用プレフィックス
-  const NEW_SUBNET_PREFIX = "new-subnet-";
+  // 独自のエラー管理
+  const updaterError = ref<string | null>(null);
+
+  // 新規サブネット用の一時IDカウンタ
   let newSubnetCounter = 0;
+  const NEW_SUBNET_PREFIX = "new-subnet-";
 
   /**
-   * フォームの初期化
-   * @param originData 編集対象の仮想ネットワークデータ
+   * フォーム初期化
    */
-  const initializeForm = (originData: VirtualNetworkResponse) => {
-    init(originData, {
-      // 仮想ネットワーク本体の監視設定
+  const initializeForm = (data: VirtualNetworkResponse) => {
+    const config: ResourceConfig = {
       base: {
-        endpoint: "", // 今回は一括送信するためエンドポイントは使用しませんが設定上記述
-        fields: ["name"], // 変更検知するフィールド
+        //useResourceUpdaterの自動送信機能は利用せず、手動でAPIを呼び出すため空文字を設定
+        endpoint: "",
+        fields: ["name"], // 更新可能なフィールド
       },
-      // サブネット配列の監視設定
       collections: {
         subnets: {
-          endpoint: "",
+          endpoint: "", // 手動処理するため空文字
           idKey: "id",
-          newIdPrefix: NEW_SUBNET_PREFIX, // 新規追加分のIDルール
-          fields: ["name", "cidr"], // サブネットで変更検知するフィールド
+          newIdPrefix: NEW_SUBNET_PREFIX,
+          fields: ["name", "cidr"],
         },
       },
-    });
+    };
+    init(data, config);
+    updaterError.value = null;
+    newSubnetCounter = 0;
   };
 
-  /**
-   * サブネットの追加
-   */
+  // ----------------------------------------------------------------
+  // サブネット操作 (editedDataを直接操作)
+  // ----------------------------------------------------------------
   const addSubnet = () => {
     if (!editedData.value) return;
 
-    // サブネット配列が存在しない場合は初期化
+    // 配列が未定義なら初期化
     if (!editedData.value.subnets) {
       editedData.value.subnets = [];
     }
 
-    // 新規行を追加 (IDは一時的なもの)
+    // 直接 push する
     editedData.value.subnets.push({
       id: `${NEW_SUBNET_PREFIX}${newSubnetCounter++}`,
       name: "",
       cidr: "",
-      // API型定義に合わせて必要なプロパティがあれば初期値を追加
+      // 型定義に合わせて必要なプロパティがあれば初期値を追加
     } as any);
   };
 
-  /**
-   * サブネットの削除
-   * @param index 配列のインデックス
-   */
   const removeSubnet = (index: number) => {
     if (!editedData.value?.subnets) return;
+    // 直接 splice する (useResourceUpdaterが変更を検知してdirtyStateを更新します)
     editedData.value.subnets.splice(index, 1);
   };
 
-  /**
-   * 保存実行 (一括 PATCH 送信)
-   */
+  // ----------------------------------------------------------------
+  // 保存処理 (手動実装: API分割対応)
+  // ----------------------------------------------------------------
   const save = async (emit: (event: "success" | "close") => void) => {
     if (!editedData.value) return;
 
@@ -88,20 +81,25 @@ export function useVirtualNetworkEditForm() {
     updaterError.value = null;
 
     try {
-      // 1. ペイロードの構築
-      //subnets を入れるため、一時的に any (または Record<string, any>) として扱います
-      const payload: any = {};
-
+      const resourceId = editedData.value.id;
+      const promises: Promise<any>[] = [];
       let hasChanges = false;
 
-      // (A) 本体 (Base) の差分
+      // 1. 本体 (Base) の差分 -> PATCH /api/virtual-networks/{id}
       const baseDiff = dirtyState.value.base;
       if (Object.keys(baseDiff).length > 0) {
-        Object.assign(payload, baseDiff);
         hasChanges = true;
+        // [必須]: 本体更新は API クライアント仕様に合わせて PUT メソッドを使用
+        // '$fetch' はグローバル関数として使用
+        promises.push(
+          $fetch(`/api/virtual-networks/${resourceId}`, {
+            method: "PUT",
+            body: baseDiff, // { name: "..." }
+          })
+        );
       }
 
-      // (B) サブネット (Collection) の差分 -> BulkRequest形式に変換
+      // 2. サブネット (Collection) の差分
       const subnetDiff = dirtyState.value.collections.subnets;
       if (
         subnetDiff &&
@@ -109,19 +107,28 @@ export function useVirtualNetworkEditForm() {
           subnetDiff.removed.length > 0 ||
           subnetDiff.updated.length > 0)
       ) {
-        // payload は any なので、subnets プロパティを追加してもエラーになりません
-        payload.subnets = {
-          add: subnetDiff.added.map((item) => ({
+        hasChanges = true;
+
+        const bulkPayload = {
+          create: subnetDiff.added.map((item) => ({
             name: item.name,
             cidr: item.cidr,
           })),
           delete: subnetDiff.removed,
+          // 更新は patch
           patch: subnetDiff.updated.map((item) => ({
             id: item.id,
             data: item.payload,
           })),
         };
-        hasChanges = true;
+
+        // [必須]: サブネット一括更新は API クライアント仕様に合わせて POST メソッドで送信
+        promises.push(
+          $fetch(`/api/virtual-networks/${resourceId}/subnets/bulk`, {
+            method: "POST",
+            body: bulkPayload,
+          })
+        );
       }
 
       // 変更がない場合
@@ -131,28 +138,23 @@ export function useVirtualNetworkEditForm() {
         return;
       }
 
-      // 2. API送信 (PATCH /api/virtual-networks/{id})
-      // useResourceUpdaterのsave機能は使わず、自前でPATCHを1回送る
-      const resourceId = editedData.value.id;
+      // 並列実行
+      await Promise.all(promises);
 
-      // ※ $fetch や useFetch を使用 (環境に合わせてパス調整)
-      await $fetch(`/api/virtual-networks/${resourceId}`, {
-        method: "PUT",
-        body: payload,
-      });
-
-      addToast({
-        type: "success",
-        message: "仮想ネットワークを更新しました。",
-      });
+      addToast({ type: "success", message: "保存しました。" });
       emit("success");
+      emit("close");
     } catch (err: any) {
       console.error(err);
-      updaterError.value = "保存中にエラーが発生しました。";
+      // エラーメッセージの抽出
+      const msg =
+        err.data?.message || err.message || "保存中にエラーが発生しました。";
+      updaterError.value = msg;
+
       addToast({
         type: "error",
         message: "保存に失敗しました。",
-        details: err.message,
+        details: msg,
       });
     } finally {
       isSaving.value = false;
@@ -168,4 +170,4 @@ export function useVirtualNetworkEditForm() {
     removeSubnet,
     save,
   };
-}
+};
