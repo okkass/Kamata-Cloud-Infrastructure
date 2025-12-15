@@ -79,7 +79,7 @@
 import { STORAGE } from "@/utils/constants";
 import {
   useStorageManagement,
-  type StorageRow,
+  type StoragePoolRow,
 } from "~/composables/dashboard/useStorageManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import DashboardLayout from "~/components/DashboardLayout.vue";
@@ -107,7 +107,7 @@ const {
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<StorageRow>({
+} = usePageActions<StoragePoolRow>({
   resourceName: STORAGE.name,
   resourceLabel: STORAGE.label,
   refresh,
@@ -121,7 +121,7 @@ function handleHeaderAction(action: string) {
 }
 
 /* 行アクションのハンドラー（スナップショットと同じ形） */
-function onRowAction({ action, row }: { action: string; row: StorageRow }) {
+function onRowAction({ action, row }: { action: string; row: StoragePoolRow }) {
   handleRowAction({ action, row });
 }
 </script>
