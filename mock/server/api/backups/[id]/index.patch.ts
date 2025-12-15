@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { updateBackup } from "../../../services/backupService";
+import { updateBackup } from "../../../services/BackupService";
 import type { BackupResponse, BackupPutRequest } from "@app/shared/types";
 
 export default defineEventHandler(async (event) => {

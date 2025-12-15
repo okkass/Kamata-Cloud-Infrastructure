@@ -1,4 +1,4 @@
-import { getBackups } from "../../services/backupService";
+import { getBackups } from "../../services/BackupService";
 
 export default defineEventHandler(() => {
   return getBackups();

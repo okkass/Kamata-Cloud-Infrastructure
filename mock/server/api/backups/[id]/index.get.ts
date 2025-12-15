@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getBackupById } from "../../../services/backupService";
+import { getBackupById } from "../../../services/BackupService";
 
 export default defineEventHandler(async (event) => {
   const paramsSchema = z.uuid();

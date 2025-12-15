@@ -5,17 +5,13 @@ import type {
   BackupPutRequest,
 } from "@app/shared/types";
 
-import {
-  getVirtualMachineById,
-  getStoragesByVirtualMachineId,
-  getStorage,
-} from "./virtualMachineService";
+import { VirtualMachineRepository } from "./VirtualMachineRepository";
 
 import crypto from "crypto";
 
 let backups: Array<BackupResponse> | null = null;
 
-export const initBackups = (): Array<BackupResponse> => {
+const initBackups = (): Array<BackupResponse> => {
   return [
     {
       id: "b6a12898-1a61-4584-9cba-4e89e1fdf23b",
@@ -23,10 +19,10 @@ export const initBackups = (): Array<BackupResponse> => {
       description: "バックアップ元のVM現存パターン",
       createdAt: new Date().toISOString(),
       size: 100 * 1024 * 1024 * 1024, // 100 GB
-      targetStorage: getStoragesByVirtualMachineId(
+      targetStorage: VirtualMachineRepository.listStoragesByVirtualMachineId(
         "fd8467e4-f334-4827-bf69-79d6434a176e"
       )![1],
-      targetVirtualMachine: getVirtualMachineById(
+      targetVirtualMachine: VirtualMachineRepository.getById(
         "fd8467e4-f334-4827-bf69-79d6434a176e"
       )!,
     },
@@ -40,47 +36,46 @@ export const initBackups = (): Array<BackupResponse> => {
   ];
 };
 
-export const getBackups = (): Array<BackupResponse> => {
+const list = (): Array<BackupResponse> => {
   if (!backups) {
     backups = initBackups();
   }
   return backups;
 };
 
-export const getBackupById = (id: string): BackupResponse | undefined => {
-  return getBackups().find((backup) => backup.id === id);
+const getById = (id: string): BackupResponse | undefined => {
+  return list().find((backup) => backup.id === id);
 };
 
-export const addBackup = (
-  backup: BackupCreateRequest
-): BackupResponse | undefined => {
-  const uuid = crypto.randomUUID();
-  const storage = getStorage(
-    backup.targetStorageId,
-    backup.targetVirtualMachineId
+const create = (backup: BackupCreateRequest): BackupResponse | undefined => {
+  const storage = VirtualMachineRepository.getStorage(
+    backup.targetVirtualMachineId,
+    backup.targetStorageId
   );
   if (!storage) {
     return undefined;
   }
 
   const newBackup: BackupResponse = {
-    id: uuid,
+    id: crypto.randomUUID(),
     name: backup.name,
     description: backup.description,
     createdAt: new Date().toISOString(),
     size: storage.size,
     targetStorage: storage,
-    targetVirtualMachine: getVirtualMachineById(backup.targetVirtualMachineId)!,
+    targetVirtualMachine: VirtualMachineRepository.getById(
+      backup.targetVirtualMachineId
+    )!,
   };
-  getBackups().push(newBackup);
+  list().push(newBackup);
   return newBackup;
 };
 
-export const updateBackup = (
+const update = (
   id: string,
   updateFields: BackupPatchRequest | BackupPutRequest
 ): BackupResponse | undefined => {
-  let target = getBackupById(id);
+  let target = getById(id);
   if (target === undefined) {
     return undefined;
   }
@@ -91,8 +86,16 @@ export const updateBackup = (
   return target;
 };
 
-export const deleteBackup = (id: string): boolean => {
-  const initialLength = getBackups().length;
-  backups = getBackups().filter((backup) => backup.id !== id);
-  return getBackups().length < initialLength;
+const deleteById = (id: string): boolean => {
+  const initialLength = list().length;
+  backups = list().filter((backup) => backup.id !== id);
+  return list().length < initialLength;
+};
+
+export const BackupRepository = {
+  list,
+  getById,
+  create,
+  update,
+  deleteById,
 };

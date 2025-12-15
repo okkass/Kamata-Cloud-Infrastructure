@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { getStorage } from "../../../services/virtualMachineService";
-import { getBackupById } from "../../../services/backupService";
+import { getBackupById } from "../../../services/BackupService";
 import type { VirtualMachineResponse } from "@app/shared/types";
 
 export default defineEventHandler(async (event) => {
