@@ -11,4 +11,4 @@ required:
   - isVirtualMachineAdmin
   - isNetworkAdmin
   - isSecurityGroupAdmin
-  - isPhysicalNodeAdmin
+  - isNodeAdmin

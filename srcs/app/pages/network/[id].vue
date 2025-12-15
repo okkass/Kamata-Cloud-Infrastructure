@@ -40,20 +40,6 @@ import { NETWORK } from "@/utils/constants";
 
 const { addToast } = useToast();
 
-// ★ 変更: VirtualNetworkResponse を元にした画面用ローカル型に揃えた
-type VirtualNetworkDetail = {
-  id: string;
-  name: string;
-  cidr: string;        // ← 必須に変更（?: を削除）
-  createdAt: string;   // ← 必須に変更（?: を削除）
-  subnets?: {
-    id: string;
-    name: string;
-    cidr: string;
-    createdAt: string; // ← external ではなく createdAt に統一
-  }[];
-};
-
 const route = useRoute();
 const router = useRouter();
 
@@ -62,7 +48,7 @@ const {
   pending,
   error,
   refresh,
-} = await useResourceDetail<VirtualNetworkDetail>(
+} = await useResourceDetail<VirtualNetworkResponse>(
   NETWORK.name, // "virtual-networks"
   route.params.id as string
 );
@@ -90,8 +76,7 @@ const handleEditClose = () => {
 };
 
 // モーダル側で emit("save", editableNetwork) されたとき
-// ★ 変更: 引数の型も VirtualNetworkDetail に揃えた
-const handleEditSave = async (updated: VirtualNetworkDetail) => {
+const handleEditSave = async (updated: VirtualNetworkResponse) => {
   // ひとまずローカルの表示を更新
   vnet.value = updated;
   isEditOpen.value = false;
