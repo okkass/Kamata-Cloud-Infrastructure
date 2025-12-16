@@ -17,7 +17,7 @@
       @action="handleAction"
     />
 
-    <!-- 編集モーダル（型の正はImageResponseなので、ここではデータを渡さない） -->
+    <!-- 編集モーダル（imageDataとしてImageResponseデータを渡す） -->
     <MoImageEdit
       :show="isEditOpen"
       @close="handleEditClose"
