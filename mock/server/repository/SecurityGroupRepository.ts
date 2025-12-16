@@ -192,3 +192,5 @@ export const SecurityGroupRepository = {
   createRule,
   deleteRule,
 };
+
+export default SecurityGroupRepository;

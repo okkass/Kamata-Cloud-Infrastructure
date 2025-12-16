@@ -1,4 +1,4 @@
-import { getDevices } from "../../../services/nodeService";
+import { getDevices } from "../../../services/NodeService";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {

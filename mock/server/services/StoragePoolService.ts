@@ -5,7 +5,7 @@ import type {
   StoragePoolPutRequest,
 } from "@app/shared/types";
 import crypto from "crypto";
-import { getNodeById } from "./nodeService";
+import { getNodeById } from "./NodeService";
 
 let storagePools: Array<StoragePoolResponse> = [
   {

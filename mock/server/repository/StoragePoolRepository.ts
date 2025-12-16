@@ -99,3 +99,5 @@ export const StoragePoolRepository = {
   update,
   deleteById,
 };
+
+export default StoragePoolRepository;

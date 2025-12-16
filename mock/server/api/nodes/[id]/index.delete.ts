@@ -1,4 +1,4 @@
-import { deleteNode } from "../../../services/nodeService";
+import { deleteNode } from "../../../services/NodeService";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {

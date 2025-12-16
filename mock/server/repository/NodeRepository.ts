@@ -8,6 +8,13 @@ import type {
   DeviceResponse,
 } from "@app/shared/types";
 
+export class NodeNotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NodeNotFoundError";
+  }
+}
+
 let nodes: Array<NodeResponse> = [
   {
     id: "a2dcd604-49cb-4e1c-826a-2071d50404a3",
@@ -103,10 +110,10 @@ const create = (request: NodeCreateRequest): NodeResponse => {
 const update = (
   id: string,
   updateFields: NodePutRequest | NodePatchRequest
-): NodeResponse | undefined => {
+): NodeResponse => {
   let target = getById(id);
   if (target === undefined) {
-    return undefined;
+    throw new NodeNotFoundError(`Node with id ${id} not found`);
   }
 
   target.name = updateFields.name ?? target.name;
@@ -130,3 +137,5 @@ export const NodeRepository = {
   update,
   deleteById,
 };
+
+export default NodeRepository;

@@ -4,9 +4,9 @@ import type {
   StorageResponse,
   SecurityGroupResponse,
 } from "@app/shared/types";
-import { getNodeById } from "./nodeService";
-import { getSecurityGroupById } from "./securityGroupService";
-import { getStoragePoolById } from "./storagePoolService";
+import { getNodeById } from "./NodeService";
+import { getSecurityGroupById } from "./SecurityGroupService";
+import { getStoragePoolById } from "./StoragePoolService";
 
 let virtualMachines: Array<VirtualMachineResponse> | null = null;
 

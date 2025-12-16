@@ -178,3 +178,5 @@ export const VirtualMachineRepository = {
   getStorage,
   listSecurityGroupsByVirtualMachineId,
 };
+
+export default VirtualMachineRepository;

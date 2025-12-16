@@ -1,4 +1,4 @@
-import { getStoragesByVirtualMachineId } from "@/services/virtualMachineService";
+import { getStoragesByVirtualMachineId } from "@/services/VirtualMachineService";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {

@@ -1,6 +1,6 @@
 import { z } from "zod";
 import type { NodeCreateRequest } from "@app/shared/types";
-import { addNode } from "../../services/nodeService";
+import { addNode } from "../../services/NodeService";
 
 export default defineEventHandler(async (event) => {
   const bodySchema = z.object({

@@ -1,5 +1,5 @@
-import { BackupRepository } from "@/api/repository/BackupRepository";
-import type { ServiceResult } from "@/types";
+import BackupRepository from "@/repository/BackupRepository";
+import { TargetResourceNotFoundError } from "@/repository/BackupRepository";
 import type { FetchFunc, CreateFunc, UpdateFunc, DeleteFunc } from "@/types";
 import type {
   BackupResponse,
@@ -7,7 +7,7 @@ import type {
   BackupPutRequest,
   BackupPatchRequest,
 } from "@app/shared/types";
-import { NotFoundError } from "@/types";
+import { NotFoundError, BadRequestError } from "@/types";
 
 const listBackups: FetchFunc<BackupResponse[]> = () => {
   return {
@@ -32,38 +32,52 @@ const getById: FetchFunc<BackupResponse> = (payload) => {
 };
 
 const create: CreateFunc<BackupCreateRequest, BackupResponse> = (payload) => {
-  const newBackup = BackupRepository.create(payload.body);
-  if (!newBackup) {
+  try {
+    const newBackup = BackupRepository.create(payload.body);
+    return {
+      success: true,
+      data: newBackup,
+    };
+  } catch (error) {
+    if (error instanceof TargetResourceNotFoundError) {
+      return {
+        success: false,
+        error: new BadRequestError(error.message),
+      };
+    }
     return {
       success: false,
-      error: new NotFoundError("Failed to create backup"),
+      error: error as Error,
     };
   }
-  return {
-    success: true,
-    data: newBackup,
-  };
 };
 
 const update: UpdateFunc<
   BackupPutRequest | BackupPatchRequest,
   BackupResponse
 > = (payload) => {
-  const res = BackupRepository.update(payload.id, payload.body);
-  if (!res) {
+  try {
+    const res = BackupRepository.update(payload.id, payload.body);
+    return {
+      success: true,
+      data: res,
+    };
+  } catch (error) {
+    if (error instanceof TargetResourceNotFoundError) {
+      return {
+        success: false,
+        error: new NotFoundError(error.message),
+      };
+    }
     return {
       success: false,
-      error: new NotFoundError(`Backup with id ${payload.id} not found`),
+      error: error as Error,
     };
   }
-  return {
-    success: true,
-    data: res,
-  };
 };
 
 const remove: DeleteFunc = (payload) => {
-  const success = BackupRepository.delete(payload.id);
+  const success = BackupRepository.deleteById(payload.id);
   if (!success) {
     return {
       success: false,
@@ -83,3 +97,5 @@ export const BackupService = {
   update,
   remove,
 };
+
+export default BackupService;

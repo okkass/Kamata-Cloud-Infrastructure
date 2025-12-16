@@ -2,7 +2,7 @@ import { addBackup } from "../../services/BackupService";
 import {
   getStorage,
   getVirtualMachineById,
-} from "../../services/virtualMachineService";
+} from "../../services/VirtualMachineService";
 import type { BackupCreateRequest, ErrorResponse } from "@app/shared/types";
 import { z } from "zod";
 

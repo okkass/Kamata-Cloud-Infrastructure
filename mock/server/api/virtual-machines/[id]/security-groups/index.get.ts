@@ -1,4 +1,4 @@
-import { getSecurityGroupsByVirtualMachineId } from "@/services/virtualMachineService";
+import { getSecurityGroupsByVirtualMachineId } from "@/services/VirtualMachineService";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {

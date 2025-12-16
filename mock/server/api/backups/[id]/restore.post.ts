@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { getStorage } from "../../../services/virtualMachineService";
+import { getStorage } from "../../../services/VirtualMachineService";
 import { getBackupById } from "../../../services/BackupService";
 import type { VirtualMachineResponse } from "@app/shared/types";
 

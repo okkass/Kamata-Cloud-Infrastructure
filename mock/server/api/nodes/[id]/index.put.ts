@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { updateNode } from "../../../services/nodeService";
+import { updateNode } from "../../../services/NodeService";
 import type { NodePutRequest } from "@app/shared/types";
 
 export default defineEventHandler(async (event) => {

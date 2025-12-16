@@ -1,4 +1,4 @@
-import { getNetworkInterfacesByVirtualMachineId } from "@/services/virtualMachineService";
+import { getNetworkInterfacesByVirtualMachineId } from "@/services/VirtualMachineService";
 import { z } from "zod";
 
 export default defineEventHandler(async (event) => {
