@@ -11,15 +11,10 @@ import { useResourceUpdate } from "~/composables/useResourceEdit";
 import { useToast } from "~/composables/useToast";
 import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
 
-// 型定義
-import type { InstanceTypePutRequest } from "~~/shared/types/dto/instance-type/InstanceTypePutRequest";
-import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type/InstanceTypeResponse";
-import type { InstanceTypeServerBase } from "~~/shared/types/dto/instance-type/InstanceTypeServerBase";
-
 // Props の型定義
 interface InstanceTypeEditProps {
   show: boolean;
-  instanceTypeData: InstanceTypeServerBase | null;
+  instanceTypeData: InstanceTypeResponse | null;
 }
 
 // ==============================================================================
