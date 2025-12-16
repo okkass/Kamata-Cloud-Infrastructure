@@ -29,7 +29,7 @@
 
         <FormInput
           label="vCPU"
-          name="vcpus"
+          name="cpuCore"
           type="number"
           v-model.number="editedData.cpuCore"
           placeholder="2"
@@ -39,7 +39,7 @@
 
         <FormInput
           label="メモリ (GB)"
-          name="memory"
+          name="memorySize"
           type="number"
           v-model.number="editedData.memorySize"
           placeholder="4"
@@ -81,23 +81,21 @@ import { watch, type PropType } from "vue";
 import { useInstanceTypeEditForm } from "~/composables/modal/useInstanceTypeEditForm";
 import FormInput from "~/components/Form/Input.vue";
 
-// 型定義 (InstanceTypeResponse) は自動インポート前提
+// import type { InstanceTypeResponse } from "~/shared/types";
 
 const props = defineProps({
   show: { type: Boolean, required: true },
   instanceTypeData: {
-    type: Object as PropType<InstanceTypeResponse>,
+    type: Object as PropType<any>, // InstanceTypeResponse
     default: null,
   },
 });
 
 const emit = defineEmits(["close", "success"]);
 
-// Composable
 const { editedData, isSaving, updaterError, initializeForm, save } =
   useInstanceTypeEditForm();
 
-// モーダルが開かれたときにデータを初期化
 watch(
   () => props.instanceTypeData,
   (newData) => {

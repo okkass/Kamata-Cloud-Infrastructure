@@ -492,6 +492,4 @@ const openSecurityGroupEditModal = (sg: SecurityGroupResponse) =>
   openModal("securityGroupEdit", sg);
 const openStorageEditModal = (sp: StoragePoolResponse) =>
   openModal("storageEdit", sp);
-const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
-  openModal("instanceTypeEdit", it);
 </script>

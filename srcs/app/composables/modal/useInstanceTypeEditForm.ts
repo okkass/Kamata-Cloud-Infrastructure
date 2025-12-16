@@ -5,31 +5,36 @@ import {
   type ResourceConfig,
 } from "~/composables/useResourceUpdater";
 
-// 型定義は自動インポート (InstanceTypePatchRequest, InstanceTypeResponse 等)
-// ※もし自動インポートが効かない場合は適宜定義してください
+import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
 
 export const useInstanceTypeEditForm = () => {
   const { addToast } = useToast();
 
-  // 汎用アップデーターの初期化
-  const { editedData, dirtyState, isSaving, init } =
-    useResourceUpdater<InstanceTypeResponse>(); // ここで型を指定
+  const { editedData, dirtyState, isSaving, init } = useResourceUpdater<any>(); // 型エラー回避のため一旦 any または適切な型を指定
 
   const updaterError = ref<string | null>(null);
 
   /**
    * フォーム初期化
    */
-  const initializeForm = (data: InstanceTypeResponse) => {
+  const initializeForm = (data: any) => {
+    // 初期化時にメモリ(Bytes)をUI用単位(GB)に変換
+    const formattedData = {
+      ...data,
+      // APIのフィールド名に合わせて変換
+      // もし data.vcpus で来ている場合は data.cpuCore にマッピングする等の調整が必要ですが、
+      // ここでは仕様書のフィールド名(memorySize)を正として扱います。
+      memorySize: convertByteToUnit(data.memorySize, "GB"),
+    };
+
     const config: ResourceConfig = {
       base: {
-        endpoint: "", // 手動でPATCHするため空文字
-        // ★ここに画像にある入力項目のキー(プロパティ名)を列挙してください
-        fields: ["name", "vcpus", "memory"],
+        endpoint: "", // 手動PATCHのため空文字
+        fields: ["name", "cpuCore", "memorySize"],
       },
-      // コレクション(サブネット等)がない場合は不要
     };
-    init(data, config);
+
+    init(formattedData, config);
     updaterError.value = null;
   };
 
@@ -44,14 +49,20 @@ export const useInstanceTypeEditForm = () => {
 
     try {
       const resourceId = editedData.value.id;
-      const baseDiff = dirtyState.value.base;
 
-      // 変更がある場合のみ送信
+      // 1. 差分オブジェクトのコピーを作成
+      const baseDiff = { ...dirtyState.value.base };
+
+      // 2. メモリに変更がある場合、GB(数値) -> Bytes(数値) に逆変換する
+      if (typeof baseDiff.memorySize === "number") {
+        baseDiff.memorySize = convertUnitToByte(baseDiff.memorySize, "GB");
+      }
+
+      // 差分がある場合のみ送信
       if (Object.keys(baseDiff).length > 0) {
-        // PATCH /api/instance-types/{id}
         await $fetch(`/api/instance-types/${resourceId}`, {
-          method: "put",
-          body: baseDiff as InstanceTypePatchRequest,
+          method: "PUT",
+          body: baseDiff,
         });
 
         addToast({ type: "success", message: "保存しました。" });
