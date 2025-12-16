@@ -23,10 +23,6 @@ export type StoragePoolRow = {
   originalData?: StoragePoolResponse;
 };
 
-const RESOURCE_NAME = STORAGE.name;
-export const ADD_STORAGE_ACTION = `add-${RESOURCE_NAME}`;
-export const EDIT_STORAGE_ACTION = `edit-${RESOURCE_NAME}`;
-export const DELETE_STORAGE_ACTION = `delete-${RESOURCE_NAME}`;
 
 const extractNodeName = (
   nodeData: NodeResponse | string | null | undefined
@@ -44,7 +40,7 @@ export function useStorageManagement() {
     pending,
     refresh,
     error,
-  } = useResourceList<StoragePoolResponse>(RESOURCE_NAME);
+  } = useResourceList<StoragePoolResponse>(STORAGE.name);
 
   const columns = [
     { key: "name", label: "ストレージプール名", align: "left" as const },
@@ -79,12 +75,12 @@ export function useStorageManagement() {
   const { executeCreate, isCreating } = useResourceCreate<
     StoragePoolCreateRequest,
     StoragePoolResponse
-  >(RESOURCE_NAME);
+  >(STORAGE.name);
 
   const { executeUpdate, isUpdating } = useResourceUpdate<
     StoragePoolPatchRequest,
     StoragePoolResponse
-  >(RESOURCE_NAME);
+  >(STORAGE.name);
 
   return {
     pending,
@@ -97,8 +93,5 @@ export function useStorageManagement() {
     updatePool: executeUpdate,
     isCreating,
     isUpdating,
-    ADD_STORAGE_ACTION,
-    EDIT_STORAGE_ACTION,
-    DELETE_STORAGE_ACTION,
   } as const;
 }
