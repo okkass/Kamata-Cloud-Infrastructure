@@ -71,7 +71,7 @@
             ネットワーク管理
           </label>
           <label class="checkbox-label">
-            <input type="checkbox" v-model="isPhysicalNodeAdmin" />
+            <input type="checkbox" v-model="isNodeAdmin" />
             物理ノード管理
           </label>
           <label class="checkbox-label">
@@ -142,7 +142,7 @@ const {
   isImageAdmin,
   isInstanceTypeAdmin,
   isNetworkAdmin,
-  isPhysicalNodeAdmin,
+  isNodeAdmin,
   isSecurityGroupAdmin,
   isVirtualMachineAdmin,
   isUpdating,

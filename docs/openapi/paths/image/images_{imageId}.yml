@@ -17,18 +17,30 @@ get:
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/image/ImageResponse.yml
+            $ref: "../../components/schemas/image/ImageResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: 仮想マシンイメージが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 put:
   summary: 仮想マシンイメージの更新
-  description: 指定したIDの仮想マシンイメージ情報を更新します。
+  description: 指定したIDの仮想マシンイメージ情報を更新します。descriptionが空の場合、説明は削除されます。
   tags:
     - Image
   parameters:
@@ -44,22 +56,38 @@ put:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/image/ImagePutRequest.yml
+          $ref: "../../components/schemas/image/ImagePutRequest.yml"
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/image/ImageResponse.yml
+            $ref: "../../components/schemas/image/ImageResponse.yml"
     "400":
       description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: 仮想マシンイメージが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 patch:
@@ -80,22 +108,38 @@ patch:
     content:
       application/json:
         schema:
-          $ref: ../../components/schemas/image/ImagePatchRequest.yml
+          $ref: "../../components/schemas/image/ImagePatchRequest.yml"
   responses:
     "200":
       description: 更新成功
       content:
         application/json:
           schema:
-            $ref: ../../components/schemas/image/ImageResponse.yml
+            $ref: "../../components/schemas/image/ImageResponse.yml"
     "400":
       description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: 仮想マシンイメージが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
 delete:
@@ -116,9 +160,21 @@ delete:
       description: 削除成功
     "401":
       description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "404":
       description: 仮想マシンイメージが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []

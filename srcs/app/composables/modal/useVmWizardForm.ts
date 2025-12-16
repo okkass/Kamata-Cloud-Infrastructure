@@ -1,11 +1,17 @@
+/**
+ * =================================================================================
+ * 仮想マシン作成ウィザード ロジック (useVmWizardForm.ts)
+ * =================================================================================
+ */
 import { ref, markRaw, computed } from "vue";
 import TabGeneral from "~/components/vm-tabs/TabGeneral.vue";
 import TabConfig from "~/components/vm-tabs/TabConfig.vue";
 import TabOsMiddleware from "~/components/vm-tabs/TabOsMiddleware.vue";
 import TabNetwork from "~/components/vm-tabs/TabNetwork.vue";
+import { useToast } from "~/composables/useToast";
+import { convertUnitToByte } from "~/utils/format";
 
 export function useVmWizardForm() {
-  // --- State ---
   const { addToast } = useToast();
   const currentTab = ref(0);
   const tabRefs = ref<any[]>([]);
@@ -16,12 +22,10 @@ export function useVmWizardForm() {
     { name: "ネットワーク/セキュリティ", component: markRaw(TabNetwork) },
   ];
 
-  // --- Computed ---
   const tabValidity = computed(() => {
     return tabRefs.value.map((tab) => tab?.isValid?.valid ?? false);
   });
 
-  // --- Methods ---
   const prevTab = () => {
     if (currentTab.value > 0) currentTab.value--;
   };
@@ -33,81 +37,65 @@ export function useVmWizardForm() {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
       reader.onload = () => resolve(reader.result as string);
-      reader.onerror = reject;
+      reader.onerror = (e) => reject(e);
       reader.readAsText(file);
     });
   };
 
-  // handleSubmitのロジック本体
+  /**
+   * 各タブのデータを結合し、APIリクエスト用のペイロードを構築する
+   */
   const buildPayloadAndValidate = async () => {
-    const invalidTabs = tabRefs.value.reduce((acc, tab, index) => {
-      if (!tab?.isValid?.valid) {
-        if (tabs[index]) acc.push(tabs[index].name);
-      }
-      return acc;
-    }, [] as string[]);
-
-    if (invalidTabs.length > 0) {
-      addToast({
-        message: `「${invalidTabs.join("」「")}」タブに入力エラーがあります。`,
-        type: "error",
-      });
-      // 3. 最初の無効なタブのインデックス番号を見つける
-      const firstInvalidIndex = tabRefs.value.findIndex(
-        (tab) => !tab?.isValid?.valid
-      );
-
-      // 4. 見つかったインデックスに現在のタブを切り替える（ジャンプする）
-      if (firstInvalidIndex !== -1) {
-        currentTab.value = firstInvalidIndex;
-      }
-      return;
-    }
-
     const generalData = tabRefs.value[0]?.formData;
     const configData = tabRefs.value[1]?.formData;
     const osData = tabRefs.value[2]?.formData;
     const networkData = tabRefs.value[3]?.formData;
 
+    // --- 調査用ログ (送信時のみコンソールに出力) ---
+    //console.log("TabConfigから吸い上げたデータ:", configData);
+
     const basePayload = {
       name: generalData?.name ?? "",
-      nodeId: generalData?.nodeId ?? null,
-      subnetId: networkData?.subnetId ?? null,
+      nodeId: generalData?.nodeId ?? "",
+      subnetId: networkData?.subnetId ?? "",
       publicKey: networkData?.keyPairFile
         ? await readFileAsText(networkData.keyPairFile)
-        : null,
-      securityGroupId: networkData?.securityGroupId ?? null,
-      imageId: osData?.osImageId ?? null,
-      middleWareId: osData?.middlewareId,
+        : "",
+      securityGroupIds: networkData?.securityGroupId
+        ? [networkData.securityGroupId]
+        : [],
+      imageId: osData?.osImageId ?? "",
+      middlewareId: osData?.middlewareId ?? "",
       storages:
         configData?.storages.map((storage: any) => ({
           name: storage.name,
           size: convertUnitToByte(storage.size, "GB"),
           poolId: storage.poolId,
-          backupId: storage.type === "backup" ? configData.backupId : null,
+          backupId: storage.type === "backup" ? configData.backupId : undefined,
         })) ?? [],
     };
 
-    let payload: VirtualMachineCreateRequestDTO;
+    let payload: VirtualMachineCreateRequest;
 
-    if (configData?.templateId) {
-      // パターンA: インスタンスタイプIDがある場合
+    if (!!configData?.templateId) {
+      // パターンA: テンプレート（インスタンスタイプ）指定
       payload = {
         ...basePayload,
         instanceTypeId: configData.templateId,
       };
     } else {
-      // パターンB: CPUとメモリをカスタム指定する場合
+      // パターンB: カスタム構成
       payload = {
         ...basePayload,
-        cpuCore: configData?.cpuCore,
-        memorySize: convertUnitToByte(configData?.memorySize, "MB"),
+        cpu: configData?.cpuCore,
+        memory: convertUnitToByte(configData?.memorySize, "MB"),
       };
     }
+
+    //console.log("API送信最終ペイロード:", payload);
     return payload;
   };
 
-  // コンポーネントが使えるように、必要な変数や関数を返す
   return {
     currentTab,
     tabRefs,

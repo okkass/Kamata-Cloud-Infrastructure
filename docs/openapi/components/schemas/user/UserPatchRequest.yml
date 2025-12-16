@@ -1,4 +1,4 @@
 type: object
 description: ユーザ更新リクエストオブジェクト
 allOf:
-  - $ref: ./UserUpdatable.yml
+  - $ref: "./UserUpdatable.yml"

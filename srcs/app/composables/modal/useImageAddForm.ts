@@ -2,154 +2,145 @@
  * =================================================================================
  * イメージ追加フォーム Composable (useImageAddForm.ts)
  * ---------------------------------------------------------------------------------
- * このComposableは、MoImageAddコンポーネントで使用される
- * フォームの状態管理、バリデーション、ファイル処理、API送信ロジックをカプセル化します。
+ * ★ defineField を使用したバージョン
+ * ★ name属性の重複警告を回避するための処理込み
  * =================================================================================
  */
-import { ref } from "vue";
-import { useForm } from "vee-validate";
+import { computed } from "vue";
+import { useForm } from "vee-validate"; // defineField は useForm の戻り値に含まれます
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
+import { useLargeFileUpload } from "~/composables/useLargeFileUpload";
+import { useResourceList } from "~/composables/useResourceList";
 import { useToast } from "~/composables/useToast";
 
+// 型定義
+import type { ImageCreateRequest } from "~~/shared/types/dto/image/ImageCreateRequest";
+import type { ImageResponse } from "~~/shared/types/dto/image/ImageResponse";
+import type { NodeDTO } from "~~/shared/types/dto/node/NodeDTO";
+
 // ==============================================================================
-// Validation Schema (バリデーションスキーマ)
-// フォームのバリデーションルールをZodで定義します。
+// Validation Schema
 // ==============================================================================
 const zodSchema = z.object({
   name: z.string().min(1, "イメージ名は必須です。"),
-  // ファイルは必須。 Fileオブジェクトであることを確認します (vee-validate側でFile型を渡す前提)
-  // 受け付けるファイル形式はコンポーネント側の accept 属性で制御します
   file: z.instanceof(File, { message: "イメージファイルを選択してください。" }),
-  // description は任意項目
   description: z.string().optional(),
+  nodeId: z
+    .string({ message: "作成先ノードを選択してください。" })
+    .min(1, "作成先ノードを選択してください。"),
 });
 
 const validationSchema = toTypedSchema(zodSchema);
-// Zodスキーマからフォームの型を推論します
 type FormValues = z.infer<typeof zodSchema>;
 
 /**
- * ファイルをBase64文字列に変換するヘルパー関数
- * @param file 変換するFileオブジェクト
- * @returns Base64エンコードされた文字列のPromise
- */
-const readFileAsBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      // 結果 (DataURL) からプレフィックス (`data:*/*;base64,`) を除去してBase64部分のみを返します
-      const base64String = (reader.result as string).split(",")[1];
-      resolve(base64String);
-    };
-    reader.onerror = (error) => reject(error);
-    reader.readAsDataURL(file); // ファイルをDataURLとして読み込みます
-  });
-};
-
-/**
- * メインのComposable関数
+ * イメージ追加フォームのロジック
  */
 export function useImageAddForm() {
+  const { addToast } = useToast();
+  const { uploadFile, cancelUpload, isUploading, progress } =
+    useLargeFileUpload();
+  const { executeCreate, isCreating } = useResourceCreate<
+    ImageCreateRequest,
+    ImageResponse
+  >("images");
+
+  // ノード一覧取得
+  const {
+    data: nodes,
+    pending: nodesPending,
+    error: nodesError,
+  } = useResourceList<NodeDTO>("nodes");
+
   // ============================================================================
-  // Form Setup (フォーム設定)
-  // VeeValidateのuseFormを使って、フォーム全体を管理します。
+  // Form Setup
   // ============================================================================
-  const { errors, defineField, handleSubmit } = useForm<FormValues>({
+  // defineField を useForm から取得
+  const { errors, handleSubmit, resetForm, defineField } = useForm<FormValues>({
     validationSchema,
     initialValues: {
-      // フォームの初期値を設定します
       name: "",
-      file: undefined, // ファイルは初期状態では未選択 (undefined)
       description: "",
+      file: undefined,
+      nodeId: "",
     },
   });
 
-  // 各フォームフィールドとVeeValidateを連携させます
-  const [name, nameAttrs] = defineField("name");
-  // FormDropZone コンポーネントは v-model で直接 file ref を更新するため、fileAttrs は通常不要
+  // --- フィールド定義 (defineField) ---
+
+  // 1. name
+  const [name, nameProps] = defineField("name");
+
+  // 2. description
+  const [description, descriptionProps] = defineField("description");
+  
+  // 3. file (FormDropZone用)
   const [file] = defineField("file");
-  const [description, descriptionAttrs] = defineField("description");
+
+  // 4. nodeId
+  const [nodeId] = defineField("nodeId");
 
   // ============================================================================
-  // API Submission (API送信処理)
-  // useResourceCreate Composableを使ってAPIへのPOSTリクエストを管理します。
+  // Submission Handler
   // ============================================================================
-  const { executeCreate: executeImageCreation, isCreating } = useResourceCreate<
-    ImageCreateRequest,
-    ImageResponse
-  >("images"); // APIエンドポイント '/api/images' に対応
-  const { addToast } = useToast();
+  const onFormSubmit = (emit: (event: "close" | "success") => void) => {
+    return handleSubmit(async (formValues: FormValues) => {
+      // バリデーション (ファイル必須チェックなど)
+      if (!formValues.file) return;
 
-  /**
-   * フォーム送信時の処理を定義します。
-   * handleSubmitでラップされているため、バリデーション通過後にのみ実行されます。
-   * @param emit - 親コンポーネントへイベントを通知するための関数 ('success', 'close')
-   */
-  const onFormSubmit = (emit: (event: "success" | "close") => void) =>
-    handleSubmit(async (formValues) => {
-      // ファイルオブジェクトが存在することを確認 (バリデーション通過後なので基本的には存在するはず)
-      if (!formValues.file) {
-        addToast({ message: "ファイルが選択されていません。", type: "error" });
-        return;
-      }
-
-      // ファイルをBase64文字列に非同期で変換します
-      let fileBase64: string;
       try {
-        fileBase64 = await readFileAsBase64(formValues.file);
-      } catch (error) {
-        // ファイル読み込み（Base64変換）に失敗した場合のエラーハンドリング
+        // ★ 1. 型安全なオブジェクトを作成 (ここで型チェックが効く！)
+        const requestData: ImageUploadRequest = {
+          name: formValues.name,
+          nodeId: formValues.nodeId,
+          description: formValues.description || undefined,
+          file: formValues.file, // Fileオブジェクトをそのまま渡す
+        };
+
+        // ★ 2. ユーティリティで一発変換
+        const formData = toFormData(requestData);
+        const result = await uploadFile("/api/images", formData);
+
+        // 成功時の処理 (resultの形式に合わせて調整)
+        if (result && !result.error) {
+          addToast({
+            message: `イメージ「${formValues.name}」を追加しました。`,
+            type: "success",
+          });
+          emit("success");
+          emit("close");
+        } else {
+          // エラー処理
+          throw new Error(result?.error || "Upload failed");
+        }
+      } catch (error: any) {
+        console.error("Error:", error);
         addToast({
-          message: "ファイルの読み込みに失敗しました。",
+          message: "アップロードに失敗しました。",
           type: "error",
-          details: error instanceof Error ? error.message : String(error),
-        });
-        return; // 処理を中断
-      }
-
-      // APIに送信するデータ（ペイロード）を構築します
-      const payload: ImageCreateRequestDTO = {
-        name: formValues.name,
-        description: formValues.description || undefined, // 説明が空文字の場合は undefined として送信 (API仕様による)
-        file: fileBase64, // Base64エンコードされたファイルデータ
-      };
-
-      // APIリクエストを実行します
-      const result = await executeImageCreation(payload);
-
-      // 結果に応じてトースト通知を表示し、親コンポーネントにイベントを通知します
-      if (result.success) {
-        addToast({
-          message: `イメージ「${payload.name}」を追加しました。`,
-          type: "success",
-        });
-        emit("success"); // 成功イベントを通知
-        emit("close"); // モーダルを閉じるイベントを通知
-      } else {
-        addToast({
-          message: "イメージの追加に失敗しました。",
-          type: "error",
-          details: result.error?.message, // APIからのエラー詳細を表示
+          details: error.message,
         });
       }
     });
+  };
 
-  // ============================================================================
-  // Expose (外部への公開)
-  // コンポーネント側で利用するリアクティブな状態や関数を返却します。
-  // ============================================================================
   return {
-    errors, // バリデーションエラーオブジェクト
-    // 各フォームフィールドの値と属性 (v-model, v-bind用)
+    errors,
     name,
-    nameAttrs,
-    file, // FormDropZone の v-model 用
-    // fileAttrs, // FormDropZone では通常 v-bind 不要
     description,
-    descriptionAttrs,
-    isCreating, // API通信中のローディング状態 (trueの間ボタンが無効化される)
-    onFormSubmit, // フォーム送信ハンドラ (バリデーション実行 + API送信)
+    file,
+    nodeId,
+    nodes,
+    nodesPending,
+    nodesError,
+
+    isCreating: isUploading,
+    onFormSubmit,
+    resetForm,
+    progress,
+    isUploading,
+    cancelUpload,
   };
 }

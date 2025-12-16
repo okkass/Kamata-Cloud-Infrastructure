@@ -1,0 +1,4 @@
+allOf:
+  - $ref: "./SubnetUpdatable.yml"
+  - type: object
+    description: サブネット部分更新リクエストオブジェクト

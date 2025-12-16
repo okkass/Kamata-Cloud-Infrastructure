@@ -1,4 +1,30 @@
 type: object
 description: 仮想マシンイメージのレスポンスオブジェクト
-allOf:
-  - $ref: "./ImageServerBase.yml"
+properties:
+  id:
+    type: string
+    format: uuid
+    description: 仮想マシンイメージを識別するための一意なID
+  name:
+    type: string
+    description: 仮想マシンイメージの名前
+  description:
+    type: string
+    description: 仮想マシンイメージの説明
+  createdAt:
+    type: string
+    format: date-time
+    description: 仮想マシンイメージが作成された日時
+  size:
+    type: number
+    format: integer
+    description: 仮想マシンイメージのサイズ(バイト単位)
+  node:
+    description: 仮想マシンイメージが存在するノードの情報
+    $ref: "../node/NodeResponse.yml"
+required:
+  - id
+  - name
+  - createdAt
+  - size
+  - node

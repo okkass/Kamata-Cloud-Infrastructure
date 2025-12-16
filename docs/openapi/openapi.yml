@@ -1,92 +1,142 @@
-openapi: 3.0.3
+openapi: "3.0.3"
 info:
-  title: KCI API
-  description: KCI API documentation
-  version: 0.45.1
+  title: "KCI API"
+  description: "KCI API documentation"
+  version: "0.46.0"
 paths:
-  /api/backups:
-    $ref: paths/virtual-machine/backups.yml
-  /api/images:
-    $ref: paths/image/images.yml
-  /api/images/{imageId}:
-    $ref: paths/image/images_{imageId}.yml
-  /api/instance-types:
-    $ref: paths/instance-type/instance-types.yml
-  /api/instance-types/{instanceTypeId}:
-    $ref: paths/instance-type/instance-types_{instanceTypeId}.yml
   /api/login:
-    $ref: paths/auth/login.yml
+    $ref: "paths/auth/login.yml"
   /api/login/web:
-    $ref: paths/auth/login_web.yml
+    $ref: "paths/auth/login_web.yml"
+  /api/images:
+    $ref: "paths/image/images.yml"
+  /api/images/{imageId}:
+    $ref: "paths/image/images_{imageId}.yml"
   /api/middlewares:
-    $ref: paths/image/middlewares.yml
+    $ref: "paths/image/middlewares.yml"
+  /api/instance-types:
+    $ref: "paths/instance-type/instance-types.yml"
+  /api/instance-types/{instanceTypeId}:
+    $ref: "paths/instance-type/instance-types_{instanceTypeId}.yml"
   /api/nodes:
-    $ref: paths/node/nodes.yml
+    $ref: "paths/node/nodes.yml"
   /api/nodes/candidates:
-    $ref: paths/node/nodes_candidates.yml
+    $ref: "paths/node/nodes_candidates.yml"
   /api/nodes/{nodeId}:
-    $ref: paths/node/nodes_{nodeId}.yml
+    $ref: "paths/node/nodes_{nodeId}.yml"
+  /api/nodes/{nodeId}/new-devices:
+    $ref: "paths/node/nodes_{nodeId}_new-devices.yml"
   /api/portfolios:
-    $ref: paths/portfolio/portfolios.yml
+    $ref: "paths/portfolio/portfolios.yml"
   /api/security-groups:
-    $ref: paths/security-group/security-groups.yml
+    $ref: "paths/security-group/security-groups.yml"
   /api/security-groups/{groupId}:
-    $ref: paths/security-group/security-groups_{groupId}.yml
+    $ref: "paths/security-group/security-groups_{groupId}.yml"
   /api/security-groups/{groupId}/rules:
-    $ref: paths/security-group/security-groups_{groupId}_rules.yml
-  /api/snapshots:
-    $ref: paths/virtual-machine/snapshots.yml
-  /api/snapshots/{id}:
-    $ref: paths/virtual-machine/snapshots_{id}.yml
+    $ref: "paths/security-group/security-groups_{groupId}_rules.yml"
+  /api/security-groups/{groupId}/rules/bulk:
+    $ref: "paths/security-group/security-groups_{groupId}_rules_bulk.yml"
+  /api/security/groups{groupId}/rules/{ruleId}:
+    $ref: "paths/security-group/security_groups{groupId}_rules_{ruleId}.yml"
   /api/storage-pools:
-    $ref: paths/storage-pool/storage-pools.yml
+    $ref: "paths/storage-pool/storage-pools.yml"
   /api/storage-pools/node/{nodeId}:
-    $ref: paths/storage-pool/storage-pools_node_{nodeId}.yml
+    $ref: "paths/storage-pool/storage-pools_node_{nodeId}.yml"
   /api/storage-pools/{id}:
-    $ref: paths/storage-pool/storage-pools_{id}.yml
+    $ref: "paths/storage-pool/storage-pools_{id}.yml"
+  /api/history:
+    $ref: "paths/summary/history.yml"
+  /api/realtime:
+    $ref: "paths/summary/realtime.yml"
   /api/users:
-    $ref: paths/user/users.yml
+    $ref: "paths/user/users.yml"
   /api/users/me:
-    $ref: paths/user/users_me.yml
+    $ref: "paths/user/users_me.yml"
   /api/users/{userId}:
-    $ref: paths/user/users_{userId}.yml
+    $ref: "paths/user/users_{userId}.yml"
+  /api/users/{userId}/change-password:
+    $ref: "paths/user/users_{userId}_change-password.yml"
+  /api/backups:
+    $ref: "paths/virtual-machine/backups.yml"
+  /api/backups/{id}:
+    $ref: "paths/virtual-machine/backups_{id}.yml"
+  /api/backups/{id}/restore:
+    $ref: "paths/virtual-machine/backups_{id}_restore.yml"
+  /api/snapshots:
+    $ref: "paths/virtual-machine/snapshots.yml"
+  /api/snapshots/{id}:
+    $ref: "paths/virtual-machine/snapshots_{id}.yml"
+  /api/snapshots/{id}/restore:
+    $ref: "paths/virtual-machine/snapshots_{id}_restore.yml"
   /api/virtual-machines:
-    $ref: paths/virtual-machine/virtual-machines.yml
+    $ref: "paths/virtual-machine/virtual-machines.yml"
   /api/virtual-machines/{vmId}:
-    $ref: paths/virtual-machine/virtual-machines_{vmId}.yml
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}.yml"
+  /api/virtual-machines/{vmId}/network-interfaces:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces.yml"
+  /api/virtual-machines/{vmId}/network-interfaces/bulk:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_bulk.yml"
+  /api/virtual-machines/{vmId}/network-interfaces/{nicId}:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_network-interfaces_{nicId}.yml"
+  /api/virtual-machines/{vmId}/reboot:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_reboot.yml"
+  /api/virtual-machines/{vmId}/reset:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_reset.yml"
+  /api/virtual-machines/{vmId}/security-groups:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups.yml"
+  /api/virtual-machines/{vmId}/security-groups/bulk:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_bulk.yml"
+  /api/virtual-machines/{vmId}/security-groups/{sgId}:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_security-groups_{sgId}.yml"
+  /api/virtual-machines/{vmId}/shutdown:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_shutdown.yml"
+  /api/virtual-machines/{vmId}/start:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_start.yml"
+  /api/virtual-machines/{vmId}/stop:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_stop.yml"
+  /api/virtual-machines/{vmId}/storages:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages.yml"
+  /api/virtual-machines/{vmId}/storages/bulk:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages_bulk.yml"
+  /api/virtual-machines/{vmId}/storages/{storageId}:
+    $ref: "paths/virtual-machine/virtual-machines_{vmId}_storages_{storageId}.yml"
   /api/virtual-networks:
-    $ref: paths/virtual-network/virtual-networks.yml
+    $ref: "paths/virtual-network/virtual-networks.yml"
   /api/virtual-networks/{networkId}:
-    $ref: paths/virtual-network/virtual-networks_{networkId}.yml
+    $ref: "paths/virtual-network/virtual-networks_{networkId}.yml"
   /api/virtual-networks/{networkId}/subnets:
-    $ref: paths/virtual-network/virtual-networks_{networkId}_subnets.yml
+    $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets.yml"
+  /api/virtual-networks/{networkId}/subnets/bulk:
+    $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_bulk.yml"
   /api/virtual-networks/{networkId}/subnets/{subnetId}:
-    $ref: paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}.yml
+    $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}.yml"
+  /api/virtual-networks/{networkId}/subnets/{subnetId}/virtual-machines:
+    $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}_virtual-machines.yml"
 components:
   securitySchemes:
     BearerAuth:
-      type: http
-      scheme: bearer
-      bearerFormat: JWT
-      description: JWTを使用した認証方式
+      type: "http"
+      scheme: "bearer"
+      bearerFormat: "JWT"
+      description: "JWTを使用した認証方式"
 tags:
-  - name: Auth
-    description: 認証関連の操作
-  - name: Image
-    description: 仮想マシンイメージ関連の操作
-  - name: InstanceType
-    description: インスタンスタイプ関連の操作
-  - name: Node
-    description: 物理ノード関連の操作
-  - name: Portfolio
-    description: ポートフォリオ関連の操作
-  - name: SecurityGroup
-    description: セキュリティグループ関連の操作
-  - name: StoragePool
-    description: ストレージプール関連の操作
-  - name: User
-    description: ユーザ関連の操作
-  - name: VirtualMachine
-    description: 仮想マシン関連の操作
-  - name: VirtualNetwork
-    description: 仮想ネットワーク関連の操作
+  - name: "Auth"
+    description: "認証関連の操作"
+  - name: "Image"
+    description: "仮想マシンイメージ関連の操作"
+  - name: "InstanceType"
+    description: "インスタンスタイプ関連の操作"
+  - name: "Node"
+    description: "物理ノード関連の操作"
+  - name: "Portfolio"
+    description: "ポートフォリオ関連の操作"
+  - name: "SecurityGroup"
+    description: "セキュリティグループ関連の操作"
+  - name: "StoragePool"
+    description: "ストレージプール関連の操作"
+  - name: "User"
+    description: "ユーザ関連の操作"
+  - name: "VirtualMachine"
+    description: "仮想マシン関連の操作"
+  - name: "VirtualNetwork"
+    description: "仮想ネットワーク関連の操作"

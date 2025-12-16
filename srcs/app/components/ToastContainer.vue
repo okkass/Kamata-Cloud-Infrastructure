@@ -1,7 +1,7 @@
 <template>
-  <!-- トーストコンテナ: 画面の右上に固定表示 -->
+  <!-- トースト通知用のコンテナ 画面右上に固定表示 -->
   <div class="fixed top-4 right-4 z-[9999] flex w-full max-w-sm flex-col gap-3">
-    <!-- TransitionGroup: トーストの出現・消滅時にアニメーションを適用 -->
+    <!-- 出現、消滅などのアニメーションを適用 -->
     <TransitionGroup
       enter-active-class="transition-all duration-300 ease-out"
       enter-from-class="opacity-0 translate-x-full"
@@ -12,45 +12,59 @@
       <div
         v-for="toast in toasts"
         :key="toast.id"
-        class="flex w-full items-start gap-3 rounded-lg p-4 text-white shadow-lg"
+        class="relative flex w-full flex-col rounded-lg p-4 text-white shadow-lg overflow-hidden"
         :class="toastStyles[toast.type]"
       >
         <!-- アイコン表示エリア -->
-        <div class="flex-shrink-0">
-          <component :is="toastIcons[toast.type]" class="h-6 w-6" />
+        <div class="flex items-start gap-3">
+          <div class="flex-shrink-0 pt-0.5">
+            <component :is="toastIcons[toast.type]" class="h-6 w-6" />
+          </div>
+
+          <!-- メッセージ表示エリア -->
+          <div class="flex-1 break-words">
+            <p class="font-bold">{{ toast.message }}</p>
+            <p
+              v-if="toast.details"
+              class="mt-1 border-t border-white/30 pt-1 text-sm opacity-90"
+            >
+              {{ toast.details }}
+            </p>
+          </div>
+
+          <!-- 閉じるボタン -->
+          <button
+            @click="removeToast(toast.id)"
+            class="flex-shrink-0 rounded-full p-1 opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-white"
+          >
+            <svg
+              class="h-5 w-5"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M6 18L18 6M6 6l12 12"
+              />
+            </svg>
+          </button>
         </div>
 
-        <!-- メッセージ表示エリア -->
-        <div class="flex-1 break-words">
-          <p class="font-bold">{{ toast.message }}</p>
-          <p
-            v-if="toast.details"
-            class="mt-1 border-t border-white/30 pt-1 text-sm opacity-90"
-          >
-            {{ toast.details }}
-          </p>
+        <!-- プログレスバー表示エリア -->
+        <div v-if="typeof toast.progress === 'number'" class="mt-3 w-full">
+          <div class="mb-1 flex justify-end text-xs font-semibold opacity-90">
+            {{ toast.progress }}%
+          </div>
+          <div class="h-2 w-full rounded-full bg-black/20">
+            <div
+              class="h-full rounded-full bg-white transition-all duration-300 ease-out"
+              :style="{ width: `${toast.progress}%` }"
+            ></div>
+          </div>
         </div>
-
-        <!-- 閉じるボタン -->
-        <button
-          @click="removeToast(toast.id)"
-          class="flex-shrink-0 rounded-full p-1 opacity-70 hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-white"
-          aria-label="閉じる"
-        >
-          <svg
-            class="h-5 w-5"
-            fill="none"
-            viewBox="0 0 24 24"
-            stroke="currentColor"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M6 18L18 6M6 6l12 12"
-            />
-          </svg>
-        </button>
       </div>
     </TransitionGroup>
   </div>

@@ -1,0 +1,7 @@
+type: object
+description: スナップショット更新リクエストオブジェクト
+allOf:
+  - $ref: "./SnapshotUpdatable.yml"
+required:
+  - name
+  - description

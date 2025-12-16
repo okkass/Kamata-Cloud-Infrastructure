@@ -1,7 +1,7 @@
 type: object
 description: ユーザ更新リクエストオブジェクト
 allOf:
-  - $ref: ./UserUpdatable.yml
+  - $ref: "./UserUpdatable.yml"
 required:
   - name
   - email
@@ -11,4 +11,4 @@ required:
   - isVirtualMachineAdmin
   - isNetworkAdmin
   - isSecurityGroupAdmin
-  - isPhysicalNodeAdmin
+  - isNodeAdmin

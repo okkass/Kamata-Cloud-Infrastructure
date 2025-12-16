@@ -1,0 +1,4 @@
+type: object
+description: 仮想マシン更新リクエストオブジェクト
+allOf:
+  - $ref: "./VirtualMachineUpdatable.yml"

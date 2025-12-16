@@ -1,0 +1,32 @@
+type: object
+description: 仮想ネットワークオブジェクト
+properties:
+  id:
+    type: string
+    format: uuid
+    description: 仮想ネットワークを識別するための一意なID
+  name:
+    type: string
+    description: 仮想ネットワークの名前
+  cidr:
+    type: string
+    description: CIDR形式のネットワークアドレス
+    example: 10.0.0.0/16
+  createdAt:
+    type: string
+    format: date-time
+    description: 仮想ネットワークが作成された日時
+  subnets:
+    type: array
+    items:
+      $ref: "./SubnetResponse.yml"
+  owner:
+    description: 仮想ネットワークの所有者情報(scope=allのときのみ)
+    $ref: "../user/UserResponse.yml"
+required:
+  - id
+  - name
+  - cidr
+  - createdAt
+  - inboundTraffic
+  - outboundTraffic

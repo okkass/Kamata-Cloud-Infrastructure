@@ -1,0 +1,7 @@
+type: object
+description: サブネット全部更新リクエストオブジェクト
+allOf:
+  - $ref: "./SubnetUpdatable.yml"
+required:
+  - name
+  - cidr

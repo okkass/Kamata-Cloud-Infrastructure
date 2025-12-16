@@ -1,8 +1,6 @@
 type: object
 description: ポートフォリオ作成リクエストオブジェクト
-properties:
-  title:
-    type: string
-    description: ポートフォリオのタイトル
+allOf:
+  - $ref: "./PortfolioUpdatable.yml"
 required:
   - title
