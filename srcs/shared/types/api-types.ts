@@ -6387,7 +6387,7 @@ export interface paths {
         };
         /**
          * 仮想ネットワークの更新
-         * @description 指定したIDの仮想ネットワーク情報を更新します。
+         * @description 指定したIDの仮想ネットワーク情報を完全に更新します。
          */
         put: {
             parameters: {
