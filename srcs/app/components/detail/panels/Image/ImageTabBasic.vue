@@ -27,7 +27,7 @@
       <div>
         <div class="detail-label">ノード</div>
         <div class="detail-value">
-          {{ image?.node.name || "-" }}
+          {{ image?.node?.name || "-" }}
         </div>
       </div>
 
