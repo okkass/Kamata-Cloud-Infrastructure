@@ -20,6 +20,7 @@
     <!-- 編集モーダル（imageDataとしてImageResponseデータを渡す） -->
     <MoImageEdit
       :show="isEditOpen"
+      :image-data="image"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />
