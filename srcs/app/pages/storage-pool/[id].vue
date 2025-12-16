@@ -91,7 +91,7 @@ const handleEditSuccess = async () => {
 };
 
 // 操作ハンドラ
-const handleAction = async (action: { label: string; value: string }) => {
+const handleAction = (action: { label: string; value: string }) => {
   if (action.value === "edit") {
     openEditModal();
     return;
