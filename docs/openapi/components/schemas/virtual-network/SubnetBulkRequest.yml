@@ -21,7 +21,7 @@ properties:
       required:
         - id
         - data
-  delete:
+  remove:
     type: array
     description: 削除するサブネットのIDリスト
     items:
