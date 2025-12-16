@@ -67,8 +67,15 @@ import { useSecurityDashboard } from "~/composables/dashboard/useSecurityDashboa
 import { usePageActions } from "~/composables/usePageActions";
 
 // ★ 1. データ関連のComposableを呼び出し
-const { columns, groups, headerButtons, refreshGroupList } =
-  useSecurityDashboard();
+const {
+  columns,
+  groups,
+  headerButtons,
+  refreshGroupList,
+  ADD_SECURITY_GROUP_ACTION: addSecurityGroupAction,
+  EDIT_SECURITY_GROUP_ACTION: editSecurityGroupAction,
+  DELETE_SECURITY_GROUP_ACTION: deleteSecurityGroupAction,
+} = useSecurityDashboard();
 
 // ★ 2. アクション関連のComposableを呼び出し
 const {
@@ -82,7 +89,7 @@ const {
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<SecurityGroupDTO>({
+} = usePageActions<SecurityGroupResponse>({
   resourceName: SECURITY_GROUP.name,
   resourceLabel: SECURITY_GROUP.label,
   refresh: refreshGroupList, // refresh関数を渡す
