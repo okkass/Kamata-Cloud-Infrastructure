@@ -7426,7 +7426,7 @@ export interface components {
                 data: components["schemas"]["SecurityRuleUpdatable"];
             }[];
             /** @description 削除するセキュリティルールのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description セキュリティルール更新リクエストオブジェクト(PUT) */
         SecurityRulePutRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
@@ -8058,7 +8058,7 @@ export interface components {
                 data: components["schemas"]["NetworkInterfaceUpdatable"];
             }[];
             /** @description 削除するネットワークインターフェースのIDリスト */
-            delete?: string[];
+            remove?: string[];
         } | unknown | unknown | unknown;
         /** @description ネットワークインターフェース更新リクエストオブジェクト */
         NetworkInterfacePutRequest: WithRequired<components["schemas"]["NetworkInterfaceUpdatable"], "name" | "subnetId">;
@@ -8075,7 +8075,7 @@ export interface components {
                 id?: string;
             }[];
             /** @description 削除するセキュリティグループのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description 仮想マシンのストレージの更新可能プロパティを表すオブジェクト */
         StorageUpdatable: {
@@ -8113,7 +8113,7 @@ export interface components {
                 data: components["schemas"]["StorageUpdatable"];
             }[];
             /** @description 削除する仮想ストレージのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description 仮想マシンにアタッチされたストレージの更新リクエストオブジェクト */
         StoragePatchRequest: components["schemas"]["StorageUpdatable"];
@@ -8183,7 +8183,7 @@ export interface components {
                 data: components["schemas"]["SubnetUpdatable"];
             }[];
             /** @description 削除するサブネットのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description サブネット全部更新リクエストオブジェクト */
         SubnetPutRequest: WithRequired<components["schemas"]["SubnetUpdatable"], "name" | "cidr">;
