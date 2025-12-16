@@ -2,7 +2,7 @@ get:
   summary: スナップショットの詳細取得
   description: 指定したIDのスナップショットの詳細情報を取得します。
   tags:
-    - VirtualMachine
+    - Snapshot
   parameters:
     - name: id
       in: path
@@ -42,7 +42,7 @@ put:
   summary: スナップショットの更新
   description: 指定したIDのスナップショット情報を更新します。
   tags:
-    - VirtualMachine
+    - Snapshot
   parameters:
     - name: id
       in: path
@@ -94,7 +94,7 @@ patch:
   summary: スナップショットの部分更新
   description: 指定したIDのスナップショット情報を部分的に更新します。
   tags:
-    - VirtualMachine
+    - Snapshot
   parameters:
     - name: id
       in: path
@@ -146,7 +146,7 @@ delete:
   summary: スナップショットの削除
   description: 指定したIDのスナップショットを削除します。
   tags:
-    - VirtualMachine
+    - Snapshot
   parameters:
     - name: id
       in: path
