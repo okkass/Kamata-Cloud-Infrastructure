@@ -283,6 +283,49 @@
         @success="handleSuccess"
       />
     </div>
+
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">インスタンスタイプ一覧 (API連携)</h2>
+      <div v-if="itPending" class="mt-2 text-gray-500">一覧を読み込み中...</div>
+      <div v-else-if="itError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ itError.message }}
+      </div>
+      <table
+        v-else-if="instanceTypes && instanceTypes.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">vCPU</th>
+            <th class="px-6 py-3">メモリ</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="it in instanceTypes"
+            :key="it.id"
+            class="bg-white border-b"
+          >
+            <td class="px-6 py-4 font-medium">{{ it.name }}</td>
+            <td class="px-6 py-4">{{ it.vcpus }} Core</td>
+            <td class="px-6 py-4">{{ it.memory }} GB</td>
+            <td class="px-6 py-4 text-center">
+              <button
+                @click="openInstanceTypeEditModal(it)"
+                class="btn-secondary"
+              >
+                編集
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="mt-2 text-gray-500">
+        表示できるインスタンスタイプがありません。
+      </div>
+    </div>
   </div>
 </template>
 
@@ -371,13 +414,13 @@ const editModals = computed(() => [
     props: { vmId: targetResource.value?.id },
     refreshFn: refreshVms,
   },
-  /*{
+  {
     id: "backupRestore",
     component: markRaw(MoBackupRestore),
     // 復元モーダルには backupData としてデータを渡す
     props: { backupData: targetResource.value },
     refreshFn: refreshVms,
-  },*/
+  },
   {
     id: "backupRestore",
     component: markRaw(MoBackupRestore),
@@ -449,4 +492,6 @@ const openSecurityGroupEditModal = (sg: SecurityGroupResponse) =>
   openModal("securityGroupEdit", sg);
 const openStorageEditModal = (sp: StoragePoolResponse) =>
   openModal("storageEdit", sp);
+const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
+  openModal("instanceTypeEdit", it);
 </script>

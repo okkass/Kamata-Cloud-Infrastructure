@@ -1,138 +1,85 @@
-/**
- * =================================================================================
- * インスタンスタイプ編集フォーム Composable (useInstanceTypeEditForm.ts)
- * =================================================================================
- */
-import { watch, computed } from "vue";
-import { useForm } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
-import { useResourceUpdate } from "~/composables/useResourceEdit";
+import { ref } from "vue";
 import { useToast } from "~/composables/useToast";
-import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
+import {
+  useResourceUpdater,
+  type ResourceConfig,
+} from "~/composables/useResourceUpdater";
 
-// Props の型定義
-interface InstanceTypeEditProps {
-  show: boolean;
-  instanceTypeData: InstanceTypeResponse | null;
-}
+// 型定義は自動インポート (InstanceTypePatchRequest, InstanceTypeResponse 等)
+// ※もし自動インポートが効かない場合は適宜定義してください
 
-// ==============================================================================
-// Validation Schema
-// ==============================================================================
-const zodSchema = z.object({
-  name: z.string().min(1, "インスタンスタイプ名は必須です。"),
-  cpuCore: z
-    .number({
-      message: "数値を入力してください。",
-    })
-    .int("整数で入力してください。")
-    .min(1, "1以上の値を入力してください。"),
-  memorySizeInMb: z
-    .number({
-      message: "数値を入力してください。",
-    })
-    .int("整数で入力してください。")
-    .min(1, "1MB以上の値を入力してください。"),
-});
-
-const validationSchema = toTypedSchema(zodSchema);
-type FormValues = z.infer<typeof zodSchema>;
-
-/**
- * インスタンスタイプ編集フォームのロジック
- */
-export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
+export const useInstanceTypeEditForm = () => {
   const { addToast } = useToast();
 
-  const { executeUpdate, isUpdating } = useResourceUpdate<
-    InstanceTypePutRequest,
-    InstanceTypeResponse
-  >(INSTANCE_TYPE.name);
+  // 汎用アップデーターの初期化
+  const { editedData, dirtyState, isSaving, init } =
+    useResourceUpdater<InstanceTypeResponse>(); // ここで型を指定
 
-  // ============================================================================
-  // Form Setup
-  // ============================================================================
-  // defineField を分割代入で取得
-  const { errors, handleSubmit, resetForm, defineField } = useForm<FormValues>({
-    validationSchema,
-    initialValues: {
-      name: "",
-      cpuCore: undefined,
-      memorySizeInMb: undefined,
-    },
-  });
+  const updaterError = ref<string | null>(null);
 
-  // --- フィールド定義 (defineField) ---
-  const [name, nameAttrs] = defineField("name");
-  const [cpuCore, cpuCoreAttrs] = defineField("cpuCore");
-  const [memorySizeInMb, memorySizeInMbAttrs] = defineField("memorySizeInMb");
+  /**
+   * フォーム初期化
+   */
+  const initializeForm = (data: InstanceTypeResponse) => {
+    const config: ResourceConfig = {
+      base: {
+        endpoint: "", // 手動でPATCHするため空文字
+        // ★ここに画像にある入力項目のキー(プロパティ名)を列挙してください
+        fields: ["name", "vcpus", "memory"],
+      },
+      // コレクション(サブネット等)がない場合は不要
+    };
+    init(data, config);
+    updaterError.value = null;
+  };
 
-  // ============================================================================
-  // 初期値の反映 (Watch)
-  // ============================================================================
-  watch(
-    () => props.instanceTypeData,
-    (newData) => {
-      if (props.show && newData) {
-        resetForm({
-          values: {
-            name: newData.name,
-            cpuCore: newData.cpuCore,
-            memorySizeInMb: convertByteToUnit(newData.memorySize, "MB"),
-          },
+  /**
+   * 保存処理
+   */
+  const save = async (emit: (event: "success" | "close") => void) => {
+    if (!editedData.value) return;
+
+    isSaving.value = true;
+    updaterError.value = null;
+
+    try {
+      const resourceId = editedData.value.id;
+      const baseDiff = dirtyState.value.base;
+
+      // 変更がある場合のみ送信
+      if (Object.keys(baseDiff).length > 0) {
+        // PATCH /api/instance-types/{id}
+        await $fetch(`/api/instance-types/${resourceId}`, {
+          method: "put",
+          body: baseDiff as InstanceTypePatchRequest,
         });
-      }
-    },
-    { immediate: true, deep: true }
-  );
 
-  // ============================================================================
-  // Submission Handler
-  // ============================================================================
-  const onFormSubmit = (emit: (event: "close" | "success") => void) => {
-    return handleSubmit(async (formValues) => {
-      if (!props.instanceTypeData?.id) return;
-
-      const payload: InstanceTypePutRequest = {
-        name: formValues.name,
-        cpuCore: formValues.cpuCore,
-        memorySize: convertUnitToByte(formValues.memorySizeInMb, "MB"),
-      };
-
-      const { success, error, data } = await executeUpdate(
-        props.instanceTypeData.id,
-        payload
-      );
-
-      if (success) {
-        addToast({
-          message: `インスタンスタイプ「${
-            data?.name ?? payload.name
-          }」を更新しました。`,
-          type: "success",
-        });
+        addToast({ type: "success", message: "保存しました。" });
         emit("success");
         emit("close");
       } else {
-        addToast({
-          message: "インスタンスタイプの更新に失敗しました。",
-          type: "error",
-          details: error?.message,
-        });
+        addToast({ type: "info", message: "変更はありません。" });
       }
-    });
+    } catch (err: any) {
+      console.error(err);
+      const msg =
+        err.data?.message || err.message || "保存中にエラーが発生しました。";
+      updaterError.value = msg;
+      addToast({
+        type: "error",
+        message: "保存に失敗しました。",
+        details: msg,
+      });
+    } finally {
+      isSaving.value = false;
+    }
   };
 
   return {
-    errors,
-    name,
-    nameAttrs,
-    cpuCore,
-    cpuCoreAttrs,
-    memorySizeInMb,
-    memorySizeInMbAttrs,
-    isUpdating,
-    onFormSubmit,
+    editedData,
+    isSaving,
+    updaterError,
+    initializeForm,
+    save,
   };
-}
+};
