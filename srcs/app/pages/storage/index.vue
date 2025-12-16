@@ -92,8 +92,6 @@ const {
   headerButtons,
   rows,
   refresh,
-  ADD_STORAGE_ACTION,
-  DELETE_STORAGE_ACTION,
 } = useStorageManagement();
 
 /* ページ共通アクション */
@@ -112,6 +110,10 @@ const {
   resourceLabel: STORAGE.label,
   refresh,
 });
+
+const ADD_STORAGE_ACTION = `add-${STORAGE.name}`;
+const EDIT_STORAGE_ACTION = `edit-${STORAGE.name}`;
+const DELETE_STORAGE_ACTION = `delete-${STORAGE.name}`;
 
 /* ヘッダーボタンのハンドラー */
 function handleHeaderAction(action: string) {
