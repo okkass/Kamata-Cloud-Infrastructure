@@ -87,14 +87,14 @@ import { watch, type PropType } from "vue";
 import { useVirtualMachineEditForm } from "~/composables/modal/useVirtualMachineEditForm";
 
 // 子コンポーネントのインポート (作成後にコメントアウトを解除してください)
-// import TabGeneral from "./VirtualMachine/TabGeneral.vue";
-// import TabConfig from "./VirtualMachine/TabConfig.vue";
+import TabGeneral from "./VirtualMachine/TabGeneral.vue";
+import TabConfig from "./VirtualMachine/TabConfig.vue";
 // import TabNetwork from "./VirtualMachine/TabNetwork.vue";
 
 const props = defineProps({
   show: { type: Boolean, required: true },
   vmData: {
-    type: Object as PropType<any>, // VirtualMachineResponse
+    type: Object as PropType<VirtualMachineResponse>,
     default: null,
   },
 });
