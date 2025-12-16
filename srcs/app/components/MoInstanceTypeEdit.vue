@@ -41,7 +41,7 @@
           label="メモリ (GB)"
           name="memorySize"
           type="number"
-          v-model.number="editedData.memorySize"
+          v-model.number="memorySizeGB"
           placeholder="4"
           required
           class="w-full"
@@ -55,14 +55,6 @@
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="$emit('close')"
-          class="btn btn-secondary"
-          :disabled="isSaving"
-        >
-          キャンセル
-        </button>
         <button
           type="button"
           @click="submitForm"
@@ -81,20 +73,24 @@ import { watch, type PropType } from "vue";
 import { useInstanceTypeEditForm } from "~/composables/modal/useInstanceTypeEditForm";
 import FormInput from "~/components/Form/Input.vue";
 
-// import type { InstanceTypeResponse } from "~/shared/types";
-
 const props = defineProps({
   show: { type: Boolean, required: true },
   instanceTypeData: {
-    type: Object as PropType<any>, // InstanceTypeResponse
+    type: Object as PropType<InstanceTypeResponse>,
     default: null,
   },
 });
 
 const emit = defineEmits(["close", "success"]);
 
-const { editedData, isSaving, updaterError, initializeForm, save } =
-  useInstanceTypeEditForm();
+const {
+  editedData,
+  memorySizeGB,
+  isSaving,
+  updaterError,
+  initializeForm,
+  save,
+} = useInstanceTypeEditForm();
 
 watch(
   () => props.instanceTypeData,
