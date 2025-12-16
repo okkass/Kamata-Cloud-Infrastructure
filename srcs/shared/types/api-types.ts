@@ -8206,7 +8206,7 @@ export interface components {
              * @description 仮想ネットワークが作成された日時
              */
             createdAt: string;
-            subnets?: components["schemas"]["SubnetResponse"][];
+            subnets: components["schemas"]["SubnetResponse"][];
             /** @description 仮想ネットワークの所有者情報(scope=allのときのみ) */
             owner?: components["schemas"]["UserResponse"];
         };
