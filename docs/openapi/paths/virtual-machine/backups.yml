@@ -2,7 +2,7 @@ get:
   summary: バックアップ一覧の取得
   description: ユーザのバックアップのリストを取得します。
   tags:
-    - VirtualMachine
+    - Backup
   parameters:
     - name: scope
       in: query
@@ -40,7 +40,7 @@ post:
   summary: バックアップの作成
   description: 新しいバックアップを作成します。
   tags:
-    - VirtualMachine
+    - Backup
   requestBody:
     required: true
     content:
@@ -78,7 +78,7 @@ delete:
   summary: バックアップの削除
   description: 指定したIDのバックアップを削除します。
   tags:
-    - VirtualMachine
+    - Backup
   parameters:
     - name: backupId
       in: query
