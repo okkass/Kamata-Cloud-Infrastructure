@@ -19,6 +19,9 @@ properties:
     type: string
     format: date-time
     description: セキュリティグループが作成された日時
+  owner:
+    description: セキュリティグループの所有者情報(scope=allのときのみ)
+    $ref: "../user/UserResponse.yml"
 required:
   - id
   - name
