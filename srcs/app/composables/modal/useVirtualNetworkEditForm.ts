@@ -1,4 +1,3 @@
-import { ref } from "vue";
 import { useToast } from "~/composables/useToast";
 import {
   useResourceUpdater,
@@ -6,165 +5,109 @@ import {
 } from "~/composables/useResourceUpdater";
 
 export const useVirtualNetworkEditForm = () => {
-  // useToast から addToast を取得
   const { addToast } = useToast();
 
-  // リソース更新用コンポーザブルの初期化
-  // 返り値にヘルパー関数が含まれていないため、editedDataなどを取得
-  const { editedData, dirtyState, isSaving, init } =
-    useResourceUpdater<VirtualNetworkResponse>();
+  // Bulk対応版の useResourceUpdater を使用
+  const { 
+    editedData, 
+    isSaving, 
+    errorMessage, // useResourceUpdater からエラーメッセージを取得
+    init, 
+    save: executeSave // 名前が衝突しないようにエイリアス
+  } = useResourceUpdater<VirtualNetworkResponse>();
 
-  // 独自のエラー管理
-  const updaterError = ref<string | null>(null);
-
-  // 新規サブネット用の一時IDカウンタ
+  // ID生成用
   let newSubnetCounter = 0;
   const NEW_SUBNET_PREFIX = "new-subnet-";
 
   /**
    * フォーム初期化
+   * ここで API エンドポイントと Bulk 設定を定義します
    */
   const initializeForm = (data: VirtualNetworkResponse) => {
+    const resourceId = data.id;
+
     const config: ResourceConfig = {
       base: {
-        //useResourceUpdaterの自動送信機能は利用せず、手動でAPIを呼び出すため空文字を設定
-        endpoint: "",
-        fields: ["name"], // 更新可能なフィールド
+        // useApiClient は baseURL (/api/) を持っているため、そこからの相対パスを指定
+        // ※ useResourceUpdater はデフォルトで PATCH を使用します。
+        //   PUT が必須の場合は useResourceUpdater 側でメソッド指定できるように拡張が必要です。
+        endpoint: `virtual-networks/${resourceId}`, 
+        fields: ["name"],
       },
       collections: {
         subnets: {
-          endpoint: "", // 手動処理するため空文字
+          // 個別更新用のエンドポイント (Bulk使用時は使われませんが一応定義)
+          endpoint: `virtual-networks/${resourceId}/subnets`, 
+          
+          // ★★★ ここが重要: Bulk更新用のエンドポイントを指定 ★★★
+          // これがあるため、自動的に { create:[], delete:[], patch:[] } の形式でPOSTされます
+          bulkEndpoint: `virtual-networks/${resourceId}/subnets/bulk`,
+          
           idKey: "id",
           newIdPrefix: NEW_SUBNET_PREFIX,
           fields: ["name", "cidr"],
         },
       },
     };
+
     init(data, config);
-    updaterError.value = null;
     newSubnetCounter = 0;
   };
 
-  // ----------------------------------------------------------------
-  // サブネット操作 (editedDataを直接操作)
-  // ----------------------------------------------------------------
+  /**
+   * サブネット追加
+   */
   const addSubnet = () => {
     if (!editedData.value) return;
-
-    // 配列が未定義なら初期化
     if (!editedData.value.subnets) {
       editedData.value.subnets = [];
     }
 
-    // 直接 push する
-    editedData.value.subnets.push({
+    // 型安全に追加
+    const newSubnet = {
       id: `${NEW_SUBNET_PREFIX}${newSubnetCounter++}`,
       name: "",
       cidr: "",
-      // 型定義に合わせて必要なプロパティがあれば初期値を追加
-    } as any);
+      createdAt: new Date().toISOString(),
+    };
+    editedData.value.subnets.push(newSubnet);
   };
 
+  /**
+   * サブネット削除
+   */
   const removeSubnet = (index: number) => {
     if (!editedData.value?.subnets) return;
-    // 直接 splice する (useResourceUpdaterが変更を検知してdirtyStateを更新します)
     editedData.value.subnets.splice(index, 1);
   };
 
-  // ----------------------------------------------------------------
-  // 保存処理 (手動実装: API分割対応)
-  // ----------------------------------------------------------------
+  /**
+   * 保存処理
+   * useResourceUpdater の save を呼び出し、結果に応じて UI を制御します
+   */
   const save = async (emit: (event: "success" | "close") => void) => {
-    if (!editedData.value) return;
+    // 実際の保存処理を実行
+    const success = await executeSave();
 
-    isSaving.value = true;
-    updaterError.value = null;
-
-    try {
-      const resourceId = editedData.value.id;
-      const promises: Promise<any>[] = [];
-      let hasChanges = false;
-
-      // 1. 本体 (Base) の差分 -> PATCH /api/virtual-networks/{id}
-      const baseDiff = dirtyState.value.base;
-      if (Object.keys(baseDiff).length > 0) {
-        hasChanges = true;
-        // [必須]: 本体更新は API クライアント仕様に合わせて PUT メソッドを使用
-        // '$fetch' はグローバル関数として使用
-        promises.push(
-          $fetch(`/api/virtual-networks/${resourceId}`, {
-            method: "PUT",
-            body: baseDiff, // { name: "..." }
-          })
-        );
-      }
-
-      // 2. サブネット (Collection) の差分
-      const subnetDiff = dirtyState.value.collections.subnets;
-      if (
-        subnetDiff &&
-        (subnetDiff.added.length > 0 ||
-          subnetDiff.removed.length > 0 ||
-          subnetDiff.updated.length > 0)
-      ) {
-        hasChanges = true;
-
-        const bulkPayload = {
-          create: subnetDiff.added.map((item) => ({
-            name: item.name,
-            cidr: item.cidr,
-          })),
-          delete: subnetDiff.removed,
-          // 更新は patch
-          patch: subnetDiff.updated.map((item) => ({
-            id: item.id,
-            data: item.payload,
-          })),
-        };
-
-        // [必須]: サブネット一括更新は API クライアント仕様に合わせて POST メソッドで送信
-        promises.push(
-          $fetch(`/api/virtual-networks/${resourceId}/subnets/bulk`, {
-            method: "POST",
-            body: bulkPayload,
-          })
-        );
-      }
-
-      // 変更がない場合
-      if (!hasChanges) {
-        addToast({ type: "info", message: "変更はありません。" });
-        isSaving.value = false;
-        return;
-      }
-
-      // 並列実行
-      await Promise.all(promises);
-
+    if (success) {
       addToast({ type: "success", message: "保存しました。" });
       emit("success");
       emit("close");
-    } catch (err: any) {
-      console.error(err);
-      // エラーメッセージの抽出
-      const msg =
-        err.data?.message || err.message || "保存中にエラーが発生しました。";
-      updaterError.value = msg;
-
+    } else {
+      // 失敗時は useResourceUpdater が errorMessage に値をセットしています
       addToast({
         type: "error",
         message: "保存に失敗しました。",
-        details: msg,
+        details: errorMessage.value || "不明なエラーが発生しました。",
       });
-    } finally {
-      isSaving.value = false;
     }
   };
 
   return {
     editedData,
     isSaving,
-    updaterError,
+    updaterError: errorMessage, // テンプレート側が updaterError を参照している場合は合わせる
     initializeForm,
     addSubnet,
     removeSubnet,
