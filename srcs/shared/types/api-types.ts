@@ -8172,7 +8172,7 @@ export interface components {
         /** @description サブネットバルク更新リクエスト */
         SubnetBulkRequest: {
             /** @description 作成するサブネットのリスト */
-            create?: components["schemas"]["SubnetCreateRequest"][];
+            add?: components["schemas"]["SubnetCreateRequest"][];
             /** @description 更新するサブネットのリスト */
             patch?: {
                 /**
