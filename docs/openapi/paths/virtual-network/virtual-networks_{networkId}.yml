@@ -90,6 +90,58 @@ patch:
             $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
+put:
+  summary: 仮想ネットワークの更新
+  description: 指定したIDの仮想ネットワーク情報を更新します。
+  tags:
+    - VirtualNetwork
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../components/schemas/virtual-network/VirtualNetworkPutRequest.yml"
+  parameters:
+    - name: networkId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想ネットワークの一意なID
+  responses:
+    "200":
+      description: 更新成功
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/virtual-network/VirtualNetworkResponse.yml"
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "403":
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "404":
+      description: 仮想ネットワークが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+  security:
+    - BearerAuth: []
 delete:
   summary: 仮想ネットワークの削除
   description: 指定したIDの仮想ネットワークを削除します。
