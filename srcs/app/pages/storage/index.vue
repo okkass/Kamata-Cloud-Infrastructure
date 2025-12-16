@@ -64,6 +64,12 @@
       @success="handleSuccess"
     />
 
+    <MoStorageEdit
+      :show="activeModal === EDIT_STORAGE_ACTION"
+      @close="closeModal"
+      @success="handleSuccess"
+    />
+
     <!-- 削除確認モーダル -->
     <MoDeleteConfirm
       :show="activeModal === DELETE_STORAGE_ACTION"
@@ -84,6 +90,7 @@ import {
 import { usePageActions } from "@/composables/usePageActions";
 import DashboardLayout from "~/components/DashboardLayout.vue";
 import MoStorageAdd from "~/components/MoStorageAdd.vue";
+import MoStorageEdit from "~/components/MoStorageEdit.vue";
 import MoDeleteConfirm from "~/components/MoDeleteConfirm.vue";
 
 /* データ取得 */
@@ -93,6 +100,7 @@ const {
   rows,
   refresh,
   ADD_STORAGE_ACTION,
+  EDIT_STORAGE_ACTION,
   DELETE_STORAGE_ACTION,
 } = useStorageManagement();
 
