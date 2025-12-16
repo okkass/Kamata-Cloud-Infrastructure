@@ -6385,7 +6385,73 @@ export interface paths {
                 };
             };
         };
-        put?: never;
+        /**
+         * 仮想ネットワークの更新
+         * @description 指定したIDの仮想ネットワーク情報を更新します。
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想ネットワークの一意なID */
+                    networkId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["VirtualNetworkPutRequest"];
+                };
+            };
+            responses: {
+                /** @description 更新成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VirtualNetworkResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想ネットワークが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         post?: never;
         /**
          * 仮想ネットワークの削除
@@ -8171,6 +8237,8 @@ export interface components {
         /** @description 仮想ネットワーク作成リクエストオブジェクト */
         VirtualNetworkCreateRequest: WithRequired<components["schemas"]["VirtualNetworkUpdatable"], "name"> & components["schemas"]["VirtualNetworkCreateOnly"];
         /** @description 仮想ネットワーク更新リクエストオブジェクト */
+        VirtualNetworkPutRequest: WithRequired<components["schemas"]["VirtualNetworkUpdatable"], "name">;
+        /** @description 仮想ネットワーク更新リクエストオブジェクト */
         VirtualNetworkPatchRequest: components["schemas"]["VirtualNetworkUpdatable"];
         /** @description サブネットバルク更新リクエスト */
         SubnetBulkRequest: {
@@ -8294,6 +8362,7 @@ export type SubnetUpdatable = components['schemas']['SubnetUpdatable'];
 export type SubnetCreateRequest = components['schemas']['SubnetCreateRequest'];
 export type VirtualNetworkCreateOnly = components['schemas']['VirtualNetworkCreateOnly'];
 export type VirtualNetworkCreateRequest = components['schemas']['VirtualNetworkCreateRequest'];
+export type VirtualNetworkPutRequest = components['schemas']['VirtualNetworkPutRequest'];
 export type VirtualNetworkPatchRequest = components['schemas']['VirtualNetworkPatchRequest'];
 export type SubnetBulkRequest = components['schemas']['SubnetBulkRequest'];
 export type SubnetPutRequest = components['schemas']['SubnetPutRequest'];
