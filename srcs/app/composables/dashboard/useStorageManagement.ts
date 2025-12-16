@@ -1,7 +1,5 @@
 import { computed } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
-import { useResourceCreate } from "@/composables/useResourceCreate";
-import { useResourceUpdate } from "@/composables/useResourceEdit";
 import { STORAGE } from "@/utils/constants";
 import { toSize } from "@/utils/format";
 import { formatAsPercent } from "@/utils/status";
@@ -76,16 +74,6 @@ export function useStorageManagement() {
     })
   );
 
-  const { executeCreate, isCreating } = useResourceCreate<
-    StoragePoolCreateRequest,
-    StoragePoolResponse
-  >(RESOURCE_NAME);
-
-  const { executeUpdate, isUpdating } = useResourceUpdate<
-    StoragePoolPatchRequest,
-    StoragePoolResponse
-  >(RESOURCE_NAME);
-
   return {
     pending,
     error,
@@ -93,10 +81,6 @@ export function useStorageManagement() {
     headerButtons,
     rows,
     refresh,
-    createPool: executeCreate,
-    updatePool: executeUpdate,
-    isCreating,
-    isUpdating,
     ADD_STORAGE_ACTION,
     EDIT_STORAGE_ACTION,
     DELETE_STORAGE_ACTION,
