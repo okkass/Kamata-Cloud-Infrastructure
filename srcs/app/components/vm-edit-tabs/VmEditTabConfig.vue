@@ -103,7 +103,7 @@ import { useResourceList } from "~/composables/useResourceList";
 const model = defineModel<any>({ required: true });
 
 // ★ useResourceList を活用 (型は適宜 interface StoragePoolResponse 等に置き換えてください)
-const { data: poolData, pending } = useResourceList<any>("storage-pools");
+const { data: poolData, pending } = useResourceList<StoragePoolResponse>("storage-pools");
 
 // useResourceList は T[] を返すので、そのまま computed で参照可能
 const storagePools = computed(() => poolData.value || []);

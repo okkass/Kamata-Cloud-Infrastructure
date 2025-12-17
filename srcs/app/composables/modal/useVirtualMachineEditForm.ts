@@ -11,10 +11,8 @@ import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
 
 export const useVirtualMachineEditForm = () => {
   const { addToast } = useToast();
-  // $fetch は useResourceUpdater 内部の useApiClient で処理されるため、ここでの明示的な取得は不要な場合がありますが、
-  // 環境依存のエラーを避けるため Nuxt のコンテキストから取得しておくのが無難です。
-  // const { $fetch } = useNuxtApp();
 
+  // タブの管理
   const activeTab = ref<"general" | "config" | "network">("general");
 
   // useResourceUpdater の初期化
@@ -22,7 +20,7 @@ export const useVirtualMachineEditForm = () => {
     editedData, // これを各タブの v-model に渡します
     isSaving,
     init,
-    save: saveResource, // 名前重複回避
+    save: saveResource, // 名前重複回避のためエイリアス
     isDirty,
   } = useResourceUpdater<any>();
 
@@ -30,9 +28,11 @@ export const useVirtualMachineEditForm = () => {
 
   /**
    * フォーム初期化
+   * 親コンポーネントで watch(() => props.vmData, ...) の中で呼び出されます
    */
   const initializeForm = (data: any) => {
     // 1. メモリ単位変換 (Bytes -> GB)
+    // UI上ではGBで扱いたいので、初期化時に変換します
     const formattedData = {
       ...data,
       memorySize: convertByteToUnit(data.memorySize, "GB"),
@@ -41,43 +41,43 @@ export const useVirtualMachineEditForm = () => {
     const id = data.id;
 
     // 2. ResourceUpdater の設定
-    // サーバーのAPIパスに合わせて endpoint を構築します
+    // ★重要: 先頭の "/" を削除して重複を防いでいます
     const config: ResourceConfig = {
       base: {
-        // 先頭の /api/ を削除
+        // Base情報の PATCH 先: /api/virtual-machines/{id}
         endpoint: `virtual-machines/${id}`,
         fields: ["name", "description", "cpuCore", "memorySize"],
       },
       collections: {
         storages: {
-          endpoint: "",
-          // 先頭の /api/ を削除
+          endpoint: "", // bulk使用時は未使用
+          // Bulk送信先: /api/virtual-machines/{id}/storages/bulk
           bulkEndpoint: `virtual-machines/${id}/storages/bulk`,
           idKey: "id",
-          newIdPrefix: "new-",
+          newIdPrefix: "new-", // UI側で新規作成時に "new-xxx" というIDを振る必要があります
           fields: ["name", "size", "poolId", "type"],
         },
         networkInterfaces: {
           endpoint: "",
-          // 先頭の /api/ を削除
           bulkEndpoint: `virtual-machines/${id}/network-interfaces/bulk`,
-          idKey: "id", // ※前回修正した通り、networkInterfacesもID管理が必要です
+          idKey: "id", // ネットワークIF自体がIDを持つ前提
           newIdPrefix: "new-",
           fields: ["networkId", "ipAddress"],
         },
         securityGroups: {
           endpoint: "",
-          // 先頭の /api/ を削除
           bulkEndpoint: `virtual-machines/${id}/security-groups/bulk`,
           idKey: "id",
           newIdPrefix: "new-",
-          fields: ["name"],
+          fields: ["name"], // SGはIDの紐付けのみであればフィールド監視は最小限でOK
         },
       },
     };
 
     init(formattedData, config);
     updaterError.value = null;
+
+    // 初期化時は General タブを表示
     activeTab.value = "general";
   };
 
@@ -102,7 +102,7 @@ export const useVirtualMachineEditForm = () => {
       // これが config に従って PATCH (Base) や POST (Bulk) を自動で投げ分けます
       const success = await saveResource();
 
-      // UI表示用に GB に戻す
+      // UI表示用に GB に戻す (成功しても失敗しても、画面が開いたままならGBに戻しておく)
       editedData.value.memorySize = currentMemoryGB;
 
       if (success) {
@@ -110,7 +110,8 @@ export const useVirtualMachineEditForm = () => {
         emit("success");
         emit("close");
       } else {
-        // useResourceUpdater 内部でエラー時は false が返る
+        // useResourceUpdater 内部でエラー時は false が返り、errorMessage に詳細が入る想定ですが、
+        // ここでは汎用メッセージを出しています。必要に応じて updaterError を参照してください。
         updaterError.value = "保存に失敗しました。";
       }
     } catch (err: any) {
