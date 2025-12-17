@@ -8176,7 +8176,7 @@ export interface components {
         };
         /** @description 仮想マシンにアタッチされたストレージの更新リクエストオブジェクト */
         StoragePutRequest: WithRequired<components["schemas"]["StorageUpdatable"], "name">;
-        /** @description 仮想マシンにアタッチされたストレージの更新リクエストオブジェクト */
+        /** @description 仮想マシンにアタッチされたストレージの部分更新リクエストオブジェクト */
         StoragePatchRequest: components["schemas"]["StorageUpdatable"];
         /** @description 仮想ネットワークオブジェクト */
         VirtualNetworkResponse: {
