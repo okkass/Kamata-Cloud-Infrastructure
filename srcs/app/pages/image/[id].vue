@@ -1,3 +1,5 @@
+<!-- /workspace/srcs/app/pages/image/[id].vue -->
+
 <template>
   <div class="mx-auto max-w-6xl px-4 py-6">
     <div v-if="pending" class="text-sm text-neutral-500">読み込み中…</div>
@@ -17,10 +19,10 @@
       @action="handleAction"
     />
 
-    <!-- 編集モーダル（imageDataとしてImageResponseデータを渡す） -->
+    <!-- 編集モーダル（モーダル側には触らない：ページ側で初期値注入を保証する） -->
     <MoImageEdit
       :show="isEditOpen"
-      :image-data="image"
+      :image-data="editImageData"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />
@@ -28,7 +30,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import { IMAGE } from "~/utils/constants";
 
@@ -69,8 +71,17 @@ const actions = ref([{ label: "編集", value: "edit" }]);
 // 編集モーダル
 const isEditOpen = ref(false);
 
-const openEditModal = () => {
+// ★ モーダルに渡すデータ（ページ側で“変化”を作って初期値注入を保証）
+const editImageData = ref<ImageResponse | null>(null);
+
+const openEditModal = async () => {
   if (!image.value) return;
+
+  // モーダル側が imageData の変化で初期化する実装でも確実に発火させる
+  editImageData.value = null;
+  await nextTick();
+
+  editImageData.value = image.value;
   isEditOpen.value = true;
 };
 
@@ -81,7 +92,7 @@ const handleEditClose = () => {
 const handleEditSuccess = async () => {
   isEditOpen.value = false;
 
-  // モーダル側でトーストを出す想定
+  // トーストはモーダル側に任せる想定
   if (typeof refresh === "function") {
     try {
       await refresh();
@@ -90,6 +101,11 @@ const handleEditSuccess = async () => {
       addToast({ message: "再取得に失敗しました", type: "error" });
     }
   }
+
+  // 次回の編集も確実に初期値が入るように、編集データを最新に寄せておく
+  if (image.value) {
+    editImageData.value = image.value;
+  }
 };
 
 // アクション実行
@@ -97,7 +113,7 @@ const handleAction = async (action: { label: string; value: string }) => {
   if (!image.value) return;
 
   if (action.value === "edit") {
-    openEditModal();
+    await openEditModal();
     return;
   }
 
