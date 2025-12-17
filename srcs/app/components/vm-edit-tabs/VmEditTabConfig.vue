@@ -33,11 +33,10 @@
             :min="1"
             required
             placeholder="例: 2"
-            suffix="Core"
           >
-            <template #suffix>
-              <span class="ml-2 text-gray-500 text-sm">Core</span>
-            </template>
+            <template #suffix
+              ><span class="ml-2 text-gray-500 text-sm">Core</span></template
+            >
           </FormInput>
 
           <FormInput
@@ -49,9 +48,9 @@
             required
             placeholder="例: 4"
           >
-            <template #suffix>
-              <span class="ml-2 text-gray-500 text-sm">GB</span>
-            </template>
+            <template #suffix
+              ><span class="ml-2 text-gray-500 text-sm">GB</span></template
+            >
           </FormInput>
         </div>
       </section>
@@ -79,6 +78,10 @@
           ストレージ構成
         </h3>
 
+        <div v-if="pending" class="text-sm text-gray-500 mb-2">
+          ストレージプール情報を取得中...
+        </div>
+
         <StorageConfigTable
           :storages="model.storages"
           :storage-pools="storagePools"
@@ -91,60 +94,44 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { computed } from "vue";
 import FormInput from "~/components/Form/Input.vue";
-import StorageConfigTable from "~/components/StorageConfigTable.vue"; // アップロードされたファイルを使用
+import StorageConfigTable from "~/components/StorageConfigTable.vue";
+import { useResourceList } from "~/composables/useResourceList";
 
-// 親コンポーネント (useResourceUpdater) からのデータをバインド
+// 親コンポーネントからのデータ
 const model = defineModel<any>({ required: true });
 
-// ストレージプール一覧 (Selectボックス用)
-const storagePools = ref<any[]>([]);
+// ★ useResourceList を活用 (型は適宜 interface StoragePoolResponse 等に置き換えてください)
+const { data: poolData, pending } = useResourceList<any>("storage-pools");
+
+// useResourceList は T[] を返すので、そのまま computed で参照可能
+const storagePools = computed(() => poolData.value || []);
 
 /**
- * ストレージプールの取得
- * 実際の実装に合わせてエンドポイントを調整してください
- */
-onMounted(async () => {
-  try {
-    // 例: APIからストレージプール一覧を取得
-    // const { data } = await useFetch("/api/storage-pools");
-    // storagePools.value = data.value;
-
-    // 仮のモックデータ (動作確認用)
-    storagePools.value = [
-      { id: "pool-1", name: "Default Pool (SSD)" },
-      { id: "pool-2", name: "Archive Pool (HDD)" },
-    ];
-  } catch (e) {
-    console.error("ストレージプールの取得に失敗しました", e);
-  }
-});
-
-/**
- * ストレージの追加
- * 新しい行を配列に追加します。Bulk APIへの反映は保存時に計算されます。
+ * ストレージ追加
  */
 const handleAddStorage = () => {
   if (!model.value.storages) {
     model.value.storages = [];
   }
 
-  // 新規ストレージの初期値
+  // 取得したプールリストの先頭をデフォルト値にする
+  const defaultPoolId =
+    storagePools.value.length > 0 ? storagePools.value[0].id : "";
+
   model.value.storages.push({
-    // IDは新規作成時は空か、あるいはフロントエンドで一時IDを振るなど、
-    // useResourceUpdaterの仕様（newIdPrefixなど）に合わせて調整してください
+    // 一時ID ("new-")
     id: `new-${Date.now()}`,
     name: `disk-${model.value.storages.length + 1}`,
-    size: 20, // デフォルト20GB
-    poolId: storagePools.value[0]?.id || "",
-    type: "data", // 必要であれば
+    size: 20,
+    poolId: defaultPoolId,
+    type: "data",
   });
 };
 
 /**
- * ストレージの削除
- * 配列から要素を取り除きます。
+ * ストレージ削除
  */
 const handleRemoveStorage = (index: number) => {
   model.value.storages.splice(index, 1);

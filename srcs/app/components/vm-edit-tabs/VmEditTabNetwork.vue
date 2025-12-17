@@ -23,88 +23,65 @@
           <button
             type="button"
             @click="addInterface"
-            class="text-xs bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 px-3 py-1.5 rounded shadow-sm transition-colors flex items-center gap-1"
+            class="text-sm px-3 py-1.5 bg-white border border-gray-300 rounded text-gray-700 hover:bg-gray-50 shadow-sm transition-colors"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-              class="w-4 h-4"
-            >
-              <path
-                d="M10.75 4.75a.75.75 0 00-1.5 0v4.5h-4.5a.75.75 0 000 1.5h4.5v4.5a.75.75 0 001.5 0v-4.5h4.5a.75.75 0 000-1.5h-4.5v-4.5z"
-              />
-            </svg>
-            インターフェース追加
+            + インターフェース追加
           </button>
         </div>
 
-        <div class="border rounded-md overflow-hidden bg-white shadow-sm">
+        <div v-if="networksPending" class="text-sm text-gray-500 mb-2">
+          ネットワーク情報を取得中...
+        </div>
+
+        <div class="space-y-4">
           <div
-            class="grid grid-cols-12 gap-4 px-4 py-2 bg-gray-50 border-b text-xs font-semibold text-gray-600 uppercase tracking-wider"
+            v-for="(iface, index) in model.networkInterfaces"
+            :key="iface.id || index"
+            class="p-4 bg-gray-50 rounded-lg border border-gray-100 relative group"
           >
-            <div class="col-span-5">接続ネットワーク</div>
-            <div class="col-span-6">IPアドレス (任意)</div>
-            <div class="col-span-1 text-center">削除</div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
+              <FormSelect
+                label="接続ネットワーク"
+                :name="`net-id-${index}`"
+                v-model="iface.networkId"
+                :options="networkOptions"
+                placeholder="ネットワークを選択"
+              />
+
+              <FormInput
+                label="IPアドレス (任意)"
+                :name="`ip-${index}`"
+                v-model="iface.ipAddress"
+                placeholder="自動割り当て (空欄)"
+              />
+            </div>
+
+            <button
+              type="button"
+              @click="removeInterface(index)"
+              class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-200 transition-colors"
+              title="削除"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                class="w-5 h-5"
+              >
+                <path
+                  d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+                />
+              </svg>
+            </button>
           </div>
 
           <div
             v-if="
               !model.networkInterfaces || model.networkInterfaces.length === 0
             "
-            class="p-6 text-center text-gray-400 text-sm"
+            class="text-center text-gray-400 py-8 border-2 border-dashed rounded-lg"
           >
-            インターフェースが設定されていません。
-          </div>
-
-          <div v-else class="divide-y divide-gray-100">
-            <div
-              v-for="(iface, index) in model.networkInterfaces"
-              :key="index"
-              class="grid grid-cols-12 gap-4 px-4 py-3 items-start"
-            >
-              <div class="col-span-5">
-                <FormSelect
-                  :name="`network-${index}`"
-                  v-model="iface.networkId"
-                  :options="networkOptions"
-                  placeholder="ネットワークを選択"
-                  required
-                  class="w-full"
-                />
-              </div>
-
-              <div class="col-span-6">
-                <FormInput
-                  :name="`ip-${index}`"
-                  v-model="iface.ipAddress"
-                  placeholder="自動割り当て (例: 192.168.1.10)"
-                  class="w-full"
-                />
-              </div>
-
-              <div class="col-span-1 flex justify-center mt-2">
-                <button
-                  type="button"
-                  @click="removeInterface(index)"
-                  class="text-gray-400 hover:text-red-500 transition-colors"
-                  title="削除"
-                >
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    class="w-5 h-5"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M8.75 1A2.75 2.75 0 006 3.75v.443c-.795.077-1.584.176-2.365.298a.75.75 0 10.23 1.482l.149-.022.841 10.518A2.75 2.75 0 007.596 19h4.807a2.75 2.75 0 002.742-2.53l.841-10.52.149.023a.75.75 0 00.23-1.482A41.03 41.03 0 0014 4.193V3.75A2.75 2.75 0 0011.25 1h-2.5zM10 4c.84 0 1.673.025 2.5.075V3.75c0-.69-.56-1.25-1.25-1.25h-2.5c-.69 0-1.25.56-1.25 1.25v.325C8.327 4.025 9.16 4 10 4zM8.58 7.72a.75.75 0 00-1.5.06l.3 7.5a.75.75 0 101.5-.06l-.3-7.5zm4.34.06a.75.75 0 10-1.5-.06l-.3 7.5a.75.75 0 001.5.06l.3-7.5z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </button>
-              </div>
-            </div>
+            インターフェースがありません
           </div>
         </div>
       </section>
@@ -126,90 +103,64 @@
             <path
               stroke-linecap="round"
               stroke-linejoin="round"
-              d="M9 12.75 11.25 15 15 9.75M21 12c0 1.268-.63 2.39-1.593 3.068a3.745 3.745 0 0 1-1.043 3.296 3.745 3.745 0 0 1-3.296 1.043A3.745 3.745 0 0 1 12 21c-1.268 0-2.39-.63-3.068-1.593a3.746 3.746 0 0 1-3.296-1.043 3.745 3.745 0 0 1-1.043-3.296A3.745 3.745 0 0 1 3 12c0-1.268.63-2.39 1.593-3.068a3.745 3.745 0 0 1 1.043-3.296 3.746 3.746 0 0 1 3.296-1.043A3.746 3.746 0 0 1 12 3c1.268 0 2.39.63 3.068 1.593a3.746 3.746 0 0 1 3.296 1.043 3.746 3.746 0 0 1 1.043 3.296A3.745 3.745 0 0 1 21 12Z"
+              d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
             />
           </svg>
           セキュリティグループ
         </h3>
 
-        <div
-          class="flex gap-2 mb-4 items-end bg-gray-50 p-3 rounded border border-gray-100"
-        >
-          <div class="flex-1">
-            <FormSelect
-              name="sg-select"
-              label="セキュリティグループを追加"
-              v-model="selectedSgId"
-              :options="availableSecurityGroups"
-              placeholder="グループを選択してください"
-              class="w-full"
-            />
-          </div>
+        <div class="flex gap-2 mb-4">
+          <FormSelect
+            name="sg-select"
+            v-model="selectedSgId"
+            :options="availableSgOptions"
+            placeholder="セキュリティグループを追加..."
+            class="w-64"
+          />
           <button
             type="button"
             @click="addSecurityGroup"
             :disabled="!selectedSgId"
-            class="btn btn-secondary h-[42px] px-4"
+            class="px-4 py-2 bg-primary text-white text-sm font-medium rounded hover:bg-primary-dark disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             追加
           </button>
         </div>
 
-        <div class="border rounded-md overflow-hidden bg-white shadow-sm">
+        <div class="flex flex-wrap gap-2">
+          <div
+            v-for="(sg, index) in model.securityGroups"
+            :key="sg.id"
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100"
+          >
+            {{ sg.name }}
+            <button
+              type="button"
+              @click="removeSecurityGroup(index)"
+              class="ml-2 inline-flex items-center justify-center w-4 h-4 rounded-full text-blue-400 hover:bg-blue-200 hover:text-blue-800 transition-colors"
+            >
+              <span class="sr-only">削除</span>
+              <svg
+                class="h-3 w-3"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
           <div
             v-if="!model.securityGroups || model.securityGroups.length === 0"
-            class="p-6 text-center text-gray-400 text-sm"
+            class="text-sm text-gray-400 py-1"
           >
-            セキュリティグループが割り当てられていません。
-          </div>
-
-          <div v-else class="divide-y divide-gray-100">
-            <div
-              v-for="(sg, index) in model.securityGroups"
-              :key="sg.id || index"
-              class="flex justify-between items-center px-4 py-3 hover:bg-gray-50 transition-colors"
-            >
-              <div class="flex items-center gap-3">
-                <div class="bg-blue-100 text-blue-600 p-1.5 rounded">
-                  <svg
-                    xmlns="http://www.w3.org/2000/svg"
-                    viewBox="0 0 20 20"
-                    fill="currentColor"
-                    class="w-4 h-4"
-                  >
-                    <path
-                      fill-rule="evenodd"
-                      d="M10 2a.75.75 0 01.75.75v12.59l1.95-2.1a.75.75 0 111.1 1.02l-3.25 3.5a.75.75 0 01-1.1 0l-3.25-3.5a.75.75 0 111.1-1.02l1.95 2.1V2.75A.75.75 0 0110 2z"
-                      clip-rule="evenodd"
-                    />
-                  </svg>
-                </div>
-                <div>
-                  <div class="text-sm font-medium text-gray-900">
-                    {{ sg.name || "Unknown Group" }}
-                  </div>
-                  <div class="text-xs text-gray-500 font-mono">{{ sg.id }}</div>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                @click="removeSecurityGroup(index)"
-                class="text-gray-400 hover:text-red-500 transition-colors p-1"
-                title="解除"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  viewBox="0 0 20 20"
-                  fill="currentColor"
-                  class="w-5 h-5"
-                >
-                  <path
-                    d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
-                  />
-                </svg>
-              </button>
-            </div>
+            割り当てなし
           </div>
         </div>
       </section>
@@ -218,42 +169,28 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from "vue";
-import FormSelect from "~/components/Form/Select.vue";
+import { ref, computed } from "vue";
 import FormInput from "~/components/Form/Input.vue";
+import FormSelect from "~/components/Form/Select.vue";
+import { useResourceList } from "~/composables/useResourceList";
 
-// 親コンポーネントからのモデルバインディング
+// 親コンポーネントからのモデル受け取り
 const model = defineModel<any>({ required: true });
 
 // ----------------------------------------------------------------------------
-// マスターデータ (実際にはAPIから取得)
+// Network Data Fetching
 // ----------------------------------------------------------------------------
-const networkOptions = ref<any[]>([]);
-const allSecurityGroups = ref<any[]>([]);
+const { data: networkMaster, pending: networksPending } =
+  useResourceList<NetworkInterfaceResponse>("networks");
+const { data: securityGroupMaster } =
+  useResourceList<SecurityGroupResponse>("security-groups");
 
-onMounted(async () => {
-  try {
-    // TODO: 実際のAPIエンドポイントに合わせて実装してください
-    // const [nets, sgs] = await Promise.all([
-    //   $fetch('/api/networks'),
-    //   $fetch('/api/security-groups')
-    // ]);
-
-    // 仮のモックデータ
-    networkOptions.value = [
-      { id: "net-default", name: "Default Network (192.168.1.0/24)" },
-      { id: "net-dmz", name: "DMZ Network (10.0.0.0/24)" },
-    ];
-
-    allSecurityGroups.value = [
-      { id: "sg-web", name: "Web Server (HTTP/HTTPS)" },
-      { id: "sg-db", name: "Database (PostgreSQL)" },
-      { id: "sg-ssh", name: "Maintenance (SSH)" },
-      { id: "sg-internal", name: "Internal Only" },
-    ];
-  } catch (e) {
-    console.error("Failed to load master data", e);
-  }
+// Select用オプション作成
+const networkOptions = computed(() => {
+  return (networkMaster.value || []).map((net) => ({
+    id: net.id,
+    name: `${net.name} (${net.subnet})`,
+  }));
 });
 
 // ----------------------------------------------------------------------------
@@ -261,18 +198,21 @@ onMounted(async () => {
 // ----------------------------------------------------------------------------
 
 const addInterface = () => {
-  if (!model.value.networkInterfaces) {
+  if (!model.value) return;
+  if (!Array.isArray(model.value.networkInterfaces)) {
     model.value.networkInterfaces = [];
   }
 
   model.value.networkInterfaces.push({
-    // 新規作成時はIDなしか、一時IDを付与するかはAPI仕様によります
+    // ★重要: useResourceUpdater の "newIdPrefix" ("new-") に合わせたIDを付与
+    id: `new-${Date.now()}`,
     networkId: "",
     ipAddress: "",
   });
 };
 
 const removeInterface = (index: number) => {
+  if (!model.value?.networkInterfaces) return;
   model.value.networkInterfaces.splice(index, 1);
 };
 
@@ -283,30 +223,38 @@ const removeInterface = (index: number) => {
 const selectedSgId = ref<string>("");
 
 // 追加可能なSGリスト（既に割り当て済みのものは除外）
-const availableSecurityGroups = computed(() => {
+const availableSgOptions = computed(() => {
   const currentIds = new Set(
-    (model.value.securityGroups || []).map((sg: any) => sg.id)
+    (model.value?.securityGroups || []).map((sg: any) => sg.id)
   );
-  return allSecurityGroups.value.filter((sg) => !currentIds.has(sg.id));
+
+  return (securityGroupMaster.value || [])
+    .filter((sg) => !currentIds.has(sg.id))
+    .map((sg) => ({
+      id: sg.id,
+      name: sg.name,
+    }));
 });
 
 const addSecurityGroup = () => {
-  if (!selectedSgId.value) return;
+  if (!selectedSgId.value || !model.value) return;
 
-  const sgToAdd = allSecurityGroups.value.find(
+  const sgToAdd = securityGroupMaster.value?.find(
     (sg) => sg.id === selectedSgId.value
   );
+
   if (sgToAdd) {
-    if (!model.value.securityGroups) {
+    if (!Array.isArray(model.value.securityGroups)) {
       model.value.securityGroups = [];
     }
-    // Bulk更新のため、リストにオブジェクトごと追加します
-    model.value.securityGroups.push({ ...sgToAdd });
-    selectedSgId.value = ""; // 選択リセット
+    // セキュリティグループは既存リソースの紐付けなので、一時IDは不要でそのままpush
+    model.value.securityGroups.push(sgToAdd);
+    selectedSgId.value = ""; // リセット
   }
 };
 
 const removeSecurityGroup = (index: number) => {
+  if (!model.value?.securityGroups) return;
   model.value.securityGroups.splice(index, 1);
 };
 </script>
