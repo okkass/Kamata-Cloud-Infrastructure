@@ -1,4 +1,4 @@
 type: object
-description: 仮想マシンにアタッチされたストレージの更新リクエストオブジェクト
+description: 仮想マシンにアタッチされたストレージの部分更新リクエストオブジェクト
 allOf:
   - $ref: "./StorageUpdatable.yml"
