@@ -43,7 +43,7 @@ export const useInstanceTypeEditForm = () => {
     // [推奨]: endpoint を設定し、データ変換は行わない (Bytesのまま扱う)
     const config: ResourceConfig = {
       base: {
-        endpoint: `/api/instance-types/${data.id}`,
+        endpoint: `instance-types/${data.id}`,
         fields: ["name", "cpuCore", "memorySize"],
       },
     };
