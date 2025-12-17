@@ -1,10 +1,11 @@
-import { getResourceList } from "@/utils/serviceResultHandler";
+import { deleteResource } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
 import { getInstanceTypeService } from "@/service/InstanceTypeService";
 
 export default defineEventHandler((event) => {
   const permission = getPermissionFromEvent(event);
   const service = getInstanceTypeService(permission);
+  const { id } = event.context.params as { id: string };
 
-  return getResourceList(service.list);
+  return deleteResource(id, service.delete);
 });
