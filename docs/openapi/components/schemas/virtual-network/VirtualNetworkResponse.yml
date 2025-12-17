@@ -20,13 +20,11 @@ properties:
     type: array
     items:
       $ref: "./SubnetResponse.yml"
-  owner:
-    description: 仮想ネットワークの所有者情報(scope=allのときのみ)
-    $ref: "../user/UserResponse.yml"
 required:
   - id
   - name
   - cidr
+  - subnets
   - createdAt
   - inboundTraffic
   - outboundTraffic

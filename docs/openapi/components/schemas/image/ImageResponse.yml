@@ -20,11 +20,11 @@ properties:
     format: integer
     description: 仮想マシンイメージのサイズ(バイト単位)
   node:
-    description: 仮想マシンイメージが存在するノードの情報
     $ref: "../node/NodeResponse.yml"
+    description: 仮想マシンイメージが関連付けられているノードの情報
 required:
   - id
   - name
   - createdAt
   - size
-  - node
+  - nodeId

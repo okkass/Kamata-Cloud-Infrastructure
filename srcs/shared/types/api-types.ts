@@ -1388,117 +1388,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/portfolios": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * ポートフォリオ一覧の取得
-         * @description すべてのポートフォリオのリストを取得します。
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description 成功 */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PortfolioResponse"][];
-                    };
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * ポートフォリオの作成
-         * @description 新しいポートフォリオを作成します。
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["PortfolioCreateRequest"];
-                };
-            };
-            responses: {
-                /** @description 作成成功 */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PortfolioResponse"];
-                    };
-                };
-                /** @description リクエストエラー */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/security-groups": {
         parameters: {
             query?: never;
@@ -5376,7 +5265,7 @@ export interface paths {
                          * Format: uuid
                          * @description 追加するセキュリティグループの一意なID
                          */
-                        securityGroupId?: string;
+                        securityGroupId: string;
                     };
                 };
             };
@@ -6090,7 +5979,66 @@ export interface paths {
                 };
             };
         };
-        put?: never;
+        /**
+         * 仮想マシンのストレージ編集
+         * @description 指定したIDの仮想マシンに関連付けられたストレージを編集します。
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                    /** @description ストレージの一意なID */
+                    storageId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StoragePutRequest"];
+                };
+            };
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StorageResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         post?: never;
         /**
          * 仮想マシンのストレージ割り当て解除
@@ -6385,7 +6333,73 @@ export interface paths {
                 };
             };
         };
-        put?: never;
+        /**
+         * 仮想ネットワークの更新
+         * @description 指定したIDの仮想ネットワーク情報を完全に更新します。
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想ネットワークの一意なID */
+                    networkId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["VirtualNetworkPutRequest"];
+                };
+            };
+            responses: {
+                /** @description 更新成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["VirtualNetworkResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想ネットワークが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         post?: never;
         /**
          * 仮想ネットワークの削除
@@ -7116,8 +7130,8 @@ export interface components {
              * @description 仮想マシンイメージのサイズ(バイト単位)
              */
             size: number;
-            /** @description 仮想マシンイメージが存在するノードの情報 */
-            node: components["schemas"]["NodeResponse"];
+            /** @description 仮想マシンイメージが関連付けられているノードの情報 */
+            node?: components["schemas"]["NodeResponse"];
         };
         /** @description 仮想マシンイメージのうち更新可能な情報を表すスキーマ */
         ImageClientUpdatable: {
@@ -7139,11 +7153,6 @@ export interface components {
              * @description イメージを作成するノードのID
              */
             nodeId: string;
-            /**
-             * Format: binary
-             * @description アップロードするイメージファイル
-             */
-            file: string;
         };
         /** @description 仮想マシンイメージ作成リクエストオブジェクト */
         ImageCreateRequest: WithRequired<components["schemas"]["ImageClientUpdatable"], "name"> & components["schemas"]["ImageCreateOnly"];
@@ -7265,38 +7274,6 @@ export interface components {
              */
             size: number;
         };
-        /** @description ポートフォリオレスポンスオブジェクト */
-        PortfolioResponse: {
-            /**
-             * Format: uuid
-             * @description ポートフォリオを識別するための一意なID
-             */
-            id: string;
-            /** @description ポートフォリオのタイトル */
-            title: string;
-            /**
-             * Format: date-time
-             * @description ポートフォリオの作成日時
-             */
-            createdAt: string;
-            /**
-             * Format: integer
-             * @description 過去24時間のビュー数
-             */
-            viewCount24Hour: number;
-            /**
-             * Format: integer
-             * @description 過去7日間のビュー数
-             */
-            viewCount7Day: number;
-        };
-        /** @description ポートフォリオ更新可能オブジェクト */
-        PortfolioUpdatable: {
-            /** @description ポートフォリオのタイトル */
-            title?: string;
-        };
-        /** @description ポートフォリオ作成リクエストオブジェクト */
-        PortfolioCreateRequest: WithRequired<components["schemas"]["PortfolioUpdatable"], "title">;
         /** @description セキュリティルールレスポンスオブジェクト */
         SecurityRuleResponse: {
             /**
@@ -7338,86 +7315,6 @@ export interface components {
              */
             createdAt: string;
         };
-        /** @description TOTP情報オブジェクト */
-        TotpInfo: {
-            /** @description TOTPシークレットキー */
-            secret: string;
-            /** @description TOTP URI（QRコード生成用） */
-            uri: string;
-        };
-        /** @description ユーザレスポンスオブジェクト */
-        UserResponse: {
-            /**
-             * Format: uuid
-             * @description ユーザを識別するための一意なID
-             */
-            id: string;
-            /** @description ユーザの名前 */
-            name: string;
-            /**
-             * Format: email
-             * @description ユーザのメールアドレス
-             */
-            email: string;
-            /**
-             * Format: date-time
-             * @description ユーザが作成された日時
-             */
-            createdAt: string;
-            /** @description ユーザが管理者かどうかを示すフラグ */
-            isAdmin: boolean;
-            /**
-             * Format: date-time
-             * @description ユーザが最後にログインした日時
-             */
-            lastLoginAt: string;
-            /**
-             * @description ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
-             * @example 32
-             */
-            maxCpuCore?: number | null;
-            /**
-             * @description ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
-             * @example 17179869184
-             */
-            maxMemorySize?: number | null;
-            /**
-             * @description ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
-             * @example 1099511627776
-             */
-            maxStorageSize?: number | null;
-            totpInfo?: components["schemas"]["TotpInfo"];
-            /**
-             * @description ユーザがイメージ管理者かどうかを示すフラグ
-             * @example false
-             */
-            isImageAdmin: boolean;
-            /**
-             * @description ユーザがインスタンスタイプ管理者かどうかを示すフラグ
-             * @example false
-             */
-            isInstanceTypeAdmin: boolean;
-            /**
-             * @description ユーザが物理ノード管理者かどうかを示すフラグ
-             * @example false
-             */
-            isNodeAdmin: boolean;
-            /**
-             * @description ユーザが仮想マシン管理者かどうかを示すフラグ
-             * @example false
-             */
-            isVirtualMachineAdmin: boolean;
-            /**
-             * @description ユーザがネットワーク管理者かどうかを示すフラグ
-             * @example false
-             */
-            isNetworkAdmin: boolean;
-            /**
-             * @description ユーザがセキュリティグループ管理者かどうかを示すフラグ
-             * @example false
-             */
-            isSecurityGroupAdmin: boolean;
-        };
         /** @description セキュリティグループレスポンスオブジェクト */
         SecurityGroupResponse: {
             /**
@@ -7435,8 +7332,6 @@ export interface components {
              * @description セキュリティグループが作成された日時
              */
             createdAt: string;
-            /** @description セキュリティグループの所有者情報(scope=allのときのみ) */
-            owner?: components["schemas"]["UserResponse"];
         };
         /** @description セキュリティグループ更新可能なプロパティ */
         SecurityGroupUpdatable: {
@@ -7508,7 +7403,7 @@ export interface components {
                 data: components["schemas"]["SecurityRuleUpdatable"];
             }[];
             /** @description 削除するセキュリティルールのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description セキュリティルール更新リクエストオブジェクト(PUT) */
         SecurityRulePutRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
@@ -7674,6 +7569,86 @@ export interface components {
         /** @description ノード/各VMのメトリクスデータ */
         SummaryResponse: {
             clusterSummary: components["schemas"]["Summary"];
+        };
+        /** @description TOTP情報オブジェクト */
+        TotpInfo: {
+            /** @description TOTPシークレットキー */
+            secret: string;
+            /** @description TOTP URI（QRコード生成用） */
+            uri: string;
+        };
+        /** @description ユーザレスポンスオブジェクト */
+        UserResponse: {
+            /**
+             * Format: uuid
+             * @description ユーザを識別するための一意なID
+             */
+            id: string;
+            /** @description ユーザの名前 */
+            name: string;
+            /**
+             * Format: email
+             * @description ユーザのメールアドレス
+             */
+            email: string;
+            /**
+             * Format: date-time
+             * @description ユーザが作成された日時
+             */
+            createdAt: string;
+            /** @description ユーザが管理者かどうかを示すフラグ */
+            isAdmin: boolean;
+            /**
+             * Format: date-time
+             * @description ユーザが最後にログインした日時
+             */
+            lastLoginAt: string;
+            /**
+             * @description ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
+             * @example 32
+             */
+            maxCpuCore?: number | null;
+            /**
+             * @description ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
+             * @example 17179869184
+             */
+            maxMemorySize?: number | null;
+            /**
+             * @description ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
+             * @example 1099511627776
+             */
+            maxStorageSize?: number | null;
+            totpInfo?: components["schemas"]["TotpInfo"];
+            /**
+             * @description ユーザがイメージ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isImageAdmin: boolean;
+            /**
+             * @description ユーザがインスタンスタイプ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isInstanceTypeAdmin: boolean;
+            /**
+             * @description ユーザが物理ノード管理者かどうかを示すフラグ
+             * @example false
+             */
+            isNodeAdmin: boolean;
+            /**
+             * @description ユーザが仮想マシン管理者かどうかを示すフラグ
+             * @example false
+             */
+            isVirtualMachineAdmin: boolean;
+            /**
+             * @description ユーザがネットワーク管理者かどうかを示すフラグ
+             * @example false
+             */
+            isNetworkAdmin: boolean;
+            /**
+             * @description ユーザがセキュリティグループ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isSecurityGroupAdmin: boolean;
         };
         /** @description ユーザ作成時のみに設定可能なプロパティ */
         UserCreateOnly: {
@@ -7869,8 +7844,6 @@ export interface components {
             cpuCore: number;
             /** @description 仮想マシンに割り当てられたメモリサイズ（バイト単位） */
             memorySize: number;
-            /** @description 仮想マシンの所有者情報(scope=allのときのみ) */
-            owner?: components["schemas"]["UserResponse"];
         };
         /** @description バックアップレスポンスオブジェクト */
         BackupResponse: {
@@ -8062,7 +8035,7 @@ export interface components {
                 data: components["schemas"]["NetworkInterfaceUpdatable"];
             }[];
             /** @description 削除するネットワークインターフェースのIDリスト */
-            delete?: string[];
+            remove?: string[];
         } | unknown | unknown | unknown;
         /** @description ネットワークインターフェース更新リクエストオブジェクト */
         NetworkInterfacePutRequest: WithRequired<components["schemas"]["NetworkInterfaceUpdatable"], "name" | "subnetId">;
@@ -8079,7 +8052,7 @@ export interface components {
                 id?: string;
             }[];
             /** @description 削除するセキュリティグループのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description 仮想マシンのストレージの更新可能プロパティを表すオブジェクト */
         StorageUpdatable: {
@@ -8117,9 +8090,11 @@ export interface components {
                 data: components["schemas"]["StorageUpdatable"];
             }[];
             /** @description 削除する仮想ストレージのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description 仮想マシンにアタッチされたストレージの更新リクエストオブジェクト */
+        StoragePutRequest: WithRequired<components["schemas"]["StorageUpdatable"], "name">;
+        /** @description 仮想マシンにアタッチされたストレージの部分更新リクエストオブジェクト */
         StoragePatchRequest: components["schemas"]["StorageUpdatable"];
         /** @description 仮想ネットワークオブジェクト */
         VirtualNetworkResponse: {
@@ -8140,9 +8115,7 @@ export interface components {
              * @description 仮想ネットワークが作成された日時
              */
             createdAt: string;
-            subnets?: components["schemas"]["SubnetResponse"][];
-            /** @description 仮想ネットワークの所有者情報(scope=allのときのみ) */
-            owner?: components["schemas"]["UserResponse"];
+            subnets: components["schemas"]["SubnetResponse"][];
         };
         /** @description 仮想ネットワークの更新可能なプロパティ */
         VirtualNetworkUpdatable: {
@@ -8174,6 +8147,8 @@ export interface components {
         /** @description 仮想ネットワーク作成リクエストオブジェクト */
         VirtualNetworkCreateRequest: WithRequired<components["schemas"]["VirtualNetworkUpdatable"], "name"> & components["schemas"]["VirtualNetworkCreateOnly"];
         /** @description 仮想ネットワーク更新リクエストオブジェクト */
+        VirtualNetworkPutRequest: WithRequired<components["schemas"]["VirtualNetworkUpdatable"], "name">;
+        /** @description 仮想ネットワーク更新リクエストオブジェクト */
         VirtualNetworkPatchRequest: components["schemas"]["VirtualNetworkUpdatable"];
         /** @description サブネットバルク更新リクエスト */
         SubnetBulkRequest: {
@@ -8189,7 +8164,7 @@ export interface components {
                 data: components["schemas"]["SubnetUpdatable"];
             }[];
             /** @description 削除するサブネットのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description サブネット全部更新リクエストオブジェクト */
         SubnetPutRequest: WithRequired<components["schemas"]["SubnetUpdatable"], "name" | "cidr">;
@@ -8223,12 +8198,7 @@ export type NodeCandidateResponse = components['schemas']['NodeCandidateResponse
 export type NodePutRequest = components['schemas']['NodePutRequest'];
 export type NodePatchRequest = components['schemas']['NodePatchRequest'];
 export type DeviceResponse = components['schemas']['DeviceResponse'];
-export type PortfolioResponse = components['schemas']['PortfolioResponse'];
-export type PortfolioUpdatable = components['schemas']['PortfolioUpdatable'];
-export type PortfolioCreateRequest = components['schemas']['PortfolioCreateRequest'];
 export type SecurityRuleResponse = components['schemas']['SecurityRuleResponse'];
-export type TotpInfo = components['schemas']['TotpInfo'];
-export type UserResponse = components['schemas']['UserResponse'];
 export type SecurityGroupResponse = components['schemas']['SecurityGroupResponse'];
 export type SecurityGroupUpdatable = components['schemas']['SecurityGroupUpdatable'];
 export type SecurityRuleUpdatable = components['schemas']['SecurityRuleUpdatable'];
@@ -8251,6 +8221,8 @@ export type HistoryData = components['schemas']['HistoryData'];
 export type SummaryHistoryResponse = components['schemas']['SummaryHistoryResponse'];
 export type Summary = components['schemas']['Summary'];
 export type SummaryResponse = components['schemas']['SummaryResponse'];
+export type TotpInfo = components['schemas']['TotpInfo'];
+export type UserResponse = components['schemas']['UserResponse'];
 export type UserCreateOnly = components['schemas']['UserCreateOnly'];
 export type UserUpdatable = components['schemas']['UserUpdatable'];
 export type UserCreateRequest = components['schemas']['UserCreateRequest'];
@@ -8290,6 +8262,7 @@ export type StorageUpdatable = components['schemas']['StorageUpdatable'];
 export type StorageCreateOnly = components['schemas']['StorageCreateOnly'];
 export type StorageCreateRequest = components['schemas']['StorageCreateRequest'];
 export type StorageBulkRequest = components['schemas']['StorageBulkRequest'];
+export type StoragePutRequest = components['schemas']['StoragePutRequest'];
 export type StoragePatchRequest = components['schemas']['StoragePatchRequest'];
 export type VirtualNetworkResponse = components['schemas']['VirtualNetworkResponse'];
 export type VirtualNetworkUpdatable = components['schemas']['VirtualNetworkUpdatable'];
@@ -8297,6 +8270,7 @@ export type SubnetUpdatable = components['schemas']['SubnetUpdatable'];
 export type SubnetCreateRequest = components['schemas']['SubnetCreateRequest'];
 export type VirtualNetworkCreateOnly = components['schemas']['VirtualNetworkCreateOnly'];
 export type VirtualNetworkCreateRequest = components['schemas']['VirtualNetworkCreateRequest'];
+export type VirtualNetworkPutRequest = components['schemas']['VirtualNetworkPutRequest'];
 export type VirtualNetworkPatchRequest = components['schemas']['VirtualNetworkPatchRequest'];
 export type SubnetBulkRequest = components['schemas']['SubnetBulkRequest'];
 export type SubnetPutRequest = components['schemas']['SubnetPutRequest'];

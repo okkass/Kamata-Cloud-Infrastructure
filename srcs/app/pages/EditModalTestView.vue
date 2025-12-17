@@ -341,6 +341,7 @@ import MoUserEdit from "~/components/MoUserEdit.vue";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 import MoBackupRestore from "~/components/MoBackupRestore.vue";
 import MoStorageEdit from "~/components/MoStorageEdit.vue";
+import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
 
 const { isRestorable } = useBackupValidator();
 
@@ -406,6 +407,14 @@ const {
   refresh: refreshBackups,
 } = useResourceList<BackupResponse>("backups");
 
+// 9. 仮想ネットワーク
+const {
+  data: networks,
+  pending: netPending,
+  error: netError,
+  refresh: refreshNetworks,
+} = useResourceList<VirtualNetworkResponse>("virtual-networks");
+
 // --- モーダル定義 ---
 const editModals = computed(() => [
   {
@@ -417,7 +426,6 @@ const editModals = computed(() => [
   {
     id: "backupRestore",
     component: markRaw(MoBackupRestore),
-    // 復元モーダルには backupData としてデータを渡す
     props: { backupData: targetResource.value },
     refreshFn: refreshVms,
   },
@@ -457,6 +465,12 @@ const editModals = computed(() => [
     props: { storageData: targetResource.value },
     refreshFn: refreshStoragePools,
   },
+  {
+    id: "networkEdit",
+    component: markRaw(MoVirtualNetworkEdit),
+    props: { networkData: targetResource.value },
+    refreshFn: refreshNetworks,
+  },
 ]);
 
 // --- Methods ---
@@ -492,4 +506,6 @@ const openSecurityGroupEditModal = (sg: SecurityGroupResponse) =>
   openModal("securityGroupEdit", sg);
 const openStorageEditModal = (sp: StoragePoolResponse) =>
   openModal("storageEdit", sp);
+const openVirtualNetworkEditModal = (net: VirtualNetworkResponse) =>
+  openModal("networkEdit", net);
 </script>
