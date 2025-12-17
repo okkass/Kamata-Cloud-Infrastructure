@@ -84,12 +84,12 @@
 
 <script setup lang="ts">
 import { watch, type PropType } from "vue";
-import { useVirtualMachineEditForm } from "~/composables/modal/useVirtualMachineEditForm";
+import { useVirtualMachineEditForm } from "~/composables/modal/useVirtualMachineEdit";
 
 // 子コンポーネントのインポート (作成後にコメントアウトを解除してください)
-import TabGeneral from "./VirtualMachine/TabGeneral.vue";
-import TabConfig from "./VirtualMachine/TabConfig.vue";
-// import TabNetwork from "./VirtualMachine/TabNetwork.vue";
+import TabGeneral from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabGeneral.vue";
+import TabConfig from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabConfig.vue";
+import TabNetwork from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabNetwork.vue";
 
 const props = defineProps({
   show: { type: Boolean, required: true },
