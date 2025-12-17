@@ -1,13 +1,22 @@
 import { z } from "zod";
 
-export const BackupCreateSchema = z.object({
+export const backupCreateSchema = z.object({
   targetVirtualMachineId: z.uuid(),
   targetStorageId: z.uuid(),
   name: z.string(),
   description: z.string().optional(),
 });
 
-export const BackupPutSchema = z.object({
+export const backupUpdateSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
+});
+
+export const backupPartialUpdateSchema = z.object({
+  name: z.string().optional(),
+  description: z.string().optional(),
+});
+
+export const backupDeleteSchema = z.object({
+  backupId: z.uuid(),
 });
