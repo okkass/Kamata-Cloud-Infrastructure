@@ -18,7 +18,7 @@ export const createSecurityGroupRuleSchema = z.object({
     name: z.string(),
     ruleType: z.union([z.literal('inbound'), z.literal('outbound')]),
     port: z.number().nullable(),
-    protocol: z.string(),
+    protocol: z.union([z.literal('tcp'), z.literal('udp'), z.literal('icmp'), z.literal('any')]),
     targetIp: z.ipv4(),
     action: z.union([z.literal('allow'), z.literal('deny')]),
 });
@@ -27,7 +27,7 @@ export const updateSecurityGroupRuleSchema = z.object({
     name: z.string(),
     ruleType: z.union([z.literal('inbound'), z.literal('outbound')]),
     port: z.number().nullable(),
-    protocol: z.string(),
+    protocol: z.union([z.literal('tcp'), z.literal('udp'), z.literal('icmp'), z.literal('any')]),
     targetIp: z.ipv4(),
     action: z.union([z.literal('allow'), z.literal('deny')]),
 });
@@ -36,7 +36,7 @@ export const partialUpdateSecurityGroupRuleSchema = z.object({
     name: z.string().optional(),
     ruleType: z.union([z.literal('inbound'), z.literal('outbound')]).optional(),
     port: z.number().optional(),
-    protocol: z.string().optional(),
+    protocol: z.union([z.literal('tcp'), z.literal('udp'), z.literal('icmp'), z.literal('any')]).optional(),
     targetIp: z.ipv4().optional(),
     action: z.union([z.literal('allow'), z.literal('deny')]).optional(),
 });

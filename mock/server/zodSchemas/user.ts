@@ -19,9 +19,9 @@ export const createUserSchema = z.object({
 export const updateUserSchema = z.object({
     name: z.string(),
     email: z.email(),
-    maxCpuCore: z.number().nullable().optional(),
-    maxMemorySize: z.number().nullable().optional(),
-    maxStorageSize: z.number().nullable().optional(),
+    maxCpuCore: z.number().nullable(),
+    maxMemorySize: z.number().nullable(),
+    maxStorageSize: z.number().nullable(),
     isAdmin: z.boolean(),
     isImageAdmin: z.boolean(),
     isInstanceTypeAdmin: z.boolean(),
