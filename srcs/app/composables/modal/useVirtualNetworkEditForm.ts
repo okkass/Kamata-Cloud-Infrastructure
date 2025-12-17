@@ -8,12 +8,12 @@ export const useVirtualNetworkEditForm = () => {
   const { addToast } = useToast();
 
   // Bulk対応版の useResourceUpdater を使用
-  const { 
-    editedData, 
-    isSaving, 
+  const {
+    editedData,
+    isSaving,
     errorMessage, // useResourceUpdater からエラーメッセージを取得
-    init, 
-    save: executeSave // 名前が衝突しないようにエイリアス
+    init,
+    save: executeSave, // 名前が衝突しないようにエイリアス
   } = useResourceUpdater<VirtualNetworkResponse>();
 
   // ID生成用
@@ -32,21 +32,22 @@ export const useVirtualNetworkEditForm = () => {
         // useApiClient は baseURL (/api/) を持っているため、そこからの相対パスを指定
         // ※ useResourceUpdater はデフォルトで PATCH を使用します。
         //   PUT が必須の場合は useResourceUpdater 側でメソッド指定できるように拡張が必要です。
-        endpoint: `virtual-networks/${resourceId}`, 
+        endpoint: `virtual-networks/${resourceId}`,
         fields: ["name"],
       },
       collections: {
         subnets: {
           // 個別更新用のエンドポイント (Bulk使用時は使われませんが一応定義)
-          endpoint: `virtual-networks/${resourceId}/subnets`, 
-          
+          endpoint: `virtual-networks/${resourceId}/subnets`,
+
           // ★★★ ここが重要: Bulk更新用のエンドポイントを指定 ★★★
           // これがあるため、自動的に { create:[], delete:[], patch:[] } の形式でPOSTされます
           bulkEndpoint: `virtual-networks/${resourceId}/subnets/bulk`,
-          
+
           idKey: "id",
           newIdPrefix: NEW_SUBNET_PREFIX,
           fields: ["name", "cidr"],
+          bulkKeys: { create: "create", update: "patch", delete: "remove" },
         },
       },
     };

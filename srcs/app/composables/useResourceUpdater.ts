@@ -10,6 +10,12 @@ export interface CollectionConfig {
   idKey: string;
   newIdPrefix: string;
   fields: string[];
+  bulkKeys?: {
+    create?: string;
+    update?: string;
+    delete?: string;
+  };
+  isAttachable?: boolean;
 }
 
 export interface ResourceConfig {
@@ -83,9 +89,21 @@ export function useResourceUpdater<T extends { id: string }>() {
         // Added
         editedList.forEach((item) => {
           const id = item[collConfig.idKey];
-          if (String(id).startsWith(collConfig.newIdPrefix)) {
+          const isNew = String(id).startsWith(collConfig.newIdPrefix);
+          
+          if (isNew) {
             const { [collConfig.idKey]: _, ...payload } = item;
             added.push(payload);
+          } else if (collConfig.isAttachable) {
+            // 既存リソースの紐付け (例: SecurityGroup)
+            // originalList に存在しない場合は追加とみなす
+            const exists = originalList.some((o) => o[collConfig.idKey] === id);
+            if (!exists) {
+              // Attachの場合は ID のみを送るケースが多いが、
+              // 必要に応じて payload 全体を含めることも検討。
+              // ここでは { id: ... } の形式で送ることを想定。
+              added.push({ [collConfig.idKey]: id });
+            }
           }
         });
 
@@ -160,14 +178,21 @@ export function useResourceUpdater<T extends { id: string }>() {
 
         // ★ BulkEndpoint が設定されている場合: 一括送信
         if (collConfig.bulkEndpoint) {
-          const bulkPayload = {
-            create: cState.added,
-            delete: cState.removed,
-            patch: cState.updated.map((u) => ({
+          const keys = collConfig.bulkKeys || {
+            create: "create",
+            update: "patch",
+            delete: "delete",
+          };
+
+          const bulkPayload: any = {};
+          if (keys.create) bulkPayload[keys.create] = cState.added;
+          if (keys.delete) bulkPayload[keys.delete] = cState.removed;
+          if (keys.update) {
+            bulkPayload[keys.update] = cState.updated.map((u) => ({
               id: u.id,
               data: u.payload, // サーバー側の期待するキー名に合わせる (ここでは 'data')
-            })),
-          };
+            }));
+          }
 
           apiRequests.push(client.post(collConfig.bulkEndpoint, bulkPayload));
         }

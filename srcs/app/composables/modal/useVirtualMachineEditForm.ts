@@ -56,6 +56,7 @@ export const useVirtualMachineEditForm = () => {
           idKey: "id",
           newIdPrefix: "new-", // UI側で新規作成時に "new-xxx" というIDを振る必要があります
           fields: ["name", "size", "poolId", "type"],
+          bulkKeys: { create: "add", update: "patch", delete: "remove" },
         },
         networkInterfaces: {
           endpoint: "",
@@ -63,13 +64,16 @@ export const useVirtualMachineEditForm = () => {
           idKey: "id", // ネットワークIF自体がIDを持つ前提
           newIdPrefix: "new-",
           fields: ["networkId", "ipAddress"],
+          bulkKeys: { create: "add", update: "patch", delete: "remove" },
         },
         securityGroups: {
           endpoint: "",
           bulkEndpoint: `virtual-machines/${id}/security-groups/bulk`,
           idKey: "id",
           newIdPrefix: "new-",
-          fields: ["name"], // SGはIDの紐付けのみであればフィールド監視は最小限でOK
+          fields: [], // SGはIDの紐付けのみなのでフィールド監視は不要
+          bulkKeys: { create: "add", delete: "remove" },
+          isAttachable: true,
         },
       },
     };
