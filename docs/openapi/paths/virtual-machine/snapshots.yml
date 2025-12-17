@@ -2,7 +2,7 @@ get:
   summary: スナップショット一覧の取得
   description: すべてのスナップショットのリストを取得します。
   tags:
-    - VirtualMachine
+    - Snapshot
   parameters:
     - name: scope
       in: query
@@ -40,7 +40,7 @@ post:
   summary: スナップショットの作成
   description: 新しいスナップショットを作成します。
   tags:
-    - VirtualMachine
+    - Snapshot
   requestBody:
     required: true
     content:
@@ -78,7 +78,7 @@ delete:
   summary: スナップショットの削除
   description: 指定したIDのスナップショットを削除します。
   tags:
-    - VirtualMachine
+    - Snapshot
   parameters:
     - name: snapshotId
       in: query

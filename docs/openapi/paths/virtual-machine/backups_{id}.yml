@@ -2,7 +2,7 @@ get:
   summary: バックアップの詳細取得
   description: 指定したIDのバックアップの詳細情報を取得します。
   tags:
-    - VirtualMachine
+    - Backup
   parameters:
     - name: id
       in: path
@@ -42,7 +42,7 @@ put:
   summary: バックアップの更新
   description: 指定したIDのバックアップ情報を更新します。
   tags:
-    - VirtualMachine
+    - Backup
   parameters:
     - name: id
       in: path
@@ -94,7 +94,7 @@ patch:
   summary: バックアップの部分更新
   description: 指定したIDのバックアップ情報を部分的に更新します。
   tags:
-    - VirtualMachine
+    - Backup
   parameters:
     - name: id
       in: path
@@ -146,7 +146,7 @@ delete:
   summary: バックアップの削除
   description: 指定したIDのバックアップを削除します。
   tags:
-    - VirtualMachine
+    - Backup
   parameters:
     - name: id
       in: path
