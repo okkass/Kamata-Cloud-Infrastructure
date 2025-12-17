@@ -19,10 +19,9 @@ properties:
     type: number
     format: integer
     description: 仮想マシンイメージのサイズ(バイト単位)
-  nodeId:
-    type: string
-    format: uuid
-    description: 仮想マシンイメージが存在するノードのID
+  node:
+    $ref: "../node/NodeResponse.yml"
+    description: 仮想マシンイメージが関連付けられているノードの情報
 required:
   - id
   - name
