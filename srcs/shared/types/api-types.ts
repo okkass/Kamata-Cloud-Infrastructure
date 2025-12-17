@@ -1388,117 +1388,6 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/portfolios": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /**
-         * ポートフォリオ一覧の取得
-         * @description すべてのポートフォリオのリストを取得します。
-         */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description 成功 */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PortfolioResponse"][];
-                    };
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
-        put?: never;
-        /**
-         * ポートフォリオの作成
-         * @description 新しいポートフォリオを作成します。
-         */
-        post: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["PortfolioCreateRequest"];
-                };
-            };
-            responses: {
-                /** @description 作成成功 */
-                201: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["PortfolioResponse"];
-                    };
-                };
-                /** @description リクエストエラー */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
     "/api/security-groups": {
         parameters: {
             query?: never;
@@ -7265,38 +7154,6 @@ export interface components {
              */
             size: number;
         };
-        /** @description ポートフォリオレスポンスオブジェクト */
-        PortfolioResponse: {
-            /**
-             * Format: uuid
-             * @description ポートフォリオを識別するための一意なID
-             */
-            id: string;
-            /** @description ポートフォリオのタイトル */
-            title: string;
-            /**
-             * Format: date-time
-             * @description ポートフォリオの作成日時
-             */
-            createdAt: string;
-            /**
-             * Format: integer
-             * @description 過去24時間のビュー数
-             */
-            viewCount24Hour: number;
-            /**
-             * Format: integer
-             * @description 過去7日間のビュー数
-             */
-            viewCount7Day: number;
-        };
-        /** @description ポートフォリオ更新可能オブジェクト */
-        PortfolioUpdatable: {
-            /** @description ポートフォリオのタイトル */
-            title?: string;
-        };
-        /** @description ポートフォリオ作成リクエストオブジェクト */
-        PortfolioCreateRequest: WithRequired<components["schemas"]["PortfolioUpdatable"], "title">;
         /** @description セキュリティルールレスポンスオブジェクト */
         SecurityRuleResponse: {
             /**
@@ -8217,9 +8074,6 @@ export type NodeCandidateResponse = components['schemas']['NodeCandidateResponse
 export type NodePutRequest = components['schemas']['NodePutRequest'];
 export type NodePatchRequest = components['schemas']['NodePatchRequest'];
 export type DeviceResponse = components['schemas']['DeviceResponse'];
-export type PortfolioResponse = components['schemas']['PortfolioResponse'];
-export type PortfolioUpdatable = components['schemas']['PortfolioUpdatable'];
-export type PortfolioCreateRequest = components['schemas']['PortfolioCreateRequest'];
 export type SecurityRuleResponse = components['schemas']['SecurityRuleResponse'];
 export type SecurityGroupResponse = components['schemas']['SecurityGroupResponse'];
 export type SecurityGroupUpdatable = components['schemas']['SecurityGroupUpdatable'];
