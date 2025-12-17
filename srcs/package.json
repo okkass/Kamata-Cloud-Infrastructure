@@ -12,7 +12,9 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
-    "@prisma/client": "^7.0.0",
+    "@prisma/adapter-mariadb": "^7.1.0",
+    "@prisma/client": "^7.1.0",
+    "@prisma/client-runtime-utils": "^7.1.0",
     "@types/busboy": "^1.5.4",
     "@types/uuid": "^11.0.0",
     "@vee-validate/zod": "^4.15.1",
