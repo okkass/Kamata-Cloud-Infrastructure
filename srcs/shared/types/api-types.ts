@@ -7719,7 +7719,7 @@ export interface components {
         /** @description ユーザ作成リクエストオブジェクト */
         UserCreateRequest: components["schemas"]["UserCreateOnly"] & WithRequired<components["schemas"]["UserUpdatable"], "name" | "email" | "isAdmin" | "maxCpuCore" | "maxMemorySize" | "maxStorageSize">;
         /** @description ユーザ更新リクエストオブジェクト */
-        UserPutRequest: WithRequired<components["schemas"]["UserUpdatable"], "name" | "email" | "isAdmin" | "isImageAdmin" | "isInstanceTypeAdmin" | "isVirtualMachineAdmin" | "isNetworkAdmin" | "isSecurityGroupAdmin" | "isNodeAdmin">;
+        UserPutRequest: WithRequired<components["schemas"]["UserUpdatable"], "name" | "email" | "maxCpuCore" | "maxMemorySize" | "maxStorageSize" | "isAdmin" | "isImageAdmin" | "isInstanceTypeAdmin" | "isVirtualMachineAdmin" | "isNetworkAdmin" | "isSecurityGroupAdmin" | "isNodeAdmin">;
         /** @description ユーザ更新リクエストオブジェクト */
         UserPatchRequest: components["schemas"]["UserUpdatable"];
         /** @description パスワード変更リクエストオブジェクト */
