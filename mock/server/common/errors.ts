@@ -2,4 +2,5 @@ export type ServiceError =
   | "NotFound"
   | "BadRequest"
   | "InternalError"
-  | "Forbidden";
+  | "Forbidden"
+  | "NotImplemented";

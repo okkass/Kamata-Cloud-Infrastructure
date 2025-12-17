@@ -7,8 +7,14 @@ import type {
   StorageCreateRequest,
   StorageResponse,
   StoragePatchRequest,
+  StoragePutRequest,
+  NetworkInterfaceResponse,
+  NetworkInterfaceCreateRequest,
+  NetworkInterfacePatchRequest,
+  NetworkInterfacePutRequest,
+  SecurityGroupResponse,
 } from "@app/shared/types";
-import { UserPermissions } from "@/types";
+import { UserPermissions, VmSecurityGroupAddRequest } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import VirtualMachineRepository from "@/repository/VirtualMachineRepository";
 
@@ -68,4 +74,146 @@ export const getVirtualMachineService = (permission: UserPermissions) => {
   return VirtualMachineService;
 };
 
-const getStorageService = (permission: UserPermissions, vmId: string) => {};
+export const getStorageService = (
+  permission: UserPermissions,
+  vmId: string
+) => {
+  const StorageService: ResourceService<
+    StorageResponse,
+    StorageCreateRequest,
+    StoragePatchRequest | StoragePutRequest,
+    ServiceError
+  > = {
+    permission,
+    list(query) {
+      const storages =
+        VirtualMachineRepository.listStoragesByVirtualMachineId(vmId) || [];
+      return { success: true, data: storages };
+    },
+    getById(id) {
+      const storage = VirtualMachineRepository.getStorage(vmId, id);
+      if (!storage) {
+        return {
+          success: false,
+          error: "NotFound",
+        };
+      }
+      return { success: true, data: storage };
+    },
+    create(data) {
+      return {
+        success: false,
+        error: "NotImplemented",
+      };
+    },
+    update(id, data) {
+      return {
+        success: false,
+        error: "NotImplemented",
+      };
+    },
+    delete(id) {
+      return {
+        success: false,
+        error: "NotImplemented",
+      };
+    },
+  };
+  return StorageService;
+};
+
+export const getNetworkInterfaceService = (
+  permission: UserPermissions,
+  vmId: string
+) => {
+  const NetworkInterfaceService: ResourceService<
+    NetworkInterfaceResponse,
+    NetworkInterfaceCreateRequest,
+    NetworkInterfacePatchRequest | NetworkInterfacePutRequest,
+    ServiceError
+  > = {
+    permission,
+    list(query) {
+      const nics =
+        VirtualMachineRepository.listNetworkInterfacesByVirtualMachineId(vmId);
+      if (!nics) {
+        return {
+          success: false,
+          error: "NotFound",
+        };
+      }
+      return { success: true, data: nics };
+    },
+    getById(id) {
+      const nic = VirtualMachineRepository.getNetworkInterface(vmId, id);
+      if (!nic) {
+        return {
+          success: false,
+          error: "NotFound",
+        };
+      }
+      return { success: true, data: nic };
+    },
+    create(data) {
+      return {
+        success: false,
+        error: "NotImplemented",
+      };
+    },
+    update(id, data) {
+      return {
+        success: false,
+        error: "NotImplemented",
+      };
+    },
+    delete(id) {
+      return {
+        success: false,
+        error: "NotImplemented",
+      };
+    },
+  };
+  return NetworkInterfaceService;
+};
+
+export const getVmSecurityGroupService = (
+  permission: UserPermissions,
+  vmId: string
+) => {
+  const VmSecurityGroupService: ResourceService<
+    SecurityGroupResponse,
+    VmSecurityGroupAddRequest,
+    never,
+    ServiceError
+  > = {
+    permission,
+    list(query) {
+      const securityGroups =
+        VirtualMachineRepository.listSecurityGroupsByVirtualMachineId(vmId);
+      if (!securityGroups) {
+        return {
+          success: false,
+          error: "NotFound",
+        };
+      }
+      return { success: true, data: securityGroups };
+    },
+    getById(id) {
+      // ID知ってるならセキュリティグループに聞いて
+      return { success: false, error: "BadRequest" };
+    },
+    create(data) {
+      // 仮想マシンにセキュリティグループを追加
+      return { success: false, error: "NotImplemented" };
+    },
+    update(id, data) {
+      // セキュリティグループに聞いて
+      return { success: false, error: "BadRequest" };
+    },
+    delete(id) {
+      // 仮想マシンからセキュリティグループを削除
+      return { success: false, error: "NotImplemented" };
+    },
+  };
+  return VmSecurityGroupService;
+};

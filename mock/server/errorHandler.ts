@@ -1,5 +1,4 @@
 import { H3Error, H3Event } from "h3";
-import { createErrorResponse } from "./utils/errors";
 
 // 投げられたエラーをAPI仕様に準拠したレスポンスにして送信するエラーハンドラ
 export default defineNitroErrorHandler(

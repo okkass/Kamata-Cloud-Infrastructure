@@ -40,6 +40,14 @@ export const create500Error = (message: string): ErrorResponse => {
   };
 };
 
+export const create501Error = (message: string): ErrorResponse => {
+  return {
+    type: "NotImplemented",
+    status: 501,
+    detail: message,
+  };
+};
+
 export const create503Error = (message: string): ErrorResponse => {
   return {
     type: "ServiceUnavailable",
@@ -57,6 +65,7 @@ export const createErrorResponse = (
   if (status == 403) return create403Error(message);
   if (status == 404) return create404Error(message);
   if (status == 500) return create500Error(message);
+  if (status == 501) return create501Error(message);
   if (status == 503) return create503Error(message);
   return {
     type: "Error",
