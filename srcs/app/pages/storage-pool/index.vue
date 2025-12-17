@@ -11,7 +11,7 @@
       @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink :to="`/storage/${row.id}`" class="table-link">
+        <NuxtLink :to="`/storage-pool/${row.id}`" class="table-link">
           {{ row.name }}
         </NuxtLink>
       </template>
@@ -37,7 +37,7 @@
       </template>
 
       <template #row-actions="{ row }">
-        <NuxtLink v-if="row" :to="`/storage/${row.id}`" class="action-item">
+        <NuxtLink v-if="row" :to="`/storage-pool/${row.id}`" class="action-item">
           詳細
         </NuxtLink>
         <button

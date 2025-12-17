@@ -64,6 +64,8 @@ post:
               type: string
               format: uuid
               description: 追加するセキュリティグループの一意なID
+          required:
+            - securityGroupId
   responses:
     "200":
       description: 成功

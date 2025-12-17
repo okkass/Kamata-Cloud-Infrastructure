@@ -1,11 +1,12 @@
-import { ref, computed, type Ref } from "vue";
+import { ref, computed } from "vue";
 
 // ==========================================
 // 型定義
 // ==========================================
 
 export interface CollectionConfig {
-  endpoint: string;
+  endpoint: string; // 個別更新時のベースURL (例: /subnets)
+  bulkEndpoint?: string; // ★ 追加: 一括更新用のURL (例: /subnets/bulk)
   idKey: string;
   newIdPrefix: string;
   fields: string[];
@@ -34,6 +35,8 @@ type DirtyState = {
 // Main Composable
 // ==========================================
 export function useResourceUpdater<T extends { id: string }>() {
+  const client = useApiClient();
+
   // 状態管理
   const originalData = ref<T | null>(null);
   const editedData = ref<T | null>(null);
@@ -50,12 +53,12 @@ export function useResourceUpdater<T extends { id: string }>() {
     errorMessage.value = null;
   };
 
-  // 差分検知 (Computed)
+  // 差分検知 (Computed) - ここは変更なし
   const dirtyState = computed<DirtyState>(() => {
     const state: DirtyState = { base: {}, collections: {} };
     if (!originalData.value || !editedData.value || !config.value) return state;
 
-    // 1. Base (基本情報) の比較
+    // 1. Base (基本情報)
     if (config.value.base) {
       const { fields } = config.value.base;
       fields.forEach((key) => {
@@ -67,7 +70,7 @@ export function useResourceUpdater<T extends { id: string }>() {
       });
     }
 
-    // 2. Collections (配列) の比較
+    // 2. Collections (配列)
     if (config.value.collections) {
       Object.entries(config.value.collections).forEach(([key, collConfig]) => {
         const originalList: any[] = (originalData.value as any)[key] || [];
@@ -118,7 +121,7 @@ export function useResourceUpdater<T extends { id: string }>() {
     return state;
   });
 
-  // 変更があるかどうか
+  // 変更検知
   const isDirty = computed(() => {
     const s = dirtyState.value;
     if (Object.keys(s.base).length > 0) return true;
@@ -129,8 +132,6 @@ export function useResourceUpdater<T extends { id: string }>() {
 
   // 保存処理
   const save = async (): Promise<boolean> => {
-    const runtimeConfig = useRuntimeConfig();
-
     if (!config.value || !isDirty.value) return false;
     isSaving.value = true;
     errorMessage.value = null;
@@ -138,69 +139,74 @@ export function useResourceUpdater<T extends { id: string }>() {
     const state = dirtyState.value;
     const apiRequests: Promise<any>[] = [];
 
-    // Base PATCH
+    // 1. Base PATCH
     if (config.value.base && Object.keys(state.base).length > 0) {
-      apiRequests.push(
-        $fetch(config.value.base.endpoint, {
-          baseURL: runtimeConfig.public.apiBaseUrl,
-          method: "PATCH",
-          body: state.base,
-        })
-      );
+      apiRequests.push(client.patch(config.value.base.endpoint, state.base));
     }
 
-    // Collections
+    // 2. Collections (Bulk 対応)
     if (config.value.collections) {
       Object.entries(config.value.collections).forEach(([key, collConfig]) => {
         const cState = state.collections[key];
-
         if (!cState) return;
 
-        // POST
-        cState.added.forEach((payload) => {
-          apiRequests.push(
-            $fetch(collConfig.endpoint, {
-              baseURL: runtimeConfig.public.apiBaseUrl,
-              method: "POST",
-              body: payload,
-            })
-          );
-        });
-        // DELETE
-        cState.removed.forEach((id) => {
-          apiRequests.push(
-            $fetch(`${collConfig.endpoint}/${id}`, {
-              baseURL: runtimeConfig.public.apiBaseUrl,
-              method: "DELETE",
-            })
-          );
-        });
-        // PATCH
-        cState.updated.forEach((u) => {
-          apiRequests.push(
-            $fetch(`${collConfig.endpoint}/${u.id}`, {
-              baseURL: runtimeConfig.public.apiBaseUrl,
-              method: "PATCH",
-              body: u.payload,
-            })
-          );
-        });
+        // 変更がない場合はスキップ
+        const hasCollectionChanges =
+          cState.added.length > 0 ||
+          cState.removed.length > 0 ||
+          cState.updated.length > 0;
+
+        if (!hasCollectionChanges) return;
+
+        // ★ BulkEndpoint が設定されている場合: 一括送信
+        if (collConfig.bulkEndpoint) {
+          const bulkPayload = {
+            create: cState.added,
+            delete: cState.removed,
+            patch: cState.updated.map((u) => ({
+              id: u.id,
+              data: u.payload, // サーバー側の期待するキー名に合わせる (ここでは 'data')
+            })),
+          };
+
+          apiRequests.push(client.post(collConfig.bulkEndpoint, bulkPayload));
+        }
+        // ★ BulkEndpoint がない場合: 個別送信 (既存ロジック)
+        else {
+          // POST
+          cState.added.forEach((payload) => {
+            apiRequests.push(client.post(collConfig.endpoint, payload));
+          });
+          // DELETE
+          cState.removed.forEach((id) => {
+            apiRequests.push(client.del(`${collConfig.endpoint}/${id}`));
+          });
+          // PATCH
+          cState.updated.forEach((u) => {
+            apiRequests.push(
+              client.patch(`${collConfig.endpoint}/${u.id}`, u.payload)
+            );
+          });
+        }
       });
     }
 
     try {
       const results = await Promise.allSettled(apiRequests);
       const failed = results.filter((r) => r.status === "rejected");
+
       if (failed.length > 0) {
         console.error("Save partial failure:", failed);
         errorMessage.value = "一部の保存に失敗しました";
         return false;
       }
+
+      // 成功時: 現在の編集データを正として originalData を更新
       originalData.value = JSON.parse(JSON.stringify(editedData.value));
       return true;
     } catch (e) {
       console.error(e);
-      errorMessage.value = "保存中にエラーが発生しました";
+      errorMessage.value = "保存中に予期せぬエラーが発生しました";
       return false;
     } finally {
       isSaving.value = false;
@@ -214,7 +220,7 @@ export function useResourceUpdater<T extends { id: string }>() {
   };
 
   return {
-    editedData, // ★ これが必要です
+    editedData,
     init,
     save,
     reset,

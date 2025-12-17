@@ -283,6 +283,49 @@
         @success="handleSuccess"
       />
     </div>
+
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">仮想ネットワーク一覧 (API連携)</h2>
+      <div v-if="netPending" class="mt-2 text-gray-500">
+        一覧を読み込み中...
+      </div>
+      <div v-else-if="netError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ netError.message }}
+      </div>
+      <table
+        v-else-if="networks && networks.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">CIDR</th>
+            <th class="px-6 py-3">サブネット数</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="net in networks" :key="net.id" class="bg-white border-b">
+            <td class="px-6 py-4 font-medium">{{ net.name }}</td>
+            <td class="px-6 py-4">{{ net.cidr }}</td>
+            <td class="px-6 py-4">
+              {{ net.subnets ? net.subnets.length : 0 }} 個
+            </td>
+            <td class="px-6 py-4 text-center">
+              <button
+                @click="openVirtualNetworkEditModal(net)"
+                class="btn-secondary"
+              >
+                編集
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="mt-2 text-gray-500">
+        表示できる仮想ネットワークがありません。
+      </div>
+    </div>
   </div>
 </template>
 
@@ -298,6 +341,7 @@ import MoUserEdit from "~/components/MoUserEdit.vue";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 import MoBackupRestore from "~/components/MoBackupRestore.vue";
 import MoStorageEdit from "~/components/MoStorageEdit.vue";
+import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
 
 const { isRestorable } = useBackupValidator();
 
@@ -363,6 +407,14 @@ const {
   refresh: refreshBackups,
 } = useResourceList<BackupResponse>("backups");
 
+// 9. 仮想ネットワーク
+const {
+  data: networks,
+  pending: netPending,
+  error: netError,
+  refresh: refreshNetworks,
+} = useResourceList<VirtualNetworkResponse>("virtual-networks");
+
 // --- モーダル定義 ---
 const editModals = computed(() => [
   {
@@ -371,13 +423,12 @@ const editModals = computed(() => [
     props: { vmId: targetResource.value?.id },
     refreshFn: refreshVms,
   },
-  /*{
+  {
     id: "backupRestore",
     component: markRaw(MoBackupRestore),
-    // 復元モーダルには backupData としてデータを渡す
     props: { backupData: targetResource.value },
     refreshFn: refreshVms,
-  },*/
+  },
   {
     id: "backupRestore",
     component: markRaw(MoBackupRestore),
@@ -414,6 +465,12 @@ const editModals = computed(() => [
     props: { storageData: targetResource.value },
     refreshFn: refreshStoragePools,
   },
+  {
+    id: "networkEdit",
+    component: markRaw(MoVirtualNetworkEdit),
+    props: { networkData: targetResource.value },
+    refreshFn: refreshNetworks,
+  },
 ]);
 
 // --- Methods ---
@@ -449,4 +506,6 @@ const openSecurityGroupEditModal = (sg: SecurityGroupResponse) =>
   openModal("securityGroupEdit", sg);
 const openStorageEditModal = (sp: StoragePoolResponse) =>
   openModal("storageEdit", sp);
+const openVirtualNetworkEditModal = (net: VirtualNetworkResponse) =>
+  openModal("networkEdit", net);
 </script>
