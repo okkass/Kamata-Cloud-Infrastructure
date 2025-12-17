@@ -3,6 +3,11 @@ import type { Result } from "@/common/type";
 import { z } from "zod";
 import { validateQuery, validateUUID, validateBody } from "./validate";
 
+/**
+ * Service 層から返却されたエラーを HTTP エラーに変換して投げる。
+ * @param error Service 層で発生したエラー種別
+ * @throws {Error} HTTP ステータスに対応する例外
+ */
 const throwServiceError = (error: ServiceError): never => {
   switch (error) {
     case "NotFound":
@@ -22,6 +27,15 @@ const throwServiceError = (error: ServiceError): never => {
   }
 };
 
+/**
+ * リソース一覧取得ハンドラー。
+ * @template T リスト要素の型
+ * @param listFunc リスト取得関数（Service 層）
+ * @param query クエリ文字列（任意）
+ * @param querySchema クエリの Zod スキーマ（任意）
+ * @returns バリデーション済みのリソース配列
+ * @throws {Error} バリデーションエラーまたは Service エラーに対応する HTTP 例外
+ */
 // リソースのリストを取得する共通ハンドラー
 export const getResourceList = <T>(
   listFunc: (query?: string) => Result<T[], ServiceError>,
@@ -46,6 +60,14 @@ export const getResourceList = <T>(
   return (result as { data: T[] }).data;
 };
 
+/**
+ * 単一リソース取得ハンドラー。
+ * @template T 取得対象の型
+ * @param resourceId リソース ID（UUID 期待）
+ * @param getByIdFunc ID を受け取りリソースを返す Service 関数
+ * @returns バリデーション済みのリソース
+ * @throws {Error} バリデーションエラーまたは Service エラーに対応する HTTP 例外
+ */
 // 単一リソースを取得する共通ハンドラー
 export const getResource = <T>(
   resourceId: string,
@@ -66,6 +88,16 @@ export const getResource = <T>(
   return (result as { data: T }).data;
 };
 
+/**
+ * リソース作成ハンドラー。
+ * @template TRequest リクエストボディ型
+ * @template TResponse 成功時レスポンス型
+ * @param requestBody 作成リクエストボディ
+ * @param bodySchema リクエストボディの Zod スキーマ
+ * @param createFunc バリデーション済みボディで作成を行う Service 関数
+ * @returns 作成後のリソース
+ * @throws {Error} バリデーションエラーまたは Service エラーに対応する HTTP 例外
+ */
 // リソースを新規作成する共通ハンドラー
 export const createResource = <TRequest, TResponse>(
   requestBody: TRequest,
@@ -87,6 +119,17 @@ export const createResource = <TRequest, TResponse>(
   return (result as { data: TResponse }).data;
 };
 
+/**
+ * リソース更新ハンドラー（PUT/PATCH 共通）。
+ * @template TRequest リクエストボディ型
+ * @template TResponse 成功時レスポンス型
+ * @param id リソース ID（UUID 期待）
+ * @param requestBody 更新リクエストボディ
+ * @param bodySchema リクエストボディの Zod スキーマ
+ * @param updateFunc バリデーション済み ID/ボディで更新を行う Service 関数
+ * @returns 更新後のリソース
+ * @throws {Error} バリデーションエラーまたは Service エラーに対応する HTTP 例外
+ */
 // リソースを更新する共通ハンドラー(PUT/PATCH共通)
 export const updateResource = <TRequest, TResponse>(
   id: string,
@@ -112,6 +155,12 @@ export const updateResource = <TRequest, TResponse>(
   return (result as { data: TResponse }).data;
 };
 
+/**
+ * リソース削除ハンドラー。
+ * @param id リソース ID（UUID 期待）
+ * @param deleteFunc バリデーション済み ID で削除を行う Service 関数
+ * @throws {Error} バリデーションエラーまたは Service エラーに対応する HTTP 例外
+ */
 // リソースを削除する共通ハンドラー
 export const deleteResource = (
   id: string,
