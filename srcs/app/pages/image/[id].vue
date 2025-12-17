@@ -93,13 +93,11 @@ const handleEditSuccess = async () => {
   isEditOpen.value = false;
 
   // トーストはモーダル側に任せる想定
-  if (typeof refresh === "function") {
-    try {
-      await refresh();
-    } catch (e) {
-      console.error("Image再取得に失敗しました", e);
-      addToast({ message: "再取得に失敗しました", type: "error" });
-    }
+  try {
+    await refresh();
+  } catch (e) {
+    console.error("Image再取得に失敗しました", e);
+    addToast({ message: "再取得に失敗しました", type: "error" });
   }
 
   // 次回の編集も確実に初期値が入るように、編集データを最新に寄せておく
