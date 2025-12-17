@@ -236,7 +236,7 @@ model VirtualStorage {
   storagePoolId BigInt   @map("storage_pool_id")
 
   // Relations
-  storagePool StoragePool                     @relation(fields: [storagePoolId], references: [id])
+  storagePool StoragePool                     @relation(fields: [storagePoolId], references: [id], onDelete: Cascade)
   attachedTo  VirtualMachineAttachedStorage[]
   backups     Backup[]
 
@@ -251,7 +251,7 @@ model VirtualMachineAttachedStorage {
 
   // Relations
   virtualMachine VirtualMachine @relation(fields: [virtualMachineId], references: [id], onDelete: Cascade)
-  virtualStorage VirtualStorage @relation(fields: [virtualStorageId], references: [id])
+  virtualStorage VirtualStorage @relation(fields: [virtualStorageId], references: [id], onDelete: Cascade)
 
   @@id([virtualMachineId, virtualStorageId])
   @@map("virtual_machine_attached_storage")
