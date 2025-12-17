@@ -7050,6 +7050,51 @@ export interface components {
              */
             instance?: string;
         };
+        /** @description 物理ノードレスポンスオブジェクト */
+        NodeResponse: {
+            /**
+             * Format: uuid
+             * @description 物理ノードを識別するための一意なID
+             */
+            id: string;
+            /** @description 物理ノードの名前 */
+            name: string;
+            /**
+             * Format: ipv4
+             * @description 物理ノードのIPアドレス
+             */
+            ipAddress: string;
+            /**
+             * @description 物理ノードの状態
+             * @enum {string}
+             */
+            status: "active" | "inactive";
+            /** @description 物理ノードが管理ノードかどうかを示すフラグ */
+            isAdmin: boolean;
+            /**
+             * Format: date-time
+             * @description 物理ノードが作成された日時
+             */
+            createdAt: string;
+            /**
+             * Format: float
+             * @description CPU使用率（0.0から1.0の範囲）
+             * @example 0.75
+             */
+            cpuUtilization?: number;
+            /**
+             * Format: float
+             * @description メモリ使用率（0.0から1.0の範囲）
+             * @example 0.6
+             */
+            memoryUtilization?: number;
+            /**
+             * Format: float
+             * @description ストレージ使用率（0.0から1.0の範囲）
+             * @example 0.8
+             */
+            storageUtilization?: number;
+        };
         /** @description 仮想マシンイメージのレスポンスオブジェクト */
         ImageResponse: {
             /**
@@ -7071,11 +7116,8 @@ export interface components {
              * @description 仮想マシンイメージのサイズ(バイト単位)
              */
             size: number;
-            /**
-             * Format: uuid
-             * @description 仮想マシンイメージが存在するノードのID
-             */
-            nodeId: string;
+            /** @description 仮想マシンイメージが関連付けられているノードの情報 */
+            node?: components["schemas"]["NodeResponse"];
         };
         /** @description 仮想マシンイメージのうち更新可能な情報を表すスキーマ */
         ImageClientUpdatable: {
@@ -7162,51 +7204,6 @@ export interface components {
         InstanceTypePutRequest: WithRequired<components["schemas"]["InstanceTypeUpdatable"], "name" | "cpuCore" | "memorySize">;
         /** @description インスタンスタイプ更新リクエストオブジェクト(PATCH) */
         InstanceTypePatchRequest: components["schemas"]["InstanceTypeUpdatable"];
-        /** @description 物理ノードレスポンスオブジェクト */
-        NodeResponse: {
-            /**
-             * Format: uuid
-             * @description 物理ノードを識別するための一意なID
-             */
-            id: string;
-            /** @description 物理ノードの名前 */
-            name: string;
-            /**
-             * Format: ipv4
-             * @description 物理ノードのIPアドレス
-             */
-            ipAddress: string;
-            /**
-             * @description 物理ノードの状態
-             * @enum {string}
-             */
-            status: "active" | "inactive";
-            /** @description 物理ノードが管理ノードかどうかを示すフラグ */
-            isAdmin: boolean;
-            /**
-             * Format: date-time
-             * @description 物理ノードが作成された日時
-             */
-            createdAt: string;
-            /**
-             * Format: float
-             * @description CPU使用率（0.0から1.0の範囲）
-             * @example 0.75
-             */
-            cpuUtilization?: number;
-            /**
-             * Format: float
-             * @description メモリ使用率（0.0から1.0の範囲）
-             * @example 0.6
-             */
-            memoryUtilization?: number;
-            /**
-             * Format: float
-             * @description ストレージ使用率（0.0から1.0の範囲）
-             * @example 0.8
-             */
-            storageUtilization?: number;
-        };
         /** @description 物理ノードを作成時に設定できるプロパティ */
         NodeCreateOnly: {
             /**
@@ -7429,7 +7426,7 @@ export interface components {
                 data: components["schemas"]["SecurityRuleUpdatable"];
             }[];
             /** @description 削除するセキュリティルールのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description セキュリティルール更新リクエストオブジェクト(PUT) */
         SecurityRulePutRequest: WithRequired<components["schemas"]["SecurityRuleUpdatable"], "name" | "ruleType" | "port" | "protocol" | "targetIp" | "action">;
@@ -8061,7 +8058,7 @@ export interface components {
                 data: components["schemas"]["NetworkInterfaceUpdatable"];
             }[];
             /** @description 削除するネットワークインターフェースのIDリスト */
-            delete?: string[];
+            remove?: string[];
         } | unknown | unknown | unknown;
         /** @description ネットワークインターフェース更新リクエストオブジェクト */
         NetworkInterfacePutRequest: WithRequired<components["schemas"]["NetworkInterfaceUpdatable"], "name" | "subnetId">;
@@ -8078,7 +8075,7 @@ export interface components {
                 id?: string;
             }[];
             /** @description 削除するセキュリティグループのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description 仮想マシンのストレージの更新可能プロパティを表すオブジェクト */
         StorageUpdatable: {
@@ -8116,7 +8113,7 @@ export interface components {
                 data: components["schemas"]["StorageUpdatable"];
             }[];
             /** @description 削除する仮想ストレージのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description 仮想マシンにアタッチされたストレージの更新リクエストオブジェクト */
         StoragePatchRequest: components["schemas"]["StorageUpdatable"];
@@ -8186,7 +8183,7 @@ export interface components {
                 data: components["schemas"]["SubnetUpdatable"];
             }[];
             /** @description 削除するサブネットのIDリスト */
-            delete?: string[];
+            remove?: string[];
         };
         /** @description サブネット全部更新リクエストオブジェクト */
         SubnetPutRequest: WithRequired<components["schemas"]["SubnetUpdatable"], "name" | "cidr">;
@@ -8200,6 +8197,7 @@ export interface components {
 }
 export type LoginRequest = components['schemas']['LoginRequest'];
 export type ErrorResponse = components['schemas']['ErrorResponse'];
+export type NodeResponse = components['schemas']['NodeResponse'];
 export type ImageResponse = components['schemas']['ImageResponse'];
 export type ImageClientUpdatable = components['schemas']['ImageClientUpdatable'];
 export type ImageCreateOnly = components['schemas']['ImageCreateOnly'];
@@ -8212,7 +8210,6 @@ export type InstanceTypeUpdatable = components['schemas']['InstanceTypeUpdatable
 export type InstanceTypeCreateRequest = components['schemas']['InstanceTypeCreateRequest'];
 export type InstanceTypePutRequest = components['schemas']['InstanceTypePutRequest'];
 export type InstanceTypePatchRequest = components['schemas']['InstanceTypePatchRequest'];
-export type NodeResponse = components['schemas']['NodeResponse'];
 export type NodeCreateOnly = components['schemas']['NodeCreateOnly'];
 export type NodeUpdatable = components['schemas']['NodeUpdatable'];
 export type NodeCreateRequest = components['schemas']['NodeCreateRequest'];
