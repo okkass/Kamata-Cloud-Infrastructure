@@ -45,7 +45,7 @@ export function useStorageEditForm(props: Props) {
     return {
       base: {
         // 要件: エンドポイントは /storage-pools/{id}
-        // (プロジェクトの慣習に従い /api を付与しています)
+        // useApiClient は baseURL (/api/) を持っているため、ここではそこからの相対パスを指定
         endpoint: `storage-pools/${data.id}`,
 
         // StoragePoolPatchRequest に含まれる変更可能なフィールド
