@@ -5,6 +5,8 @@ import type {
   SecurityGroupPutRequest,
   SecurityGroupPatchRequest,
   SecurityRuleCreateRequest,
+  SecurityRulePutRequest,
+  SecurityRulePatchRequest,
 } from "@app/shared/types";
 import crypto from "crypto";
 
@@ -168,6 +170,25 @@ const createRule = (
   return newRule;
 };
 
+const updateRule = (
+  sgId: string,
+  ruleId: string,
+  updateFields: SecurityRulePutRequest | SecurityRulePatchRequest
+): SecurityRuleResponse | undefined => {
+  const rule = getRuleById(sgId, ruleId);
+  if (!rule) {
+    return undefined;
+  }
+
+  rule.name = updateFields.name ?? rule.name;
+  rule.ruleType = updateFields.ruleType ?? rule.ruleType;
+  rule.port = updateFields.port ?? rule.port;
+  rule.protocol = updateFields.protocol ?? rule.protocol;
+  rule.targetIp = updateFields.targetIp ?? rule.targetIp;
+  rule.action = updateFields.action ?? rule.action;
+
+  return rule;
+};
 const deleteRule = (sgId: string, ruleId: string): boolean => {
   const securityGroup = getById(sgId);
   if (!securityGroup) {
@@ -191,6 +212,7 @@ export const SecurityGroupRepository = {
   getRuleById,
   createRule,
   deleteRule,
+  updateRule,
 };
 
 export default SecurityGroupRepository;

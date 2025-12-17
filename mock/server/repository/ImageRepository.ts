@@ -9,20 +9,6 @@ import { NodeRepository } from "./NodeRepository";
 
 import crypto from "crypto";
 
-export class NodeNotFoundError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "NodeNotFoundError";
-  }
-}
-
-export class ImageNotFoundError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "ImageNotFoundError";
-  }
-}
-
 let images: Array<ImageResponse> | null = null;
 
 const initImages = (): Array<ImageResponse> => {
@@ -62,10 +48,10 @@ const getById = (id: string): ImageResponse | undefined => {
   return list().find((image) => image.id === id);
 };
 
-const create = (image: ImageCreateRequest): ImageResponse => {
+const create = (image: ImageCreateRequest): ImageResponse | undefined => {
   const node = NodeRepository.getById(image.nodeId);
   if (!node) {
-    throw new NodeNotFoundError(`Node with ID ${image.nodeId} not found`);
+    return undefined;
   }
 
   const newImage: ImageResponse = {
@@ -82,10 +68,10 @@ const create = (image: ImageCreateRequest): ImageResponse => {
 const update = (
   id: string,
   updateFields: ImagePatchRequest | ImagePutRequest
-): ImageResponse => {
+): ImageResponse | undefined => {
   let target = getById(id);
   if (target === undefined) {
-    throw new ImageNotFoundError(`Image with ID ${id} not found`);
+    return undefined;
   }
   target.name = updateFields.name ?? target.name;
   return target;

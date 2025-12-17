@@ -5,13 +5,6 @@ import type {
   UserPutRequest,
 } from "@app/shared/types";
 
-export class UserNotFoundError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "UserNotFoundError";
-  }
-}
-
 let users: UserResponse[] | null = null;
 
 const init = (): UserResponse[] => {
@@ -80,10 +73,10 @@ const create = (userCreateRequest: UserCreateRequest): UserResponse => {
 const update = (
   id: string,
   userPutRequest: UserPutRequest | UserPatchRequest
-): UserResponse => {
+): UserResponse | undefined => {
   const user = getById(id);
   if (!user) {
-    throw new UserNotFoundError(`User with id ${id} not found`);
+    return undefined;
   }
   user.name = userPutRequest.name ?? user.name;
   user.email = userPutRequest.email ?? user.email;

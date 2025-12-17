@@ -8,21 +8,6 @@ import crypto from "crypto";
 
 import { VirtualMachineRepository } from "./VirtualMachineRepository";
 
-export class TargetVirtualMachineNotFoundError extends Error {
-  constructor(vmId: string) {
-    super(`Target virtual machine with ID ${vmId} not found.`);
-    this.name = "TargetVirtualMachineNotFoundError";
-  }
-}
-
-// 更新時に対象IDのスナップショットが存在しない場合にスローされるエラー
-export class SnapshotNotFoundError extends Error {
-  constructor(snapshotId: string) {
-    super(`Snapshot with ID ${snapshotId} not found.`);
-    this.name = "SnapshotNotFoundError";
-  }
-}
-
 let snapshots: Array<SnapshotResponse> | null = null;
 
 const initSnapshots = (): Array<SnapshotResponse> => {
@@ -68,10 +53,12 @@ const getById = (id: string): SnapshotResponse | undefined => {
   return list().find((snapshot) => snapshot.id === id);
 };
 
-const create = (request: SnapshotCreateRequest): SnapshotResponse => {
+const create = (
+  request: SnapshotCreateRequest
+): SnapshotResponse | undefined => {
   const vm = VirtualMachineRepository.getById(request.targetVmId);
   if (!vm) {
-    throw new TargetVirtualMachineNotFoundError(request.targetVmId);
+    return undefined;
   }
   const newSnapshot: SnapshotResponse = {
     id: crypto.randomUUID(),
@@ -87,10 +74,10 @@ const create = (request: SnapshotCreateRequest): SnapshotResponse => {
 const update = (
   id: string,
   updateFields: SnapshotPatchRequest | SnapshotPutRequest
-): SnapshotResponse => {
+): SnapshotResponse | undefined => {
   let target = getById(id);
   if (target === undefined) {
-    throw new SnapshotNotFoundError(id);
+    return undefined;
   }
   target.name = updateFields.name ?? target.name;
   target.description = updateFields.description ?? target.description;
@@ -104,16 +91,17 @@ const deleteById = (id: string): boolean => {
   return list().length < initialLength;
 };
 
-const restore = (id: string): void => {
+const restore = (id: string): boolean => {
   const snapshot = getById(id);
   if (snapshot === undefined) {
-    throw new SnapshotNotFoundError(id);
+    return false;
   }
   // ほんとはここで失敗したら別の例外を投げたり
   // Mock implementation: In a real scenario, this would involve more complex logic.
   console.log(
     `Restoring virtual machine ${snapshot.targetVirtualMachine.id} from snapshot ${id}`
   );
+  return true;
 };
 
 export const SnapshotRepository = {

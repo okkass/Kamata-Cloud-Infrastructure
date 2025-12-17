@@ -55,11 +55,17 @@ const getById = (id: string): StoragePoolResponse | undefined => {
   return storagePools.find((pool) => pool.id === id);
 };
 
-const add = (pool: StoragePoolCreateRequest): StoragePoolResponse => {
+const add = (
+  pool: StoragePoolCreateRequest
+): StoragePoolResponse | undefined => {
+  const node = NodeRepository.getById(pool.nodeId);
+  if (!node) {
+    return undefined;
+  }
   const uuid = crypto.randomUUID();
   const newPool: StoragePoolResponse = {
     id: uuid,
-    node: NodeRepository.getById(pool.nodeId)!,
+    node: node,
     name: pool.name,
     createdAt: new Date().toISOString(),
     totalSize: getRandomInt(100, 1000) * 1024 * 1024 * 1024, // Random size between 100 GB and 1000 GB

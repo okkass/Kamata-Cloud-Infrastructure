@@ -6,8 +6,6 @@ import type {
 } from "@app/shared/types";
 import crypto from "crypto";
 
-import { NotFoundError } from "@/types";
-
 let instanceTypes: Array<InstanceTypeResponse> | null = null;
 
 const initInstanceTypes = (): Array<InstanceTypeResponse> => {
@@ -64,10 +62,10 @@ const create = (
 const update = (
   id: string,
   updateFields: InstanceTypePatchRequest | InstanceTypePutRequest
-): InstanceTypeResponse => {
+): InstanceTypeResponse | undefined => {
   let target = getById(id);
   if (target === undefined) {
-    throw new NotFoundError(`InstanceType with id ${id} not found`);
+    return undefined;
   }
 
   target.name = updateFields.name ?? target.name;

@@ -5,10 +5,11 @@ import type {
   VirtualNetworkPutRequest,
   SubnetResponse,
   SubnetCreateRequest,
+  SubnetPatchRequest,
+  SubnetPutRequest,
 } from "@app/shared/types";
 
 import crypto from "crypto";
-import { de } from "zod/locales";
 
 class VirtualNetworkNotFoundError extends Error {
   constructor(id: string) {
@@ -97,10 +98,10 @@ const create = (
 const update = (
   id: string,
   request: VirtualNetworkPatchRequest | VirtualNetworkPutRequest
-): VirtualNetworkResponse => {
+): VirtualNetworkResponse | undefined => {
   const vnet = getById(id);
   if (!vnet) {
-    throw new VirtualNetworkNotFoundError(id);
+    return undefined;
   }
   vnet.name = request.name ?? vnet.name;
   return vnet;
@@ -118,9 +119,63 @@ const getSubnet = (
 ): SubnetResponse | undefined => {
   const vnet = getById(vnetId);
   if (!vnet) {
-    throw new VirtualNetworkNotFoundError(vnetId);
+    return undefined;
   }
   return vnet.subnets.find((subnet) => subnet.id === subnetId);
+};
+
+const listSubnets = (vnetId: string): SubnetResponse[] | undefined => {
+  const vnet = getById(vnetId);
+  if (!vnet) {
+    return undefined;
+  }
+  return vnet.subnets;
+};
+
+const createSubnet = (
+  vnetId: string,
+  request: SubnetCreateRequest
+): SubnetResponse | undefined => {
+  const vnet = getById(vnetId);
+  if (!vnet) {
+    return undefined;
+  }
+  const newSubnet: SubnetResponse = {
+    id: crypto.randomUUID(),
+    name: request.name,
+    cidr: request.cidr,
+    createdAt: new Date().toISOString(),
+  };
+  vnet.subnets.push(newSubnet);
+  return newSubnet;
+};
+
+const updateSubnet = (
+  vnetId: string,
+  subnetId: string,
+  request: SubnetPatchRequest | SubnetPutRequest
+): SubnetResponse | undefined => {
+  const vnet = getById(vnetId);
+  if (!vnet) {
+    return undefined;
+  }
+  const subnet = getSubnet(vnetId, subnetId);
+  if (!subnet) {
+    return undefined;
+  }
+  subnet.name = request.name ?? subnet.name;
+  subnet.cidr = request.cidr ?? subnet.cidr;
+  return subnet;
+};
+
+const deleteSubnet = (vnetId: string, subnetId: string): boolean => {
+  const vnet = getById(vnetId);
+  if (!vnet) {
+    return false;
+  }
+  const initialLength = vnet.subnets.length;
+  vnet.subnets = vnet.subnets.filter((subnet) => subnet.id !== subnetId);
+  return vnet.subnets.length < initialLength;
 };
 
 export const VirtualNetworkRepository = {
@@ -130,6 +185,10 @@ export const VirtualNetworkRepository = {
   update,
   deleteById,
   getSubnet,
+  listSubnets,
+  createSubnet,
+  updateSubnet,
+  deleteSubnet,
 };
 
 export default VirtualNetworkRepository;

@@ -3,6 +3,9 @@ import type {
   NetworkInterfaceResponse,
   StorageResponse,
   SecurityGroupResponse,
+  VirtualMachineCreateRequest,
+  VirtualMachinePatchRequest,
+  VirtualMachinePutRequest,
 } from "@app/shared/types";
 import { SecurityGroupRepository } from "./SecurityGroupRepository";
 import { NodeRepository } from "./NodeRepository";
@@ -132,6 +135,23 @@ const getById = (id: string): VirtualMachineResponse | undefined => {
   return list().find((vm) => vm.id === id);
 };
 
+const create = (
+  data: VirtualMachineCreateRequest
+): VirtualMachineResponse | undefined => {
+  return undefined;
+};
+
+const update = (
+  id: string,
+  data: VirtualMachinePatchRequest | VirtualMachinePutRequest
+): VirtualMachineResponse | undefined => {
+  return undefined;
+};
+
+const deleteById = (id: string): boolean => {
+  return false;
+};
+
 const listNetworkInterfacesByVirtualMachineId = (
   id: string
 ): NetworkInterfaceResponse[] | undefined => {
@@ -172,6 +192,9 @@ const listSecurityGroupsByVirtualMachineId = (
 export const VirtualMachineRepository = {
   list,
   getById,
+  create,
+  update,
+  deleteById,
   listNetworkInterfacesByVirtualMachineId,
   getNetworkInterface,
   listStoragesByVirtualMachineId,

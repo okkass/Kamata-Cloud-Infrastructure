@@ -9,13 +9,6 @@ import { VirtualMachineRepository } from "./VirtualMachineRepository";
 
 import crypto from "crypto";
 
-export class TargetResourceNotFoundError extends Error {
-  constructor(message: string) {
-    super(message);
-    this.name = "TargetResourceNotFoundError";
-  }
-}
-
 let backups: Array<BackupResponse> | null = null;
 
 const initBackups = (): Array<BackupResponse> => {
@@ -54,15 +47,13 @@ const getById = (id: string): BackupResponse | undefined => {
   return list().find((backup) => backup.id === id);
 };
 
-const create = (backup: BackupCreateRequest): BackupResponse => {
+const create = (backup: BackupCreateRequest): BackupResponse | undefined => {
   const storage = VirtualMachineRepository.getStorage(
     backup.targetVirtualMachineId,
     backup.targetStorageId
   );
   if (!storage) {
-    throw new TargetResourceNotFoundError(
-      `Storage with id ${backup.targetStorageId} for Virtual Machine with id ${backup.targetVirtualMachineId} not found`
-    );
+    return undefined;
   }
 
   const newBackup: BackupResponse = {
@@ -83,10 +74,10 @@ const create = (backup: BackupCreateRequest): BackupResponse => {
 const update = (
   id: string,
   updateFields: BackupPatchRequest | BackupPutRequest
-): BackupResponse => {
+): BackupResponse | undefined => {
   let target = getById(id);
   if (target === undefined) {
-    throw new TargetResourceNotFoundError(`Backup with id ${id} not found`);
+    return undefined;
   }
 
   target.name = updateFields.name ?? target.name;
