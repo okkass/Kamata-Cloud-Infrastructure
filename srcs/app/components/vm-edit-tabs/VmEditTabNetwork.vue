@@ -181,7 +181,7 @@ const model = defineModel<any>({ required: true });
 // Network Data Fetching
 // ----------------------------------------------------------------------------
 const { data: networkMaster, pending: networksPending } =
-  useResourceList<NetworkInterfaceResponse>("networks");
+  useResourceList<VirtualNetworkResponse>("virtual-networks");
 const { data: securityGroupMaster } =
   useResourceList<SecurityGroupResponse>("security-groups");
 
