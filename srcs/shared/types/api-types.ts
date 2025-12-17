@@ -6090,7 +6090,66 @@ export interface paths {
                 };
             };
         };
-        put?: never;
+        /**
+         * 仮想マシンのストレージ編集
+         * @description 指定したIDの仮想マシンに関連付けられたストレージを編集します。
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 仮想マシンの一意なID */
+                    vmId: string;
+                    /** @description ストレージの一意なID */
+                    storageId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": components["schemas"]["StoragePutRequest"];
+                };
+            };
+            responses: {
+                /** @description 成功 */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["StorageResponse"];
+                    };
+                };
+                /** @description 認証エラー */
+                401: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 権限エラー */
+                403: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+                /** @description 仮想マシンが見つからない */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
+            };
+        };
         post?: never;
         /**
          * 仮想マシンのストレージ割り当て解除
@@ -8116,6 +8175,8 @@ export interface components {
             remove?: string[];
         };
         /** @description 仮想マシンにアタッチされたストレージの更新リクエストオブジェクト */
+        StoragePutRequest: WithRequired<components["schemas"]["StorageUpdatable"], "name">;
+        /** @description 仮想マシンにアタッチされたストレージの更新リクエストオブジェクト */
         StoragePatchRequest: components["schemas"]["StorageUpdatable"];
         /** @description 仮想ネットワークオブジェクト */
         VirtualNetworkResponse: {
@@ -8284,6 +8345,7 @@ export type StorageUpdatable = components['schemas']['StorageUpdatable'];
 export type StorageCreateOnly = components['schemas']['StorageCreateOnly'];
 export type StorageCreateRequest = components['schemas']['StorageCreateRequest'];
 export type StorageBulkRequest = components['schemas']['StorageBulkRequest'];
+export type StoragePutRequest = components['schemas']['StoragePutRequest'];
 export type StoragePatchRequest = components['schemas']['StoragePatchRequest'];
 export type VirtualNetworkResponse = components['schemas']['VirtualNetworkResponse'];
 export type VirtualNetworkUpdatable = components['schemas']['VirtualNetworkUpdatable'];
