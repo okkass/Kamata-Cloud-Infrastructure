@@ -1,12 +1,8 @@
-import { validate } from "uuid";
-
 export default defineEventHandler(async (event) => {
-  const id = event.context.params?.id;
-  if (!id || !validate(id)) {
-    throw createError({ statusCode: 400, statusMessage: "Invalid ID" });
-  }
-  const body = await readBody(event);
-  console.log(`Received Network Interface Bulk Update for VM ID ${id}:`, body);
-
-  return body;
+  event.node.res.statusCode = 501;
+  return {
+    type: "Not Implemented",
+    detail: "This endpoint is not yet implemented",
+    status: 501,
+  };
 });

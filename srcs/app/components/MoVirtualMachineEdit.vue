@@ -36,15 +36,21 @@
 
       <div class="flex-1 overflow-y-auto px-1">
         <div v-show="activeTab === 'general'">
-          <TabGeneral v-model="editedData" />
+          <p class="text-gray-400 p-4 border dashed">
+            TabGeneral コンポーネント領域
+          </p>
         </div>
 
         <div v-show="activeTab === 'config'">
-          <TabConfig v-model="editedData" />
+          <p class="text-gray-400 p-4 border dashed">
+            TabConfig コンポーネント領域
+          </p>
         </div>
 
         <div v-show="activeTab === 'network'">
-          <TabNetwork v-model="editedData" />
+          <p class="text-gray-400 p-4 border dashed">
+            TabNetwork コンポーネント領域
+          </p>
         </div>
       </div>
     </div>
@@ -80,7 +86,7 @@
 import { watch, type PropType } from "vue";
 import { useVirtualMachineEditForm } from "~/composables/modal/useVirtualMachineEdit";
 
-// 子コンポーネントのインポート (パスは維持)
+// 子コンポーネントのインポート (作成後にコメントアウトを解除してください)
 import TabGeneral from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabGeneral.vue";
 import TabConfig from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabConfig.vue";
 import TabNetwork from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabNetwork.vue";
