@@ -19,7 +19,6 @@ export const useVirtualMachineEditForm = () => {
 
   // useResourceUpdater の初期化
   const {
-    originalData,
     editedData, // これを各タブの v-model に渡します
     isSaving,
     init,
@@ -45,32 +44,34 @@ export const useVirtualMachineEditForm = () => {
     // サーバーのAPIパスに合わせて endpoint を構築します
     const config: ResourceConfig = {
       base: {
-        // Base情報の PATCH 先: /api/virtual-machines/{id}
-        endpoint: `/api/virtual-machines/${id}`,
+        // 先頭の /api/ を削除
+        endpoint: `virtual-machines/${id}`,
         fields: ["name", "description", "cpuCore", "memorySize"],
       },
       collections: {
         storages: {
-          endpoint: "", // bulk使用時は未使用
-          // Bulk送信先: /api/virtual-machines/{id}/storages/bulk
-          bulkEndpoint: `/api/virtual-machines/${id}/storages/bulk`,
+          endpoint: "",
+          // 先頭の /api/ を削除
+          bulkEndpoint: `virtual-machines/${id}/storages/bulk`,
           idKey: "id",
-          newIdPrefix: "new-", // UI側で新規作成時に "new-xxx" というIDを振る必要があります
+          newIdPrefix: "new-",
           fields: ["name", "size", "poolId", "type"],
         },
         networkInterfaces: {
           endpoint: "",
-          bulkEndpoint: `/api/virtual-machines/${id}/network-interfaces/bulk`,
-          idKey: "id", // ネットワークIF自体がIDを持つ前提。なければ UI側で一意なIDを割り当てる必要があります
+          // 先頭の /api/ を削除
+          bulkEndpoint: `virtual-machines/${id}/network-interfaces/bulk`,
+          idKey: "id", // ※前回修正した通り、networkInterfacesもID管理が必要です
           newIdPrefix: "new-",
           fields: ["networkId", "ipAddress"],
         },
         securityGroups: {
           endpoint: "",
-          bulkEndpoint: `/api/virtual-machines/${id}/security-groups/bulk`,
+          // 先頭の /api/ を削除
+          bulkEndpoint: `virtual-machines/${id}/security-groups/bulk`,
           idKey: "id",
           newIdPrefix: "new-",
-          fields: ["name"], // SGはIDの紐付けのみであればフィールド監視は最小限でOK
+          fields: ["name"],
         },
       },
     };

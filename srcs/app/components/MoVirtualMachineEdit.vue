@@ -81,10 +81,8 @@
 </template>
 
 <script setup lang="ts">
-import { watch, type PropType } from "vue";
+import { watch, PropType } from "vue";
 import { useVirtualMachineEditForm } from "~/composables/modal/useVirtualMachineEditForm";
-
-// 子コンポーネントのインポート (作成後にコメントアウトを解除してください)
 import TabGeneral from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabGeneral.vue";
 import TabConfig from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabConfig.vue";
 import TabNetwork from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabNetwork.vue";
@@ -92,7 +90,7 @@ import TabNetwork from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabNet
 const props = defineProps({
   show: { type: Boolean, required: true },
   vmData: {
-    type: Object as PropType<VirtualMachineResponse>,
+    type: Object as PropType<any>,
     default: null,
   },
 });
@@ -106,19 +104,19 @@ const tabs = [
   { id: "network", label: "ネットワーク" },
 ] as const;
 
-// Composable
 const { activeTab, editedData, isSaving, updaterError, initializeForm, save } =
   useVirtualMachineEditForm();
 
-// モーダル表示時にデータ初期化
 watch(
   () => props.vmData,
   (newData) => {
+    // データが渡ってきたら、編集フォームを初期化する
     if (newData && props.show) {
+      console.log("初期化を開始します:", newData); // デバッグ用ログ
       initializeForm(newData);
     }
   },
-  { immediate: true }
+  { immediate: true } // マウント時にデータがあれば即座に実行するオプション
 );
 
 const submitForm = () => {
