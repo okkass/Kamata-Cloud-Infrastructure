@@ -5265,7 +5265,7 @@ export interface paths {
                          * Format: uuid
                          * @description 追加するセキュリティグループの一意なID
                          */
-                        securityGroupId?: string;
+                        securityGroupId: string;
                     };
                 };
             };
