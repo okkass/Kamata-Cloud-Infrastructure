@@ -57,17 +57,15 @@ model User {
   memoryLimitMb  Int @default(0) @map("memory_limit_mb")
   storageLimitGb Int @default(0) @map("storage_limit_gb")
 
-  // Foreign Keys
-  permissionId BigInt @map("permission_id")
 
   // Relations
-  permission      Permission       @relation(fields: [permissionId], references: [id])
   credentials     UserCredential?
   portfolios      Portfolio[]
   virtualMachines VirtualMachine[]
   securityGroups  SecurityGroup[]
   virtualNetworks VirtualNetwork[]
   operationLogs   OperationLog[]
+  permission      Permission?
 
   @@map("users")
 }
@@ -77,13 +75,14 @@ model UserCredential {
   hashedPassword String @map("hashed_password") @db.VarChar(256)
 
   // Relations
-  user User @relation(fields: [userId], references: [id])
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("user_credentials")
 }
 
 model Permission {
   id                    BigInt  @id @default(autoincrement())
+  uuid                  String  @unique @default(uuid())
   isAdmin               Boolean @default(false) @map("is_admin")
   isImageAdmin          Boolean @default(false) @map("is_image_admin")
   isInstanceTypeAdmin   Boolean @default(false) @map("is_instance_type_admin")
@@ -92,8 +91,11 @@ model Permission {
   isSecurityGroupAdmin  Boolean @default(false) @map("is_security_group_admin")
   isNodeAdmin           Boolean @default(false) @map("is_node_admin")
 
+  // Foreign Keys
+  userId BigInt  @unique @map("user_id")
+
   // Relations
-  users User[]
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@map("permissions")
 }
@@ -105,7 +107,7 @@ model Portfolio {
   userId    BigInt   @map("user_id")
 
   // Relations
-  user     User               @relation(fields: [userId], references: [id])
+  user     User               @relation(fields: [userId], references: [id], onDelete: Cascade)
   articles PortfolioArticle[]
 
   @@map("portfolios")
@@ -119,7 +121,7 @@ model PortfolioArticle {
   portfolioId BigInt   @map("portfolio_id")
 
   // Relations
-  portfolio Portfolio @relation(fields: [portfolioId], references: [id])
+  portfolio Portfolio @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
 
   @@map("portfolio_articles")
 }
@@ -143,14 +145,14 @@ model VirtualMachine {
   userId  BigInt @map("user_id")
 
   // Relations
-  node              Node                            @relation(fields: [nodeId], references: [id])
-  image             Image                           @relation(fields: [imageId], references: [id])
-  user              User                            @relation(fields: [userId], references: [id])
-  networkInterfaces NetworkInterface[]
+  node              Node                            @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  image             Image                           @relation(fields: [imageId], references: [id], onDelete: Cascade)
+  user              User                            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  networkInterfaces NetworkInterface[]              
   attachedStorages  VirtualMachineAttachedStorage[]
   snapshots         Snapshot[]
   securityGroups    VirtualMachineSecurityGroup[]
-  backups           Backup[] // source vm for backups
+  backups           Backup[]
 
   @@map("virtual_machines")
 }
@@ -165,7 +167,7 @@ model Node {
 
   // Relations
   virtualMachines VirtualMachine[]
-  images          Image[] // images owned by node
+  images          Image[]
 
   @@map("nodes")
 }
@@ -180,7 +182,7 @@ model Image {
   ownNodeId   BigInt   @map("own_node_id")
 
   // Relations
-  ownNode         Node             @relation(fields: [ownNodeId], references: [id])
+  ownNode         Node             @relation(fields: [ownNodeId], references: [id], onDelete: Cascade)
   virtualMachines VirtualMachine[]
 
   @@map("images")
@@ -248,7 +250,7 @@ model VirtualMachineAttachedStorage {
   path             String @db.VarChar(255)
 
   // Relations
-  virtualMachine VirtualMachine @relation(fields: [virtualMachineId], references: [id])
+  virtualMachine VirtualMachine @relation(fields: [virtualMachineId], references: [id], onDelete: Cascade)
   virtualStorage VirtualStorage @relation(fields: [virtualStorageId], references: [id])
 
   @@id([virtualMachineId, virtualStorageId])
@@ -266,7 +268,7 @@ model Backup {
   sourceVirtualMachineId BigInt   @map("source_virtual_machine_id")
 
   // Relations
-  virtualStorage       VirtualStorage @relation(fields: [virtualStorageId], references: [id])
+  virtualStorage       VirtualStorage @relation(fields: [virtualStorageId], references: [id], onDelete: Cascade)
   sourceVirtualMachine VirtualMachine @relation(fields: [sourceVirtualMachineId], references: [id])
 
   @@map("backups")
@@ -281,7 +283,7 @@ model Snapshot {
   targetVirtualMachineId BigInt   @map("target_virtual_machine_id")
 
   // Relations
-  targetVirtualMachine VirtualMachine @relation(fields: [targetVirtualMachineId], references: [id])
+  targetVirtualMachine VirtualMachine @relation(fields: [targetVirtualMachineId], references: [id], onDelete: Cascade)
 
   @@map("snapshots")
 }
@@ -299,7 +301,7 @@ model VirtualNetwork {
   userId    BigInt   @map("user_id")
 
   // Relations
-  user    User     @relation(fields: [userId], references: [id])
+  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
   subnets Subnet[]
 
   @@map("virtual_networks")
@@ -314,7 +316,7 @@ model Subnet {
   virtualNetworkId BigInt   @map("virtual_network_id")
 
   // Relations
-  virtualNetwork    VirtualNetwork     @relation(fields: [virtualNetworkId], references: [id])
+  virtualNetwork    VirtualNetwork     @relation(fields: [virtualNetworkId], references: [id], onDelete: Cascade)
   networkInterfaces NetworkInterface[]
 
   @@map("subnets")
@@ -331,8 +333,8 @@ model NetworkInterface {
   virtualMachineId BigInt   @map("virtual_machine_id")
 
   // Relations
-  subnet         Subnet         @relation(fields: [subnetId], references: [id])
-  virtualMachine VirtualMachine @relation(fields: [virtualMachineId], references: [id])
+  subnet         Subnet         @relation(fields: [subnetId], references: [id], onDelete: Cascade)
+  virtualMachine VirtualMachine @relation(fields: [virtualMachineId], references: [id], onDelete: Cascade)
 
   @@map("network_interfaces")
 }
@@ -346,7 +348,7 @@ model SecurityGroup {
   userId      BigInt   @map("user_id")
 
   // Relations
-  user            User                          @relation(fields: [userId], references: [id])
+  user            User                          @relation(fields: [userId], references: [id], onDelete: Cascade)
   rules           SecurityRule[]
   virtualMachines VirtualMachineSecurityGroup[]
 
@@ -366,7 +368,7 @@ model SecurityRule {
   securityGroupId BigInt       @map("security_group_id")
 
   // Relations
-  securityGroup SecurityGroup @relation(fields: [securityGroupId], references: [id])
+  securityGroup SecurityGroup @relation(fields: [securityGroupId], references: [id], onDelete: Cascade)
 
   @@map("security_rules")
 }
@@ -377,8 +379,8 @@ model VirtualMachineSecurityGroup {
   securityGroupId  BigInt @map("security_group_id")
 
   // Relations
-  virtualMachine VirtualMachine @relation(fields: [virtualMachineId], references: [id])
-  securityGroup  SecurityGroup  @relation(fields: [securityGroupId], references: [id])
+  virtualMachine VirtualMachine @relation(fields: [virtualMachineId], references: [id], onDelete: Cascade)
+  securityGroup  SecurityGroup  @relation(fields: [securityGroupId], references: [id], onDelete: Cascade)
 
   @@id([virtualMachineId, securityGroupId])
   @@map("virtual_machine_security_groups")
@@ -394,14 +396,29 @@ model OperationLog {
   action     String // "操作内容"
   targetType String   @map("target_type") // "対象リソース名"
   targetUuid String   @map("target_uuid") // "対象リソースUUID" (String since UUID is binary/string)
-  payload    String?  @db.Text // "変更内容JSON"
+  payload    Json?    // "操作内容の詳細情報"
   result     String // "SUCCESS/FAILURE"
   ipAddress  String   @map("ip_address")
   createdAt  DateTime @default(now()) @map("created_at")
-  userId     BigInt   @map("user_id")
+  userId     BigInt?  @map("user_id")
 
   // Relations
-  user User @relation(fields: [userId], references: [id])
-
+  user User? @relation(fields: [userId], references: [id], onDelete: SetNull)
+  taskLogs TaskLog[]
   @@map("operation_logs")
+}
+
+model TaskLog {
+  id        BigInt   @id @default(autoincrement())
+  uuid      String   @unique @default(uuid())
+  taskName  String   @map("task_name") @db.VarChar(256)
+  status    String
+  message   Json?   // "ログメッセージや詳細情報"
+  createdAt DateTime @default(now()) @map("created_at")
+  completedAt DateTime? @map("completed_at")
+  operationLogId BigInt @map("operation_log_id")
+
+  // Relations
+  operationLog  OperationLog @relation(fields: [operationLogId], references: [id], onDelete: Cascade)
+  @@map("task_logs")
 }

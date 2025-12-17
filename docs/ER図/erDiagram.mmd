@@ -6,11 +6,10 @@ erDiagram
 
     users {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name
         varchar(256) email
         datetime created_at
-        bigint permission_id FK
         datetime last_login_at
         int cpu_limit_cores "0 for unlimited"
         int memory_limit_mb "0 for unlimited"
@@ -24,6 +23,8 @@ erDiagram
 
     permissions {
         bigint id PK
+        binary(16) uuid UNIQUE
+        bigint user_id FK
         boolean is_admin
         boolean is_image_admin
         boolean is_instance_type_admin
@@ -35,14 +36,14 @@ erDiagram
 
     portfolios {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         bigint user_id FK
         datetime created_at
     }
 
     portfolio_articles {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) title
         bigint portfolio_id FK
         datetime created_at
@@ -50,7 +51,7 @@ erDiagram
 
     %% Relationships
     users ||--|| user_credentials : "has"
-    permissions ||--o{ users : "grants"
+    permissions ||--|| users : "grants"
     users ||--o{ portfolios : "owns"
     portfolios ||--o{ portfolio_articles : "contains"
 
@@ -61,7 +62,7 @@ erDiagram
 
     virtual_machines {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name
         varchar status "enum('running', 'stopped', 'pending')"
         bigint node_id FK
@@ -74,7 +75,7 @@ erDiagram
 
     nodes {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         datetime created_at
         varchar(256) name
         varchar(15) ip_address
@@ -83,7 +84,7 @@ erDiagram
 
     images {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name
         text description
         datetime created_at
@@ -93,7 +94,7 @@ erDiagram
 
     instance_types {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name
         int cpu_core
         int memory_size
@@ -102,8 +103,9 @@ erDiagram
 
     middlewares {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name
+        json package_list
         datetime created_at
     }
 
@@ -120,7 +122,7 @@ erDiagram
 
     storage_pools {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name
         boolean has_network_access
         bigint available_size
@@ -130,7 +132,7 @@ erDiagram
 
     virtual_storages {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name
         bigint size
         bigint storage_pool_id FK
@@ -145,7 +147,7 @@ erDiagram
 
     backups {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name
         text description
         datetime created_at
@@ -156,7 +158,7 @@ erDiagram
 
     snapshots {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name "max 40 characters"
         text description
         datetime created_at
@@ -177,7 +179,7 @@ erDiagram
 
     virtual_networks {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name "max 8 characters"
         varchar(15) cidr
         bigint user_id FK
@@ -186,7 +188,7 @@ erDiagram
 
     subnets {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name
         varchar(15) cidr
         datetime created_at
@@ -195,7 +197,7 @@ erDiagram
 
     network_interfaces {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name
         varchar(15) ip_address
         varchar(15) mac_address
@@ -206,7 +208,7 @@ erDiagram
 
     security_groups {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name "max 18 characters"
         text description
         datetime created_at
@@ -216,7 +218,7 @@ erDiagram
     security_rules {
         bigint id PK
         bigint security_group_id FK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         varchar(256) name
         varchar role_type "enum('inbound', 'outbound')"
         int port
@@ -249,15 +251,26 @@ erDiagram
 
     operation_logs {
         bigint id PK
-        binary(16) uuid
+        binary(16) uuid UNIQUE
         bigint user_id FK
         varchar action "操作内容"
         varchar target_type "対象リソース名"
         binary(16) target_uuid "対象リソースUUID"
-        text payload "変更内容JSON"
+        json payload "変更内容"
         varchar result "SUCCESS/FAILURE"
         varchar ip_address
         datetime created_at
+    }
+
+    task_logs {
+        bigint id PK
+        binary(16) uuid UNIQUE    "フロントに返す 'Task ID'"
+        varchar task_type          "'create_vm', 'delete_vm' など"
+        varchar status             "'pending', 'processing', 'completed', 'failed'"
+        text message               "'作成中...', 'IPアドレス確保に失敗' など"
+        json resource_ids          "{ vm_id: '...', node_id: '...' } 対象リソースのIDメモ"
+        datetime created_at
+        datetime completed_at
     }
 
     %% Relationships
