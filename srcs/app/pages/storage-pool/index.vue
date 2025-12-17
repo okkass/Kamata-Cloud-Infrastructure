@@ -37,7 +37,11 @@
       </template>
 
       <template #row-actions="{ row }">
-        <NuxtLink v-if="row" :to="`/storage-pool/${row.id}`" class="action-item">
+        <NuxtLink
+          v-if="row"
+          :to="`/storage-pool/${row.id}`"
+          class="action-item"
+        >
           詳細
         </NuxtLink>
         <button
@@ -66,6 +70,7 @@
 
     <MoStorageEdit
       :show="activeModal === EDIT_STORAGE_ACTION"
+      :storageData="targetForEditing?.originalData || targetForEditing"
       @close="closeModal"
       @success="handleSuccess"
     />
@@ -110,6 +115,7 @@ const {
   openModal,
   closeModal,
   targetForDeletion,
+  targetForEditing,
   isDeleting,
   handleRowAction,
   handleDelete,
