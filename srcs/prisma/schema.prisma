@@ -269,7 +269,7 @@ model Backup {
 
   // Relations
   virtualStorage       VirtualStorage @relation(fields: [virtualStorageId], references: [id], onDelete: Cascade)
-  sourceVirtualMachine VirtualMachine @relation(fields: [sourceVirtualMachineId], references: [id])
+  sourceVirtualMachine VirtualMachine @relation(fields: [sourceVirtualMachineId], references: [id], onDelete: Restrict)
 
   @@map("backups")
 }
