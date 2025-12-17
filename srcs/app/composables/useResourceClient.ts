@@ -13,11 +13,18 @@ interface ApiOptions {
 
 export const useApiClient = () => {
   const baseURL = "/api/";
+  const runtimeConfig = useRuntimeConfig();
 
+  /**
+   * APIリクエストを実行する共通関数
+   * @param url - エンドポイントのURL
+   * @param options - リクエストオプション
+   */
   const request = async <T>(url: string, options: ApiOptions = {}) => {
     const { method = "GET", body, params, headers } = options;
 
     return await $fetch<T>(baseURL + url, {
+      baseURL: runtimeConfig.public.apiBaseUrl,
       method,
       body,
       params, // GET時のクエリパラメータ (?id=1など)
