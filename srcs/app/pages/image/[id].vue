@@ -1,5 +1,3 @@
-<!-- /workspace/srcs/app/pages/image/[id].vue -->
-
 <template>
   <div class="mx-auto max-w-6xl px-4 py-6">
     <div v-if="pending" class="text-sm text-neutral-500">読み込み中…</div>
@@ -19,7 +17,7 @@
       @action="handleAction"
     />
 
-    <!-- 編集モーダル（モーダル側には触らない：ページ側で初期値注入を保証する） -->
+    <!-- 編集モーダル（モーダル側に触らず、ページ側で初期値注入を保証） -->
     <MoImageEdit
       :show="isEditOpen"
       :image-data="editImageData"
@@ -30,26 +28,16 @@
 </template>
 
 <script setup lang="ts">
-import { ref, nextTick } from "vue";
-import { useRoute, useRouter } from "vue-router";
 import { IMAGE } from "~/utils/constants";
-
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
-
-// Tabs
 import { imageTabs } from "~/composables/detail/useImageTabs";
-
-// composables
-import { useResourceDetail } from "~/composables/useResourceDetail";
-import { useToast } from "~/composables/useToast";
 
 const { addToast } = useToast();
 
 const route = useRoute();
 const router = useRouter();
 
-// Image データ取得（正は ImageResponse）
 const {
   data: image,
   pending,
@@ -71,7 +59,7 @@ const actions = ref([{ label: "編集", value: "edit" }]);
 // 編集モーダル
 const isEditOpen = ref(false);
 
-// ★ モーダルに渡すデータ（ページ側で“変化”を作って初期値注入を保証）
+// ★ モーダルに渡すデータ（ページ側で“変化”を作って初期化を確実にする）
 const editImageData = ref<ImageResponse | null>(null);
 
 const openEditModal = async () => {
@@ -92,17 +80,14 @@ const handleEditClose = () => {
 const handleEditSuccess = async () => {
   isEditOpen.value = false;
 
-  // トーストはモーダル側に任せる想定
-  if (typeof refresh === "function") {
-    try {
-      await refresh();
-    } catch (e) {
-      console.error("Image再取得に失敗しました", e);
-      addToast({ message: "再取得に失敗しました", type: "error" });
-    }
+  try {
+    await refresh();
+  } catch (e) {
+    console.error("Image再取得に失敗しました", e);
+    addToast({ message: "再取得に失敗しました", type: "error" });
   }
 
-  // 次回の編集も確実に初期値が入るように、編集データを最新に寄せておく
+  // 次回の編集も確実に初期値が入るように同期しておく
   if (image.value) {
     editImageData.value = image.value;
   }
