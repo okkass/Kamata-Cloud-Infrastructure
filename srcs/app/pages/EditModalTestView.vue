@@ -244,7 +244,7 @@
                 }}
               </td>
               <td class="px-6 py-4">
-                {{ new Date(bk.createdAt).toLocaleString() }}
+                {{ formatDateTime(bk.createdAt) }}
               </td>
               <td class="px-6 py-4 text-center">
                 <button
@@ -420,7 +420,7 @@ const editModals = computed(() => [
   {
     id: "vmEdit",
     component: markRaw(MoVirtualMachineEdit),
-    props: { vmId: targetResource.value?.id },
+    props: { vmData: targetResource.value },
     refreshFn: refreshVms,
   },
   {

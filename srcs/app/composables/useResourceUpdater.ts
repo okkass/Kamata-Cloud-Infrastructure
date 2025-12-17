@@ -220,6 +220,7 @@ export function useResourceUpdater<T extends { id: string }>() {
   };
 
   return {
+    originalData,
     editedData,
     init,
     save,
