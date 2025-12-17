@@ -7028,11 +7028,6 @@ export interface components {
              * @description イメージを作成するノードのID
              */
             nodeId: string;
-            /**
-             * Format: binary
-             * @description アップロードするイメージファイル
-             */
-            file: string;
         };
         /** @description 仮想マシンイメージ作成リクエストオブジェクト */
         ImageCreateRequest: WithRequired<components["schemas"]["ImageClientUpdatable"], "name"> & components["schemas"]["ImageCreateOnly"];
