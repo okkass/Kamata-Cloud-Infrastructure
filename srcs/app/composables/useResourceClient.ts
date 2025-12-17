@@ -49,5 +49,7 @@ export const useApiClient = () => {
       request<T>(url, { method: "PUT", body }),
     del: <T>(url: string, body?: any) =>
       request<T>(url, { method: "DELETE", body }),
+    patch: <T>(url: string, body?: any) =>
+      request<T>(url, { method: "PATCH", body }),
   };
 };
