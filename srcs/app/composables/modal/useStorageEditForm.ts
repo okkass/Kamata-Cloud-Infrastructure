@@ -46,7 +46,7 @@ export function useStorageEditForm(props: Props) {
       base: {
         // 要件: エンドポイントは /storage-pools/{id}
         // (プロジェクトの慣習に従い /api を付与しています)
-        endpoint: `/api/storage-pools/${data.id}`,
+        endpoint: `storage-pools/${data.id}`,
 
         // StoragePoolPatchRequest に含まれる変更可能なフィールド
         fields: ["name", "hasNetworkAccess"],
