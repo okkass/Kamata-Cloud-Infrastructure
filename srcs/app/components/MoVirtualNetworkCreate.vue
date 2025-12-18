@@ -151,10 +151,11 @@ const {
 
 // --- Helper: エラー取得 ---
 const getError = (index: number, field: string) => {
-  const key = `initialSubnets[${index}].${field}`;
+  const bracketKey = `initialSubnets[${index}].${field}`;
+  const dotKey = `initialSubnets.${index}.${field}`;
 
   const errs = errors.value as Record<string, string | undefined>;
-  return errs[key];
+  return errs[bracketKey] || errs[dotKey];
 };
 
 // --- Handler ---

@@ -8,6 +8,7 @@ import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
+import { NETWORK } from "~/utils/constants";
 
 // ==============================================================================
 // Validation Schema
@@ -29,16 +30,8 @@ const zodSchema = z.object({
 const validationSchema = toTypedSchema(zodSchema);
 
 // フォーム内の型定義 (VeeValidate用)
-interface SubnetFormValue {
-  name: string;
-  cidr: string;
-}
-
-interface FormValues {
-  name: string;
-  cidr: string;
-  initialSubnets: SubnetFormValue[];
-}
+type SubnetFormValue = z.infer<typeof subnetSchema>;
+type FormValues = z.infer<typeof zodSchema>;
 
 /**
  * 仮想ネットワーク作成フォームのロジック
@@ -49,7 +42,7 @@ export function useVirtualNetworkCreateForm() {
   const { executeCreate, isCreating } = useResourceCreate<
     VirtualNetworkCreateRequest,
     VirtualNetworkResponse
-  >("virtual-networks");
+  >(NETWORK.name);
 
   // ============================================================================
   // Form Setup
