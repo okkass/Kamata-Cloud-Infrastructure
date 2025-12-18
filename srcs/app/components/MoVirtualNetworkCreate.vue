@@ -48,8 +48,8 @@
 
             <div v-else class="space-y-4">
               <div
-                v-for="(subnet, index) in displaySubnets"
-                :key="getKey(subnet, index)"
+                v-for="(field, index) in initialSubnets"
+                :key="field.key"
                 class="bg-white p-3 rounded border border-gray-200 shadow-sm"
               >
                 <div class="grid grid-cols-12 gap-3 items-start">
@@ -57,7 +57,7 @@
                     <label class="block text-xs text-gray-500 mb-1">名前</label>
                     <input
                       type="text"
-                      v-model="subnet.name"
+                      v-model="field.value.name"
                       class="form-input-sm w-full"
                       :class="{ 'border-red-500': getError(index, 'name') }"
                       placeholder="例: public-subnet"
@@ -74,7 +74,7 @@
                     <label class="block text-xs text-gray-500 mb-1">CIDR</label>
                     <input
                       type="text"
-                      v-model="subnet.cidr"
+                      v-model="field.value.cidr"
                       class="form-input-sm w-full"
                       :class="{ 'border-red-500': getError(index, 'cidr') }"
                       placeholder="例: 10.0.1.0/24"
@@ -148,21 +148,6 @@ const {
   isCreating,
   onFormSubmit,
 } = useVirtualNetworkCreateForm();
-
-// --- Computed: 表示用サブネット ---
-const displaySubnets = computed(() => {
-  return initialSubnets.value.map((item: any) => {
-    // .value があればそれを使う (アンラップ)
-    return item && typeof item === "object" && "value" in item
-      ? item.value
-      : item;
-  });
-});
-
-// キー取得用
-const getKey = (item: any, index: number) => {
-  return item.key || index;
-};
 
 // --- Helper: エラー取得 ---
 const getError = (index: number, field: string) => {
