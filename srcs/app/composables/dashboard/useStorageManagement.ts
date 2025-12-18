@@ -1,8 +1,9 @@
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 import { STORAGE } from "@/utils/constants";
 import { toSize } from "@/utils/format";
 import { formatAsPercent } from "@/utils/status";
+import { createPolling } from "@/utils/polling";
 import type {
   StoragePoolResponse,
   StoragePoolCreateRequest,
@@ -44,6 +45,22 @@ export function useStorageManagement() {
     error,
   } = useResourceList<StoragePoolResponse>(RESOURCE_NAME);
 
+  const { startPolling, stopPolling, runOnce, lastUpdatedTime } = createPolling(
+    async () => {
+      await refresh();
+    }
+  );
+
+  // マウント時に即時実行し、その後ポーリング開始。アンマウント時に停止。
+  onMounted(() => {
+    void runOnce();
+    startPolling();
+  });
+
+  onUnmounted(() => {
+    stopPolling();
+  });
+
   const columns = [
     { key: "name", label: "ストレージプール名", align: "left" as const },
     { key: "type", label: "要素", align: "left" as const },
@@ -81,6 +98,9 @@ export function useStorageManagement() {
     headerButtons,
     rows,
     refresh,
+    lastUpdatedTime,
+    startPolling,
+    stopPolling,
     ADD_STORAGE_ACTION,
     EDIT_STORAGE_ACTION,
     DELETE_STORAGE_ACTION,
