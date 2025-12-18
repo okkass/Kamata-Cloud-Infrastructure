@@ -2,7 +2,7 @@ import { updateResource } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
 import { getUserService } from "@/service/UserService";
 import { UserPutRequest } from "@app/shared/types";
-import { updateStoragePoolSchema } from "@/zodSchemas";
+import { updateUserSchema } from "@/zodSchemas";
 
 export default defineEventHandler(async (event) => {
   const permission = getPermissionFromEvent(event);
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   return updateResource(
     id,
     body as UserPutRequest,
-    updateStoragePoolSchema,
+    updateUserSchema,
     service.update
   );
 });

@@ -24,7 +24,7 @@ const init = (): UserResponse[] => {
       isVirtualMachineAdmin: false,
     },
     {
-      id: "c93b589b-5389-48aa-b37f-878be7663cf2",
+      id: "5ab9e787-ad30-4f12-9ee4-f00c0491ee5d",
       name: "Admin Taro",
       email: "admin.taro@example.com",
       createdAt: new Date().toISOString(),
