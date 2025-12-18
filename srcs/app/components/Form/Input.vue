@@ -79,7 +79,7 @@ defineProps<{
  * 親コンポーネントとのv-modelによる双方向バインディングを実現します。
  * フォームの入力値がこの変数に格納されます。
  */
-const model = defineModel<string | number | null | undefined>();
+const model = defineModel<string | number | null | undefined | unknown>();
 
 /**
  * v-model:attrs を受け取るための定義です。

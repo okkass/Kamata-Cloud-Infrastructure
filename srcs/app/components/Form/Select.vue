@@ -102,7 +102,7 @@ defineProps<{
  * ==============================================================================
  */
 // v-model（選択された値）の双方向バインディング
-const model = defineModel<string | number | null | undefined>();
+const model = defineModel<string | number | null | undefined | unknown>();
 
 // v-model:attrs（vee-validateからの属性）の双方向バインディング
 const validationAttrs = defineModel("attrs");
