@@ -46,14 +46,13 @@
 import { useImageEditForm } from "~/composables/modal/useImageEditForm";
 import FormInput from "~/components/Form/Input.vue";
 import FormSection from "~/components/Form/Section.vue";
-import type { ImageServerBase } from "~~/shared/types/dto/image/ImageServerBase";
 import FormTextarea from "~/components/Form/Textarea.vue";
 
 // --- 親コンポーネントとの連携 ---
 const props = defineProps({
   show: { type: Boolean, required: true },
   imageData: {
-    type: Object as PropType<ImageServerBase | null>,
+    type: Object as PropType<ImageResponse | null>,
     default: null,
   },
 });
