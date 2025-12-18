@@ -56,9 +56,7 @@
   />
   <MoSecurityGroupEdit
     :show="activeModal === editSecurityGroupAction"
-    :securityGroupData="
-      targetForEditing?.originalData ?? targetForEditing ?? null
-    "
+    :securityGroupData="targetForEditing ?? null"
     @close="closeModal"
     @success="handleSuccess"
   />
