@@ -18,6 +18,10 @@ services:
       - DATABASE_NAME=kci_db
       - DATABASE_URL=mysql://kci_user:moimoi1204@mysql:3306/kci_db
 
+    ports:
+      - "3000:3000"
+      - "3030:3030"
+
   mysql:
     image: mysql:8.0
     restart: unless-stopped
