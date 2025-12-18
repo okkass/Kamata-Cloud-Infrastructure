@@ -47,7 +47,7 @@
       </div>
 
       <template #footer>
-        <div class="modal-footer flex justify-between items-center w-full">
+        <div class="modal-footer flex justify-end items-center w-full">
           <button
             type="button"
             @click="openConfirm"
@@ -80,8 +80,10 @@ import ConfirmationModal from "~/components/ConfirmationModal.vue";
 // Props & Emits
 const props = defineProps({
   show: { type: Boolean, required: true },
-  // 型定義がないため any で受け取りますが、id, name, createdAt 等が含まれている前提です
-  snapshotData: { type: Object as PropType<any>, default: null },
+  snapshotData: {
+    type: Object as PropType<SnapshotResponse | null>,
+    default: null,
+  },
 });
 
 const emit = defineEmits(["close", "success"]);

@@ -23,9 +23,10 @@ export function useSnapshotRestore() {
     name: string
   ): Promise<boolean> => {
     // エンドポイント: /api/snapshots/{id}/restore
-    const { executeCreate } = useResourceCreate<Record<string, never>, any>(
-      `snapshots/${id}/restore`
-    );
+    const { executeCreate } = useResourceCreate<
+      Record<string, never>,
+      VirtualMachineResponse
+    >(`snapshots/${id}/restore`);
 
     isRestoring.value = true;
     try {
