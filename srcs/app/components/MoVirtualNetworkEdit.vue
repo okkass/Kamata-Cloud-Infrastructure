@@ -10,18 +10,13 @@
     </div>
 
     <form v-else @submit.prevent="submitForm" class="space-y-6">
-      <div
-        v-if="updaterError"
-        class="bg-red-50 text-red-600 p-3 rounded text-sm"
-      >
-        {{ updaterError }}
-      </div>
-
       <div class="space-y-4">
         <FormInput
           label="ネットワーク名"
           name="network-name"
-          v-model="editedData.name"
+          v-model="name"
+          v-bind="nameAttrs"
+          :error="errors.name"
           placeholder="my-vpc-01"
           required
           class="w-full"
@@ -51,7 +46,7 @@
 
           <div class="p-4 bg-gray-50">
             <div
-              v-if="!editedData.subnets || editedData.subnets.length === 0"
+              v-if="subnetFields.length === 0"
               class="text-center text-gray-400 py-2 text-sm"
             >
               サブネットがありません。
@@ -59,8 +54,8 @@
 
             <div v-else class="space-y-3">
               <div
-                v-for="(subnet, index) in editedData.subnets"
-                :key="subnet.id || index"
+                v-for="(subnet, index) in subnetFields"
+                :key="subnet.key"
                 class="bg-white p-3 rounded border border-gray-200 shadow-sm"
               >
                 <div class="grid grid-cols-12 gap-3 items-end">
@@ -68,7 +63,8 @@
                     <FormInput
                       label="名前"
                       :name="`subnet-name-${index}`"
-                      v-model="subnet.name"
+                      v-model="subnet.value.name"
+                      :error="getError(index, 'name')"
                       placeholder="例: public-subnet"
                       required
                       class="w-full"
@@ -79,7 +75,8 @@
                     <FormInput
                       label="CIDR"
                       :name="`subnet-cidr-${index}`"
-                      v-model="subnet.cidr"
+                      v-model="subnet.value.cidr"
+                      :error="getError(index, 'cidr')"
                       placeholder="例: 10.0.1.0/24"
                       required
                       class="w-full"
@@ -154,12 +151,23 @@ const emit = defineEmits(["close", "success"]);
 const {
   editedData,
   isSaving,
-  updaterError,
   initializeForm,
   addSubnet,
   removeSubnet,
   save,
+  name,
+  nameAttrs,
+  subnetFields,
+  errors,
 } = useVirtualNetworkEditForm();
+
+// Helper for errors
+const getError = (index: number, field: string) => {
+  const bracketKey = `subnets[${index}].${field}`;
+  const dotKey = `subnets.${index}.${field}`;
+  const errs = errors.value as Record<string, string | undefined>;
+  return errs[bracketKey] || errs[dotKey];
+};
 
 // モーダルが開かれたとき(データが渡されたとき)に初期化
 watch(
@@ -173,7 +181,11 @@ watch(
 );
 
 // 保存処理
-const submitForm = () => {
-  save(emit);
+const submitForm = async () => {
+  const success = await save();
+  if (success) {
+    emit("success");
+    emit("close");
+  }
 };
 </script>
