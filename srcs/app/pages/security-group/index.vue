@@ -13,9 +13,6 @@
           <NuxtLink :to="`/security-group/${row.id}`" class="table-link">
             {{ row.name }}
           </NuxtLink>
-          <span v-if="row.description" class="cell-description">
-            {{ row.description }}
-          </span>
         </div>
       </template>
       <template #row-actions="{ row }">
