@@ -31,13 +31,7 @@ export const useVirtualNetworkEditForm = () => {
         z.object({
           id: z.string(),
           name: z.string().min(1, "サブネット名は必須です"),
-          cidr: z
-            .string()
-            .min(1, "CIDRは必須です")
-            .regex(
-              /^([0-9]{1,3}\.){3}[0-9]{1,3}(\/([0-9]|[1-2][0-9]|3[0-2]))?$/,
-              "有効なCIDR形式で入力してください"
-            ),
+          cidr: z.string().cidrv4("有効なCIDR形式で入力してください"),
         })
       ),
     })
