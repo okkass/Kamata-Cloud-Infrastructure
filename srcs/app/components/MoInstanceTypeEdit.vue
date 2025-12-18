@@ -21,7 +21,9 @@
         <FormInput
           label="名前"
           name="name"
-          v-model="editedData.name"
+          v-model="name"
+          v-bind="nameAttrs"
+          :error="errors.name"
           placeholder="例: standard-2vcpu-4gb"
           required
           class="w-full"
@@ -31,7 +33,9 @@
           label="vCPU"
           name="cpuCore"
           type="number"
-          v-model.number="editedData.cpuCore"
+          v-model.number="cpuCore"
+          v-bind="cpuCoreAttrs"
+          :error="errors.cpuCore"
           placeholder="2"
           required
           class="w-full"
@@ -42,6 +46,8 @@
           name="memorySize"
           type="number"
           v-model.number="memorySizeGB"
+          v-bind="memorySizeGBAttrs"
+          :error="errors.memorySizeGB"
           placeholder="4"
           required
           class="w-full"
@@ -85,7 +91,13 @@ const emit = defineEmits(["close", "success"]);
 
 const {
   editedData,
+  name,
+  nameAttrs,
+  cpuCore,
+  cpuCoreAttrs,
   memorySizeGB,
+  memorySizeGBAttrs,
+  errors,
   isSaving,
   updaterError,
   initializeForm,
@@ -102,7 +114,11 @@ watch(
   { immediate: true }
 );
 
-const submitForm = () => {
-  save(emit);
+const submitForm = async () => {
+  const success = await save();
+  if (success) {
+    emit("success");
+    emit("close");
+  }
 };
 </script>
