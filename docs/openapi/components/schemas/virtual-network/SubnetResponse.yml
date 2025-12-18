@@ -19,7 +19,6 @@ properties:
     format: date-time
     description: サブネットが作成された日時
 required:
-  - parent
   - id
   - name
   - cidr
