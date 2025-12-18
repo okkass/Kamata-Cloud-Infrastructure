@@ -49,6 +49,8 @@
           v-bind="memorySizeGBAttrs"
           :error="errors.memorySizeGB"
           placeholder="4"
+          :step="1024"
+          :min="512"
           required
           class="w-full"
         >
