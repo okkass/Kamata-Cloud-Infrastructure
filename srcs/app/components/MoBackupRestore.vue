@@ -51,15 +51,6 @@
         <div class="modal-footer flex justify-end gap-2">
           <button
             type="button"
-            @click="$emit('close')"
-            class="btn btn-secondary"
-            :disabled="isRestoring"
-          >
-            キャンセル
-          </button>
-
-          <button
-            type="button"
             @click="openConfirm"
             class="btn btn-danger"
             :disabled="isRestoring || !backupData?.id"
