@@ -60,13 +60,23 @@
         <div class="flex gap-2">
           <button
             type="button"
-            @click="$emit('close')"
+            @click="prevTab"
             class="btn btn-secondary"
-            :disabled="isSaving"
+            :disabled="isFirstTab || isSaving"
           >
-            キャンセル
+            戻る
           </button>
           <button
+            v-if="!isLastTab"
+            type="button"
+            @click="nextTab"
+            class="btn btn-primary"
+            :disabled="isSaving"
+          >
+            次へ
+          </button>
+          <button
+            v-else
             type="button"
             @click="submitForm"
             class="btn btn-primary"
@@ -81,7 +91,8 @@
 </template>
 
 <script setup lang="ts">
-import { watch, PropType } from "vue";
+import { watch, computed } from "vue";
+import type { PropType } from "vue";
 import { useVirtualMachineEditForm } from "~/composables/modal/useVirtualMachineEditForm";
 import TabGeneral from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabGeneral.vue";
 import TabConfig from "/workspace/srcs/app/components/vm-edit-tabs/VmEditTabConfig.vue";
@@ -106,6 +117,30 @@ const tabs = [
 
 const { activeTab, editedData, isSaving, updaterError, initializeForm, save } =
   useVirtualMachineEditForm();
+
+const currentTabIndex = computed(() =>
+  tabs.findIndex((t) => t.id === activeTab.value)
+);
+const isFirstTab = computed(() => currentTabIndex.value === 0);
+const isLastTab = computed(() => currentTabIndex.value === tabs.length - 1);
+
+const prevTab = () => {
+  if (!isFirstTab.value) {
+    const prev = tabs[currentTabIndex.value - 1];
+    if (prev) {
+      activeTab.value = prev.id;
+    }
+  }
+};
+
+const nextTab = () => {
+  if (!isLastTab.value) {
+    const next = tabs[currentTabIndex.value + 1];
+    if (next) {
+      activeTab.value = next.id;
+    }
+  }
+};
 
 watch(
   () => props.vmData,
