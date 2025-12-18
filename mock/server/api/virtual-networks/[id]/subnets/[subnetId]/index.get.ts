@@ -1,6 +1,6 @@
 import { getResource } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
-import { getSubnetService } from "@/service/VirtualNetworkService";
+import { getVirtualNetworkService } from "@/service/VirtualNetworkService";
 import { validateUUID } from "@/utils/validate";
 
 export default defineEventHandler((event) => {
@@ -10,7 +10,7 @@ export default defineEventHandler((event) => {
   // eventから権限情報を取り出す
   const permission = getPermissionFromEvent(event);
 
-  const service = getSubnetService(permission, vnId);
+  const service = getVirtualNetworkService(permission).getSubnetService(vnId);
 
   const id = event.context.params?.subnetId || "";
 

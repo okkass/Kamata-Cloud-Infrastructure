@@ -7,5 +7,5 @@ export default defineEventHandler((event) => {
   const service = getNodeService(permission);
   const { id } = event.context.params as { id: string };
 
-  return getResourceList(() => service.listDevices(id));
+  return getResourceList(() => service.listNewDevices(id));
 });

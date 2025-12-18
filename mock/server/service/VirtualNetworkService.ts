@@ -13,13 +13,24 @@ import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import VirtualNetworkRepository from "@/repository/VirtualNetworkRepository";
 
+type SubnetService = ResourceService<
+  SubnetResponse,
+  SubnetCreateRequest,
+  SubnetPatchRequest | SubnetPutRequest,
+  ServiceError
+>;
+
+type VirtualNetworkService = ResourceService<
+  VirtualNetworkResponse,
+  VirtualNetworkCreateRequest,
+  VirtualMachinePatchRequest | VirtualMachinePutRequest,
+  ServiceError
+> & {
+  getSubnetService: (vnetId: string) => SubnetService;
+};
+
 export const getVirtualNetworkService = (permission: UserPermissions) => {
-  const VirtualNetworkService: ResourceService<
-    VirtualNetworkResponse,
-    VirtualNetworkCreateRequest,
-    VirtualMachinePatchRequest | VirtualMachinePutRequest,
-    ServiceError
-  > = {
+  const VirtualNetworkService: VirtualNetworkService = {
     permission,
     list(query?: string) {
       const vnets = VirtualNetworkRepository.list();
@@ -65,75 +76,66 @@ export const getVirtualNetworkService = (permission: UserPermissions) => {
       }
       return { success: true, data: null };
     },
+    getSubnetService(vnetId) {
+      const SubnetService: SubnetService = {
+        permission,
+        list(query) {
+          const subnets = VirtualNetworkRepository.listSubnets(vnetId);
+          if (!subnets) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: subnets };
+        },
+        getById(id) {
+          const subnet = VirtualNetworkRepository.getSubnet(vnetId, id);
+          if (!subnet) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: subnet };
+        },
+        create(data) {
+          const newSubnet = VirtualNetworkRepository.createSubnet(vnetId, data);
+          if (!newSubnet) {
+            return {
+              success: false,
+              error: "BadRequest",
+            };
+          }
+          return { success: true, data: newSubnet };
+        },
+        update(id, data) {
+          const updatedSubnet = VirtualNetworkRepository.updateSubnet(
+            vnetId,
+            id,
+            data
+          );
+          if (!updatedSubnet) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: updatedSubnet };
+        },
+        delete(id) {
+          const deleted = VirtualNetworkRepository.deleteSubnet(vnetId, id);
+          if (!deleted) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: null };
+        },
+      };
+      return SubnetService;
+    },
   };
   return VirtualNetworkService;
-};
-
-export const getSubnetService = (
-  permission: UserPermissions,
-  vnetId: string
-) => {
-  const SubnetService: ResourceService<
-    SubnetResponse,
-    SubnetCreateRequest,
-    SubnetPatchRequest | SubnetPutRequest,
-    ServiceError
-  > = {
-    permission,
-    list(query) {
-      const subnets = VirtualNetworkRepository.listSubnets(vnetId);
-      if (!subnets) {
-        return {
-          success: false,
-          error: "NotFound",
-        };
-      }
-      return { success: true, data: subnets };
-    },
-    getById(id) {
-      const subnet = VirtualNetworkRepository.getSubnet(vnetId, id);
-      if (!subnet) {
-        return {
-          success: false,
-          error: "NotFound",
-        };
-      }
-      return { success: true, data: subnet };
-    },
-    create(data) {
-      const newSubnet = VirtualNetworkRepository.createSubnet(vnetId, data);
-      if (!newSubnet) {
-        return {
-          success: false,
-          error: "BadRequest",
-        };
-      }
-      return { success: true, data: newSubnet };
-    },
-    update(id, data) {
-      const updatedSubnet = VirtualNetworkRepository.updateSubnet(
-        vnetId,
-        id,
-        data
-      );
-      if (!updatedSubnet) {
-        return {
-          success: false,
-          error: "NotFound",
-        };
-      }
-      return { success: true, data: updatedSubnet };
-    },
-    delete(id) {
-      const deleted = VirtualNetworkRepository.deleteSubnet(vnetId, id);
-      if (!deleted) {
-        return {
-          success: false,
-          error: "NotFound",
-        };
-      }
-      return { success: true, data: null };
-    },
-  };
-  return SubnetService;
 };

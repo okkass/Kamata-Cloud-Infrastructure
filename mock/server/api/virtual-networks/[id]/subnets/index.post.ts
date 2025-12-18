@@ -1,6 +1,6 @@
 import { createResource } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
-import { getSubnetService } from "@/service/VirtualNetworkService";
+import { getVirtualNetworkService } from "@/service/VirtualNetworkService";
 import { validateUUID } from "@/utils/validate";
 import { createSubnetSchema } from "@/zodSchemas";
 
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   // リクエストから権限情報を取り出す
   const permission = getPermissionFromEvent(event);
 
-  const service = getSubnetService(permission, vnId);
+  const service = getVirtualNetworkService(permission).getSubnetService(vnId);
 
   // サービスの create 処理を共通ハンドラー経由で実行しレスポンスを返す
   return createResource(requestBody, createSubnetSchema, service.create);

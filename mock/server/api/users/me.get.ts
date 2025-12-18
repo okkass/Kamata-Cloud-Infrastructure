@@ -1,9 +1,12 @@
-import { getResource } from "@/utils/serviceResultHandler";
+import { getResourceList } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
-import { getStoragePoolService } from "@/service/StoragePoolService";
+import { getUserService } from "@/service/UserService";
 
 export default defineEventHandler((event) => {
+  // モックなので固定のユーザーを返す
   const permission = getPermissionFromEvent(event);
-  const service = getStoragePoolService(permission);
-  const { id } = event.context.params as { id: string };
-  
+  const service = getUserService(permission);
+
+  const list = getResourceList(service.list);
+  return list[0];
+});

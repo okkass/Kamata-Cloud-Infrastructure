@@ -1,13 +1,13 @@
-import { createResource } from "@/utils/serviceResultHandler";
+import { updateResource } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
 import { getVirtualMachineService } from "@/service/VirtualMachineService";
+import { partialUpdateNetworkInterfaceSchema } from "@/zodSchemas";
+import type { NetworkInterfacePatchRequest } from "@app/shared/types";
 import { validateUUID } from "@/utils/validate";
-import { createNetworkInterfaceSchema } from "@/zodSchemas";
-import type { NetworkInterfaceCreateRequest } from "@app/shared/types";
 
 export default defineEventHandler(async (event) => {
   const permission = getPermissionFromEvent(event);
-  const { id } = event.context.params as { id: string };
+  const { id, nicId } = event.context.params as { id: string; nicId: string };
   validateUUID(id);
 
   const service =
@@ -19,10 +19,11 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const body = await readBody<NetworkInterfaceCreateRequest>(event);
-  return createResource(
-    body as NetworkInterfaceCreateRequest,
-    createNetworkInterfaceSchema,
-    service.create
+  const body = await readBody<NetworkInterfacePatchRequest>(event);
+  return updateResource(
+    nicId,
+    body as NetworkInterfacePatchRequest,
+    partialUpdateNetworkInterfaceSchema,
+    service.update
   );
 });

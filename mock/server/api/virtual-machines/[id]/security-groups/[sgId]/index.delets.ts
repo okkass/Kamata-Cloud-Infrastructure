@@ -1,15 +1,15 @@
-import { getResourceList } from "@/utils/serviceResultHandler";
+import { deleteResource } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
 import { getVirtualMachineService } from "@/service/VirtualMachineService";
 import { validateUUID } from "@/utils/validate";
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const permission = getPermissionFromEvent(event);
-
-  const { id } = event.context.params as { id: string };
+  const { id, sgId } = event.context.params as { id: string; sgId: string };
   validateUUID(id);
 
-  const service = getVirtualMachineService(permission).getStorageService(id);
+  const service =
+    getVirtualMachineService(permission).getVmSecurityGroupService(id);
   if (!service) {
     throw createError({
       statusCode: 404,
@@ -17,5 +17,5 @@ export default defineEventHandler((event) => {
     });
   }
 
-  return getResourceList(service.list);
+  return deleteResource(sgId, service.delete);
 });

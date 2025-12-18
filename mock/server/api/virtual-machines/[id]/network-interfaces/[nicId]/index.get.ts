@@ -1,4 +1,4 @@
-import { getResourceList } from "@/utils/serviceResultHandler";
+import { getResource } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
 import { getVirtualMachineService } from "@/service/VirtualMachineService";
 import { validateUUID } from "@/utils/validate";
@@ -6,10 +6,11 @@ import { validateUUID } from "@/utils/validate";
 export default defineEventHandler((event) => {
   const permission = getPermissionFromEvent(event);
 
-  const { id } = event.context.params as { id: string };
+  const { id, nicId } = event.context.params as { id: string; nicId: string };
   validateUUID(id);
 
-  const service = getVirtualMachineService(permission).getStorageService(id);
+  const service =
+    getVirtualMachineService(permission).getNetworkInterfaceService(id);
   if (!service) {
     throw createError({
       statusCode: 404,
@@ -17,5 +18,5 @@ export default defineEventHandler((event) => {
     });
   }
 
-  return getResourceList(service.list);
+  return getResource(nicId, service.getById);
 });

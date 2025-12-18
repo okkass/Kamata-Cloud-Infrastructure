@@ -1,4 +1,6 @@
 import type { ResourceService } from "@/common/service";
+import type { Result } from "@/common/type";
+import type { SuccessDetail } from "@/common/SuccessDetail";
 import type {
   VirtualMachineResponse,
   VirtualMachineCreateRequest,
@@ -18,13 +20,56 @@ import { UserPermissions, VmSecurityGroupAddRequest } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import VirtualMachineRepository from "@/repository/VirtualMachineRepository";
 
+type VirtualMachinePowerService = {
+  vmid: string;
+  start: () => Result<SuccessDetail, ServiceError>;
+  shutdown: () => Result<SuccessDetail, ServiceError>;
+  stop: () => Result<SuccessDetail, ServiceError>;
+  reboot: () => Result<SuccessDetail, ServiceError>;
+  reset: () => Result<SuccessDetail, ServiceError>;
+};
+
+type VirtualMachineService = ResourceService<
+  VirtualMachineResponse,
+  VirtualMachineCreateRequest,
+  VirtualMachinePatchRequest | VirtualMachinePutRequest,
+  ServiceError
+> & {
+  getStorageService: (
+    vmId: string
+  ) =>
+    | ResourceService<
+        StorageResponse,
+        StorageCreateRequest,
+        StoragePatchRequest | StoragePutRequest,
+        ServiceError
+      >
+    | undefined;
+  getNetworkInterfaceService: (
+    vmId: string
+  ) =>
+    | ResourceService<
+        NetworkInterfaceResponse,
+        NetworkInterfaceCreateRequest,
+        NetworkInterfacePatchRequest | NetworkInterfacePutRequest,
+        ServiceError
+      >
+    | undefined;
+  getVmSecurityGroupService: (
+    vmId: string
+  ) =>
+    | ResourceService<
+        SecurityGroupResponse,
+        VmSecurityGroupAddRequest,
+        never,
+        ServiceError
+      >
+    | undefined;
+  getPowerService: (vmId: string) => VirtualMachinePowerService;
+};
+
 export const getVirtualMachineService = (permission: UserPermissions) => {
-  const VirtualMachineService: ResourceService<
-    VirtualMachineResponse,
-    VirtualMachineCreateRequest,
-    VirtualMachinePatchRequest | VirtualMachinePutRequest,
-    ServiceError
-  > = {
+  const virtualMachineService: VirtualMachineService = {
     permission,
     list(query) {
       const vms = VirtualMachineRepository.list();
@@ -70,150 +115,161 @@ export const getVirtualMachineService = (permission: UserPermissions) => {
       }
       return { success: true, data: null };
     },
+    getStorageService(vmId) {
+      const StorageService: ResourceService<
+        StorageResponse,
+        StorageCreateRequest,
+        StoragePatchRequest | StoragePutRequest,
+        ServiceError
+      > = {
+        permission,
+        list(query) {
+          const storages =
+            VirtualMachineRepository.listStoragesByVirtualMachineId(vmId) || [];
+          return { success: true, data: storages };
+        },
+        getById(id) {
+          const storage = VirtualMachineRepository.getStorage(vmId, id);
+          if (!storage) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: storage };
+        },
+        create(data) {
+          return {
+            success: false,
+            error: "NotImplemented",
+          };
+        },
+        update(id, data) {
+          return {
+            success: false,
+            error: "NotImplemented",
+          };
+        },
+        delete(id) {
+          return {
+            success: false,
+            error: "NotImplemented",
+          };
+        },
+      };
+      return StorageService;
+    },
+    getNetworkInterfaceService(vmId) {
+      const NetworkInterfaceService: ResourceService<
+        NetworkInterfaceResponse,
+        NetworkInterfaceCreateRequest,
+        NetworkInterfacePatchRequest | NetworkInterfacePutRequest,
+        ServiceError
+      > = {
+        permission,
+        list(query) {
+          const nics =
+            VirtualMachineRepository.listNetworkInterfacesByVirtualMachineId(
+              vmId
+            );
+          if (!nics) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: nics };
+        },
+        getById(id) {
+          const nic = VirtualMachineRepository.getNetworkInterface(vmId, id);
+          if (!nic) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: nic };
+        },
+        create(data) {
+          return {
+            success: false,
+            error: "NotImplemented",
+          };
+        },
+        update(id, data) {
+          return {
+            success: false,
+            error: "NotImplemented",
+          };
+        },
+        delete(id) {
+          return {
+            success: false,
+            error: "NotImplemented",
+          };
+        },
+      };
+      return NetworkInterfaceService;
+    },
+    getVmSecurityGroupService(vmId) {
+      const VmSecurityGroupService: ResourceService<
+        SecurityGroupResponse,
+        VmSecurityGroupAddRequest,
+        never,
+        ServiceError
+      > = {
+        permission,
+        list(query) {
+          const securityGroups =
+            VirtualMachineRepository.listSecurityGroupsByVirtualMachineId(vmId);
+          if (!securityGroups) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: securityGroups };
+        },
+        getById(id) {
+          // ID知ってるならセキュリティグループに聞いて
+          return { success: false, error: "BadRequest" };
+        },
+        create(data) {
+          // 仮想マシンにセキュリティグループを追加
+          return { success: false, error: "NotImplemented" };
+        },
+        update(id, data) {
+          // セキュリティグループに聞いて
+          return { success: false, error: "BadRequest" };
+        },
+        delete(id) {
+          // 仮想マシンからセキュリティグループを削除
+          return { success: false, error: "NotImplemented" };
+        },
+      };
+      return VmSecurityGroupService;
+    },
+    getPowerService(vmId) {
+      const powerService: VirtualMachinePowerService = {
+        vmid: vmId,
+        start() {
+          return { success: true, data: "Accepted" };
+        },
+        shutdown() {
+          return { success: true, data: "Accepted" };
+        },
+        stop() {
+          return { success: true, data: "Accepted" };
+        },
+        reboot() {
+          return { success: true, data: "Accepted" };
+        },
+        reset() {
+          return { success: true, data: "Accepted" };
+        },
+      };
+      return powerService;
+    },
   };
-  return VirtualMachineService;
-};
-
-export const getStorageService = (
-  permission: UserPermissions,
-  vmId: string
-) => {
-  const StorageService: ResourceService<
-    StorageResponse,
-    StorageCreateRequest,
-    StoragePatchRequest | StoragePutRequest,
-    ServiceError
-  > = {
-    permission,
-    list(query) {
-      const storages =
-        VirtualMachineRepository.listStoragesByVirtualMachineId(vmId) || [];
-      return { success: true, data: storages };
-    },
-    getById(id) {
-      const storage = VirtualMachineRepository.getStorage(vmId, id);
-      if (!storage) {
-        return {
-          success: false,
-          error: "NotFound",
-        };
-      }
-      return { success: true, data: storage };
-    },
-    create(data) {
-      return {
-        success: false,
-        error: "NotImplemented",
-      };
-    },
-    update(id, data) {
-      return {
-        success: false,
-        error: "NotImplemented",
-      };
-    },
-    delete(id) {
-      return {
-        success: false,
-        error: "NotImplemented",
-      };
-    },
-  };
-  return StorageService;
-};
-
-export const getNetworkInterfaceService = (
-  permission: UserPermissions,
-  vmId: string
-) => {
-  const NetworkInterfaceService: ResourceService<
-    NetworkInterfaceResponse,
-    NetworkInterfaceCreateRequest,
-    NetworkInterfacePatchRequest | NetworkInterfacePutRequest,
-    ServiceError
-  > = {
-    permission,
-    list(query) {
-      const nics =
-        VirtualMachineRepository.listNetworkInterfacesByVirtualMachineId(vmId);
-      if (!nics) {
-        return {
-          success: false,
-          error: "NotFound",
-        };
-      }
-      return { success: true, data: nics };
-    },
-    getById(id) {
-      const nic = VirtualMachineRepository.getNetworkInterface(vmId, id);
-      if (!nic) {
-        return {
-          success: false,
-          error: "NotFound",
-        };
-      }
-      return { success: true, data: nic };
-    },
-    create(data) {
-      return {
-        success: false,
-        error: "NotImplemented",
-      };
-    },
-    update(id, data) {
-      return {
-        success: false,
-        error: "NotImplemented",
-      };
-    },
-    delete(id) {
-      return {
-        success: false,
-        error: "NotImplemented",
-      };
-    },
-  };
-  return NetworkInterfaceService;
-};
-
-export const getVmSecurityGroupService = (
-  permission: UserPermissions,
-  vmId: string
-) => {
-  const VmSecurityGroupService: ResourceService<
-    SecurityGroupResponse,
-    VmSecurityGroupAddRequest,
-    never,
-    ServiceError
-  > = {
-    permission,
-    list(query) {
-      const securityGroups =
-        VirtualMachineRepository.listSecurityGroupsByVirtualMachineId(vmId);
-      if (!securityGroups) {
-        return {
-          success: false,
-          error: "NotFound",
-        };
-      }
-      return { success: true, data: securityGroups };
-    },
-    getById(id) {
-      // ID知ってるならセキュリティグループに聞いて
-      return { success: false, error: "BadRequest" };
-    },
-    create(data) {
-      // 仮想マシンにセキュリティグループを追加
-      return { success: false, error: "NotImplemented" };
-    },
-    update(id, data) {
-      // セキュリティグループに聞いて
-      return { success: false, error: "BadRequest" };
-    },
-    delete(id) {
-      // 仮想マシンからセキュリティグループを削除
-      return { success: false, error: "NotImplemented" };
-    },
-  };
-  return VmSecurityGroupService;
+  return virtualMachineService;
 };

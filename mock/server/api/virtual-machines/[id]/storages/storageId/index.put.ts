@@ -1,13 +1,16 @@
-import { createResource } from "@/utils/serviceResultHandler";
+import { updateResource } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
 import { getVirtualMachineService } from "@/service/VirtualMachineService";
+import { updateStorageSchema } from "@/zodSchemas";
+import type { StoragePutRequest } from "@app/shared/types";
 import { validateUUID } from "@/utils/validate";
-import { createStorageSchema } from "@/zodSchemas";
-import type { StorageCreateRequest } from "@app/shared/types";
 
 export default defineEventHandler(async (event) => {
   const permission = getPermissionFromEvent(event);
-  const { id } = event.context.params as { id: string };
+  const { id, storageId } = event.context.params as {
+    id: string;
+    storageId: string;
+  };
   validateUUID(id);
 
   const service = getVirtualMachineService(permission).getStorageService(id);
@@ -18,10 +21,11 @@ export default defineEventHandler(async (event) => {
     });
   }
 
-  const body = await readBody<StorageCreateRequest>(event);
-  return createResource(
-    body as StorageCreateRequest,
-    createStorageSchema,
-    service.create
+  const body = await readBody<StoragePutRequest>(event);
+  return updateResource(
+    storageId,
+    body as StoragePutRequest,
+    updateStorageSchema,
+    service.update
   );
 });

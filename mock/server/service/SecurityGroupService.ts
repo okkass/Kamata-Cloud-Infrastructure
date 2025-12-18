@@ -13,13 +13,23 @@ import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import SecurityGroupRepository from "@/repository/SecurityGroupRepository";
 
+type SecurityRuleService = ResourceService<
+  SecurityRuleResponse,
+  SecurityRuleCreateRequest,
+  SecurityRulePatchRequest | SecurityRulePutRequest,
+  ServiceError
+>;
+type SecurityGroupService = ResourceService<
+  SecurityGroupResponse,
+  SecurityGroupCreateRequest,
+  SecurityGroupPatchRequest | SecurityGroupPutRequest,
+  ServiceError
+> & {
+  getSecurityRuleService: (sgId: string) => SecurityRuleService;
+};
+
 export const getSecurityGroupService = (permission: UserPermissions) => {
-  const SecurityGroupService: ResourceService<
-    SecurityGroupResponse,
-    SecurityGroupCreateRequest,
-    SecurityGroupPatchRequest | SecurityGroupPutRequest,
-    ServiceError
-  > = {
+  const SecurityGroupService: SecurityGroupService = {
     permission,
     list(query) {
       const groups = SecurityGroupRepository.list();
@@ -62,68 +72,63 @@ export const getSecurityGroupService = (permission: UserPermissions) => {
       }
       return { success: true, data: null };
     },
+    getSecurityRuleService(sgId) {
+      const SecurityRuleService: SecurityRuleService = {
+        permission,
+        list(query) {
+          const rules = SecurityGroupRepository.listRules(sgId);
+          if (!rules) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: rules };
+        },
+        getById(id) {
+          const rule = SecurityGroupRepository.getRuleById(sgId, id);
+          if (!rule) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: rule };
+        },
+        create(data) {
+          const newRule = SecurityGroupRepository.createRule(sgId, data);
+          if (!newRule) {
+            return {
+              success: false,
+              error: "BadRequest",
+            };
+          }
+          return { success: true, data: newRule };
+        },
+        update(id, data) {
+          const updatedRule = SecurityGroupRepository.updateRule(
+            sgId,
+            id,
+            data
+          );
+          if (!updatedRule) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: updatedRule };
+        },
+        delete(id) {
+          const deleted = SecurityGroupRepository.deleteRule(sgId, id);
+          if (!deleted) {
+            return { success: false, error: "NotFound" };
+          }
+          return { success: true, data: null };
+        },
+      };
+      return SecurityRuleService;
+    },
   };
   return SecurityGroupService;
-};
-
-export const getSecurityRuleService = (
-  permission: UserPermissions,
-  sgId: string
-) => {
-  const SecurityRuleService: ResourceService<
-    SecurityRuleResponse,
-    SecurityRuleCreateRequest,
-    SecurityRulePatchRequest | SecurityRulePutRequest,
-    ServiceError
-  > = {
-    permission,
-    list(query) {
-      const rules = SecurityGroupRepository.listRules(sgId);
-      if (!rules) {
-        return {
-          success: false,
-          error: "NotFound",
-        };
-      }
-      return { success: true, data: rules };
-    },
-    getById(id) {
-      const rule = SecurityGroupRepository.getRuleById(sgId, id);
-      if (!rule) {
-        return {
-          success: false,
-          error: "NotFound",
-        };
-      }
-      return { success: true, data: rule };
-    },
-    create(data) {
-      const newRule = SecurityGroupRepository.createRule(sgId, data);
-      if (!newRule) {
-        return {
-          success: false,
-          error: "BadRequest",
-        };
-      }
-      return { success: true, data: newRule };
-    },
-    update(id, data) {
-      const updatedRule = SecurityGroupRepository.updateRule(sgId, id, data);
-      if (!updatedRule) {
-        return {
-          success: false,
-          error: "NotFound",
-        };
-      }
-      return { success: true, data: updatedRule };
-    },
-    delete(id) {
-      const deleted = SecurityGroupRepository.deleteRule(sgId, id);
-      if (!deleted) {
-        return { success: false, error: "NotFound" };
-      }
-      return { success: true, data: null };
-    },
-  };
-  return SecurityRuleService;
 };

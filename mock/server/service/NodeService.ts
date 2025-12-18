@@ -1,21 +1,29 @@
 import type { ResourceService } from "@/common/service/ResourceService";
+import type { Result } from "@/common/type";
 import type {
   NodeResponse,
   NodeCreateRequest,
   NodePatchRequest,
   NodePutRequest,
+  DeviceResponse,
+  NodeCandidateResponse,
 } from "@app/shared/types";
 import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import NodeRepository from "@/repository/NodeRepository";
 
+type NodeService = ResourceService<
+  NodeResponse,
+  NodeCreateRequest,
+  NodePatchRequest | NodePutRequest,
+  ServiceError
+> & {
+  listNewDevices: (nodeId: string) => Result<DeviceResponse[], ServiceError>;
+  listCandidates: () => Result<NodeCandidateResponse[], ServiceError>;
+};
+
 export const getNodeService = (permission: UserPermissions) => {
-  const NodeService: ResourceService<
-    NodeResponse,
-    NodeCreateRequest,
-    NodePatchRequest | NodePutRequest,
-    ServiceError
-  > = {
+  const nodeService: NodeService = {
     permission,
     list(query) {
       const nodes = NodeRepository.list();
@@ -58,6 +66,14 @@ export const getNodeService = (permission: UserPermissions) => {
       }
       return { success: true, data: null };
     },
+    listNewDevices(nodeId) {
+      const devices = NodeRepository.listDevices();
+      return { success: true, data: devices };
+    },
+    listCandidates() {
+      const candidates = NodeRepository.listCandidates();
+      return { success: true, data: candidates };
+    },
   };
-  return NodeService;
+  return nodeService;
 };
