@@ -27,11 +27,11 @@ export const useInstanceTypeEditForm = () => {
   const memorySizeGB = computed({
     get: () => {
       if (!editedData.value) return 0;
-      return convertByteToUnit(editedData.value.memorySize, "GB");
+      return convertByteToUnit(editedData.value.memorySize, "MB");
     },
     set: (val) => {
       if (editedData.value) {
-        editedData.value.memorySize = convertUnitToByte(val, "GB");
+        editedData.value.memorySize = convertUnitToByte(val, "MB");
       }
     },
   });

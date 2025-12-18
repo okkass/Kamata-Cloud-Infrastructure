@@ -38,7 +38,7 @@
         />
 
         <FormInput
-          label="メモリ (GB)"
+          label="メモリ (MB)"
           name="memorySize"
           type="number"
           v-model.number="memorySizeGB"
@@ -47,7 +47,7 @@
           class="w-full"
         >
           <template #suffix>
-            <span class="ml-2 text-gray-500 text-sm">GB</span>
+            <span class="ml-2 text-gray-500 text-sm">MB</span>
           </template>
         </FormInput>
       </div>
