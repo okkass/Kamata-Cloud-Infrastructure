@@ -88,27 +88,12 @@
                   </div>
 
                   <div
-                    class="col-span-3 flex flex-col items-end justify-between h-full"
+                    class="col-span-3 flex flex-col items-end justify-center h-full pt-6"
                   >
-                    <div class="flex items-center gap-1 mt-6">
-                      <input
-                        type="checkbox"
-                        :id="`ext-${index}`"
-                        v-model="subnet.possibleExternalConnection"
-                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500 h-4 w-4"
-                      />
-                      <label
-                        :for="`ext-${index}`"
-                        class="text-xs text-gray-600 cursor-pointer select-none"
-                      >
-                        外部接続
-                      </label>
-                    </div>
-
                     <button
                       type="button"
                       @click="removeSubnet(index)"
-                      class="text-red-500 text-xs hover:underline mt-2"
+                      class="text-red-500 text-xs hover:underline"
                     >
                       削除
                     </button>

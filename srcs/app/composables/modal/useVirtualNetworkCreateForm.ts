@@ -17,7 +17,6 @@ import { useToast } from "~/composables/useToast";
 const subnetSchema = z.object({
   name: z.string().min(1, "サブネット名は必須です。"),
   cidr: z.cidrv4(),
-  possibleExternalConnection: z.boolean(),
 });
 
 // フォーム全体のスキーマ
@@ -33,7 +32,6 @@ const validationSchema = toTypedSchema(zodSchema);
 interface SubnetFormValue {
   name: string;
   cidr: string;
-  possibleExternalConnection: boolean;
 }
 
 interface FormValues {
@@ -80,7 +78,6 @@ export function useVirtualNetworkCreateForm() {
     pushSubnet({
       name: "",
       cidr: "",
-      possibleExternalConnection: false,
     });
   };
 
@@ -96,7 +93,6 @@ export function useVirtualNetworkCreateForm() {
         initialSubnets: formValues.initialSubnets.map((s) => ({
           name: s.name,
           cidr: s.cidr,
-          possibleExternalConnection: s.possibleExternalConnection,
         })),
       };
 
