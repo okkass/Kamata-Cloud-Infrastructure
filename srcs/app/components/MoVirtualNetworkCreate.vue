@@ -54,48 +54,48 @@
               >
                 <div class="grid grid-cols-12 gap-3 items-start">
                   <div class="col-span-5">
-                    <label class="block text-xs text-gray-500 mb-1">名前</label>
-                    <input
-                      type="text"
+                    <FormInput
+                      label="名前"
+                      :name="`subnet-name-${index}`"
                       v-model="field.value.name"
-                      class="form-input-sm w-full"
-                      :class="{ 'border-red-500': getError(index, 'name') }"
+                      :error="getError(index, 'name')"
                       placeholder="例: public-subnet"
+                      class="w-full"
                     />
-                    <p
-                      v-if="getError(index, 'name')"
-                      class="text-xs text-red-500 mt-1"
-                    >
-                      {{ getError(index, "name") }}
-                    </p>
                   </div>
 
                   <div class="col-span-4">
-                    <label class="block text-xs text-gray-500 mb-1">CIDR</label>
-                    <input
-                      type="text"
+                    <FormInput
+                      label="CIDR"
+                      :name="`subnet-cidr-${index}`"
                       v-model="field.value.cidr"
-                      class="form-input-sm w-full"
-                      :class="{ 'border-red-500': getError(index, 'cidr') }"
+                      :error="getError(index, 'cidr')"
                       placeholder="例: 10.0.1.0/24"
+                      class="w-full"
                     />
-                    <p
-                      v-if="getError(index, 'cidr')"
-                      class="text-xs text-red-500 mt-1"
-                    >
-                      {{ getError(index, "cidr") }}
-                    </p>
                   </div>
 
-                  <div
-                    class="col-span-3 flex flex-col items-end justify-center h-full pt-6"
-                  >
+                  <div class="col-span-3 flex justify-end pt-6">
                     <button
                       type="button"
                       @click="removeSubnet(index)"
-                      class="text-red-500 text-xs hover:underline"
+                      class="text-gray-400 hover:text-red-500 p-1 flex items-center gap-1 text-xs"
+                      title="削除"
                     >
-                      削除
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        class="h-5 w-5"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                      >
+                        <path
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+                        />
+                      </svg>
                     </button>
                   </div>
                 </div>
