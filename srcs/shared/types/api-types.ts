@@ -7775,7 +7775,7 @@ export interface components {
         };
         /** @description サブネットオブジェクト */
         SubnetResponse: {
-            parent: components["schemas"]["VirtualNetworkSummaryResponse"];
+            parent?: components["schemas"]["VirtualNetworkSummaryResponse"];
             /**
              * Format: uuid
              * @description サブネットを識別するための一意なID
