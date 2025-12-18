@@ -24,4 +24,4 @@ required:
   - name
   - macAddress
   - ipAddress
-  - subnetId
+  - subnet

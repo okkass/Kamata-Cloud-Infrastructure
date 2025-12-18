@@ -7753,8 +7753,29 @@ export interface components {
              */
             devicePath: string;
         };
+        /** @description 仮想ネットワークの概要情報オブジェクト(子要素が含まれない) */
+        VirtualNetworkSummaryResponse: {
+            /**
+             * Format: uuid
+             * @description 仮想ネットワークを識別するための一意なID
+             */
+            id: string;
+            /** @description 仮想ネットワークの名前 */
+            name: string;
+            /**
+             * @description CIDR形式のネットワークアドレス
+             * @example 10.0.0.0/16
+             */
+            cidr: string;
+            /**
+             * Format: date-time
+             * @description 仮想ネットワークが作成された日時
+             */
+            createdAt: string;
+        };
         /** @description サブネットオブジェクト */
         SubnetResponse: {
+            parent?: components["schemas"]["VirtualNetworkSummaryResponse"];
             /**
              * Format: uuid
              * @description サブネットを識別するための一意なID
@@ -7793,7 +7814,7 @@ export interface components {
              * @example 10.0.0.0/32
              */
             ipAddress: string;
-            subnet?: components["schemas"]["SubnetResponse"];
+            subnet: components["schemas"]["SubnetResponse"];
         };
         /** @description 仮想マシンレスポンスオブジェクト */
         VirtualMachineResponse: {
@@ -8230,6 +8251,7 @@ export type UserPutRequest = components['schemas']['UserPutRequest'];
 export type UserPatchRequest = components['schemas']['UserPatchRequest'];
 export type PasswordChangeRequest = components['schemas']['PasswordChangeRequest'];
 export type StorageResponse = components['schemas']['StorageResponse'];
+export type VirtualNetworkSummaryResponse = components['schemas']['VirtualNetworkSummaryResponse'];
 export type SubnetResponse = components['schemas']['SubnetResponse'];
 export type NetworkInterfaceResponse = components['schemas']['NetworkInterfaceResponse'];
 export type VirtualMachineResponse = components['schemas']['VirtualMachineResponse'];
