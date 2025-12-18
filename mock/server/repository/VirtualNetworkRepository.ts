@@ -11,13 +11,6 @@ import type {
 
 import crypto from "crypto";
 
-class VirtualNetworkNotFoundError extends Error {
-  constructor(id: string) {
-    super(`Virtual Network with id ${id} not found`);
-    this.name = "VirtualNetworkNotFoundError";
-  }
-}
-
 let virtualNetworks: VirtualNetworkResponse[] | null = null;
 
 const init = (): VirtualNetworkResponse[] => {
