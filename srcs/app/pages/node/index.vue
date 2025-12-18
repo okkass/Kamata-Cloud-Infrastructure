@@ -40,6 +40,10 @@
           <button
             type="button"
             class="action-item"
+            :class="{
+              'opacity-50 cursor-not-allowed':
+                row.isMgmt || switchingNodeId === row.id,
+            }"
             :disabled="row.isMgmt || switchingNodeId === row.id"
             @click.stop.prevent="onRowAction({ action: 'set-mgmt', row })"
           >
@@ -48,6 +52,7 @@
           <button
             type="button"
             class="action-item action-item-danger"
+            :class="{ 'opacity-50 cursor-not-allowed': row.isMgmt }"
             :disabled="row.isMgmt"
             @click.stop.prevent="onRowAction({ action: 'delete', row })"
           >
@@ -65,7 +70,7 @@
     @close="cancelAction"
     @confirm="handleDelete"
   />
-  <MoAddNodeToCluster
+  <MoAddNode
     :show="activeModal === ADD_NODE_ACTION"
     @close="closeModal"
     @success="handleSuccess"
@@ -73,14 +78,6 @@
 </template>
 
 <script setup lang="ts">
-/**
- * =================================================================================
- * 物理ノード管理ページ
- * ---------------------------------------------------------------------------------
- * UIの表示に特化したコンポーネントです。
- * 実際のロジックは `useNodeManagement` Composable に分離されています。
- * =================================================================================
- */
 import { useNodeManagement } from "~/composables/dashboard/useNodeManagement";
 import { usePageActions } from "~/composables/usePageActions";
 
