@@ -1,4 +1,7 @@
 openapi: "3.0.3"
+servers:
+  - url: "localhost:3030"
+    description: "Local Server"
 info:
   title: "KCI API"
   description: "KCI API documentation"
