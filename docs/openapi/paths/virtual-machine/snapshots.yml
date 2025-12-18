@@ -2,7 +2,17 @@ get:
   summary: スナップショット一覧の取得
   description: すべてのスナップショットのリストを取得します。
   tags:
-    - VirtualMachine
+    - Snapshot
+  parameters:
+    - name: scope
+      in: query
+      description: 表示範囲(mine=自分のもの, all=全て(管理者のみ)、指定のない場合はmine。)
+      required: false
+      schema:
+        type: string
+        enum:
+          - mine
+          - all
   responses:
     "200":
       description: 成功
@@ -30,7 +40,7 @@ post:
   summary: スナップショットの作成
   description: 新しいスナップショットを作成します。
   tags:
-    - VirtualMachine
+    - Snapshot
   requestBody:
     required: true
     content:
@@ -68,7 +78,7 @@ delete:
   summary: スナップショットの削除
   description: 指定したIDのスナップショットを削除します。
   tags:
-    - VirtualMachine
+    - Snapshot
   parameters:
     - name: snapshotId
       in: query

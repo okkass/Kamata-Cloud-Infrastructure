@@ -2,7 +2,7 @@ openapi: "3.0.3"
 info:
   title: "KCI API"
   description: "KCI API documentation"
-  version: "0.46.0"
+  version: "0.47.0"
 paths:
   /api/login:
     $ref: "paths/auth/login.yml"
@@ -26,8 +26,6 @@ paths:
     $ref: "paths/node/nodes_{nodeId}.yml"
   /api/nodes/{nodeId}/new-devices:
     $ref: "paths/node/nodes_{nodeId}_new-devices.yml"
-  /api/portfolios:
-    $ref: "paths/portfolio/portfolios.yml"
   /api/security-groups:
     $ref: "paths/security-group/security-groups.yml"
   /api/security-groups/{groupId}:
@@ -128,8 +126,6 @@ tags:
     description: "インスタンスタイプ関連の操作"
   - name: "Node"
     description: "物理ノード関連の操作"
-  - name: "Portfolio"
-    description: "ポートフォリオ関連の操作"
   - name: "SecurityGroup"
     description: "セキュリティグループ関連の操作"
   - name: "StoragePool"

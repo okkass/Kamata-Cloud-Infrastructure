@@ -3,6 +3,7 @@
     <h2 class="text-lg font-semibold">ルール一覧</h2>
 
     <div class="detail-card space-y-6">
+      <!-- インバウンド -->
       <div>
         <h3 class="mb-2 text-sm font-semibold text-neutral-800">
           インバウンドルール
@@ -16,7 +17,7 @@
           <article
             v-for="rule in inboundRules"
             :key="rule.id"
-            class="rounded-lg border border-neutral-200 px-4 py-3"
+            class="rounded-lg border border-neutral-200 px-4 py-3 bg-white"
           >
             <div class="flex items-center justify-between gap-3 mb-2">
               <p class="detail-value">
@@ -55,6 +56,7 @@
         </div>
       </div>
 
+      <!-- アウトバウンド -->
       <div class="detail-card-section pt-4">
         <h3 class="mb-2 text-sm font-semibold text-neutral-800">
           アウトバウンドルール
@@ -68,7 +70,7 @@
           <article
             v-for="rule in outboundRules"
             :key="rule.id"
-            class="rounded-lg border border-neutral-200 px-4 py-3"
+            class="rounded-lg border border-neutral-200 px-4 py-3 bg-white"
           >
             <div class="flex items-center justify-between gap-3 mb-2">
               <p class="detail-value">
@@ -112,25 +114,9 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
+import { formatDateTime } from "@/utils/date";
 
-type SecurityRule = {
-  id: string;
-  name: string;
-  ruleType: "inbound" | "outbound";
-  port?: number | null;
-  protocol: "tcp" | "udp" | "icmp" | "any";
-  targetIp: string;
-  action?: "allow" | "deny";
-  createdAt: string;
-};
-
-type SecurityGroupResponse = {
-  id: string;
-  name: string;
-  description?: string;
-  rules: SecurityRule[];
-  createdAt: string;
-};
+type SecurityRule = SecurityGroupResponse["rules"][number];
 
 const props = defineProps<{
   context: SecurityGroupResponse;
@@ -160,12 +146,12 @@ const protocolLabel = (p: SecurityRule["protocol"]) => {
   }
 };
 
-const portLabel = (port?: number | null) =>
+const portLabel = (port: SecurityRule["port"]) =>
   port == null ? "全ポート" : String(port);
 
-const actionLabel = (a?: SecurityRule["action"]) =>
+const actionLabel = (a: SecurityRule["action"] | undefined) =>
   a === "deny" ? "拒否" : "許可";
 
-const actionClass = (a?: SecurityRule["action"]) =>
+const actionClass = (a: SecurityRule["action"] | undefined) =>
   a === "deny" ? "bg-rose-50 text-rose-700 border-rose-200" : "detail-pill-yes";
 </script>

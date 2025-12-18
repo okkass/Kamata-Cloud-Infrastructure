@@ -2,7 +2,7 @@ post:
   summary: スナップショットを仮想マシンに復元する
   description: 指定したIDのスナップショットを、スナップショット元の仮想マシンに復元します。復元先の仮想マシンが削除されている場合、復元は失敗します。
   tags:
-    - VirtualMachine
+    - Snapshot
   parameters:
     - name: id
       in: path

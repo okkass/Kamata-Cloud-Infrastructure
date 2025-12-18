@@ -31,50 +31,42 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import { useRoute, useRouter } from "vue-router";
+import { MACHINE } from "~/utils/constants";
+import { useApiClient } from "~/composables/useResourceClient";
+
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
-import { vmTabs } from "~/composables/detail/useVmtabs";
-import { useResourceDetail } from "~/composables/useResourceDetail";
-import { useToast } from "@/composables/useToast";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 
-const { addToast } = useToast();
+// Tabs
+import { vmTabs } from "~/composables/detail/useVmTabs";
 
-type VmDetail = {
-  id: string;
-  name: string;
-  createdAt: string;
-  status: string;
-  node?: {
-    name?: string;
-    ipAddress?: string;
-    status?: string;
-  };
-  cpuCore?: number;
-  memorySize?: number | string;
-  attachedStorages?: { id: string; name: string; size: number }[];
-  securityGroups?: { id: string; name: string; createdAt?: string }[];
-  nics?: { id: string; name: string; ip: string }[];
-};
+// composables
+import { useResourceDetail } from "~/composables/useResourceDetail";
+import { useToast } from "~/composables/useToast";
+
+const { addToast } = useToast();
+const apiClient = useApiClient();
 
 const route = useRoute();
 const router = useRouter();
-const api = useApiClient();
 
-// VM 詳細取得
+// VM データ取得
 const {
   data: vm,
   pending,
   error,
-  // useResourceDetail に refresh 相当があれば拾う想定（なければ undefined のままでOK）
   refresh,
-} = await useResourceDetail<VmDetail>(MACHINE.name, route.params.id as string);
+} = await useResourceDetail<VirtualMachineResponse>(
+  MACHINE.name,
+  route.params.id as string
+);
 
-// 戻るボタン
+// 戻る
 const goBack = () => {
   router.back();
 };
 
-// 操作メニュー（編集含む）
+// 操作メニュー
 const actions = ref([
   { label: "起動", value: "start" },
   { label: "停止", value: "stop" },
@@ -84,7 +76,7 @@ const actions = ref([
   { label: "編集", value: "edit" },
 ]);
 
-// value → エンドポイント末尾
+// API エンドポイント
 const actionEndpointMap: Record<string, string> = {
   start: "start",
   stop: "stop",
@@ -93,7 +85,7 @@ const actionEndpointMap: Record<string, string> = {
   reset: "reset",
 };
 
-// アクションごとの日本語メッセージ
+// 成功メッセージ
 const actionSuccessMessage: Record<string, string> = {
   start: "VMを起動しました",
   stop: "VMを停止しました",
@@ -102,7 +94,7 @@ const actionSuccessMessage: Record<string, string> = {
   reset: "VMをリセットしました",
 };
 
-// 編集モーダル表示状態
+// 編集モーダル
 const isEditOpen = ref(false);
 
 const openEditModal = () => {
@@ -117,13 +109,9 @@ const handleEditClose = () => {
 const handleEditSuccess = async () => {
   isEditOpen.value = false;
 
-  // 編集完了トースト
-  addToast({
-    message: "仮想マシンの情報を更新しました",
-    type: "success",
-  });
+  // ここではトーストを出さず、モーダル側に任せる
 
-  // useResourceDetail に refresh がある場合は再取得（なければ何も起きない）
+  // 最新データ取得
   if (typeof refresh === "function") {
     try {
       await refresh();
@@ -133,11 +121,11 @@ const handleEditSuccess = async () => {
   }
 };
 
-// detail-test 風 + API 呼び出し + 編集モーダル起動
+// アクション実行
 const handleAction = async (action: { label: string; value: string }) => {
   if (!vm.value) return;
 
-  // 🔹 編集はモーダル起動
+  // 編集
   if (action.value === "edit") {
     openEditModal();
     return;
@@ -146,7 +134,6 @@ const handleAction = async (action: { label: string; value: string }) => {
   const endpoint = actionEndpointMap[action.value];
 
   if (!endpoint) {
-    console.warn("未対応のアクション:", action.value);
     addToast({
       message: `未対応のアクションです: ${action.label}`,
       type: "error",
@@ -155,21 +142,22 @@ const handleAction = async (action: { label: string; value: string }) => {
   }
 
   try {
-    const res = await api.post<{ message: string; data?: { status: string } }>(
-      `virtual-machines/${vm.value.id}/${endpoint}`,
-      {
-        action: action.value,
-      }
+    type VmActionResponse = {
+      message: string;
+      data: {
+        id: string;
+        status?: VirtualMachineResponse["status"];
+      };
+    };
+
+    const res = await apiClient.post<VmActionResponse>(
+      `${MACHINE.name}/${vm.value.id}/${endpoint}`,
+      { action: action.value }
     );
 
-    console.log("操作成功:", action.value, res);
-
-    // API からステータスが返ってくる場合は vm.status を更新
+    // ステータス反映
     if (res.data?.status) {
-      vm.value = {
-        ...vm.value,
-        status: res.data.status,
-      };
+      vm.value = { ...vm.value, status: res.data.status };
     }
 
     addToast({

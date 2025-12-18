@@ -45,7 +45,7 @@ const validationSchema = toTypedSchema(
     isImageAdmin: z.boolean(),
     isInstanceTypeAdmin: z.boolean(),
     isNetworkAdmin: z.boolean(),
-    isPhysicalNodeAdmin: z.boolean(),
+    isNodeAdmin: z.boolean(),
     isSecurityGroupAdmin: z.boolean(),
     isVirtualMachineAdmin: z.boolean(),
   })
@@ -80,7 +80,7 @@ export function useUserAddForm() {
       isImageAdmin: false,
       isInstanceTypeAdmin: false,
       isNetworkAdmin: false,
-      isPhysicalNodeAdmin: false,
+      isNodeAdmin: false,
       isSecurityGroupAdmin: false,
       isVirtualMachineAdmin: false,
     },
@@ -103,9 +103,7 @@ export function useUserAddForm() {
     "isInstanceTypeAdmin"
   );
   const [isNetworkAdmin, isNetworkAdminAttrs] = defineField("isNetworkAdmin");
-  const [isPhysicalNodeAdmin, isPhysicalNodeAdminAttrs] = defineField(
-    "isPhysicalNodeAdmin"
-  );
+  const [isNodeAdmin, isNodeAdminAttrs] = defineField("isNodeAdmin");
   const [isSecurityGroupAdmin, isSecurityGroupAdminAttrs] = defineField(
     "isSecurityGroupAdmin"
   );
@@ -139,7 +137,7 @@ export function useUserAddForm() {
         isImageAdmin: values.isImageAdmin,
         isInstanceTypeAdmin: values.isInstanceTypeAdmin,
         isNetworkAdmin: values.isNetworkAdmin,
-        isPhysicalNodeAdmin: values.isPhysicalNodeAdmin,
+        isNodeAdmin: values.isNodeAdmin,
         isSecurityGroupAdmin: values.isSecurityGroupAdmin,
         isVirtualMachineAdmin: values.isVirtualMachineAdmin,
       };
@@ -186,8 +184,8 @@ export function useUserAddForm() {
     isInstanceTypeAdminAttrs,
     isNetworkAdmin,
     isNetworkAdminAttrs,
-    isPhysicalNodeAdmin,
-    isPhysicalNodeAdminAttrs,
+    isNodeAdmin,
+    isNodeAdminAttrs,
     isSecurityGroupAdmin,
     isSecurityGroupAdminAttrs,
     isVirtualMachineAdmin,

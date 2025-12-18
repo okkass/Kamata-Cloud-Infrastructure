@@ -5,10 +5,13 @@ allOf:
 required:
   - name
   - email
+  - maxCpuCore
+  - maxMemorySize
+  - maxStorageSize
   - isAdmin
   - isImageAdmin
   - isInstanceTypeAdmin
   - isVirtualMachineAdmin
   - isNetworkAdmin
   - isSecurityGroupAdmin
-  - isPhysicalNodeAdmin
+  - isNodeAdmin
