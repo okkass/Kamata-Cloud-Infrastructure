@@ -6,9 +6,6 @@ import {
 } from "~/composables/useResourceUpdater";
 import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
 
-// 型定義 (環境に合わせて適宜調整してください)
-// import type { VirtualMachineResponse } from "~/shared/types";
-
 export const useVirtualMachineEditForm = () => {
   const { addToast } = useToast();
 
@@ -22,7 +19,7 @@ export const useVirtualMachineEditForm = () => {
     init,
     save: saveResource, // 名前重複回避のためエイリアス
     isDirty,
-  } = useResourceUpdater<any>();
+  } = useResourceUpdater<VirtualMachineResponse>();
 
   const updaterError = ref<string | null>(null);
 
@@ -30,7 +27,7 @@ export const useVirtualMachineEditForm = () => {
    * フォーム初期化
    * 親コンポーネントで watch(() => props.vmData, ...) の中で呼び出されます
    */
-  const initializeForm = (data: any) => {
+  const initializeForm = (data: VirtualMachineResponse) => {
     // 1. メモリ単位変換 (Bytes -> GB)
     // UI上ではGBで扱いたいので、初期化時に変換します
     const formattedData = {
@@ -118,7 +115,7 @@ export const useVirtualMachineEditForm = () => {
         // ここでは汎用メッセージを出しています。必要に応じて updaterError を参照してください。
         updaterError.value = "保存に失敗しました。";
       }
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error(err);
       updaterError.value = "予期せぬエラーが発生しました。";
     } finally {
