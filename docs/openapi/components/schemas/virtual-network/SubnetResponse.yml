@@ -1,6 +1,8 @@
 type: object
 description: サブネットオブジェクト
 properties:
+  parent:
+    $ref: "./VirtualNetworkSummaryResponse.yml"
   id:
     type: string
     format: uuid
@@ -17,6 +19,7 @@ properties:
     format: date-time
     description: サブネットが作成された日時
 required:
+  - parent
   - id
   - name
   - cidr
