@@ -45,6 +45,59 @@ get:
             $ref: "../../components/schemas/ErrorResponse.yml"
   security:
     - BearerAuth: []
+put:
+  summary: 仮想マシンのストレージ編集
+  description: 指定したIDの仮想マシンに関連付けられたストレージを編集します。
+  tags:
+    - VirtualMachine
+  parameters:
+    - name: vmId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: 仮想マシンの一意なID
+    - name: storageId
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
+      description: ストレージの一意なID
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../components/schemas/virtual-machine/storage/StoragePutRequest.yml"
+  responses:
+    "200":
+      description: 成功
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/virtual-machine/storage/StorageResponse.yml"
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "403":
+      description: 権限エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "404":
+      description: 仮想マシンが見つからない
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+  security:
+    - BearerAuth: []
 patch:
   summary: 仮想マシンのストレージ部分編集
   description: 指定したIDの仮想マシンに関連付けられたストレージを部分編集します。
