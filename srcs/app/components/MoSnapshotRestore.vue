@@ -117,7 +117,4 @@ const onConfirmed = async () => {
     emit("close");
   }
 };
-
-// --- ヘルパー関数 ---
-// formatDateTime は自動インポートされるため、ローカルの formatDate は削除
 </script>
