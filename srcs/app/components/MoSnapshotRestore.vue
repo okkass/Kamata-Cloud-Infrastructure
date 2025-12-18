@@ -50,15 +50,6 @@
         <div class="modal-footer flex justify-between items-center w-full">
           <button
             type="button"
-            @click="$emit('close')"
-            class="btn btn-secondary"
-            :disabled="isRestoring"
-          >
-            キャンセル
-          </button>
-
-          <button
-            type="button"
             @click="openConfirm"
             class="btn bg-red-600 text-white hover:bg-red-700 border-transparent shadow-sm"
             :disabled="isRestoring || !snapshotData?.id"

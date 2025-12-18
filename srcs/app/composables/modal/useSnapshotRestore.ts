@@ -22,10 +22,9 @@ export function useSnapshotRestore() {
     id: string,
     name: string
   ): Promise<boolean> => {
-    // エンドポイント: /api/backups/{id}/restore
-    // (要件により、Snapshotでもbackupsエンドポイントを使用)
+    // エンドポイント: /api/snapshots/{id}/restore
     const { executeCreate } = useResourceCreate<Record<string, never>, any>(
-      `backups/${id}/restore`
+      `snapshots/${id}/restore`
     );
 
     isRestoring.value = true;
