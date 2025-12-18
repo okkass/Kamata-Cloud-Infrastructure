@@ -42,12 +42,12 @@ export function useSecurityGroupEditForm(props: Props) {
   function getResourceConfig(data: SecurityGroupResponse): ResourceConfig {
     return {
       base: {
-        endpoint: `/api/security-groups/${data.id}`,
+        endpoint: `security-groups/${data.id}`,
         fields: ["name", "description"],
       },
       collections: {
         rules: {
-          endpoint: `/api/security-groups/${data.id}/rules`,
+          endpoint: `security-groups/${data.id}/rules`,
           idKey: "id",
           newIdPrefix: "new-",
           fields: [

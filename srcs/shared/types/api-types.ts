@@ -7130,8 +7130,8 @@ export interface components {
              * @description 仮想マシンイメージのサイズ(バイト単位)
              */
             size: number;
-            /** @description 仮想マシンイメージが関連付けられているノードの情報 */
-            node?: components["schemas"]["NodeResponse"];
+            /** @description 仮想マシンイメージが存在するノードの情報 */
+            node: components["schemas"]["NodeResponse"];
         };
         /** @description 仮想マシンイメージのうち更新可能な情報を表すスキーマ */
         ImageClientUpdatable: {
