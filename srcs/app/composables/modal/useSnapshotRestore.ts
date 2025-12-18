@@ -47,13 +47,6 @@ export function useSnapshotRestore() {
         });
         return false;
       }
-    } catch (err: any) {
-      addToast({
-        type: "error",
-        message: "予期しないエラーが発生しました。",
-        details: err.message,
-      });
-      return false;
     } finally {
       isRestoring.value = false;
     }

@@ -11,44 +11,54 @@
           復元を実行する前に、現在の状態のスナップショットを取得することをお勧めします。
         </UiBaseAlert>
 
-        <div class="border rounded-md p-4 bg-gray-50 space-y-3">
-          <h4 class="font-bold text-gray-700 border-b pb-2 mb-2">
-            復元対象データ
-          </h4>
+        <div class="border rounded-md bg-white overflow-hidden">
+          <div class="bg-gray-50 px-4 py-2 border-b">
+            <h4 class="font-bold text-sm text-gray-700">復元対象データ</h4>
+          </div>
 
-          <div class="grid grid-cols-3 gap-4 text-sm">
-            <div class="text-gray-500">名前</div>
-            <div class="col-span-2 font-medium">
-              {{ snapshotData?.name || "-" }}
+          <div
+            class="p-4 grid grid-cols-1 gap-y-4 sm:grid-cols-2 sm:gap-x-6 text-sm"
+          >
+            <div>
+              <span class="block text-xs text-gray-500 mb-1">名前</span>
+              <span class="font-medium text-gray-900">{{
+                snapshotData?.name || "-"
+              }}</span>
             </div>
 
-            <div class="text-gray-500">作成日時</div>
-            <div class="col-span-2">
-              {{ formatDate(snapshotData?.createdAt) }}
+            <div>
+              <span class="block text-xs text-gray-500 mb-1">作成日時</span>
+              <span class="text-gray-900">{{
+                formatDateTime(snapshotData?.createdAt)
+              }}</span>
             </div>
 
-            <div class="text-gray-500">説明</div>
-            <div class="col-span-2">
-              {{ snapshotData?.description || "-" }}
+            <div class="sm:col-span-2">
+              <span class="block text-xs text-gray-500 mb-1">説明</span>
+              <span class="text-gray-900">{{
+                snapshotData?.description || "-"
+              }}</span>
             </div>
 
-            <div class="text-gray-500">ID</div>
-            <div class="col-span-2 text-xs text-gray-400 break-all">
-              {{ snapshotData?.id || "-" }}
+            <div class="sm:col-span-2">
+              <span class="block text-xs text-gray-500 mb-1">ID</span>
+              <span class="text-xs text-gray-400 font-mono break-all">{{
+                snapshotData?.id || "-"
+              }}</span>
             </div>
           </div>
         </div>
       </div>
 
       <template #footer>
-        <div class="modal-footer flex justify-end items-center w-full">
+        <div class="modal-footer flex justify-end gap-2">
           <button
             type="button"
             @click="openConfirm"
-            class="btn bg-red-600 text-white hover:bg-red-700 border-transparent shadow-sm"
+            class="btn btn-danger"
             :disabled="isRestoring || !snapshotData?.id"
           >
-            復元を実行
+            {{ isRestoring ? "復元中..." : "復元を実行" }}
           </button>
         </div>
       </template>
@@ -59,6 +69,7 @@
       title="復元の最終確認"
       message="現在の仮想マシンの状態はこのスナップショットの内容で上書きされ、元に戻すことはできません。よろしいですか？"
       confirm-text="復元する"
+      confirm-button-class="btn-danger"
       @confirm="onConfirmed"
       @cancel="showConfirm = false"
     />
@@ -108,14 +119,5 @@ const onConfirmed = async () => {
 };
 
 // --- ヘルパー関数 ---
-const formatDate = (dateString: string | undefined) => {
-  if (!dateString) return "-";
-  return new Date(dateString).toLocaleString("ja-JP", {
-    year: "numeric",
-    month: "2-digit",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-};
+// formatDateTime は自動インポートされるため、ローカルの formatDate は削除
 </script>
