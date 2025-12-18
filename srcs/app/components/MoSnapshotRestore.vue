@@ -6,16 +6,10 @@
       @close="$emit('close')"
     >
       <div class="space-y-6">
-        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-          <div class="flex">
-            <div class="ml-3">
-              <p class="text-sm text-yellow-700">
-                この操作を行うと、現在の仮想マシンのデータは完全に上書きされます。<br />
-                復元を実行する前に、現在の状態のスナップショットを取得することをお勧めします。
-              </p>
-            </div>
-          </div>
-        </div>
+        <UiBaseAlert type="warning">
+          この操作を行うと、現在の仮想マシンのデータは完全に上書きされます。<br />
+          復元を実行する前に、現在の状態のスナップショットを取得することをお勧めします。
+        </UiBaseAlert>
 
         <div class="border rounded-md p-4 bg-gray-50 space-y-3">
           <h4 class="font-bold text-gray-700 border-b pb-2 mb-2">
