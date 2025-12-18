@@ -8,6 +8,7 @@
 import { computed } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 import { SECURITY_GROUP } from "@/utils/constants";
+import { formatDateTime } from "@/utils/date";
 import type { SecurityGroupResponse } from "~~/shared/types";
 
 /* =========================== Types (APIに準拠) =========================== */
@@ -17,6 +18,8 @@ interface UiEnhancedSecurityGroup extends SecurityGroupResponse {
   inboundRuleCount: number;
   outboundRuleCount: number;
   ruleSummary: string;
+  rulesText: string;
+  originalData?: SecurityGroupResponse;
 }
 
 export const addSecurityGroupAction = `add-${SECURITY_GROUP.name}`;
@@ -33,7 +36,7 @@ export function useSecurityDashboard() {
   const columns: TableColumn[] = [
     { key: "name", label: "グループ名", align: "left" },
     { key: "description", label: "説明", align: "left" },
-    { key: "rules", label: "イン/アウト ルール数", align: "center" },
+    { key: "rulesText", label: "イン/アウト ルール数", align: "center" },
     { key: "createdAt", label: "作成日時", align: "left" },
   ];
   const headerButtons = [{ label: "セキュリティグループ追加", action: "add" }];
@@ -51,8 +54,9 @@ export function useSecurityDashboard() {
         inboundRuleCount,
         outboundRuleCount,
         ruleSummary: summary,
-        rules: summary as any, // テンプレートの #cell-rules と整合
+        rulesText: summary,
         createdAt: formatDateTime(g.createdAt),
+        originalData: g,
       };
     })
   );

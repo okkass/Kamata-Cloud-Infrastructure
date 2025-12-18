@@ -56,15 +56,19 @@
   />
   <MoSecurityGroupEdit
     :show="activeModal === editSecurityGroupAction"
-    :group="targetForEditing"
+    :securityGroupData="
+      targetForEditing?.originalData ?? targetForEditing ?? null
+    "
     @close="closeModal"
     @success="handleSuccess"
   />
 </template>
 
 <script setup lang="ts">
+import { SECURITY_GROUP } from "@/utils/constants";
 import { useSecurityDashboard } from "~/composables/dashboard/useSecurityDashboard";
 import { usePageActions } from "~/composables/usePageActions";
+import type { SecurityGroupResponse } from "~~/shared/types";
 
 // ★ 1. データ関連のComposableを呼び出し
 const {
