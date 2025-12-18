@@ -2,36 +2,31 @@
   <section class="space-y-4">
     <h2 class="text-lg font-semibold">ネットワークインターフェース</h2>
 
-    <div class="detail-card">
-      <div v-if="nics.length > 0" class="space-y-2">
-        <article
-          v-for="nic in nics"
-          :key="nic.id"
-          class="rounded-lg border border-neutral-200 px-4 py-3"
-        >
-          <dl class="grid gap-2 md:grid-cols-3">
-            <div>
-              <dt class="detail-label">NIC ID</dt>
-              <dd class="detail-value text-xs font-mono">
-                {{ nic.id }}
-              </dd>
-            </div>
+    <div class="detail-card space-y-4">
+      <div v-if="nics.length > 0" class="space-y-6">
+        <div v-for="nic in nics" :key="nic.id" class="space-y-3">
+          <div>
+            <div class="detail-label">NIC ID</div>
+            <div class="detail-value">{{ nic.id }}</div>
+          </div>
 
-            <div>
-              <dt class="detail-label">サブネットID</dt>
-              <dd class="detail-value text-xs font-mono">
-                {{ nic.subnetId || "—" }}
-              </dd>
-            </div>
+          <div>
+            <div class="detail-label">サブネットID</div>
+            <div class="detail-value">{{ nic.subnetId || "—" }}</div>
+          </div>
 
-            <div>
-              <dt class="detail-label">IPアドレス</dt>
-              <dd class="detail-value text-xs font-mono">
-                {{ nic.ipAddress || "—" }}
-              </dd>
-            </div>
-          </dl>
-        </article>
+          <div>
+            <div class="detail-label">IPアドレス</div>
+            <div class="detail-value">{{ nic.ipAddress || "—" }}</div>
+          </div>
+
+          <div>
+            <div class="detail-label">MACアドレス</div>
+            <div class="detail-value">{{ nic.macAddress || "—" }}</div>
+          </div>
+
+          <hr v-if="nics.length > 1" class="border-neutral-200 pt-2" />
+        </div>
       </div>
 
       <p v-else class="text-sm text-neutral-500">
@@ -43,13 +38,29 @@
 
 <script setup lang="ts">
 import { computed } from "vue";
-import type { VirtualMachineDTO } from "~~/shared/types/dto/virtual-machine/VirtualMachineDTO";
 
-type VmContext = Pick<VirtualMachineDTO, "attachedNics">;
+type VirtualMachineResponse = components["schemas"]["VirtualMachineResponse"];
+
+type NicView = {
+  id: string;
+  subnetId?: string;
+  ipAddress?: string;
+  macAddress?: string;
+};
 
 const props = defineProps<{
-  context: VmContext;
+  context?: VirtualMachineResponse | null;
 }>();
 
-const nics = computed(() => props.context.attachedNics ?? []);
+const nics = computed<NicView[]>(() => {
+  const list = props.context?.networkInterfaces ?? [];
+  if (!Array.isArray(list)) return [];
+
+  return list.map((nic) => ({
+    id: nic.id,
+    subnetId: nic.subnet?.id,
+    ipAddress: nic.ipAddress,
+    macAddress: nic.macAddress,
+  }));
+});
 </script>

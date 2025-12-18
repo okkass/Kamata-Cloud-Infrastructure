@@ -84,9 +84,9 @@ const adminFlags = computed(() => [
     enabled: user.value.isInstanceTypeAdmin,
   },
   {
-    key: "physicalNode",
+    key: "node",
     label: "物理ノード管理",
-    enabled: user.value.isPhysicalNodeAdmin,
+    enabled: user.value.isNodeAdmin,
   },
   {
     key: "network",
@@ -102,7 +102,7 @@ const adminFlags = computed(() => [
     key: "securityGroup",
     label: "セキュリティグループ管理",
     enabled: user.value.isSecurityGroupAdmin,
-  }
+  },
 ]);
 
 const hasAnyAdmin = computed(() =>

@@ -11,7 +11,7 @@ properties:
           type: string
           format: uuid
           description: 追加するセキュリティグループのID
-  delete:
+  remove:
     type: array
     description: 削除するセキュリティグループのIDリスト
     items:

@@ -36,9 +36,13 @@
           >
             <td class="px-6 py-4 font-medium">{{ vm.name }}</td>
             <td class="px-6 py-4">{{ vm.status }}</td>
-            <td class="px-6 py-4">{{ vm.nodeName }}</td>
+            <td class="px-6 py-4">{{ vm.node?.name || "-" }}</td>
             <td class="px-6 py-4 text-center">
-              <button @click="openVmEditModal(vm)" class="btn-secondary">
+              <button
+                @click="openVmEditModal(vm)"
+                class="btn-secondary text-xs px-3 py-1"
+                title="仮想マシン編集"
+              >
                 編集
               </button>
             </td>
@@ -48,46 +52,6 @@
       <div v-else class="mt-2 text-gray-500">
         表示できる仮想マシンがありません。
       </div>
-    </div>
-
-    <div class="mt-8 pt-4 border-t">
-      <h2 class="font-semibold text-lg">インスタンスタイプ一覧 (API連携)</h2>
-      <div v-if="itPending" class="mt-2 text-gray-500">一覧を読み込み中...</div>
-      <div v-else-if="itError" class="mt-2 text-red-600">
-        一覧の取得に失敗しました: {{ itError.message }}
-      </div>
-      <table
-        v-else-if="instanceTypes && instanceTypes.length > 0"
-        class="w-full mt-2 text-sm text-left"
-      >
-        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
-          <tr>
-            <th class="px-6 py-3">名前</th>
-            <th class="px-6 py-3">CPU</th>
-            <th class="px-6 py-3">メモリ</th>
-            <th class="px-6 py-3 text-center">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="it in instanceTypes"
-            :key="it.id"
-            class="bg-white border-b"
-          >
-            <td class="px-6 py-4 font-medium">{{ it.name }}</td>
-            <td class="px-6 py-4">{{ it.cpuCore }} vCPU</td>
-            <td class="px-6 py-4">{{ it.memorySize }} Byte</td>
-            <td class="px-6 py-4 text-center">
-              <button
-                @click="openInstanceTypeEditModal(it)"
-                class="btn-secondary"
-              >
-                編集
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
     </div>
 
     <div class="mt-8 pt-4 border-t">
@@ -202,6 +166,7 @@
       </div>
     </div>
 
+<<<<<<< HEAD
     <div class="mt-8 pt-4 border-t"></div>
 
     <div class="mt-8 pt-4 border-t">
@@ -214,17 +179,33 @@
       </div>
       <table
         v-else-if="snapshots && snapshots.length > 0"
+=======
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">ストレージプール一覧 (API連携)</h2>
+      <div v-if="spPending" class="mt-2 text-gray-500">一覧を読み込み中...</div>
+      <div v-else-if="spError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ spError.message }}
+      </div>
+      <table
+        v-else-if="storagePools && storagePools.length > 0"
+>>>>>>> main
         class="w-full mt-2 text-sm text-left"
       >
         <thead class="text-xs text-gray-700 uppercase bg-gray-100">
           <tr>
             <th class="px-6 py-3">名前</th>
+<<<<<<< HEAD
             <th class="px-6 py-3">説明</th>
             <th class="px-6 py-3">作成日時</th>
+=======
+            <th class="px-6 py-3">ノード</th>
+            <th class="px-6 py-3">NWアクセス</th>
+>>>>>>> main
             <th class="px-6 py-3 text-center">操作</th>
           </tr>
         </thead>
         <tbody>
+<<<<<<< HEAD
           <tr v-for="ss in snapshots" :key="ss.id" class="bg-white border-b">
             <td class="px-6 py-4 font-medium">{{ ss.name }}</td>
             <td class="px-6 py-4 text-gray-500">
@@ -239,13 +220,99 @@
                 class="btn-secondary text-xs px-3 py-1 bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100"
               >
                 復元
+=======
+          <tr v-for="sp in storagePools" :key="sp.id" class="bg-white border-b">
+            <td class="px-6 py-4 font-medium">{{ sp.name }}</td>
+            <td class="px-6 py-4">{{ sp.node?.name || sp.node }}</td>
+            <td class="px-6 py-4">
+              <span v-if="sp.hasNetworkAccess" class="text-green-600 font-bold"
+                >許可</span
+              >
+              <span v-else class="text-gray-500">拒否</span>
+            </td>
+            <td class="px-6 py-4 text-center">
+              <button @click="openStorageEditModal(sp)" class="btn-secondary">
+                編集
+>>>>>>> main
               </button>
             </td>
           </tr>
         </tbody>
       </table>
+<<<<<<< HEAD
       <div v-else class="mt-2 text-gray-500">
         表示できるスナップショットがありません。
+=======
+    </div>
+
+    <div class="p-8 space-y-8">
+      <div class="mt-8 pt-4 border-t">
+        <h2 class="font-semibold text-lg">バックアップ一覧 (API連携)</h2>
+        <div v-if="bkPending" class="mt-2 text-gray-500">
+          バックアップ一覧を読み込み中...
+        </div>
+        <div v-else-if="bkError" class="mt-2 text-red-600">
+          一覧の取得に失敗しました: {{ bkError.message }}
+        </div>
+        <table
+          v-else-if="backups && backups.length > 0"
+          class="w-full mt-2 text-sm text-left"
+        >
+          <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+            <tr>
+              <th class="px-6 py-3">名前</th>
+              <th class="px-6 py-3">サイズ</th>
+              <th class="px-6 py-3">作成日時</th>
+              <th class="px-6 py-3 text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="bk in backups" :key="bk.id" class="bg-white border-b">
+              <td class="px-6 py-4 font-medium">
+                {{ bk.name }}
+                <span
+                  v-if="!isRestorable(bk)"
+                  class="ml-2 text-xs text-red-500 bg-red-50 px-1 rounded"
+                >
+                  復元不可
+                </span>
+              </td>
+              <td class="px-6 py-4">
+                {{
+                  bk.size
+                    ? (bk.size / (1024 * 1024 * 1024)).toFixed(2) + " GB"
+                    : "-"
+                }}
+              </td>
+              <td class="px-6 py-4">
+                {{ new Date(bk.createdAt).toLocaleString() }}
+              </td>
+              <td class="px-6 py-4 text-center">
+                <button
+                  @click="openBackupRestoreModal(bk)"
+                  :disabled="!isRestorable(bk)"
+                  class="text-xs px-3 py-1 rounded border transition-colors"
+                  :class="
+                    isRestorable(bk)
+                      ? 'btn-secondary bg-yellow-50 text-yellow-700 border-yellow-200 hover:bg-yellow-100'
+                      : 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                  "
+                  :title="
+                    isRestorable(bk)
+                      ? ''
+                      : '復元先のVMまたはストレージ情報が不足しています'
+                  "
+                >
+                  復元
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-else class="mt-2 text-gray-500">
+          表示できるバックアップがありません。
+        </div>
+>>>>>>> main
       </div>
 
       <component
@@ -259,6 +326,7 @@
       />
     </div>
 
+<<<<<<< HEAD
     <component
       v-for="modal in editModals"
       :key="modal.id"
@@ -268,20 +336,76 @@
       @close="closeModal"
       @success="handleSuccess"
     />
+=======
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">仮想ネットワーク一覧 (API連携)</h2>
+      <div v-if="netPending" class="mt-2 text-gray-500">
+        一覧を読み込み中...
+      </div>
+      <div v-else-if="netError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ netError.message }}
+      </div>
+      <table
+        v-else-if="networks && networks.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">CIDR</th>
+            <th class="px-6 py-3">サブネット数</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="net in networks" :key="net.id" class="bg-white border-b">
+            <td class="px-6 py-4 font-medium">{{ net.name }}</td>
+            <td class="px-6 py-4">{{ net.cidr }}</td>
+            <td class="px-6 py-4">
+              {{ net.subnets ? net.subnets.length : 0 }} 個
+            </td>
+            <td class="px-6 py-4 text-center">
+              <button
+                @click="openVirtualNetworkEditModal(net)"
+                class="btn-secondary"
+              >
+                編集
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="mt-2 text-gray-500">
+        表示できる仮想ネットワークがありません。
+      </div>
+    </div>
+>>>>>>> main
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, markRaw, computed } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
+<<<<<<< HEAD
 
+=======
+import { useBackupValidator } from "~/composables/useBackupValidator";
+>>>>>>> main
 // --- コンポーネント ---
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
 import MoUserEdit from "~/components/MoUserEdit.vue";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
+<<<<<<< HEAD
 import MoSnapshotRestore from "~/components/MoSnapshotRestore.vue";
+=======
+import MoBackupRestore from "~/components/MoBackupRestore.vue";
+import MoStorageEdit from "~/components/MoStorageEdit.vue";
+import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
+
+const { isRestorable } = useBackupValidator();
+>>>>>>> main
 
 // --- State ---
 const activeModal = ref<string | null>(null);
@@ -329,12 +453,38 @@ const {
   refresh: refreshSecurityGroups,
 } = useResourceList<SecurityGroupResponse>("security-groups");
 
+<<<<<<< HEAD
 const {
   data: snapshots,
   pending: ssPending,
   error: ssError,
   refresh: refreshSnapshots,
 } = useResourceList<SnapshotResponse>("snapshots");
+=======
+// 6. ストレージプール
+const {
+  data: storagePools,
+  pending: spPending,
+  error: spError,
+  refresh: refreshStoragePools,
+} = useResourceList<StoragePoolResponse>("storage-pools");
+
+// 7. バックアップ
+const {
+  data: backups,
+  pending: bkPending,
+  error: bkError,
+  refresh: refreshBackups,
+} = useResourceList<BackupResponse>("backups");
+
+// 9. 仮想ネットワーク
+const {
+  data: networks,
+  pending: netPending,
+  error: netError,
+  refresh: refreshNetworks,
+} = useResourceList<VirtualNetworkResponse>("virtual-networks");
+>>>>>>> main
 
 // --- モーダル定義 ---
 const editModals = computed(() => [
@@ -343,6 +493,18 @@ const editModals = computed(() => [
     component: markRaw(MoVirtualMachineEdit),
     props: { vmId: targetResource.value?.id },
     refreshFn: refreshVms,
+  },
+  {
+    id: "backupRestore",
+    component: markRaw(MoBackupRestore),
+    props: { backupData: targetResource.value },
+    refreshFn: refreshVms,
+  },
+  {
+    id: "backupRestore",
+    component: markRaw(MoBackupRestore),
+    props: { backupData: targetResource.value },
+    refreshFn: refreshBackups,
   },
   {
     id: "instanceTypeEdit",
@@ -369,11 +531,24 @@ const editModals = computed(() => [
     refreshFn: refreshSecurityGroups,
   },
   {
+<<<<<<< HEAD
     id: "snapshotRestore",
     component: markRaw(MoSnapshotRestore),
     // モーダル側で定義した props 名 (snapshotData) に合わせる
     props: { snapshotData: targetResource.value },
     refreshFn: refreshSnapshots,
+=======
+    id: "storageEdit",
+    component: markRaw(MoStorageEdit),
+    props: { storageData: targetResource.value },
+    refreshFn: refreshStoragePools,
+  },
+  {
+    id: "networkEdit",
+    component: markRaw(MoVirtualNetworkEdit),
+    props: { networkData: targetResource.value },
+    refreshFn: refreshNetworks,
+>>>>>>> main
   },
 ]);
 
@@ -399,6 +574,11 @@ const handleSuccess = () => {
 
 // Open Helpers
 const openVmEditModal = (vm: VirtualMachineResponse) => openModal("vmEdit", vm);
+<<<<<<< HEAD
+=======
+const openBackupRestoreModal = (backup: BackupResponse) =>
+  openModal("backupRestore", backup);
+>>>>>>> main
 const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
   openModal("instanceTypeEdit", it);
 const openImageEditModal = (image: ImageResponse) =>
@@ -406,6 +586,13 @@ const openImageEditModal = (image: ImageResponse) =>
 const openUserEditModal = (user: UserResponse) => openModal("userEdit", user);
 const openSecurityGroupEditModal = (sg: SecurityGroupResponse) =>
   openModal("securityGroupEdit", sg);
+<<<<<<< HEAD
 const openSnapshotRestoreModal = (ss: SnapshotResponse) =>
   openModal("snapshotRestore", ss);
+=======
+const openStorageEditModal = (sp: StoragePoolResponse) =>
+  openModal("storageEdit", sp);
+const openVirtualNetworkEditModal = (net: VirtualNetworkResponse) =>
+  openModal("networkEdit", net);
+>>>>>>> main
 </script>

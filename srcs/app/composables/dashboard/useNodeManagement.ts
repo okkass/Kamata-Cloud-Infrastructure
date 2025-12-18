@@ -1,6 +1,6 @@
 /**
  * =================================================================================
- * 物理ノード管理ページ Composable (usePhysicalNodeManagement.ts)
+ * 物理ノード管理ページ Composable (useNodeManagement.ts)
  * ---------------------------------------------------------------------------------
  * このComposableは、物理ノード管理ページで使用される状態管理、
  * API連携、イベントハンドラなどのロジックをすべてカプセル化します。
@@ -23,10 +23,10 @@ export function useNodeManagement() {
   // ============================================================================
   const { addToast } = useToast();
   const { data: rawNodes, refresh: refreshNodeList } =
-    useResourceList<NodeDTO>(NODE.name);
+    useResourceList<NodeResponse>(NODE.name);
   const { executeUpdate: updateNode } = useResourceUpdate<
-    NodeUpdateRequestDTO,
-    NodeDTO
+    NodePatchRequest,
+    NodeResponse
   >(NODE.name);
   // ============================================================================
   // Component State
