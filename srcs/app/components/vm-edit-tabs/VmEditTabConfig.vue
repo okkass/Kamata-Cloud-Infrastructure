@@ -103,7 +103,8 @@ import { useResourceList } from "~/composables/useResourceList";
 const model = defineModel<any>({ required: true });
 
 // ★ useResourceList を活用 (型は適宜 interface StoragePoolResponse 等に置き換えてください)
-const { data: poolData, pending } = useResourceList<StoragePoolResponse>("storage-pools");
+const { data: poolData, pending } =
+  useResourceList<StoragePoolResponse>("storage-pools");
 
 // useResourceList は T[] を返すので、そのまま computed で参照可能
 const storagePools = computed(() => poolData.value || []);
@@ -117,8 +118,7 @@ const handleAddStorage = () => {
   }
 
   // 取得したプールリストの先頭をデフォルト値にする
-  const defaultPoolId =
-    storagePools.value.length > 0 ? storagePools.value[0].id : "";
+  const defaultPoolId = storagePools.value[0]?.id ?? "";
 
   model.value.storages.push({
     // 一時ID ("new-")

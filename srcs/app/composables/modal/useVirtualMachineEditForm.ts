@@ -33,6 +33,10 @@ export const useVirtualMachineEditForm = () => {
     const formattedData = {
       ...data,
       memorySize: convertByteToUnit(data.memorySize, "GB"),
+      storages: data.storages?.map((storage: any) => ({
+        ...storage,
+        size: convertByteToUnit(storage.size, "GB"),
+      })),
     };
 
     const id = data.id;
@@ -92,12 +96,29 @@ export const useVirtualMachineEditForm = () => {
     isSaving.value = true;
     updaterError.value = null;
 
+    // 退避用変数
+    let currentMemoryGB = 0;
+    let currentStoragesGB: any[] = [];
+
     try {
       // メモリ単位の逆変換 (GB -> Bytes)
       // ResourceUpdater は editedData を直接参照して差分判定するため、
       // 一時的に数値をAPI仕様(Bytes)に戻してあげる必要があります。
-      const currentMemoryGB = editedData.value.memorySize;
+      currentMemoryGB = editedData.value.memorySize;
       editedData.value.memorySize = convertUnitToByte(currentMemoryGB, "GB");
+
+      // ストレージ単位の逆変換 (GB -> Bytes)
+      if (editedData.value.storages) {
+        currentStoragesGB = JSON.parse(
+          JSON.stringify(editedData.value.storages)
+        );
+        editedData.value.storages = editedData.value.storages.map(
+          (storage: any) => ({
+            ...storage,
+            size: convertUnitToByte(storage.size, "GB"),
+          })
+        );
+      }
 
       // useResourceUpdater の save を実行
       // これが config に従って PATCH (Base) や POST (Bulk) を自動で投げ分けます
@@ -105,6 +126,9 @@ export const useVirtualMachineEditForm = () => {
 
       // UI表示用に GB に戻す (成功しても失敗しても、画面が開いたままならGBに戻しておく)
       editedData.value.memorySize = currentMemoryGB;
+      if (editedData.value.storages && currentStoragesGB.length > 0) {
+        editedData.value.storages = currentStoragesGB;
+      }
 
       if (success) {
         addToast({ type: "success", message: "保存しました。" });
@@ -118,6 +142,16 @@ export const useVirtualMachineEditForm = () => {
     } catch (err: unknown) {
       console.error(err);
       updaterError.value = "予期せぬエラーが発生しました。";
+
+      // エラー時も復元を試みる
+      if (currentMemoryGB) editedData.value.memorySize = currentMemoryGB;
+      if (
+        currentStoragesGB.length > 0 &&
+        editedData.value &&
+        editedData.value.storages
+      ) {
+        editedData.value.storages = currentStoragesGB;
+      }
     } finally {
       isSaving.value = false;
     }

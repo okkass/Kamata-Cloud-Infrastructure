@@ -189,7 +189,7 @@ const { data: securityGroupMaster } =
 const networkOptions = computed(() => {
   return (networkMaster.value || []).map((net) => ({
     id: net.id,
-    name: `${net.name} (${net.subnet})`,
+    name: `${net.name} (${net.cidr})`,
   }));
 });
 
