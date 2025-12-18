@@ -1,13 +1,6 @@
 <!-- app/pages/storage/index.vue -->
 <template>
   <div>
-    <div class="mb-4 flex items-center justify-between">
-      <h1 class="text-2xl font-bold">ストレージプール管理</h1>
-      <div class="text-sm text-gray-600">
-        最終更新: {{ lastUpdatedTime.toLocaleTimeString("ja-JP") }}
-      </div>
-    </div>
-
     <DashboardLayout
       title="ストレージプール管理"
       :columns="columns"
@@ -113,7 +106,6 @@ const {
   headerButtons,
   rows,
   refresh,
-  lastUpdatedTime,
   ADD_STORAGE_ACTION,
   EDIT_STORAGE_ACTION,
   DELETE_STORAGE_ACTION,

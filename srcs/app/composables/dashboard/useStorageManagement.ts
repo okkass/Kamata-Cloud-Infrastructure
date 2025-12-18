@@ -4,12 +4,7 @@ import { STORAGE } from "@/utils/constants";
 import { toSize } from "@/utils/format";
 import { formatAsPercent } from "@/utils/status";
 import { createPolling } from "@/utils/polling";
-import type {
-  StoragePoolResponse,
-  StoragePoolCreateRequest,
-  StoragePoolPatchRequest,
-  NodeResponse,
-} from "~~/shared/types";
+import type { StoragePoolResponse, NodeResponse } from "~~/shared/types";
 
 export type StoragePoolRow = {
   id: string;
