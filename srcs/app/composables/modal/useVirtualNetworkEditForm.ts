@@ -17,6 +17,7 @@ export const useVirtualNetworkEditForm = () => {
     errorMessage,
     init,
     save: executeSave,
+    isDirty,
   } = useResourceUpdater<VirtualNetworkResponse>();
 
   // ID生成用
@@ -37,9 +38,10 @@ export const useVirtualNetworkEditForm = () => {
     })
   );
 
-  const { errors, defineField, handleSubmit, resetForm, values } = useForm({
-    validationSchema,
-  });
+  const { errors, defineField, handleSubmit, resetForm, values, meta } =
+    useForm({
+      validationSchema,
+    });
 
   const [name, nameAttrs] = defineField("name");
   const { fields: subnetFields, push, remove } = useFieldArray("subnets");
@@ -136,6 +138,12 @@ export const useVirtualNetworkEditForm = () => {
       editedData.value.subnets = values.subnets as any;
     }
 
+    // 変更なしチェック
+    if (!isDirty.value) {
+      addToast({ type: "info", message: "変更がありません。" });
+      return true;
+    }
+
     // 実際の保存処理を実行
     const success = await executeSave();
 
@@ -167,5 +175,6 @@ export const useVirtualNetworkEditForm = () => {
     nameAttrs,
     subnetFields,
     errors,
+    meta,
   };
 };

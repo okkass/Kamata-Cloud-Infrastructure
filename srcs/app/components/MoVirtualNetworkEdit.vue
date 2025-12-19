@@ -120,7 +120,7 @@
           type="button"
           @click="submitForm"
           class="btn btn-primary"
-          :disabled="isSaving || !editedData"
+          :disabled="isSaving || !editedData || !meta.valid"
         >
           {{ isSaving ? "保存中..." : "保存" }}
         </button>
@@ -159,6 +159,7 @@ const {
   nameAttrs,
   subnetFields,
   errors,
+  meta,
 } = useVirtualNetworkEditForm();
 
 // Helper for errors
