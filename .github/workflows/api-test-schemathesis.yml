@@ -41,12 +41,12 @@ jobs:
       - name: Wait for API Server
         run: |
           echo "Waiting for API server to be ready..."
-          for i in {1..30}; do
+          for i in {1..15}; do
             if curl -f http://localhost:3030/api/health 2>/dev/null || curl -f http://localhost:3030 2>/dev/null; then
               echo "API server is ready!"
               break
             fi
-            echo "Waiting... ($i/30)"
+            echo "Waiting... ($i/15)"
             sleep 2
           done
 
@@ -58,7 +58,6 @@ jobs:
             --max-examples 10 \
             --workers 2 \
             --exclude-deprecated
-        continue-on-error: true
         id: schemathesis
 
       - name: Stop API Server
