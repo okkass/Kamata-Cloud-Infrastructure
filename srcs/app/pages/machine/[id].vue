@@ -44,7 +44,7 @@ import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
 import { vmTabs } from "~/composables/detail/useVmTabs";
 
 import { useResourceDetail } from "~/composables/useResourceDetail";
-import { useToast } from "@/composables/useToast";
+import { useToast } from "~/composables/useToast";
 import { useApiClient } from "~/composables/useResourceClient";
 
 type VirtualMachineResponse =
