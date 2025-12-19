@@ -1,20 +1,37 @@
 <template>
-  <BaseModal :show="show" title="仮想ネットワーク編集" @close="handleClose" size="lg">
+  <BaseModal
+    :show="show"
+    title="仮想ネットワーク編集"
+    @close="handleClose"
+    size="lg"
+  >
+    <div v-if="!editedData" class="p-8 text-center text-gray-500">
+      読み込み中...
+    </div>
+
     <form
+      v-else
+      @submit.prevent="onSubmit"
       id="network-edit-form"
-      @submit.prevent="submitForm"
       class="space-y-6"
     >
       <div class="space-y-4">
         <FormInput
           label="ネットワーク名"
           name="network-name"
-          type="text"
           v-model="name"
           v-bind="nameAttrs"
           :error="errors.name"
-          :required="true"
           placeholder="my-vpc-01"
+          required
+        />
+
+        <FormInput
+          label="ネットワークアドレス (CIDR) ※作成後の変更不可"
+          name="network-cidr"
+          :model-value="editedData.cidr"
+          class="bg-gray-100 text-gray-500 cursor-not-allowed"
+          readonly
         />
 
         <div class="border rounded-md overflow-hidden bg-white mt-6">
@@ -33,7 +50,7 @@
 
           <div class="p-4 bg-gray-50">
             <div
-              v-if="!subnets || subnets.length === 0"
+              v-if="subnets.length === 0"
               class="text-center text-gray-400 py-2 text-sm"
             >
               サブネットがありません。
@@ -42,7 +59,7 @@
             <div v-else class="space-y-3">
               <div
                 v-for="(subnet, index) in subnets"
-                :key="subnet.id || index"
+                :key="subnet.key"
                 class="bg-white p-3 rounded border border-gray-200 shadow-sm"
               >
                 <div class="grid grid-cols-12 gap-3 items-end">
@@ -50,11 +67,9 @@
                     <FormInput
                       label="名前"
                       :name="`subnet-name-${index}`"
-                      type="text"
                       v-model="subnet.value.name"
                       placeholder="例: public-subnet"
-                      :required="true"
-                      class="w-full"
+                      required
                     />
                   </div>
 
@@ -62,11 +77,9 @@
                     <FormInput
                       label="CIDR"
                       :name="`subnet-cidr-${index}`"
-                      type="text"
                       v-model="subnet.value.cidr"
                       placeholder="例: 10.0.1.0/24"
-                      :required="true"
-                      class="w-full"
+                      required
                     />
                   </div>
 
@@ -116,41 +129,34 @@
 </template>
 
 <script setup lang="ts">
-/**
- * =================================================================================
- * 仮想ネットワーク編集モーダル (MoVirtualNetworkEdit.vue)
- * =================================================================================
- */
+import { type PropType } from "vue";
 import { useVirtualNetworkEditForm } from "~/composables/modal/useVirtualNetworkEditForm";
 import FormInput from "~/components/Form/Input.vue";
 import UiSubmitButton from "~/components/ui/SubmitButton.vue";
 
-// --- Props & Emits ---
 const props = defineProps({
   show: { type: Boolean, required: true },
-  networkData: {
+  virtualNetworkData: {
     type: Object as PropType<VirtualNetworkResponse | null>,
     default: null,
   },
 });
+
 const emit = defineEmits(["close", "success"]);
 
-// --- Composable ---
 const {
+  editedData,
   errors,
   name,
   nameAttrs,
   subnets,
   addSubnet,
   removeSubnet,
-  isDirty,
   isValid,
   isSaving,
   onFormSubmit,
   makehandleClose,
 } = useVirtualNetworkEditForm(props);
-
-// --- Submit ---
-const submitForm = onFormSubmit(emit);
 const handleClose = makehandleClose(emit);
+const onSubmit = onFormSubmit(emit);
 </script>

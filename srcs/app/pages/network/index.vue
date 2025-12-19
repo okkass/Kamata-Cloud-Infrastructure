@@ -65,7 +65,7 @@
 
   <MoVirtualNetworkEdit
     :show="activeModal === `edit-${NETWORK.name}`"
-    :vnet="targetForEditing"
+    :virtualNetworkData="targetForEditing?.dto ?? null"
     @close="cancelAction"
     @success="handleSuccess"
   />

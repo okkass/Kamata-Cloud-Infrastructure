@@ -14,6 +14,7 @@ import { useFormAction } from "~/composables/modal/useModalAction";
 import {
   VirtualNetworkEditSchema,
   type VirtualNetworkEditFormValues,
+  type SubnetFormValues,
 } from "~/utils/validations/virtual-network";
 
 interface Props {
@@ -27,14 +28,21 @@ export function useVirtualNetworkEditForm(props: Props) {
   const { editedData, init, save, isDirty, isSaving } =
     useResourceUpdater<VirtualNetworkResponse>();
 
-  const { errors, handleSubmit, defineField, meta, resetForm, setValues } =
-    useForm<VirtualNetworkEditFormValues>({
-      validationSchema: toTypedSchema(VirtualNetworkEditSchema),
-      initialValues: {
-        name: "",
-        subnets: [],
-      },
-    });
+  const {
+    errors,
+    handleSubmit,
+    defineField,
+    meta,
+    resetForm,
+    setValues,
+    values,
+  } = useForm<VirtualNetworkEditFormValues>({
+    validationSchema: toTypedSchema(VirtualNetworkEditSchema),
+    initialValues: {
+      name: "",
+      subnets: [],
+    },
+  });
 
   const [name, nameAttrs] = defineField("name");
 
@@ -42,7 +50,7 @@ export function useVirtualNetworkEditForm(props: Props) {
     fields: subnets,
     push: pushSubnet,
     remove: removeSubnet,
-  } = useFieldArray("subnets");
+  } = useFieldArray<SubnetFormValues>("subnets");
 
   // --- 初期化ロジック ---
   watch(
@@ -79,11 +87,16 @@ export function useVirtualNetworkEditForm(props: Props) {
 
   // --- vee-validate の値を editedData に同期 ---
   watch(
-    () => ({ name: name.value, subnets: subnets.value }),
+    () => values,
     (newValues) => {
       if (editedData.value) {
         editedData.value.name = newValues.name;
-        editedData.value.subnets = newValues.subnets;
+        editedData.value.subnets = newValues.subnets.map((subnet) => ({
+          id: subnet.id,
+          name: subnet.name,
+          cidr: subnet.cidr,
+          createdAt: subnet.createdAt ?? new Date().toISOString(),
+        }));
       }
     },
     { deep: true }
@@ -99,12 +112,20 @@ export function useVirtualNetworkEditForm(props: Props) {
   const addSubnet = () => pushSubnet(createEmptySubnet());
   const removeSubnetHandler = (idx: number) => removeSubnet(idx);
 
+  // --- バリデーション ---
+  const validate = (): boolean => {
+    return meta.value.valid;
+  };
+
   // --- 送信ハンドラ ---
   const onFormSubmit = (emit: any) =>
-    handleFormSubmit<FormValues, VirtualNetworkResponse>(
+    handleFormSubmit<VirtualNetworkEditFormValues, VirtualNetworkResponse>(
       handleSubmit,
       {
         execute: async () => {
+          if (!validate()) {
+            return { success: false };
+          }
           const success = await save();
           return { success };
         },
@@ -112,7 +133,7 @@ export function useVirtualNetworkEditForm(props: Props) {
           resetForm();
         },
         onSuccessMessage: () =>
-          `仮想ネットワーク「${name.value}」を更新しました。`,
+          `仮想ネットワーク「${values.name}」を更新しました。`,
       },
       emit
     );
@@ -120,15 +141,23 @@ export function useVirtualNetworkEditForm(props: Props) {
   const makehandleClose = (emit: any) => makeHandleClose(resetForm, emit);
 
   return {
+    // State
+    editedData,
     errors,
+    isDirty,
+    isSaving,
+
+    // Form fields
     name,
     nameAttrs,
+
+    // Subnet management
     subnets,
     addSubnet,
     removeSubnet: removeSubnetHandler,
-    isDirty,
+
+    // Validation & submission
     isValid: computed(() => meta.value.valid),
-    isSaving,
     onFormSubmit,
     makehandleClose,
   };
