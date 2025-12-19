@@ -1,143 +1,151 @@
-/**
- * =================================================================================
- * インスタンスタイプ編集フォーム Composable (useInstanceTypeEditForm.ts)
- * =================================================================================
- */
-import { watch, computed } from "vue";
+import { ref, computed } from "vue";
+import { useToast } from "~/composables/useToast";
+import {
+  useResourceUpdater,
+  type ResourceConfig,
+} from "~/composables/useResourceUpdater";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import { useResourceUpdate } from "~/composables/useResourceEdit";
-import { useToast } from "~/composables/useToast";
+
 import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
 
-// 型定義
-import type { InstanceTypePutRequest } from "~~/shared/types/dto/instance-type/InstanceTypePutRequest";
-import type { InstanceTypeResponse } from "~~/shared/types/dto/instance-type/InstanceTypeResponse";
-import type { InstanceTypeServerBase } from "~~/shared/types/dto/instance-type/InstanceTypeServerBase";
+// バリデーションスキーマ
+const validationSchema = toTypedSchema(
+  z.object({
+    name: z.string().min(1, "名前は必須です"),
+    cpuCore: z.coerce
+      .number()
+      .refine((v) => Number.isFinite(v), { message: "数値を入力してください" })
+      .min(1, "vCPUは1以上である必要があります"),
+    memorySizeGB: z.coerce
+      .number()
+      .refine((v) => Number.isFinite(v), { message: "数値を入力してください" })
+      .min(1, "メモリは1GB以上である必要があります"),
+  })
+);
 
-// Props の型定義
-interface InstanceTypeEditProps {
-  show: boolean;
-  instanceTypeData: InstanceTypeServerBase | null;
-}
-
-// ==============================================================================
-// Validation Schema
-// ==============================================================================
-const zodSchema = z.object({
-  name: z.string().min(1, "インスタンスタイプ名は必須です。"),
-  cpuCore: z
-    .number({
-      message: "数値を入力してください。",
-    })
-    .int("整数で入力してください。")
-    .min(1, "1以上の値を入力してください。"),
-  memorySizeInMb: z
-    .number({
-      message: "数値を入力してください。",
-    })
-    .int("整数で入力してください。")
-    .min(1, "1MB以上の値を入力してください。"),
-});
-
-const validationSchema = toTypedSchema(zodSchema);
-type FormValues = z.infer<typeof zodSchema>;
-
-/**
- * インスタンスタイプ編集フォームのロジック
- */
-export function useInstanceTypeEditForm(props: InstanceTypeEditProps) {
+export const useInstanceTypeEditForm = () => {
   const { addToast } = useToast();
 
-  const { executeUpdate, isUpdating } = useResourceUpdate<
-    InstanceTypePutRequest,
-    InstanceTypeResponse
-  >(INSTANCE_TYPE.name);
+  // [推奨]: useResourceUpdater の戻り値を活用
+  const {
+    editedData,
+    dirtyState,
+    isSaving,
+    init,
+    save: updaterSave,
+    errorMessage,
+  } = useResourceUpdater<InstanceTypeResponse>();
 
-  // ============================================================================
-  // Form Setup
-  // ============================================================================
-  // defineField を分割代入で取得
-  const { errors, handleSubmit, resetForm, defineField } = useForm<FormValues>({
+  // エラーメッセージを同期
+  const updaterError = errorMessage;
+
+  // VeeValidate フォーム設定
+  const { errors, defineField, handleSubmit, resetForm, setValues } = useForm({
     validationSchema,
-    initialValues: {
-      name: "",
-      cpuCore: undefined,
-      memorySizeInMb: undefined,
+  });
+
+  const [name, nameAttrs] = defineField("name");
+  const [cpuCore, cpuCoreAttrs] = defineField("cpuCore");
+  const [memorySizeGBField, memorySizeGBAttrs] = defineField("memorySizeGB");
+
+  // [必須]: メモリサイズ(Bytes)とUI表示(GB)の変換用Computed
+  // VeeValidateのフィールドと同期させる
+  const memorySizeGB = computed<number>({
+    get: () =>
+      (typeof memorySizeGBField.value === "number"
+        ? memorySizeGBField.value
+        : Number(memorySizeGBField.value)) || 0,
+    set: (val: number) => {
+      memorySizeGBField.value = val;
+      if (editedData.value) {
+        editedData.value.memorySize = convertUnitToByte(val, "GB");
+      }
     },
   });
 
-  // --- フィールド定義 (defineField) ---
-  const [name, nameAttrs] = defineField("name");
-  const [cpuCore, cpuCoreAttrs] = defineField("cpuCore");
-  const [memorySizeInMb, memorySizeInMbAttrs] = defineField("memorySizeInMb");
-
-  // ============================================================================
-  // 初期値の反映 (Watch)
-  // ============================================================================
-  watch(
-    () => props.instanceTypeData,
-    (newData) => {
-      if (props.show && newData) {
-        resetForm({
-          values: {
-            name: newData.name,
-            cpuCore: newData.cpuCore,
-            memorySizeInMb: convertByteToUnit(newData.memorySize, "MB"),
-          },
-        });
-      }
+  // 名前とCPUも同期
+  const syncedName = computed({
+    get: () => name.value || "",
+    set: (val) => {
+      name.value = val;
+      if (editedData.value) editedData.value.name = val;
     },
-    { immediate: true, deep: true }
-  );
+  });
 
-  // ============================================================================
-  // Submission Handler
-  // ============================================================================
-  const onFormSubmit = (emit: (event: "close" | "success") => void) => {
-    return handleSubmit(async (formValues) => {
-      if (!props.instanceTypeData?.id) return;
+  const syncedCpuCore = computed<number>({
+    get: () =>
+      (typeof cpuCore.value === "number"
+        ? cpuCore.value
+        : Number(cpuCore.value)) || 0,
+    set: (val: number) => {
+      cpuCore.value = val;
+      if (editedData.value) editedData.value.cpuCore = val;
+    },
+  });
 
-      const payload: InstanceTypePutRequest = {
-        name: formValues.name,
-        cpuCore: formValues.cpuCore,
-        memorySize: convertUnitToByte(formValues.memorySizeInMb, "MB"),
-      };
+  /**
+   * フォーム初期化
+   */
+  const initializeForm = (data: InstanceTypeResponse) => {
+    // [推奨]: endpoint を設定し、データ変換は行わない (Bytesのまま扱う)
+    const config: ResourceConfig = {
+      base: {
+        endpoint: `instance-types/${data.id}`,
+        fields: ["name", "cpuCore", "memorySize"],
+      },
+    };
 
-      const { success, error, data } = await executeUpdate(
-        props.instanceTypeData.id,
-        payload
-      );
+    init(data, config);
 
-      if (success) {
-        addToast({
-          message: `インスタンスタイプ「${
-            data?.name ?? payload.name
-          }」を更新しました。`,
-          type: "success",
-        });
-        emit("success");
-        emit("close");
-      } else {
-        addToast({
-          message: "インスタンスタイプの更新に失敗しました。",
-          type: "error",
-          details: error?.message,
-        });
-      }
+    // VeeValidateの初期値を設定
+    resetForm({
+      values: {
+        name: data.name,
+        cpuCore: data.cpuCore,
+        memorySizeGB: convertByteToUnit(data.memorySize, "GB"),
+      },
     });
   };
 
+  /**
+   * 保存処理
+   * [推奨]: useResourceUpdater の save() を使用して標準化
+   */
+  const save = handleSubmit(async () => {
+    if (!editedData.value) return;
+
+    const success = await updaterSave();
+
+    if (success) {
+      addToast({ type: "success", message: "保存しました。" });
+      return true;
+    } else {
+      addToast({
+        type: "error",
+        message: "保存に失敗しました。",
+        details: updaterError.value || undefined,
+      });
+      return false;
+    }
+  });
+
   return {
-    errors,
-    name,
+    editedData,
+    // バリデーション用フィールド
+    name: syncedName,
     nameAttrs,
-    cpuCore,
+    cpuCore: syncedCpuCore,
     cpuCoreAttrs,
-    memorySizeInMb,
-    memorySizeInMbAttrs,
-    isUpdating,
-    onFormSubmit,
+    memorySizeGB,
+    memorySizeGBAttrs,
+    errors,
+
+    dirtyState, // [推奨]: dirtyState を公開
+    isSaving,
+    updaterError,
+    initializeForm,
+    save,
   };
-}
+};
