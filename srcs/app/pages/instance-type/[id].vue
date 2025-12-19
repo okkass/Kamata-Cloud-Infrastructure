@@ -72,7 +72,9 @@ const polling = createPolling(async () => {
   await refresh();
 });
 
-onMounted(() => {
+// 初回は即実行 → 以降は定期
+onMounted(async () => {
+  await polling.runOnce();
   polling.startPolling();
 });
 
@@ -80,7 +82,7 @@ onUnmounted(() => {
   polling.stopPolling();
 });
 
-// 編集中はポーリング停止
+// 編集中のみポーリング停止
 watch(
   () => isEditOpen.value,
   (open) => {
