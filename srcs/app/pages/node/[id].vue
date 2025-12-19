@@ -49,6 +49,7 @@ const polling = createPolling(async () => {
 
 // lifecycle
 onMounted(() => {
+  void polling.runOnce();
   polling.startPolling();
 });
 
