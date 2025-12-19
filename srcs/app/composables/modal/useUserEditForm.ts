@@ -7,11 +7,12 @@
  */
 import { watch } from "vue";
 import { useForm } from "vee-validate";
+import { UserUpdateSchema } from "~/utils/validations/user";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
 import { useResourceUpdate } from "~/composables/useResourceEdit";
 import { useToast } from "~/composables/useToast";
 import { convertUnitToByte, convertByteToUnit } from "~/utils/format";
+import { useFormAction } from "~/composables/modal/useModalAction";
 
 // ★ 指定された型定義をインポート
 import type { UserResponse } from "~~/shared/types";
@@ -20,126 +21,129 @@ import type { UserPutRequest } from "~~/shared/types";
 // Props の型定義
 interface UserEditProps {
   show: boolean;
-  userData: UserResponse | null; // ★ UserDTO -> UserServerBase に変更
+  userData: UserResponse | null;
 }
-
-// =============================================================================
-// Validation Schema (バリデーションスキーマ)
-// =============================================================================
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "アカウント名は必須です。"),
-    email: z
-      .string()
-      .min(1, "メールアドレスは必須です。")
-      .email("有効なメールアドレスを入力してください。"),
-
-    // クォータ
-    maxCpuCores: z.preprocess(
-      (val) => (val === "" ? undefined : val),
-      z.number().positive("1以上の値を入力してください。").optional()
-    ),
-    maxMemorySizeInMb: z.preprocess(
-      (val) => (val === "" ? undefined : val),
-      z.number().positive("1以上の値を入力してください。").optional()
-    ),
-    maxStorageSizeInGb: z.preprocess(
-      (val) => (val === "" ? undefined : val),
-      z.number().positive("1以上の値を入力してください。").optional()
-    ),
-
-    // 権限
-    isAdmin: z.boolean(),
-    isImageAdmin: z.boolean(),
-    isInstanceTypeAdmin: z.boolean(),
-    isNetworkAdmin: z.boolean(),
-    isNodeAdmin: z.boolean(),
-    isSecurityGroupAdmin: z.boolean(),
-    isVirtualMachineAdmin: z.boolean(),
-  })
-);
 
 /**
  * 利用者編集フォームのロジック
  */
 export function useUserEditForm(props: UserEditProps) {
   const { addToast } = useToast();
+  const { handleFormSubmit, makeHandleClose: createHandleClose } =
+    useFormAction();
 
   // ★ 更新用 Composable の型引数を変更
   const { executeUpdate, isUpdating } = useResourceUpdate<
     UserPutRequest, // リクエスト型
     UserResponse // レスポンス型
-  >("users");
+  >(USER.name);
 
   // ============================================================================
   // Form Setup (VeeValidate)
   // ============================================================================
-  const { errors, defineField, handleSubmit, resetForm } = useForm({
-    validationSchema,
-    initialValues: {
-      name: "",
-      email: "",
-      maxCpuCores: undefined,
-      maxMemorySizeInMb: undefined,
-      maxStorageSizeInGb: undefined,
-      isAdmin: false,
-      isImageAdmin: false,
-      isInstanceTypeAdmin: false,
-      isNetworkAdmin: false,
-      isNodeAdmin: false,
-      isSecurityGroupAdmin: false,
-      isVirtualMachineAdmin: false,
-    },
-  });
+  const { errors, defineField, handleSubmit, resetForm, meta } =
+    useForm<UserPutRequest>({
+      validationSchema: toTypedSchema(UserUpdateSchema),
+      initialValues: {
+        name: "",
+        email: "",
+        maxCpuCore: undefined,
+        maxMemorySize: undefined,
+        maxStorageSize: undefined,
+        isAdmin: false,
+        isImageAdmin: false,
+        isInstanceTypeAdmin: false,
+        isNetworkAdmin: false,
+        isNodeAdmin: false,
+        isSecurityGroupAdmin: false,
+        isVirtualMachineAdmin: false,
+      },
+    });
 
   // --- フィールド定義 ---
   const [name, nameAttrs] = defineField("name");
   const [email, emailAttrs] = defineField("email");
 
-  const [maxCpuCores, maxCpuCoresAttrs] = defineField("maxCpuCores");
-  const [maxMemorySizeInMb, maxMemorySizeInMbAttrs] =
-    defineField("maxMemorySizeInMb");
-  const [maxStorageSizeInGb, maxStorageSizeInGbAttrs] =
-    defineField("maxStorageSizeInGb");
-
+  const [maxCpuCore, maxCpuCoreAttrs] = defineField("maxCpuCore");
+  const [maxMemorySize, maxMemorySizeAttrs] = defineField("maxMemorySize");
+  const [maxStorageSize, maxStorageSizeAttrs] = defineField("maxStorageSize");
   // 権限
-  const [isAdmin] = defineField("isAdmin");
-  const [isImageAdmin] = defineField("isImageAdmin");
-  const [isInstanceTypeAdmin] = defineField("isInstanceTypeAdmin");
-  const [isNetworkAdmin] = defineField("isNetworkAdmin");
-  const [isNodeAdmin] = defineField("isNodeAdmin");
-  const [isSecurityGroupAdmin] = defineField("isSecurityGroupAdmin");
-  const [isVirtualMachineAdmin] = defineField("isVirtualMachineAdmin");
+  const [isAdmin, isAdminAttrs] = defineField("isAdmin");
+  const [isImageAdmin, isImageAdminAttrs] = defineField("isImageAdmin");
+  const [isInstanceTypeAdmin, isInstanceTypeAdminAttrs] = defineField(
+    "isInstanceTypeAdmin"
+  );
+  const [isNetworkAdmin, isNetworkAdminAttrs] = defineField("isNetworkAdmin");
+  const [isNodeAdmin, isNodeAdminAttrs] = defineField("isNodeAdmin");
+  const [isSecurityGroupAdmin, isSecurityGroupAdminAttrs] = defineField(
+    "isSecurityGroupAdmin"
+  );
+  const [isVirtualMachineAdmin, isVirtualMachineAdminAttrs] = defineField(
+    "isVirtualMachineAdmin"
+  );
 
+  const permissions = {
+    isAdmin: { label: "全体管理者", value: isAdmin, attrs: isAdminAttrs },
+    isImageAdmin: {
+      label: "イメージ管理",
+      value: isImageAdmin,
+      attrs: isImageAdminAttrs,
+    },
+    isInstanceTypeAdmin: {
+      label: "インスタンスタイプ管理",
+      value: isInstanceTypeAdmin,
+      attrs: isInstanceTypeAdminAttrs,
+    },
+    isNetworkAdmin: {
+      label: "ネットワーク管理",
+      value: isNetworkAdmin,
+      attrs: isNetworkAdminAttrs,
+    },
+    isNodeAdmin: {
+      label: "ノード管理",
+      value: isNodeAdmin,
+      attrs: isNodeAdminAttrs,
+    },
+    isSecurityGroupAdmin: {
+      label: "セキュリティグループ管理",
+      value: isSecurityGroupAdmin,
+      attrs: isSecurityGroupAdminAttrs,
+    },
+    isVirtualMachineAdmin: {
+      label: "仮想マシン管理",
+      value: isVirtualMachineAdmin,
+      attrs: isVirtualMachineAdminAttrs,
+    },
+  };
   // ============================================================================
   // 初期値の反映 (Watch)
   // ============================================================================
   watch(
-    () => props.userData,
-    (newData) => {
-      if (props.show && newData) {
+    [() => props.userData, () => props.show],
+    ([userData, show]) => {
+      if (show && userData) {
         resetForm({
           values: {
-            name: newData.name,
-            email: newData.email,
+            name: userData.name,
+            email: userData.email,
 
             // クォータ: UserServerBase のプロパティを使用
-            maxCpuCores: newData.maxCpuCore ?? undefined,
-            maxMemorySizeInMb: newData.maxMemorySize
-              ? convertByteToUnit(newData.maxMemorySize, "MB")
+            maxCpuCore: userData.maxCpuCore ?? undefined,
+            maxMemorySize: userData.maxMemorySize
+              ? convertByteToUnit(userData.maxMemorySize, "MB")
               : undefined,
-            maxStorageSizeInGb: newData.maxStorageSize
-              ? convertByteToUnit(newData.maxStorageSize, "GB")
+            maxStorageSize: userData.maxStorageSize
+              ? convertByteToUnit(userData.maxStorageSize, "GB")
               : undefined,
 
             // 権限
-            isAdmin: newData.isAdmin,
-            isImageAdmin: newData.isImageAdmin,
-            isInstanceTypeAdmin: newData.isInstanceTypeAdmin,
-            isNetworkAdmin: newData.isNetworkAdmin,
-            isNodeAdmin: newData.isNodeAdmin,
-            isSecurityGroupAdmin: newData.isSecurityGroupAdmin,
-            isVirtualMachineAdmin: newData.isVirtualMachineAdmin,
+            isAdmin: userData.isAdmin,
+            isImageAdmin: userData.isImageAdmin,
+            isInstanceTypeAdmin: userData.isInstanceTypeAdmin,
+            isNetworkAdmin: userData.isNetworkAdmin,
+            isNodeAdmin: userData.isNodeAdmin,
+            isSecurityGroupAdmin: userData.isSecurityGroupAdmin,
+            isVirtualMachineAdmin: userData.isVirtualMachineAdmin,
           },
         });
       }
@@ -150,81 +154,62 @@ export function useUserEditForm(props: UserEditProps) {
   // ============================================================================
   // Submission Handler (送信処理)
   // ============================================================================
-  const onFormSubmit = (emit: (event: "close" | "success") => void) => {
-    return handleSubmit(async (values) => {
-      if (!props.userData?.id) return;
+  const onFormSubmit = (emit: any) =>
+    handleFormSubmit<UserPutRequest, UserResponse>(
+      handleSubmit,
+      {
+        execute: async (formValues) => {
+          const payload: UserPutRequest = {
+            name: formValues.name,
+            email: formValues.email,
+            maxCpuCore: formValues.maxCpuCore || null,
+            maxMemorySize: formValues.maxMemorySize
+              ? convertUnitToByte(formValues.maxMemorySize, "MB")
+              : null,
+            maxStorageSize: formValues.maxStorageSize
+              ? convertUnitToByte(formValues.maxStorageSize, "GB")
+              : null,
+            isAdmin: formValues.isAdmin,
+            isImageAdmin: formValues.isImageAdmin,
+            isInstanceTypeAdmin: formValues.isInstanceTypeAdmin,
+            isNetworkAdmin: formValues.isNetworkAdmin,
+            isNodeAdmin: formValues.isNodeAdmin,
+            isSecurityGroupAdmin: formValues.isSecurityGroupAdmin,
+            isVirtualMachineAdmin: formValues.isVirtualMachineAdmin,
+          };
 
-      const maxMemorySizeInBytes = values.maxMemorySizeInMb
-        ? convertUnitToByte(values.maxMemorySizeInMb, "MB")
-        : null;
+          return await executeUpdate(
+            props.userData ? props.userData.id : "",
+            payload
+          );
+        },
+        onSuccessMessage: (payload) =>
+          `利用者「${payload.name}」の情報を更新しました。`,
+        onSuccess: () => resetForm(),
+      },
+      emit
+    );
 
-      const maxStorageSizeInBytes = values.maxStorageSizeInGb
-        ? convertUnitToByte(values.maxStorageSizeInGb, "GB")
-        : null;
-
-      // ペイロード作成: UserPutRequest 型に準拠
-      const payload: UserPutRequest = {
-        name: values.name,
-        email: values.email,
-
-        maxCpuCore: values.maxCpuCores ?? null,
-        maxMemorySize: maxMemorySizeInBytes,
-        maxStorageSize: maxStorageSizeInBytes,
-
-        isAdmin: values.isAdmin,
-        isImageAdmin: values.isImageAdmin,
-        isInstanceTypeAdmin: values.isInstanceTypeAdmin,
-        isNetworkAdmin: values.isNetworkAdmin,
-        isNodeAdmin: values.isNodeAdmin,
-        isSecurityGroupAdmin: values.isSecurityGroupAdmin,
-        isVirtualMachineAdmin: values.isVirtualMachineAdmin,
-      };
-
-      // APIリクエスト (PUT)
-      const { success, error } = await executeUpdate(
-        props.userData.id,
-        payload
-      );
-
-      if (success) {
-        addToast({
-          message: `利用者「${values.name}」を更新しました。`,
-          type: "success",
-        });
-        emit("success");
-        emit("close");
-      } else {
-        addToast({
-          message: "ユーザーの更新に失敗しました。",
-          type: "error",
-          details: error?.message,
-        });
-      }
-    });
-  };
+  // ★ Close ハンドラーのファクトリ
+  const makeHandleClose = (emit: any) => createHandleClose(resetForm, emit);
 
   return {
     errors,
-    // フィールド
     name,
     nameAttrs,
     email,
     emailAttrs,
-    maxCpuCores,
-    maxCpuCoresAttrs,
-    maxMemorySizeInMb,
-    maxMemorySizeInMbAttrs,
-    maxStorageSizeInGb,
-    maxStorageSizeInGbAttrs,
-    isAdmin,
-    isImageAdmin,
-    isInstanceTypeAdmin,
-    isNetworkAdmin,
-    isNodeAdmin,
-    isSecurityGroupAdmin,
-    isVirtualMachineAdmin,
-
+    maxCpuCore,
+    maxCpuCoreAttrs,
+    maxMemorySize,
+    maxMemorySizeAttrs,
+    maxStorageSize,
+    maxStorageSizeAttrs,
+    permissions,
+    // 状態
+    isValid: computed(() => meta.value.valid),
     isUpdating,
     onFormSubmit,
+    makeHandleClose,
   };
 }

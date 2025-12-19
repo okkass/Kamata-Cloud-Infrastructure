@@ -1,6 +1,6 @@
 <template>
-  <BaseModal :show="show" title="イメージ編集" @close="$emit('close')">
-    <form @submit.prevent="submitForm" class="modal-space">
+  <BaseModal :show="show" title="イメージ編集" @close="handleClose">
+    <form id="image-edit-form" @submit.prevent="submitForm" class="modal-space">
       <FormInput
         label="イメージ名"
         name="image-name-edit"
@@ -24,14 +24,13 @@
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="submitForm"
-          class="btn btn-primary"
-          :disabled="isUpdating"
-        >
-          {{ isUpdating ? "保存中..." : "保存" }}
-        </button>
+        <UiSubmitButton
+          :disabled="!isValid || isUpdating"
+          :loading="isUpdating"
+          label="イメージの更新"
+          form="image-edit-form"
+          type="submit"
+        />
       </div>
     </template>
   </BaseModal>
@@ -45,7 +44,6 @@
  */
 import { useImageEditForm } from "~/composables/modal/useImageEditForm";
 import FormInput from "~/components/Form/Input.vue";
-import FormSection from "~/components/Form/Section.vue";
 import FormTextarea from "~/components/Form/Textarea.vue";
 
 // --- 親コンポーネントとの連携 ---
@@ -66,8 +64,11 @@ const {
   description,
   descriptionAttrs,
   isUpdating,
+  isValid,
   onFormSubmit,
+  makeHandleClose,
 } = useImageEditForm(props);
 
 const submitForm = onFormSubmit(emit);
+const handleClose = makeHandleClose(emit);
 </script>

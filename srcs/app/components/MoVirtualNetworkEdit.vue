@@ -1,38 +1,20 @@
 <template>
-  <BaseModal
-    :show="show"
-    title="仮想ネットワーク編集"
-    @close="$emit('close')"
-    size="lg"
-  >
-    <div v-if="!editedData" class="p-8 text-center text-gray-500">
-      読み込み中...
-    </div>
-
-    <form v-else @submit.prevent="submitForm" class="space-y-6">
-      <div
-        v-if="updaterError"
-        class="bg-red-50 text-red-600 p-3 rounded text-sm"
-      >
-        {{ updaterError }}
-      </div>
-
+  <BaseModal :show="show" title="仮想ネットワーク編集" @close="handleClose" size="lg">
+    <form
+      id="network-edit-form"
+      @submit.prevent="submitForm"
+      class="space-y-6"
+    >
       <div class="space-y-4">
         <FormInput
           label="ネットワーク名"
           name="network-name"
-          v-model="editedData.name"
+          type="text"
+          v-model="name"
+          v-bind="nameAttrs"
+          :error="errors.name"
+          :required="true"
           placeholder="my-vpc-01"
-          required
-          class="w-full"
-        />
-
-        <FormInput
-          label="ネットワークアドレス (CIDR) ※作成後の変更不可"
-          name="network-cidr"
-          v-model="editedData.cidr"
-          class="w-full bg-gray-100 text-gray-500 cursor-not-allowed"
-          readonly
         />
 
         <div class="border rounded-md overflow-hidden bg-white mt-6">
@@ -51,7 +33,7 @@
 
           <div class="p-4 bg-gray-50">
             <div
-              v-if="!editedData.subnets || editedData.subnets.length === 0"
+              v-if="!subnets || subnets.length === 0"
               class="text-center text-gray-400 py-2 text-sm"
             >
               サブネットがありません。
@@ -59,7 +41,7 @@
 
             <div v-else class="space-y-3">
               <div
-                v-for="(subnet, index) in editedData.subnets"
+                v-for="(subnet, index) in subnets"
                 :key="subnet.id || index"
                 class="bg-white p-3 rounded border border-gray-200 shadow-sm"
               >
@@ -68,9 +50,10 @@
                     <FormInput
                       label="名前"
                       :name="`subnet-name-${index}`"
-                      v-model="subnet.name"
+                      type="text"
+                      v-model="subnet.value.name"
                       placeholder="例: public-subnet"
-                      required
+                      :required="true"
                       class="w-full"
                     />
                   </div>
@@ -79,9 +62,10 @@
                     <FormInput
                       label="CIDR"
                       :name="`subnet-cidr-${index}`"
-                      v-model="subnet.cidr"
+                      type="text"
+                      v-model="subnet.value.cidr"
                       placeholder="例: 10.0.1.0/24"
-                      required
+                      :required="true"
                       class="w-full"
                     />
                   </div>
@@ -119,61 +103,54 @@
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="submitForm"
-          class="btn btn-primary"
-          :disabled="isSaving || !editedData"
-        >
-          {{ isSaving ? "保存中..." : "保存" }}
-        </button>
+        <UiSubmitButton
+          :disabled="isSaving || !isValid"
+          :loading="isSaving"
+          label="仮想ネットワークを更新"
+          form="network-edit-form"
+          type="submit"
+        />
       </div>
     </template>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { watch, type PropType } from "vue";
+/**
+ * =================================================================================
+ * 仮想ネットワーク編集モーダル (MoVirtualNetworkEdit.vue)
+ * =================================================================================
+ */
 import { useVirtualNetworkEditForm } from "~/composables/modal/useVirtualNetworkEditForm";
-// 共通コンポーネントのインポート
 import FormInput from "~/components/Form/Input.vue";
+import UiSubmitButton from "~/components/ui/SubmitButton.vue";
 
-// 型定義 (VirtualNetworkResponse) は自動インポート前提
-
+// --- Props & Emits ---
 const props = defineProps({
   show: { type: Boolean, required: true },
   networkData: {
-    type: Object as PropType<VirtualNetworkResponse>,
+    type: Object as PropType<VirtualNetworkResponse | null>,
     default: null,
   },
 });
-
 const emit = defineEmits(["close", "success"]);
 
-// Composable
+// --- Composable ---
 const {
-  editedData,
-  isSaving,
-  updaterError,
-  initializeForm,
+  errors,
+  name,
+  nameAttrs,
+  subnets,
   addSubnet,
   removeSubnet,
-  save,
-} = useVirtualNetworkEditForm();
+  isDirty,
+  isValid,
+  isSaving,
+  onFormSubmit,
+  makehandleClose,
+} = useVirtualNetworkEditForm(props);
 
-// モーダルが開かれたとき(データが渡されたとき)に初期化
-watch(
-  () => props.networkData,
-  (newData) => {
-    if (newData && props.show) {
-      initializeForm(newData);
-    }
-  },
-  { immediate: true }
-);
-
-// 保存処理
-const submitForm = () => {
-  save(emit);
-};
+// --- Submit ---
+const submitForm = onFormSubmit(emit);
+const handleClose = makehandleClose(emit);
 </script>

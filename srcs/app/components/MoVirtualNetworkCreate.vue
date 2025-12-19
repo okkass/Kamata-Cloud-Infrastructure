@@ -1,43 +1,44 @@
 <template>
-  <BaseModal :show="show" title="仮想ネットワーク作成" @close="$emit('close')">
-    <form @submit.prevent="submitForm" class="modal-space">
-      <div>
-        <label for="network-name-create" class="form-label">
-          ネットワーク名 <span class="required-asterisk">*</span>
-        </label>
-        <input
-          id="network-name-create"
+  <BaseModal :show="show" title="仮想ネットワーク作成" @close="handleClose">
+    <form
+      id="network-create-form"
+      @submit.prevent="submitForm"
+      class="space-y-6"
+    >
+      <div class="space-y-4">
+        <FormInput
+          label="ネットワーク名"
+          name="network-name-create"
           type="text"
           v-model="name"
           v-bind="nameAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.name }"
+          :error="errors.name"
+          :required="true"
           placeholder="例: vpc-frontend"
         />
-        <p v-if="errors.name" class="text-error mt-1">{{ errors.name }}</p>
-      </div>
 
-      <div>
-        <label for="ip-address-create" class="form-label">
-          IPアドレス / CIDR <span class="required-asterisk">*</span>
-        </label>
-        <input
-          id="ip-address-create"
+        <FormInput
+          label="IPアドレス / CIDR"
+          name="ip-address-create"
           type="text"
           v-model="cidr"
           v-bind="cidrAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.cidr }"
+          :error="errors.cidr"
+          :required="true"
           placeholder="例: 192.168.0.0/16"
         />
-        <p v-if="errors.cidr" class="text-error mt-1">{{ errors.cidr }}</p>
       </div>
     </form>
+
     <template #footer>
       <div class="modal-footer">
-        <button type="submit" class="btn btn-primary" :disabled="isCreating">
-          {{ isCreating ? "作成中..." : "作成" }}
-        </button>
+        <UiSubmitButton
+          :disabled="isCreating || !isValid"
+          :loading="isCreating"
+          label="仮想ネットワークを作成"
+          form="network-create-form"
+          type="submit"
+        />
       </div>
     </template>
   </BaseModal>
@@ -47,14 +48,11 @@
 /**
  * =================================================================================
  * 仮想ネットワーク作成モーダル (MoVirtualNetworkCreate.vue)
- * ---------------------------------------------------------------------------------
- * UIの表示に特化したコンポーネントです。
- * 実際のフォームの状態管理やAPI送信ロジックは `useVirtualNetworkCreateForm` Composable に
- * 分離されています。
  * =================================================================================
  */
-// Composable をインポート (パスはプロジェクトに合わせて調整してください)
 import { useVirtualNetworkCreateForm } from "~/composables/modal/useVirtualNetworkCreateForm";
+import FormInput from "~/components/Form/Input.vue";
+import UiSubmitButton from "~/components/ui/SubmitButton.vue";
 
 // --- 親コンポーネントとの連携 ---
 defineProps({
@@ -64,17 +62,18 @@ const emit = defineEmits(["close", "success"]);
 
 // --- Composable からフォームロジックと状態を取得 ---
 const {
-  errors, // エラーオブジェクト
-  name, // ネットワーク名の v-model 用
-  nameAttrs, // ネットワーク名の v-bind 用
-  cidr, // CIDRの v-model 用
-  cidrAttrs, // CIDRの v-bind 用
-  isCreating, // API通信中のローディング状態
-  onFormSubmit, // Composable が提供する送信ハンドラ
+  errors,
+  name,
+  nameAttrs,
+  cidr,
+  cidrAttrs,
+  isValid,
+  isCreating,
+  onFormSubmit,
+  makehandleClose,
 } = useVirtualNetworkCreateForm();
 
 // --- イベントハンドラ ---
-// Composable から受け取った `onFormSubmit` 関数に、
-// このコンポーネントの `emit` 関数を渡して実行するラッパー関数。
 const submitForm = onFormSubmit(emit);
+const handleClose = makehandleClose(emit);
 </script>

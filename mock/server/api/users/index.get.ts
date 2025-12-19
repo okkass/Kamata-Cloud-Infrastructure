@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       lastLoginAt: new Date().toISOString(),
       isImageAdmin: true,
       isInstanceTypeAdmin: true,
-      isPhysicalNodeAdmin: true,
+      isNodeAdmin: true,
       isSecurityGroupAdmin: true,
       isVirtualMachineAdmin: true,
       isNetworkAdmin: true,
@@ -32,7 +32,7 @@ export default defineEventHandler(async (event) => {
       maxStorageSize: 512 * 1024 * 1024 * 1024, // 512GB
       isImageAdmin: false,
       isInstanceTypeAdmin: false,
-      isPhysicalNodeAdmin: false,
+      isNodeAdmin: false,
       isSecurityGroupAdmin: false,
       isVirtualMachineAdmin: false,
       isNetworkAdmin: false,
