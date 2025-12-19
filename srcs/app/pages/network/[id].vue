@@ -89,8 +89,6 @@ const handleEditClose = () => {
 
 // ---------- 保存後 ----------
 const handleEditSave = async (updated: VirtualNetworkResponse) => {
-  stableVnet.value = updated;
-  vnet.value = updated;
   isEditOpen.value = false;
 
   addToast({
