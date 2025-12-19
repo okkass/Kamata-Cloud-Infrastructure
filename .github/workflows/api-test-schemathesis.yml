@@ -1,0 +1,84 @@
+name: API Testing with Schemathesis
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  test-api:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Install dependencies
+        run: pnpm install
+
+      - name: Install Schemathesis
+        run: pip install schemathesis
+
+      - name: Start Mock API Server
+        run: |
+          pnpm run mock &
+          echo $! > server.pid
+          echo "API server started with PID $(cat server.pid)"
+
+      - name: Wait for API Server
+        run: |
+          echo "Waiting for API server to be ready..."
+          for i in {1..30}; do
+            if curl -f http://localhost:3030/api/health 2>/dev/null || curl -f http://localhost:3030 2>/dev/null; then
+              echo "API server is ready!"
+              break
+            fi
+            echo "Waiting... ($i/30)"
+            sleep 2
+          done
+
+      - name: Run Schemathesis Tests
+        run: |
+          schemathesis run docs/openapi/openapi.yml \
+            --base-url http://localhost:3030 \
+            --checks all \
+            --hypothesis-max-examples 10 \
+            --workers 2 \
+            --exclude-deprecated \
+            --show-errors-tracebacks
+        continue-on-error: true
+        id: schemathesis
+
+      - name: Stop API Server
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            kill $(cat server.pid) || true
+            rm server.pid
+          fi
+
+      - name: Report Test Results
+        if: always()
+        run: |
+          if [ "${{ steps.schemathesis.outcome }}" == "success" ]; then
+            echo "✅ All API tests passed!"
+          else
+            echo "❌ Some API tests failed. Check the logs above for details."
+            exit 1
+          fi
