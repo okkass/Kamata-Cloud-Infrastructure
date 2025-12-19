@@ -17,14 +17,16 @@ import { NETWORK } from "~/utils/constants";
 // サブネット単体のスキーマ
 const subnetSchema = z.object({
   name: z.string().min(1, "サブネット名は必須です。"),
-  cidr: z.cidrv4(),
+  cidr: z.string().cidrv4("有効なCIDR形式で入力してください。"),
 });
 
 // フォーム全体のスキーマ
 const zodSchema = z.object({
   name: z.string().min(1, "ネットワーク名は必須です。"),
-  cidr: z.cidrv4(),
-  initialSubnets: z.array(subnetSchema),
+  cidr: z.string().cidrv4("有効なCIDR形式で入力してください。"),
+  initialSubnets: z
+    .array(subnetSchema)
+    .min(1, "少なくとも1つのサブネットが必要です。"),
 });
 
 const validationSchema = toTypedSchema(zodSchema);
@@ -47,7 +49,7 @@ export function useVirtualNetworkCreateForm() {
   // ============================================================================
   // Form Setup
   // ============================================================================
-  const { errors, handleSubmit, defineField } = useForm<FormValues>({
+  const { errors, handleSubmit, defineField, meta } = useForm<FormValues>({
     validationSchema,
     initialValues: {
       name: "",
@@ -118,5 +120,6 @@ export function useVirtualNetworkCreateForm() {
     removeSubnet,
     isCreating,
     onFormSubmit,
+    meta,
   };
 }

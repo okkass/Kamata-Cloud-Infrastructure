@@ -112,7 +112,7 @@
           type="button"
           @click="submitForm"
           class="btn btn-primary"
-          :disabled="isCreating"
+          :disabled="isCreating || !meta.valid"
         >
           {{ isCreating ? "作成中..." : "作成" }}
         </button>
@@ -147,6 +147,7 @@ const {
   removeSubnet,
   isCreating,
   onFormSubmit,
+  meta,
 } = useVirtualNetworkCreateForm();
 
 // --- Helper: エラー取得 ---
