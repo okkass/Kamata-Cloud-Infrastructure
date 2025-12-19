@@ -1,6 +1,6 @@
 services:
   nuxt-app:
-    image: bukidai/kci-app:latest
+    image: bukidai/kci-app:0.1.1
     volumes:
       - ..:/workspace:cached
     command: sleep infinity
