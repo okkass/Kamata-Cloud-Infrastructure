@@ -118,7 +118,7 @@ const { startPolling, stopPolling, runOnce } = createPolling(async () => {
 
 // 初期表示後に polling 開始
 onMounted(() => {
-  startPolling(5000); // 5秒おき（必要なら調整）
+  startPolling(3000); // 3秒おき（必要なら調整）
 });
 
 // ページ離脱時に停止
