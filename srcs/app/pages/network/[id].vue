@@ -28,7 +28,6 @@
       :show="isEditOpen"
       :network-data="stableVnet"
       @close="handleEditClose"
-      @save="handleEditSave"
       @success="handleEditSave"
     />
   </div>
