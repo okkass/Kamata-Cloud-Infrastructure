@@ -28,7 +28,6 @@
       :show="isEditOpen"
       :network-data="stableVnet"
       @close="handleEditClose"
-      @save="handleEditSave"
       @success="handleEditSave"
     />
   </div>
@@ -90,8 +89,6 @@ const handleEditClose = () => {
 
 // ---------- 保存後 ----------
 const handleEditSave = async (updated: VirtualNetworkResponse) => {
-  stableVnet.value = updated;
-  vnet.value = updated;
   isEditOpen.value = false;
 
   addToast({
@@ -112,7 +109,11 @@ const handleEditSave = async (updated: VirtualNetworkResponse) => {
 // ---------- polling 制御（ここが今回の本命） ----------
 const { startPolling, stopPolling, runOnce } = createPolling(async () => {
   if (typeof refresh === "function") {
-    await refresh();
+    try {
+      await refresh();
+    } catch (e) {
+      console.error("仮想ネットワーク情報の自動更新に失敗しました", e);
+    }
   }
 });
 
@@ -132,8 +133,10 @@ watch(isEditOpen, async (isOpen) => {
     // 編集中は自動再取得しない
     stopPolling();
   } else {
-    // 閉じたら1回だけ取得 → 再開
+    // 閉じたら1回だけ取得 → 少し待ってから再開
     await runOnce();
+    // runOnce() による refresh 完了直後に polling が同時実行されるのを避けるため、短い遅延を挟む
+    await new Promise((resolve) => setTimeout(resolve, 100));
     startPolling(5000);
   }
 });
