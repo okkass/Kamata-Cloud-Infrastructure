@@ -9,6 +9,7 @@ import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useResourceList } from "~/composables/useResourceList";
+import { useApiClient } from "~/composables/useResourceClient";
 import { useToast } from "~/composables/useToast";
 
 // デバイス情報の型 (APIレスポンス)
@@ -21,9 +22,6 @@ interface SelectOption {
   id: string;
   name: string;
 }
-
-// API Clientの定義
-const api = useApiClient();
 
 // ==============================================================================
 // Validation Schema
@@ -47,6 +45,8 @@ type FormValues = z.infer<typeof zodSchema>;
  */
 export function useStorageAddForm() {
   const { addToast } = useToast();
+  // API Clientの定義
+  const api = useApiClient();
 
   const { executeCreate, isCreating } = useResourceCreate<
     StoragePoolCreateRequest,
@@ -74,17 +74,9 @@ export function useStorageAddForm() {
     });
 
   // --- フィールド定義 ---
-  const [name, nameProps] = defineField("name");
-  const nameAttrs = computed(() => {
-    const { name: _, ...rest } = nameProps.value;
-    return rest;
-  });
+  const [name, nameAttrs] = defineField("name");
 
-  const [nodeId, nodeProps] = defineField("nodeId");
-  const nodeIdAttrs = computed(() => {
-    const { name: _, ...rest } = nodeProps.value;
-    return rest;
-  });
+  const [nodeId, nodeIdAttrs] = defineField("nodeId");
 
   const [devicePath] = defineField("devicePath");
 
