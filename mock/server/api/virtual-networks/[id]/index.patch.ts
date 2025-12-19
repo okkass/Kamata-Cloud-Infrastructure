@@ -1,14 +1,13 @@
 export default defineEventHandler(async (event) => {
-  const id = getRouterParam(event, "id");
+  const id = event.context.params?.id;
+  if (!id) {
+    throw createError({ statusCode: 400, statusMessage: "Invalid ID" });
+  }
+
   const body = await readBody(event);
 
-  // 実際の更新ロジックはモックなので省略し、成功レスポンスを返す
-  // 必要であれば、ここでバリデーションやログ出力を行う
-  console.log(`[Mock] PATCH /api/virtual-networks/${id}`, body);
+  // TODO: Implement actual DB operations using Prisma for partial update
+  console.log(`PATCH request received for virtual network ${id}:`, body);
 
-  return {
-    id: id,
-    ...body,
-    updatedAt: new Date().toISOString(),
-  };
+  return { message: "Virtual network updated successfully", data: body };
 });
