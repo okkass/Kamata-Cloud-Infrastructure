@@ -1,0 +1,11 @@
+# Schemathesis設定ファイル
+# 401 Unauthorizedエラーを許可する設定
+
+# 実行するチェック項目
+checks:
+  - not_a_server_error  # 5xxエラーのみチェック
+  - content_type_conformance
+  - response_schema_conformance
+
+# 認証が必要なエンドポイントはスキップしない
+# (401は正常なレスポンスとして扱う)

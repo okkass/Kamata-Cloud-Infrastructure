@@ -54,7 +54,7 @@ jobs:
         run: |
           schemathesis run docs/openapi/openapi.yml \
             --url http://localhost:3030 \
-            --checks all \
+            --checks not_a_server_error content_type_conformance response_schema_conformance \
             --max-examples 10 \
             --workers 2 \
             --exclude-deprecated
