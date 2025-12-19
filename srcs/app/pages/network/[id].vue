@@ -111,7 +111,11 @@ const handleEditSave = async (updated: VirtualNetworkResponse) => {
 // ---------- polling 制御（ここが今回の本命） ----------
 const { startPolling, stopPolling, runOnce } = createPolling(async () => {
   if (typeof refresh === "function") {
-    await refresh();
+    try {
+      await refresh();
+    } catch (e) {
+      console.error("仮想ネットワーク情報の自動更新に失敗しました", e);
+    }
   }
 });
 
