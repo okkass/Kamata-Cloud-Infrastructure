@@ -14,8 +14,6 @@ jobs:
 
       - name: Setup pnpm
         uses: pnpm/action-setup@v4
-        with:
-          version: 9
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -56,12 +54,11 @@ jobs:
       - name: Run Schemathesis Tests
         run: |
           schemathesis run docs/openapi/openapi.yml \
-            --base-url http://localhost:3030 \
+            --url http://localhost:3030 \
             --checks all \
-            --hypothesis-max-examples 10 \
+            --max-examples 10 \
             --workers 2 \
-            --exclude-deprecated \
-            --show-errors-tracebacks
+            --exclude-deprecated
         continue-on-error: true
         id: schemathesis
 
