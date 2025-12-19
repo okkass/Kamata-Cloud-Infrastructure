@@ -3,56 +3,73 @@
     :show="show"
     title="インスタンスタイプ編集"
     @close="$emit('close')"
+    size="md"
   >
-    <form @submit.prevent="submitForm">
-      <FormInput
-        name="instance-type-name-edit"
-        label="インスタンスタイプ名"
-        type="text"
-        :required="true"
-        v-model="name"
-        v-bind="nameAttrs"
-        :error="errors.name"
-        placeholder="例: standard.xlarge"
-      />
+    <div v-if="!editedData" class="p-8 text-center text-gray-500">
+      読み込み中...
+    </div>
 
-      <FormInput
-        name="instance-cpu-edit"
-        label="vCPU数 (個)"
-        type="number"
-        :required="true"
-        v-model.number="cpuCore"
-        v-bind="cpuCoreAttrs"
-        :error="errors.cpuCore"
-        placeholder="例: 16"
-        min="1"
-      />
-
-      <FormInput
-        name="instance-memory-edit"
-        label="メモリ (MB)"
-        type="number"
-        :required="true"
-        v-model.number="memorySizeInMb"
-        v-bind="memorySizeInMbAttrs"
-        :error="errors.memorySizeInMb"
-        placeholder="例: 32768"
-        min="1"
+    <form v-else @submit.prevent="submitForm" class="space-y-6">
+      <div
+        v-if="updaterError"
+        class="bg-red-50 text-red-600 p-3 rounded text-sm"
       >
-        <template #suffix>
-          <span class="form-unit-label rounded-l-none -ml-px">MB</span>
-        </template>
-      </FormInput>
+        {{ updaterError }}
+      </div>
+
+      <div class="space-y-4">
+        <FormInput
+          label="名前"
+          name="name"
+          v-model="name"
+          v-bind="nameAttrs"
+          :error="errors.name"
+          placeholder="例: standard-2vcpu-4gb"
+          required
+          class="w-full"
+        />
+
+        <FormInput
+          label="vCPU"
+          name="cpuCore"
+          type="number"
+          v-model.number="cpuCore"
+          v-bind="cpuCoreAttrs"
+          :error="errors.cpuCore"
+          placeholder="2"
+          required
+          class="w-full"
+        />
+
+        <FormInput
+          label="メモリ (MB)"
+          name="memorySize"
+          type="number"
+          v-model.number="memorySizeGB"
+          v-bind="memorySizeGBAttrs"
+          :error="errors.memorySizeGB"
+          placeholder="4"
+          :step="1024"
+          :min="512"
+          required
+          class="w-full"
+        >
+          <template #suffix>
+            <span class="ml-2 text-gray-500 text-sm">MB</span>
+          </template>
+        </FormInput>
+      </div>
     </form>
+
     <template #footer>
       <div class="modal-footer">
         <button
           type="button"
           @click="submitForm"
           class="btn btn-primary"
-          :disabled="isUpdating"
+          :disabled="isSaving || !editedData"
         >
-          {{ isUpdating ? "保存中..." : "保存" }}
+          {{ isSaving ? "保存中..." : "保存" }}
         </button>
       </div>
     </template>
@@ -60,43 +77,50 @@
 </template>
 
 <script setup lang="ts">
-/**
- * =================================================================================
- * インスタンスタイプ編集モーダル (MoInstanceTypeEdit.vue)
- * =================================================================================
- */
+import { watch, type PropType } from "vue";
 import { useInstanceTypeEditForm } from "~/composables/modal/useInstanceTypeEditForm";
 import FormInput from "~/components/Form/Input.vue";
-import FormSection from "~/components/Form/Section.vue";
 
-import type { InstanceTypeServerBase } from "~~/shared/types/dto/instance-type/InstanceTypeServerBase";
-
-// --- Props & Emits ---
 const props = defineProps({
   show: { type: Boolean, required: true },
   instanceTypeData: {
-    type: Object as PropType<InstanceTypeServerBase | null>,
+    type: Object as PropType<InstanceTypeResponse>,
     default: null,
   },
 });
+
 const emit = defineEmits(["close", "success"]);
 
-// --- Composable からフォームロジックと状態を取得 ---
 const {
-  errors,
+  editedData,
   name,
   nameAttrs,
   cpuCore,
   cpuCoreAttrs,
-  memorySizeInMb,
-  memorySizeInMbAttrs,
-  isUpdating,
-  onFormSubmit,
-} = useInstanceTypeEditForm(props);
+  memorySizeGB,
+  memorySizeGBAttrs,
+  errors,
+  isSaving,
+  updaterError,
+  initializeForm,
+  save,
+} = useInstanceTypeEditForm();
 
-// --- イベントハンドラ ---
-const submitHandler = onFormSubmit(emit);
-const submitForm = () => {
-  submitHandler();
+watch(
+  () => props.instanceTypeData,
+  (newData) => {
+    if (newData && props.show) {
+      initializeForm(newData);
+    }
+  },
+  { immediate: true }
+);
+
+const submitForm = async () => {
+  const success = await save();
+  if (success) {
+    emit("success");
+    emit("close");
+  }
 };
 </script>

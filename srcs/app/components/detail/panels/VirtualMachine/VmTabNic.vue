@@ -58,7 +58,7 @@ const nics = computed<NicView[]>(() => {
 
   return list.map((nic) => ({
     id: nic.id,
-    subnetId: nic.subnet?.id,
+    subnetId: nic.subnet.id,
     ipAddress: nic.ipAddress,
     macAddress: nic.macAddress,
   }));
