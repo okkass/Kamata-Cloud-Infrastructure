@@ -1,11 +1,15 @@
 <template>
   <div class="mx-auto max-w-6xl px-4 py-6">
-    <div v-if="pending" class="text-sm text-neutral-500">読み込み中…</div>
+    <!-- 初回ロードだけ表示 -->
+    <div v-if="!vm && pending" class="text-sm text-neutral-500">
+      読み込み中…
+    </div>
 
-    <div v-else-if="error" class="text-sm text-red-500">
+    <div v-else-if="!vm && error" class="text-sm text-red-500">
       エラーが発生しました：{{ error.message }}
     </div>
 
+    <!-- vm が一度でも取得できたら、以降は常にこれ -->
     <ResourceDetailShell
       v-else
       title="仮想マシン詳細"
@@ -29,20 +33,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
+
 import { MACHINE } from "~/utils/constants";
-import { useApiClient } from "~/composables/useResourceClient";
+import { createPolling } from "~/utils/polling";
 
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
-
-// Tabs
 import { vmTabs } from "~/composables/detail/useVmTabs";
 
-// composables
 import { useResourceDetail } from "~/composables/useResourceDetail";
-import { useToast } from "~/composables/useToast";
+import { useToast } from "@/composables/useToast";
+import { useApiClient } from "~/composables/useResourceClient";
+
+type VirtualMachineResponse =
+  components["schemas"]["VirtualMachineResponse"];
 
 const { addToast } = useToast();
 const apiClient = useApiClient();
@@ -50,7 +56,7 @@ const apiClient = useApiClient();
 const route = useRoute();
 const router = useRouter();
 
-// VM データ取得
+// VM 詳細取得
 const {
   data: vm,
   pending,
@@ -60,6 +66,20 @@ const {
   MACHINE.name,
   route.params.id as string
 );
+
+// --- ポーリング設定 ---
+const polling = createPolling(async () => {
+  await refresh();
+});
+
+// lifecycle
+onMounted(() => {
+  polling.startPolling();
+});
+
+onUnmounted(() => {
+  polling.stopPolling();
+});
 
 // 戻る
 const goBack = () => {
@@ -109,15 +129,12 @@ const handleEditClose = () => {
 const handleEditSuccess = async () => {
   isEditOpen.value = false;
 
-  // ここではトーストを出さず、モーダル側に任せる
-
-  // 最新データ取得
-  if (typeof refresh === "function") {
-    try {
-      await refresh();
-    } catch (e) {
-      console.error("VM再取得に失敗しました", e);
-    }
+  // 編集時のトーストはモーダル側で出す想定
+  try {
+    await refresh();
+  } catch (e) {
+    console.error("VM再取得に失敗しました", e);
+    addToast({ message: "再取得に失敗しました", type: "error" });
   }
 };
 
