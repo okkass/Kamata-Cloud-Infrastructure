@@ -73,7 +73,8 @@ const polling = createPolling(async () => {
 });
 
 // lifecycle
-onMounted(() => {
+onMounted(async () => {
+  await polling.runOnce();
   polling.startPolling();
 });
 
