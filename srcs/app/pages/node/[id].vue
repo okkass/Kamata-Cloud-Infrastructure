@@ -32,10 +32,26 @@ const {
   data: node,
   pending,
   error,
+  refresh,
 } = await useResourceDetail<NodeResponse>(
   NODE.name,
   route.params.id as string
 );
+
+
+// --- ポーリング設定 ---
+const polling = createPolling(async () => {
+  await refresh();
+});
+
+// lifecycle
+onMounted(() => {
+  polling.startPolling();
+});
+
+onUnmounted(() => {
+  polling.stopPolling();
+});
 
 const goBack = () => {
   router.back();
