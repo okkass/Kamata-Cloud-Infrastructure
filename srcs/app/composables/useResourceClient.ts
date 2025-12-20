@@ -1,5 +1,3 @@
-// composables/useApiClient.ts
-
 // HTTPメソッドの型定義
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 

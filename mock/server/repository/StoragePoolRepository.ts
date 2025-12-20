@@ -6,7 +6,8 @@ import type {
 } from "@app/shared/types";
 
 import crypto from "crypto";
-import { NodeRepository } from "./NodeRepository";
+import NodeRepository from "./NodeRepository";
+import { generateRandomUsage } from "../api/summary/realtime.get.js";
 
 let storagePools: Array<StoragePoolResponse> = [
   {
@@ -15,7 +16,7 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
     createdAt: new Date().toISOString(),
     totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: 200 * 1024 * 1024 * 1024, // 200 GB
+    usedSize: generateRandomUsage(500 * 1024 * 1024 * 1024).used,
     hasNetworkAccess: true,
   },
   {
@@ -24,7 +25,7 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
     createdAt: new Date().toISOString(),
     totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: 200 * 1024 * 1024 * 1024, // 200 GB
+    usedSize: generateRandomUsage(500 * 1024 * 1024 * 1024).used,
     hasNetworkAccess: false,
   },
   {
@@ -33,7 +34,7 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
     createdAt: new Date().toISOString(),
     totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: 200 * 1024 * 1024 * 1024, // 200 GB
+    usedSize: generateRandomUsage(1000 * 1024 * 1024 * 1024).used,
     hasNetworkAccess: true,
   },
   {
@@ -42,7 +43,7 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
     createdAt: new Date().toISOString(),
     totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: 200 * 1024 * 1024 * 1024, // 200 GB
+    usedSize: generateRandomUsage(1000 * 1024 * 1024 * 1024).used,
     hasNetworkAccess: false,
   },
 ];

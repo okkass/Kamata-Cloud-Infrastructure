@@ -206,6 +206,55 @@
 
     <div class="p-8 space-y-8">
       <div class="mt-8 pt-4 border-t">
+        <h2 class="font-semibold text-lg">スナップショット一覧 (API連携)</h2>
+        <div v-if="ssPending" class="mt-2 text-gray-500">
+          スナップショット一覧を読み込み中...
+        </div>
+        <div v-else-if="ssError" class="mt-2 text-red-600">
+          一覧の取得に失敗しました: {{ ssError.message }}
+        </div>
+        <table
+          v-else-if="snapshots && snapshots.length > 0"
+          class="w-full mt-2 text-sm text-left"
+        >
+          <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+            <tr>
+              <th class="px-6 py-3">名前</th>
+              <th class="px-6 py-3">説明</th>
+              <th class="px-6 py-3">作成日時</th>
+              <th class="px-6 py-3 text-center">操作</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              v-for="ss in snapshots"
+              :key="ss.id"
+              class="bg-white border-b hover:bg-gray-50"
+            >
+              <td class="px-6 py-4 font-medium">{{ ss.name }}</td>
+              <td class="px-6 py-4 text-gray-600">
+                {{ ss.description || "-" }}
+              </td>
+              <td class="px-6 py-4 text-gray-600">
+                {{ new Date(ss.createdAt).toLocaleString() }}
+              </td>
+              <td class="px-6 py-4 text-center">
+                <button
+                  @click="openSnapshotRestoreModal(ss)"
+                  class="btn-secondary"
+                >
+                  リストア
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+        <div v-else class="mt-2 text-gray-500">
+          表示できるスナップショットがありません。
+        </div>
+      </div>
+
+      <div class="mt-8 pt-4 border-t">
         <h2 class="font-semibold text-lg">バックアップ一覧 (API連携)</h2>
         <div v-if="bkPending" class="mt-2 text-gray-500">
           バックアップ一覧を読み込み中...
@@ -285,6 +334,47 @@
     </div>
 
     <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">インスタンスタイプ一覧 (API連携)</h2>
+      <div v-if="itPending" class="mt-2 text-gray-500">一覧を読み込み中...</div>
+      <div v-else-if="itError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ itError.message }}
+      </div>
+      <table
+        v-else-if="instanceTypes && instanceTypes.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">vCPU</th>
+            <th class="px-6 py-3">メモリ</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="it in instanceTypes"
+            :key="it.id"
+            class="bg-white border-b"
+          >
+            <td class="px-6 py-4 font-medium">{{ it.name }}</td>
+            <td class="px-6 py-4 text-center">
+              <button
+                @click="openInstanceTypeEditModal(it)"
+                class="btn-secondary"
+              >
+                編集
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="mt-2 text-gray-500">
+        表示できるインスタンスタイプがありません。
+      </div>
+    </div>
+
+    <div class="mt-8 pt-4 border-t">
       <h2 class="font-semibold text-lg">仮想ネットワーク一覧 (API連携)</h2>
       <div v-if="netPending" class="mt-2 text-gray-500">
         一覧を読み込み中...
@@ -300,7 +390,6 @@
           <tr>
             <th class="px-6 py-3">名前</th>
             <th class="px-6 py-3">CIDR</th>
-            <th class="px-6 py-3">サブネット数</th>
             <th class="px-6 py-3 text-center">操作</th>
           </tr>
         </thead>
@@ -308,9 +397,6 @@
           <tr v-for="net in networks" :key="net.id" class="bg-white border-b">
             <td class="px-6 py-4 font-medium">{{ net.name }}</td>
             <td class="px-6 py-4">{{ net.cidr }}</td>
-            <td class="px-6 py-4">
-              {{ net.subnets ? net.subnets.length : 0 }} 個
-            </td>
             <td class="px-6 py-4 text-center">
               <button
                 @click="openVirtualNetworkEditModal(net)"
@@ -340,6 +426,7 @@ import MoImageEdit from "~/components/MoImageEdit.vue";
 import MoUserEdit from "~/components/MoUserEdit.vue";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 import MoBackupRestore from "~/components/MoBackupRestore.vue";
+import MoSnapshotRestore from "~/components/MoSnapshotRestore.vue";
 import MoStorageEdit from "~/components/MoStorageEdit.vue";
 import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
 
@@ -407,6 +494,14 @@ const {
   refresh: refreshBackups,
 } = useResourceList<BackupResponse>("backups");
 
+// 8. スナップショット
+const {
+  data: snapshots,
+  pending: ssPending,
+  error: ssError,
+  refresh: refreshSnapshots,
+} = useResourceList<SnapshotResponse>("snapshots");
+
 // 9. 仮想ネットワーク
 const {
   data: networks,
@@ -434,6 +529,12 @@ const editModals = computed(() => [
     component: markRaw(MoBackupRestore),
     props: { backupData: targetResource.value },
     refreshFn: refreshBackups,
+  },
+  {
+    id: "snapshotRestore",
+    component: markRaw(MoSnapshotRestore),
+    props: { snapshotData: targetResource.value },
+    refreshFn: refreshSnapshots,
   },
   {
     id: "instanceTypeEdit",
@@ -497,6 +598,8 @@ const handleSuccess = () => {
 const openVmEditModal = (vm: VirtualMachineResponse) => openModal("vmEdit", vm);
 const openBackupRestoreModal = (backup: BackupResponse) =>
   openModal("backupRestore", backup);
+const openSnapshotRestoreModal = (snapshot: SnapshotResponse) =>
+  openModal("snapshotRestore", snapshot);
 const openInstanceTypeEditModal = (it: InstanceTypeResponse) =>
   openModal("instanceTypeEdit", it);
 const openImageEditModal = (image: ImageResponse) =>
