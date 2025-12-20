@@ -22,4 +22,4 @@ https://kci.proxmox.chiffon-lab.tech
 
 ## .env.mock の説明
 
-localhost:3030 で Listen してるモックサーバーを使ってもらうための.env です。ここには機密情報を書かないで下さい。
+localhost:3030 で Listen してるモックサーバーを使ってもらうための.env です。ここには機密情報を書かないでください。
