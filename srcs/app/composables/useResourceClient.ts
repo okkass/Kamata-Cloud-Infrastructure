@@ -10,7 +10,6 @@ interface ApiOptions {
 }
 
 export const useApiClient = () => {
-  const baseURL = "/api/";
   const runtimeConfig = useRuntimeConfig();
 
   /**
@@ -21,8 +20,7 @@ export const useApiClient = () => {
   const request = async <T>(url: string, options: ApiOptions = {}) => {
     const { method = "GET", body, params, headers } = options;
 
-    return await $fetch<T>(baseURL + url, {
-      baseURL: runtimeConfig.public.apiBaseUrl,
+    return await $fetch<T>(url, {
       method,
       body,
       params, // GET時のクエリパラメータ (?id=1など)

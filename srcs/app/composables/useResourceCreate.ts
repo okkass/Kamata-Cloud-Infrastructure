@@ -38,11 +38,13 @@ export const useResourceCreate = <
     isCreating.value = true;
 
     try {
-      const responseData = await $fetch<TResponse>(`/api/${resourceName}`, {
-        baseURL: runtimeConfig.public.apiBaseUrl,
-        method: "POST",
-        body: payload,
-      });
+      const responseData = await useNuxtApp().$apiFetch<TResponse>(
+        `${resourceName}`,
+        {
+          method: "POST",
+          body: payload,
+        }
+      );
       console.log(responseData);
       return { success: true, data: responseData };
     } catch (err: any) {

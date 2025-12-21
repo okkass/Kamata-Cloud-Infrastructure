@@ -18,10 +18,10 @@ export const useResourceDetail = <T>(
 
   const runtimeConfig = useRuntimeConfig();
 
-  const url = `/api/${resourceName}/${resourceId}`;
+  const url = `${resourceName}/${resourceId}`;
   // useFetch を使い、単一のオブジェクトを取得する
   return useFetch<T>(url, {
-    baseURL: runtimeConfig.public.apiBaseUrl,
+    $fetch: useNuxtApp().$apiFetch,
     default: () => undefined,
     key: `useResourceDetail-${resourceName}-${resourceId}`,
   });

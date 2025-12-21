@@ -11,7 +11,7 @@ export const useResourceList = <T>(
   params?: Record<string, any>
 ) => {
   // APIのエンドポイントURLを構築
-  const url = `/api/${resourceName}`;
+  const url = `${resourceName}`;
 
   const runtimeConfig = useRuntimeConfig();
 
@@ -19,7 +19,7 @@ export const useResourceList = <T>(
   // そしてデータを再取得するための関数(refresh)をオブジェクトとして返す。
 
   return useFetch<T[]>(url, {
-    baseURL: runtimeConfig.public.apiBaseUrl,
+    $fetch: useNuxtApp().$apiFetch,
     params,
     default: () => [],
   });
