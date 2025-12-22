@@ -1,5 +1,3 @@
-// composables/useApiClient.ts
-
 // HTTPメソッドの型定義
 type HttpMethod = "GET" | "POST" | "PUT" | "DELETE" | "PATCH";
 
@@ -12,9 +10,6 @@ interface ApiOptions {
 }
 
 export const useApiClient = () => {
-  const baseURL = "/api/";
-  const runtimeConfig = useRuntimeConfig();
-
   /**
    * APIリクエストを実行する共通関数
    * @param url - エンドポイントのURL
@@ -23,8 +18,7 @@ export const useApiClient = () => {
   const request = async <T>(url: string, options: ApiOptions = {}) => {
     const { method = "GET", body, params, headers } = options;
 
-    return await $fetch<T>(baseURL + url, {
-      baseURL: runtimeConfig.public.apiBaseUrl,
+    return await $fetch<T>(url, {
       method,
       body,
       params, // GET時のクエリパラメータ (?id=1など)

@@ -141,8 +141,8 @@ onMounted(async () => {
 
     for (const subnet of subnets) {
       // ★ 変更: エンドポイントは /virtual-machines 固定（設計どおり）
-      const raw = await $fetch<any[]>(
-        `/api/virtual-networks/${vnetId}/subnets/${subnet.id}/virtual-machines`
+      const raw = await useNuxtApp().$apiFetch<any[]>(
+        `virtual-networks/${vnetId}/subnets/${subnet.id}/virtual-machines`
       );
 
       for (const vm of raw) {
@@ -176,7 +176,12 @@ const hasData = computed(() => attachments.value.length > 0);
 const subnetGroups = computed(() => {
   const map = new Map<
     string,
-    { subnetId: string; subnetName?: string; cidr?: string; vms: VmAttachment[] }
+    {
+      subnetId: string;
+      subnetName?: string;
+      cidr?: string;
+      vms: VmAttachment[];
+    }
   >();
 
   for (const vm of attachments.value) {

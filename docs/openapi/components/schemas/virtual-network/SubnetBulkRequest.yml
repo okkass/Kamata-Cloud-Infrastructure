@@ -1,7 +1,7 @@
 type: object
 description: サブネットバルク更新リクエスト
 properties:
-  create:
+  add:
     type: array
     description: 作成するサブネットのリスト
     items:

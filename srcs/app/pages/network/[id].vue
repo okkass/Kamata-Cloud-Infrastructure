@@ -26,9 +26,9 @@
     <MoVirtualNetworkEdit
       v-if="stableVnet"
       :show="isEditOpen"
-      :network-data="stableVnet"
+      :networkData="targetVnet"
       @close="handleEditClose"
-      @success="handleEditSave"
+      @success="handleEditSuccess"
     />
   </div>
 </template>
@@ -75,28 +75,26 @@ const goBack = () => {
 // ---------- 操作 ----------
 const actions = ref([{ label: "編集", value: "edit" }]);
 const isEditOpen = ref(false);
+const targetVnet = ref<VirtualNetworkResponse | null>(null);
 
 const handleAction = (action: { label: string; value: string }) => {
   if (!stableVnet.value) return;
   if (action.value === "edit") {
+    targetVnet.value = vnet.value;
     isEditOpen.value = true;
   }
 };
 
 const handleEditClose = () => {
   isEditOpen.value = false;
+  targetVnet.value = null;
 };
 
-// ---------- 保存後 ----------
-const handleEditSave = async (updated: VirtualNetworkResponse) => {
+// モーダル側で emit("success") されたとき
+const handleEditSuccess = async () => {
   isEditOpen.value = false;
 
-  addToast({
-    message: "仮想ネットワークの情報を更新しました",
-    type: "success",
-  });
-
-  // 保存後は1回だけ最新化
+  // データを再取得して画面を更新
   if (typeof refresh === "function") {
     try {
       await refresh();

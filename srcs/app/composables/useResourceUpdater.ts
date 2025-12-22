@@ -24,9 +24,9 @@ type DirtyState = {
   base: Record<string, any>;
   collections: {
     [key: string]: {
-      added: any[];
-      removed: string[];
-      updated: { id: string; payload: any }[];
+      add: any[];
+      remove: string[];
+      patch: { id: string; payload: any }[];
     };
   };
 };
@@ -76,26 +76,26 @@ export function useResourceUpdater<T extends { id: string }>() {
         const originalList: any[] = (originalData.value as any)[key] || [];
         const editedList: any[] = (editedData.value as any)[key] || [];
 
-        const added: any[] = [];
-        const removed: string[] = [];
-        const updated: { id: string; payload: any }[] = [];
+        const add: any[] = [];
+        const remove: string[] = [];
+        const patch: { id: string; payload: any }[] = [];
 
-        // Added
+        // add
         editedList.forEach((item) => {
           const id = item[collConfig.idKey];
           if (String(id).startsWith(collConfig.newIdPrefix)) {
             const { [collConfig.idKey]: _, ...payload } = item;
-            added.push(payload);
+            add.push(payload);
           }
         });
 
-        // Removed & Updated
+        // remove & patch
         originalList.forEach((origItem) => {
           const id = origItem[collConfig.idKey];
           const editItem = editedList.find((e) => e[collConfig.idKey] === id);
 
           if (!editItem) {
-            removed.push(String(id));
+            remove.push(String(id));
           } else {
             const updatePayload: any = {};
             let hasChange = false;
@@ -109,12 +109,12 @@ export function useResourceUpdater<T extends { id: string }>() {
               }
             });
             if (hasChange) {
-              updated.push({ id: String(id), payload: updatePayload });
+              patch.push({ id: String(id), payload: updatePayload });
             }
           }
         });
 
-        state.collections[key] = { added, removed, updated };
+        state.collections[key] = { add, remove, patch };
       });
     }
 
@@ -126,7 +126,7 @@ export function useResourceUpdater<T extends { id: string }>() {
     const s = dirtyState.value;
     if (Object.keys(s.base).length > 0) return true;
     return Object.values(s.collections).some(
-      (c) => c.added.length > 0 || c.removed.length > 0 || c.updated.length > 0
+      (c) => c.add.length > 0 || c.remove.length > 0 || c.patch.length > 0
     );
   });
 
@@ -152,18 +152,18 @@ export function useResourceUpdater<T extends { id: string }>() {
 
         // 変更がない場合はスキップ
         const hasCollectionChanges =
-          cState.added.length > 0 ||
-          cState.removed.length > 0 ||
-          cState.updated.length > 0;
+          cState.add.length > 0 ||
+          cState.remove.length > 0 ||
+          cState.patch.length > 0;
 
         if (!hasCollectionChanges) return;
 
         // ★ BulkEndpoint が設定されている場合: 一括送信
         if (collConfig.bulkEndpoint) {
           const bulkPayload = {
-            create: cState.added,
-            delete: cState.removed,
-            patch: cState.updated.map((u) => ({
+            create: cState.add,
+            remove: cState.remove,
+            patch: cState.patch.map((u) => ({
               id: u.id,
               data: u.payload, // サーバー側の期待するキー名に合わせる (ここでは 'data')
             })),
@@ -174,15 +174,15 @@ export function useResourceUpdater<T extends { id: string }>() {
         // ★ BulkEndpoint がない場合: 個別送信 (既存ロジック)
         else {
           // POST
-          cState.added.forEach((payload) => {
+          cState.add.forEach((payload) => {
             apiRequests.push(client.post(collConfig.endpoint, payload));
           });
-          // DELETE
-          cState.removed.forEach((id) => {
+          // REMOVE
+          cState.remove.forEach((id) => {
             apiRequests.push(client.del(`${collConfig.endpoint}/${id}`));
           });
           // PATCH
-          cState.updated.forEach((u) => {
+          cState.patch.forEach((u) => {
             apiRequests.push(
               client.patch(`${collConfig.endpoint}/${u.id}`, u.payload)
             );
