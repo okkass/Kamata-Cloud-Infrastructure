@@ -15,8 +15,6 @@ export const useResourceDelete = (resourceName: string) => {
   // 処理の実行中状態を管理するための、このComposable専用のref
   const isLoading = ref(false);
 
-  const runtimeConfig = useRuntimeConfig();
-
   /**
    * 削除を実行し、詳細な結果オブジェクトを返す
    * @param {string} id - 削除するリソースのID

@@ -10,8 +10,6 @@ interface ApiOptions {
 }
 
 export const useApiClient = () => {
-  const runtimeConfig = useRuntimeConfig();
-
   /**
    * APIリクエストを実行する共通関数
    * @param url - エンドポイントのURL

@@ -15,8 +15,6 @@ export const useResourceUpdate = <
 ) => {
   const isUpdating = ref(false);
 
-  const runtimeConfig = useRuntimeConfig();
-
   /**
    * リソースの更新を実行し、詳細な結果オブジェクトを返す
    * @param id - 更新するリソースのID

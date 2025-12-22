@@ -15,7 +15,6 @@ export const useResourceCreate = <
 ) => {
   const isCreating = ref(false);
 
-  const runtimeConfig = useRuntimeConfig();
 
   /**
    * リソースの作成を実行し、詳細な結果オブジェクトを返す
