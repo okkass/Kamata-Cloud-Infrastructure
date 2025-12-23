@@ -7,8 +7,8 @@
       :rows="backups"
       rowKey="id"
       :headerButtons="headerButtons"
-      @header-action="() => openModal(ADD_BACKUP_ACTION)"
-      @row-action="handleRowAction"
+      @header-action="handleHeaderAction"
+      @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
         <NuxtLink :to="`/backup/${row.id}`" class="table-link">
@@ -36,9 +36,7 @@
         <button
           type="button"
           class="action-item action-item-primary"
-          @click.stop.prevent="
-            row && handleRowAction({ action: 'restore', row })
-          "
+          @click.stop.prevent="row && onRowAction({ action: 'restore', row })"
         >
           復元
         </button>
@@ -47,9 +45,7 @@
           type="button"
           class="action-item action-item-danger"
           :disabled="isDeleting && targetForDeletion?.id === row?.id"
-          @click.stop.prevent="
-            row && handleRowAction({ action: 'delete', row })
-          "
+          @click.stop.prevent="row && onRowAction({ action: 'delete', row })"
         >
           削除
         </button>
@@ -75,29 +71,36 @@
     <!-- 復元モーダル（存在しない場合は無視されます） -->
     <MoBackupRestore
       :show="activeModal === RESTORE_BACKUP_ACTION"
-      :backup="targetForEditing"
+      :backupData="
+        targetForEditing?.originalData ?? targetForEditing ?? undefined
+      "
       @close="closeModal"
-      @confirm="handleSuccess"
+      @success="handleSuccess"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useBackupManagement } from "~/composables/dashboard/useBackup";
+import { BACKUP } from "@/utils/constants";
+import {
+  useBackupManagement,
+  type BackupRow,
+} from "~/composables/dashboard/useBackup";
 import { usePageActions } from "~/composables/usePageActions";
 import DashboardLayout from "~/components/DashboardLayout.vue";
 import MoBackupCreate from "~/components/MoBackupCreate.vue";
-//import MoBackupRestore from "~/components/MoBackupRestore.vue";
+import MoBackupRestore from "~/components/MoBackupRestore.vue";
 import MoDeleteConfirm from "~/components/MoDeleteConfirm.vue";
-import type { BackupRow } from "~/composables/dashboard/useBackup";
 
-/* データ / composable */
-/* composable 側が提供するアクション定数を利用して重複を排除 */
+/* データ取得 */
 const {
   columns,
   headerButtons,
   rows: backups,
   refresh,
+  ADD_BACKUP_ACTION,
+  DELETE_BACKUP_ACTION,
+  RESTORE_BACKUP_ACTION,
 } = useBackupManagement();
 
 /* ページ共通アクション */
@@ -118,8 +121,20 @@ const {
   refresh,
 });
 
-/** Actions: 他 composable と同様の命名規則に合わせる */
-const ADD_BACKUP_ACTION = `add-${BACKUP.name}`;
-const DELETE_BACKUP_ACTION = `delete-${BACKUP.name}`;
-const RESTORE_BACKUP_ACTION = `restore-${BACKUP.name}`;
+/* ヘッダーボタンのハンドラー */
+function handleHeaderAction(action: string) {
+  if (action === "add") {
+    openModal(ADD_BACKUP_ACTION);
+  }
+}
+
+/* 行アクションのハンドラー（復元処理を含む） */
+function onRowAction({ action, row }: { action: string; row: BackupRow }) {
+  if (action === "restore") {
+    targetForEditing.value = row;
+    openModal(RESTORE_BACKUP_ACTION);
+    return;
+  }
+  handleRowAction({ action, row });
+}
 </script>
