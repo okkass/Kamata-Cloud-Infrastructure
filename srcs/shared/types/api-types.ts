@@ -8499,12 +8499,12 @@ export interface components {
              * Format: uuid
              * @description バックアップ対象の仮想マシンのID
              */
-            targetVirtualMachineId: string;
+            targetVirtualMachineId?: string;
             /**
              * Format: uuid
              * @description バックアップ対象の仮想ストレージのID
              */
-            targetStorageId: string;
+            targetStorageId?: string;
         };
         /** @description バックアップの更新可能なプロパティ */
         BackupUpdatable: {
@@ -8514,7 +8514,7 @@ export interface components {
             description?: string;
         };
         /** @description バックアップ作成リクエストオブジェクト */
-        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & components["schemas"]["BackupUpdatable"] & Record<string, never>;
+        BackupCreateRequest: WithRequired<components["schemas"]["BackupCreateOnly"], "targetVirtualMachineId" | "targetStorageId"> & WithRequired<components["schemas"]["BackupUpdatable"], "name">;
         /** @description バックアップ更新リクエストオブジェクト */
         BackupPutRequest: WithRequired<components["schemas"]["BackupUpdatable"], "name">;
         /** @description バックアップ部分更新リクエストオブジェクト */
