@@ -56,7 +56,7 @@
   />
   <MoSecurityGroupEdit
     :show="activeModal === editSecurityGroupAction"
-    :group="targetForEditing"
+    :data="targetForEditing?.rawData"
     @close="closeModal"
     @success="handleSuccess"
   />
@@ -64,6 +64,7 @@
 
 <script setup lang="ts">
 import { useSecurityDashboard } from "~/composables/dashboard/useSecurityDashboard";
+import type { UiEnhancedSecurityGroup } from "~/composables/dashboard/useSecurityDashboard";
 import { usePageActions } from "~/composables/usePageActions";
 
 // ★ 1. データ関連のComposableを呼び出し
@@ -82,9 +83,13 @@ const {
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<SecurityGroupDTO>({
+} = usePageActions<UiEnhancedSecurityGroup>({
   resourceName: SECURITY_GROUP.name,
   resourceLabel: SECURITY_GROUP.label,
   refresh: refreshGroupList, // refresh関数を渡す
 });
+
+const addSecurityGroupAction = `create-${SECURITY_GROUP.name}`;
+const editSecurityGroupAction = `edit-${SECURITY_GROUP.name}`;
+const deleteSecurityGroupAction = `delete-${SECURITY_GROUP.name}`;
 </script>

@@ -13,7 +13,7 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useResourceList } from "~/composables/useResourceList";
-import { useToast } from "~/composables/useToast";
+import { useFormAction } from "~/composables/modal/useModalAction";
 import {
   BackupCreateSchema,
   type BackupCreateInput,
@@ -22,16 +22,16 @@ import {
 /**
  * メインのComposable関数
  */
-export function useBackupCreateForm() {
-  const { addToast } = useToast();
+export function useBackupCreateForm(emit: any) {
+  const { handleFormSubmit, makeHandleClose } = useFormAction();
 
   const { errors, defineField, handleSubmit, setFieldValue, meta, resetForm } =
     useForm<BackupCreateInput>({
       validationSchema: toTypedSchema(BackupCreateSchema),
       initialValues: {
         name: "",
-        targetVirtualMachineId: undefined,
-        targetStorageId: undefined,
+        targetVirtualMachineId: "",
+        targetStorageId: "",
       },
     });
 
@@ -48,7 +48,7 @@ export function useBackupCreateForm() {
     data: vms,
     pending: vmsPending,
     error: vmsError,
-  } = useResourceList<VirtualMachineResponse>("virtual-machines");
+  } = useResourceList<VirtualMachineResponse>(MACHINE.name);
 
   // --- 選択中のVMに紐づくストレージ一覧 ---
   const availableStorages = computed(() => {
@@ -72,25 +72,29 @@ export function useBackupCreateForm() {
     BackupResponse
   >(BACKUP.name);
 
-  const onFormSubmit = (emit: (event: "success" | "close") => void) =>
-    handleSubmit(async (val) => {
-      const result = await executeCreate(val);
-      if (result.success) {
-        addToast({
-          type: "success",
-          message: `バックアップ「${val.name}」を作成しました。`,
-        });
-        resetForm();
-        emit("success");
-        emit("close");
-      } else {
-        addToast({
-          type: "error",
-          message: "作成失敗",
-          details: result.error?.message,
-        });
-      }
-    });
+  const onFormSubmit = (emit: any) =>
+    handleFormSubmit<BackupCreateInput, BackupResponse>(
+      handleSubmit,
+      {
+        execute: async (formValues) => {
+          const payload: BackupCreateInput = {
+            name: formValues.name,
+            targetVirtualMachineId: formValues.targetVirtualMachineId,
+            targetStorageId: formValues.targetStorageId,
+          };
+
+          const result = await executeCreate(payload);
+          return result;
+        },
+        onSuccess: () => {
+          resetForm();
+        },
+        onSuccessMessage: (payload) =>
+          `バックアップ「${payload.name}」を作成しました。`,
+      },
+      emit
+    );
+  const makehandleClose = (emit: any) => makeHandleClose(resetForm, emit);
 
   return {
     name,
@@ -107,6 +111,6 @@ export function useBackupCreateForm() {
     availableStorages,
     isCreating,
     onFormSubmit,
-    resetForm,
+    makehandleClose,
   };
 }

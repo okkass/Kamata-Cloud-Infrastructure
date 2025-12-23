@@ -10,11 +10,11 @@ import * as z from "zod";
 export const StorageAddSchema = z.object({
   name: z.string().min(1, "プール名は必須です。"),
   nodeId: z
-    .string({ message: "物理ノードを選択してください。" })
-    .min(1, "物理ノードを選択してください。"),
+    .string({ message: "物理ノードは必須です。" })
+    .min(1, "物理ノードは必須です。"),
   devicePath: z
-    .string({ message: "デバイスパスを選択してください。" })
-    .min(1, "デバイスパスを選択してください。"),
+    .string({ message: "デバイスパスは必須です。" })
+    .min(1, "デバイスパスは必須です。"),
   hasNetworkAccess: z.string(),
 });
 

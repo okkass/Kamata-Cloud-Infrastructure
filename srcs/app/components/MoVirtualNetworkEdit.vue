@@ -11,8 +11,8 @@
 
     <form
       v-else
-      @submit.prevent="onSubmit"
       id="network-edit-form"
+      @submit.prevent="onSubmit"
       class="space-y-6"
     >
       <div class="space-y-4">
@@ -67,6 +67,7 @@
                     <FormInput
                       label="名前"
                       :name="`subnet-name-${index}`"
+                      :error="getError(index, 'name')"
                       v-model="subnet.value.name"
                       placeholder="例: public-subnet"
                       required
@@ -77,6 +78,7 @@
                     <FormInput
                       label="CIDR"
                       :name="`subnet-cidr-${index}`"
+                      :error="getError(index, 'cidr')"
                       v-model="subnet.value.cidr"
                       placeholder="例: 10.0.1.0/24"
                       required
@@ -136,13 +138,20 @@ import UiSubmitButton from "~/components/ui/SubmitButton.vue";
 
 const props = defineProps({
   show: { type: Boolean, required: true },
-  virtualNetworkData: {
+  data: {
     type: Object as PropType<VirtualNetworkResponse | null>,
     default: null,
   },
 });
 
 const emit = defineEmits(["close", "success"]);
+
+const getError = (index: number, field: string) => {
+  const bracketKey = `subnets[${index}].${field}`;
+
+  const errs = errors.value as Record<string, string | undefined>;
+  return errs[bracketKey];
+};
 
 const {
   editedData,

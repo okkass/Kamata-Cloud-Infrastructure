@@ -22,7 +22,7 @@
     <MoUserEdit
       v-if="user"
       :show="isEditOpen"
-      :user-data="user"
+      :data="user"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />

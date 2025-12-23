@@ -17,10 +17,7 @@ import {
   type SubnetFormValues,
 } from "~/utils/validations/virtual-network";
 
-interface Props {
-  show: boolean;
-  virtualNetworkData: VirtualNetworkResponse | null;
-}
+type Props = ModalFormProps<VirtualNetworkResponse>;
 
 export function useVirtualNetworkEditForm(props: Props) {
   const { handleFormSubmit, makeHandleClose } = useFormAction();
@@ -54,13 +51,18 @@ export function useVirtualNetworkEditForm(props: Props) {
 
   // --- 初期化ロジック ---
   watch(
-    () => [props.show, props.virtualNetworkData] as const,
+    () => [props.show, props.data] as const,
     ([show, data]) => {
       if (show && data) {
         init(data, getResourceConfig(data));
         setValues({
           name: data.name,
-          subnets: data.subnets || [],
+          cidr: data.cidr,
+          subnets: (data.subnets || []).map((s) => ({
+            id: s.id,
+            name: s.name,
+            cidr: s.cidr,
+          })),
         });
       }
     },
@@ -91,11 +93,12 @@ export function useVirtualNetworkEditForm(props: Props) {
     (newValues) => {
       if (editedData.value) {
         editedData.value.name = newValues.name;
+        editedData.value.cidr = editedData.value.cidr;
         editedData.value.subnets = newValues.subnets.map((subnet) => ({
           id: subnet.id,
           name: subnet.name,
           cidr: subnet.cidr,
-          createdAt: subnet.createdAt ?? new Date().toISOString(),
+          createdAt: "",
         }));
       }
     },
@@ -106,7 +109,6 @@ export function useVirtualNetworkEditForm(props: Props) {
     id: `new-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
     name: "",
     cidr: "",
-    createdAt: new Date().toISOString(),
   });
 
   const addSubnet = () => pushSubnet(createEmptySubnet());

@@ -16,10 +16,7 @@ import {
   type StorageEditFormValues,
 } from "~/utils/validations/storage";
 
-interface Props {
-  show: boolean;
-  storageData: StoragePoolResponse | null;
-}
+type Props = ModalFormProps<StoragePoolResponse>;
 
 // ==============================================================================
 // Validation Schema
@@ -48,7 +45,7 @@ export function useStorageEditForm(props: Props) {
 
   // --- 初期化ロジック ---
   watch(
-    () => [props.show, props.storageData] as const,
+    () => [props.show, props.data] as const,
     ([show, data]) => {
       if (show && data) {
         init(data, getResourceConfig(data));

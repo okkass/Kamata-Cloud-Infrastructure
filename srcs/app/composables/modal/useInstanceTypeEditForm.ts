@@ -1,32 +1,20 @@
-import { ref, computed } from "vue";
-import { useToast } from "~/composables/useToast";
+import { ref, computed, watch } from "vue";
 import {
   useResourceUpdater,
   type ResourceConfig,
 } from "~/composables/useResourceUpdater";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
+import {
+  InstanceTypeUpdateSchema,
+  type InstanceTypeUpdateInput,
+} from "~/utils/validations/instance-type";
+import { useFormAction } from "./useModalAction";
 
-import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
+type Props = ModalFormProps<InstanceTypeResponse>;
 
-// バリデーションスキーマ
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "名前は必須です"),
-    cpuCore: z.coerce
-      .number()
-      .refine((v) => Number.isFinite(v), { message: "数値を入力してください" })
-      .min(1, "vCPUは1以上である必要があります"),
-    memorySizeGB: z.coerce
-      .number()
-      .refine((v) => Number.isFinite(v), { message: "数値を入力してください" })
-      .min(1, "メモリは1GB以上である必要があります"),
-  })
-);
-
-export const useInstanceTypeEditForm = () => {
-  const { addToast } = useToast();
+export const useInstanceTypeEditForm = (props: Props) => {
+  const { handleFormSubmit, makeHandleClose } = useFormAction();
 
   // [推奨]: useResourceUpdater の戻り値を活用
   const {
@@ -42,48 +30,14 @@ export const useInstanceTypeEditForm = () => {
   const updaterError = errorMessage;
 
   // VeeValidate フォーム設定
-  const { errors, defineField, handleSubmit, resetForm, setValues } = useForm({
-    validationSchema,
-  });
+  const { errors, defineField, handleSubmit, resetForm, setValues, meta } =
+    useForm<InstanceTypeUpdateInput>({
+      validationSchema: toTypedSchema(InstanceTypeUpdateSchema),
+    });
 
   const [name, nameAttrs] = defineField("name");
   const [cpuCore, cpuCoreAttrs] = defineField("cpuCore");
-  const [memorySizeGBField, memorySizeGBAttrs] = defineField("memorySizeGB");
-
-  // [必須]: メモリサイズ(Bytes)とUI表示(GB)の変換用Computed
-  // VeeValidateのフィールドと同期させる
-  const memorySizeGB = computed<number>({
-    get: () =>
-      (typeof memorySizeGBField.value === "number"
-        ? memorySizeGBField.value
-        : Number(memorySizeGBField.value)) || 0,
-    set: (val: number) => {
-      memorySizeGBField.value = val;
-      if (editedData.value) {
-        editedData.value.memorySize = convertUnitToByte(val, "GB");
-      }
-    },
-  });
-
-  // 名前とCPUも同期
-  const syncedName = computed({
-    get: () => name.value || "",
-    set: (val) => {
-      name.value = val;
-      if (editedData.value) editedData.value.name = val;
-    },
-  });
-
-  const syncedCpuCore = computed<number>({
-    get: () =>
-      (typeof cpuCore.value === "number"
-        ? cpuCore.value
-        : Number(cpuCore.value)) || 0,
-    set: (val: number) => {
-      cpuCore.value = val;
-      if (editedData.value) editedData.value.cpuCore = val;
-    },
-  });
+  const [memorySizeField, memorySizeAttrs] = defineField("memorySize");
 
   /**
    * フォーム初期化
@@ -104,48 +58,61 @@ export const useInstanceTypeEditForm = () => {
       values: {
         name: data.name,
         cpuCore: data.cpuCore,
-        memorySizeGB: convertByteToUnit(data.memorySize, "GB"),
+        memorySize: convertByteToUnit(data.memorySize, "MB"),
       },
     });
   };
+
+  // --- propsの監視で初期化 ---
+  watch(
+    () => [props.show, props.data] as const,
+    ([show, data]) => {
+      if (show && data) {
+        initializeForm(data);
+      }
+    },
+    { immediate: true }
+  );
 
   /**
    * 保存処理
    * [推奨]: useResourceUpdater の save() を使用して標準化
    */
-  const save = handleSubmit(async () => {
-    if (!editedData.value) return;
+  const save = (emit: any) =>
+    handleFormSubmit<InstanceTypeUpdateInput, InstanceTypeResponse>(
+      handleSubmit,
+      {
+        execute: async () => {
+          const success = await updaterSave();
+          return { success };
+        },
+        onSuccess: () => {
+          resetForm();
+        },
+        onSuccessMessage: () =>
+          `インスタンスタイプ「${name.value}」を更新しました。`,
+      },
+      emit
+    );
 
-    const success = await updaterSave();
-
-    if (success) {
-      addToast({ type: "success", message: "保存しました。" });
-      return true;
-    } else {
-      addToast({
-        type: "error",
-        message: "保存に失敗しました。",
-        details: updaterError.value || undefined,
-      });
-      return false;
-    }
-  });
+  const close = (emit: any) => makeHandleClose(resetForm, emit);
 
   return {
     editedData,
     // バリデーション用フィールド
-    name: syncedName,
+    name,
     nameAttrs,
-    cpuCore: syncedCpuCore,
+    cpuCore,
     cpuCoreAttrs,
-    memorySizeGB,
-    memorySizeGBAttrs,
+    memorySizeField,
+    memorySizeAttrs,
     errors,
 
     dirtyState, // [推奨]: dirtyState を公開
     isSaving,
     updaterError,
-    initializeForm,
+    isValid: computed(() => meta.value.valid),
     save,
+    close,
   };
 };

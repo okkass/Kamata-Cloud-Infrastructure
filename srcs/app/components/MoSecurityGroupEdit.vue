@@ -74,7 +74,7 @@ import RuleTable from "~/components/RuleTable.vue";
 
 const props = defineProps({
   show: { type: Boolean, required: true },
-  securityGroupData: {
+  data: {
     type: Object as PropType<SecurityGroupResponse | null>,
     default: null,
   },

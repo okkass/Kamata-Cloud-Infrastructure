@@ -12,10 +12,7 @@ import {
   type SecurityRuleFormValues,
 } from "~/utils/validations/security-group";
 
-interface Props {
-  show: boolean;
-  securityGroupData: SecurityGroupResponse | null;
-}
+type Props = ModalFormProps<SecurityGroupResponse>;
 
 export function useSecurityGroupEditForm(props: Props) {
   const { handleFormSubmit, makeHandleClose } = useFormAction();
@@ -57,7 +54,7 @@ export function useSecurityGroupEditForm(props: Props) {
 
   // --- 初期化ロジック ---
   watch(
-    () => [props.show, props.securityGroupData] as const,
+    () => [props.show, props.data] as const,
     ([show, data]) => {
       if (show && data) {
         init(data, getResourceConfig(data));
@@ -141,9 +138,6 @@ export function useSecurityGroupEditForm(props: Props) {
       handleSubmit,
       {
         execute: async () => {
-          if (!validate()) {
-            return { success: false };
-          }
           const success = await save();
           return { success };
         },

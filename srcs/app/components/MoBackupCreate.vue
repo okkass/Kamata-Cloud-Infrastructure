@@ -2,7 +2,7 @@
   <BaseModal :show="show" title="バックアップ作成" @close="handleClose">
     <form
       id="backup-create-form"
-      @submit.prevent="submitForm"
+      @submit.prevent="onSubmit"
       class="modal-space"
     >
       <FormInput
@@ -37,18 +37,13 @@
         :options="availableStorages"
         option-value="id"
         option-label="name"
-        :disabled="
-          !targetVirtualMachineId || availableStorages.length === 0
-        "
+        :disabled="!targetVirtualMachineId || availableStorages.length === 0"
         :error-message="errors.targetStorageId"
         required
       >
         <template
           #help
-          v-if="
-            targetVirtualMachineId &&
-            availableStorages.length === 0
-          "
+          v-if="targetVirtualMachineId && availableStorages.length === 0"
         >
           <p class="text-sm text-gray-500 mt-1">
             選択した仮想マシンにはバックアップ可能なストレージがありません。
@@ -64,7 +59,7 @@
           type="submit"
           label="バックアップを作成"
           :loading="isCreating"
-          :disabled="!isValid"
+          :disabled="isCreating || !isValid"
         />
       </div>
     </template>
@@ -75,6 +70,7 @@
 import { useBackupCreateForm } from "~/composables/modal/useBackupCreateForm";
 import FormInput from "~/components/Form/Input.vue";
 import FormSelect from "~/components/Form/Select.vue";
+import UiSubmitButton from "~/components/ui/SubmitButton.vue";
 
 const props = defineProps<{ show: boolean }>();
 const emit = defineEmits(["close", "success"]);
@@ -94,12 +90,8 @@ const {
   availableStorages,
   isCreating,
   onFormSubmit,
-  resetForm,
-} = useBackupCreateForm();
-const submitForm = onFormSubmit(emit);
-
-const handleClose = () => {
-  resetForm();
-  emit("close");
-};
+  makehandleClose,
+} = useBackupCreateForm(emit);
+const handleClose = makehandleClose(emit);
+const onSubmit = onFormSubmit(emit);
 </script>

@@ -17,7 +17,10 @@ export const isValidNetworkAddress = (cidr: string): boolean => {
     return false;
 
   const ipInt =
-    (ipParts[0]! << 24) | (ipParts[1]! << 16) | (ipParts[2]! << 8) | ipParts[3]!;
+    (ipParts[0]! << 24) |
+    (ipParts[1]! << 16) |
+    (ipParts[2]! << 8) |
+    ipParts[3]!;
 
   // マスクを作成 (例: /24 なら 上位24ビットが1)
   // 注意: JSのビット演算は32ビット有符号整数として扱われるため >>> 0 で無符号化
@@ -25,4 +28,11 @@ export const isValidNetworkAddress = (cidr: string): boolean => {
 
   // 「IPアドレス」と「マスク」をAND演算した結果が「元のIP」と同じなら、ホスト部は0
   return (ipInt & mask) >>> 0 === ipInt >>> 0;
+};
+
+export const getError = (errors: any, index: number, field: string) => {
+  const bracketKey = `initialSubnets[${index}].${field}`;
+
+  const errs = errors.value as Record<string, string | undefined>;
+  return errs[bracketKey];
 };

@@ -1,6 +1,6 @@
 <template>
   <BaseModal :show="show" title="イメージ編集" @close="handleClose">
-    <form id="image-edit-form" @submit.prevent="submitForm" class="modal-space">
+    <form id="image-edit-form" @submit.prevent="onSubmit" class="modal-space">
       <FormInput
         label="イメージ名"
         name="image-name-edit"
@@ -37,6 +37,7 @@
 </template>
 
 <script setup lang="ts">
+import type { PropType } from "vue";
 /**
  * =================================================================================
  * イメージ編集モーダル (MoImageEdit.vue)
@@ -49,7 +50,7 @@ import FormTextarea from "~/components/Form/Textarea.vue";
 // --- 親コンポーネントとの連携 ---
 const props = defineProps({
   show: { type: Boolean, required: true },
-  imageData: {
+  data: {
     type: Object as PropType<ImageResponse | null>,
     default: null,
   },
@@ -69,6 +70,6 @@ const {
   makeHandleClose,
 } = useImageEditForm(props);
 
-const submitForm = onFormSubmit(emit);
+const onSubmit = onFormSubmit(emit);
 const handleClose = makeHandleClose(emit);
 </script>

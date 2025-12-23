@@ -72,7 +72,10 @@ import FormInput from "~/components/Form/Input.vue";
 import FormTextarea from "~/components/Form/Textarea.vue";
 import RuleTable from "~/components/RuleTable.vue";
 
-defineProps({ show: { type: Boolean, required: true } });
+defineProps({
+  show: { type: Boolean, required: true },
+  group: { type: Object, required: false },
+});
 const emit = defineEmits(["close", "success"]);
 
 const {
@@ -93,6 +96,6 @@ const {
   onFormSubmit,
   makehandleClose,
 } = useSecurityGroupForm();
-const onSubmit = onFormSubmit(emit);
 const handleClose = makehandleClose(emit);
+const onSubmit = onFormSubmit(emit);
 </script>

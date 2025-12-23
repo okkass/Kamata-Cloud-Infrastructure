@@ -112,14 +112,13 @@
           >
             キャンセル
           </button>
-          <button
-            type="button"
+          <UiSubmitButton
+            label="ノードを追加"
+            :loading="isCreating"
             @click="submitAddNode"
-            class="btn btn-primary"
-            :disabled="isCreating || !password || password.length < 8"
-          >
-            {{ isCreating ? "追加中..." : "追加を実行" }}
-          </button>
+            :disabled="isCreating || password.length < 8"
+            :isloading="isCreating"
+          />
         </div>
       </template>
     </BaseModal>
@@ -147,6 +146,7 @@ const {
   candidatesError,
   refreshCandidates,
   isCreating,
+  isValid,
   handleAddNode,
 } = useAddNodeForm();
 

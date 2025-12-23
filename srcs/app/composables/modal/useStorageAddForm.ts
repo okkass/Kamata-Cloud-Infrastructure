@@ -8,6 +8,7 @@ import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useResourceList } from "~/composables/useResourceList";
+import { useApiClient } from "~/composables/useResourceClient";
 import { useFormAction } from "~/composables/modal/useModalAction";
 import {
   StorageAddSchema,
@@ -35,6 +36,7 @@ type FormValues = StorageAddFormValues;
  * ストレージプール追加フォームのロジック
  */
 export function useStorageAddForm() {
+  const api = useApiClient();
   const { handleFormSubmit, makeHandleClose } = useFormAction();
 
   const { executeCreate, isCreating } = useResourceCreate<
@@ -64,15 +66,16 @@ export function useStorageAddForm() {
 
   // --- フィールド定義 ---
   const [name, nameAttrs] = defineField("name");
+
   const [nodeId, nodeAttrs] = defineField("nodeId");
+
   const [devicePath, devicePathAttrs] = defineField("devicePath");
-  const [hasNetworkAccess, hasNetworkAccessAttrs] =
-    defineField("hasNetworkAccess");
+
+  const [hasNetworkAccess, hasNetworkAccessAttrs] = defineField("hasNetworkAccess");
 
   // ============================================================================
   // デバイスパス一覧の動的取得
   // ============================================================================
-  const api = useApiClient();
   const devices = ref<DeviceDTO[]>([]);
   const devicesPending = ref(false);
   const devicesError = ref<any>(null);
@@ -93,7 +96,7 @@ export function useStorageAddForm() {
 
       try {
         const response = await api.get<DeviceDTO[]>(
-          `nodes/${targetId}/new-devices`
+          `${NODE.name}/${targetId}/new-devices`
         );
         devices.value = response || [];
       } catch (err) {

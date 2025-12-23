@@ -358,8 +358,6 @@
             class="bg-white border-b"
           >
             <td class="px-6 py-4 font-medium">{{ it.name }}</td>
-            <td class="px-6 py-4">{{ it.vcpus }} Core</td>
-            <td class="px-6 py-4">{{ it.memory }} GB</td>
             <td class="px-6 py-4 text-center">
               <button
                 @click="openInstanceTypeEditModal(it)"
@@ -373,6 +371,45 @@
       </table>
       <div v-else class="mt-2 text-gray-500">
         表示できるインスタンスタイプがありません。
+      </div>
+    </div>
+
+    <div class="mt-8 pt-4 border-t">
+      <h2 class="font-semibold text-lg">仮想ネットワーク一覧 (API連携)</h2>
+      <div v-if="netPending" class="mt-2 text-gray-500">
+        一覧を読み込み中...
+      </div>
+      <div v-else-if="netError" class="mt-2 text-red-600">
+        一覧の取得に失敗しました: {{ netError.message }}
+      </div>
+      <table
+        v-else-if="networks && networks.length > 0"
+        class="w-full mt-2 text-sm text-left"
+      >
+        <thead class="text-xs text-gray-700 uppercase bg-gray-100">
+          <tr>
+            <th class="px-6 py-3">名前</th>
+            <th class="px-6 py-3">CIDR</th>
+            <th class="px-6 py-3 text-center">操作</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="net in networks" :key="net.id" class="bg-white border-b">
+            <td class="px-6 py-4 font-medium">{{ net.name }}</td>
+            <td class="px-6 py-4">{{ net.cidr }}</td>
+            <td class="px-6 py-4 text-center">
+              <button
+                @click="openVirtualNetworkEditModal(net)"
+                class="btn-secondary"
+              >
+                編集
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      <div v-else class="mt-2 text-gray-500">
+        表示できる仮想ネットワークがありません。
       </div>
     </div>
   </div>
@@ -484,55 +521,55 @@ const editModals = computed(() => [
   {
     id: "backupRestore",
     component: markRaw(MoBackupRestore),
-    props: { backupData: targetResource.value },
+    props: { data: targetResource.value },
     refreshFn: refreshVms,
   },
   {
     id: "backupRestore",
     component: markRaw(MoBackupRestore),
-    props: { backupData: targetResource.value },
+    props: { data: targetResource.value },
     refreshFn: refreshBackups,
   },
   {
     id: "snapshotRestore",
     component: markRaw(MoSnapshotRestore),
-    props: { snapshotData: targetResource.value },
+    props: { data: targetResource.value },
     refreshFn: refreshSnapshots,
   },
   {
     id: "instanceTypeEdit",
     component: markRaw(MoInstanceTypeEdit),
-    props: { instanceTypeData: targetResource.value },
+    props: { data: targetResource.value },
     refreshFn: refreshInstanceTypes,
   },
   {
     id: "imageEdit",
     component: markRaw(MoImageEdit),
-    props: { imageData: targetResource.value },
+    props: { data: targetResource.value },
     refreshFn: refreshImages,
   },
   {
     id: "userEdit",
     component: markRaw(MoUserEdit),
-    props: { userData: targetResource.value },
+    props: { data: targetResource.value },
     refreshFn: refreshUsers,
   },
   {
     id: "securityGroupEdit",
     component: markRaw(MoSecurityGroupEdit),
-    props: { securityGroupData: targetResource.value },
+    props: { data: targetResource.value },
     refreshFn: refreshSecurityGroups,
   },
   {
     id: "storageEdit",
     component: markRaw(MoStorageEdit),
-    props: { storageData: targetResource.value },
+    props: { data: targetResource.value },
     refreshFn: refreshStoragePools,
   },
   {
     id: "networkEdit",
     component: markRaw(MoVirtualNetworkEdit),
-    props: { networkData: targetResource.value },
+    props: { data: targetResource.value },
     refreshFn: refreshNetworks,
   },
 ]);

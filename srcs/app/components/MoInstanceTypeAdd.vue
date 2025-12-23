@@ -2,7 +2,7 @@
   <BaseModal :show="show" title="インスタンスタイプの追加" @close="handleClose">
     <form
       id="instance-type-add-form"
-      @submit.prevent="handleSubmit"
+      @submit.prevent="onSubmit"
       class="modal-space"
     >
       <FormInput
@@ -87,6 +87,6 @@ const {
   onFormSubmit,
   makeHandleClose,
 } = useInstanceTypeAddForm();
-const handleSubmit = onFormSubmit(emit);
+const onSubmit = onFormSubmit(emit);
 const handleClose =  makeHandleClose(emit);
 </script>

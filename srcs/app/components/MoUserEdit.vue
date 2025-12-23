@@ -59,7 +59,7 @@
             :key="index"
             class="checkbox-label"
           >
-            <input type="checkbox" v-model="perm.value" v-bind="perm.attrs"/>
+            <input type="checkbox" v-model="perm.value" v-bind="perm.attrs" />
             {{ perm.label }}
           </label>
         </div>
@@ -93,7 +93,7 @@ import FormSection from "~/components/Form/Section.vue";
 // --- 親コンポーネントとの連携 ---
 const props = defineProps({
   show: { type: Boolean, required: true },
-  userData: {
+  data: {
     type: Object as PropType<UserResponse | null>,
     default: null,
   },

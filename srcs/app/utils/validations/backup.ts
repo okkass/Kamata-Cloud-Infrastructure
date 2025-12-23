@@ -4,11 +4,11 @@ import * as z from "zod";
 export const BackupCreateSchema = z.object({
   name: z.string().min(1, "バックアップ名は必須です。"),
   targetVirtualMachineId: z
-    .string({ message: "対象の仮想マシンを選択してください。" })
-    .min(1, "対象の仮想マシンを選択してください。"),
+    .string({ message: "仮想マシンは必須です。" })
+    .min(1, "仮想マシンは必須です。"),
   targetStorageId: z
-    .string({ message: "対象のストレージを選択してください。" })
-    .min(1, "対象のストレージを選択してください。"),
+    .string({ message: "ストレージは必須です。" })
+    .min(1, "ストレージは必須です。"),
 });
 
 export type BackupCreateInput = z.infer<typeof BackupCreateSchema>;

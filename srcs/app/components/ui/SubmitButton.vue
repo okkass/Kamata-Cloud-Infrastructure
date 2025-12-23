@@ -19,8 +19,11 @@
     <button
       :type="type"
       :form="form"
-      class="btn btn-primary"
-      :class="{ 'opacity-50 cursor-not-allowed': disabled || loading }"
+      class="btn"
+      :class="[
+        btnVariant,
+        { 'opacity-50 cursor-not-allowed': disabled || loading },
+      ]"
       :disabled="disabled || loading"
     >
       <slot>{{ loading ? "処理中..." : label }}</slot>
@@ -38,9 +41,11 @@ const props = withDefaults(
     loading?: boolean;
     form?: string;
     type?: "button" | "submit" | "reset";
+    btnVariant?: string;
   }>(),
   {
     type: "button",
+    btnVariant: "btn-primary",
   }
 );
 

@@ -18,17 +18,11 @@ import { useFormAction } from "~/composables/modal/useModalAction";
 import type { UserResponse } from "~~/shared/types";
 import type { UserPutRequest } from "~~/shared/types";
 
-// Props の型定義
-interface UserEditProps {
-  show: boolean;
-  userData: UserResponse | null;
-}
-
+type UserEditProps = ModalFormProps<UserResponse>;
 /**
  * 利用者編集フォームのロジック
  */
 export function useUserEditForm(props: UserEditProps) {
-  const { addToast } = useToast();
   const { handleFormSubmit, makeHandleClose: createHandleClose } =
     useFormAction();
 
@@ -119,7 +113,7 @@ export function useUserEditForm(props: UserEditProps) {
   // 初期値の反映 (Watch)
   // ============================================================================
   watch(
-    [() => props.userData, () => props.show],
+    [() => props.data, () => props.show],
     ([userData, show]) => {
       if (show && userData) {
         resetForm({
@@ -178,10 +172,7 @@ export function useUserEditForm(props: UserEditProps) {
             isVirtualMachineAdmin: formValues.isVirtualMachineAdmin,
           };
 
-          return await executeUpdate(
-            props.userData ? props.userData.id : "",
-            payload
-          );
+          return await executeUpdate(props.data ? props.data.id : "", payload);
         },
         onSuccessMessage: (payload) =>
           `利用者「${payload.name}」の情報を更新しました。`,

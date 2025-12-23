@@ -56,7 +56,7 @@ import UiSubmitButton from "~/components/ui/SubmitButton.vue";
 // --- Props & Emits ---
 const props = defineProps({
   show: { type: Boolean, required: true },
-  storageData: {
+  data: {
     type: Object as PropType<StoragePoolResponse | null>,
     default: null,
   },

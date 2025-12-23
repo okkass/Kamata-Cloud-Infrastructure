@@ -19,10 +19,7 @@ const SubnetSchema = z.object({
     }),
 });
 
-export type SubnetFormValues = z.infer<typeof SubnetSchema>;
-
-// --- 仮想ネットワーク作成フォーム用スキーマ ---
-export const VirtualNetworkCreateSchema = z.object({
+const VirtualNetworkBaseSchema = z.object({
   name: z.string().min(1, "ネットワーク名は必須です。"),
   cidr: z
     .cidrv4("有効なCIDR形式である必要があります。")
@@ -32,13 +29,27 @@ export const VirtualNetworkCreateSchema = z.object({
     }),
 });
 
+export type SubnetFormValues = z.infer<typeof SubnetSchema>;
+
+// --- 仮想ネットワーク作成フォーム用スキーマ ---
+export const VirtualNetworkCreateSchema = VirtualNetworkBaseSchema;
+
 export type VirtualNetworkCreateFormValues = z.infer<
   typeof VirtualNetworkCreateSchema
 >;
 
+export const VirtualNetworkCreateFullSchema = VirtualNetworkCreateSchema.extend(
+  {
+    initialSubnets: z.array(SubnetSchema),
+  }
+);
+
+export type VirtualNetworkCreateFullFormValues = z.infer<
+  typeof VirtualNetworkCreateFullSchema
+>;
+
 // --- 仮想ネットワーク編集フォーム用スキーマ ---
-export const VirtualNetworkEditSchema = z.object({
-  name: z.string().min(1, "ネットワーク名は必須です。"),
+export const VirtualNetworkEditSchema = VirtualNetworkBaseSchema.extend({
   subnets: z.array(SubnetSchema),
 });
 

@@ -23,7 +23,7 @@
     <MoInstanceTypeEdit
       v-if="instanceType"
       :show="isEditOpen"
-      :instance-type-data="instanceType"
+      :data="instanceType"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />

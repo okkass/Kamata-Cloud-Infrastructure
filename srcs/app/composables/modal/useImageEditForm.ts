@@ -3,7 +3,7 @@
  * イメージ編集フォーム Composable (useImageEditForm.ts)
  * =================================================================================
  */
-import { watch } from "vue";
+import { computed, watch } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useResourceUpdate } from "~/composables/useResourceEdit";
@@ -13,18 +13,13 @@ import {
   type ImageUpdateInput,
 } from "~/utils/validations/image";
 import { useFormAction } from "~/composables/modal/useModalAction";
-import { isValid } from "zod/v3";
 
-interface ImageEditProps {
-  show: boolean;
-  imageData: ImageResponse | null;
-}
+type ImageEditProps = ModalFormProps<ImageResponse>;
 
 /**
  * イメージ編集フォームのロジック
  */
 export function useImageEditForm(props: ImageEditProps) {
-  const { addToast } = useToast();
   const { handleFormSubmit, makeHandleClose: createHandleClose } =
     useFormAction();
 
@@ -53,7 +48,7 @@ export function useImageEditForm(props: ImageEditProps) {
   // 初期値の反映
   // ============================================================================
   watch(
-    () => props.imageData,
+    () => props.data,
     (newData) => {
       if (props.show && newData) {
         resetForm({
@@ -76,11 +71,11 @@ export function useImageEditForm(props: ImageEditProps) {
       {
         // API実行ロジック
         execute: async (payload: ImageUpdateInput) => {
-          if (!props.imageData) {
+          if (!props.data) {
             return { success: false, error: new Error("No image data") };
           }
 
-          return await executeUpdate(props.imageData.id, payload);
+          return await executeUpdate(props.data.id, payload);
         },
         onSuccessMessage: (values: ImageUpdateInput) =>
           `イメージ「${values.name}」を更新しました。`,
