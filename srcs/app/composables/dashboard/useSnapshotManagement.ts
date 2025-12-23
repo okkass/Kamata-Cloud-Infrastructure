@@ -42,7 +42,7 @@ export function useSnapshotManagement() {
   // 共通ポーリングユーティリティでのポーリング
   const { startPolling, stopPolling, lastUpdatedTime } = createPolling(() => {
     return Promise.resolve(refresh());
-  }, 5000);
+  }, 3000);
   onUnmounted(() => stopPolling());
 
   return {
