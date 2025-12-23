@@ -19,6 +19,11 @@ const throwServiceError = (error: ServiceError): never => {
       throw createError({ statusCode: 400, statusMessage: "Bad request" });
     case "Forbidden":
       throw createError({ statusCode: 403, statusMessage: "Forbidden" });
+    case "NotImplemented":
+      throw createError({
+        statusCode: 501,
+        statusMessage: "Not implemented",
+      });
     default:
       throw createError({
         statusCode: 500,

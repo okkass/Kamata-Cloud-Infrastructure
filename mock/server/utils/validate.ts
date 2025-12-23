@@ -1,4 +1,5 @@
 import { treeifyError, z } from "zod";
+import { looseUuidSchema } from "@/zodSchemas";
 
 export const validateUUID = (id: string | undefined): string => {
   // idもらえなかったら400投げる
@@ -6,7 +7,7 @@ export const validateUUID = (id: string | undefined): string => {
     throw createError({ statusCode: 400, statusMessage: "ID is required" });
   }
 
-  const uuidSchema = z.uuid();
+  const uuidSchema = looseUuidSchema;
   const parseResult = uuidSchema.safeParse(id);
 
   if (!parseResult.success) {

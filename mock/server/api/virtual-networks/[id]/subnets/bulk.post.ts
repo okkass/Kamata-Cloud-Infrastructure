@@ -1,6 +1,6 @@
 export default defineEventHandler(async (event) => {
-  createError({
+  throw createError({
     statusCode: 501,
-    message: "Not implemented in mock server",
+    statusMessage: "Not implemented in mock server",
   });
 });

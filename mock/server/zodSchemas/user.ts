@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { looseUuidSchema } from "./common";
 
 export const createUserSchema = z.object({
   password: z.string().min(8),
@@ -47,7 +48,7 @@ export const partialUpdateUserSchema = z.object({
 });
 
 export const deleteUserSchema = z.object({
-  userId: z.uuid(),
+  userId: looseUuidSchema,
 });
 
 export const updateUserPasswordSchema = z.object({

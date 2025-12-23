@@ -9,3 +9,4 @@ export * from "./storagePool";
 export * from "./user";
 export * from "./virtualMachine";
 export * from "./virtualNetwork";
+export * from "./common";

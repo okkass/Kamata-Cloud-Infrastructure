@@ -1,22 +1,23 @@
 import { z } from "zod";
+import { looseUuidSchema } from "./common";
 
 export const createStoragePoolSchema = z.object({
-    nodeId: z.uuid(),
-    devicePath: z.string(),
-    name: z.string(),
-    hasNetworkAccess: z.boolean(),
+  nodeId: looseUuidSchema,
+  devicePath: z.string(),
+  name: z.string(),
+  hasNetworkAccess: z.boolean(),
 });
 
 export const updateStoragePoolSchema = z.object({
-    name: z.string().optional(),
-    hasNetworkAccess: z.boolean(),
+  name: z.string().optional(),
+  hasNetworkAccess: z.boolean(),
 });
 
 export const partialUpdateStoragePoolSchema = z.object({
-    name: z.string().optional(),
-    hasNetworkAccess: z.boolean().optional(),
+  name: z.string().optional(),
+  hasNetworkAccess: z.boolean().optional(),
 });
 
 export const deleteStoragePoolSchema = z.object({
-    storagePoolId: z.uuid(),
+  storagePoolId: looseUuidSchema,
 });

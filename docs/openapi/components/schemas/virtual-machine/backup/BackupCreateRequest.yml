@@ -3,5 +3,6 @@ description: バックアップ作成リクエストオブジェクト
 allOf:
   - $ref: "./BackupCreateOnly.yml"
   - $ref: "./BackupUpdatable.yml"
-required:
-  - name
+  - type: object
+    required:
+      - name

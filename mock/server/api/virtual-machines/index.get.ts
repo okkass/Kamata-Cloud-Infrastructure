@@ -4,7 +4,7 @@ import { getVirtualMachineService } from "@/service/VirtualMachineService";
 
 export default defineEventHandler((event) => {
   const { scope } = getQuery(event) as { scope?: string };
-  if (scope && scope !== "all" && scope !== "mine") {
+  if (scope !== undefined && scope !== "all" && scope !== "mine") {
     throw createError({
       statusCode: 400,
       statusMessage: "Invalid scope parameter",

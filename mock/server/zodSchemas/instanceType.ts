@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { looseUuidSchema } from "./common";
 
 export const createInstanceTypeSchema = z.object({
   name: z.string(),
@@ -19,5 +20,5 @@ export const partialUpdateInstanceTypeSchema = z.object({
 });
 
 export const deleteInstanceTypeSchema = z.object({
-  instanceTypeId: z.uuid(),
+  instanceTypeId: looseUuidSchema,
 });

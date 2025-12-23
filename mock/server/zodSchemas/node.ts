@@ -1,4 +1,5 @@
 import { z } from "zod";
+import { looseUuidSchema } from "./common";
 
 export const addNodeSchema = z.object({
   ipAddress: z.ipv4(),
@@ -18,5 +19,5 @@ export const partialUpdateNodeSchema = z.object({
 });
 
 export const deleteNodeSchema = z.object({
-  nodeId: z.uuid(),
+  nodeId: looseUuidSchema,
 });

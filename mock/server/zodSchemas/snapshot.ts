@@ -1,9 +1,10 @@
 import { z } from "zod";
+import { looseUuidSchema } from "./common";
 
 export const createSnapshotSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
-  targetVmId: z.uuid(),
+  targetVmId: looseUuidSchema,
 });
 
 export const updateSnapshotSchema = z.object({
@@ -17,5 +18,5 @@ export const partialUpdateSnapshotSchema = z.object({
 });
 
 export const deleteSnapshotSchema = z.object({
-  snapshotId: z.uuid(),
+  snapshotId: looseUuidSchema,
 });
