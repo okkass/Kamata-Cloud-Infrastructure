@@ -7,19 +7,19 @@ import {
 import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
 
 // フォーム用の拡張型: 既存のレスポンス型にUI用の補助フィールドを追加
-type VmStorageForm = NonNullable<
+export type VmStorageForm = NonNullable<
   VirtualMachineResponse["storages"]
 > extends Array<infer T>
   ? T & { poolId?: string }
   : never;
 
-type VmNetworkInterfaceForm = NonNullable<
+export type VmNetworkInterfaceForm = NonNullable<
   VirtualMachineResponse["networkInterfaces"]
 > extends Array<infer T>
   ? T & { subnetId?: string; networkId?: string }
   : never;
 
-type VirtualMachineEditForm = Omit<
+export type VirtualMachineEditForm = Omit<
   VirtualMachineResponse,
   "storages" | "networkInterfaces"
 > & {
@@ -133,11 +133,13 @@ export const useVirtualMachineEditForm = () => {
         size: convertByteToUnit(storage.size, "GB"),
         poolId: storage.pool?.id,
       })),
-      networkInterfaces: data.networkInterfaces?.map((iface: any) => ({
-        ...iface,
-        subnetId: iface.subnet?.id,
-        networkId: iface.subnet?.parent?.id,
-      })),
+      networkInterfaces: data.networkInterfaces?.map(
+        (iface: VmNetworkInterfaceForm) => ({
+          ...iface,
+          subnetId: iface.subnet?.id,
+          networkId: iface.subnet?.parent?.id,
+        })
+      ),
     };
 
     const id = data.id;
@@ -211,7 +213,7 @@ export const useVirtualMachineEditForm = () => {
 
     // 退避用変数
     let currentMemoryGB = 0;
-    let currentStoragesGB: any[] = [];
+    let currentStoragesGB: VmStorageForm[] = [];
 
     try {
       // メモリ単位の逆変換 (GB -> Bytes)

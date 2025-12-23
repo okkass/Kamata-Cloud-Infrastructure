@@ -187,12 +187,18 @@ import { ref, computed } from "vue";
 import FormInput from "~/components/Form/Input.vue";
 import FormSelect from "~/components/Form/Select.vue";
 import { useResourceList } from "~/composables/useResourceList";
+import type { VirtualMachineEditForm } from "~/composables/modal/useVirtualMachineEditForm";
 
 // 親コンポーネントからのモデル受け取り
-const model = defineModel<any>({ required: true });
+const model = defineModel<VirtualMachineEditForm>({ required: true });
 
 const props = defineProps<{
-  errors?: Record<string, any>;
+  errors?: {
+    networkInterfaces?: Record<
+      number,
+      { networkId?: string; subnetId?: string }
+    >;
+  };
 }>();
 
 // ----------------------------------------------------------------------------
@@ -215,7 +221,8 @@ const networkOptions = computed(() => {
 // Network Interfaces Logic
 // ----------------------------------------------------------------------------
 
-const getSubnetOptions = (networkId: string) => {
+const getSubnetOptions = (networkId?: string) => {
+  if (!networkId) return [];
   const network = networkMaster.value?.find((n) => n.id === networkId);
   if (!network || !network.subnets) return [];
   return network.subnets.map((subnet) => ({
@@ -233,9 +240,19 @@ const addInterface = () => {
   model.value.networkInterfaces.push({
     // ★重要: useResourceUpdater の "newIdPrefix" ("new-") に合わせたIDを付与
     id: `new-${Date.now()}`,
+    // 既存型との互換性を保つための初期値
+    name: "",
+    macAddress: "",
+    ipAddress: "",
+    subnet: {
+      id: "",
+      name: "",
+      cidr: "",
+      createdAt: new Date().toISOString(),
+    },
+    // フォーム用の選択値
     networkId: "",
     subnetId: "",
-    ipAddress: "",
   });
 };
 
@@ -253,7 +270,9 @@ const selectedSgId = ref<string>("");
 // 追加可能なSGリスト（既に割り当て済みのものは除外）
 const availableSgOptions = computed(() => {
   const currentIds = new Set(
-    (model.value?.securityGroups || []).map((sg: any) => sg.id)
+    (model.value?.securityGroups || []).map(
+      (sg: SecurityGroupResponse) => sg.id
+    )
   );
 
   return (securityGroupMaster.value || [])

@@ -514,8 +514,8 @@ const {
 const editModals = computed(() => [
   {
     id: "vmEdit",
-    component: markRaw(MoVirtualMachineEdit), // 正しいコンポーネントを指定
-    props: { vmData: targetResource.value }, // 正しいプロパティ名 (vmData)
+    component: markRaw(MoVirtualMachineEdit),
+    props: { vmData: targetResource.value },
     refreshFn: refreshVms,
   },
   {
