@@ -1,35 +1,40 @@
 <template>
   <div class="mx-auto max-w-6xl px-4 py-6">
-    <div v-if="pending" class="text-sm text-neutral-500">読み込み中…</div>
+    <!-- 初回ロード中のみ表示 -->
+    <div v-if="pending && !stableVnet" class="text-sm text-neutral-500">
+      読み込み中…
+    </div>
 
-    <div v-else-if="error" class="text-sm text-red-500">
+    <!-- 初回エラー時のみ表示 -->
+    <div v-else-if="error && !stableVnet" class="text-sm text-red-500">
       エラーが発生しました：{{ error.message }}
     </div>
 
+    <!-- 一度でも取得できたら常に表示（pending で消さない） -->
     <ResourceDetailShell
       v-else
       title="仮想ネットワーク詳細"
       subtitle="Virtual Network Information"
       :tabs="vnTabs"
-      :context="vnet!"
+      :context="stableVnet!"
       :actions="actions"
       @back="goBack"
       @action="handleAction"
     />
 
-    <!-- 編集モーダル -->
+    <!-- 編集モーダル（管轄外・触らない） -->
     <MoVirtualNetworkEdit
-      v-if="vnet"
+      v-if="stableVnet"
       :show="isEditOpen"
-      :network-data="vnet"
+      :networkData="targetVnet"
       @close="handleEditClose"
-      @save="handleEditSave"
+      @success="handleEditSuccess"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import { vnTabs } from "~/composables/detail/useVnTabs";
@@ -37,56 +42,59 @@ import { useResourceDetail } from "~/composables/useResourceDetail";
 import { useToast } from "@/composables/useToast";
 import MoVirtualNetworkEdit from "@/components/MoVirtualNetworkEdit.vue";
 import { NETWORK } from "@/utils/constants";
+import { createPolling } from "@/utils/polling";
 
 const { addToast } = useToast();
 
 const route = useRoute();
 const router = useRouter();
 
-const {
-  data: vnet,
-  pending,
-  error,
-  refresh,
-} = await useResourceDetail<VirtualNetworkResponse>(
-  NETWORK.name, // "virtual-networks"
-  route.params.id as string
+// ---------- データ取得 ----------
+const { data: vnet, pending, error, refresh } =
+  await useResourceDetail<VirtualNetworkResponse>(
+    NETWORK.name,
+    route.params.id as string
+  );
+
+// ---------- 表示を安定させるための保持用 ----------
+const stableVnet = ref<VirtualNetworkResponse | null>(null);
+
+watch(
+  () => vnet.value,
+  (val) => {
+    if (val) stableVnet.value = val;
+  },
+  { immediate: true }
 );
 
+// ---------- 戻る ----------
 const goBack = () => {
   router.back();
 };
 
-// 操作メニュー（とりあえず編集のみ）
+// ---------- 操作 ----------
 const actions = ref([{ label: "編集", value: "edit" }]);
-
-// 編集モーダル開閉
 const isEditOpen = ref(false);
+const targetVnet = ref<VirtualNetworkResponse | null>(null);
 
 const handleAction = (action: { label: string; value: string }) => {
-  if (!vnet.value) return;
-
+  if (!stableVnet.value) return;
   if (action.value === "edit") {
+    targetVnet.value = vnet.value;
     isEditOpen.value = true;
   }
 };
 
 const handleEditClose = () => {
   isEditOpen.value = false;
+  targetVnet.value = null;
 };
 
-// モーダル側で emit("save", editableNetwork) されたとき
-const handleEditSave = async (updated: VirtualNetworkResponse) => {
-  // ひとまずローカルの表示を更新
-  vnet.value = updated;
+// モーダル側で emit("success") されたとき
+const handleEditSuccess = async () => {
   isEditOpen.value = false;
 
-  addToast({
-    message: "仮想ネットワークの情報を更新しました（ダミー）",
-    type: "success",
-  });
-
-  // 将来 API を実装したらサーバの内容を取り直したい場合：
+  // データを再取得して画面を更新
   if (typeof refresh === "function") {
     try {
       await refresh();
@@ -95,4 +103,39 @@ const handleEditSave = async (updated: VirtualNetworkResponse) => {
     }
   }
 };
+
+// ---------- polling 制御（ここが今回の本命） ----------
+const { startPolling, stopPolling, runOnce } = createPolling(async () => {
+  if (typeof refresh === "function") {
+    try {
+      await refresh();
+    } catch (e) {
+      console.error("仮想ネットワーク情報の自動更新に失敗しました", e);
+    }
+  }
+});
+
+// 初期表示後に polling 開始
+onMounted(() => {
+  startPolling(3000); // 3秒おき（必要なら調整）
+});
+
+// ページ離脱時に停止
+onUnmounted(() => {
+  stopPolling();
+});
+
+// モーダル開閉に応じて polling を制御
+watch(isEditOpen, async (isOpen) => {
+  if (isOpen) {
+    // 編集中は自動再取得しない
+    stopPolling();
+  } else {
+    // 閉じたら1回だけ取得 → 少し待ってから再開
+    await runOnce();
+    // runOnce() による refresh 完了直後に polling が同時実行されるのを避けるため、短い遅延を挟む
+    await new Promise((resolve) => setTimeout(resolve, 100));
+    startPolling(5000);
+  }
+});
 </script>

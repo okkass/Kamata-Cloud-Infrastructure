@@ -13,9 +13,6 @@
           <NuxtLink :to="`/security-group/${row.id}`" class="table-link">
             {{ row.name }}
           </NuxtLink>
-          <span v-if="row.description" class="cell-description">
-            {{ row.description }}
-          </span>
         </div>
       </template>
       <template #row-actions="{ row }">
@@ -56,19 +53,28 @@
   />
   <MoSecurityGroupEdit
     :show="activeModal === editSecurityGroupAction"
-    :group="targetForEditing"
+    :securityGroupData="targetForEditing ?? null"
     @close="closeModal"
     @success="handleSuccess"
   />
 </template>
 
 <script setup lang="ts">
+import { SECURITY_GROUP } from "@/utils/constants";
 import { useSecurityDashboard } from "~/composables/dashboard/useSecurityDashboard";
 import { usePageActions } from "~/composables/usePageActions";
+import type { SecurityGroupResponse } from "~~/shared/types";
 
 // ★ 1. データ関連のComposableを呼び出し
-const { columns, groups, headerButtons, refreshGroupList } =
-  useSecurityDashboard();
+const {
+  columns,
+  groups,
+  headerButtons,
+  refreshGroupList,
+  ADD_SECURITY_GROUP_ACTION: addSecurityGroupAction,
+  EDIT_SECURITY_GROUP_ACTION: editSecurityGroupAction,
+  DELETE_SECURITY_GROUP_ACTION: deleteSecurityGroupAction,
+} = useSecurityDashboard();
 
 // ★ 2. アクション関連のComposableを呼び出し
 const {
@@ -82,7 +88,7 @@ const {
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<SecurityGroupDTO>({
+} = usePageActions<SecurityGroupResponse>({
   resourceName: SECURITY_GROUP.name,
   resourceLabel: SECURITY_GROUP.label,
   refresh: refreshGroupList, // refresh関数を渡す

@@ -16,12 +16,10 @@ export const useResourceDetail = <T>(
   // unref() を使い、引数のidがrefでも文字列でもその値を取得できるようにする
   const resourceId = unref(id);
 
-  const runtimeConfig = useRuntimeConfig();
-
-  const url = `/api/${resourceName}/${resourceId}`;
+  const url = `${resourceName}/${resourceId}`;
   // useFetch を使い、単一のオブジェクトを取得する
   return useFetch<T>(url, {
-    baseURL: runtimeConfig.public.apiBaseUrl,
+    $fetch: useNuxtApp().$apiFetch,
     default: () => undefined,
     key: `useResourceDetail-${resourceName}-${resourceId}`,
   });

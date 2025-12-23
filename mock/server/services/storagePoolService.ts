@@ -6,6 +6,7 @@ import type {
 } from "@app/shared/types";
 import crypto from "crypto";
 import { getNodeById } from "./nodeService";
+import { generateRandomUsage } from "../api/summary/realtime.get.js";
 
 let storagePools: Array<StoragePoolResponse> = [
   {
@@ -14,7 +15,7 @@ let storagePools: Array<StoragePoolResponse> = [
     node: getNodeById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
     createdAt: new Date().toISOString(),
     totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: 200 * 1024 * 1024 * 1024, // 200 GB
+    usedSize: generateRandomUsage(500 * 1024 * 1024 * 1024).used,
     hasNetworkAccess: true,
   },
   {
@@ -23,7 +24,7 @@ let storagePools: Array<StoragePoolResponse> = [
     node: getNodeById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
     createdAt: new Date().toISOString(),
     totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: 200 * 1024 * 1024 * 1024, // 200 GB
+    usedSize: generateRandomUsage(500 * 1024 * 1024 * 1024).used,
     hasNetworkAccess: false,
   },
   {
@@ -32,7 +33,7 @@ let storagePools: Array<StoragePoolResponse> = [
     node: getNodeById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
     createdAt: new Date().toISOString(),
     totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: 200 * 1024 * 1024 * 1024, // 200 GB
+    usedSize: generateRandomUsage(1000 * 1024 * 1024 * 1024).used,
     hasNetworkAccess: true,
   },
   {
@@ -41,19 +42,28 @@ let storagePools: Array<StoragePoolResponse> = [
     node: getNodeById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
     createdAt: new Date().toISOString(),
     totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: 200 * 1024 * 1024 * 1024, // 200 GB
+    usedSize: generateRandomUsage(1000 * 1024 * 1024 * 1024).used,
     hasNetworkAccess: false,
   },
 ];
 
 export const getStoragePools = (): Array<StoragePoolResponse> => {
-  return storagePools;
+  return storagePools.map((pool) => ({
+    ...pool,
+    usedSize: generateRandomUsage(pool.totalSize).used,
+  }));
 };
 
 export const getStoragePoolById = (
   id: string
 ): StoragePoolResponse | undefined => {
-  return storagePools.find((pool) => pool.id === id);
+  const pool = storagePools.find((pool) => pool.id === id);
+  return pool
+    ? {
+        ...pool,
+        usedSize: generateRandomUsage(pool.totalSize).used,
+      }
+    : undefined;
 };
 
 export const addStoragePool = (

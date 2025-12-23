@@ -1,118 +1,125 @@
 /**
  * =================================================================================
  * 仮想ネットワーク作成フォーム Composable (useVirtualNetworkCreateForm.ts)
- * ---------------------------------------------------------------------------------
- * このComposableは、MoVirtualNetworkCreateコンポーネントで使用される
- * フォームの状態管理、バリデーション、API送信ロジックをカプセル化します。
- * 型定義はバックエンド側で行う前提のため、ここでは定義しません。
  * =================================================================================
  */
-import { useForm } from "vee-validate";
+import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import { useResourceCreate } from "~/composables/useResourceCreate"; // パスはプロジェクト構成に合わせて調整
-import { useToast } from "~/composables/useToast"; // パスはプロジェクト構成に合わせて調整
-import type {
-  VirtualNetworkCreateRequestDTO,
-  VirtualNetworkDTO,
-} from "~~/shared/types";
+import { useResourceCreate } from "~/composables/useResourceCreate";
+import { useToast } from "~/composables/useToast";
+import { NETWORK } from "~/utils/constants";
 
 // ==============================================================================
-// Validation Schema (バリデーションスキーマ)
-// フォームのバリデーションルールをZodで定義します。
+// Validation Schema
 // ==============================================================================
+
+// サブネット単体のスキーマ
+const subnetSchema = z.object({
+  name: z.string().min(1, "サブネット名は必須です。"),
+  cidr: z.string().cidrv4("有効なCIDR形式で入力してください。"),
+});
+
+// フォーム全体のスキーマ
 const zodSchema = z.object({
-  // nameは1文字以上の文字列であることが必須です。
   name: z.string().min(1, "ネットワーク名は必須です。"),
-  // cidrはCIDR形式に一致する文字列であることが必須です。
-  cidr: z
-    .string()
-    .min(1, "CIDRは必須です。")
-    .regex(
-      /^([0-9]{1,3}\.){3}[0-9]{1,3}\/([0-9]|[1-2][0-9]|3[0-2])$/,
-      "有効なCIDR形式で入力してください (例: 192.168.0.0/16)。"
-    ),
+  cidr: z.string().cidrv4("有効なCIDR形式で入力してください。"),
+  initialSubnets: z
+    .array(subnetSchema)
+    .min(1, "少なくとも1つのサブネットが必要です。"),
 });
 
 const validationSchema = toTypedSchema(zodSchema);
-// Zodスキーマからフォームの型を推論します (TypeScriptを使用している場合)
+
+// フォーム内の型定義 (VeeValidate用)
+type SubnetFormValue = z.infer<typeof subnetSchema>;
 type FormValues = z.infer<typeof zodSchema>;
 
 /**
- * メインのComposable関数
+ * 仮想ネットワーク作成フォームのロジック
  */
 export function useVirtualNetworkCreateForm() {
+  const { addToast } = useToast();
+
+  const { executeCreate, isCreating } = useResourceCreate<
+    VirtualNetworkCreateRequest,
+    VirtualNetworkResponse
+  >(NETWORK.name);
+
   // ============================================================================
-  // Form Setup (フォーム設定)
-  // VeeValidateのuseFormを使って、フォーム全体を管理します。
+  // Form Setup
   // ============================================================================
-  const { errors, defineField, handleSubmit } = useForm<FormValues>({
+  const { errors, handleSubmit, defineField, meta } = useForm<FormValues>({
     validationSchema,
     initialValues: {
-      // フォームの初期値を設定します
       name: "",
       cidr: "",
+      initialSubnets: [],
     },
   });
 
-  // 各フォームフィールドとVeeValidateを連携させます
   const [name, nameAttrs] = defineField("name");
   const [cidr, cidrAttrs] = defineField("cidr");
 
-  // ============================================================================
-  // API Submission (API送信処理)
-  // useResourceCreate Composableを使ってAPIへのPOSTリクエストを管理します。
-  // DTOの型はanyを使用します (バックエンドで型定義する前提のため)
-  // ============================================================================
-  const { executeCreate: executeVirtualNetworkCreation, isCreating } =
-    useResourceCreate<VirtualNetworkCreateRequestDTO, VirtualNetworkDTO>(
-      "virtual-networks" // APIエンドポイントのパス
-    );
-  const { addToast } = useToast();
+  // --- サブネット配列 (useFieldArray) ---
+  const {
+    fields: initialSubnets,
+    push: pushSubnet,
+    remove: removeSubnet,
+  } = useFieldArray<SubnetFormValue>("initialSubnets");
 
-  /**
-   * フォーム送信時の処理を定義します。
-   * handleSubmitでラップされているため、バリデーション通過後にのみ実行されます。
-   * @param emit - 親コンポーネントへイベントを通知するための関数 ('success', 'close')
-   */
+  // サブネット追加ヘルパー
+  const addSubnet = () => {
+    pushSubnet({
+      name: "",
+      cidr: "",
+    });
+  };
+
+  // ============================================================================
+  // Submission Handler
+  // ============================================================================
   const onFormSubmit = (emit: (event: "success" | "close") => void) =>
     handleSubmit(async (formValues) => {
-      // APIに送信するデータ（ペイロード）を構築します
-      // このフォームでは、フォームの値がそのままペイロードになります
-      const payload = formValues; // 型はz.infer<typeof zodSchema> から推論
+      // 自動インポートされる型 (VirtualNetworkCreateRequest) を使用
+      const payload: VirtualNetworkCreateRequest = {
+        name: formValues.name,
+        cidr: formValues.cidr,
+        initialSubnets: formValues.initialSubnets.map((s) => ({
+          name: s.name,
+          cidr: s.cidr,
+        })),
+      };
 
-      // APIリクエストを実行します
-      const result = await executeVirtualNetworkCreation(payload);
+      const result = await executeCreate(payload);
 
-      // 結果に応じてトースト通知を表示し、親コンポーネントにイベントを通知します
       if (result.success) {
         addToast({
           type: "success",
-          message: `仮想ネットワーク「${payload.name}」が作成されました`,
+          message: `仮想ネットワーク「${payload.name}」を作成しました。`,
         });
-        emit("success"); // 成功イベントを通知
-        emit("close"); // モーダルを閉じるイベントを通知
+        emit("success");
+        emit("close");
       } else {
         addToast({
           type: "error",
-          message: "仮想ネットワークの作成に失敗しました。",
-          details: result.error?.message, // エラー詳細を表示
+          message: "作成に失敗しました。",
+          details: result.error?.message,
         });
       }
     });
 
-  // ============================================================================
-  // Expose (外部への公開)
-  // コンポーネント側で利用するリアクティブな状態や関数を返却します。
-  // ============================================================================
   return {
-    errors, // バリデーションエラーオブジェクト
-    // 各フォームフィールドの値と属性 (v-model, v-bind用)
+    errors,
     name,
     nameAttrs,
     cidr,
     cidrAttrs,
-    isCreating, // API通信中のローディング状態
-    onFormSubmit, // フォーム送信ハンドラ
+    initialSubnets,
+    addSubnet,
+    removeSubnet,
+    isCreating,
+    onFormSubmit,
+    meta,
   };
 }

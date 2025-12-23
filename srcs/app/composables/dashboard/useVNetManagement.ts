@@ -9,7 +9,7 @@ export interface VnetRow {
   cidr: string;
   subnets: number;
   createdAtText: string;
-  dto: VirtualNetwork;
+  dto: VirtualNetworkResponse;
 }
 
 /**
@@ -23,7 +23,7 @@ export function useVNetManagement() {
     pending,
     refresh,
     error,
-  } = useResourceList<VirtualNetwork>("virtual-networks");
+  } = useResourceList<VirtualNetworkResponse>("virtual-networks");
 
   const columns: TableColumn[] = [
     { key: "name", label: "名前", align: "left" },
@@ -38,7 +38,7 @@ export function useVNetManagement() {
   ];
 
   const rows: ComputedRef<VnetRow[]> = computed(() =>
-    (rawList.value ?? []).map((v: VirtualNetwork) => ({
+    (rawList.value ?? []).map((v: VirtualNetworkResponse) => ({
       id: v.id,
       name: v.name ?? "-",
       cidr: v.cidr ?? "-",

@@ -1,0 +1,23 @@
+type: object
+description: 仮想ネットワークの概要情報オブジェクト(子要素が含まれない)
+properties:
+  id:
+    type: string
+    format: uuid
+    description: 仮想ネットワークを識別するための一意なID
+  name:
+    type: string
+    description: 仮想ネットワークの名前
+  cidr:
+    type: string
+    description: CIDR形式のネットワークアドレス
+    example: 10.0.0.0/16
+  createdAt:
+    type: string
+    format: date-time
+    description: 仮想ネットワークが作成された日時
+required:
+  - id
+  - name
+  - cidr
+  - createdAt
