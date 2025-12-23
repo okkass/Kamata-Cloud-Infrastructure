@@ -32,6 +32,9 @@
         <div v-if="networksPending" class="text-sm text-gray-500 mb-2">
           ネットワーク情報を取得中...
         </div>
+        <div v-if="networksError" class="text-sm text-red-500 mb-2">
+          ネットワーク情報の取得に失敗しました。
+        </div>
 
         <div class="space-y-4">
           <div
@@ -123,6 +126,10 @@
           セキュリティグループ
         </h3>
 
+        <div v-if="sgError" class="text-sm text-red-500 mb-2">
+          セキュリティグループ情報の取得に失敗しました。
+        </div>
+
         <div class="flex gap-2 mb-4">
           <FormSelect
             name="sg-select"
@@ -177,6 +184,9 @@
             割り当てなし
           </div>
         </div>
+        <div v-if="errors?.securityGroups" class="text-sm text-red-500 mt-1">
+          {{ errors.securityGroups }}
+        </div>
       </section>
     </div>
   </div>
@@ -198,15 +208,19 @@ const props = defineProps<{
       number,
       { networkId?: string; subnetId?: string }
     >;
+    securityGroups?: string;
   };
 }>();
 
 // ----------------------------------------------------------------------------
 // Network Data Fetching
 // ----------------------------------------------------------------------------
-const { data: networkMaster, pending: networksPending } =
-  useResourceList<VirtualNetworkResponse>("virtual-networks");
-const { data: securityGroupMaster } =
+const {
+  data: networkMaster,
+  pending: networksPending,
+  error: networksError,
+} = useResourceList<VirtualNetworkResponse>("virtual-networks");
+const { data: securityGroupMaster, error: sgError } =
   useResourceList<SecurityGroupResponse>("security-groups");
 
 // Select用オプション作成
@@ -240,16 +254,6 @@ const addInterface = () => {
   model.value.networkInterfaces.push({
     // ★重要: useResourceUpdater の "newIdPrefix" ("new-") に合わせたIDを付与
     id: `new-${Date.now()}`,
-    // 既存型との互換性を保つための初期値
-    name: "",
-    macAddress: "",
-    ipAddress: "",
-    subnet: {
-      id: "",
-      name: "",
-      cidr: "",
-      createdAt: new Date().toISOString(),
-    },
     // フォーム用の選択値
     networkId: "",
     subnetId: "",

@@ -58,6 +58,7 @@ export const useVirtualMachineEditForm = () => {
         number,
         { networkId?: string; subnetId?: string }
       >;
+      securityGroups?: string;
     } = {
       storages: {},
       networkInterfaces: {},
@@ -71,6 +72,11 @@ export const useVirtualMachineEditForm = () => {
       errors.cpuCore = "1以上の値を指定してください。";
     if (!data.memorySize || data.memorySize < 1)
       errors.memorySize = "1以上の値を指定してください。";
+
+    // セキュリティグループ
+    if (!data.securityGroups || data.securityGroups.length === 0) {
+      errors.securityGroups = "セキュリティグループは1つ以上必須です。";
+    }
 
     // ストレージ
     if (data.storages) {
@@ -109,7 +115,7 @@ export const useVirtualMachineEditForm = () => {
   // バリデーションチェック
   const isValid = computed(() => {
     const e = validationErrors.value;
-    if (e.name || e.cpuCore || e.memorySize) return false;
+    if (e.name || e.cpuCore || e.memorySize || e.securityGroups) return false;
     if (Object.keys(e.storages).length > 0) return false;
     if (Object.keys(e.networkInterfaces).length > 0) return false;
     return true;
@@ -228,7 +234,7 @@ export const useVirtualMachineEditForm = () => {
           JSON.stringify(editedData.value.storages)
         );
         editedData.value.storages = editedData.value.storages.map(
-          (storage: any) => ({
+          (storage: VmStorageForm) => ({
             ...storage,
             size: convertUnitToByte(storage.size, "GB"),
           })
