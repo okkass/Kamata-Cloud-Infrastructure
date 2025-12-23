@@ -48,6 +48,7 @@ export const validateBody = <T>(body: T | undefined, schema: z.ZodType): T => {
   const parseResult = schema.safeParse(body);
 
   if (!parseResult.success) {
+    console.log(parseResult.error);
     throw createError({
       statusCode: 400,
       statusMessage: treeifyError(parseResult.error).errors.join(", "),

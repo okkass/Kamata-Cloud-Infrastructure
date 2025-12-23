@@ -1,5 +1,6 @@
 get:
   summary: インスタンスタイプの詳細取得
+  operationId: getInstanceTypeById
   description: 指定したIDのインスタンスタイプの詳細情報を取得します。
   tags:
     - InstanceType
@@ -19,6 +20,25 @@ get:
         application/json:
           schema:
             $ref: "../../components/schemas/instance-type/InstanceTypeResponse.yml"
+      links:
+        PutInstanceTypeById:
+          operationId: putInstanceTypeById
+          parameters:
+            instanceTypeId: "$request.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        PatchInstanceTypeById:
+          operationId: patchInstanceTypeById
+          parameters:
+            instanceTypeId: "$request.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        DeleteInstanceTypeById:
+          operationId: deleteInstanceTypeById
+          parameters:
+            instanceTypeId: "$request.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
     "400":
       description: リクエストエラー
       content:
@@ -47,6 +67,7 @@ get:
     - BearerAuth: []
 put:
   summary: インスタンスタイプの更新
+  operationId: putInstanceTypeById
   description: 指定したIDのインスタンスタイプ情報を更新します。
   tags:
     - InstanceType
@@ -84,6 +105,7 @@ put:
     - BearerAuth: []
 patch:
   summary: インスタンスタイプの部分更新
+  operationId: patchInstanceTypeById
   description: 指定したIDのインスタンスタイプ情報を部分的に更新します。
   tags:
     - InstanceType
@@ -121,6 +143,7 @@ patch:
     - BearerAuth: []
 delete:
   summary: インスタンスタイプの削除
+  operationId: deleteInstanceTypeById
   description: 指定したIDのインスタンスタイプを削除します。
   tags:
     - InstanceType

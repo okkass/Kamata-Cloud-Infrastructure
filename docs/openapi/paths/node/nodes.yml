@@ -1,5 +1,6 @@
 get:
   summary: 物理ノード一覧の取得
+  operationId: listNodes
   description: すべての物理ノードのリストを取得します。
   tags:
     - Node
@@ -12,6 +13,19 @@ get:
             type: array
             items:
               $ref: "../../components/schemas/node/NodeResponse.yml"
+      links:
+        GetNodeById:
+          operationId: getNodeById
+          parameters:
+            nodeId: "$response.body#/0/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        CreateImage:
+          operationId: createImage
+          description: >
+            イメージを保存する先のノードとして使用する場合、このノードIDを使用してイメージを作成できます。
+          requestBody:
+            nodeId: "$response.body#/0/id"
     "401":
       description: 認証エラー
       content:
@@ -28,6 +42,7 @@ get:
     - BearerAuth: []
 post:
   summary: 物理ノードの追加
+  operationId: createNode
   description: 新しい物理ノードを追加します。
   tags:
     - Node
@@ -44,6 +59,20 @@ post:
         application/json:
           schema:
             $ref: "../../components/schemas/node/NodeResponse.yml"
+      links:
+        GetNodeById:
+          operationId: getNodeById
+          parameters:
+            nodeId: "$response.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        CreateImage:
+          operationId: createImage
+          description: >
+            イメージを保存する先のノードとして使用する場合、このノードIDを使用してイメージを作成できます。
+          requestBody:
+            nodeId: "$response.body#/id"
+
     "400":
       description: リクエストエラー
       content:
