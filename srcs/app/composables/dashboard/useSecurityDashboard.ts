@@ -7,22 +7,21 @@
  */
 import { computed } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
+import { SECURITY_GROUP } from "@/utils/constants";
+import { formatDateTime } from "@/utils/date";
+import type { SecurityGroupResponse } from "~~/shared/types";
+
 /* =========================== Types (APIに準拠) =========================== */
 
 /** テーブルUI用（明示的なフィールド名を追加） */
-/** Omitして型衝突を回避 */
-export interface UiEnhancedSecurityGroup extends Omit<SecurityGroupResponse, "rules"> {
+export interface UiEnhancedSecurityGroup extends SecurityGroupResponse {
   inboundRuleCount: number;
   outboundRuleCount: number;
-  // 既存互換フィールド（deprecated）
-  inCount: number;
-  outCount: number;
-  // 表示用文字列
   ruleSummary: string;
-  rules: string;
-  // 生データ
-  rawData: SecurityGroupResponse;
+  rulesText: string;
+  originalData?: SecurityGroupResponse;
 }
+
 export const addSecurityGroupAction = `add-${SECURITY_GROUP.name}`;
 export const editSecurityGroupAction = `edit-${SECURITY_GROUP.name}`;
 export const deleteSecurityGroupAction = `delete-${SECURITY_GROUP.name}`;
@@ -36,9 +35,8 @@ export function useSecurityDashboard() {
   // --- UI Configuration ---
   const columns: TableColumn[] = [
     { key: "name", label: "グループ名", align: "left" },
-    { key: "id", label: "セキュリティグループID", align: "left" },
     { key: "description", label: "説明", align: "left" },
-    { key: "rules", label: "イン/アウト ルール数", align: "left" },
+    { key: "rulesText", label: "イン/アウト ルール数", align: "center" },
     { key: "createdAt", label: "作成日時", align: "left" },
   ];
   const headerButtons = [{ label: "セキュリティグループ追加", action: "add" }];
@@ -52,20 +50,13 @@ export function useSecurityDashboard() {
       const summary: string = `${inboundRuleCount} / ${outboundRuleCount}`;
 
       return {
-        id: g.id,
-        name: g.name,
-        description: g.description ?? "",
-        // 新しい明示的フィールド
+        ...g,
         inboundRuleCount,
         outboundRuleCount,
-        // 既存互換フィールド（deprecated）
-        inCount: inboundRuleCount,
-        outCount: outboundRuleCount,
-        // 表示用文字列（両方提供）
         ruleSummary: summary,
-        rules: summary, // テンプレートの #cell-rules と整合
+        rulesText: summary,
         createdAt: formatDateTime(g.createdAt),
-        rawData: g,
+        originalData: g,
       };
     })
   );

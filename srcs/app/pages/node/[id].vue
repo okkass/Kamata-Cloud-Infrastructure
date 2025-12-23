@@ -1,8 +1,11 @@
 <template>
   <div class="mx-auto max-w-6xl px-4 py-6">
-    <div v-if="pending" class="text-sm text-neutral-500">読み込み中…</div>
+    <!-- 初回ロードだけ表示 -->
+    <div v-if="!node && pending" class="text-sm text-neutral-500">
+      読み込み中…
+    </div>
 
-    <div v-else-if="error" class="text-sm text-red-500">
+    <div v-else-if="!node && error" class="text-sm text-red-500">
       エラーが発生しました：{{ error.message }}
     </div>
 
@@ -32,10 +35,27 @@ const {
   data: node,
   pending,
   error,
+  refresh,
 } = await useResourceDetail<NodeResponse>(
   NODE.name,
   route.params.id as string
 );
+
+
+// --- ポーリング設定 ---
+const polling = createPolling(async () => {
+  await refresh();
+});
+
+// lifecycle
+onMounted(() => {
+  void polling.runOnce();
+  polling.startPolling();
+});
+
+onUnmounted(() => {
+  polling.stopPolling();
+});
 
 const goBack = () => {
   router.back();

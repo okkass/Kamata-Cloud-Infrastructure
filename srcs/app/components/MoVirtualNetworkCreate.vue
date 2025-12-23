@@ -57,9 +57,10 @@
                     <FormInput
                       label="名前"
                       :name="`subnet-name-${index}`"
-                      :error="getError(index, 'name')"
                       v-model="field.value.name"
+                      :error="getError(index, 'name')"
                       placeholder="例: public-subnet"
+                      class="w-full"
                     />
                   </div>
 
@@ -67,9 +68,10 @@
                     <FormInput
                       label="CIDR"
                       :name="`subnet-cidr-${index}`"
-                      :error="getError(index, 'cidr')"
                       v-model="field.value.cidr"
+                      :error="getError(index, 'cidr')"
                       placeholder="例: 10.0.1.0/24"
+                      class="w-full"
                     />
                   </div>
 
@@ -151,3 +153,9 @@ const {
 const handleClose = makehandleClose(emit);
 const onSubmit = onFormSubmit(emit);
 </script>
+
+<style scoped>
+.form-input-sm {
+  @apply border border-gray-300 rounded px-2 py-1 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500;
+}
+</style>

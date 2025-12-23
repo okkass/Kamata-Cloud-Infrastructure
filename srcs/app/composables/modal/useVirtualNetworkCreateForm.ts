@@ -41,6 +41,7 @@ export function useVirtualNetworkCreateForm(emit: any) {
   const [name, nameAttrs] = defineField("name");
   const [cidr, cidrAttrs] = defineField("cidr");
 
+  // --- サブネット配列 (useFieldArray) ---
   const {
     fields: initialSubnets,
     push: pushSubnet,
