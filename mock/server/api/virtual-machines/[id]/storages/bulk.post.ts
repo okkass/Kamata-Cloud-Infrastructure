@@ -3,7 +3,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
 
   // ログに出して確認したい場合
-  console.log("Storage Bulk Update:", body);
+  console.log("Storage Bulk Update Success:", JSON.stringify(body, null, 2));
 
   return {
     status: "success",

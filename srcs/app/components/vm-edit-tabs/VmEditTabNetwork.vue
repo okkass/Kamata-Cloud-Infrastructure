@@ -46,13 +46,25 @@
                 v-model="iface.networkId"
                 :options="networkOptions"
                 placeholder="ネットワークを選択"
+                @update:model-value="iface.subnetId = ''"
+              />
+
+              <FormSelect
+                label="サブネット"
+                :name="`subnet-id-${index}`"
+                v-model="iface.subnetId"
+                :options="getSubnetOptions(iface.networkId)"
+                placeholder="サブネットを選択"
+                :disabled="!iface.networkId"
               />
 
               <FormInput
-                label="IPアドレス (任意)"
+                label="IPアドレス"
                 :name="`ip-${index}`"
                 v-model="iface.ipAddress"
-                placeholder="自動割り当て (空欄)"
+                placeholder="自動割り当て"
+                readonly
+                class="bg-gray-200 text-gray-500 cursor-not-allowed"
               />
             </div>
 
@@ -169,7 +181,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref, computed, watch } from "vue";
 import FormInput from "~/components/Form/Input.vue";
 import FormSelect from "~/components/Form/Select.vue";
 import { useResourceList } from "~/composables/useResourceList";
@@ -197,6 +209,37 @@ const networkOptions = computed(() => {
 // Network Interfaces Logic
 // ----------------------------------------------------------------------------
 
+// ネットワーク一覧がロードされたら、subnetId から networkId を逆引きして補完する
+watch(
+  [networkMaster, () => model.value.networkInterfaces],
+  ([networks, interfaces]) => {
+    if (!networks || !interfaces) return;
+
+    interfaces.forEach((iface: any) => {
+      // networkId が未設定で、かつ subnetId がある場合
+      if (!iface.networkId && iface.subnetId) {
+        // 全ネットワークのサブネットを走査して、一致する subnetId を持つネットワークを探す
+        const foundNetwork = networks.find((net) =>
+          net.subnets?.some((sub) => sub.id === iface.subnetId)
+        );
+        if (foundNetwork) {
+          iface.networkId = foundNetwork.id;
+        }
+      }
+    });
+  },
+  { immediate: true, deep: true }
+);
+
+const getSubnetOptions = (networkId: string) => {
+  const network = networkMaster.value?.find((n) => n.id === networkId);
+  if (!network || !network.subnets) return [];
+  return network.subnets.map((subnet) => ({
+    id: subnet.id,
+    name: `${subnet.name} (${subnet.cidr})`,
+  }));
+};
+
 const addInterface = () => {
   if (!model.value) return;
   if (!Array.isArray(model.value.networkInterfaces)) {
@@ -207,6 +250,7 @@ const addInterface = () => {
     // ★重要: useResourceUpdater の "newIdPrefix" ("new-") に合わせたIDを付与
     id: `new-${Date.now()}`,
     networkId: "",
+    subnetId: "",
     ipAddress: "",
   });
 };

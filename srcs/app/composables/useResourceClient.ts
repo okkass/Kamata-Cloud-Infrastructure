@@ -18,7 +18,7 @@ export const useApiClient = () => {
   const request = async <T>(url: string, options: ApiOptions = {}) => {
     const { method = "GET", body, params, headers } = options;
 
-    return await $fetch<T>(url, {
+    return await useNuxtApp().$apiFetch<T>(url, {
       method,
       body,
       params, // GET時のクエリパラメータ (?id=1など)

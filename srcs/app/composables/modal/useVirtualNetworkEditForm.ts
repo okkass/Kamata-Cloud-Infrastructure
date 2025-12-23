@@ -11,15 +11,6 @@ import { watch } from "vue";
 export const useVirtualNetworkEditForm = () => {
   const { addToast } = useToast();
 
-<<<<<<< HEAD
-  // Bulk対応版の useResourceUpdater を使用
-  const {
-    editedData,
-    isSaving,
-    errorMessage, // useResourceUpdater からエラーメッセージを取得
-    init,
-    save: executeSave, // 名前が衝突しないようにエイリアス
-=======
   const {
     editedData,
     isSaving,
@@ -27,7 +18,6 @@ export const useVirtualNetworkEditForm = () => {
     init,
     save: executeSave,
     isDirty,
->>>>>>> main
   } = useResourceUpdater<VirtualNetworkResponse>();
 
   // ID生成用
@@ -91,13 +81,7 @@ export const useVirtualNetworkEditForm = () => {
         subnets: {
           // 個別更新用のエンドポイント (Bulk使用時は使われませんが一応定義)
           endpoint: `virtual-networks/${resourceId}/subnets`,
-<<<<<<< HEAD
-
-          // ★★★ ここが重要: Bulk更新用のエンドポイントを指定 ★★★
-          // これがあるため、自動的に { create:[], delete:[], patch:[] } の形式でPOSTされます
-=======
           // Bulk更新用のエンドポイント
->>>>>>> main
           bulkEndpoint: `virtual-networks/${resourceId}/subnets/bulk`,
 
           idKey: "id",

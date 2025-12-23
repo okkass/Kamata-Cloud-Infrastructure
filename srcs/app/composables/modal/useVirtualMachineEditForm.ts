@@ -37,6 +37,11 @@ export const useVirtualMachineEditForm = () => {
         ...storage,
         size: convertByteToUnit(storage.size, "GB"),
       })),
+      networkInterfaces: data.networkInterfaces?.map((iface: any) => ({
+        ...iface,
+        subnetId: iface.subnet?.id,
+        networkId: iface.subnet?.parent?.id,
+      })),
     };
 
     const id = data.id;
@@ -64,7 +69,7 @@ export const useVirtualMachineEditForm = () => {
           bulkEndpoint: `virtual-machines/${id}/network-interfaces/bulk`,
           idKey: "id", // ネットワークIF自体がIDを持つ前提
           newIdPrefix: "new-",
-          fields: ["networkId", "ipAddress"],
+          fields: ["subnetId"],
           bulkKeys: { create: "add", update: "patch", delete: "remove" },
         },
         securityGroups: {
