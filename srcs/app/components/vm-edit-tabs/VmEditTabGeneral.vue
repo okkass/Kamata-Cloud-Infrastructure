@@ -1,10 +1,6 @@
 <template>
   <div class="p-6">
     <div class="max-w-xl">
-      <p class="mb-4 text-sm text-gray-500">
-        仮想マシンの基本情報を編集します。
-      </p>
-
       <FormInput
         label="名前"
         name="name"
