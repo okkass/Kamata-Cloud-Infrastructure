@@ -6,7 +6,8 @@
       :rows="images"
       rowKey="id"
       :headerButtons="headerButtons"
-      @header-action="() => openModal(ADD_IMAGE_ACTION)"
+      @header-action="handleHeaderAction"
+      @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
         <NuxtLink :to="`/image/${row.id}`" class="table-link">
@@ -31,7 +32,7 @@
         <button
           type="button"
           class="action-item"
-          @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
+          @click.stop.prevent="row && onRowAction({ action: 'edit', row })"
         >
           編集
         </button>
@@ -40,48 +41,44 @@
           type="button"
           class="action-item action-item-danger"
           :disabled="isDeleting && targetForDeletion?.id === row?.id"
-          @click.stop.prevent="
-            row && handleRowAction({ action: 'delete', row })
-          "
+          @click.stop.prevent="row && onRowAction({ action: 'delete', row })"
         >
           削除
         </button>
       </template>
     </DashboardLayout>
-  </div>
 
-  <MoDeleteConfirm
-    :show="activeModal === DELETE_IMAGE_ACTION"
-    :message="`本当にイメージ「${targetForDeletion?.name}」を削除しますか？`"
-    :is-loading="isDeleting"
-    @close="cancelAction"
-    @confirm="handleDelete"
-  />
-  <MoImageAdd
-    :show="activeModal === ADD_IMAGE_ACTION"
-    @close="closeModal"
-    @success="handleSuccess"
-  />
-  <MoImageEdit
-    :show="activeModal === EDIT_IMAGE_ACTION"
-    :image-data="targetForEditing ?? undefined"
-    @close="closeModal"
-    @success="handleSuccess"
-  />
+    <MoDeleteConfirm
+      :show="activeModal === DELETE_IMAGE_ACTION"
+      :message="`本当にイメージ「${targetForDeletion?.name}」を削除しますか？`"
+      :is-loading="isDeleting"
+      @close="cancelAction"
+      @confirm="handleDelete"
+    />
+    <MoImageAdd
+      :show="activeModal === ADD_IMAGE_ACTION"
+      @close="closeModal"
+      @success="handleSuccess"
+    />
+    <MoImageEdit
+      :show="activeModal === EDIT_IMAGE_ACTION"
+      :image-data="targetForEditing ?? undefined"
+      @close="closeModal"
+      @success="handleSuccess"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
 import { useImageManagement } from "~/composables/dashboard/useImageManagement";
 import { usePageActions } from "~/composables/usePageActions";
 
-import type { UiImage } from "~/composables/dashboard/useImageManagement";
-
 // --- データロジックの取得 ---
 const {
   columns,
   images,
   headerButtons,
-  refreshImageList,
+  refresh,
   ADD_IMAGE_ACTION,
   EDIT_IMAGE_ACTION,
   DELETE_IMAGE_ACTION,
@@ -93,15 +90,31 @@ const {
   openModal,
   closeModal,
   targetForDeletion,
-  targetForEditing, // ★ 編集対象のデータを取得
+  targetForEditing,
   isDeleting,
   handleRowAction,
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<UiImage>({
-  resourceName: IMAGE.name,
-  resourceLabel: IMAGE.label,
-  refresh: refreshImageList,
+} = usePageActions<ImageResponse>({
+  resourceName: "image",
+  resourceLabel: "イメージ",
+  refresh,
 });
+
+/* ヘッダーボタンのハンドラー */
+function handleHeaderAction(action: string) {
+  if (action === "add") {
+    openModal(ADD_IMAGE_ACTION);
+  }
+}
+
+/* 行アクションのハンドラー */
+function onRowAction({ action, row }: { action: string; row: any }) {
+  const imageRow: ImageResponse = {
+    ...row,
+    size: typeof row.size === "string" ? Number(row.size) : row.size,
+  };
+  handleRowAction({ action, row: imageRow });
+}
 </script>

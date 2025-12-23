@@ -1,39 +1,15 @@
 /**
  * 仮想マシンイメージ管理ページ Composable
  */
-import { ref, computed } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
+import { createPolling } from "@/utils/polling";
+import type { ImageResponse } from "~~/shared/types";
 
 /** 定数定義  */
-export const addImageAction = `add-${IMAGE.name}`;
-export const editImageAction = `edit-${IMAGE.name}`;
-export const deleteImageAction = `delete-${IMAGE.name}`;
-
-/**
- * テーブルUI用仮想マシンイメージオブジェクト
- */
-export interface UiImage {
-  /**
-   * 仮想マシンイメージを識別するための一意なID
-   */
-  id: string;
-  /**
-   * 仮想マシンイメージの名前
-   */
-  name: string;
-  /**
-   * 仮想マシンイメージの説明
-   */
-  description?: string;
-  /**
-   * 仮想マシンイメージが作成された日時
-   */
-  createdAt: string;
-  /**
-   * 仮想マシンイメージのサイズ
-   */
-  size: string;
-}
+export const addImageAction = `add-image`;
+export const editImageAction = `edit-image`;
+export const deleteImageAction = `delete-image`;
 
 /**
  * 仮想マシンイメージ管理ページのUIロジックと状態を管理するComposable
@@ -42,35 +18,59 @@ export interface UiImage {
  */
 export function useImageManagement() {
   // --- APIデータ取得 ---
-  const { data: imageDTOs, refresh: refreshImageList } =
-    useResourceList<ImageDTO>(IMAGE.name);
+  const {
+    data: rawList,
+    pending,
+    refresh,
+    error,
+  } = useResourceList<ImageResponse>("images");
+
+  // --- ポーリング設定 ---
+  const { startPolling, stopPolling, runOnce, lastUpdatedTime } = createPolling(
+    async () => {
+      await refresh();
+    }
+  );
+
+  // マウント時に即時実行し、その後ポーリング開始。アンマウント時に停止。
+  onMounted(() => {
+    void runOnce();
+    startPolling();
+  });
+
+  onUnmounted(() => {
+    stopPolling();
+  });
 
   // --- UI表示用の設定 ---
-  const columns: TableColumn[] = [
-    { key: "name", label: "イメージ名", align: "left" },
-    { key: "size", label: "サイズ", align: "right" },
-    { key: "createdAt", label: "登録日", align: "left" },
+  const columns = [
+    { key: "name", label: "イメージ名", align: "left" as const },
+    { key: "size", label: "サイズ", align: "right" as const },
+    { key: "createdAt", label: "登録日", align: "left" as const },
   ];
-  const headerButtons = [{ label: "イメージ追加", action: "add" }];
+  const headerButtons = [{ action: "add", label: "イメージ追加" }];
 
   // --- データの整形 ---
-  const images = computed<UiImage[]>(() =>
-    (imageDTOs.value ?? []).map((dto) => ({
-      id: dto.id,
-      name: dto.name,
-      description: dto.description,
-      createdAt: formatDateTime(dto.createdAt),
-      size: toSize(dto.size),
+  const images = computed(() =>
+    (rawList.value ?? []).map((image) => ({
+      ...image,
+      createdAt: formatDateTime(image.createdAt),
+      size: toSize(image.size),
     }))
   );
 
   return {
+    pending,
+    error,
     columns,
     images,
     headerButtons,
-    refreshImageList,
+    refresh,
+    lastUpdatedTime,
+    startPolling,
+    stopPolling,
     ADD_IMAGE_ACTION: addImageAction,
     EDIT_IMAGE_ACTION: editImageAction,
     DELETE_IMAGE_ACTION: deleteImageAction,
-  };
+  } as const;
 }
