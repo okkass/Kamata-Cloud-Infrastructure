@@ -8514,7 +8514,7 @@ export interface components {
             description?: string;
         };
         /** @description バックアップ作成リクエストオブジェクト */
-        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & WithRequired<components["schemas"]["BackupUpdatable"], "name">;
+        BackupCreateRequest: components["schemas"]["BackupCreateOnly"] & components["schemas"]["BackupUpdatable"] & Record<string, never>;
         /** @description バックアップ更新リクエストオブジェクト */
         BackupPutRequest: WithRequired<components["schemas"]["BackupUpdatable"], "name">;
         /** @description バックアップ部分更新リクエストオブジェクト */
