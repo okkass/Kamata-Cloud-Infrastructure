@@ -53,7 +53,7 @@
 
   <MoSnapshotRestore
     :show="activeModal === RESTORE_SNAPSHOT_ACTION"
-    :target-row="targetForEditing"
+    :snapshot-data="targetForEditing?.originalData || null"
     @close="closeModal"
     @success="onRestoreSuccess"
   />
@@ -68,18 +68,17 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from "vue";
 import DashboardLayout from "@/components/DashboardLayout.vue";
-import { useSnapshotManagement } from "~/composables/dashboard/useSnapshotManagement";
+import {
+  useSnapshotManagement,
+  type SnapshotRow,
+} from "~/composables/dashboard/useSnapshotManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import MoSnapshotCreate from "@/components/MoSnapshotCreate.vue";
+import MoSnapshotRestore from "@/components/MoSnapshotRestore.vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
-type UiRow = {
-  id: string;
-  name: string;
-  vmName: string;
-  createdAtText: string;
-  description?: string;
-};
+import { SNAPSHOT } from "@/utils/constants";
 
 const {
   columns,
@@ -101,7 +100,7 @@ const {
   handleRowAction,
   handleDelete,
   cancelAction,
-} = usePageActions<UiRow>({
+} = usePageActions<SnapshotRow>({
   resourceName: SNAPSHOT.name,
   resourceLabel: SNAPSHOT.label,
   refresh,
@@ -112,7 +111,7 @@ const handleHeaderAction = (action: string) => {
     openModal(CREATE_SNAPSHOT_ACTION);
   }
 };
-const onRowAction = ({ action, row }: { action: string; row: UiRow }) => {
+const onRowAction = ({ action, row }: { action: string; row: SnapshotRow }) => {
   if (action === "restore") {
     targetForEditing.value = row;
     openModal(RESTORE_SNAPSHOT_ACTION);
@@ -130,4 +129,5 @@ const onRestoreSuccess = async () => {
   closeModal();
   await refresh();
 };
+
 </script>
