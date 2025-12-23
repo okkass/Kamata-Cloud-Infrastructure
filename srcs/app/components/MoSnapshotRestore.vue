@@ -35,9 +35,7 @@
 
             <div class="sm:col-span-2">
               <span class="block text-xs text-gray-500 mb-1">説明</span>
-              <span class="text-gray-900">{{
-                data?.description || "-"
-              }}</span>
+              <span class="text-gray-900">{{ data?.description || "-" }}</span>
             </div>
 
             <div class="sm:col-span-2">
@@ -57,7 +55,7 @@
             label="スナップショットから復元"
             @click="openConfirm"
             :disabled="isRestoring"
-            :isloading="isRestoring"
+            :loading="isRestoring"
           />
         </div>
       </template>
@@ -106,10 +104,7 @@ const onConfirmed = async () => {
   showConfirm.value = false;
   if (!props.data?.id) return;
 
-  const success = await executeRestoreApi(
-    props.data.id,
-    props.data.name
-  );
+  const success = await executeRestoreApi(props.data.id, props.data.name);
 
   if (success) {
     emit("success");

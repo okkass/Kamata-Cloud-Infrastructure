@@ -93,7 +93,7 @@ export function useVirtualNetworkEditForm(props: Props) {
     (newValues) => {
       if (editedData.value) {
         editedData.value.name = newValues.name;
-        editedData.value.cidr = editedData.value.cidr;
+        editedData.value.cidr = newValues.cidr;
         editedData.value.subnets = newValues.subnets.map((subnet) => ({
           id: subnet.id,
           name: subnet.name,

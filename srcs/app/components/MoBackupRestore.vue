@@ -54,7 +54,7 @@
             label="バックアップから復元"
             @click="openConfirm"
             :disabled="isRestoring"
-            :isloading="isRestoring"
+            :loading="isRestoring"
           />
         </div>
       </template>

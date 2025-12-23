@@ -117,7 +117,6 @@
             :loading="isCreating"
             @click="submitAddNode"
             :disabled="isCreating || password.length < 8"
-            :isloading="isCreating"
           />
         </div>
       </template>

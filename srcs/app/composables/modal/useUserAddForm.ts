@@ -53,7 +53,6 @@ export function useUserAddForm() {
 
   const [maxCpuCore, maxCpuCoreAttrs] = defineField("maxCpuCore");
   const [maxMemorySize, maxMemorySizeAttrs] = defineField("maxMemorySize");
-  defineField("maxMemorySize");
   const [maxStorageSize, maxStorageSizeAttrs] = defineField("maxStorageSize");
   // 権限
   const [isAdmin, isAdminAttrs] = defineField("isAdmin");

@@ -6,7 +6,6 @@
 import { computed } from "vue";
 import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useFormAction } from "~/composables/modal/useModalAction";
 import { useToast } from "~/composables/useToast";
@@ -21,14 +20,13 @@ import {
  */
 export function useVirtualNetworkCreateForm(emit: any) {
   const { handleFormSubmit, makeHandleClose } = useFormAction();
-  const { addToast } = useToast();
 
   const { executeCreate, isCreating } = useResourceCreate<
     VirtualNetworkCreateRequest,
     VirtualNetworkResponse
   >(NETWORK.name);
 
-  const { errors, handleSubmit, defineField, meta, resetForm, values } =
+  const { errors, handleSubmit, defineField, meta, resetForm } =
     useForm<VirtualNetworkCreateFullFormValues>({
       validationSchema: toTypedSchema(VirtualNetworkCreateFullSchema),
       initialValues: {

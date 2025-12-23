@@ -1,4 +1,4 @@
-import { ref, computed, watch } from "vue";
+import { computed, watch } from "vue";
 import {
   useResourceUpdater,
   type ResourceConfig,
@@ -30,7 +30,7 @@ export const useInstanceTypeEditForm = (props: Props) => {
   const updaterError = errorMessage;
 
   // VeeValidate フォーム設定
-  const { errors, defineField, handleSubmit, resetForm, setValues, meta } =
+  const { errors, defineField, handleSubmit, resetForm, meta } =
     useForm<InstanceTypeUpdateInput>({
       validationSchema: toTypedSchema(InstanceTypeUpdateSchema),
     });

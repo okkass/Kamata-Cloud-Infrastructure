@@ -127,11 +127,6 @@ export function useSecurityGroupEditForm(props: Props) {
     { deep: true }
   );
 
-  // --- バリデーション ---
-  const validate = (): boolean => {
-    return meta.value.valid;
-  };
-
   // --- 送信ハンドラ ---
   const onFormSubmit = (emit: any) =>
     handleFormSubmit<SecurityGroupFormValues, SecurityGroupResponse>(
