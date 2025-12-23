@@ -19,6 +19,7 @@ export default defineEventHandler(async (event) => {
   }
 
   const body = await readBody<StorageCreateRequest>(event);
+  setResponseStatus(event, 201);
   return createResource(
     body as StorageCreateRequest,
     createStorageSchema,

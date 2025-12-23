@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const service = getNodeService(permission);
 
+  setResponseStatus(event, 201);
   return createResource(
     body as NodeCreateRequest,
     addNodeSchema,

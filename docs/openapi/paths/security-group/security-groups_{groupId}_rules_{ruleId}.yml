@@ -11,6 +11,7 @@ get:
         type: string
         format: uuid
       description: セキュリティグループの一意なID
+      example: "bba6cb32-c841-4ace-9bc8-c3c5288b2e5f"
     - name: ruleId
       in: path
       required: true
@@ -18,6 +19,7 @@ get:
         type: string
         format: uuid
       description: セキュリティグループルールの一意なID
+      example: "bba6cb32-c841-4ace-9bc8-c3c5288b2e5f"
   responses:
     "200":
       description: ルール詳細取得成功
@@ -64,6 +66,7 @@ put:
         type: string
         format: uuid
       description: セキュリティグループの一意なID
+      example: "bba6cb32-c841-4ace-9bc8-c3c5288b2e5f"
     - name: ruleId
       in: path
       required: true
@@ -71,6 +74,7 @@ put:
         type: string
         format: uuid
       description: セキュリティグループルールの一意なID
+      example: "bba6cb32-c841-4ace-9bc8-c3c5288b2e5f"
   requestBody:
     required: true
     content:
@@ -123,6 +127,7 @@ patch:
         type: string
         format: uuid
       description: セキュリティグループの一意なID
+      example: "bba6cb32-c841-4ace-9bc8-c3c5288b2e5f"
     - name: ruleId
       in: path
       required: true
@@ -130,6 +135,7 @@ patch:
         type: string
         format: uuid
       description: セキュリティグループルールの一意なID
+      example: "bba6cb32-c841-4ace-9bc8-c3c5288b2e5f"
   requestBody:
     required: true
     content:
@@ -182,6 +188,7 @@ delete:
         type: string
         format: uuid
       description: セキュリティグループの一意なID
+      example: "bba6cb32-c841-4ace-9bc8-c3c5288b2e5f"
     - name: ruleId
       in: path
       required: true
@@ -189,6 +196,7 @@ delete:
         type: string
         format: uuid
       description: セキュリティグループルールの一意なID
+      example: "bba6cb32-c841-4ace-9bc8-c3c5288b2e5f"
   responses:
     "204":
       description: ルール削除成功

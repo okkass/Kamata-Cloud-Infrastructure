@@ -16,7 +16,7 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
     createdAt: new Date().toISOString(),
     totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: generateRandomUsage(500 * 1024 * 1024 * 1024).used,
+    usedSize: getRandomInt(0, 500) * 1024 * 1024 * 1024,
     hasNetworkAccess: true,
   },
   {
@@ -25,7 +25,7 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
     createdAt: new Date().toISOString(),
     totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: generateRandomUsage(500 * 1024 * 1024 * 1024).used,
+    usedSize: getRandomInt(0, 500) * 1024 * 1024 * 1024,
     hasNetworkAccess: false,
   },
   {
@@ -34,7 +34,7 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
     createdAt: new Date().toISOString(),
     totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: generateRandomUsage(1000 * 1024 * 1024 * 1024).used,
+    usedSize: getRandomInt(0, 1000) * 1024 * 1024 * 1024,
     hasNetworkAccess: true,
   },
   {
@@ -43,7 +43,7 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
     createdAt: new Date().toISOString(),
     totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: generateRandomUsage(1000 * 1024 * 1024 * 1024).used,
+    usedSize: getRandomInt(0, 1000) * 1024 * 1024 * 1024,
     hasNetworkAccess: false,
   },
 ];

@@ -15,6 +15,7 @@ export default defineEventHandler(async (event) => {
 
   const service = getVirtualNetworkService(permission).getSubnetService(vnId);
 
+  setResponseStatus(event, 201);
   // サービスの create 処理を共通ハンドラー経由で実行しレスポンスを返す
   return createResource(requestBody, createSubnetSchema, service.create);
 });

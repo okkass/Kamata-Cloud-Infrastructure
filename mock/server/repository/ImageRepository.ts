@@ -25,14 +25,14 @@ const initImages = (): Array<ImageResponse> => {
       name: "CentOS 8",
       createdAt: new Date().toISOString(),
       size: 3 * 1024 * 1024 * 1024, // 3 GB
-      node: NodeRepository.getById("7b57836d-cc87-40e1c-938c-66682f1a108b")!,
+      node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
     },
     {
       id: "42af756f-6710-4994-b993-f2b2c2c5393b",
       name: "Debian 10",
       createdAt: new Date().toISOString(),
       size: 2.5 * 1024 * 1024 * 1024, // 2.5 GB
-      node: NodeRepository.getById("7b57836d-cc87-40e1c-938c-66682f1a108b")!,
+      node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
     },
   ];
 };

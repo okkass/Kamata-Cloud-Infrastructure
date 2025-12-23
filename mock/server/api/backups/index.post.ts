@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   const service = getBackupService(permission);
 
+  setResponseStatus(event, 201);
   return createResource(
     body as BackupCreateRequest,
     backupCreateSchema,

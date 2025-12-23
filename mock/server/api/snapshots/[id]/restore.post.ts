@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
       status: 400,
     };
   }
-
+  setResponseStatus(event, 202);
   // モックなので成功レスポンスを返すだけ
   return {
     status: "success",

@@ -3,6 +3,13 @@ import { getPermissionFromEvent } from "@/utils/permission";
 import { getBackupService } from "@/service/BackupService";
 
 export default defineEventHandler((event) => {
+  const { scope } = getQuery(event) as { scope?: string };
+  if (scope && scope !== "all" && scope !== "mine") {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid scope parameter",
+    });
+  }
   // リクエストから権限情報を取り出す
   const permission = getPermissionFromEvent(event);
   // 権限に応じたバックアップサービスを生成

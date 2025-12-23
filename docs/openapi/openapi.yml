@@ -37,8 +37,8 @@ paths:
     $ref: "paths/security-group/security-groups_{groupId}_rules.yml"
   /api/security-groups/{groupId}/rules/bulk:
     $ref: "paths/security-group/security-groups_{groupId}_rules_bulk.yml"
-  /api/security/groups{groupId}/rules/{ruleId}:
-    $ref: "paths/security-group/security_groups{groupId}_rules_{ruleId}.yml"
+  /api/security-groups/{groupId}/rules/{ruleId}:
+    $ref: "paths/security-group/security-groups_{groupId}_rules_{ruleId}.yml"
   /api/storage-pools:
     $ref: "paths/storage-pool/storage-pools.yml"
   /api/storage-pools/node/{nodeId}:

@@ -11,6 +11,7 @@ export default defineEventHandler(async (event) => {
   // リクエストボディをパース
   const body = await readBody(event);
 
+  setResponseStatus(event, 201);
   return createResource(
     body as VirtualMachineCreateRequest,
     createVirtualMachineSchema,

@@ -1,3 +1,6 @@
 export default defineEventHandler((event) => {
-  return "ok-login-success";
+  throw createError({
+    statusCode: 501,
+    statusMessage: "Not Implemented",
+  });
 });
