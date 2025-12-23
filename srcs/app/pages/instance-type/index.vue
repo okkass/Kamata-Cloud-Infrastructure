@@ -1,85 +1,109 @@
 <template>
-  <DashboardLayout
-    title="インスタンスタイプ"
-    :columns="columns"
-    :rows="rawList"
-    :headerButtons="headerButtons"
-    @header-action="() => openModal(ADD_INSTANCE_TYPE_ACTION)"
-    @row-action="handleRowAction"
-  >
-    <template #cell-name="{ row }">
-      <NuxtLink :to="`/instance-type/${row.id}`" class="table-link">
-        {{ row.name }}
-      </NuxtLink>
-    </template>
-    <template #cell-vcpu="{ row }">
-      {{ row.cpuCore }}
-    </template>
-    <template #cell-memorySize="{ row }">
-      {{ convertByteToUnit(row.memorySize, "MB") }} MB
-    </template>
+  <div>
+    <DashboardLayout
+      title="インスタンスタイプ"
+      :columns="columns"
+      :rows="rows"
+      rowKey="id"
+      :headerButtons="headerButtons"
+      @header-action="handleHeaderAction"
+      @row-action="onRowAction"
+    >
+      <template #cell-name="{ row }">
+        <NuxtLink :to="`/instance-type/${row.id}`" class="table-link">
+          {{ row.name }}
+        </NuxtLink>
+      </template>
 
-    <template #cell-createdAtText="{ row }">
-      {{ formatDateTime(row.createdAt) }}
-    </template>
+      <template #cell-vcpu="{ row }">
+        <span class="font-mono">{{ row.vcpu }}</span>
+      </template>
 
-    <template #row-actions="{ row }">
-      <NuxtLink
-        v-if="row"
-        class="action-item first:border-t-0"
-        :to="`/instance-type/${row.id}`"
-      >
-        詳細
-      </NuxtLink>
-      <button
-        class="action-item"
-        @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
-      >
-        編集
-      </button>
-      <button
-        class="action-item action-item-danger"
-        @click.stop.prevent="row && handleRowAction({ action: 'delete', row })"
-      >
-        削除
-      </button>
-    </template>
-  </DashboardLayout>
+      <template #cell-memorySize="{ row }">
+        <span class="font-mono">{{ row.memorySize }} MB</span>
+      </template>
 
-  <MoInstanceTypeAdd
-    :show="activeModal === ADD_INSTANCE_TYPE_ACTION"
-    @close="closeModal"
-    @success="handleSuccess"
-  />
-  <MoInstanceTypeEdit
-    :show="activeModal === EDIT_INSTANCE_TYPE_ACTION"
-    :instance-type-data="targetForEditing"
-    @close="closeModal"
-    @success="handleSuccess"
-  />
-  <MoDeleteConfirm
-    :show="activeModal === DELETE_INSTANCE_TYPE_ACTION"
-    :message="`本当にインスタンスタイプ「${targetForDeletion?.name}」を削除しますか？`"
-    :is-loading="isDeleting"
-    @close="cancelAction"
-    @confirm="handleDelete"
-  />
+      <template #cell-createdAtText="{ row }">
+        <span>{{ row.createdAtText }}</span>
+      </template>
+
+      <template #row-actions="{ row }">
+        <NuxtLink
+          v-if="row"
+          :to="`/instance-type/${row.id}`"
+          class="action-item"
+        >
+          詳細
+        </NuxtLink>
+        <button
+          type="button"
+          class="action-item"
+          @click.stop.prevent="row && onRowAction({ action: 'edit', row })"
+        >
+          編集
+        </button>
+        <button
+          type="button"
+          class="action-item action-item-danger"
+          @click.stop.prevent="row && onRowAction({ action: 'delete', row })"
+        >
+          削除
+        </button>
+      </template>
+    </DashboardLayout>
+
+    <!-- インスタンスタイプ追加モーダル -->
+    <MoInstanceTypeAdd
+      :show="activeModal === ADD_INSTANCE_TYPE_ACTION"
+      @close="closeModal"
+      @success="handleSuccess"
+    />
+
+    <!-- インスタンスタイプ編集モーダル -->
+    <MoInstanceTypeEdit
+      :show="activeModal === EDIT_INSTANCE_TYPE_ACTION"
+      :instanceTypeData="
+        targetForEditing?.originalData ?? targetForEditing ?? undefined
+      "
+      @close="closeModal"
+      @success="handleSuccess"
+    />
+
+    <!-- 削除確認モーダル -->
+    <MoDeleteConfirm
+      :show="activeModal === DELETE_INSTANCE_TYPE_ACTION"
+      :message="`本当にインスタンスタイプ「${targetForDeletion?.name}」を削除しますか？`"
+      :is-loading="isDeleting"
+      @close="closeModal"
+      @confirm="handleDelete"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { useInstanceTypeManagement } from "~/composables/dashboard/useInstanceTypeManagement";
-import { usePageActions } from "~/composables/usePageActions";
+import { INSTANCE_TYPE } from "@/utils/constants";
+import {
+  useInstanceTypeManagement,
+  type InstanceTypeRow,
+} from "~/composables/dashboard/useInstanceTypeManagement";
+import { usePageActions } from "@/composables/usePageActions";
+import DashboardLayout from "~/components/DashboardLayout.vue";
+import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue";
+import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
+import MoDeleteConfirm from "~/components/MoDeleteConfirm.vue";
 
+/* データ取得 */
 const {
   columns,
   headerButtons,
-  rawList,
+  rows,
   refresh,
   ADD_INSTANCE_TYPE_ACTION,
   EDIT_INSTANCE_TYPE_ACTION,
   DELETE_INSTANCE_TYPE_ACTION,
 } = useInstanceTypeManagement();
 
+/* ページ共通アクション */
 const {
   activeModal,
   openModal,
@@ -91,9 +115,27 @@ const {
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<InstanceTypeDTO>({
+} = usePageActions<InstanceTypeRow>({
   resourceName: INSTANCE_TYPE.name,
   resourceLabel: INSTANCE_TYPE.label,
-  refresh: refresh,
+  refresh,
 });
+
+/* ヘッダーボタンのハンドラー */
+function handleHeaderAction(action: string) {
+  if (action === "add") {
+    openModal(ADD_INSTANCE_TYPE_ACTION);
+  }
+}
+
+/* 行アクションのハンドラー */
+function onRowAction({
+  action,
+  row,
+}: {
+  action: string;
+  row: InstanceTypeRow;
+}) {
+  handleRowAction({ action, row });
+}
 </script>
