@@ -1,7 +1,8 @@
 // app/composables/useSnapshotManagement.ts
-import { computed } from "vue";
+import { computed, onUnmounted } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 import { formatDateTime } from "@/utils/date";
+import { createPolling } from "@/utils/polling";
 
 export type SnapshotRow = {
   id: string;
@@ -9,13 +10,14 @@ export type SnapshotRow = {
   vmName: string;
   createdAtText: string;
   description?: string;
+  originalData?: SnapshotResponse;
 };
 export const createSnapshotAction = `create-${SNAPSHOT.name}`;
 export const restoreSnapshotAction = `restore-${SNAPSHOT.name}`;
 export const deleteSnapshotAction = `delete-${SNAPSHOT.name}`;
 
 export function useSnapshotManagement() {
-  const { data, pending, error, refresh } = useResourceList<SnapShotDTO>(
+  const { data, pending, error, refresh } = useResourceList<SnapshotResponse>(
     SNAPSHOT.name
   );
 
@@ -33,9 +35,25 @@ export function useSnapshotManagement() {
       vmName: s.targetVirtualMachine?.name ?? "-",
       createdAtText: formatDateTime(s.createdAt),
       description: s.description,
+      originalData: s,
     }))
   );
 
+  // 共通ポーリングユーティリティでのポーリング
+  const { startPolling, runOnce, stopPolling, lastUpdatedTime } = createPolling(
+    () => {
+      return Promise.resolve(refresh());
+    },
+    3000
+  );
+  onMounted(() => {
+    void runOnce();
+    startPolling();
+  });
+
+  onUnmounted(() => {
+    stopPolling();
+  });
   return {
     pending,
     error,
@@ -43,6 +61,9 @@ export function useSnapshotManagement() {
     headerButtons,
     displaySnapshots,
     refresh,
+    startPolling,
+    stopPolling,
+    lastUpdatedTime,
     CREATE_SNAPSHOT_ACTION: createSnapshotAction,
     RESTORE_SNAPSHOT_ACTION: restoreSnapshotAction,
     DELETE_SNAPSHOT_ACTION: deleteSnapshotAction,
