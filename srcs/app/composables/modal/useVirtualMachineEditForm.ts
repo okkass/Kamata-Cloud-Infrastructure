@@ -98,6 +98,9 @@ export const useVirtualMachineEditForm = () => {
     if (data.networkInterfaces) {
       data.networkInterfaces.forEach((nic, index) => {
         const nicErrors: { networkId?: string; subnetId?: string } = {};
+        // フォーム上で追加されたが、まだ選択されていない場合のみエラーとする
+        // 削除された場合(配列から消える)はループ対象外なので問題ないはずだが、
+        // 空のオブジェクトが残っている可能性を考慮
         if (!nic.networkId)
           nicErrors.networkId = "ネットワークを選択してください。";
         if (!nic.subnetId)
@@ -129,11 +132,11 @@ export const useVirtualMachineEditForm = () => {
    * 親コンポーネントで watch(() => props.vmData, ...) の中で呼び出されます
    */
   const initializeForm = (data: VirtualMachineResponse) => {
-    // 1. メモリ単位変換 (Bytes -> GB)
-    // UI上ではGBで扱いたいので、初期化時に変換します
+    // 1. メモリ単位変換 (Bytes -> MB)
+    // UI上ではMBで扱いたいので、初期化時に変換します
     const formattedData: VirtualMachineEditForm = {
       ...data,
-      memorySize: convertByteToUnit(data.memorySize, "GB"),
+      memorySize: convertByteToUnit(data.memorySize, "MB"),
       storages: data.storages?.map((storage: any) => ({
         ...storage,
         size: convertByteToUnit(storage.size, "GB"),
@@ -218,15 +221,15 @@ export const useVirtualMachineEditForm = () => {
     updaterError.value = null;
 
     // 退避用変数
-    let currentMemoryGB = 0;
+    let currentMemoryMB = 0;
     let currentStoragesGB: VmStorageForm[] = [];
 
     try {
-      // メモリ単位の逆変換 (GB -> Bytes)
+      // メモリ単位の逆変換 (MB -> Bytes)
       // ResourceUpdater は editedData を直接参照して差分判定するため、
       // 一時的に数値をAPI仕様(Bytes)に戻してあげる必要があります。
-      currentMemoryGB = editedData.value.memorySize;
-      editedData.value.memorySize = convertUnitToByte(currentMemoryGB, "GB");
+      currentMemoryMB = editedData.value.memorySize;
+      editedData.value.memorySize = convertUnitToByte(currentMemoryMB, "MB");
 
       // ストレージ単位の逆変換 (GB -> Bytes)
       if (editedData.value.storages) {
@@ -245,8 +248,8 @@ export const useVirtualMachineEditForm = () => {
       // これが config に従って PATCH (Base) や POST (Bulk) を自動で投げ分けます
       const success = await saveResource();
 
-      // UI表示用に GB に戻す (成功しても失敗しても、画面が開いたままならGBに戻しておく)
-      editedData.value.memorySize = currentMemoryGB;
+      // UI表示用に MB に戻す (成功しても失敗しても、画面が開いたままならMBに戻しておく)
+      editedData.value.memorySize = currentMemoryMB;
       if (editedData.value.storages && currentStoragesGB.length > 0) {
         editedData.value.storages = currentStoragesGB;
       }
@@ -267,7 +270,7 @@ export const useVirtualMachineEditForm = () => {
       addToast({ type: "error", message: "予期せぬエラーが発生しました。" });
 
       // エラー時も復元を試みる
-      if (currentMemoryGB) editedData.value.memorySize = currentMemoryGB;
+      if (currentMemoryMB) editedData.value.memorySize = currentMemoryMB;
       if (
         currentStoragesGB.length > 0 &&
         editedData.value &&

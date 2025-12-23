@@ -48,10 +48,10 @@
             :error="errors?.memorySize"
             :min="1"
             required
-            placeholder="例: 4"
+            placeholder="例: 4096"
           >
             <template #suffix
-              ><span class="ml-2 text-gray-500 text-sm">GB</span></template
+              ><span class="ml-2 text-gray-500 text-sm">MB</span></template
             >
           </FormInput>
         </div>
