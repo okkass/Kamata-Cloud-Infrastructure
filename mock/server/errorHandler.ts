@@ -9,7 +9,7 @@ export default defineNitroErrorHandler(
       statusCode,
       error.statusMessage || error.message || "Internal Server Error"
     );
-
+    setHeader(event, "Content-Type", "application/json");
     setResponseStatus(event, res.status);
     return send(event, JSON.stringify(res));
   }
