@@ -46,6 +46,12 @@ export const initVirtualMachines = (): Array<VirtualMachineResponse> => {
           macAddress: "52:54:00:12:34:56",
           ipAddress: "10.0.0.3",
           subnet: {
+            parent: {
+              id: "5d033001-21fb-45bb-90b2-3c60f248b8c5",
+              name: "Vnet-01",
+              cidr: "10.0.0.0/16",
+              createdAt: new Date().toISOString(),
+            },
             id: "d1f5e8c3-3c4b-4f5a-9f7e-2b6d9e8c9f1a",
             name: "Subnet-01",
             cidr: "10.0.0.0/24",
@@ -93,6 +99,12 @@ export const initVirtualMachines = (): Array<VirtualMachineResponse> => {
           macAddress: "52:54:00:12:34:56",
           ipAddress: "10.0.0.4",
           subnet: {
+            parent: {
+              id: "5d033001-21fb-45bb-90b2-3c60f248b8c5",
+              name: "Vnet-01",
+              cidr: "10.0.0.0/16",
+              createdAt: new Date().toISOString(),
+            },
             id: "d1f5e8c3-3c4b-4f5a-9f7e-2b6d9e8c9f1a",
             name: "Subnet-01",
             cidr: "10.0.0.0/24",
