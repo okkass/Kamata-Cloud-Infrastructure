@@ -181,7 +181,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from "vue";
+import { ref, computed } from "vue";
 import FormInput from "~/components/Form/Input.vue";
 import FormSelect from "~/components/Form/Select.vue";
 import { useResourceList } from "~/composables/useResourceList";
@@ -208,28 +208,6 @@ const networkOptions = computed(() => {
 // ----------------------------------------------------------------------------
 // Network Interfaces Logic
 // ----------------------------------------------------------------------------
-
-// ネットワーク一覧がロードされたら、subnetId から networkId を逆引きして補完する
-watch(
-  [networkMaster, () => model.value.networkInterfaces],
-  ([networks, interfaces]) => {
-    if (!networks || !interfaces) return;
-
-    interfaces.forEach((iface: any) => {
-      // networkId が未設定で、かつ subnetId がある場合
-      if (!iface.networkId && iface.subnetId) {
-        // 全ネットワークのサブネットを走査して、一致する subnetId を持つネットワークを探す
-        const foundNetwork = networks.find((net) =>
-          net.subnets?.some((sub) => sub.id === iface.subnetId)
-        );
-        if (foundNetwork) {
-          iface.networkId = foundNetwork.id;
-        }
-      }
-    });
-  },
-  { immediate: true, deep: true }
-);
 
 const getSubnetOptions = (networkId: string) => {
   const network = networkMaster.value?.find((n) => n.id === networkId);
