@@ -1,9 +1,8 @@
 export default defineNuxtPlugin((nuxtApp) => {
   const runtimeConfig = useRuntimeConfig();
-  const api_url = "/api/";
 
   const apiFetch = $fetch.create({
-    baseURL: runtimeConfig.public.apiBaseUrl + api_url,
+    baseURL: runtimeConfig.public.apiBaseUrl,
     headers: {
       Authorization: "Bearer mock-token", // ハードコードなので、いずれ本物のトークンに置き換える必要があります
     },
