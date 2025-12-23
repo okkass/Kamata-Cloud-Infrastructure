@@ -17,7 +17,9 @@ export const useUser = () => {
     if (user.value !== null) return;
 
     try {
-      const { data } = await useFetch("/api/users/me");
+      const { data } = await useFetch("users/me", {
+        $fetch: useNuxtApp().$apiFetch,
+      });
       user.value = data.value as Record<string, any>;
     } catch (error) {
       console.error("Failed to fetch user:", error);
