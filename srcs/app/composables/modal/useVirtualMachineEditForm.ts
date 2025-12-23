@@ -36,6 +36,7 @@ export const useVirtualMachineEditForm = () => {
       storages: data.storages?.map((storage: any) => ({
         ...storage,
         size: convertByteToUnit(storage.size, "GB"),
+        poolId: storage.pool?.id,
       })),
       networkInterfaces: data.networkInterfaces?.map((iface: any) => ({
         ...iface,
