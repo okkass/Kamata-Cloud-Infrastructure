@@ -53,7 +53,7 @@
 
   <MoSnapshotRestore
     :show="activeModal === RESTORE_SNAPSHOT_ACTION"
-    :target-row="targetForEditing"
+    :snapshot-data="targetForEditing?.originalData || null"
     @close="closeModal"
     @success="onRestoreSuccess"
   />
@@ -68,17 +68,21 @@
 </template>
 
 <script setup lang="ts">
+import { onMounted } from "vue";
 import DashboardLayout from "@/components/DashboardLayout.vue";
 import { useSnapshotManagement } from "~/composables/dashboard/useSnapshotManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import MoSnapshotCreate from "@/components/MoSnapshotCreate.vue";
+import MoSnapshotRestore from "@/components/MoSnapshotRestore.vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
+import { SNAPSHOT } from "@/utils/constants";
 type UiRow = {
   id: string;
   name: string;
   vmName: string;
   createdAtText: string;
   description?: string;
+  originalData?: SnapshotResponse;
 };
 
 const {
@@ -89,6 +93,7 @@ const {
   CREATE_SNAPSHOT_ACTION,
   RESTORE_SNAPSHOT_ACTION,
   DELETE_SNAPSHOT_ACTION,
+  startPolling,
 } = useSnapshotManagement();
 
 const {
@@ -130,4 +135,9 @@ const onRestoreSuccess = async () => {
   closeModal();
   await refresh();
 };
+
+// ポーリング開始（3秒間隔）
+onMounted(() => {
+  startPolling(3000);
+});
 </script>
