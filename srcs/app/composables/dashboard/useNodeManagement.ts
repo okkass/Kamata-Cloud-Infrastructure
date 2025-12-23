@@ -9,6 +9,7 @@
 import { ref, computed } from "vue";
 import { useToast } from "@/composables/useToast";
 import { useResourceList } from "@/composables/useResourceList";
+import { createPolling } from "@/utils/polling";
 
 /** 定数 */
 export const addNodeAction = `add-${NODE.name}`;
@@ -42,6 +43,12 @@ export function useNodeManagement() {
   ]);
   const headerButtons = ref([{ label: "ノード追加", action: "add" }]);
   const switchingNodeId = ref<string | null>(null);
+
+  // ============================================================================
+  // Polling Setup
+  // ============================================================================
+  const { startPolling, stopPolling, runOnce, lastUpdatedTime } =
+    createPolling(refreshNodeList);
 
   // ============================================================================
   // Computed Properties
@@ -117,6 +124,10 @@ export function useNodeManagement() {
     switchingNodeId,
     handleSetAsManagementNode,
     refreshNodeList,
+    startPolling,
+    stopPolling,
+    runOnce,
+    lastUpdatedTime,
     ADD_NODE_ACTION: addNodeAction,
     DELETE_NODE_ACTION: deleteNodeAction,
   };
