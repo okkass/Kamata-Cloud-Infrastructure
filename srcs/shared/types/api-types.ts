@@ -265,7 +265,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンイメージの一意なID */
+                    /**
+                     * @description 仮想マシンイメージの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     imageId: string;
                 };
                 cookie?: never;
@@ -279,6 +282,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["ImageResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -319,7 +331,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンイメージの一意なID */
+                    /**
+                     * @description 仮想マシンイメージの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     imageId: string;
                 };
                 cookie?: never;
@@ -387,7 +402,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンイメージの一意なID */
+                    /**
+                     * @description 仮想マシンイメージの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     imageId: string;
                 };
                 cookie?: never;
@@ -400,6 +418,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
@@ -441,7 +468,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンイメージの一意なID */
+                    /**
+                     * @description 仮想マシンイメージの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     imageId: string;
                 };
                 cookie?: never;
@@ -685,7 +715,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description インスタンスタイプの一意なID */
+                    /**
+                     * @description インスタンスタイプの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     instanceTypeId: string;
                 };
                 cookie?: never;
@@ -699,6 +732,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["InstanceTypeResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -739,7 +781,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description インスタンスタイプの一意なID */
+                    /**
+                     * @description インスタンスタイプの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     instanceTypeId: string;
                 };
                 cookie?: never;
@@ -799,7 +844,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description インスタンスタイプの一意なID */
+                    /**
+                     * @description インスタンスタイプの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     instanceTypeId: string;
                 };
                 cookie?: never;
@@ -813,26 +861,41 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
                 /** @description 認証エラー */
                 401: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 権限エラー */
                 403: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description インスタンスタイプが見つからない */
                 404: {
                     headers: {
                         [name: string]: unknown;
                     };
-                    content?: never;
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
             };
         };
@@ -847,7 +910,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description インスタンスタイプの一意なID */
+                    /**
+                     * @description インスタンスタイプの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     instanceTypeId: string;
                 };
                 cookie?: never;
@@ -1083,7 +1149,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 物理ノードの一意なID */
+                    /**
+                     * @description 物理ノードの一意なI
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     nodeId: string;
                 };
                 cookie?: never;
@@ -1097,6 +1166,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["NodeResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -1137,7 +1215,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 物理ノードの一意なID */
+                    /**
+                     * @description 物理ノードの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     nodeId: string;
                 };
                 cookie?: never;
@@ -1205,7 +1286,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 物理ノードの一意なID */
+                    /**
+                     * @description 物理ノードの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     nodeId: string;
                 };
                 cookie?: never;
@@ -1218,6 +1302,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
@@ -1259,7 +1352,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 物理ノードの一意なID */
+                    /**
+                     * @description 物理ノードの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     nodeId: string;
                 };
                 cookie?: never;
@@ -1335,7 +1431,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 物理ノードの一意なID */
+                    /**
+                     * @description 物理ノードの一意なID
+                     * @example 86c4bfd5-b791-4733-852c-15c8bde42574
+                     */
                     nodeId: string;
                 };
                 cookie?: never;
@@ -1349,6 +1448,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["DeviceResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -1418,6 +1526,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SecurityGroupResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -1532,6 +1649,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SecurityGroupResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -1654,6 +1780,15 @@ export interface paths {
                     };
                     content?: never;
                 };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
                 /** @description 認証エラー */
                 401: {
                     headers: {
@@ -1770,7 +1905,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description セキュリティグループの一意なID */
+                    /**
+                     * @description セキュリティグループの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     groupId: string;
                 };
                 cookie?: never;
@@ -1834,7 +1972,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description セキュリティグループの一意なID */
+                    /**
+                     * @description セキュリティグループの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     groupId: string;
                 };
                 cookie?: never;
@@ -1916,7 +2057,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description セキュリティグループの一意なID */
+                    /**
+                     * @description セキュリティグループの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     groupId: string;
                 };
                 cookie?: never;
@@ -1980,7 +2124,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/security/groups{groupId}/rules/{ruleId}": {
+    "/api/security-groups/{groupId}/rules/{ruleId}": {
         parameters: {
             query?: never;
             header?: never;
@@ -1996,9 +2140,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description セキュリティグループの一意なID */
+                    /**
+                     * @description セキュリティグループの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     groupId: string;
-                    /** @description セキュリティグループルールの一意なID */
+                    /**
+                     * @description セキュリティグループルールの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     ruleId: string;
                 };
                 cookie?: never;
@@ -2061,9 +2211,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description セキュリティグループの一意なID */
+                    /**
+                     * @description セキュリティグループの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     groupId: string;
-                    /** @description セキュリティグループルールの一意なID */
+                    /**
+                     * @description セキュリティグループルールの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     ruleId: string;
                 };
                 cookie?: never;
@@ -2131,9 +2287,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description セキュリティグループの一意なID */
+                    /**
+                     * @description セキュリティグループの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     groupId: string;
-                    /** @description セキュリティグループルールの一意なID */
+                    /**
+                     * @description セキュリティグループルールの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     ruleId: string;
                 };
                 cookie?: never;
@@ -2196,9 +2358,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description セキュリティグループの一意なID */
+                    /**
+                     * @description セキュリティグループの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     groupId: string;
-                    /** @description セキュリティグループルールの一意なID */
+                    /**
+                     * @description セキュリティグループルールの一意なID
+                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                     */
                     ruleId: string;
                 };
                 cookie?: never;
@@ -2453,7 +2621,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description ストレージプールの一意なID */
+                    /**
+                     * @description ストレージプールの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -2467,6 +2638,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["StoragePoolResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -2507,7 +2687,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description ストレージプールの一意なID */
+                    /**
+                     * @description ストレージプールの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -2575,7 +2758,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description ストレージプールの一意なID */
+                    /**
+                     * @description ストレージプールの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -2588,6 +2774,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
@@ -2629,7 +2824,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description ストレージプールの一意なID */
+                    /**
+                     * @description ストレージプールの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -2904,7 +3102,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description ユーザの一意なID */
+                    /**
+                     * @description ユーザの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     userId: string;
                 };
                 cookie?: never;
@@ -2918,6 +3119,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["UserResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -2958,7 +3168,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description ユーザの一意なID */
+                    /**
+                     * @description ユーザの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     userId: string;
                 };
                 cookie?: never;
@@ -3026,7 +3239,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description ユーザの一意なID */
+                    /**
+                     * @description ユーザの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     userId: string;
                 };
                 cookie?: never;
@@ -3039,6 +3255,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
@@ -3080,7 +3305,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description ユーザの一意なID */
+                    /**
+                     * @description ユーザの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     userId: string;
                 };
                 cookie?: never;
@@ -3158,7 +3386,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description ユーザの一意なID */
+                    /**
+                     * @description ユーザの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     userId: string;
                 };
                 cookie?: never;
@@ -3252,6 +3483,15 @@ export interface paths {
                         "application/json": components["schemas"]["BackupResponse"][];
                     };
                 };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
                 /** @description 認証エラー */
                 401: {
                     headers: {
@@ -3328,58 +3568,7 @@ export interface paths {
                 };
             };
         };
-        /**
-         * バックアップの削除
-         * @description 指定したIDのバックアップを削除します。
-         */
-        delete: {
-            parameters: {
-                query: {
-                    /** @description バックアップの一意なID */
-                    backupId: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description 削除成功 */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description バックアップが見つからない */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -3401,7 +3590,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description バックアップの一意なID */
+                    /**
+                     * @description バックアップの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3415,6 +3607,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["BackupResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -3455,7 +3656,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description バックアップの一意なID */
+                    /**
+                     * @description バックアップの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3523,7 +3727,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description バックアップの一意なID */
+                    /**
+                     * @description バックアップの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3536,6 +3743,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
@@ -3577,7 +3793,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description バックアップの一意なID */
+                    /**
+                     * @description バックアップの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3655,7 +3874,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description バックアップの一意なID */
+                    /**
+                     * @description バックアップの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3747,6 +3969,15 @@ export interface paths {
                         "application/json": components["schemas"]["SnapshotResponse"][];
                     };
                 };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
                 /** @description 認証エラー */
                 401: {
                     headers: {
@@ -3823,58 +4054,7 @@ export interface paths {
                 };
             };
         };
-        /**
-         * スナップショットの削除
-         * @description 指定したIDのスナップショットを削除します。
-         */
-        delete: {
-            parameters: {
-                query: {
-                    /** @description スナップショットの一意なID */
-                    snapshotId: string;
-                };
-                header?: never;
-                path?: never;
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description 削除成功 */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description スナップショットが見つからない */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
+        delete?: never;
         options?: never;
         head?: never;
         patch?: never;
@@ -3896,7 +4076,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description スナップショットの一意なID */
+                    /**
+                     * @description スナップショットの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -3910,6 +4093,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SnapshotResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -3950,7 +4142,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description スナップショットの一意なID */
+                    /**
+                     * @description スナップショットの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -4018,7 +4213,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description スナップショットの一意なID */
+                    /**
+                     * @description スナップショットの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -4031,6 +4229,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
@@ -4072,7 +4279,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description スナップショットの一意なID */
+                    /**
+                     * @description スナップショットの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -4150,7 +4360,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description スナップショットの一意なID */
+                    /**
+                     * @description スナップショットの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     id: string;
                 };
                 cookie?: never;
@@ -4251,6 +4464,15 @@ export interface paths {
                         "application/json": components["schemas"]["VirtualMachineResponse"][];
                     };
                 };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
+                };
                 /** @description 認証エラー */
                 401: {
                     headers: {
@@ -4349,7 +4571,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -4363,6 +4588,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["VirtualMachineResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -4403,7 +4637,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -4471,7 +4708,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -4484,6 +4724,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
@@ -4525,7 +4774,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -4601,7 +4853,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -4615,6 +4870,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["NetworkInterfaceResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -4656,7 +4920,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -4729,7 +4996,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -4747,6 +5017,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["NetworkInterfaceResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -4800,9 +5079,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
-                    /** @description ネットワークインターフェースの一意なID */
+                    /**
+                     * @description ネットワークインターフェースの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     nicId: string;
                 };
                 cookie?: never;
@@ -4816,6 +5101,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["NetworkInterfaceResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -4856,9 +5150,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
-                    /** @description ネットワークインターフェースの一意なID */
+                    /**
+                     * @description ネットワークインターフェースの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     nicId: string;
                 };
                 cookie?: never;
@@ -4917,9 +5217,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
-                    /** @description ネットワークインターフェースの一意なID */
+                    /**
+                     * @description ネットワークインターフェースの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     nicId: string;
                 };
                 cookie?: never;
@@ -4932,6 +5238,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
@@ -4973,9 +5288,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
-                    /** @description ネットワークインターフェースの一意なID */
+                    /**
+                     * @description ネットワークインターフェースの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     nicId: string;
                 };
                 cookie?: never;
@@ -5044,7 +5365,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -5058,6 +5382,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["VirtualMachineResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5122,7 +5455,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -5136,6 +5472,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["VirtualMachineResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5198,7 +5543,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -5212,6 +5560,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SecurityGroupResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5253,7 +5610,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -5277,6 +5637,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SecurityGroupResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5322,16 +5691,20 @@ export interface paths {
             cookie?: never;
         };
         get?: never;
+        put?: never;
         /**
          * 仮想マシンセキュリティグループの一括編集
          * @description 指定したIDの仮想マシンにセキュリティグループを一括で編集します。
          */
-        put: {
+        post: {
             parameters: {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -5349,6 +5722,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SecurityGroupResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5380,7 +5762,6 @@ export interface paths {
                 };
             };
         };
-        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -5406,9 +5787,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
-                    /** @description セキュリティグループの一意なID */
+                    /**
+                     * @description セキュリティグループの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     sgId: string;
                 };
                 cookie?: never;
@@ -5421,6 +5808,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
@@ -5474,7 +5870,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -5497,6 +5896,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["VirtualMachineResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5561,7 +5969,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -5584,6 +5995,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["VirtualMachineResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5648,7 +6068,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -5671,6 +6094,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["VirtualMachineResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5733,7 +6165,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -5747,6 +6182,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["StorageResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5788,7 +6232,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -5806,6 +6253,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["StorageResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5861,7 +6317,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
                 };
                 cookie?: never;
@@ -5879,6 +6338,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["StorageResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5932,9 +6400,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
-                    /** @description ストレージの一意なID */
+                    /**
+                     * @description ストレージの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     storageId: string;
                 };
                 cookie?: never;
@@ -5948,6 +6422,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["StorageResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -5988,9 +6471,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
-                    /** @description ストレージの一意なID */
+                    /**
+                     * @description ストレージの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     storageId: string;
                 };
                 cookie?: never;
@@ -6049,9 +6538,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
-                    /** @description ストレージの一意なID */
+                    /**
+                     * @description ストレージの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     storageId: string;
                 };
                 cookie?: never;
@@ -6105,9 +6600,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想マシンの一意なID */
+                    /**
+                     * @description 仮想マシンの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     vmId: string;
-                    /** @description ストレージの一意なID */
+                    /**
+                     * @description ストレージの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     storageId: string;
                 };
                 cookie?: never;
@@ -6188,6 +6689,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["VirtualNetworkResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -6288,7 +6798,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想ネットワークの一意なID */
+                    /**
+                     * @description 仮想ネットワークの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     networkId: string;
                 };
                 cookie?: never;
@@ -6302,6 +6815,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["VirtualNetworkResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -6342,7 +6864,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想ネットワークの一意なID */
+                    /**
+                     * @description 仮想ネットワークの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     networkId: string;
                 };
                 cookie?: never;
@@ -6410,7 +6935,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想ネットワークの一意なID */
+                    /**
+                     * @description 仮想ネットワークの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     networkId: string;
                 };
                 cookie?: never;
@@ -6423,6 +6951,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
@@ -6464,7 +7001,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想ネットワークの一意なID */
+                    /**
+                     * @description 仮想ネットワークの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     networkId: string;
                 };
                 cookie?: never;
@@ -6542,7 +7082,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想ネットワークの一意なID */
+                    /**
+                     * @description 仮想ネットワークの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     networkId: string;
                 };
                 cookie?: never;
@@ -6624,7 +7167,10 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想ネットワークの一意なID */
+                    /**
+                     * @description 仮想ネットワークの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     networkId: string;
                 };
                 cookie?: never;
@@ -6704,9 +7250,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想ネットワークの一意なID */
+                    /**
+                     * @description 仮想ネットワークの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     networkId: string;
-                    /** @description サブネットの一意なID */
+                    /**
+                     * @description サブネットの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     subnetId: string;
                 };
                 cookie?: never;
@@ -6720,6 +7272,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["SubnetResponse"];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -6760,9 +7321,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想ネットワークの一意なID */
+                    /**
+                     * @description 仮想ネットワークの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     networkId: string;
-                    /** @description サブネットの一意なID */
+                    /**
+                     * @description サブネットの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     subnetId: string;
                 };
                 cookie?: never;
@@ -6830,9 +7397,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想ネットワークの一意なID */
+                    /**
+                     * @description 仮想ネットワークの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     networkId: string;
-                    /** @description サブネットの一意なID */
+                    /**
+                     * @description サブネットの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     subnetId: string;
                 };
                 cookie?: never;
@@ -6845,6 +7418,15 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content?: never;
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
+                    };
                 };
                 /** @description 認証エラー */
                 401: {
@@ -6886,9 +7468,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想ネットワークの一意なID */
+                    /**
+                     * @description 仮想ネットワークの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     networkId: string;
-                    /** @description サブネットの一意なID */
+                    /**
+                     * @description サブネットの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     subnetId: string;
                 };
                 cookie?: never;
@@ -6964,9 +7552,15 @@ export interface paths {
                 query?: never;
                 header?: never;
                 path: {
-                    /** @description 仮想ネットワークの一意なID */
+                    /**
+                     * @description 仮想ネットワークの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     networkId: string;
-                    /** @description サブネットの一意なID */
+                    /**
+                     * @description サブネットの一意なID
+                     * @example 12fbed88-2dc4-4537-af98-f1f796046d16
+                     */
                     subnetId: string;
                 };
                 cookie?: never;
@@ -6980,6 +7574,15 @@ export interface paths {
                     };
                     content: {
                         "application/json": components["schemas"]["VirtualMachineResponse"][];
+                    };
+                };
+                /** @description リクエストエラー */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": components["schemas"]["ErrorResponse"];
                     };
                 };
                 /** @description 認証エラー */
@@ -7299,8 +7902,7 @@ export interface components {
              */
             protocol: "tcp" | "udp" | "icmp" | "any";
             /**
-             * Format: ipv4
-             * @description ターゲットIPアドレス
+             * @description ターゲットIPアドレス(CIDR表記)
              * @example 192.0.2.0/24
              */
             targetIp: string;
@@ -7366,8 +7968,7 @@ export interface components {
              */
             protocol?: "tcp" | "udp" | "icmp" | "any";
             /**
-             * Format: ipv4
-             * @description ターゲットIPアドレス
+             * @description ターゲットIPアドレス(CIDR表記)
              * @example 192.0.2.0/24
              */
             targetIp?: string;
@@ -7840,9 +8441,9 @@ export interface components {
             /** @description 仮想マシンに関連付けられたセキュリティグループのリスト */
             securityGroups: components["schemas"]["SecurityGroupResponse"][];
             /** @description アタッチされたストレージのリスト */
-            storages?: components["schemas"]["StorageResponse"][];
+            storages: components["schemas"]["StorageResponse"][];
             /** @description アタッチされたネットワークインターフェースのリスト */
-            networkInterfaces?: components["schemas"]["NetworkInterfaceResponse"][];
+            networkInterfaces: components["schemas"]["NetworkInterfaceResponse"][];
             /**
              * Format: float
              * @description CPU使用率（0.0から1.0の範囲）
