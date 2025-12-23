@@ -1,21 +1,27 @@
 // 仮想ネットワーク用の簡易 composable（ページ単体で動くように最小実装）
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
+import { NETWORK } from "@/utils/constants";
 import { formatDateTime } from "@/utils/date";
+import { createPolling } from "@/utils/polling";
+import type { VirtualNetworkResponse } from "~~/shared/types";
 
-export interface VnetRow {
+export type VnetRow = {
   id: string;
   name: string;
   cidr: string;
   subnets: number;
   createdAtText: string;
-  dto: VirtualNetworkResponse;
-}
+  originalData?: VirtualNetworkResponse;
+};
+
+const RESOURCE_NAME = NETWORK.name;
+export const CREATE_VNET_ACTION = `create-${RESOURCE_NAME}`;
+export const EDIT_VNET_ACTION = `edit-${RESOURCE_NAME}`;
+export const DELETE_VNET_ACTION = `delete-${RESOURCE_NAME}`;
 
 /**
  * useVNetManagement
- * - DTO は共有型を使う（ページで DTO を再定義しない）
- * - 行型はページ側で定義するためここでは any を返す形にしている
  */
 export function useVNetManagement() {
   const {
@@ -23,28 +29,43 @@ export function useVNetManagement() {
     pending,
     refresh,
     error,
-  } = useResourceList<VirtualNetworkResponse>("virtual-networks");
+  } = useResourceList<VirtualNetworkResponse>(RESOURCE_NAME);
 
-  const columns: TableColumn[] = [
-    { key: "name", label: "名前", align: "left" },
-    { key: "cidr", label: "CIDR", align: "left" },
-    { key: "subnets", label: "サブネット数", align: "right" },
-    { key: "createdAtText", label: "作成日時", align: "left" },
+  const { startPolling, stopPolling, runOnce, lastUpdatedTime } = createPolling(
+    async () => {
+      await refresh();
+    }
+  );
+
+  // マウント時に即時実行し、その後ポーリング開始。アンマウント時に停止。
+  onMounted(() => {
+    void runOnce();
+    startPolling();
+  });
+
+  onUnmounted(() => {
+    stopPolling();
+  });
+
+  const columns = [
+    { key: "name", label: "名前", align: "left" as const },
+    { key: "cidr", label: "CIDR", align: "left" as const },
+    { key: "subnets", label: "サブネット数", align: "right" as const },
+    { key: "createdAtText", label: "作成日時", align: "left" as const },
   ];
 
-  // DashboardLayout 側が emit する値と揃える ("add")
   const headerButtons = [
     { action: "add", label: "仮想ネットワーク作成", primary: true },
   ];
 
-  const rows: ComputedRef<VnetRow[]> = computed(() =>
+  const rows = computed<VnetRow[]>(() =>
     (rawList.value ?? []).map((v: VirtualNetworkResponse) => ({
       id: v.id,
       name: v.name ?? "-",
       cidr: v.cidr ?? "-",
       subnets: Array.isArray(v.subnets) ? v.subnets.length : 0,
       createdAtText: v.createdAt ? formatDateTime(v.createdAt) : "-",
-      dto: v,
+      originalData: v,
     }))
   );
 
@@ -55,5 +76,11 @@ export function useVNetManagement() {
     headerButtons,
     rows,
     refresh,
+    lastUpdatedTime,
+    startPolling,
+    stopPolling,
+    CREATE_VNET_ACTION,
+    EDIT_VNET_ACTION,
+    DELETE_VNET_ACTION,
   } as const;
 }
