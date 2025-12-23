@@ -39,16 +39,19 @@
           v-if="editedData"
           v-show="activeTab === 'general'"
           v-model="editedData"
+          :errors="validationErrors"
         />
         <TabConfig
           v-if="editedData"
           v-show="activeTab === 'config'"
           v-model="editedData"
+          :errors="validationErrors"
         />
         <TabNetwork
           v-if="editedData"
           v-show="activeTab === 'network'"
           v-model="editedData"
+          :errors="validationErrors"
         />
       </div>
     </div>
@@ -80,7 +83,7 @@
             type="button"
             @click="submitForm"
             class="btn btn-primary"
-            :disabled="isSaving || !editedData"
+            :disabled="!canSave"
           >
             {{ isSaving ? "保存中..." : "保存" }}
           </button>
@@ -115,8 +118,16 @@ const tabs = [
   { id: "network", label: "ネットワーク" },
 ] as const;
 
-const { activeTab, editedData, isSaving, updaterError, initializeForm, save } =
-  useVirtualMachineEditForm();
+const {
+  activeTab,
+  editedData,
+  isSaving,
+  updaterError,
+  initializeForm,
+  save,
+  validationErrors,
+  canSave,
+} = useVirtualMachineEditForm();
 
 const currentTabIndex = computed(() =>
   tabs.findIndex((t) => t.id === activeTab.value)

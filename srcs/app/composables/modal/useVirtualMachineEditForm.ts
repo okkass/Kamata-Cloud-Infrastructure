@@ -1,10 +1,31 @@
-import { ref } from "vue";
+import { ref, computed } from "vue";
 import { useToast } from "~/composables/useToast";
 import {
   useResourceUpdater,
   type ResourceConfig,
 } from "~/composables/useResourceUpdater";
 import { convertByteToUnit, convertUnitToByte } from "~/utils/format";
+
+// フォーム用の拡張型: 既存のレスポンス型にUI用の補助フィールドを追加
+type VmStorageForm = NonNullable<
+  VirtualMachineResponse["storages"]
+> extends Array<infer T>
+  ? T & { poolId?: string }
+  : never;
+
+type VmNetworkInterfaceForm = NonNullable<
+  VirtualMachineResponse["networkInterfaces"]
+> extends Array<infer T>
+  ? T & { subnetId?: string; networkId?: string }
+  : never;
+
+type VirtualMachineEditForm = Omit<
+  VirtualMachineResponse,
+  "storages" | "networkInterfaces"
+> & {
+  storages?: VmStorageForm[];
+  networkInterfaces?: VmNetworkInterfaceForm[];
+};
 
 export const useVirtualMachineEditForm = () => {
   const { addToast } = useToast();
@@ -19,9 +40,83 @@ export const useVirtualMachineEditForm = () => {
     init,
     save: saveResource, // 名前重複回避のためエイリアス
     isDirty,
-  } = useResourceUpdater<VirtualMachineResponse>();
+  } = useResourceUpdater<VirtualMachineEditForm>();
 
   const updaterError = ref<string | null>(null);
+
+  // エラーメッセージの状態
+  const validationErrors = computed(() => {
+    const errors: {
+      name?: string;
+      cpuCore?: string;
+      memorySize?: string;
+      storages: Record<
+        number,
+        { name?: string; size?: string; poolId?: string }
+      >;
+      networkInterfaces: Record<
+        number,
+        { networkId?: string; subnetId?: string }
+      >;
+    } = {
+      storages: {},
+      networkInterfaces: {},
+    };
+    const data = editedData.value;
+    if (!data) return errors;
+
+    // 基本情報
+    if (!data.name || !data.name.trim()) errors.name = "名前は必須です。";
+    if (!data.cpuCore || data.cpuCore < 1)
+      errors.cpuCore = "1以上の値を指定してください。";
+    if (!data.memorySize || data.memorySize < 1)
+      errors.memorySize = "1以上の値を指定してください。";
+
+    // ストレージ
+    if (data.storages) {
+      data.storages.forEach((s, index) => {
+        const storageErrors: { name?: string; size?: string; poolId?: string } =
+          {};
+        if (!s.name || !s.name.trim()) storageErrors.name = "名前は必須です。";
+        if (!s.size || s.size <= 0)
+          storageErrors.size = "正の数値を指定してください。";
+        if (!s.poolId) storageErrors.poolId = "プールを選択してください。";
+
+        if (Object.keys(storageErrors).length > 0) {
+          errors.storages[index] = storageErrors;
+        }
+      });
+    }
+
+    // ネットワーク
+    if (data.networkInterfaces) {
+      data.networkInterfaces.forEach((nic, index) => {
+        const nicErrors: { networkId?: string; subnetId?: string } = {};
+        if (!nic.networkId)
+          nicErrors.networkId = "ネットワークを選択してください。";
+        if (!nic.subnetId)
+          nicErrors.subnetId = "サブネットを選択してください。";
+
+        if (Object.keys(nicErrors).length > 0) {
+          errors.networkInterfaces[index] = nicErrors;
+        }
+      });
+    }
+
+    return errors;
+  });
+
+  // バリデーションチェック
+  const isValid = computed(() => {
+    const e = validationErrors.value;
+    if (e.name || e.cpuCore || e.memorySize) return false;
+    if (Object.keys(e.storages).length > 0) return false;
+    if (Object.keys(e.networkInterfaces).length > 0) return false;
+    return true;
+  });
+
+  // 保存ボタンの活性状態
+  const canSave = computed(() => isDirty.value && isValid.value);
 
   /**
    * フォーム初期化
@@ -30,7 +125,7 @@ export const useVirtualMachineEditForm = () => {
   const initializeForm = (data: VirtualMachineResponse) => {
     // 1. メモリ単位変換 (Bytes -> GB)
     // UI上ではGBで扱いたいので、初期化時に変換します
-    const formattedData = {
+    const formattedData: VirtualMachineEditForm = {
       ...data,
       memorySize: convertByteToUnit(data.memorySize, "GB"),
       storages: data.storages?.map((storage: any) => ({
@@ -98,6 +193,18 @@ export const useVirtualMachineEditForm = () => {
   const save = async (emit: (event: "success" | "close") => void) => {
     if (!editedData.value) return;
 
+    // 変更がない場合
+    if (!isDirty.value) {
+      addToast({ type: "warning", message: "変更がありません。" });
+      return;
+    }
+
+    // バリデーションエラーの場合（ボタンが無効化されているはずだが念のため）
+    if (!isValid.value) {
+      addToast({ type: "error", message: "入力内容に不備があります。" });
+      return;
+    }
+
     // 保存開始
     isSaving.value = true;
     updaterError.value = null;
@@ -144,10 +251,12 @@ export const useVirtualMachineEditForm = () => {
         // useResourceUpdater 内部でエラー時は false が返り、errorMessage に詳細が入る想定ですが、
         // ここでは汎用メッセージを出しています。必要に応じて updaterError を参照してください。
         updaterError.value = "保存に失敗しました。";
+        addToast({ type: "error", message: "保存に失敗しました。" });
       }
     } catch (err: unknown) {
       console.error(err);
       updaterError.value = "予期せぬエラーが発生しました。";
+      addToast({ type: "error", message: "予期せぬエラーが発生しました。" });
 
       // エラー時も復元を試みる
       if (currentMemoryGB) editedData.value.memorySize = currentMemoryGB;
@@ -167,7 +276,10 @@ export const useVirtualMachineEditForm = () => {
     activeTab,
     editedData,
     isSaving,
-    isDirty, // 保存ボタンの活性制御に使えます
+    isDirty,
+    isValid,
+    validationErrors,
+    canSave, // UI側でボタンのdisabled制御に使用
     updaterError,
     initializeForm,
     save,

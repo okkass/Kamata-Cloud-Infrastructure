@@ -33,7 +33,7 @@
                 label="名前"
                 :name="`storage-name-${index}`"
                 v-model="storage.name"
-                :error="getError(index, 'name')"
+                :error="errors?.[index]?.name"
                 placeholder="disk-1"
                 class="w-full"
               />
@@ -45,7 +45,7 @@
                 :name="`storage-size-${index}`"
                 type="number"
                 v-model.number="storage.size"
-                :error="getError(index, 'size')"
+                :error="errors?.[index]?.size"
                 :disabled="storage.type === 'backup'"
                 :title="
                   storage.type === 'backup'
@@ -62,7 +62,7 @@
                 :name="`storage-pool-${index}`"
                 v-model="storage.poolId"
                 :options="storagePools"
-                :errorMessage="getError(index, 'poolId')"
+                :errorMessage="errors?.[index]?.poolId"
                 placeholder="プールを選択"
                 class="w-full"
               />
@@ -105,38 +105,11 @@ import FormSelect from "~/components/Form/Select.vue";
 // 型定義は環境に合わせて適宜調整してください
 // import type { StoragePoolResponse } from "~~/shared/types";
 
-const props = defineProps({
-  // 親でアンラップ済みのストレージ配列を受け取る
-  storages: {
-    type: Array as PropType<any[]>,
-    default: () => [],
-  },
-  // ストレージプールの選択肢
-  storagePools: {
-    type: Array as PropType<any[]>,
-    default: () => [],
-  },
-  // バリデーションエラーオブジェクト
-  errors: {
-    type: Object as PropType<Record<string, string | undefined>>,
-    default: () => ({}),
-  },
-  // エラーキーのプレフィックス (例: "storages")
-  fieldNamePrefix: {
-    type: String,
-    default: "storages",
-  },
-});
+const props = defineProps<{
+  storages: any[];
+  storagePools: any[];
+  errors?: Record<number, { name?: string; size?: string; poolId?: string }>;
+}>();
 
 defineEmits(["add", "remove"]);
-
-// エラー取得ヘルパー
-const getError = (index: number, field: string) => {
-  const prefix = props.fieldNamePrefix;
-  // 配列形式のエラーキーに対応 (storages[0].name または storages.0.name)
-  return (
-    props.errors[`${prefix}[${index}].${field}`] ||
-    props.errors[`${prefix}.${index}.${field}`]
-  );
-};
 </script>

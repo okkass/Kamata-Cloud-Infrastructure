@@ -45,6 +45,7 @@
                 :name="`net-id-${index}`"
                 v-model="iface.networkId"
                 :options="networkOptions"
+                :errorMessage="errors?.networkInterfaces?.[index]?.networkId"
                 placeholder="ネットワークを選択"
                 @update:model-value="iface.subnetId = ''"
               />
@@ -54,6 +55,7 @@
                 :name="`subnet-id-${index}`"
                 v-model="iface.subnetId"
                 :options="getSubnetOptions(iface.networkId)"
+                :errorMessage="errors?.networkInterfaces?.[index]?.subnetId"
                 placeholder="サブネットを選択"
                 :disabled="!iface.networkId"
               />
@@ -188,6 +190,10 @@ import { useResourceList } from "~/composables/useResourceList";
 
 // 親コンポーネントからのモデル受け取り
 const model = defineModel<any>({ required: true });
+
+const props = defineProps<{
+  errors?: Record<string, any>;
+}>();
 
 // ----------------------------------------------------------------------------
 // Network Data Fetching

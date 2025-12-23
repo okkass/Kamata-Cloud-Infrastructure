@@ -30,6 +30,7 @@
             name="cpuCore"
             type="number"
             v-model.number="model.cpuCore"
+            :error="errors?.cpuCore"
             :min="1"
             required
             placeholder="例: 2"
@@ -44,6 +45,7 @@
             name="memorySize"
             type="number"
             v-model.number="model.memorySize"
+            :error="errors?.memorySize"
             :min="1"
             required
             placeholder="例: 4"
@@ -85,6 +87,7 @@
         <StorageConfigTable
           :storages="model.storages"
           :storage-pools="storagePools"
+          :errors="errors?.storages"
           @add="handleAddStorage"
           @remove="handleRemoveStorage"
         />
@@ -101,6 +104,16 @@ import { useResourceList } from "~/composables/useResourceList";
 
 // 親コンポーネントからのデータ
 const model = defineModel<any>({ required: true });
+defineProps<{
+  errors?: {
+    cpuCore?: string;
+    memorySize?: string;
+    storages?: Record<
+      number,
+      { name?: string; size?: string; poolId?: string }
+    >;
+  };
+}>();
 
 // ★ useResourceList を活用 (型は適宜 interface StoragePoolResponse 等に置き換えてください)
 const { data: poolData, pending } =

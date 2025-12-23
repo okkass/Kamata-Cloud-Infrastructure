@@ -9,6 +9,7 @@
         label="名前"
         name="name"
         v-model="model.name"
+        :error="errors?.name"
         placeholder="例: web-server-01"
         required
         class="w-full"
@@ -25,4 +26,7 @@ import FormInput from "~/components/Form/Input.vue"; // パスは環境に合わ
  * useResourceUpdater で管理されている editedData がここに入ります。
  */
 const model = defineModel<any>({ required: true });
+defineProps<{
+  errors?: { name?: string };
+}>();
 </script>
