@@ -40,11 +40,20 @@ export function useSnapshotManagement() {
   );
 
   // 共通ポーリングユーティリティでのポーリング
-  const { startPolling, stopPolling, lastUpdatedTime } = createPolling(() => {
-    return Promise.resolve(refresh());
-  }, 3000);
-  onUnmounted(() => stopPolling());
+  const { startPolling, runOnce, stopPolling, lastUpdatedTime } = createPolling(
+    () => {
+      return Promise.resolve(refresh());
+    },
+    3000
+  );
+  onMounted(() => {
+    void runOnce();
+    startPolling();
+  });
 
+  onUnmounted(() => {
+    stopPolling();
+  });
   return {
     pending,
     error,

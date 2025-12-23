@@ -70,20 +70,15 @@
 <script setup lang="ts">
 import { onMounted } from "vue";
 import DashboardLayout from "@/components/DashboardLayout.vue";
-import { useSnapshotManagement } from "~/composables/dashboard/useSnapshotManagement";
+import {
+  useSnapshotManagement,
+  type SnapshotRow,
+} from "~/composables/dashboard/useSnapshotManagement";
 import { usePageActions } from "@/composables/usePageActions";
 import MoSnapshotCreate from "@/components/MoSnapshotCreate.vue";
 import MoSnapshotRestore from "@/components/MoSnapshotRestore.vue";
 import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
 import { SNAPSHOT } from "@/utils/constants";
-type UiRow = {
-  id: string;
-  name: string;
-  vmName: string;
-  createdAtText: string;
-  description?: string;
-  originalData?: SnapshotResponse;
-};
 
 const {
   columns,
@@ -93,7 +88,6 @@ const {
   CREATE_SNAPSHOT_ACTION,
   RESTORE_SNAPSHOT_ACTION,
   DELETE_SNAPSHOT_ACTION,
-  startPolling,
 } = useSnapshotManagement();
 
 const {
@@ -106,7 +100,7 @@ const {
   handleRowAction,
   handleDelete,
   cancelAction,
-} = usePageActions<UiRow>({
+} = usePageActions<SnapshotRow>({
   resourceName: SNAPSHOT.name,
   resourceLabel: SNAPSHOT.label,
   refresh,
@@ -117,7 +111,7 @@ const handleHeaderAction = (action: string) => {
     openModal(CREATE_SNAPSHOT_ACTION);
   }
 };
-const onRowAction = ({ action, row }: { action: string; row: UiRow }) => {
+const onRowAction = ({ action, row }: { action: string; row: SnapshotRow }) => {
   if (action === "restore") {
     targetForEditing.value = row;
     openModal(RESTORE_SNAPSHOT_ACTION);
@@ -136,8 +130,4 @@ const onRestoreSuccess = async () => {
   await refresh();
 };
 
-// ポーリング開始（3秒間隔）
-onMounted(() => {
-  startPolling(3000);
-});
 </script>
