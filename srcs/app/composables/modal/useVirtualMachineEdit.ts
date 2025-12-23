@@ -71,8 +71,8 @@ export function useVirtualMachineEdit(props: Props) {
       const currentVmId = props.vmId;
       if (!currentVmId) return null;
       try {
-        return await $fetch<VirtualMachineDTO>(
-          `/api/virtual-machines/${currentVmId}`
+        return await useNuxtApp().$apiFetch<VirtualMachineDTO>(
+          `virtual-machines/${currentVmId}`
         );
       } catch (fetchError: any) {
         throw createError({
