@@ -395,275 +395,25 @@ export interface paths {
          * 物理ノードの詳細取得
          * @description 指定したIDの物理ノードの詳細情報を取得します。
          */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description 物理ノードの一意なI
-                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
-                     */
-                    nodeId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description 成功 */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["NodeResponse"];
-                    };
-                };
-                /** @description リクエストエラー */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 物理ノードが見つからない */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
+        get: operations["getNodeById"];
         /**
          * 物理ノードの更新
          * @description 指定したIDの物理ノード情報を更新します。
          */
-        put: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description 物理ノードの一意なID
-                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
-                     */
-                    nodeId: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["NodePutRequest"];
-                };
-            };
-            responses: {
-                /** @description 更新成功 */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["NodeResponse"];
-                    };
-                };
-                /** @description リクエストエラー */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 物理ノードが見つからない */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
+        put: operations["putNodeById"];
         post?: never;
         /**
          * 物理ノードの削除
          * @description 指定したIDの物理ノードを削除します。
          */
-        delete: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description 物理ノードの一意なID
-                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
-                     */
-                    nodeId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description 削除成功 */
-                204: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content?: never;
-                };
-                /** @description リクエストエラー */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 物理ノードが見つからない */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
+        delete: operations["deleteNodeById"];
         options?: never;
         head?: never;
         /**
          * 物理ノードの部分更新
          * @description 指定したIDの物理ノード情報を更新します。
          */
-        patch: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description 物理ノードの一意なID
-                     * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
-                     */
-                    nodeId: string;
-                };
-                cookie?: never;
-            };
-            requestBody: {
-                content: {
-                    "application/json": components["schemas"]["NodePatchRequest"];
-                };
-            };
-            responses: {
-                /** @description 更新成功 */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["NodeResponse"];
-                    };
-                };
-                /** @description リクエストエラー */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 物理ノードが見つからない */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
+        patch: operations["patchNodeById"];
         trace?: never;
     };
     "/api/nodes/{nodeId}/new-devices": {
@@ -677,68 +427,7 @@ export interface paths {
          * ノードに新規接続されたストレージデバイスの一覧取得
          * @description 指定したIDの物理ノードに新規接続されたストレージデバイスの一覧を取得します。
          */
-        get: {
-            parameters: {
-                query?: never;
-                header?: never;
-                path: {
-                    /**
-                     * @description 物理ノードの一意なID
-                     * @example 86c4bfd5-b791-4733-852c-15c8bde42574
-                     */
-                    nodeId: string;
-                };
-                cookie?: never;
-            };
-            requestBody?: never;
-            responses: {
-                /** @description 成功 */
-                200: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["DeviceResponse"][];
-                    };
-                };
-                /** @description リクエストエラー */
-                400: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 認証エラー */
-                401: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 権限エラー */
-                403: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-                /** @description 物理ノードが見つからない */
-                404: {
-                    headers: {
-                        [name: string]: unknown;
-                    };
-                    content: {
-                        "application/json": components["schemas"]["ErrorResponse"];
-                    };
-                };
-            };
-        };
+        get: operations["getNodeNewDevices"];
         put?: never;
         post?: never;
         delete?: never;
@@ -6923,25 +6612,35 @@ export interface components {
             /**
              * Format: uuid
              * @description 物理ノードを識別するための一意なID
+             * @example 194d84d4-8811-4ff1-bb68-0e0734990018
              */
             id: string;
-            /** @description 物理ノードの名前 */
+            /**
+             * @description 物理ノードの名前
+             * @example node-01
+             */
             name: string;
             /**
              * Format: ipv4
              * @description 物理ノードのIPアドレス
+             * @example 192.168.0.1
              */
             ipAddress: string;
             /**
              * @description 物理ノードの状態
+             * @example active
              * @enum {string}
              */
             status: "active" | "inactive";
-            /** @description 物理ノードが管理ノードかどうかを示すフラグ */
+            /**
+             * @description 物理ノードが管理ノードかどうかを示すフラグ
+             * @example true
+             */
             isAdmin: boolean;
             /**
              * Format: date-time
              * @description 物理ノードが作成された日時
+             * @example 2024-01-15T10:00:00Z
              */
             createdAt: string;
             /**
@@ -7127,16 +6826,31 @@ export interface components {
         NodeCreateRequest: components["schemas"]["NodeCreateOnly"] & components["schemas"]["NodeUpdatable"];
         /** @description 物理ノード候補レスポンスオブジェクト */
         NodeCandidateResponse: {
-            /** @description 物理ノードの名前 */
+            /**
+             * @description 物理ノードの名前
+             * @example node-01
+             */
             name: string;
             /**
              * Format: ipv4
              * @description 物理ノードのIPアドレス
+             * @example 10.0.0.1
              */
             ipAddress: string;
         };
         /** @description 物理ノード更新リクエストオブジェクト(PUT) */
-        NodePutRequest: WithRequired<components["schemas"]["NodeUpdatable"], "name" | "isAdmin">;
+        NodePutRequest: {
+            /**
+             * @description 物理ノードの名前
+             * @example node-01
+             */
+            name: string;
+            /**
+             * @description 物理ノードが管理ノードかどうかを示すフラグ
+             * @example true
+             */
+            isAdmin: boolean;
+        };
         /** @description 物理ノード更新リクエストオブジェクト(PATCH) */
         NodePatchRequest: components["schemas"]["NodeUpdatable"];
         /** @description ストレージデバイス情報のレスポンスプロパティ */
@@ -8901,12 +8615,86 @@ export interface operations {
         };
         requestBody: {
             content: {
+                /**
+                 * @example {
+                 *       "ipAddress": "10.0.0.1",
+                 *       "rootPassword": "ExamplePassword123!",
+                 *       "name": "node-01",
+                 *       "isAdmin": true
+                 *     }
+                 */
                 "application/json": components["schemas"]["NodeCreateRequest"];
             };
         };
         responses: {
             /** @description 作成成功 */
             201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    /**
+                     * @example {
+                     *       "id": "ff324fb4-18a0-432f-a2fa-d10d57123967",
+                     *       "name": "node-01",
+                     *       "ipAddress": "10.0.0.1",
+                     *       "status": "active",
+                     *       "isAdmin": true,
+                     *       "createdAt": "2024-01-15T10:00:00Z",
+                     *       "cpuUtilization": 0.45,
+                     *       "memoryUtilization": 0.55,
+                     *       "storageUtilization": 0.65
+                     *     }
+                     */
+                    "application/json": components["schemas"]["NodeResponse"];
+                };
+            };
+            /** @description リクエストエラー */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 認証エラー */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 権限エラー */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getNodeById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 物理ノードの一意なID
+                 * @example a2dcd604-49cb-4e1c-826a-2071d50404a3
+                 */
+                nodeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8934,6 +8722,269 @@ export interface operations {
             };
             /** @description 権限エラー */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 物理ノードが見つからない */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    putNodeById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 物理ノードの一意なID
+                 * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                 */
+                nodeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NodePutRequest"];
+            };
+        };
+        responses: {
+            /** @description 更新成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NodeResponse"];
+                };
+            };
+            /** @description リクエストエラー */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 認証エラー */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 権限エラー */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 物理ノードが見つからない */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    deleteNodeById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 物理ノードの一意なID
+                 * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                 */
+                nodeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 削除成功 */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description リクエストエラー */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 認証エラー */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 権限エラー */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 物理ノードが見つからない */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    patchNodeById: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 物理ノードの一意なID
+                 * @example bba6cb32-c841-4ace-9bc8-c3c5288b2e5f
+                 */
+                nodeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["NodePatchRequest"];
+            };
+        };
+        responses: {
+            /** @description 更新成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NodeResponse"];
+                };
+            };
+            /** @description リクエストエラー */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 認証エラー */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 権限エラー */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 物理ノードが見つからない */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+        };
+    };
+    getNodeNewDevices: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /**
+                 * @description 物理ノードの一意なID
+                 * @example 86c4bfd5-b791-4733-852c-15c8bde42574
+                 */
+                nodeId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description 成功 */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceResponse"][];
+                };
+            };
+            /** @description リクエストエラー */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 認証エラー */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 権限エラー */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorResponse"];
+                };
+            };
+            /** @description 物理ノードが見つからない */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
