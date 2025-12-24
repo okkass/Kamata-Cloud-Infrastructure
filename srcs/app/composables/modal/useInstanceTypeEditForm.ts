@@ -61,7 +61,7 @@ export const useInstanceTypeEditForm = (props: Props) => {
       values: {
         name: data.name,
         cpuCore: data.cpuCore,
-        memorySize: convertByteToUnit(data.memorySize, "MB"),
+        memorySize: convertByteToUnit(data.memorySize, "MB", false),
       },
     });
   };
@@ -104,35 +104,34 @@ export const useInstanceTypeEditForm = (props: Props) => {
    * [推奨]: useResourceUpdater の save() を使用して標準化
    */
   const save = (emit: any) => {
-    const submitHandler = handleFormSubmit<
-      InstanceTypeUpdateInput,
-      InstanceTypeResponse
-    >(
-      handleSubmit,
-      {
-        execute: async () => {
-          const success = await updaterSave();
-          return { success };
-        },
-        onSuccess: () => {
-          resetForm();
-        },
-        onSuccessMessage: () =>
-          `インスタンスタイプ「${name.value}」を更新しました。`,
-      },
-      emit
-    );
-
-    return async (e?: Event) => {
+    return handleSubmit(async () => {
+      // [必須]: バリデーション通過後に isDirty チェック
       if (!isDirty.value) {
         addToast({
           message: "変更がありません。",
-          type: "info",
+          type: "warning", // [推奨]: warning に変更
         });
         return;
       }
-      return submitHandler(e);
-    };
+
+      const success = await updaterSave();
+
+      if (success) {
+        addToast({
+          message: `インスタンスタイプ「${name.value}」を更新しました。`,
+          type: "success",
+        });
+        resetForm();
+        emit("success");
+        emit("close");
+      } else {
+        addToast({
+          message: "処理に失敗しました。",
+          type: "error",
+          details: errorMessage.value,
+        });
+      }
+    });
   };
 
   const close = (emit: any) => makeHandleClose(resetForm, emit);
