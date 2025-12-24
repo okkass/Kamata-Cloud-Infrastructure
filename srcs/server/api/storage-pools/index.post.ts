@@ -1,15 +1,18 @@
-// ストレージプール作成のMockAPI
+import { createResource } from "@@/server/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@@/server/utils/permission";
+import { getStoragePoolService } from "@@/server/service/StoragePoolService";
+import { createStoragePoolSchema } from "@@/server/zodSchemas";
+import { StoragePoolCreateRequest } from "@@/shared/types";
 
 export default defineEventHandler(async (event) => {
+  const permission = getPermissionFromEvent(event);
   const body = await readBody(event);
-  console.log("Received storage pool creation request:", body);
-  return {
-    id: "gred4h76-1234-4c37-bd6e-06da5bb7fc52",
-    name: body.name,
-    nodeId: body.nodeId,
-    createdAt: new Date().toISOString(),
-    totalSize: 1000 * 1024 * 1024 * 1024, // 1 TB
-    usedSize: 0,
-    hasNetworkAccess: body.hasNetworkAccess,
-  };
+  const service = getStoragePoolService(permission);
+
+  setResponseStatus(event, 201);
+  return createResource(
+    body as StoragePoolCreateRequest,
+    createStoragePoolSchema,
+    service.create
+  );
 });
