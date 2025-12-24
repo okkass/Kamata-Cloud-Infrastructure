@@ -12,15 +12,51 @@ import { useAsyncData } from "#app";
 // ★ 汎用更新 Composable をインポート
 import { useResourceUpdate } from "~/composables/useResourceEdit"; //
 
-// ★ 型定義 (virtual-machines.ts を参照)
-import type {
-  VirtualMachineDTO,
-  VirtualMachineUpdateRequestDTO,
-  AttachedStorageDTO,
-  NetworkInterfaceDTO,
-  VirtualStorageDTO, // createdAt を渡すために使用
-} from "~~/shared/types/dto/virtual-machine"; //
-import type { InstanceTypeDTO as ModelInstanceTypeDTO } from "~~/shared/types/dto/instance-type"; //
+// ★ ローカル型定義（当ファイル内で使用する最低限の構造）
+interface VirtualStorageDTO {
+  id: string;
+  name: string;
+  size: number; // Bytes
+  poolId: string;
+  createdAt?: string;
+}
+
+interface AttachedStorageDTO {
+  id: string;
+  storage: VirtualStorageDTO;
+  path: string; // 例: "/dev/sda" | "/dev/vdb"
+}
+
+interface NetworkInterfaceDTO {
+  id: string;
+  subnetId?: string | null;
+  name: string;
+  macAddress?: string;
+  ipAddress?: string;
+}
+
+interface VirtualMachineDTO {
+  id: string;
+  name: string;
+  node?: { id: string } | null;
+  // インスタンスタイプがある場合の簡易構造
+  instanceType?: { id: string; cpuCore: number; memorySize: number } | null;
+  cpuCore?: number;
+  memorySize?: number; // Bytes
+  attachedStorages?: AttachedStorageDTO[];
+  attachedNics?: NetworkInterfaceDTO[];
+  securityGroups?: { id: string }[];
+}
+
+interface VirtualMachineUpdateRequestDTO {
+  name?: string;
+  instanceType?: { id: string };
+  cpuCore?: number;
+  memorySize?: number; // Bytes
+  attachedStorages?: AttachedStorageDTO[];
+  attachedNics?: NetworkInterfaceDTO[];
+  securityGroupIds?: string[];
+}
 
 // ★ タブコンポーネント
 import VmEditTabGeneral from "~/components/vm-edit-tabs/VmEditTabGeneral.vue"; //
@@ -32,7 +68,7 @@ interface Props {
   show: boolean;
   vmId: string | null;
   /** 行データが直接渡される場合に使用（ストレージ同様の渡し方）*/
-  virtualMachine?: any | null;
+  virtualMachine?: VirtualMachineResponse | null;
 }
 interface TabComponent {
   validate: () => Promise<{ valid: boolean }>;
@@ -147,25 +183,22 @@ export function useVirtualMachineEdit(props: Props) {
   // --- Initialization ---
   watch(
     () => props.show,
-    (isVisible) => {
-      //
+    async (isVisible) => {
       if (isVisible && (props.vmId || props.virtualMachine)) {
-        if (error.value) error.value = null;
+        if (error.value) error.value = undefined as any;
         // 行データが渡されている場合はVMデータを直接セットしてローディングを解除
         if (props.virtualMachine) {
           vmData.value = props.virtualMachine as unknown as VirtualMachineDTO;
-          // 手動で pending を false にして描画させる
           (pending as any).value = false;
-        } else {
-          // ★ 正しくエイリアスされた reloadData() を呼ぶ
-          if (!pending.value) reloadData();
+        } else if (props.vmId) {
+          await reloadData();
         }
         currentTab.value = 0;
         submitError.value = null;
         tabRefs.value = [];
       } else if (!isVisible) {
         vmData.value = null;
-        if (error.value) error.value = null;
+        if (error.value) error.value = undefined as any;
       }
     },
     { immediate: false }
@@ -230,9 +263,13 @@ export function useVirtualMachineEdit(props: Props) {
       }
     } catch (err: any) {
       console.error(`Error preparing initial data for tab ${index}:`, err);
-      error.value = new Error(
-        `タブ ${index + 1} の初期化に失敗しました: ${err.message}`
-      );
+      error.value = createError({
+        statusCode: 500,
+        statusMessage: `タブ ${index + 1} の初期化に失敗しました: ${
+          err.message
+        }`,
+        fatal: false,
+      });
     }
     return undefined;
   };
@@ -277,7 +314,7 @@ export function useVirtualMachineEdit(props: Props) {
       //
       name: generalValues.name,
       instanceType: configValues.instanceTypeId
-        ? ({ id: configValues.instanceTypeId } as ModelInstanceTypeDTO)
+        ? { id: configValues.instanceTypeId }
         : undefined,
       cpuCore: configValues.instanceTypeId ? undefined : configValues.cpuCores,
       memorySize: configValues.instanceTypeId
