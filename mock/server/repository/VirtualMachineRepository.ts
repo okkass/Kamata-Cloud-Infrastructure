@@ -146,14 +146,16 @@ const create = (
       data.spec.instanceTypeId
     );
     if (!instanceType) {
+      console.warn(`Instance type not found: ${data.spec.instanceTypeId}`);
       return undefined;
     }
     cpuCore = instanceType.cpuCore;
     memorySize = instanceType.memorySize;
-  } else if ("cpuCore" in data.spec && "memorySize" in data.spec) {
-    cpuCore = data.spec.cpuCore as number;
-    memorySize = data.spec.memorySize as number;
+  } else if ("cpu" in data.spec && "memory" in data.spec) {
+    cpuCore = data.spec.cpu as number;
+    memorySize = data.spec.memory as number;
   } else {
+    console.warn(`Invalid spec in request: ${JSON.stringify(data.spec)}`);
     return undefined;
   }
   const node = NodeRepository.getById(data.nodeId);
@@ -196,6 +198,9 @@ const create = (
     storages.includes(undefined) ||
     nics.includes(undefined)
   ) {
+    console.warn(
+      `Failed to create VM due to missing resources. node: ${node}, image: ${image}, securityGroups: ${securityGroups}, storages: ${storages}, nics: ${nics}`
+    );
     return undefined;
   }
   const newVm: VirtualMachineResponse = {
