@@ -1,31 +1,18 @@
-import { z } from "zod";
-import type { NodeCreateRequest } from "@app/shared/types";
-import { addNode } from "../../services/nodeService";
+import { createResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getNodeService } from "@/service/NodeService";
+import { NodeCreateRequest } from "@app/shared/types";
+import { addNodeSchema } from "@/zodSchemas";
 
 export default defineEventHandler(async (event) => {
-  const bodySchema = z.object({
-    ipAddress: z.ipv4(),
-    rootPassword: z.string().min(8).max(64),
-    name: z.string().min(3).max(50).optional(),
-    isAdmin: z.boolean().optional(),
-  });
+  const permission = getPermissionFromEvent(event);
+  const body = await readBody(event);
+  const service = getNodeService(permission);
 
-  const res = bodySchema.safeParse(await readBody<NodeCreateRequest>(event));
-  if (!res.success) {
-    event.node.res.statusCode = 400;
-    return {
-      type: "Invalid request",
-      detail: z.treeifyError(res.error).errors.join(", "),
-      status: 400,
-    };
-  }
-
-  const data = res.data as NodeCreateRequest;
-
-  console.log("Adding node:", data);
-
-  const newNode = addNode(data);
-
-  event.node.res.statusCode = 201;
-  return newNode;
+  setResponseStatus(event, 201);
+  return createResource(
+    body as NodeCreateRequest,
+    addNodeSchema,
+    service.create
+  );
 });

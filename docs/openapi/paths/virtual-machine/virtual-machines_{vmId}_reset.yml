@@ -11,6 +11,7 @@ post:
         type: string
         format: uuid
       description: 仮想マシンの一意なID
+      example: "12fbed88-2dc4-4537-af98-f1f796046d16"
   responses:
     "202":
       description: リクエストを受理しました
@@ -18,6 +19,12 @@ post:
         application/json:
           schema:
             $ref: "../../components/schemas/virtual-machine/VirtualMachineResponse.yml"
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
       content:

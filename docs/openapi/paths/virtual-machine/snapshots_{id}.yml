@@ -11,6 +11,7 @@ get:
         type: string
         format: uuid
       description: スナップショットの一意なID
+      example: "12fbed88-2dc4-4537-af98-f1f796046d16"
   responses:
     "200":
       description: 成功
@@ -18,6 +19,12 @@ get:
         application/json:
           schema:
             $ref: "../../components/schemas/virtual-machine/snapshot/SnapshotResponse.yml"
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
       content:
@@ -51,6 +58,7 @@ put:
         type: string
         format: uuid
       description: スナップショットの一意なID
+      example: "12fbed88-2dc4-4537-af98-f1f796046d16"
   requestBody:
     required: true
     content:
@@ -103,6 +111,7 @@ patch:
         type: string
         format: uuid
       description: スナップショットの一意なID
+      example: "12fbed88-2dc4-4537-af98-f1f796046d16"
   requestBody:
     required: true
     content:
@@ -155,9 +164,16 @@ delete:
         type: string
         format: uuid
       description: スナップショットの一意なID
+      example: "12fbed88-2dc4-4537-af98-f1f796046d16"
   responses:
     "204":
       description: 削除成功
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
       content:
