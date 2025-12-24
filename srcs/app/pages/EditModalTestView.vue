@@ -515,7 +515,7 @@ const editModals = computed(() => [
   {
     id: "vmEdit",
     component: markRaw(MoVirtualMachineEdit),
-    props: { vmId: targetResource.value?.id },
+    props: { vmData: targetResource.value },
     refreshFn: refreshVms,
   },
   {

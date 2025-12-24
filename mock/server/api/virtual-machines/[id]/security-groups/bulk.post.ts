@@ -2,7 +2,7 @@ import { bulkResource } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
 import { getVirtualMachineService } from "@/service/VirtualMachineService";
 import { validateUUID } from "@/utils/validate";
-import { never, z } from "zod";
+import { z } from "zod";
 import type { BulkRequest } from "@/types/BulkRequest";
 import type { VmSecurityGroupAddRequest } from "@/types";
 import { createVmSecurityGroupSchema } from "@/zodSchemas";

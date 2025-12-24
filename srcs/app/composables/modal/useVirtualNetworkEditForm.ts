@@ -82,6 +82,7 @@ export function useVirtualNetworkEditForm(props: Props) {
           idKey: "id",
           newIdPrefix: "new-",
           fields: ["name", "cidr"],
+          bulkKeys: { create: "create", update: "patch", delete: "remove" },
         },
       },
     };
