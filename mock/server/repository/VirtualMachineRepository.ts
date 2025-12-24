@@ -152,8 +152,8 @@ const create = (
     cpuCore = instanceType.cpuCore;
     memorySize = instanceType.memorySize;
   } else if ("cpu" in data.spec && "memory" in data.spec) {
-    cpuCore = data.spec.cpu as number;
-    memorySize = data.spec.memory as number;
+    cpuCore = data.spec.cpu;
+    memorySize = data.spec.memory;
   } else {
     console.warn(`Invalid spec in request: ${JSON.stringify(data.spec)}`);
     return undefined;
