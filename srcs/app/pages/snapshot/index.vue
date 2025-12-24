@@ -53,7 +53,7 @@
 
   <MoSnapshotRestore
     :show="activeModal === RESTORE_SNAPSHOT_ACTION"
-    :snapshot-data="targetForEditing?.originalData || null"
+    :data="targetForEditing?.originalData"
     @close="closeModal"
     @success="onRestoreSuccess"
   />
