@@ -6,15 +6,12 @@
       :rows="images"
       rowKey="id"
       :headerButtons="headerButtons"
-      @header-action="handleHeaderAction"
-      @row-action="onRowAction"
+      @header-action="() => openModal(ADD_IMAGE_ACTION)"
+      @row-action="handleRowAction"
     >
       <template #cell-name="{ row }">
         <NuxtLink :to="`/image/${row.id}`" class="table-link">
           {{ row.name }}
-          <span v-if="row.description" class="cell-description">
-            {{ row.description }}
-          </span>
         </NuxtLink>
       </template>
 
@@ -32,7 +29,7 @@
         <button
           type="button"
           class="action-item"
-          @click.stop.prevent="row && onRowAction({ action: 'edit', row })"
+          @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
         >
           編集
         </button>
@@ -41,7 +38,9 @@
           type="button"
           class="action-item action-item-danger"
           :disabled="isDeleting && targetForDeletion?.id === row?.id"
-          @click.stop.prevent="row && onRowAction({ action: 'delete', row })"
+          @click.stop.prevent="
+            row && handleRowAction({ action: 'delete', row })
+          "
         >
           削除
         </button>
@@ -57,20 +56,24 @@
     />
     <MoImageAdd
       :show="activeModal === ADD_IMAGE_ACTION"
-      @close="closeModal"
+      @close="cancelAction"
       @success="handleSuccess"
     />
     <MoImageEdit
       :show="activeModal === EDIT_IMAGE_ACTION"
-      :image-data="targetForEditing ?? undefined"
-      @close="closeModal"
+      :image-data="targetForEditing?.originalData ?? undefined"
+      @close="cancelAction"
       @success="handleSuccess"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { useImageManagement } from "~/composables/dashboard/useImageManagement";
+import {
+  useImageManagement,
+  type ImageRow,
+} from "~/composables/dashboard/useImageManagement";
+import { IMAGE } from "~/utils/constants";
 import { usePageActions } from "~/composables/usePageActions";
 
 // --- データロジックの取得 ---
@@ -96,25 +99,9 @@ const {
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<ImageResponse>({
-  resourceName: "image",
+} = usePageActions<ImageRow>({
+  resourceName: IMAGE.name,
   resourceLabel: "イメージ",
   refresh,
 });
-
-/* ヘッダーボタンのハンドラー */
-function handleHeaderAction(action: string) {
-  if (action === "add") {
-    openModal(ADD_IMAGE_ACTION);
-  }
-}
-
-/* 行アクションのハンドラー */
-function onRowAction({ action, row }: { action: string; row: any }) {
-  const imageRow: ImageResponse = {
-    ...row,
-    size: typeof row.size === "string" ? Number(row.size) : row.size,
-  };
-  handleRowAction({ action, row: imageRow });
-}
 </script>

@@ -4,12 +4,23 @@
 import { computed, onMounted, onUnmounted } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 import { createPolling } from "@/utils/polling";
+import { IMAGE } from "@/utils/constants";
 import type { ImageResponse } from "~~/shared/types";
 
 /** 定数定義  */
-export const addImageAction = `add-image`;
-export const editImageAction = `edit-image`;
-export const deleteImageAction = `delete-image`;
+const RESOURCE_NAME = IMAGE.name;
+export const ADD_IMAGE_ACTION = `add-${RESOURCE_NAME}`;
+export const EDIT_IMAGE_ACTION = `edit-${RESOURCE_NAME}`;
+export const DELETE_IMAGE_ACTION = `delete-${RESOURCE_NAME}`;
+
+/** 表示用の型定義 */
+export type ImageRow = {
+  id: string;
+  name: string;
+  createdAt: string; // 表示用フォーマット済み文字列
+  size: string; // 表示用フォーマット済み文字列
+  originalData: ImageResponse;
+};
 
 /**
  * 仮想マシンイメージ管理ページのUIロジックと状態を管理するComposable
@@ -23,7 +34,7 @@ export function useImageManagement() {
     pending,
     refresh,
     error,
-  } = useResourceList<ImageResponse>("images");
+  } = useResourceList<ImageResponse>(RESOURCE_NAME);
 
   // --- ポーリング設定 ---
   const { startPolling, stopPolling, runOnce, lastUpdatedTime } = createPolling(
@@ -43,7 +54,7 @@ export function useImageManagement() {
   });
 
   // --- UI表示用の設定 ---
-  const columns = [
+  const columns: TableColumn[] = [
     { key: "name", label: "イメージ名", align: "left" as const },
     { key: "size", label: "サイズ", align: "right" as const },
     { key: "createdAt", label: "登録日", align: "left" as const },
@@ -51,11 +62,13 @@ export function useImageManagement() {
   const headerButtons = [{ action: "add", label: "イメージ追加" }];
 
   // --- データの整形 ---
-  const images = computed(() =>
+  const images = computed<ImageRow[]>(() =>
     (rawList.value ?? []).map((image) => ({
-      ...image,
+      id: image.id,
+      name: image.name,
       createdAt: formatDateTime(image.createdAt),
       size: toSize(image.size),
+      originalData: image,
     }))
   );
 
@@ -69,8 +82,8 @@ export function useImageManagement() {
     lastUpdatedTime,
     startPolling,
     stopPolling,
-    ADD_IMAGE_ACTION: addImageAction,
-    EDIT_IMAGE_ACTION: editImageAction,
-    DELETE_IMAGE_ACTION: deleteImageAction,
+    ADD_IMAGE_ACTION,
+    EDIT_IMAGE_ACTION,
+    DELETE_IMAGE_ACTION,
   } as const;
 }
