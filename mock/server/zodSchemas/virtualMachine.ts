@@ -41,6 +41,7 @@ export const createVirtualMachineSchema = z.object({
   nodeId: looseUuidSchema,
   imageId: looseUuidSchema,
   middlewareId: looseUuidSchema.optional(),
+  subnetIds: z.array(looseUuidSchema),
   storages: z.array(createStorageSchema),
   securityGroupIds: z.array(looseUuidSchema),
   name: z.string(),
