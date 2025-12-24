@@ -1,6 +1,6 @@
 <template>
-  <BaseModal :show="show" title="仮想ネットワーク作成" @close="$emit('close')">
-    <form @submit.prevent="submitForm" class="space-y-6">
+  <BaseModal :show="show" title="仮想ネットワーク作成" @close="handleClose">
+    <form id="network-create-form" @submit.prevent="onSubmit" class="space-y-6">
       <div class="space-y-4">
         <FormInput
           label="ネットワーク名"
@@ -108,34 +108,34 @@
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="submitForm"
-          class="btn btn-primary"
-          :disabled="isCreating || !meta.valid"
-        >
-          {{ isCreating ? "作成中..." : "作成" }}
-        </button>
+        <UiSubmitButton
+          :disabled="isCreating || !isValid"
+          :loading="isCreating"
+          label="仮想ネットワークを作成"
+          form="network-create-form"
+          type="submit"
+        />
       </div>
     </template>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-/**
- * =================================================================================
- * 仮想ネットワーク作成モーダル (MoVirtualNetworkCreate.vue)
- * =================================================================================
- */
-import { computed } from "vue";
+import { type PropType } from "vue";
 import { useVirtualNetworkCreateForm } from "~/composables/modal/useVirtualNetworkCreateForm";
 import FormInput from "~/components/Form/Input.vue";
+import UiSubmitButton from "~/components/ui/SubmitButton.vue";
 
-// --- Props & Emits ---
 defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 
-// --- Composable ---
+const getError = (index: number, field: string) => {
+  const bracketKey = `initialSubnets[${index}].${field}`;
+
+  const errs = errors.value as Record<string, string | undefined>;
+  return errs[bracketKey];
+};
+
 const {
   errors,
   name,
@@ -146,24 +146,12 @@ const {
   addSubnet,
   removeSubnet,
   isCreating,
+  isValid,
   onFormSubmit,
-  meta,
-} = useVirtualNetworkCreateForm();
-
-// --- Helper: エラー取得 ---
-const getError = (index: number, field: string) => {
-  const bracketKey = `initialSubnets[${index}].${field}`;
-  const dotKey = `initialSubnets.${index}.${field}`;
-
-  const errs = errors.value as Record<string, string | undefined>;
-  return errs[bracketKey] || errs[dotKey];
-};
-
-// --- Handler ---
-const submitHandler = onFormSubmit(emit);
-const submitForm = () => {
-  submitHandler();
-};
+  makehandleClose,
+} = useVirtualNetworkCreateForm(emit);
+const handleClose = makehandleClose(emit);
+const onSubmit = onFormSubmit(emit);
 </script>
 
 <style scoped>

@@ -22,7 +22,7 @@
   <MoSecurityGroupEdit
     v-if="securityGroup"
     :show="isEditOpen"
-    :security-group-data="securityGroup"
+    :data="securityGroup"
     @close="handleEditClose"
     @success="handleEditSuccess"
   />

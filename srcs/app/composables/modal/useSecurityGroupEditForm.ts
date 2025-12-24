@@ -1,39 +1,83 @@
-import { ref, computed, watch } from "vue";
-import { useToast } from "~/composables/useToast";
+import { computed, watch } from "vue";
+import { useForm, useFieldArray } from "vee-validate";
+import { toTypedSchema } from "@vee-validate/zod";
 import {
   useResourceUpdater,
   type ResourceConfig,
 } from "~/composables/useResourceUpdater";
+import { useFormAction } from "~/composables/modal/useModalAction";
+import {
+  securityGroupSchema,
+  type SecurityGroupFormValues,
+  type SecurityRuleFormValues,
+} from "~/utils/validations/security-group";
 
-type SecurityRuleProtocol = "tcp" | "udp" | "icmp" | "any";
-type SecurityRuleAction = "allow" | "deny";
-type SecurityRuleType = "inbound" | "outbound";
-
-interface Props {
-  show: boolean;
-  securityGroupData: SecurityGroupResponse | null;
-}
-
-export const PROTOCOL_OPTIONS: SecurityRuleProtocol[] = [
-  "tcp",
-  "udp",
-  "icmp",
-  "any",
-];
-export const ACTION_OPTIONS: SecurityRuleAction[] = ["allow", "deny"];
+type Props = ModalFormProps<SecurityGroupResponse>;
 
 export function useSecurityGroupEditForm(props: Props) {
-  const { addToast } = useToast();
-
+  const { handleFormSubmit, makeHandleClose } = useFormAction();
   const { editedData, init, save, isDirty, isSaving } =
     useResourceUpdater<SecurityGroupResponse>();
 
+  const {
+    errors,
+    handleSubmit,
+    defineField,
+    meta,
+    resetForm,
+    setValues,
+    values,
+  } = useForm<SecurityGroupFormValues>({
+    validationSchema: toTypedSchema(securityGroupSchema),
+    initialValues: {
+      name: "",
+      description: "",
+      inboundRules: [],
+      outboundRules: [],
+    },
+  });
+
+  const [name, nameAttrs] = defineField("name");
+  const [description, descriptionAttrs] = defineField("description");
+
+  const {
+    fields: inboundRules,
+    push: pushInbound,
+    remove: removeInbound,
+  } = useFieldArray<SecurityRuleFormValues>("inboundRules");
+
+  const {
+    fields: outboundRules,
+    push: pushOutbound,
+    remove: removeOutbound,
+  } = useFieldArray<SecurityRuleFormValues>("outboundRules");
+
   // --- 初期化ロジック ---
   watch(
-    () => [props.show, props.securityGroupData] as const,
+    () => [props.show, props.data] as const,
     ([show, data]) => {
       if (show && data) {
         init(data, getResourceConfig(data));
+        const inbound =
+          data.rules
+            ?.filter((r) => r.ruleType === "inbound")
+            .map((r) => ({
+              ...r,
+              action: r.action ?? "allow",
+            })) ?? [];
+        const outbound =
+          data.rules
+            ?.filter((r) => r.ruleType === "outbound")
+            .map((r) => ({
+              ...r,
+              action: r.action ?? "allow",
+            })) ?? [];
+        setValues({
+          name: data.name,
+          description: data.description || "",
+          inboundRules: inbound,
+          outboundRules: outbound,
+        });
       }
     },
     { immediate: true }
@@ -48,6 +92,7 @@ export function useSecurityGroupEditForm(props: Props) {
       collections: {
         rules: {
           endpoint: `security-groups/${data.id}/rules`,
+          bulkEndpoint: `security-groups/${data.id}/bulk`,
           idKey: "id",
           newIdPrefix: "new-",
           fields: [
@@ -63,119 +108,86 @@ export function useSecurityGroupEditForm(props: Props) {
     };
   }
 
-  // --- バリデーション ---
-  const errors = ref<Record<string, string>>({});
-
-  const validate = (): boolean => {
-    errors.value = {};
-    if (!editedData.value) return false;
-
-    if (!editedData.value.name?.trim()) {
-      errors.value.name = "グループ名は必須です。";
-    }
-
-    editedData.value.rules?.forEach((rule, index) => {
-      if (!rule.name?.trim()) {
-        errors.value[`${rule.id}.name`] = "必須";
+  // --- vee-validate の値を editedData に同期 ---
+  watch(
+    () => values,
+    (newValues) => {
+      if (editedData.value) {
+        editedData.value.name = newValues.name;
+        editedData.value.description = newValues.description;
+        editedData.value.rules = [
+          ...newValues.inboundRules,
+          ...newValues.outboundRules,
+        ].map((rule) => ({
+          ...rule,
+          createdAt: rule.createdAt ?? new Date().toISOString(),
+        }));
       }
-      if (!rule.targetIp?.trim()) {
-        errors.value[`${rule.id}.targetIp`] = "必須";
-      }
-    });
-
-    return Object.keys(errors.value).length === 0;
-  };
+    },
+    { deep: true }
+  );
 
   // --- 送信ハンドラ ---
-  const onFormSubmit = (emit: (event: "close" | "success") => void) => {
-    return async () => {
-      if (!validate()) {
-        addToast({ type: "error", message: "入力内容を確認してください。" });
-        return;
-      }
-
-      const success = await save();
-
-      if (success) {
-        addToast({
-          type: "success",
-          message: `セキュリティグループ「${editedData.value?.name}」を更新しました。`,
-        });
-        emit("success");
-        emit("close");
-      } else {
-        addToast({ type: "error", message: "更新に失敗しました。" });
-      }
-    };
-  };
+  const onFormSubmit = (emit: any) =>
+    handleFormSubmit<SecurityGroupFormValues, SecurityGroupResponse>(
+      handleSubmit,
+      {
+        execute: async () => {
+          const success = await save();
+          return { success };
+        },
+        onSuccess: () => {
+          resetForm();
+        },
+        onSuccessMessage: () =>
+          `セキュリティグループ「${values.name}」を更新しました。`,
+      },
+      emit
+    );
 
   // --- ルール操作ヘルパー ---
-
-  // 新規ルール作成のファクトリ関数
-  const createNewRule = (type: SecurityRuleType): SecurityRuleResponse => ({
-    // 一時ID生成 (UUIDの簡易版としてランダム文字列を使用)
+  const createEmptyRule = (
+    type: "inbound" | "outbound"
+  ): SecurityRuleFormValues => ({
     id: `new-${Date.now()}-${Math.random().toString(36).slice(2, 9)}`,
-    name: "New Rule",
-    ruleType: type,
-    protocol: "tcp", // 文字列リテラルで指定
+    name: "",
+    protocol: "tcp",
     port: null,
     targetIp: "0.0.0.0/0",
-    action: "allow", // 文字列リテラルで指定
-    createdAt: new Date().toISOString(),
+    action: "allow",
+    ruleType: type,
   });
 
-  // 共通化されたルール追加関数
-  const addRule = (type: SecurityRuleType) => {
-    if (!editedData.value) return;
+  const addInboundRule = () => pushInbound(createEmptyRule("inbound"));
+  const removeInboundRule = (idx: number) => removeInbound(idx);
+  const addOutboundRule = () => pushOutbound(createEmptyRule("outbound"));
+  const removeOutboundRule = (idx: number) => removeOutbound(idx);
 
-    // rules が未定義の場合は空配列で初期化
-    if (!editedData.value.rules) {
-      editedData.value.rules = [];
-    }
-
-    editedData.value.rules.push(createNewRule(type));
-  };
-
-  // 特定のIDを持つルールを削除
-  const removeRule = (ruleId: string) => {
-    if (!editedData.value?.rules) return;
-
-    const index = editedData.value.rules.findIndex((r) => r.id === ruleId);
-    if (index !== -1) {
-      editedData.value.rules.splice(index, 1);
-    }
-  };
-
-  // Computed: フィルタリング
-  const inboundRules = computed(
-    () => editedData.value?.rules?.filter((r) => r.ruleType === "inbound") ?? []
-  );
-
-  const outboundRules = computed(
-    () =>
-      editedData.value?.rules?.filter((r) => r.ruleType === "outbound") ?? []
-  );
+  const makehandleClose = (emit: any) => makeHandleClose(resetForm, emit);
 
   return {
     // State
-    editedData,
     errors,
     isDirty,
     isSaving,
 
-    // Options (定数を返す)
-    protocolOptions: PROTOCOL_OPTIONS,
-    actionOptions: ACTION_OPTIONS,
+    // Form fields
+    name,
+    nameAttrs,
+    description,
+    descriptionAttrs,
 
     // Computed Lists
     inboundRules,
     outboundRules,
 
     // Methods
+    addInboundRule,
+    removeInboundRule,
+    addOutboundRule,
+    removeOutboundRule,
+    isValid: computed(() => meta.value.valid),
     onFormSubmit,
-    addInboundRule: () => addRule("inbound"),
-    addOutboundRule: () => addRule("outbound"),
-    // テンプレート側からは id を渡すだけで済むように変更
-    removeRule,
+    makehandleClose,
   };
 }

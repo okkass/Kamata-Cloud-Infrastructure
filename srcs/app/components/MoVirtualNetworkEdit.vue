@@ -2,14 +2,19 @@
   <BaseModal
     :show="show"
     title="仮想ネットワーク編集"
-    @close="$emit('close')"
+    @close="handleClose"
     size="lg"
   >
     <div v-if="!editedData" class="p-8 text-center text-gray-500">
       読み込み中...
     </div>
 
-    <form v-else @submit.prevent="submitForm" class="space-y-6">
+    <form
+      v-else
+      id="network-edit-form"
+      @submit.prevent="onSubmit"
+      class="space-y-6"
+    >
       <div class="space-y-4">
         <FormInput
           label="ネットワーク名"
@@ -19,14 +24,13 @@
           :error="errors.name"
           placeholder="my-vpc-01"
           required
-          class="w-full"
         />
 
         <FormInput
           label="ネットワークアドレス (CIDR) ※作成後の変更不可"
           name="network-cidr"
-          v-model="editedData.cidr"
-          class="w-full bg-gray-100 text-gray-500 cursor-not-allowed"
+          :model-value="editedData.cidr"
+          class="bg-gray-100 text-gray-500 cursor-not-allowed"
           readonly
         />
 
@@ -46,7 +50,7 @@
 
           <div class="p-4 bg-gray-50">
             <div
-              v-if="subnetFields.length === 0"
+              v-if="subnets.length === 0"
               class="text-center text-gray-400 py-2 text-sm"
             >
               サブネットがありません。
@@ -54,7 +58,7 @@
 
             <div v-else class="space-y-3">
               <div
-                v-for="(subnet, index) in subnetFields"
+                v-for="(subnet, index) in subnets"
                 :key="subnet.key"
                 class="bg-white p-3 rounded border border-gray-200 shadow-sm"
               >
@@ -63,11 +67,10 @@
                     <FormInput
                       label="名前"
                       :name="`subnet-name-${index}`"
-                      v-model="subnet.value.name"
                       :error="getError(index, 'name')"
+                      v-model="subnet.value.name"
                       placeholder="例: public-subnet"
                       required
-                      class="w-full"
                     />
                   </div>
 
@@ -75,11 +78,10 @@
                     <FormInput
                       label="CIDR"
                       :name="`subnet-cidr-${index}`"
-                      v-model="subnet.value.cidr"
                       :error="getError(index, 'cidr')"
+                      v-model="subnet.value.cidr"
                       placeholder="例: 10.0.1.0/24"
                       required
-                      class="w-full"
                     />
                   </div>
 
@@ -116,77 +118,54 @@
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="submitForm"
-          class="btn btn-primary"
-          :disabled="isSaving || !editedData || !meta.valid"
-        >
-          {{ isSaving ? "保存中..." : "保存" }}
-        </button>
+        <UiSubmitButton
+          :disabled="isSaving || !isValid"
+          :loading="isSaving"
+          label="仮想ネットワークを更新"
+          form="network-edit-form"
+          type="submit"
+        />
       </div>
     </template>
   </BaseModal>
 </template>
 
 <script setup lang="ts">
-import { watch, type PropType } from "vue";
+import { type PropType } from "vue";
 import { useVirtualNetworkEditForm } from "~/composables/modal/useVirtualNetworkEditForm";
-// 共通コンポーネントのインポート
 import FormInput from "~/components/Form/Input.vue";
-
-// 型定義 (VirtualNetworkResponse) は自動インポート前提
+import UiSubmitButton from "~/components/ui/SubmitButton.vue";
 
 const props = defineProps({
   show: { type: Boolean, required: true },
-  networkData: {
-    type: Object as PropType<VirtualNetworkResponse>,
+  data: {
+    type: Object as PropType<VirtualNetworkResponse | null>,
     default: null,
   },
 });
 
 const emit = defineEmits(["close", "success"]);
 
-// Composable
-const {
-  editedData,
-  isSaving,
-  initializeForm,
-  addSubnet,
-  removeSubnet,
-  save,
-  name,
-  nameAttrs,
-  subnetFields,
-  errors,
-  meta,
-} = useVirtualNetworkEditForm();
-
-// Helper for errors
 const getError = (index: number, field: string) => {
   const bracketKey = `subnets[${index}].${field}`;
-  const dotKey = `subnets.${index}.${field}`;
+
   const errs = errors.value as Record<string, string | undefined>;
-  return errs[bracketKey] || errs[dotKey];
+  return errs[bracketKey];
 };
 
-// モーダルが開かれたとき(データが渡されたとき)に初期化
-watch(
-  () => props.networkData,
-  (newData) => {
-    if (newData && props.show) {
-      initializeForm(newData);
-    }
-  },
-  { immediate: true }
-);
-
-// 保存処理
-const submitForm = async () => {
-  const success = await save();
-  if (success) {
-    emit("success");
-    emit("close");
-  }
-};
+const {
+  editedData,
+  errors,
+  name,
+  nameAttrs,
+  subnets,
+  addSubnet,
+  removeSubnet,
+  isValid,
+  isSaving,
+  onFormSubmit,
+  makehandleClose,
+} = useVirtualNetworkEditForm(props);
+const handleClose = makehandleClose(emit);
+const onSubmit = onFormSubmit(emit);
 </script>

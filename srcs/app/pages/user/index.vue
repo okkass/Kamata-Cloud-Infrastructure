@@ -53,7 +53,7 @@
 
   <MoUserEdit
     :show="activeModal === 'edit-users'"
-    :user-data="targetForEditing?.originalData"
+    :data="targetForEditing?.originalData"
     @close="closeModal"
     @success="handleSuccess"
   />
