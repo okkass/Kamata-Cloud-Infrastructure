@@ -25,7 +25,7 @@
     <MoVirtualMachineEdit
       v-if="vm"
       :show="isEditOpen"
-      :vm-id="vm.id"
+      :vm-data="vm"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />
