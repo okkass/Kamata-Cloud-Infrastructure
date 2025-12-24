@@ -1,8 +1,24 @@
-// patchのmock
+import { updateResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getSecurityGroupService } from "@/service/SecurityGroupService";
+import { SecurityRulePatchRequest } from "@app/shared/types";
+import { partialUpdateSecurityGroupRuleSchema } from "@/zodSchemas";
+import { validateUUID } from "@/utils/validate";
+
 export default defineEventHandler(async (event) => {
-  const id = event.context.params?.id;
-  const ruleId = event.context.params?.ruleId;
+  const permission = getPermissionFromEvent(event);
   const body = await readBody(event);
-  console.log(`Received patch for rule ${ruleId} from security group ${id}:`, body);
-  return { message: `Rule ${ruleId} from security group ${id} patched successfully`, data: body };
+  const { id, ruleId } = event.context.params as { id: string; ruleId: string };
+
+  validateUUID(id);
+
+  const service =
+    getSecurityGroupService(permission).getSecurityRuleService(id);
+
+  return updateResource(
+    ruleId,
+    body as SecurityRulePatchRequest,
+    partialUpdateSecurityGroupRuleSchema,
+    service.update
+  );
 });

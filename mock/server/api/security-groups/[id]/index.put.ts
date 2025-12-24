@@ -1,11 +1,19 @@
-import { validate } from "uuid";
+import { updateResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getSecurityGroupService } from "@/service/SecurityGroupService";
+import { SecurityGroupPutRequest } from "@app/shared/types";
+import { updateSecurityGroupSchema } from "@/zodSchemas";
 
 export default defineEventHandler(async (event) => {
-  const id = event.context.params?.id;
-  if (!id || !validate(id)) {
-    createError({ statusCode: 400, statusMessage: "Invalid ID" });
-  }
+  const permission = getPermissionFromEvent(event);
   const body = await readBody(event);
-  console.log(`Received update for ID ${id}:`, body);
-  return { message: `ID ${id} updated successfully`, data: body };
+  const service = getSecurityGroupService(permission);
+  const { id } = event.context.params as { id: string };
+
+  return updateResource(
+    id,
+    body as SecurityGroupPutRequest,
+    updateSecurityGroupSchema,
+    service.update
+  );
 });

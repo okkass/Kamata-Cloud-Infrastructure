@@ -1,80 +1,81 @@
 import { z } from "zod";
+import { looseUuidSchema } from "./common";
 
 export const createStorageSchema = z.object({
-    name: z.string(),
-    size: z.number(),
-    poolId: z.uuid(),
-    backupId: z.uuid().optional(),
+  name: z.string(),
+  size: z.number(),
+  poolId: looseUuidSchema,
+  backupId: looseUuidSchema.optional(),
 });
 
 export const updateStorageSchema = z.object({
-    name: z.string(),
+  name: z.string(),
 });
 
 export const partialUpdateStorageSchema = z.object({
-    name: z.string().optional(),
+  name: z.string().optional(),
 });
 
 export const deleteStorageSchema = z.object({
-    storageId: z.uuid(),
+  storageId: looseUuidSchema,
 });
 
-export const createSecurityGroupSchema = z.object({
-    securityGroupId: z.uuid(),
+export const createVmSecurityGroupSchema = z.object({
+  securityGroupId: looseUuidSchema,
 });
 
-export const deleteSecurityGroupSchema = z.object({
-    securityGroupId: z.uuid(),
+export const deleteVmSecurityGroupSchema = z.object({
+  securityGroupId: looseUuidSchema,
 });
 
 const specWithInstanceType = z.object({
-    instanceTypeId: z.uuid(),
+  instanceTypeId: looseUuidSchema,
 });
 const specWithCustomSpec = z.object({
-    cpu: z.number(),
-    memory: z.number(),
+  cpu: z.number(),
+  memory: z.number(),
 });
 
 export const createVirtualMachineSchema = z.object({
-    publicKey: z.string(),
-    nodeId: z.uuid(),
-    imageId: z.uuid(),
-    middlewareId: z.uuid(),
-    storages: z.array(createStorageSchema),
-    securityGroupIds: z.array(z.uuid()),
-    name: z.string(),
-    spec: z.union([specWithInstanceType, specWithCustomSpec]),
+  publicKey: z.string(),
+  nodeId: looseUuidSchema,
+  imageId: looseUuidSchema,
+  middlewareId: looseUuidSchema.optional(),
+  storages: z.array(createStorageSchema),
+  securityGroupIds: z.array(looseUuidSchema),
+  name: z.string(),
+  spec: z.union([specWithInstanceType, specWithCustomSpec]),
 });
 
 export const updateVirtualMachineSchema = z.object({
-    name: z.string(),
-    spec: z.union([specWithInstanceType, specWithCustomSpec]),
+  name: z.string(),
+  spec: z.union([specWithInstanceType, specWithCustomSpec]),
 });
 
 export const partialUpdateVirtualMachineSchema = z.object({
-    name: z.string().optional(),
-    spec: z.union([specWithInstanceType, specWithCustomSpec]).optional(),
+  name: z.string().optional(),
+  spec: z.union([specWithInstanceType, specWithCustomSpec]).optional(),
 });
 
 export const deleteVirtualMachineSchema = z.object({
-    virtualMachineId: z.uuid(),
+  virtualMachineId: looseUuidSchema,
 });
 
 export const createNetworkInterfaceSchema = z.object({
-    virtualMachineId: z.uuid(),
-    subnetId: z.uuid(),
+  virtualMachineId: looseUuidSchema,
+  subnetId: looseUuidSchema,
 });
 
 export const updateNetworkInterfaceSchema = z.object({
-    virtualMachineId: z.uuid(),
-    subnetId: z.uuid(),
+  virtualMachineId: looseUuidSchema,
+  subnetId: looseUuidSchema,
 });
 
 export const partialUpdateNetworkInterfaceSchema = z.object({
-    virtualMachineId: z.uuid().optional(),
-    subnetId: z.uuid().optional(),
+  virtualMachineId: looseUuidSchema.optional(),
+  subnetId: looseUuidSchema.optional(),
 });
 
 export const deleteNetworkInterfaceSchema = z.object({
-    networkInterfaceId: z.uuid(),
+  networkInterfaceId: looseUuidSchema,
 });

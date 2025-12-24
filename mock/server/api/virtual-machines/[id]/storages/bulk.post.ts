@@ -1,14 +1,39 @@
+import { bulkResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getVirtualMachineService } from "@/service/VirtualMachineService";
+import type {
+  StorageCreateRequest,
+  StoragePatchRequest,
+} from "@app/shared/types";
+import { validateUUID } from "@/utils/validate";
+import { createStorageSchema, updateStorageSchema } from "@/zodSchemas";
+import type { BulkRequest } from "@/types/BulkRequest";
+
 export default defineEventHandler(async (event) => {
-  // useResourceUpdater から送られる { create:[], delete:[], patch:[] } を受け取る
-  const body = await readBody(event);
+  const permission = getPermissionFromEvent(event);
+  const { id } = event.context.params as { id: string };
+  validateUUID(id);
 
-  // ログに出して確認したい場合
-  console.log("Storage Bulk Update Success:", JSON.stringify(body, null, 2));
+  const service = getVirtualMachineService(permission).getStorageService(id);
 
-  return {
-    status: "success",
-    message: "Storages updated",
-    // 受け取った内容をそのまま返して動作確認しやすくする
-    details: body,
-  };
+  if (!service) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Virtual Machine not found",
+    });
+  }
+
+  const body = (await readBody(event)) as BulkRequest<
+    StorageCreateRequest,
+    StoragePatchRequest
+  >;
+  return bulkResource(
+    body,
+    createStorageSchema,
+    updateStorageSchema,
+    service.create,
+    service.update,
+    service.delete,
+    service.list
+  );
 });

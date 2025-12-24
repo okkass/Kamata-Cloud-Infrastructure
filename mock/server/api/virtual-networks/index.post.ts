@@ -1,5 +1,18 @@
+import { createResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getVirtualNetworkService } from "@/service/VirtualNetworkService";
+import { VirtualNetworkCreateRequest } from "@app/shared/types";
+import { createVirtualNetworkSchema } from "@/zodSchemas";
+
 export default defineEventHandler(async (event) => {
+  const permission = getPermissionFromEvent(event);
   const body = await readBody(event);
-  console.log("Received body:", body);
-  return { message: "Data received", data: body };
+  const service = getVirtualNetworkService(permission);
+
+  setResponseStatus(event, 201);
+  return createResource(
+    body as VirtualNetworkCreateRequest,
+    createVirtualNetworkSchema,
+    service.create
+  );
 });

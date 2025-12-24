@@ -64,8 +64,8 @@ required:
   - status
   - createdAt
   - securityGroups
-  - attachedStorages
+  - storages
   - node
-  - attachedNics
+  - networkInterfaces
   - cpuCore
   - memorySize

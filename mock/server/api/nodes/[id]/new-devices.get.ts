@@ -1,21 +1,13 @@
-import { getDevices } from "../../../services/nodeService";
-import { z } from "zod";
+import { getResourceList } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getNodeService } from "@/service/NodeService";
+import { validateUUID } from "@/utils/validate";
 
-export default defineEventHandler(async (event) => {
-  const paramsSchema = z.uuid();
+export default defineEventHandler((event) => {
+  const permission = getPermissionFromEvent(event);
+  const service = getNodeService(permission);
+  const { id } = event.context.params as { id: string };
+  validateUUID(id);
 
-  const id = event.context.params?.id;
-  const res = paramsSchema.safeParse(id);
-  if (!res.success) {
-    event.node.res.statusCode = 400;
-    return {
-      type: "Invalid UUID",
-      detail: z.treeifyError(res.error).errors.join(", "),
-      status: 400,
-    };
-  }
-  // これモックなので、常に同じデバイスリストを返す
-  const devices = getDevices();
-
-  return devices;
+  return getResourceList(() => service.listNewDevices(id));
 });

@@ -1,18 +1,20 @@
+import { createResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getVirtualMachineService } from "@/service/VirtualMachineService";
+import { createVirtualMachineSchema } from "@/zodSchemas";
+import type { VirtualMachineCreateRequest } from "@app/shared/types";
+
 export default defineEventHandler(async (event) => {
-  // リクエストのボディをJSONとして読み込む
+  const permission = getPermissionFromEvent(event);
+  const service = getVirtualMachineService(permission);
+
+  // リクエストボディをパース
   const body = await readBody(event);
 
-  // ターミナルに受け取った内容を表示
-  console.log("--- Virtual Machine Creation Request Received ---");
-  console.log(body);
-  console.log("-----------------------------------------------");
-
-  // レスポンスとして、受け取ったデータの一部を返す
-  return {
-    message: "Data received successfully",
-    data: {
-      id: crypto.randomUUID(), // ダミーのIDを生成
-      name: body.name, // 受け取った名前をそのまま返す
-    },
-  };
+  setResponseStatus(event, 201);
+  return createResource(
+    body as VirtualMachineCreateRequest,
+    createVirtualMachineSchema,
+    service.create
+  );
 });
