@@ -1,7 +1,7 @@
 import { createResource } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
 import { getSecurityGroupService } from "@/service/SecurityGroupService";
-import { SecurityRuleCreateRequest } from "@app/shared/types";
+import type { SecurityRuleCreateRequest } from "@app/shared/types";
 import { validateUUID } from "@/utils/validate";
 import { createSecurityGroupRuleSchema } from "@/zodSchemas";
 

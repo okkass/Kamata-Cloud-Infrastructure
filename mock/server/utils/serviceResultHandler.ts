@@ -2,7 +2,8 @@ import type { ServiceError } from "@/common/errors";
 import type { Result } from "@/common/type";
 import { z } from "zod";
 import { validateQuery, validateUUID, validateBody } from "./validate";
-
+import type { BulkRequest } from "@/types/BulkRequest";
+import { InstanceTypeCreateRequest } from "@app/shared/types";
 /**
  * Service 層から返却されたエラーを HTTP エラーに変換して投げる。
  * @param error Service 層で発生したエラー種別
@@ -184,4 +185,31 @@ export const deleteResource = (
 
   // この時点でresultは成功していることが保証されている
   return;
+};
+
+export const bulkResource = <TCreate, TUpdate, TResponse>(
+  body: BulkRequest<TCreate, TUpdate>,
+  createSchema: z.ZodType,
+  updateSchema: z.ZodType,
+  createFunc: (params: TCreate) => Result<TResponse, ServiceError>,
+  updateFunc:
+    | ((id: string, params: TUpdate) => Result<TResponse, ServiceError>)
+    | null,
+  deleteFunc: (id: string) => Result<null, ServiceError>,
+  listFunc: () => Result<TResponse[], ServiceError>
+): TResponse[] => {
+  // 追加処理
+  for (const item of body.add) {
+    createResource(item as TCreate, createSchema, createFunc);
+  }
+  // 更新処理
+  for (const item of body.patch) {
+    updateResource(item.id, item.data as TUpdate, updateSchema, updateFunc!);
+  }
+  // 削除処理
+  for (const id of body.remove) {
+    deleteResource(id, deleteFunc);
+  }
+  // 処理後のリストを返す
+  return getResourceList(listFunc);
 };

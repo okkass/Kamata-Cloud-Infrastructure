@@ -10,6 +10,7 @@ import type {
 import { SecurityGroupRepository } from "./SecurityGroupRepository";
 import { NodeRepository } from "./NodeRepository";
 import { StoragePoolRepository } from "./StoragePoolRepository";
+import VirtualNetworkRepository from "./VirtualNetworkRepository";
 
 let virtualMachines: Array<VirtualMachineResponse> | null = null;
 
@@ -54,12 +55,10 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
           name: "eth0",
           macAddress: "52:54:00:12:34:56",
           ipAddress: "10.0.0.3",
-          subnet: {
-            id: "d1f5e8c3-3c4b-4f5a-9f7e-2b6d9e8c9f1a",
-            name: "Subnet-01",
-            cidr: "10.0.0.0/24",
-            createdAt: new Date().toISOString(),
-          },
+          subnet: VirtualNetworkRepository.getSubnet(
+            "839b86e1-d1d9-4000-b61a-87ce11b6d179",
+            "4bb1712a-c3e1-4655-a0e4-1d3d2fb63631"
+          )!,
         },
       ],
       cpuCore: 4,
@@ -107,12 +106,10 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
           name: "eth0",
           macAddress: "52:54:00:12:34:56",
           ipAddress: "10.0.0.4",
-          subnet: {
-            id: "d1f5e8c3-3c4b-4f5a-9f7e-2b6d9e8c9f1a",
-            name: "Subnet-01",
-            cidr: "10.0.0.0/24",
-            createdAt: new Date().toISOString(),
-          },
+          subnet: VirtualNetworkRepository.getSubnet(
+            "839b86e1-d1d9-4000-b61a-87ce11b6d179",
+            "4bb1712a-c3e1-4655-a0e4-1d3d2fb63631"
+          )!,
         },
       ],
       cpuCore: 4,

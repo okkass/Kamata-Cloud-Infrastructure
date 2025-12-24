@@ -9,3 +9,8 @@ directory = "test-results"
 enabled = true
 [phases.coverage]
 unexpected-methods = []
+[[operations]]
+include-name = "GET /api/nodes/{node_id}"
+parameters = { node_id = "a2dcd604-49cb-4e1c-826a-2071d50404a3" }
+[phases.stateful]
+enabled = false

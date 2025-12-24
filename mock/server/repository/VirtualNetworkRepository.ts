@@ -3,6 +3,7 @@ import type {
   VirtualNetworkCreateRequest,
   VirtualNetworkPatchRequest,
   VirtualNetworkPutRequest,
+  VirtualNetworkSummaryResponse,
   SubnetResponse,
   SubnetCreateRequest,
   SubnetPatchRequest,
@@ -114,7 +115,18 @@ const getSubnet = (
   if (!vnet) {
     return undefined;
   }
-  return vnet.subnets.find((subnet) => subnet.id === subnetId);
+  let ret = vnet.subnets.find((subnet) => subnet.id === subnetId);
+  if (!ret) {
+    return undefined;
+  }
+  const summary: VirtualNetworkSummaryResponse = {
+    id: vnet.id,
+    name: vnet.name,
+    cidr: vnet.cidr,
+    createdAt: vnet.createdAt,
+  };
+  ret.parent = summary;
+  return ret;
 };
 
 const listSubnets = (vnetId: string): SubnetResponse[] | undefined => {

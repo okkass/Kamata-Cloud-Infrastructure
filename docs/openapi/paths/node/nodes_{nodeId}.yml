@@ -1,5 +1,6 @@
 get:
   summary: 物理ノードの詳細取得
+  operationId: getNodeById
   description: 指定したIDの物理ノードの詳細情報を取得します。
   tags:
     - Node
@@ -10,8 +11,8 @@ get:
       schema:
         type: string
         format: uuid
-      description: 物理ノードの一意なI
-      example: "bba6cb32-c841-4ace-9bc8-c3c5288b2e5f"
+      description: 物理ノードの一意なID
+      example: "a2dcd604-49cb-4e1c-826a-2071d50404a3"
   responses:
     "200":
       description: 成功
@@ -19,6 +20,37 @@ get:
         application/json:
           schema:
             $ref: "../../components/schemas/node/NodeResponse.yml"
+      links:
+        PutNodeById:
+          operationId: putNodeById
+          parameters:
+            nodeId: "$response.body#/id"
+          description: >
+            作成したノードを更新するには、このノードIDを使用してノードを更新できます。
+        PatchNodeById:
+          operationId: patchNodeById
+          parameters:
+            nodeId: "$response.body#/id"
+          description: >
+            作成したノードを部分的に更新するには、このノードIDを使用してノードを更新できます。
+        DeleteNodeById:
+          operationId: deleteNodeById
+          parameters:
+            nodeId: "$response.body#/id"
+          description: >
+            作成したノードを削除するには、このノードIDを使用してノードを削除できます。
+        GetNodeNewDevices:
+          operationId: getNodeNewDevices
+          parameters:
+            nodeId: "$response.body#/id"
+          description: >
+            作成したノードに新規接続されたストレージデバイスの一覧を取得するには、このノードIDを使用して取得できます。
+        CreateImage:
+          operationId: createImage
+          description: >
+            イメージを保存する先のノードとして使用する場合、このノードIDを使用してイメージを作成できます。
+          requestBody:
+            nodeId: "$response.body#/id"
     "400":
       description: リクエストエラー
       content:
@@ -47,6 +79,7 @@ get:
     - BearerAuth: []
 put:
   summary: 物理ノードの更新
+  operationId: putNodeById
   description: 指定したIDの物理ノード情報を更新します。
   tags:
     - Node
@@ -100,6 +133,7 @@ put:
     - BearerAuth: []
 patch:
   summary: 物理ノードの部分更新
+  operationId: patchNodeById
   description: 指定したIDの物理ノード情報を更新します。
   tags:
     - Node
@@ -153,6 +187,7 @@ patch:
     - BearerAuth: []
 delete:
   summary: 物理ノードの削除
+  operationId: deleteNodeById
   description: 指定したIDの物理ノードを削除します。
   tags:
     - Node

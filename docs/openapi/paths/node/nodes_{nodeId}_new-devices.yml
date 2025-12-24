@@ -1,5 +1,6 @@
 get:
   summary: ノードに新規接続されたストレージデバイスの一覧取得
+  operationId: getNodeNewDevices
   description: 指定したIDの物理ノードに新規接続されたストレージデバイスの一覧を取得します。
   tags:
     - Node
