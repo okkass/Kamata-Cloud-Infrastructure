@@ -1,10 +1,10 @@
 <template>
-  <BaseModal
-    :show="show"
-    title="インスタンスタイプの追加"
-    @close="$emit('close')"
-  >
-    <form @submit.prevent="submitForm">
+  <BaseModal :show="show" title="インスタンスタイプの追加" @close="handleClose">
+    <form
+      id="instance-type-add-form"
+      @submit.prevent="onSubmit"
+      class="modal-space"
+    >
       <FormInput
         label="インスタンスタイプ名"
         name="instance-type-name"
@@ -32,9 +32,9 @@
         name="instance-memory"
         type="number"
         placeholder="例: 4096"
-        v-model.number="memorySizeInMb"
-        v-bind="memorySizeInMbAttrs"
-        :error="errors.memorySizeInMb"
+        v-model.number="memorySize"
+        v-bind="memorySizeAttrs"
+        :error="errors.memorySize"
         :required="true"
       >
         <template #suffix>
@@ -45,14 +45,13 @@
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="submitForm"
-          class="btn btn-primary"
-          :disabled="isCreating"
-        >
-          {{ isCreating ? "追加中..." : "追加" }}
-        </button>
+        <UiSubmitButton
+          :disabled="isCreating || !isValid"
+          :loading="isCreating"
+          label="インスタンスタイプを追加"
+          type="submit"
+          form="instance-type-add-form"
+        />
       </div>
     </template>
   </BaseModal>
@@ -68,7 +67,6 @@
  */
 import { useInstanceTypeAddForm } from "~/composables/modal/useInstanceTypeAddForm";
 import FormInput from "~/components/Form/Input.vue";
-import FormSection from "~/components/Form/Section.vue";
 
 // --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
@@ -77,25 +75,18 @@ const emit = defineEmits(["close", "success"]);
 // --- Composable からフォームロジックと状態を取得 ---
 const {
   errors,
-  // フォームフィールド (v-model用)
   name,
   cpuCore,
-  memorySizeInMb,
-  // 属性 (onBlur, onChange 用)
+  memorySize,
   nameAttrs,
   cpuCoreAttrs,
-  memorySizeInMbAttrs,
+  memorySizeAttrs,
   // 状態とアクション
   isCreating,
+  isValid,
   onFormSubmit,
+  makeHandleClose,
 } = useInstanceTypeAddForm();
-
-// --- イベントハンドラ ---
-// onFormSubmit(emit) は Promise<void> を返す関数ですが、
-// テンプレート側の型チェックで void を期待されるため、ここでラップします。
-const submitHandler = onFormSubmit(emit);
-
-const submitForm = () => {
-  submitHandler();
-};
+const onSubmit = onFormSubmit(emit);
+const handleClose =  makeHandleClose(emit);
 </script>

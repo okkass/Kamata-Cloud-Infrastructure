@@ -3,6 +3,7 @@ description: 仮想ネットワークの作成時のみに更新可能なフィ�
 properties:
   cidr:
     type: string
+    pattern: '^(\d{1,3}\.){3}\d{1,3}/([0-9]|[12][0-9]|3[0-2])$'
     description: CIDR形式のネットワークアドレス
     example: 10.0.0.0/16
   initialSubnets:

@@ -1,27 +1,11 @@
-import { getVirtualMachineById } from "@/services/virtualMachineService";
-import { z } from "zod";
+import { getResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getVirtualMachineService } from "@/service/VirtualMachineService";
 
-export default defineEventHandler(async (event) => {
-  const paramsSchema = z.uuid();
-  const id = event.context.params?.id;
-  const res = paramsSchema.safeParse(id);
-  if (!res.success) {
-    event.node.res.statusCode = 400;
-    return {
-      type: "Invalid UUID",
-      detail: z.treeifyError(res.error).errors.join(", "),
-      status: 400,
-    };
-  }
-  const vmId = res.data;
-  const vm = getVirtualMachineById(vmId);
-  if (!vm) {
-    event.node.res.statusCode = 404;
-    return {
-      type: "Not Found",
-      detail: "Virtual Machine not found",
-      status: 404,
-    };
-  }
-  return vm;
+export default defineEventHandler((event) => {
+  const permission = getPermissionFromEvent(event);
+  const service = getVirtualMachineService(permission);
+
+  const { id } = event.context.params as { id: string };
+  return getResource(id, service.getById);
 });

@@ -3,60 +3,38 @@
  * 仮想ネットワーク作成フォーム Composable (useVirtualNetworkCreateForm.ts)
  * =================================================================================
  */
+import { computed } from "vue";
 import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
+import { useFormAction } from "~/composables/modal/useModalAction";
 import { useToast } from "~/composables/useToast";
-import { NETWORK } from "~/utils/constants";
-
-// ==============================================================================
-// Validation Schema
-// ==============================================================================
-
-// サブネット単体のスキーマ
-const subnetSchema = z.object({
-  name: z.string().min(1, "サブネット名は必須です。"),
-  cidr: z.string().cidrv4("有効なCIDR形式で入力してください。"),
-});
-
-// フォーム全体のスキーマ
-const zodSchema = z.object({
-  name: z.string().min(1, "ネットワーク名は必須です。"),
-  cidr: z.string().cidrv4("有効なCIDR形式で入力してください。"),
-  initialSubnets: z
-    .array(subnetSchema)
-    .min(1, "少なくとも1つのサブネットが必要です。"),
-});
-
-const validationSchema = toTypedSchema(zodSchema);
-
-// フォーム内の型定義 (VeeValidate用)
-type SubnetFormValue = z.infer<typeof subnetSchema>;
-type FormValues = z.infer<typeof zodSchema>;
+import { type SubnetFormValues } from "~/utils/validations/virtual-network";
+import {
+  VirtualNetworkCreateFullSchema,
+  type VirtualNetworkCreateFullFormValues,
+} from "~/utils/validations/virtual-network";
 
 /**
  * 仮想ネットワーク作成フォームのロジック
  */
-export function useVirtualNetworkCreateForm() {
-  const { addToast } = useToast();
+export function useVirtualNetworkCreateForm(emit: any) {
+  const { handleFormSubmit, makeHandleClose } = useFormAction();
 
   const { executeCreate, isCreating } = useResourceCreate<
     VirtualNetworkCreateRequest,
     VirtualNetworkResponse
   >(NETWORK.name);
 
-  // ============================================================================
-  // Form Setup
-  // ============================================================================
-  const { errors, handleSubmit, defineField, meta } = useForm<FormValues>({
-    validationSchema,
-    initialValues: {
-      name: "",
-      cidr: "",
-      initialSubnets: [],
-    },
-  });
+  const { errors, handleSubmit, defineField, meta, resetForm } =
+    useForm<VirtualNetworkCreateFullFormValues>({
+      validationSchema: toTypedSchema(VirtualNetworkCreateFullSchema),
+      initialValues: {
+        name: "",
+        cidr: "",
+        initialSubnets: [],
+      },
+    });
 
   const [name, nameAttrs] = defineField("name");
   const [cidr, cidrAttrs] = defineField("cidr");
@@ -66,48 +44,44 @@ export function useVirtualNetworkCreateForm() {
     fields: initialSubnets,
     push: pushSubnet,
     remove: removeSubnet,
-  } = useFieldArray<SubnetFormValue>("initialSubnets");
+  } = useFieldArray<SubnetFormValues>("initialSubnets");
 
-  // サブネット追加ヘルパー
   const addSubnet = () => {
     pushSubnet({
+      id: `new-${Date.now()}`,
       name: "",
       cidr: "",
     });
   };
 
-  // ============================================================================
-  // Submission Handler
-  // ============================================================================
-  const onFormSubmit = (emit: (event: "success" | "close") => void) =>
-    handleSubmit(async (formValues) => {
-      // 自動インポートされる型 (VirtualNetworkCreateRequest) を使用
-      const payload: VirtualNetworkCreateRequest = {
-        name: formValues.name,
-        cidr: formValues.cidr,
-        initialSubnets: formValues.initialSubnets.map((s) => ({
-          name: s.name,
-          cidr: s.cidr,
-        })),
-      };
-
-      const result = await executeCreate(payload);
-
-      if (result.success) {
-        addToast({
-          type: "success",
-          message: `仮想ネットワーク「${payload.name}」を作成しました。`,
-        });
-        emit("success");
-        emit("close");
-      } else {
-        addToast({
-          type: "error",
-          message: "作成に失敗しました。",
-          details: result.error?.message,
-        });
-      }
-    });
+  // --- 送信ハンドラ ---
+  const onFormSubmit = (emit: any) =>
+    handleFormSubmit<
+      VirtualNetworkCreateFullFormValues,
+      VirtualNetworkResponse
+    >(
+      handleSubmit,
+      {
+        execute: async (formValues) => {
+          const payload: VirtualNetworkCreateRequest = {
+            name: formValues.name,
+            cidr: formValues.cidr,
+            initialSubnets: formValues.initialSubnets.map((subnet) => ({
+              name: subnet.name,
+              cidr: subnet.cidr,
+            })),
+          };
+          return await executeCreate(payload);
+        },
+        onSuccess: async () => {
+          resetForm();
+        },
+        onSuccessMessage: (payload) =>
+          `仮想ネットワーク「${payload.name}」を作成しました。`,
+      },
+      emit
+    );
+  const makehandleClose = (emit: any) => makeHandleClose(resetForm, emit);
 
   return {
     errors,
@@ -119,7 +93,8 @@ export function useVirtualNetworkCreateForm() {
     addSubnet,
     removeSubnet,
     isCreating,
+    isValid: computed(() => meta.value.valid),
     onFormSubmit,
-    meta,
+    makehandleClose,
   };
 }

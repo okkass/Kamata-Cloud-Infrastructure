@@ -1,8 +1,11 @@
-export default defineEventHandler(async (event) => {
-  event.node.res.statusCode = 501;
-  return {
-    type: "Not Implemented",
-    detail: "This endpoint is not yet implemented",
-    status: 501,
-  };
+import { deleteResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getVirtualMachineService } from "@/service/VirtualMachineService";
+
+export default defineEventHandler((event) => {
+  const permission = getPermissionFromEvent(event);
+  const service = getVirtualMachineService(permission);
+
+  const { id } = event.context.params as { id: string };
+  return deleteResource(id, service.delete);
 });

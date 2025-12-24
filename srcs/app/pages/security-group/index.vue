@@ -53,7 +53,7 @@
   />
   <MoSecurityGroupEdit
     :show="activeModal === editSecurityGroupAction"
-    :securityGroupData="targetForEditing ?? null"
+    :data="targetForEditing?.originalData ?? null"
     @close="closeModal"
     @success="handleSuccess"
   />
@@ -63,18 +63,11 @@
 import { SECURITY_GROUP } from "@/utils/constants";
 import { useSecurityDashboard } from "~/composables/dashboard/useSecurityManagement";
 import { usePageActions } from "~/composables/usePageActions";
-import type { SecurityGroupResponse } from "~~/shared/types";
+import type { UiEnhancedSecurityGroup } from "~/composables/dashboard/useSecurityDashboard";
 
 // ★ 1. データ関連のComposableを呼び出し
-const {
-  columns,
-  groups,
-  headerButtons,
-  refreshGroupList,
-  ADD_SECURITY_GROUP_ACTION: addSecurityGroupAction,
-  EDIT_SECURITY_GROUP_ACTION: editSecurityGroupAction,
-  DELETE_SECURITY_GROUP_ACTION: deleteSecurityGroupAction,
-} = useSecurityDashboard();
+const { columns, groups, headerButtons, refreshGroupList } =
+  useSecurityDashboard();
 
 // ★ 2. アクション関連のComposableを呼び出し
 const {
@@ -88,9 +81,13 @@ const {
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<SecurityGroupResponse>({
+} = usePageActions<UiEnhancedSecurityGroup>({
   resourceName: SECURITY_GROUP.name,
   resourceLabel: SECURITY_GROUP.label,
   refresh: refreshGroupList, // refresh関数を渡す
 });
+
+const addSecurityGroupAction = `create-${SECURITY_GROUP.name}`;
+const editSecurityGroupAction = `edit-${SECURITY_GROUP.name}`;
+const deleteSecurityGroupAction = `delete-${SECURITY_GROUP.name}`;
 </script>

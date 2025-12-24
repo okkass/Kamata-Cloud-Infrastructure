@@ -14,7 +14,7 @@ import type { SecurityGroupResponse } from "~~/shared/types";
 /* =========================== Types (APIに準拠) =========================== */
 
 /** テーブルUI用（明示的なフィールド名を追加） */
-interface UiEnhancedSecurityGroup extends SecurityGroupResponse {
+export interface UiEnhancedSecurityGroup extends SecurityGroupResponse {
   inboundRuleCount: number;
   outboundRuleCount: number;
   ruleSummary: string;
@@ -42,12 +42,12 @@ export function useSecurityDashboard() {
   const headerButtons = [{ label: "セキュリティグループ追加", action: "add" }];
 
   const groups = computed<UiEnhancedSecurityGroup[]>(() =>
-    (rawGroups.value ?? []).map((g) => {
-      const inboundRuleCount =
+    (rawGroups.value ?? []).map((g): UiEnhancedSecurityGroup => {
+      const inboundRuleCount: number =
         g.rules?.filter((r) => r.ruleType === "inbound").length ?? 0;
-      const outboundRuleCount =
+      const outboundRuleCount: number =
         g.rules?.filter((r) => r.ruleType === "outbound").length ?? 0;
-      const summary = `${inboundRuleCount} / ${outboundRuleCount}`;
+      const summary: string = `${inboundRuleCount} / ${outboundRuleCount}`;
 
       return {
         ...g,

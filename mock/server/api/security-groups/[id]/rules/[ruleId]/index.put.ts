@@ -1,8 +1,24 @@
-// putのmock
+import { updateResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getSecurityGroupService } from "@/service/SecurityGroupService";
+import { SecurityRulePutRequest } from "@app/shared/types";
+import { updateSecurityGroupRuleSchema } from "@/zodSchemas";
+import { validateUUID } from "@/utils/validate";
+
 export default defineEventHandler(async (event) => {
-  const id = event.context.params?.id;
-  const ruleId = event.context.params?.ruleId;
+  const permission = getPermissionFromEvent(event);
   const body = await readBody(event);
-  console.log(`Received put for rule ${ruleId} from security group ${id}:`, body);
-  return { message: `Rule ${ruleId} from security group ${id} put successfully`, data: body };
-}); 
+  const { id, ruleId } = event.context.params as { id: string; ruleId: string };
+
+  validateUUID(id);
+
+  const service =
+    getSecurityGroupService(permission).getSecurityRuleService(id);
+
+  return updateResource(
+    ruleId,
+    body as SecurityRulePutRequest,
+    updateSecurityGroupRuleSchema,
+    service.update
+  );
+});

@@ -10,6 +10,12 @@ export interface CollectionConfig {
   idKey: string;
   newIdPrefix: string;
   fields: string[];
+  bulkKeys?: {
+    create?: string;
+    update?: string;
+    delete?: string;
+  };
+  isAttachable?: boolean;
 }
 
 export interface ResourceConfig {
@@ -83,7 +89,9 @@ export function useResourceUpdater<T extends { id: string }>() {
         // add
         editedList.forEach((item) => {
           const id = item[collConfig.idKey];
-          if (String(id).startsWith(collConfig.newIdPrefix)) {
+          const isNew = String(id).startsWith(collConfig.newIdPrefix);
+
+          if (isNew) {
             const { [collConfig.idKey]: _, ...payload } = item;
             add.push(payload);
           }

@@ -53,7 +53,7 @@
   />
   <MoInstanceTypeEdit
     :show="activeModal === EDIT_INSTANCE_TYPE_ACTION"
-    :instance-type-data="targetForEditing"
+    :data="targetForEditing"
     @close="closeModal"
     @success="handleSuccess"
   />

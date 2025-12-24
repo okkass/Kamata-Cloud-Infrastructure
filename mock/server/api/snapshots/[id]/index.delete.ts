@@ -1,5 +1,11 @@
-export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
-  console.log("Deleting snapshot with id:", body);
-  return { message: "Backup deleted" };
+import { deleteResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getSnapshotService } from "@/service/SnapshotService";
+
+export default defineEventHandler((event) => {
+  const permission = getPermissionFromEvent(event);
+  const service = getSnapshotService(permission);
+  const { id } = event.context.params as { id: string };
+
+  return deleteResource(id, service.delete);
 });

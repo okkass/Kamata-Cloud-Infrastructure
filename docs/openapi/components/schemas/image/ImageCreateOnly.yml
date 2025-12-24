@@ -5,5 +5,3 @@ properties:
     type: string
     format: uuid
     description: イメージを作成するノードのID
-required:
-  - nodeId

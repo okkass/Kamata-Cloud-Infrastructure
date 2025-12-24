@@ -1,5 +1,6 @@
 get:
   summary: 物理ノード一覧の取得
+  operationId: listNodes
   description: すべての物理ノードのリストを取得します。
   tags:
     - Node
@@ -12,6 +13,25 @@ get:
             type: array
             items:
               $ref: "../../components/schemas/node/NodeResponse.yml"
+            example:
+              - id: "ff324fb4-18a0-432f-a2fa-d10d57123967"
+                name: "node-01"
+                ipAddress: "10.0.0.1"
+                status: "active"
+                isAdmin: true
+                createdAt: "2024-01-15T10:00:00Z"
+                cpuUtilization: 0.45
+                memoryUtilization: 0.55
+                storageUtilization: 0.65
+              - id: "ab5d2f84-1d9a-4267-af00-4cca72939127"
+                name: "node-02"
+                ipAddress: "10.0.0.2"
+                status: "active"
+                isAdmin: true
+                createdAt: "2024-01-15T10:00:00Z"
+                cpuUtilization: 0.45
+                memoryUtilization: 0.55
+                storageUtilization: 0.65
     "401":
       description: 認証エラー
       content:
@@ -28,6 +48,7 @@ get:
     - BearerAuth: []
 post:
   summary: 物理ノードの追加
+  operationId: createNode
   description: 新しい物理ノードを追加します。
   tags:
     - Node
@@ -37,6 +58,11 @@ post:
       application/json:
         schema:
           $ref: "../../components/schemas/node/NodeCreateRequest.yml"
+        example:
+          ipAddress: "10.0.0.1"
+          rootPassword: "ExamplePassword123!"
+          name: "node-01"
+          isAdmin: true
   responses:
     "201":
       description: 作成成功
@@ -44,6 +70,54 @@ post:
         application/json:
           schema:
             $ref: "../../components/schemas/node/NodeResponse.yml"
+          example:
+            id: "ff324fb4-18a0-432f-a2fa-d10d57123967"
+            name: "node-01"
+            ipAddress: "10.0.0.1"
+            status: "active"
+            isAdmin: true
+            createdAt: "2024-01-15T10:00:00Z"
+            cpuUtilization: 0.45
+            memoryUtilization: 0.55
+            storageUtilization: 0.65
+      links:
+        GetNodeById:
+          operationId: getNodeById
+          parameters:
+            nodeId: "$response.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        PutNodeById:
+          operationId: putNodeById
+          parameters:
+            nodeId: "$response.body#/id"
+          description: >
+            作成したノードを更新するには、このノードIDを使用してノードを更新できます。
+        PatchNodeById:
+          operationId: patchNodeById
+          parameters:
+            nodeId: "$response.body#/id"
+          description: >
+            作成したノードを部分的に更新するには、このノードIDを使用してノードを更新できます。
+        DeleteNodeById:
+          operationId: deleteNodeById
+          parameters:
+            nodeId: "$response.body#/id"
+          description: >
+            作成したノードを削除するには、このノードIDを使用してノードを削除できます。
+        GetNodeNewDevices:
+          operationId: getNodeNewDevices
+          parameters:
+            nodeId: "$response.body#/id"
+          description: >
+            作成したノードに新規接続されたストレージデバイスの一覧を取得するには、このノードIDを使用して取得できます。
+        CreateImage:
+          operationId: createImage
+          description: >
+            イメージを保存する先のノードとして使用する場合、このノードIDを使用してイメージを作成できます。
+          requestBody:
+            nodeId: "$response.body#/id"
+
     "400":
       description: リクエストエラー
       content:

@@ -1,13 +1,19 @@
+import { updateResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getVirtualNetworkService } from "@/service/VirtualNetworkService";
+import { partialUpdateVirtualNetworkSchema } from "@/zodSchemas";
+
 export default defineEventHandler(async (event) => {
-  const id = event.context.params?.id;
-  if (!id) {
-    throw createError({ statusCode: 400, statusMessage: "Invalid ID" });
-  }
+  const permission = getPermissionFromEvent(event);
+  const { id } = event.context.params as { id: string };
+  const requestBody = await readBody(event);
 
-  const body = await readBody(event);
+  const service = getVirtualNetworkService(permission);
 
-  // TODO: Implement actual DB operations using Prisma for partial update
-  console.log(`PATCH request received for virtual network ${id}:`, body);
-
-  return { message: "Virtual network updated successfully", data: body };
+  return updateResource(
+    id,
+    requestBody,
+    partialUpdateVirtualNetworkSchema,
+    service.update
+  );
 });

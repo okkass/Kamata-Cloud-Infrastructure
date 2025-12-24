@@ -1,3 +1,5 @@
+import type { SummaryHistoryResponse } from "@app/shared/types";
+
 /**
  * 過去24時間分の時系列データを生成するヘルパー関数
  * （実際にはバックエンドがPrometheusやInfluxDBにクエリしてこのデータを生成する）
