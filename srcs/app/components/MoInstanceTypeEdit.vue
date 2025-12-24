@@ -71,7 +71,7 @@
         <UiSubmitButton
           :disabled="isSaving || !isValid"
           :loading="isSaving"
-          label="インスタンスタイプを更新"
+          label="更新"
           form="instance-type-edit-form"
           type="submit"
         />
