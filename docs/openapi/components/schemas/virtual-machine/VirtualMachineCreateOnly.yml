@@ -54,7 +54,6 @@ required:
   - publicKey
   - nodeId
   - imageId
-  - middlewareId
   - subnetId
   - storages
   - securityGroupIds

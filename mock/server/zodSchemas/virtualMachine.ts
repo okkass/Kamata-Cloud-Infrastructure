@@ -40,7 +40,7 @@ export const createVirtualMachineSchema = z.object({
   publicKey: z.string(),
   nodeId: looseUuidSchema,
   imageId: looseUuidSchema,
-  middlewareId: looseUuidSchema,
+  middlewareId: looseUuidSchema.optional(),
   storages: z.array(createStorageSchema),
   securityGroupIds: z.array(looseUuidSchema),
   name: z.string(),
