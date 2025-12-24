@@ -10,6 +10,9 @@ import type {
 import { SecurityGroupRepository } from "./SecurityGroupRepository";
 import { NodeRepository } from "./NodeRepository";
 import { StoragePoolRepository } from "./StoragePoolRepository";
+import { ImageRepository } from "./ImageRepository";
+import { InstanceTypeRepository } from "./InstanceTypeRepository";
+import crypto from "crypto";
 import VirtualNetworkRepository from "./VirtualNetworkRepository";
 
 let virtualMachines: Array<VirtualMachineResponse> | null = null;
@@ -135,7 +138,83 @@ const getById = (id: string): VirtualMachineResponse | undefined => {
 const create = (
   data: VirtualMachineCreateRequest
 ): VirtualMachineResponse | undefined => {
-  return undefined;
+  let cpuCore: number | undefined;
+  let memorySize: number | undefined;
+  // specの型で分岐
+  if ("instanceTypeId" in data.spec) {
+    const instanceType = InstanceTypeRepository.getById(
+      data.spec.instanceTypeId
+    );
+    if (!instanceType) {
+      return undefined;
+    }
+    cpuCore = instanceType.cpuCore;
+    memorySize = instanceType.memorySize;
+  } else if ("cpuCore" in data.spec && "memorySize" in data.spec) {
+    cpuCore = data.spec.cpuCore as number;
+    memorySize = data.spec.memorySize as number;
+  } else {
+    return undefined;
+  }
+  const node = NodeRepository.getById(data.nodeId);
+  const image = ImageRepository.getById(data.imageId);
+  const securityGroups = data.securityGroupIds.map((sgId) =>
+    SecurityGroupRepository.getById(sgId)
+  );
+  const storages = data.storages.map((storageReq) => {
+    const pool = StoragePoolRepository.getById(storageReq.poolId);
+    if (pool) {
+      return {
+        id: crypto.randomUUID(),
+        name: storageReq.name,
+        size: storageReq.size,
+        pool: pool,
+        createdAt: new Date().toISOString(),
+        devicePath: "/dev/sdX",
+      };
+    }
+    return undefined;
+  });
+  const nics = data.subnetIds.map((subnetId) => {
+    const subnet = VirtualNetworkRepository.getSubnetById(subnetId);
+    if (subnet) {
+      return {
+        id: crypto.randomUUID(),
+        name: "ethX",
+        macAddress: "52:54:00:ab:cd:ef",
+        ipAddress: "10.0.0.X",
+        subnet: subnet,
+      };
+    }
+    return undefined;
+  });
+  // undefinedがあれば失敗
+  if (
+    !node ||
+    !image ||
+    securityGroups.includes(undefined) ||
+    storages.includes(undefined) ||
+    nics.includes(undefined)
+  ) {
+    return undefined;
+  }
+  const newVm: VirtualMachineResponse = {
+    id: crypto.randomUUID(),
+    name: data.name,
+    status: "running",
+    node: node,
+    createdAt: new Date().toISOString(),
+    securityGroups: securityGroups as SecurityGroupResponse[],
+    storages: storages as StorageResponse[],
+    networkInterfaces: nics as NetworkInterfaceResponse[],
+    cpuUtilization: Math.random(),
+    memoryUtilization: Math.random(),
+    storageUtilization: Math.random(),
+    cpuCore: cpuCore!,
+    memorySize: memorySize!,
+  };
+  list().push(newVm);
+  return newVm;
 };
 
 const update = (
