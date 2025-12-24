@@ -31,6 +31,8 @@ import VmEditTabNetwork from "~/components/vm-edit-tabs/VmEditTabNetwork.vue"; /
 interface Props {
   show: boolean;
   vmId: string | null;
+  /** 行データが直接渡される場合に使用（ストレージ同様の渡し方）*/
+  virtualMachine?: any | null;
 }
 interface TabComponent {
   validate: () => Promise<{ valid: boolean }>;
@@ -68,6 +70,10 @@ export function useVirtualMachineEdit(props: Props) {
     asyncDataKey, // 1. Key
     async () => {
       // 2. Handler (API fetch logic)
+      // 行データが渡されている場合はAPIフェッチせずそのまま返す
+      if (props.virtualMachine) {
+        return props.virtualMachine as unknown as VirtualMachineDTO;
+      }
       const currentVmId = props.vmId;
       if (!currentVmId) return null;
       try {
@@ -143,10 +149,17 @@ export function useVirtualMachineEdit(props: Props) {
     () => props.show,
     (isVisible) => {
       //
-      if (isVisible && props.vmId) {
+      if (isVisible && (props.vmId || props.virtualMachine)) {
         if (error.value) error.value = null;
-        // ★ 正しくエイリアスされた reloadData() を呼ぶ
-        if (!pending.value) reloadData();
+        // 行データが渡されている場合はVMデータを直接セットしてローディングを解除
+        if (props.virtualMachine) {
+          vmData.value = props.virtualMachine as unknown as VirtualMachineDTO;
+          // 手動で pending を false にして描画させる
+          (pending as any).value = false;
+        } else {
+          // ★ 正しくエイリアスされた reloadData() を呼ぶ
+          if (!pending.value) reloadData();
+        }
         currentTab.value = 0;
         submitError.value = null;
         tabRefs.value = [];

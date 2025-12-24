@@ -61,7 +61,7 @@
 
 <script setup lang="ts">
 import { SECURITY_GROUP } from "@/utils/constants";
-import { useSecurityDashboard } from "~/composables/dashboard/useSecurityDashboard";
+import { useSecurityDashboard } from "~/composables/dashboard/useSecurityManagement";
 import { usePageActions } from "~/composables/usePageActions";
 import type { SecurityGroupResponse } from "~~/shared/types";
 

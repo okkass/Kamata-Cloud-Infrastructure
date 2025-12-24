@@ -85,7 +85,7 @@ import { BACKUP } from "@/utils/constants";
 import {
   useBackupManagement,
   type BackupRow,
-} from "~/composables/dashboard/useBackup";
+} from "~/composables/dashboard/useBackupManagement";
 import { usePageActions } from "~/composables/usePageActions";
 import DashboardLayout from "~/components/DashboardLayout.vue";
 import MoBackupCreate from "~/components/MoBackupCreate.vue";
