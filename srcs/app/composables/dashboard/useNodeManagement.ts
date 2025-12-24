@@ -6,7 +6,7 @@
  * API連携、イベントハンドラなどのロジックをすべてカプセル化します。
  * =================================================================================
  */
-import { ref, computed } from "vue";
+import { ref, computed, onMounted, onUnmounted } from "vue";
 import { useToast } from "@/composables/useToast";
 import { useResourceList } from "@/composables/useResourceList";
 import { createPolling } from "@/utils/polling";
@@ -49,6 +49,16 @@ export function useNodeManagement() {
   // ============================================================================
   const { startPolling, stopPolling, runOnce, lastUpdatedTime } =
     createPolling(refreshNodeList);
+
+  // マウント時に即時実行し、その後ポーリング開始。アンマウント時に停止。
+  onMounted(() => {
+    void runOnce();
+    startPolling();
+  });
+
+  onUnmounted(() => {
+    stopPolling();
+  });
 
   // ============================================================================
   // Computed Properties
@@ -124,10 +134,6 @@ export function useNodeManagement() {
     switchingNodeId,
     handleSetAsManagementNode,
     refreshNodeList,
-    startPolling,
-    stopPolling,
-    runOnce,
-    lastUpdatedTime,
     ADD_NODE_ACTION: addNodeAction,
     DELETE_NODE_ACTION: deleteNodeAction,
   };
