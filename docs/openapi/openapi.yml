@@ -45,9 +45,9 @@ paths:
     $ref: "paths/storage-pool/storage-pools_node_{nodeId}.yml"
   /api/storage-pools/{id}:
     $ref: "paths/storage-pool/storage-pools_{id}.yml"
-  /api/history:
+  /api/summary/history:
     $ref: "paths/summary/history.yml"
-  /api/realtime:
+  /api/summary/realtime:
     $ref: "paths/summary/realtime.yml"
   /api/users:
     $ref: "paths/user/users.yml"
