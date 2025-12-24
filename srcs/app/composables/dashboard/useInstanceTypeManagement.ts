@@ -10,10 +10,6 @@
  */
 import { computed, onMounted, onUnmounted } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
-import { INSTANCE_TYPE } from "@/utils/constants";
-import { formatDateTime } from "@/utils/date";
-import { createPolling } from "@/utils/polling";
-import { convertByteToUnit } from "@/utils/format";
 import type { InstanceTypeResponse } from "~~/shared/types";
 
 /** 定数定義  */
@@ -52,7 +48,8 @@ export function useInstanceTypeManagement() {
     }
   );
 
-  // マウント時に即時実行し、その後ポーリング開始。アンマウント時に停止。
+  // マウント時に即座に初回データを取得し、その後定期ポーリング開始。
+
   onMounted(() => {
     void runOnce();
     startPolling();
@@ -76,13 +73,13 @@ export function useInstanceTypeManagement() {
 
   const headerButtons = [{ action: "add", label: "追加" }];
 
-  const rows = computed<InstanceTypeRow[]>(() =>
+  const rows = computed(() =>
     (rawList.value ?? []).map((r) => ({
       id: r.id,
-      name: r.name ?? "-",
-      vcpu: r.cpuCore ?? 0,
+      name: r.name,
+      vcpu: r.cpuCore,
       memorySize: convertByteToUnit(r.memorySize, "MB"),
-      createdAtText: r.createdAt ? formatDateTime(r.createdAt) : "-",
+      createdAtText: formatDateTime(r.createdAt),
       originalData: r,
     }))
   );

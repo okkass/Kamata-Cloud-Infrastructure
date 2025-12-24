@@ -7,7 +7,7 @@
       rowKey="id"
       :headerButtons="headerButtons"
       @header-action="handleHeaderAction"
-      @row-action="onRowAction"
+      @row-action="handleRowAction"
     >
       <template #cell-name="{ row }">
         <NuxtLink :to="`/instance-type/${row.id}`" class="table-link">
@@ -38,14 +38,16 @@
         <button
           type="button"
           class="action-item"
-          @click.stop.prevent="row && onRowAction({ action: 'edit', row })"
+          @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
         >
           編集
         </button>
         <button
           type="button"
           class="action-item action-item-danger"
-          @click.stop.prevent="row && onRowAction({ action: 'delete', row })"
+          @click.stop.prevent="
+            row && handleRowAction({ action: 'delete', row })
+          "
         >
           削除
         </button>
@@ -55,17 +57,15 @@
     <!-- インスタンスタイプ追加モーダル -->
     <MoInstanceTypeAdd
       :show="activeModal === ADD_INSTANCE_TYPE_ACTION"
-      @close="closeModal"
+      @close="cancelAction"
       @success="handleSuccess"
     />
 
     <!-- インスタンスタイプ編集モーダル -->
     <MoInstanceTypeEdit
       :show="activeModal === EDIT_INSTANCE_TYPE_ACTION"
-      :instanceTypeData="
-        targetForEditing?.originalData ?? targetForEditing ?? undefined
-      "
-      @close="closeModal"
+      :instanceTypeData="targetForEditing?.originalData ?? undefined"
+      @close="cancelAction"
       @success="handleSuccess"
     />
 
@@ -74,19 +74,19 @@
       :show="activeModal === DELETE_INSTANCE_TYPE_ACTION"
       :message="`本当にインスタンスタイプ「${targetForDeletion?.name}」を削除しますか？`"
       :is-loading="isDeleting"
-      @close="closeModal"
+      @close="cancelAction"
       @confirm="handleDelete"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { INSTANCE_TYPE } from "@/utils/constants";
+import { INSTANCE_TYPE } from "~/utils/constants";
 import {
   useInstanceTypeManagement,
   type InstanceTypeRow,
 } from "~/composables/dashboard/useInstanceTypeManagement";
-import { usePageActions } from "@/composables/usePageActions";
+import { usePageActions } from "~/composables/usePageActions";
 import DashboardLayout from "~/components/DashboardLayout.vue";
 import MoInstanceTypeAdd from "~/components/MoInstanceTypeAdd.vue";
 import MoInstanceTypeEdit from "~/components/MoInstanceTypeEdit.vue";
@@ -126,16 +126,5 @@ function handleHeaderAction(action: string) {
   if (action === "add") {
     openModal(ADD_INSTANCE_TYPE_ACTION);
   }
-}
-
-/* 行アクションのハンドラー */
-function onRowAction({
-  action,
-  row,
-}: {
-  action: string;
-  row: InstanceTypeRow;
-}) {
-  handleRowAction({ action, row });
 }
 </script>
