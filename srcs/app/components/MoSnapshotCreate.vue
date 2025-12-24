@@ -1,6 +1,10 @@
 <template>
-  <BaseModal :show="show" title="スナップショット作成" @close="$emit('close')">
-    <form @submit.prevent="submitForm" class="space-y-6">
+  <BaseModal :show="show" title="スナップショット作成" @close="handleClose">
+    <form
+      id="snapshot-create-form"
+      @submit.prevent="onSubmit"
+      class="space-y-6"
+    >
       <div class="space-y-4">
         <FormInput
           label="スナップショット名"
@@ -23,8 +27,8 @@
           :required="true"
           :pending="vmsPending"
           :error="vmsError"
-          :error-message="errors.vmId"
-          v-model="vmId"
+          :error-message="errors.targetVmId"
+          v-model="targetVmId"
         />
 
         <FormTextarea
@@ -41,14 +45,13 @@
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="submitForm"
-          class="btn btn-primary"
-          :disabled="isCreating"
-        >
-          {{ isCreating ? "作成中..." : "作成" }}
-        </button>
+        <UiSubmitButton
+          :disabled="isCreating || !isValid"
+          :loading="isCreating"
+          label="スナップショットを作成"
+          form="snapshot-create-form"
+          type="submit"
+        />
       </div>
     </template>
   </BaseModal>
@@ -61,10 +64,10 @@
  * =================================================================================
  */
 import { useSnapshotCreateForm } from "~/composables/modal/useSnapshotCreateForm";
-// 指定された共通コンポーネントを使用
 import FormInput from "~/components/Form/Input.vue";
 import FormTextarea from "~/components/Form/Textarea.vue";
 import FormSelect from "~/components/Form/Select.vue";
+import UiSubmitButton from "~/components/ui/SubmitButton.vue";
 
 // --- Props & Emits ---
 defineProps({ show: { type: Boolean, required: true } });
@@ -75,22 +78,17 @@ const {
   errors,
   name,
   nameAttrs,
-  vmId,
-  // vmAttrs, // Selectコンポーネントの仕様により attrs が不要な場合は省略可
+  targetVmId,
   description,
   descriptionAttrs,
-
   virtualMachines,
   vmsPending,
   vmsError,
-
   isCreating,
+  isValid,
   onFormSubmit,
-} = useSnapshotCreateForm();
-
-// --- Event Handler ---
-const submitHandler = onFormSubmit(emit);
-const submitForm = () => {
-  submitHandler();
-};
+  makehandleClose,
+} = useSnapshotCreateForm(emit);
+const handleClose = makehandleClose(emit);
+const onSubmit = onFormSubmit(emit);
 </script>

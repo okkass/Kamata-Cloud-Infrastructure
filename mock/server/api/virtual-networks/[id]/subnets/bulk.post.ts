@@ -14,8 +14,7 @@ export default defineEventHandler(async (event) => {
   const { id } = event.context.params as { id: string };
   validateUUID(id);
 
-  const service =
-    getVirtualNetworkService(permission).getSubnetService(id);
+  const service = getVirtualNetworkService(permission).getSubnetService(id);
 
   if (!service) {
     throw createError({
