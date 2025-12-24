@@ -3,7 +3,6 @@ import type { Result } from "@@/server/common/type";
 import { z } from "zod";
 import { validateQuery, validateUUID, validateBody } from "./validate";
 import type { BulkRequest } from "@@/server/types/BulkRequest";
-import { InstanceTypeCreateRequest } from "@@/shared/types";
 /**
  * Service 層から返却されたエラーを HTTP エラーに変換して投げる。
  * @param error Service 層で発生したエラー種別

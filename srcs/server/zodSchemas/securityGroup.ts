@@ -46,7 +46,7 @@ export const updateSecurityGroupRuleSchema = z.object({
 export const partialUpdateSecurityGroupRuleSchema = z.object({
   name: z.string().optional(),
   ruleType: z.union([z.literal("inbound"), z.literal("outbound")]).optional(),
-  port: z.number().optional(),
+  port: z.number().optional().nullable(),
   protocol: z
     .union([
       z.literal("tcp"),

@@ -7,7 +7,6 @@ import type {
 
 import crypto from "crypto";
 import NodeRepository from "./NodeRepository";
-import { generateRandomUsage } from "../api/summary/realtime.get.js";
 
 let storagePools: Array<StoragePoolResponse> = [
   {
