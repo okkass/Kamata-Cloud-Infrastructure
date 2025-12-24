@@ -1827,7 +1827,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/api/history": {
+    "/api/summary/history": {
         parameters: {
             query?: never;
             header?: never;
@@ -1847,7 +1847,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/realtime": {
+    "/api/summary/realtime": {
         parameters: {
             query?: never;
             header?: never;
