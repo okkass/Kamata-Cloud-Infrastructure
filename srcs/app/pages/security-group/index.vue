@@ -63,7 +63,7 @@
 import { SECURITY_GROUP } from "@/utils/constants";
 import { useSecurityDashboard } from "~/composables/dashboard/useSecurityManagement";
 import { usePageActions } from "~/composables/usePageActions";
-import type { UiEnhancedSecurityGroup } from "~/composables/dashboard/useSecurityDashboard";
+import type { UiEnhancedSecurityGroup } from "~/composables/dashboard/useSecurityManagement";
 
 // ★ 1. データ関連のComposableを呼び出し
 const { columns, groups, headerButtons, refreshGroupList } =

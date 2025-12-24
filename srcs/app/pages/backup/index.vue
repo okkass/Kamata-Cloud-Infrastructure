@@ -71,9 +71,7 @@
     <!-- 復元モーダル（存在しない場合は無視されます） -->
     <MoBackupRestore
       :show="activeModal === RESTORE_BACKUP_ACTION"
-      :backupData="
-        targetForEditing?.originalData ?? targetForEditing ?? undefined
-      "
+      :data="targetForEditing?.originalData ?? targetForEditing ?? undefined"
       @close="closeModal"
       @success="handleSuccess"
     />
