@@ -47,9 +47,6 @@ import { useResourceDetail } from "~/composables/useResourceDetail";
 import { useToast } from "~/composables/useToast";
 import { useApiClient } from "~/composables/useResourceClient";
 
-type VirtualMachineResponse =
-  components["schemas"]["VirtualMachineResponse"];
-
 const { addToast } = useToast();
 const apiClient = useApiClient();
 
@@ -72,14 +69,7 @@ const polling = createPolling(async () => {
   try {
     await refresh();
   } catch (err) {
-    // ポーリング中のエラーは少なくともログに残し、ユーザーにも通知する
-    // eslint-disable-next-line no-console
     console.error("Failed to refresh VM in polling", err);
-    addToast({
-      title: "エラー",
-      description: "最新の仮想マシン情報の取得に失敗しました。",
-      variant: "destructive",
-    });
   }
 });
 
