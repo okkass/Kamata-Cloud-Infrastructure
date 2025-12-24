@@ -12,7 +12,7 @@ export type VnetRow = {
   cidr: string;
   subnets: number;
   createdAtText: string;
-  originalData?: VirtualNetworkResponse;
+  originalData: VirtualNetworkResponse;
 };
 
 const RESOURCE_NAME = NETWORK.name;

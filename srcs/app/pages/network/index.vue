@@ -54,7 +54,7 @@
     <!-- 仮想ネットワーク作成モーダル -->
     <MoVirtualNetworkCreate
       :show="activeModal === CREATE_VNET_ACTION"
-      @close="closeModal"
+      @close="cancelAction"
       @success="handleSuccess"
     />
 
@@ -62,7 +62,7 @@
     <MoVirtualNetworkEdit
       :show="activeModal === EDIT_VNET_ACTION"
       :networkData="targetForEditing?.originalData"
-      @close="closeModal"
+      @close="cancelAction"
       @success="handleSuccess"
     />
 
