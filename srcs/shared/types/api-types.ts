@@ -7573,7 +7573,7 @@ export interface components {
              */
             middlewareId?: string;
             /** @description 仮想マシンを配置するサブネットのIDのリスト */
-            subnetIds?: string[];
+            subnetIds: string[];
             /** @description 仮想マシンにアタッチするストレージのリスト */
             storages: {
                 /** @description ストレージの名前 */
