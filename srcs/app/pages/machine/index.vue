@@ -100,7 +100,7 @@
    
   <MoVirtualMachineEdit
     :show="activeModal === EDIT_VIRTUAL_MACHINE_ACTION"
-    :vmId="targetForEditing?.id ?? ''"
+    :vmData="targetForEditing ?? null"
     @close="cancelAction"
     @success="handleSuccess"
   />
