@@ -1,6 +1,6 @@
 <template>
   <BaseModal :show="show" title="利用者の追加" @close="handleClose">
-    <form id="user-add-form" @submit.prevent="submitForm">
+    <form id="user-add-form" @submit.prevent="onSubmit">
       <FormSection title="基本情報">
         <FormInput
           label="アカウント名"
@@ -36,84 +36,40 @@
           label="最大vCPU (コア)"
           name="user-max-cpu-add"
           type="number"
-          v-model.number="maxCpuCores"
-          v-bind="maxCpuCoresAttrs"
-          :error="errors.maxCpuCores"
+          v-model.number="maxCpuCore"
+          v-bind="maxCpuCoreAttrs"
+          :error="errors.maxCpuCore"
           min="1"
         />
         <FormInput
           label="最大メモリ (MB)"
           name="user-max-memory-add"
           type="number"
-          v-model.number="maxMemorySizeInMb"
-          v-bind="maxMemorySizeInMbAttrs"
-          :error="errors.maxMemorySizeInMb"
+          v-model.number="maxMemorySize"
+          v-bind="maxMemorySizeAttrs"
+          :error="errors.maxMemorySize"
           min="1"
         />
         <FormInput
           label="最大ストレージ (GB)"
           name="user-max-storage-add"
           type="number"
-          v-model.number="maxStorageSizeInGb"
-          v-bind="maxStorageSizeInGbAttrs"
-          :error="errors.maxStorageSizeInGb"
+          v-model.number="maxStorageSize"
+          v-bind="maxStorageSizeAttrs"
+          :error="errors.maxStorageSize"
           min="1"
         />
       </FormSection>
 
       <FormSection title="管理者権限">
         <div class="checkbox-grid">
-          <label class="checkbox-label">
-            <input type="checkbox" v-model="isAdmin" v-bind="isAdminAttrs" />
-            全体管理者
-          </label>
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              v-model="isImageAdmin"
-              v-bind="isImageAdminAttrs"
-            />
-            イメージ管理
-          </label>
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              v-model="isInstanceTypeAdmin"
-              v-bind="isInstanceTypeAdminAttrs"
-            />
-            インスタンスタイプ管理
-          </label>
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              v-model="isNetworkAdmin"
-              v-bind="isNetworkAdminAttrs"
-            />
-            ネットワーク管理
-          </label>
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              v-model="isNodeAdmin"
-              v-bind="isNodeAdminAttrs"
-            />
-            物理ノード管理
-          </label>
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              v-model="isSecurityGroupAdmin"
-              v-bind="isSecurityGroupAdminAttrs"
-            />
-            セキュリティグループ管理
-          </label>
-          <label class="checkbox-label">
-            <input
-              type="checkbox"
-              v-model="isVirtualMachineAdmin"
-              v-bind="isVirtualMachineAdminAttrs"
-            />
-            仮想マシン管理
+          <label
+            v-for="(perm, index) in permissions"
+            :key="index"
+            class="checkbox-label"
+          >
+            <input type="checkbox" v-model="perm.value" />
+            {{ perm.label }}
           </label>
         </div>
       </FormSection>
@@ -121,14 +77,13 @@
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="submitForm"
-          class="btn btn-primary"
-          :disabled="isCreating"
-        >
-          {{ isCreating ? "追加中..." : "追加" }}
-        </button>
+        <UiSubmitButton
+          form="user-add-form"
+          type="submit"
+          label="利用者を追加"
+          :disabled="!isValid"
+          :loading="isCreating"
+        />
       </div>
     </template>
   </BaseModal>
@@ -151,51 +106,28 @@ const emit = defineEmits(["close", "success"]);
 // --- Composable からフォームロジックと状態を取得 ---
 const {
   errors,
-  // アカウント情報
+  isValid,
+  // フォームフィールド群
   name,
   nameAttrs,
   email,
   emailAttrs,
   password,
   passwordAttrs,
-  // クォータ
-  maxCpuCores,
-  maxCpuCoresAttrs,
-  maxMemorySizeInMb,
-  maxMemorySizeInMbAttrs,
-  maxStorageSizeInGb,
-  maxStorageSizeInGbAttrs,
-  // ★ 権限
-  isAdmin,
-  isAdminAttrs,
-  isImageAdmin,
-  isImageAdminAttrs,
-  isInstanceTypeAdmin,
-  isInstanceTypeAdminAttrs,
-  isNetworkAdmin,
-  isNetworkAdminAttrs,
-  isNodeAdmin,
-  isNodeAdminAttrs,
-  isSecurityGroupAdmin,
-  isSecurityGroupAdminAttrs,
-  isVirtualMachineAdmin,
-  isVirtualMachineAdminAttrs,
+  maxCpuCore,
+  maxCpuCoreAttrs,
+  maxMemorySize,
+  maxMemorySizeAttrs,
+  maxStorageSize,
+  maxStorageSizeAttrs,
+  permissions,
   // 状態とアクション
   isCreating,
   onFormSubmit,
-  resetForm, // resetForm も取得
+  makeHandleClose,
 } = useUserAddForm();
-
-// --- イベントハンドラ ---
-
-// ★ Composable が提供する送信ハンドラをラップ
-const submitForm = onFormSubmit(emit);
-
-// ★ モーダルが閉じる時にフォームをリセット
-const handleClose = () => {
-  resetForm(); // VeeValidate のフォーム状態をリセット
-  emit("close");
-};
+const handleClose = makeHandleClose(emit);
+const onSubmit = onFormSubmit(emit);
 </script>
 
 <style scoped>

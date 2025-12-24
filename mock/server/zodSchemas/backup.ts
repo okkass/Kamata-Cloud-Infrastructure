@@ -1,8 +1,9 @@
 import { z } from "zod";
+import { looseUuidSchema } from "./common";
 
 export const backupCreateSchema = z.object({
-  targetVirtualMachineId: z.uuid(),
-  targetStorageId: z.uuid(),
+  targetVirtualMachineId: looseUuidSchema,
+  targetStorageId: looseUuidSchema,
   name: z.string(),
   description: z.string().optional(),
 });
@@ -18,5 +19,5 @@ export const backupPartialUpdateSchema = z.object({
 });
 
 export const backupDeleteSchema = z.object({
-  backupId: z.uuid(),
+  backupId: looseUuidSchema,
 });

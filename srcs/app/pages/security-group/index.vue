@@ -13,9 +13,6 @@
           <NuxtLink :to="`/security-group/${row.id}`" class="table-link">
             {{ row.name }}
           </NuxtLink>
-          <span v-if="row.description" class="cell-description">
-            {{ row.description }}
-          </span>
         </div>
       </template>
       <template #row-actions="{ row }">
@@ -56,15 +53,17 @@
   />
   <MoSecurityGroupEdit
     :show="activeModal === editSecurityGroupAction"
-    :group="targetForEditing"
+    :data="targetForEditing?.originalData ?? null"
     @close="closeModal"
     @success="handleSuccess"
   />
 </template>
 
 <script setup lang="ts">
+import { SECURITY_GROUP } from "@/utils/constants";
 import { useSecurityDashboard } from "~/composables/dashboard/useSecurityDashboard";
 import { usePageActions } from "~/composables/usePageActions";
+import type { UiEnhancedSecurityGroup } from "~/composables/dashboard/useSecurityDashboard";
 
 // ★ 1. データ関連のComposableを呼び出し
 const { columns, groups, headerButtons, refreshGroupList } =
@@ -82,9 +81,13 @@ const {
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<SecurityGroupDTO>({
+} = usePageActions<UiEnhancedSecurityGroup>({
   resourceName: SECURITY_GROUP.name,
   resourceLabel: SECURITY_GROUP.label,
   refresh: refreshGroupList, // refresh関数を渡す
 });
+
+const addSecurityGroupAction = `create-${SECURITY_GROUP.name}`;
+const editSecurityGroupAction = `edit-${SECURITY_GROUP.name}`;
+const deleteSecurityGroupAction = `delete-${SECURITY_GROUP.name}`;
 </script>

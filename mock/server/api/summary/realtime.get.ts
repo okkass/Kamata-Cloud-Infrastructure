@@ -1,4 +1,6 @@
-export function generateRandomUsage(total: number) {
+import type { SummaryResponse } from "@app/shared/types";
+
+function generateRandomUsage(total: number) {
   const used = Math.random() * total;
   return {
     used: parseFloat(used.toFixed(1)),

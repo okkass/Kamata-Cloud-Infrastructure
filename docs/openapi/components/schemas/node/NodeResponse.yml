@@ -5,26 +5,32 @@ properties:
     type: string
     format: uuid
     description: 物理ノードを識別するための一意なID
+    example: 194d84d4-8811-4ff1-bb68-0e0734990018
   name:
     type: string
     description: 物理ノードの名前
+    example: node-01
   ipAddress:
     type: string
     format: ipv4
     description: 物理ノードのIPアドレス
+    example: 192.168.0.1
   status:
     type: string
     enum:
       - active
       - inactive
     description: 物理ノードの状態
+    example: active
   isAdmin:
     type: boolean
     description: 物理ノードが管理ノードかどうかを示すフラグ
+    example: true
   createdAt:
     type: string
     format: date-time
     description: 物理ノードが作成された日時
+    example: "2024-01-15T10:00:00Z"
   cpuUtilization:
     type: number
     format: float

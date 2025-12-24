@@ -22,6 +22,12 @@ get:
             type: array
             items:
               $ref: "../../components/schemas/virtual-machine/snapshot/SnapshotResponse.yml"
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
       content:
@@ -68,42 +74,6 @@ post:
             $ref: "../../components/schemas/ErrorResponse.yml"
     "403":
       description: 権限エラー
-      content:
-        application/json:
-          schema:
-            $ref: "../../components/schemas/ErrorResponse.yml"
-  security:
-    - BearerAuth: []
-delete:
-  summary: スナップショットの削除
-  description: 指定したIDのスナップショットを削除します。
-  tags:
-    - Snapshot
-  parameters:
-    - name: snapshotId
-      in: query
-      required: true
-      schema:
-        type: string
-        format: uuid
-      description: スナップショットの一意なID
-  responses:
-    "204":
-      description: 削除成功
-    "401":
-      description: 認証エラー
-      content:
-        application/json:
-          schema:
-            $ref: "../../components/schemas/ErrorResponse.yml"
-    "403":
-      description: 権限エラー
-      content:
-        application/json:
-          schema:
-            $ref: "../../components/schemas/ErrorResponse.yml"
-    "404":
-      description: スナップショットが見つからない
       content:
         application/json:
           schema:

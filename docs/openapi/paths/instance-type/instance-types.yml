@@ -1,5 +1,6 @@
 get:
   summary: インスタンスタイプ一覧の取得
+  operationId: listInstanceTypes
   description: すべてのインスタンスタイプのリストを取得します。
   tags:
     - InstanceType
@@ -12,6 +13,31 @@ get:
             type: array
             items:
               $ref: "../../components/schemas/instance-type/InstanceTypeResponse.yml"
+      links:
+        GetInstanceTypeById:
+          operationId: getInstanceTypeById
+          parameters:
+            instanceTypeId: "$response.body#/0/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        PutInstanceTypeById:
+          operationId: putInstanceTypeById
+          parameters:
+            instanceTypeId: "$request.body#/0/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        PatchInstanceTypeById:
+          operationId: patchInstanceTypeById
+          parameters:
+            instanceTypeId: "$request.body#/0/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        DeleteInstanceTypeById:
+          operationId: deleteInstanceTypeById
+          parameters:
+            instanceTypeId: "$request.body#/0/id"
+          description: >
+            idは個別リソースのURLに使用できます。
     "401":
       description: 認証エラー
       content:
@@ -28,6 +54,7 @@ get:
     - BearerAuth: []
 post:
   summary: インスタンスタイプの作成
+  operationId: createInstanceType
   description: 新しいインスタンスタイプを作成します。
   tags:
     - InstanceType
@@ -44,6 +71,31 @@ post:
         application/json:
           schema:
             $ref: "../../components/schemas/instance-type/InstanceTypeResponse.yml"
+      links:
+        GetInstanceTypeById:
+          operationId: getInstanceTypeById
+          parameters:
+            instanceTypeId: "$response.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        PutInstanceTypeById:
+          operationId: putInstanceTypeById
+          parameters:
+            instanceTypeId: "$request.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        PatchInstanceTypeById:
+          operationId: patchInstanceTypeById
+          parameters:
+            instanceTypeId: "$request.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        DeleteInstanceTypeById:
+          operationId: deleteInstanceTypeById
+          parameters:
+            instanceTypeId: "$request.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
     "400":
       description: リクエストエラー
       content:

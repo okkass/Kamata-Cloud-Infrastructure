@@ -21,6 +21,12 @@ importers:
         specifier: ^4.1.13
         version: 4.1.13
     devDependencies:
+      '@types/busboy':
+        specifier: ^1.5.4
+        version: 1.5.4
+      busboy:
+        specifier: ^1.6.0
+        version: 1.6.0
       h3:
         specifier: ^1.15.4
         version: 1.15.4
