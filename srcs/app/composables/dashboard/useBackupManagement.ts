@@ -1,22 +1,25 @@
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 import { formatDateTime } from "@/utils/date";
 import { toSize } from "@/utils/format";
 import { BACKUP } from "@/utils/constants";
+import { createPolling } from "@/utils/polling";
 
 export type BackupRow = {
   id: string;
   name: string;
+  createdAt?: string;
   createdAtText: string;
   sizeText: string;
   description?: string;
+  originalData?: BackupResponse;
 };
 
 /* バックアップ固有のサイズ解決ロジック（ローカルで保持） */
-function resolveSize(r: BackupDTO): number | undefined {
+function resolveSize(r: BackupResponse): number | undefined {
   if (r.size != null && Number.isFinite(r.size)) return Number(r.size);
-  const tvs = r.targetVirtualStorage?.size;
-  if (tvs != null && Number.isFinite(tvs)) return Number(tvs);
+  const ts = r.targetStorage?.size;
+  if (ts != null && Number.isFinite(ts)) return Number(ts);
   return undefined;
 }
 
@@ -31,7 +34,24 @@ export function useBackupManagement() {
     pending,
     refresh,
     error,
-  } = useResourceList<BackupDTO>(BACKUP.name);
+  } = useResourceList<BackupResponse>(BACKUP.name);
+
+  // --- ポーリング設定 ---
+  const { startPolling, stopPolling, runOnce, lastUpdatedTime } = createPolling(
+    async () => {
+      await refresh();
+    }
+  );
+
+  // マウント時に即時実行し、その後ポーリング開始。アンマウント時に停止。
+  onMounted(() => {
+    void runOnce();
+    startPolling();
+  });
+
+  onUnmounted(() => {
+    stopPolling();
+  });
 
   const columns = [
     { key: "name", label: "バックアップ名", align: "left" as const },
@@ -41,6 +61,10 @@ export function useBackupManagement() {
 
   const headerButtons = [{ label: "バックアップ作成", action: "add" }];
 
+  const ADD_BACKUP_ACTION = `add-${BACKUP.name}`;
+  const DELETE_BACKUP_ACTION = `delete-${BACKUP.name}`;
+  const RESTORE_BACKUP_ACTION = `restore-${BACKUP.name}`;
+
   const rows = computed<BackupRow[]>(() =>
     (rawList.value ?? []).map((r) => {
       const size = resolveSize(r);
@@ -48,8 +72,10 @@ export function useBackupManagement() {
         id: String(r.id),
         name: String(r.name ?? r.id),
         description: r.description,
+        createdAt: r.createdAt,
         createdAtText: formatDateTime(r.createdAt),
         sizeText: size != null && Number.isFinite(size) ? toSize(size) : "—",
+        originalData: r,
       };
     })
   );
@@ -57,10 +83,15 @@ export function useBackupManagement() {
   return {
     columns,
     headerButtons,
-    rawList,
     rows,
     pending,
     error,
     refresh,
+    lastUpdatedTime,
+    startPolling,
+    stopPolling,
+    ADD_BACKUP_ACTION,
+    DELETE_BACKUP_ACTION,
+    RESTORE_BACKUP_ACTION,
   } as const;
 }
