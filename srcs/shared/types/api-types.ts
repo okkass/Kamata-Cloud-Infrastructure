@@ -7571,7 +7571,7 @@ export interface components {
              * Format: uuid
              * @description インストールするミドルウェアのID
              */
-            middlewareId: string;
+            middlewareId?: string;
             /**
              * Format: uuid
              * @description 仮想マシンを配置するサブネットのID
