@@ -8,6 +8,7 @@ export default defineNitroConfig({
   alias: {
     "@app": resolve(__dirname, "../srcs"),
     "@": resolve(__dirname, "./server"),
+    "@@": resolve(__dirname, "./"),
   },
   errorHandler: "@/errorHandler",
 });
