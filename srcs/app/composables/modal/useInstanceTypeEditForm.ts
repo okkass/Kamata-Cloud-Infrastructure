@@ -103,36 +103,22 @@ export const useInstanceTypeEditForm = (props: Props) => {
    * 保存処理
    * [推奨]: useResourceUpdater の save() を使用して標準化
    */
-  const save = (emit: any) => {
-    return handleSubmit(async () => {
-      // [必須]: バリデーション通過後に isDirty チェック
-      if (!isDirty.value) {
-        addToast({
-          message: "変更がありません。",
-          type: "warning", // [推奨]: warning に変更
-        });
-        return;
-      }
-
-      const success = await updaterSave();
-
-      if (success) {
-        addToast({
-          message: `インスタンスタイプ「${name.value}」を更新しました。`,
-          type: "success",
-        });
-        resetForm();
-        emit("success");
-        emit("close");
-      } else {
-        addToast({
-          message: "処理に失敗しました。",
-          type: "error",
-          details: errorMessage.value,
-        });
-      }
-    });
-  };
+  const save = (emit: any) =>
+    handleFormSubmit<InstanceTypeUpdateInput, InstanceTypeResponse>(
+      handleSubmit,
+      {
+        execute: async () => {
+          const success = await updaterSave();
+          return { success };
+        },
+        onSuccess: () => {
+          resetForm();
+        },
+        onSuccessMessage: () =>
+          `インスタンスタイプ「${name.value}」を更新しました。`,
+      },
+      emit
+    );
 
   const close = (emit: any) => makeHandleClose(resetForm, emit);
 
