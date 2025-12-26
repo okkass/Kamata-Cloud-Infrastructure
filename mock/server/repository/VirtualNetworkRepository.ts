@@ -129,6 +129,23 @@ const getSubnet = (
   return ret;
 };
 
+const getSubnetById = (subnetId: string): SubnetResponse | undefined => {
+  for (const vnet of list()) {
+    const subnet = vnet.subnets.find((subnet) => subnet.id === subnetId);
+    if (subnet) {
+      const summary: VirtualNetworkSummaryResponse = {
+        id: vnet.id,
+        name: vnet.name,
+        cidr: vnet.cidr,
+        createdAt: vnet.createdAt,
+      };
+      subnet.parent = summary;
+      return subnet;
+    }
+  }
+  return undefined;
+};
+
 const listSubnets = (vnetId: string): SubnetResponse[] | undefined => {
   const vnet = getById(vnetId);
   if (!vnet) {
@@ -194,6 +211,7 @@ export const VirtualNetworkRepository = {
   createSubnet,
   updateSubnet,
   deleteSubnet,
+  getSubnetById,
 };
 
 export default VirtualNetworkRepository;
