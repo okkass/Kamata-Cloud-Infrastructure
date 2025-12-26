@@ -11,7 +11,7 @@ export interface CollectionConfig {
   newIdPrefix: string;
   fields: string[];
   bulkKeys?: {
-    create?: string;
+    add?: string;
     update?: string;
     delete?: string;
   };
@@ -169,7 +169,7 @@ export function useResourceUpdater<T extends { id: string }>() {
         // ★ BulkEndpoint が設定されている場合: 一括送信
         if (collConfig.bulkEndpoint) {
           const bulkPayload = {
-            create: cState.add,
+            add: cState.add,
             remove: cState.remove,
             patch: cState.patch.map((u) => ({
               id: u.id,
