@@ -1,11 +1,10 @@
 import { getResource } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
-import { getInstanceTypeService } from "@/service/InstanceTypeService";
+import { getNodeService } from "@/service/NodeService";
 
 export default defineEventHandler((event) => {
   const permission = getPermissionFromEvent(event);
-  const service = getInstanceTypeService(permission);
-
+  const service = getNodeService(permission);
   const { id } = event.context.params as { id: string };
 
   return getResource(id, service.getById);

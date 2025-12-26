@@ -98,6 +98,7 @@ export const getVirtualMachineService = (permission: UserPermissions) => {
     update(id, data) {
       const updatedVm = VirtualMachineRepository.update(id, data);
       if (!updatedVm) {
+        console.log("VM not found for update:", id);
         return {
           success: false,
           error: "NotFound",
@@ -139,22 +140,38 @@ export const getVirtualMachineService = (permission: UserPermissions) => {
           return { success: true, data: storage };
         },
         create(data) {
-          return {
-            success: false,
-            error: "NotImplemented",
-          };
+          const storage = VirtualMachineRepository.createStorage(vmId, data);
+          if (!storage) {
+            return {
+              success: false,
+              error: "BadRequest",
+            };
+          }
+          return { success: true, data: storage };
         },
         update(id, data) {
-          return {
-            success: false,
-            error: "NotImplemented",
-          };
+          const updatedStorage = VirtualMachineRepository.updateStorage(
+            vmId,
+            id,
+            data
+          );
+          if (!updatedStorage) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: updatedStorage };
         },
         delete(id) {
-          return {
-            success: false,
-            error: "NotImplemented",
-          };
+          const deleted = VirtualMachineRepository.deleteStorage(vmId, id);
+          if (!deleted) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: null };
         },
       };
       return StorageService;
@@ -191,22 +208,44 @@ export const getVirtualMachineService = (permission: UserPermissions) => {
           return { success: true, data: nic };
         },
         create(data) {
-          return {
-            success: false,
-            error: "NotImplemented",
-          };
+          const nic = VirtualMachineRepository.createNetworkInterface(
+            vmId,
+            data
+          );
+          if (!nic) {
+            return {
+              success: false,
+              error: "BadRequest",
+            };
+          }
+          return { success: true, data: nic };
         },
         update(id, data) {
-          return {
-            success: false,
-            error: "NotImplemented",
-          };
+          const updatedNic = VirtualMachineRepository.updateNetworkInterface(
+            vmId,
+            id,
+            data
+          );
+          if (!updatedNic) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: updatedNic };
         },
         delete(id) {
-          return {
-            success: false,
-            error: "NotImplemented",
-          };
+          const deleted = VirtualMachineRepository.deleteNetworkInterface(
+            vmId,
+            id
+          );
+          if (!deleted) {
+            return {
+              success: false,
+              error: "NotFound",
+            };
+          }
+          return { success: true, data: null };
         },
       };
       return NetworkInterfaceService;
@@ -236,7 +275,14 @@ export const getVirtualMachineService = (permission: UserPermissions) => {
         },
         create(data) {
           // 仮想マシンにセキュリティグループを追加
-          return { success: false, error: "NotImplemented" };
+          const added = VirtualMachineRepository.addSecurityGroupToVm(
+            vmId,
+            data
+          );
+          if (!added) {
+            return { success: false, error: "BadRequest" };
+          }
+          return { success: true, data: added };
         },
         update(id, data) {
           // セキュリティグループに聞いて
@@ -244,7 +290,14 @@ export const getVirtualMachineService = (permission: UserPermissions) => {
         },
         delete(id) {
           // 仮想マシンからセキュリティグループを削除
-          return { success: false, error: "NotImplemented" };
+          const deleted = VirtualMachineRepository.deleteSecurityGroupFromVm(
+            vmId,
+            id
+          );
+          if (!deleted) {
+            return { success: false, error: "NotFound" };
+          }
+          return { success: true, data: null };
         },
       };
       return VmSecurityGroupService;
