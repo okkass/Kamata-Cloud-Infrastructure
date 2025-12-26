@@ -64,7 +64,7 @@
     <!-- インスタンスタイプ編集モーダル -->
     <MoInstanceTypeEdit
       :show="activeModal === EDIT_INSTANCE_TYPE_ACTION"
-      :instanceTypeData="targetForEditing?.originalData ?? undefined"
+      :data="targetForEditing?.originalData ?? undefined"
       @close="cancelAction"
       @success="handleSuccess"
     />
@@ -107,7 +107,6 @@ const {
 const {
   activeModal,
   openModal,
-  closeModal,
   targetForDeletion,
   targetForEditing,
   isDeleting,
