@@ -4,7 +4,7 @@
 
     <div class="detail-card">
       <div>
-        <div class="detail-label">Name</div>
+        <div class="detail-label">名前</div>
         <div class="detail-value">
           {{ vm?.name || "-" }}
         </div>
