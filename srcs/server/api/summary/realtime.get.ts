@@ -1,3 +1,5 @@
+import type { SummaryResponse } from "@@/shared/types";
+
 function generateRandomUsage(total: number) {
   const used = Math.random() * total;
   return {

@@ -6,6 +6,7 @@ export default defineNuxtConfig({
   nitro: {
     // srcsフォルダから見て「一つ上(..)」の「mock」フォルダを読み込み対象にする
     scanDirs: ["../mock"],
+    errorHandler: "server/errorHandler.ts",
   },
 
   vite: {

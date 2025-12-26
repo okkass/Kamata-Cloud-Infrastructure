@@ -1,7 +1,14 @@
-// getのmock
-export default defineEventHandler(async (event) => {
-  const id = event.context.params?.id;
-  const ruleId = event.context.params?.ruleId;
-  console.log(`Received request for rule ${ruleId} from security group ${id}`);
-  return { message: `Details of rule ${ruleId} from security group ${id}` };
+import { getResource } from "@@/server/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@@/server/utils/permission";
+import { getSecurityGroupService } from "@@/server/service/SecurityGroupService";
+import { validateUUID } from "@@/server/utils/validate";
+
+export default defineEventHandler((event) => {
+  const permission = getPermissionFromEvent(event);
+
+  const { id, ruleId } = event.context.params as { id: string; ruleId: string };
+  const service =
+    getSecurityGroupService(permission).getSecurityRuleService(id);
+
+  return getResource(ruleId, service.getById);
 });

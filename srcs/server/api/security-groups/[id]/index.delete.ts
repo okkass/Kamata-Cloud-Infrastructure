@@ -1,11 +1,11 @@
-import { validate } from "uuid";
+import { deleteResource } from "@@/server/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@@/server/utils/permission";
+import { getSecurityGroupService } from "@@/server/service/SecurityGroupService";
 
-export default defineEventHandler(async (event) => {
-  const id = event.context.params?.id;
-  if (!id || !validate(id)) {
-    createError({ statusCode: 400, statusMessage: "Invalid ID" });
-  }
-  const body = await readBody(event);
-  console.log(`Received delete for ID ${id}:`, body);
-  return { message: `ID ${id} deleted successfully`, data: body };
+export default defineEventHandler((event) => {
+  const permission = getPermissionFromEvent(event);
+  const service = getSecurityGroupService(permission);
+  const { id } = event.context.params as { id: string };
+
+  return deleteResource(id, service.delete);
 });
