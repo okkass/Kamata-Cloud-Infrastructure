@@ -47,7 +47,7 @@ const props = defineProps<{
 const adminLinks = [
   { to: "/machine", text: "VM管理" },
   { to: "/node", text: "ノード管理" },
-  { to: "/storage-pool", text: "ストレージ" },
+  { to: "/storage", text: "ストレージ" },
   { to: "/security-group", text: "セキュリティ" },
   { to: "/user", text: "ユーザー管理" },
   { to: "/settings", text: "アカウント設定" },

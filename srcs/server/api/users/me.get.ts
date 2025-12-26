@@ -1,18 +1,12 @@
-import { UserResponse } from "~~/shared/types";
-import { verifyToken, KCIJWTPayload } from "../../utils/jwt";
-import { randomUUID } from "crypto";
+import { getResourceList } from "@@/server/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@@/server/utils/permission";
+import { getUserService } from "@@/server/service/UserService";
 
-export default defineEventHandler(async (event) => {
-  const ret: UserResponse = {
-    id: randomUUID(),
-    name: "Sample User",
-    email: "sample@example.com",
-    createdAt: new Date().toISOString(),
-    isAdmin: false,
-    lastLoginAt: new Date().toISOString(),
-    isImageAdmin: false,
-    isInstanceTypeAdmin: false,
-    isPhysicalNodeAdmin: false,
-  };
-  return ret;
+export default defineEventHandler((event) => {
+  // モックなので固定のユーザーを返す
+  const permission = getPermissionFromEvent(event);
+  const service = getUserService(permission);
+
+  const list = getResourceList(service.list);
+  return list[0];
 });

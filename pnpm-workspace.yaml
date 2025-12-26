@@ -1,8 +1,9 @@
 packages:
   - srcs
   - mock
+  - backend
 ignoredBuiltDependencies:
-  - '@parcel/watcher'
+  - "@parcel/watcher"
   - core-js
   - esbuild
   - pnpm-lock.yaml
@@ -10,5 +11,5 @@ ignoredBuiltDependencies:
   - sharp
   - vue-demi
 onlyBuiltDependencies:
-  - '@prisma/engines'
+  - "@prisma/engines"
   - prisma

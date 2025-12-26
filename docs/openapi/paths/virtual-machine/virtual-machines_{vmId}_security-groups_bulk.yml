@@ -1,4 +1,4 @@
-put:
+post:
   summary: 仮想マシンセキュリティグループの一括編集
   description: 指定したIDの仮想マシンにセキュリティグループを一括で編集します。
   tags:
@@ -11,6 +11,7 @@ put:
         type: string
         format: uuid
       description: 仮想マシンの一意なID
+      example: "12fbed88-2dc4-4537-af98-f1f796046d16"
   requestBody:
     required: true
     content:
@@ -26,6 +27,12 @@ put:
             type: array
             items:
               $ref: "../../components/schemas/security-group/SecurityGroupResponse.yml"
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
       content:

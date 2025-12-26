@@ -21,7 +21,7 @@
     <MoStorageEdit
       v-if="pool"
       :show="isEditOpen"
-      :storageData="pool"
+      :data="pool"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />
@@ -61,9 +61,7 @@ const goBack = () => {
 };
 
 // 操作メニュー（編集のみ）
-const actions = ref([
-  { label: "編集", value: "edit" },
-]);
+const actions = ref([{ label: "編集", value: "edit" }]);
 
 // 編集モーダル制御
 const isEditOpen = ref(false);

@@ -5,3 +5,5 @@ allOf:
   - $ref: "./BackupUpdatable.yml"
 required:
   - name
+  - targetVirtualMachineId
+  - targetStorageId

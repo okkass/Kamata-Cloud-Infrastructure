@@ -1,274 +1,152 @@
 <template>
-  <div class="space-y-6">
-    <div class="form-section space-y-4">
-      <h3 class="section-title">CPU / メモリ</h3>
-      <div>
-        <label for="vm-edit-cpu-cores" class="form-label-sm">CPUコア数</label>
-        <input
-          type="number"
-          id="vm-edit-cpu-cores"
-          v-model.number="cpuCores"
-          v-bind="cpuCoresAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.cpuCores }"
-          min="1"
-        />
-        <p v-if="errors.cpuCores" class="text-error mt-1">
-          {{ errors.cpuCores }}
-        </p>
-      </div>
-      <div>
-        <label for="vm-edit-memory-gb" class="form-label-sm">メモリ (GB)</label>
-        <input
-          type="number"
-          id="vm-edit-memory-gb"
-          v-model.number="memorySize"
-          v-bind="memorySizeAttrs"
-          class="form-input"
-          :class="{ 'form-border-error': errors.memorySize }"
-          min="1"
-        />
-        <p v-if="errors.memorySize" class="text-error mt-1">
-          {{ errors.memorySize }}
-        </p>
-      </div>
-    </div>
-
-    <div class="form-section">
-      <h3 class="section-title mb-2">ストレージ設定</h3>
-
-      <div class="storage-list space-y-4">
-        <div
-          v-for="(storage, index) in storageFields"
-          :key="storage.key"
-          class="storage-item grid grid-cols-12 gap-3 items-start"
+  <div class="p-6 h-full overflow-y-auto">
+    <div class="max-w-4xl space-y-8">
+      <section>
+        <h3
+          class="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2"
         >
-          <div class="col-span-12" v-if="storage.value.type === 'os'">
-            <label class="form-label-sm">OSディスク</label>
-            <input
-              type="text"
-              class="form-input"
-              :value="`${storage.value.name} (${storage.value.size} GB)`"
-              disabled
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-5 text-gray-500"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M8.25 3v1.5M4.5 8.25H3m18 0h-1.5M4.5 12H3m18 0h-1.5m-15 3.75H3m18 0h-1.5M8.25 19.5V21M12 3v1.5m0 15V21m3.75-18v1.5m0 15V21m-9-1.5h10.5a2.25 2.25 0 0 0 2.25-2.25V6.75a2.25 2.25 0 0 0-2.25-2.25H6.75A2.25 2.25 0 0 0 4.5 6.75v10.5a2.25 2.25 0 0 0 2.25 2.25Zm.75-12h9v9h-9v-9Z"
             />
-          </div>
-          <template v-else>
-            <div class="col-span-4">
-              <label :for="`storage-name-${index}`" class="form-label-sm">
-                名前
-              </label>
-              <input
-                type="text"
-                :id="`storage-name-${index}`"
-                v-model="storage.value.name"
-                class="form-input"
-                :class="{
-                  'form-border-error': errors[`storages[${index}].name`],
-                }"
-                placeholder="data-disk"
-              />
-            </div>
-            <div class="col-span-3">
-              <label :for="`storage-size-${index}`" class="form-label-sm">
-                サイズ(GB)
-              </label>
-              <input
-                type="number"
-                :id="`storage-size-${index}`"
-                v-model.number="storage.value.size"
-                class="form-input"
-                :class="{
-                  'form-border-error': errors[`storages[${index}].size`],
-                }"
-                min="1"
-              />
-            </div>
-            <div class="col-span-4">
-              <FormSelect
-                label="ストレージプール"
-                :label-hidden="true"
-                :name="`storage-pool-${index}`"
-                v-model="storage.value.poolId"
-                :options="pools ?? []"
-                option-value="id"
-                option-label="name"
-                placeholder="プールを選択"
-                :pending="poolsPending"
-                :error="poolsError"
-                :error-message="errors[`storages[${index}].poolId`]"
-                :required="true"
-                :placeholder-value="undefined"
-              />
-            </div>
-            <div class="col-span-1 pt-9">
-              <button
-                type="button"
-                @click="removeStorage(index)"
-                class="text-red-500 hover:text-red-700"
-              >
-                削除
-              </button>
-            </div>
-          </template>
-        </div>
-      </div>
+          </svg>
+          コンピュート設定
+        </h3>
 
-      <button
-        type="button"
-        @click="addStorage"
-        class="btn-secondary-outline mt-4"
-      >
-        ストレージを追加
-      </button>
+        <div
+          class="grid grid-cols-1 md:grid-cols-2 gap-6 p-4 bg-gray-50 rounded-lg border border-gray-100"
+        >
+          <FormInput
+            label="CPUコア数"
+            name="cpuCore"
+            type="number"
+            v-model.number="model.cpuCore"
+            :error="errors?.cpuCore"
+            :min="1"
+            required
+            placeholder="例: 2"
+          >
+            <template #suffix
+              ><span class="ml-2 text-gray-500 text-sm">Core</span></template
+            >
+          </FormInput>
+
+          <FormInput
+            label="メモリサイズ"
+            name="memorySize"
+            type="number"
+            v-model.number="model.memorySize"
+            :error="errors?.memorySize"
+            :min="1"
+            required
+            placeholder="例: 4096"
+          >
+            <template #suffix
+              ><span class="ml-2 text-gray-500 text-sm">MB</span></template
+            >
+          </FormInput>
+        </div>
+      </section>
+
+      <hr class="border-gray-200" />
+
+      <section>
+        <h3
+          class="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2"
+        >
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-5 text-gray-500"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M20.25 6.375c0 2.278-3.694 4.125-8.25 4.125S3.75 8.653 3.75 6.375m16.5 0c0-2.278-3.694-4.125-8.25-4.125S3.75 4.097 3.75 6.375m16.5 0v11.25c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125V6.375m16.5 0v3.75m-16.5-3.75v3.75m16.5 0v3.75C20.25 16.153 16.556 18 12 18s-8.25-1.847-8.25-4.125v-3.75m16.5 0c0 2.278-3.694 4.125-8.25 4.125s-8.25-1.847-8.25-4.125"
+            />
+          </svg>
+          ストレージ構成
+        </h3>
+
+        <div v-if="pending" class="text-sm text-gray-500 mb-2">
+          ストレージプール情報を取得中...
+        </div>
+
+        <StorageConfigTable
+          :storages="model.storages"
+          :storage-pools="storagePools"
+          :errors="errors?.storages"
+          @add="handleAddStorage"
+          @remove="handleRemoveStorage"
+        />
+      </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-/**
- * =================================================================================
- * VM編集モーダル: 構成タブ (VmEditTabConfig.vue)
- * ---------------------------------------------------------------------------------
- * ★ ローカルストレージプールのみを取得するように修正
- * =================================================================================
- */
-// import { computed } from 'vue'; // (computed は不要になったため削除)
-import { useForm, useFieldArray } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import { z } from "zod";
+import { computed } from "vue";
+import FormInput from "~/components/Form/Input.vue";
+import StorageConfigTable from "~/components/StorageConfigTable.vue";
 import { useResourceList } from "~/composables/useResourceList";
 
-/**
- * 'storage-pools' ファイルから 'LocalStoragePoolDTO' のみをインポート
- */
-import type { LocalStoragePoolDTO } from "~~/shared/types/storage-pools";
-
-// =============================================================================
-// Props (初期値受け取り)
-// =============================================================================
-// (変更なし)
-const props = defineProps<{
-  initialData: {
-    instanceTypeId: string | null;
-    cpuCores: number;
-    memorySize: number;
-    storages: {
-      id: string;
-      name: string;
-      size: number;
-      poolId: string;
-      type: "os" | "manual";
-      createdAt: string;
-    }[];
+// 親コンポーネントからのデータ
+const model = defineModel<any>({ required: true });
+defineProps<{
+  errors?: {
+    cpuCore?: string;
+    memorySize?: string;
+    storages?: Record<
+      number,
+      { name?: string; size?: string; poolId?: string }
+    >;
   };
 }>();
 
-// =============================================================================
-// Data Fetching (ストレージプール一覧)
-// =============================================================================
-// ★ 修正: ローカルストレージプールのみを取得
+// ★ useResourceList を活用 (型は適宜 interface StoragePoolResponse 等に置き換えてください)
+const { data: poolData, pending } =
+  useResourceList<StoragePoolResponse>("storage-pools");
 
-// (ネットワークプールの useResourceList 呼び出しは削除)
+// useResourceList は T[] を返すので、そのまま computed で参照可能
+const storagePools = computed(() => poolData.value || []);
 
-// ★ 修正: APIパスをご指定の 'storage-pools/local' に修正
-// ★ 修正: 変数名を 'pools', 'poolsPending', 'poolsError' に変更
-const {
-  data: pools,
-  pending: poolsPending,
-  error: poolsError,
-} = useResourceList<LocalStoragePoolDTO>("storage-pools/local");
+/**
+ * ストレージ追加
+ */
+const handleAddStorage = () => {
+  if (!model.value.storages) {
+    model.value.storages = [];
+  }
 
-// (allPools, poolsPending, poolsError の computed は削除)
+  // 取得したプールリストの先頭をデフォルト値にする
+  const defaultPoolId = storagePools.value[0]?.id ?? "";
 
-// =============================================================================
-// Validation Schema (バリデーション定義)
-// =============================================================================
-// (変更なし)
-const storageSchema = z.object({
-  id: z.string(),
-  createdAt: z.string(),
-  type: z.enum(["os", "manual"]),
-  name: z.string().min(1, "ストレージ名は必須です。"),
-  size: z.number().min(1, "サイズは1GB以上である必要があります。"),
-  poolId: z.string({ message: "ストレージプールを選択してください。" }),
-});
-
-const validationSchema = toTypedSchema(
-  z.object({
-    instanceTypeId: z.string().nullable(),
-    cpuCores: z.number().min(1, "CPUは1コア以上である必要があります。"),
-    memorySize: z.number().min(1, "メモリは1GB以上である必要があります。"),
-    storages: z
-      .array(storageSchema)
-      .min(1, "OSディスクを含むストレージが最低1つ必要です。"),
-  })
-);
-
-// =============================================================================
-// Form Setup (VeeValidate)
-// =============================================================================
-// (変更なし)
-const { errors, defineField, values, meta, validate } = useForm({
-  validationSchema,
-  initialValues: {
-    instanceTypeId: props.initialData.instanceTypeId,
-    cpuCores: props.initialData.cpuCores,
-    memorySize: props.initialData.memorySize,
-    storages: props.initialData.storages,
-  },
-});
-
-// (v-model ヘルパーは変更なし)
-const [cpuCores, cpuCoresAttrs] = defineField("cpuCores");
-const [memorySize, memorySizeAttrs] = defineField("memorySize");
-
-// (FieldArray の設定は変更なし)
-const {
-  fields: storageFields,
-  remove: removeStorage,
-  push: pushStorage,
-} = useFieldArray<VirtualStorageDTO>("storages");
-
-// (addStorage ロジックは変更なし)
-const addStorage = () => {
-  pushStorage({
-    id: `new-${crypto.randomUUID()}`,
-    createdAt: new Date(),
-    name: "new-storage",
-    size: 10,
-    poolId: undefined as any,
+  model.value.storages.push({
+    // 一時ID ("new-")
+    id: `new-${Date.now()}`,
+    name: `disk-${model.value.storages.length + 1}`,
+    size: 20,
+    poolId: defaultPoolId,
+    type: "data",
   });
 };
 
-// =============================================================================
-// Expose (親へのインターフェース公開)
-// =============================================================================
-// (変更なし)
-defineExpose({
-  validate,
-  values,
-  meta,
-});
+/**
+ * ストレージ削除
+ */
+const handleRemoveStorage = (index: number) => {
+  model.value.storages.splice(index, 1);
+};
 </script>
-
-<style scoped>
-/* (スタイルは変更なし) */
-.form-section {
-  @apply p-4 border border-gray-200 rounded-lg;
-}
-.section-title {
-  @apply font-semibold text-gray-800;
-}
-.form-label-sm {
-  @apply block mb-1.5 text-sm font-medium text-gray-600;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
-}
-.form-input:disabled {
-  @apply bg-gray-100 cursor-not-allowed;
-}
-.btn-secondary-outline {
-  @apply py-2 px-4 bg-white border border-gray-300 text-gray-700 rounded-lg shadow-sm hover:bg-gray-50;
-}
-</style>
