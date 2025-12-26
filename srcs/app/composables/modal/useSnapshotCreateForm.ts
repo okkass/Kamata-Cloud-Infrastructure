@@ -3,102 +3,91 @@
  * スナップショット作成フォーム Composable (useSnapshotCreateForm.ts)
  * =================================================================================
  */
+import { computed } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useResourceList } from "~/composables/useResourceList";
-import { useToast } from "~/composables/useToast";
-
-// ==============================================================================
-// Validation Schema
-// ==============================================================================
-const zodSchema = z.object({
-  name: z.string().min(1, "スナップショット名は必須です。"),
-  vmId: z
-    .string({ message: "対象の仮想マシンを選択してください。" })
-    .min(1, "対象の仮想マシンを選択してください。"),
-  description: z.string().optional(),
-});
-
-const validationSchema = toTypedSchema(zodSchema);
-type FormValues = z.infer<typeof zodSchema>;
+import { useFormAction } from "~/composables/modal/useModalAction";
+import {
+  snapshotCreateSchema,
+  type snapshotCreateFormValues,
+} from "~/utils/validations/snapshot";
 
 /**
  * スナップショット作成フォームのロジック
  */
-export function useSnapshotCreateForm() {
-  const { addToast } = useToast();
+export function useSnapshotCreateForm(emit: any) {
+  const { handleFormSubmit, makeHandleClose } = useFormAction();
 
   const { executeCreate, isCreating } = useResourceCreate<
     SnapshotCreateRequest,
-    any
-  >("snapshots");
+    SnapshotResponse
+  >(SNAPSHOT.name);
 
   const {
     data: virtualMachines,
     pending: vmsPending,
     error: vmsError,
-  } = useResourceList<VirtualMachineResponse>("virtual-machines");
+  } = useResourceList<VirtualMachineResponse>(MACHINE.name);
 
   // ============================================================================
   // Form Setup
   // ============================================================================
-  const { errors, handleSubmit, defineField, resetForm } = useForm<FormValues>({
-    validationSchema,
-    initialValues: {
-      name: "",
-      vmId: "",
-      description: "",
-    },
-  });
+  const { errors, handleSubmit, defineField, meta, resetForm } =
+    useForm<snapshotCreateFormValues>({
+      validationSchema: toTypedSchema(snapshotCreateSchema),
+      initialValues: {
+        name: "",
+        targetVmId: "",
+        description: "",
+      },
+    });
 
   const [name, nameAttrs] = defineField("name");
-  const [vmId, vmAttrs] = defineField("vmId");
+  const [targetVmId, targetVmIdAttrs] = defineField("targetVmId");
   const [description, descriptionAttrs] = defineField("description");
 
   // ============================================================================
   // Submission Handler
   // ============================================================================
-  const onFormSubmit = (emit: (event: "success" | "close") => void) =>
-    handleSubmit(async (formValues) => {
-      const payload: SnapshotCreateRequest = {
-        name: formValues.name,
-        targetVmId: formValues.vmId,
-        description: formValues.description,
-      };
+  const onFormSubmit = (emit: any) =>
+    handleFormSubmit<SnapshotCreateRequest, SnapshotResponse>(
+      handleSubmit,
+      {
+        execute: async (values) => {
+          const payload: SnapshotCreateRequest = {
+            name: values.name,
+            targetVmId: values.targetVmId,
+            description: values.description,
+          };
+          return await executeCreate(payload);
+        },
+        onSuccess: () => {
+          resetForm();
+        },
+        onSuccessMessage: (payload) =>
+          `スナップショット「${payload.name}」を作成しました。`,
+      },
+      emit
+    );
 
-      const result = await executeCreate(payload);
-
-      if (result.success) {
-        addToast({
-          type: "success",
-          message: `スナップショット「${payload.name}」を作成しました。`,
-        });
-        emit("success");
-        emit("close");
-      } else {
-        addToast({
-          type: "error",
-          message: "作成に失敗しました。",
-          details: result.error?.message,
-        });
-      }
-    });
+  const makehandleClose = (emit: any) => makeHandleClose(resetForm, emit);
 
   return {
     errors,
     name,
     nameAttrs,
-    vmId,
-    vmAttrs,
+    targetVmId,
+    targetVmIdAttrs,
     description,
     descriptionAttrs,
     virtualMachines,
     vmsPending,
     vmsError,
     isCreating,
+    isValid: computed(() => meta.value.valid),
     onFormSubmit,
-    resetForm,
+    makehandleClose,
   };
 }

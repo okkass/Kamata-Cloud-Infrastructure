@@ -1,10 +1,11 @@
-import { validate } from "uuid";
+import { deleteResource } from "@@/server/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@@/server/utils/permission";
+import { getVirtualNetworkService } from "@@/server/service/VirtualNetworkService";
 
 export default defineEventHandler(async (event) => {
-  const id = event.context.params?.id;
-  if (!id || !validate(id)) {
-    throw createError({ statusCode: 400, statusMessage: "Invalid ID" });
-  }
-  console.log(`Received delete for ID ${id}`);
-  return { message: `ID ${id} deleted successfully` };
+  const permission = getPermissionFromEvent(event);
+  const { id } = event.context.params as { id: string };
+  const service = getVirtualNetworkService(permission);
+
+  return deleteResource(id, service.delete);
 });

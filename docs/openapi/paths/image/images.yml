@@ -1,5 +1,6 @@
 get:
   summary: 仮想マシンイメージ一覧の取得
+  operationId: listImages
   description: すべての仮想マシンイメージのリストを取得します。
   tags:
     - Image
@@ -28,6 +29,7 @@ get:
     - BearerAuth: []
 post:
   summary: 仮想マシンイメージの作成
+  operationId: createImage
   description: 新しい仮想マシンイメージを作成します。
   tags:
     - Image
@@ -57,6 +59,31 @@ post:
         application/json:
           schema:
             $ref: "../../components/schemas/image/ImageResponse.yml"
+      links:
+        GetImageById:
+          operationId: getImageById
+          parameters:
+            imageId: "$response.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        PutImageById:
+          operationId: putImageById
+          parameters:
+            imageId: "$response.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        PatchImageById:
+          operationId: patchImageById
+          parameters:
+            imageId: "$response.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
+        DeleteImageById:
+          operationId: deleteImageById
+          parameters:
+            imageId: "$response.body#/id"
+          description: >
+            idは個別リソースのURLに使用できます。
     "400":
       description: リクエストエラー
       content:

@@ -1,7 +1,24 @@
 type: object
 description: インスタンスタイプ作成リクエストオブジェクト
-allOf:
-  - $ref: "./InstanceTypeUpdatable.yml"
+properties:
+  name:
+    type: string
+    description: インスタンスタイプの名前
+    example: micro
+  cpuCore:
+    type: integer
+    format: int64
+    minimum: 1
+    maximum: 1099511627776
+    description: CPUコア数
+    example: 4
+  memorySize:
+    type: integer
+    format: int64
+    minimum: 1
+    maximum: 1099511627776
+    description: メモリサイズ（バイト単位）
+    example: 8589934592
 required:
   - name
   - cpuCore

@@ -22,6 +22,12 @@ get:
             type: array
             items:
               $ref: "../../components/schemas/security-group/SecurityGroupResponse.yml"
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
       content:

@@ -2,14 +2,19 @@
   <BaseModal
     :show="show"
     title="インスタンスタイプ編集"
-    @close="$emit('close')"
+    @close="handleClose"
     size="md"
   >
     <div v-if="!editedData" class="p-8 text-center text-gray-500">
       読み込み中...
     </div>
 
-    <form v-else @submit.prevent="submitForm" class="space-y-6">
+    <form
+      v-else
+      @submit.prevent="onSubmit"
+      class="space-y-6"
+      id="instance-type-edit-form"
+    >
       <div
         v-if="updaterError"
         class="bg-red-50 text-red-600 p-3 rounded text-sm"
@@ -45,12 +50,12 @@
           label="メモリ (MB)"
           name="memorySize"
           type="number"
-          v-model.number="memorySizeGB"
-          v-bind="memorySizeGBAttrs"
-          :error="errors.memorySizeGB"
+          v-model.number="memorySizeField"
+          v-bind="memorySizeAttrs"
+          :error="errors.memorySize"
           placeholder="4"
           :step="1024"
-          :min="512"
+          :min="1"
           required
           class="w-full"
         >
@@ -63,14 +68,13 @@
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="submitForm"
-          class="btn btn-primary"
-          :disabled="isSaving || !editedData"
-        >
-          {{ isSaving ? "保存中..." : "保存" }}
-        </button>
+        <UiSubmitButton
+          :disabled="isSaving || !isValid"
+          :loading="isSaving"
+          label="インスタンスタイプを更新"
+          form="instance-type-edit-form"
+          type="submit"
+        />
       </div>
     </template>
   </BaseModal>
@@ -83,7 +87,7 @@ import FormInput from "~/components/Form/Input.vue";
 
 const props = defineProps({
   show: { type: Boolean, required: true },
-  instanceTypeData: {
+  data: {
     type: Object as PropType<InstanceTypeResponse>,
     default: null,
   },
@@ -97,30 +101,15 @@ const {
   nameAttrs,
   cpuCore,
   cpuCoreAttrs,
-  memorySizeGB,
-  memorySizeGBAttrs,
+  memorySizeField,
+  memorySizeAttrs,
   errors,
   isSaving,
   updaterError,
-  initializeForm,
+  isValid,
   save,
-} = useInstanceTypeEditForm();
-
-watch(
-  () => props.instanceTypeData,
-  (newData) => {
-    if (newData && props.show) {
-      initializeForm(newData);
-    }
-  },
-  { immediate: true }
-);
-
-const submitForm = async () => {
-  const success = await save();
-  if (success) {
-    emit("success");
-    emit("close");
-  }
-};
+  close,
+} = useInstanceTypeEditForm(props);
+const onSubmit = save(emit);
+const handleClose = close(emit);
 </script>
