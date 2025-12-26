@@ -134,6 +134,7 @@ export function useNodeManagement() {
     switchingNodeId,
     handleSetAsManagementNode,
     refreshNodeList,
+    lastUpdatedTime,
     ADD_NODE_ACTION: addNodeAction,
     DELETE_NODE_ACTION: deleteNodeAction,
   };
