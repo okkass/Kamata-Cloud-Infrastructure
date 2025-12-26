@@ -1,17 +1,39 @@
-import { validate } from "uuid";
+import { bulkResource } from "@@/server/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@@/server/utils/permission";
+import { getVirtualNetworkService } from "@@/server/service/VirtualNetworkService";
+import type {
+  SubnetCreateRequest,
+  SubnetPatchRequest,
+} from "@@/shared/types";
+import { validateUUID } from "@@/server/utils/validate";
+import { createSubnetSchema, updateSubnetSchema } from "@@/server/zodSchemas";
+import type { BulkRequest } from "@@/server/types/BulkRequest";
 
 export default defineEventHandler(async (event) => {
-  const id = event.context.params?.id;
-  if (!id || !validate(id)) {
-    throw createError({ statusCode: 400, statusMessage: "Invalid ID" });
+  const permission = getPermissionFromEvent(event);
+  const { id } = event.context.params as { id: string };
+  validateUUID(id);
+
+  const service = getVirtualNetworkService(permission).getSubnetService(id);
+
+  if (!service) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: "Virtual Network not found",
+    });
   }
 
-  const body = await readBody(event);
-
-  // TODO: Implement actual DB operations using Prisma
-  // Process body.create, body.delete, and body.patch
-
-  console.log(`Bulk update for virtual network ${id}:`, body);
-
-  return { message: "Bulk update processed successfully", data: body };
+  const body = (await readBody(event)) as BulkRequest<
+    SubnetCreateRequest,
+    SubnetPatchRequest
+  >;
+  return bulkResource(
+    body,
+    createSubnetSchema,
+    updateSubnetSchema,
+    service.create,
+    service.update,
+    service.delete,
+    service.list
+  );
 });
