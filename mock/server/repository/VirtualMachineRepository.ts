@@ -6,7 +6,14 @@ import type {
   VirtualMachineCreateRequest,
   VirtualMachinePatchRequest,
   VirtualMachinePutRequest,
+  StorageCreateRequest,
+  StoragePatchRequest,
+  StoragePutRequest,
+  NetworkInterfaceCreateRequest,
+  NetworkInterfacePatchRequest,
+  NetworkInterfacePutRequest,
 } from "@app/shared/types";
+import type { VmSecurityGroupAddRequest } from "@/types";
 import { SecurityGroupRepository } from "./SecurityGroupRepository";
 import { NodeRepository } from "./NodeRepository";
 import { StoragePoolRepository } from "./StoragePoolRepository";
@@ -226,11 +233,22 @@ const update = (
   id: string,
   data: VirtualMachinePatchRequest | VirtualMachinePutRequest
 ): VirtualMachineResponse | undefined => {
-  return undefined;
+  const vm = getById(id);
+  if (!vm) {
+    return undefined;
+  }
+  vm.name = data.name ?? vm.name;
+
+  return vm;
 };
 
 const deleteById = (id: string): boolean => {
-  return false;
+  const index = list().findIndex((vm) => vm.id === id);
+  if (index === -1) {
+    return false;
+  }
+  list().splice(index, 1);
+  return true;
 };
 
 const listNetworkInterfacesByVirtualMachineId = (
@@ -248,6 +266,63 @@ const getNetworkInterface = (
   return nics?.find((nic) => nic.id === nicId);
 };
 
+const createNetworkInterface = (
+  vmId: string,
+  data: NetworkInterfaceCreateRequest
+): NetworkInterfaceResponse | undefined => {
+  const nics = listNetworkInterfacesByVirtualMachineId(vmId);
+  if (!nics) {
+    return undefined;
+  }
+  const subnet = VirtualNetworkRepository.getSubnetById(data.subnetId);
+  if (!subnet) {
+    return undefined;
+  }
+  const newNic: NetworkInterfaceResponse = {
+    id: crypto.randomUUID(),
+    name: data.name,
+    macAddress: "52:54:00:ab:cd:ef",
+    ipAddress: "10.0.0.10",
+    subnet: subnet,
+  };
+  nics.push(newNic);
+  return newNic;
+};
+
+const updateNetworkInterface = (
+  vmId: string,
+  nicId: string,
+  data: NetworkInterfacePatchRequest | NetworkInterfacePutRequest
+): NetworkInterfaceResponse | undefined => {
+  const target = getNetworkInterface(vmId, nicId);
+  if (!target) {
+    return undefined;
+  }
+  target.name = data.name ?? target.name;
+  if (data.subnetId) {
+    const subnet = VirtualNetworkRepository.getSubnetById(data.subnetId);
+    if (subnet) {
+      target.subnet = subnet;
+    } else {
+      return undefined;
+    }
+  }
+  return target;
+};
+
+const deleteNetworkInterface = (vmId: string, nicId: string): boolean => {
+  const nics = listNetworkInterfacesByVirtualMachineId(vmId);
+  if (!nics) {
+    return false;
+  }
+  const index = nics.findIndex((nic) => nic.id === nicId);
+  if (index === -1) {
+    return false;
+  }
+  nics.splice(index, 1);
+  return true;
+};
+
 const listStoragesByVirtualMachineId = (
   id: string
 ): StorageResponse[] | undefined => {
@@ -263,11 +338,98 @@ const getStorage = (
   return storages?.find((storage) => storage.id === storageId);
 };
 
+const createStorage = (
+  vmId: string,
+  data: StorageCreateRequest
+): StorageResponse | undefined => {
+  const vm = getById(vmId);
+  if (!vm) {
+    return undefined;
+  }
+  const pool = StoragePoolRepository.getById(data.poolId);
+  if (!pool) {
+    return undefined;
+  }
+  const newStorage: StorageResponse = {
+    id: crypto.randomUUID(),
+    name: data.name,
+    size: data.size,
+    pool: pool,
+    createdAt: new Date().toISOString(),
+    devicePath: "/dev/sdX",
+  };
+  vm.storages.push(newStorage);
+  return newStorage;
+};
+
+const updateStorage = (
+  vmId: string,
+  storageId: string,
+  data: StoragePatchRequest | StoragePutRequest
+): StorageResponse | undefined => {
+  const target = getStorage(vmId, storageId);
+  if (!target) {
+    return undefined;
+  }
+  target.name = data.name ?? target.name;
+
+  return target;
+};
+
+const deleteStorage = (vmId: string, storageId: string): boolean => {
+  const storages = listStoragesByVirtualMachineId(vmId);
+  if (!storages) {
+    return false;
+  }
+  const index = storages.findIndex((storage) => storage.id === storageId);
+  if (index === -1) {
+    return false;
+  }
+  storages.splice(index, 1);
+  return true;
+};
+
 const listSecurityGroupsByVirtualMachineId = (
   id: string
 ): SecurityGroupResponse[] | undefined => {
   const vm = getById(id);
   return vm?.securityGroups;
+};
+
+const addSecurityGroupToVm = (
+  vmId: string,
+  data: VmSecurityGroupAddRequest
+): SecurityGroupResponse | undefined => {
+  const vm = getById(vmId);
+  if (!vm) {
+    return undefined;
+  }
+  const sg = SecurityGroupRepository.getById(data.securityGroupId);
+  if (!sg) {
+    return undefined;
+  }
+  // すでに追加されていれば無視
+  if (vm.securityGroups.find((s) => s.id === sg.id)) {
+    return sg;
+  }
+  vm.securityGroups.push(sg);
+  return sg;
+};
+
+const deleteSecurityGroupFromVm = (
+  vmId: string,
+  securityGroupId: string
+): boolean => {
+  const vm = getById(vmId);
+  if (!vm) {
+    return false;
+  }
+  const index = vm.securityGroups.findIndex((sg) => sg.id === securityGroupId);
+  if (index === -1) {
+    return false;
+  }
+  vm.securityGroups.splice(index, 1);
+  return true;
 };
 
 export const VirtualMachineRepository = {
@@ -278,9 +440,17 @@ export const VirtualMachineRepository = {
   deleteById,
   listNetworkInterfacesByVirtualMachineId,
   getNetworkInterface,
+  createNetworkInterface,
+  updateNetworkInterface,
+  deleteNetworkInterface,
   listStoragesByVirtualMachineId,
   getStorage,
+  createStorage,
+  updateStorage,
+  deleteStorage,
   listSecurityGroupsByVirtualMachineId,
+  addSecurityGroupToVm,
+  deleteSecurityGroupFromVm,
 };
 
 export default VirtualMachineRepository;
