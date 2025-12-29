@@ -10,11 +10,13 @@ import {
   type InstanceTypeUpdateInput,
 } from "~/utils/validations/instance-type";
 import { useFormAction } from "./useModalAction";
+import { convertUnitToByte } from "~/utils/format";
 
 type Props = ModalFormProps<InstanceTypeResponse>;
 
 export const useInstanceTypeEditForm = (props: Props) => {
   const { handleFormSubmit, makeHandleClose } = useFormAction();
+  const { addToast } = useToast();
 
   // [推奨]: useResourceUpdater の戻り値を活用
   const {
@@ -24,6 +26,7 @@ export const useInstanceTypeEditForm = (props: Props) => {
     init,
     save: updaterSave,
     errorMessage,
+    isDirty,
   } = useResourceUpdater<InstanceTypeResponse>();
 
   // エラーメッセージを同期
@@ -58,7 +61,7 @@ export const useInstanceTypeEditForm = (props: Props) => {
       values: {
         name: data.name,
         cpuCore: data.cpuCore,
-        memorySize: convertByteToUnit(data.memorySize, "MB"),
+        memorySize: convertByteToUnit(data.memorySize, "MB", false),
       },
     });
   };
@@ -72,6 +75,28 @@ export const useInstanceTypeEditForm = (props: Props) => {
       }
     },
     { immediate: true }
+  );
+
+  // --- vee-validate の値を editedData に同期 ---
+  watch(
+    () => ({
+      name: name.value,
+      cpuCore: cpuCore.value,
+      memorySize: memorySizeField.value,
+    }),
+    (newValues) => {
+      if (editedData.value) {
+        editedData.value.name = newValues.name;
+        editedData.value.cpuCore = newValues.cpuCore;
+        if (newValues.memorySize != null) {
+          editedData.value.memorySize = convertUnitToByte(
+            newValues.memorySize,
+            "MB"
+          );
+        }
+      }
+    },
+    { deep: true }
   );
 
   /**

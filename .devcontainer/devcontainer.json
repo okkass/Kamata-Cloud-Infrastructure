@@ -38,8 +38,6 @@
     }
   },
 
-  "forwardPorts": [3000, 3306, 3030],
-
   // "postCreateCommand": "cd srcs && npm ci && npx prisma migrate dev && npx prisma db seed"
   "postCreateCommand": "cd srcs && pnpm install --frozen-lockfile"
 }
