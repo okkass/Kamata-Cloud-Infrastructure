@@ -17,5 +17,6 @@ export const getPrismaClient = (): PrismaClient => {
   if (!prisma) {
     prisma = new PrismaClient({ adapter });
   }
+  console.log(prisma);
   return prisma;
 };
