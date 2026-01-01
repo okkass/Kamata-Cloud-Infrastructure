@@ -36,12 +36,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            /** @description リフレッシュトークン */
-                            refreshToken?: string;
-                            /** @description 認証トークン */
-                            token?: string;
-                        };
+                        "application/json": components["schemas"]["LoginResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -6579,6 +6574,13 @@ export interface components {
              */
             password: string;
         };
+        /** @description ログインレスポンスオブジェクト */
+        LoginResponse: {
+            /** @description リフレッシュトークン */
+            refreshToken: string;
+            /** @description アクセストークン */
+            token: string;
+        };
         /** @description RFC 9457 (Problem Details for HTTP APIs) に準拠した標準のエラーレスポンス形式 */
         ErrorResponse: {
             /**
@@ -7790,6 +7792,7 @@ export interface components {
     pathItems: never;
 }
 export type LoginRequest = components['schemas']['LoginRequest'];
+export type LoginResponse = components['schemas']['LoginResponse'];
 export type ErrorResponse = components['schemas']['ErrorResponse'];
 export type NodeResponse = components['schemas']['NodeResponse'];
 export type ImageResponse = components['schemas']['ImageResponse'];
