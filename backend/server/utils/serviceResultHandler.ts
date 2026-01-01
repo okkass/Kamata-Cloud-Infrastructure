@@ -9,25 +9,31 @@ import type { BulkRequest } from "@/types/BulkRequest";
  * @throws {Error} HTTP ステータスに対応する例外
  */
 const throwServiceError = (error: ServiceError): never => {
-  switch (error) {
+  switch (error.reason) {
     case "NotFound":
       throw createError({
         statusCode: 404,
-        statusMessage: "Resource not found",
+        message: "Resource not found\n" + (error.message ?? ""),
       });
     case "BadRequest":
-      throw createError({ statusCode: 400, statusMessage: "Bad request" });
+      throw createError({
+        statusCode: 400,
+        message: "Bad request\n" + (error.message ?? ""),
+      });
     case "Forbidden":
-      throw createError({ statusCode: 403, statusMessage: "Forbidden" });
+      throw createError({
+        statusCode: 403,
+        message: "Forbidden\n" + (error.message ?? ""),
+      });
     case "NotImplemented":
       throw createError({
         statusCode: 501,
-        statusMessage: "Not implemented",
+        message: "Not implemented\n" + (error.message ?? ""),
       });
     default:
       throw createError({
         statusCode: 500,
-        statusMessage: "Internal server error",
+        message: "Internal server error\n" + (error.message ?? ""),
       });
   }
 };

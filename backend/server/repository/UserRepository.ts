@@ -1,4 +1,4 @@
-import { getPrismaClient } from "./common";
+import { getPrismaClient, NotFoundError } from "./common";
 
 export interface UserInsertProps {
   name: string;
@@ -22,6 +22,9 @@ export interface UserUpdateProps {
   maxCpuCore?: number;
   maxMemorySizeMb?: number;
   maxStorageSizeGb?: number;
+}
+
+export interface UserPermissionUpdateProps {
   isAdmin?: boolean;
   isImageAdmin?: boolean;
   isInstanceTypeAdmin?: boolean;
@@ -84,6 +87,11 @@ const getById = async (id: string) => {
           isNodeAdmin: true,
         },
       },
+      credentials: {
+        select: {
+          hashedPassword: true,
+        },
+      },
     },
   });
   return user;
@@ -136,20 +144,67 @@ const update = async (id: string, userUpdateProps: UserUpdateProps) => {
       cpuLimitCores: userUpdateProps.maxCpuCore,
       memoryLimitMb: userUpdateProps.maxMemorySizeMb,
       storageLimitGb: userUpdateProps.maxStorageSizeGb,
-      permission: {
-        update: {
-          isAdmin: userUpdateProps.isAdmin,
-          isImageAdmin: userUpdateProps.isImageAdmin,
-          isInstanceTypeAdmin: userUpdateProps.isInstanceTypeAdmin,
-          isVirtualMachineAdmin: userUpdateProps.isVirtualMachineAdmin,
-          isNetworkAdmin: userUpdateProps.isNetworkAdmin,
-          isSecurityGroupAdmin: userUpdateProps.isSecurityGroupAdmin,
-          isNodeAdmin: userUpdateProps.isNodeAdmin,
-        },
-      },
     },
   });
   return user;
+};
+
+const updatePermission = async (
+  uuid: string,
+  permissionUpdateProps: UserPermissionUpdateProps
+) => {
+  const prisma = getPrismaClient();
+  // uuidからuid引っ張ってくる
+  const user = await prisma.user.findUnique({
+    where: {
+      uuid: uuid,
+    },
+    select: {
+      id: true,
+    },
+  });
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+  const permission = await prisma.permission.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      isAdmin: permissionUpdateProps.isAdmin,
+      isImageAdmin: permissionUpdateProps.isImageAdmin,
+      isInstanceTypeAdmin: permissionUpdateProps.isInstanceTypeAdmin,
+      isVirtualMachineAdmin: permissionUpdateProps.isVirtualMachineAdmin,
+      isNetworkAdmin: permissionUpdateProps.isNetworkAdmin,
+      isSecurityGroupAdmin: permissionUpdateProps.isSecurityGroupAdmin,
+      isNodeAdmin: permissionUpdateProps.isNodeAdmin,
+    },
+  });
+  return permission;
+};
+
+const updatePassword = async (uuid: string, newPasswordHash: string) => {
+  const prisma = getPrismaClient();
+  const user = await prisma.user.findUnique({
+    where: {
+      uuid: uuid,
+    },
+    select: {
+      id: true,
+    },
+  });
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+  const credential = await prisma.userCredential.update({
+    where: {
+      userId: user.id,
+    },
+    data: {
+      hashedPassword: newPasswordHash,
+    },
+  });
+  return credential;
 };
 
 const deleteById = async (id: string) => {
@@ -169,6 +224,8 @@ export const UserRepository = {
   create,
   update,
   deleteById,
+  updatePermission,
+  updatePassword,
 };
 
 export default UserRepository;

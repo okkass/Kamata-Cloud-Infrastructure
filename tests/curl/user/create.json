@@ -1,9 +1,0 @@
-{
-  "password": "testpassword",
-  "name": "Test 1",
-  "email": "test1@example.com",
-  "maxCpuCore": null,
-  "maxMemoriSize": null,
-  "mazStorageSize": null,
-  "isAdmin": false
-}
