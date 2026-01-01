@@ -1,6 +1,6 @@
 post:
-  summary: ユーザのログイン
-  description: ユーザのメールアドレスとパスワードを使用してログインします。トークンはCookieに保存されます。
+  summary: ユーザのトークンリフレッシュ
+  description: リフレッシュトークンを使用して新しい認証トークンを取得します。
   tags:
     - Auth
   requestBody:
@@ -8,18 +8,14 @@ post:
     content:
       application/json:
         schema:
-          $ref: "../../components/schemas/auth/LoginRequest.yml"
+          $ref: "../../components/schemas/auth/RefreshRequest.yml"
   responses:
     "200":
-      description: ログイン成功
+      description: トークンリフレッシュ成功
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              message:
-                type: string
-                description: ログイン成功メッセージ
+            $ref: "../../components/schemas/auth/LoginResponse.yml"
     "400":
       description: リクエストエラー
       content:
