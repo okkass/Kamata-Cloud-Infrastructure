@@ -7,7 +7,7 @@ export async function signToken(payload: KCIJWTPayload): Promise<string> {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg })
     .setIssuedAt()
-    .setExpirationTime("2h")
+    .setExpirationTime("30s")
     .sign(secret);
 }
 
@@ -26,6 +26,5 @@ export async function verifyToken(
 }
 
 export interface KCIJWTPayload extends JWTPayload {
-  isAdmin: boolean;
   userId: string; // UUID format
 }

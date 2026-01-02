@@ -97,6 +97,40 @@ const getById = async (id: string) => {
   return user;
 };
 
+const getByEmail = async (email: string) => {
+  const prisma = getPrismaClient();
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+    select: {
+      uuid: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      lastLoginAt: true,
+      permission: {
+        select: {
+          isAdmin: true,
+          isImageAdmin: true,
+          isInstanceTypeAdmin: true,
+          isVirtualMachineAdmin: true,
+          isNetworkAdmin: true,
+          isSecurityGroupAdmin: true,
+          isNodeAdmin: true,
+        },
+      },
+      credentials: {
+        select: {
+          hashedPassword: true,
+        },
+      },
+    },
+  });
+  return user;
+};
+
 const create = async (userInsertProps: UserInsertProps) => {
   const prisma = getPrismaClient();
 
@@ -144,6 +178,19 @@ const update = async (id: string, userUpdateProps: UserUpdateProps) => {
       cpuLimitCores: userUpdateProps.maxCpuCore,
       memoryLimitMb: userUpdateProps.maxMemorySizeMb,
       storageLimitGb: userUpdateProps.maxStorageSizeGb,
+    },
+  });
+  return user;
+};
+
+const updateLastLoginAt = async (id: string) => {
+  const prisma = getPrismaClient();
+  const user = await prisma.user.update({
+    where: {
+      uuid: id,
+    },
+    data: {
+      lastLoginAt: new Date(),
     },
   });
   return user;
@@ -221,11 +268,13 @@ const deleteById = async (id: string) => {
 export const UserRepository = {
   list,
   getById,
+  getByEmail,
   create,
   update,
   deleteById,
   updatePermission,
   updatePassword,
+  updateLastLoginAt,
 };
 
 export default UserRepository;

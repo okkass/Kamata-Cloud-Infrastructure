@@ -46,7 +46,7 @@ type UserService = ResourceService<
   >;
 };
 
-export const getUserService = (permission: UserPermissions) => {
+export const getUserService = (permission: UserPermissions | null = null) => {
   const userService: UserService = {
     permission,
     list: async (query) => {

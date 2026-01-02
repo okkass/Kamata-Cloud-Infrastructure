@@ -4,6 +4,7 @@ export type ServiceError = {
     | "BadRequest"
     | "InternalError"
     | "Forbidden"
+    | "Unauthorized"
     | "NotImplemented";
   message?: string;
 };
