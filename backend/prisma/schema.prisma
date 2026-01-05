@@ -107,6 +107,8 @@ model RefleshToken {
   expiredAt DateTime @map("expired_at")
   revokedAt DateTime? @map("revoked_at")
   userId    BigInt   @map("user_id")
+
+  @@map("reflesh_tokens")
 }
 
 model Portfolio {

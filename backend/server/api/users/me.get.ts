@@ -1,12 +1,10 @@
-import { getResourceList } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
 import { getUserService } from "@/service/UserService";
+import { getResource } from "@/utils/serviceResultHandler";
 
-export default defineEventHandler((event) => {
-  // モックなので固定のユーザーを返す
+export default defineEventHandler(async (event) => {
   const permission = getPermissionFromEvent(event);
   const service = getUserService(permission);
 
-  const list = getResourceList(service.list);
-  return list[0];
+  return getResource(permission.id, service.getById);
 });

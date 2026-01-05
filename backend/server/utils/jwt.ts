@@ -2,12 +2,19 @@ import { JWTPayload, SignJWT, jwtVerify } from "jose";
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || "secret-key");
 const alg = "HS256";
+const TOKEN_EXP = "30s";
+
+if (!process.env.JWT_SECRET) {
+  console.warn("Using default JWT secret. This is not secure for production.");
+} else {
+  console.log("JWT secret loaded from environment variable.");
+}
 
 export async function signToken(payload: KCIJWTPayload): Promise<string> {
   return await new SignJWT(payload)
     .setProtectedHeader({ alg })
     .setIssuedAt()
-    .setExpirationTime("30s")
+    .setExpirationTime(TOKEN_EXP)
     .sign(secret);
 }
 

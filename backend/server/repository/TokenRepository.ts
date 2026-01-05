@@ -1,12 +1,11 @@
 import { getPrismaClient, NotFoundError } from "./common";
-import { randomBytes } from "node:crypto";
+import { randomBytes, createHash } from "node:crypto";
 
 const TOKEN_LENGTH = 32; // 32 bytes
 const TOKEN_EXPIRATION_DAYS = 7; // 7 days
 
-interface RefreshToken {
+interface RefreshTokenInfo {
   userId: string;
-  token: string;
   expiredAt: Date;
   revokedAt: Date | null;
 }
@@ -26,13 +25,14 @@ const createRefreshToken = async (uuid: string): Promise<string> => {
     throw new NotFoundError("User not found");
   }
   const tokenBuffer = randomBytes(TOKEN_LENGTH);
+  const hashedToken = createHash("sha256").update(tokenBuffer).digest();
   const now = new Date();
   const expiredAt = new Date(
     now.getTime() + TOKEN_EXPIRATION_DAYS * 24 * 60 * 60 * 1000
   );
   await prisma.refleshToken.create({
     data: {
-      token: tokenBuffer,
+      token: hashedToken,
       userId: user.id,
       expiredAt: expiredAt,
     },
@@ -42,12 +42,13 @@ const createRefreshToken = async (uuid: string): Promise<string> => {
 
 const getRefreshTokenByToken = async (
   token: string
-): Promise<RefreshToken | null> => {
+): Promise<RefreshTokenInfo | null> => {
   const prisma = getPrismaClient();
   const tokenBuffer = Buffer.from(token, "base64");
+  const hashedToken = createHash("sha256").update(tokenBuffer).digest();
   const refleshToken = await prisma.refleshToken.findUnique({
     where: {
-      token: tokenBuffer,
+      token: hashedToken,
     },
   });
   if (!refleshToken) {
@@ -64,10 +65,8 @@ const getRefreshTokenByToken = async (
   if (!user) {
     return null;
   }
-  const buf = Buffer.from(refleshToken.token);
   return {
     userId: user.uuid,
-    token: buf.toString("base64"),
     expiredAt: refleshToken.expiredAt,
     revokedAt: refleshToken.revokedAt,
   };
@@ -76,9 +75,10 @@ const getRefreshTokenByToken = async (
 const revokeRefreshToken = async (token: string): Promise<void> => {
   const prisma = getPrismaClient();
   const tokenBuffer = Buffer.from(token, "base64");
+  const hashedToken = createHash("sha256").update(tokenBuffer).digest();
   await prisma.refleshToken.update({
     where: {
-      token: tokenBuffer,
+      token: hashedToken,
       revokedAt: null,
     },
     data: {
