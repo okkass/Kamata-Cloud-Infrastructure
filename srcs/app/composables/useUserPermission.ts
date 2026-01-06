@@ -1,7 +1,7 @@
 import type { UserPermissions } from "~~/shared/types";
 import type { UserResponse } from "~~/shared/types";
 
-export const useUser = () => {
+export const useUserPermission = () => {
   // NuxtのuseStateを使い、ユーザー情報をアプリ全体で共有・保持する
   const user = useState<UserPermissions | null>("user", () => null);
 
