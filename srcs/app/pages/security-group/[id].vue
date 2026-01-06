@@ -89,7 +89,7 @@ const openEditModal = () => {
 
 const handleEditClose = () => {
   isEditOpen.value = false;
-  // キャンセル時はポーリングを再開
+  // モーダルを閉じる際はポーリングを再開
   polling.startPolling();
 };
 
