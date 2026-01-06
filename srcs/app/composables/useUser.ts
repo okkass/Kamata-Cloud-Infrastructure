@@ -1,6 +1,9 @@
+import type { UserPermissions } from "~~/shared/types";
+import type { UserResponse } from "~~/shared/types";
+
 export const useUser = () => {
   // NuxtのuseStateを使い、ユーザー情報をアプリ全体で共有・保持する
-  const user = useState<Record<string, any> | null>("user", () => null);
+  const user = useState<UserPermissions | null>("user", () => null);
 
   // isAdminの状態を算出プロパティとして定義
   const isAdmin = computed(() => {
@@ -9,6 +12,36 @@ export const useUser = () => {
 
     // isAdminプロパティがtrueかどうかを安全にチェック
     return user.value.isAdmin === true;
+  });
+
+  const isImageAdmin = computed(() => {
+    if (!user.value) return false;
+    return user.value.isImageAdmin === true;
+  });
+
+  const isInstanceTypeAdmin = computed(() => {
+    if (!user.value) return false;
+    return user.value.isInstanceTypeAdmin === true;
+  });
+
+  const isNetworkAdmin = computed(() => {
+    if (!user.value) return false;
+    return user.value.isNetworkAdmin === true;
+  });
+
+  const isNodeAdmin = computed(() => {
+    if (!user.value) return false;
+    return user.value.isNodeAdmin === true;
+  });
+
+  const isSecurityGroupAdmin = computed(() => {
+    if (!user.value) return false;
+    return user.value.isSecurityGroupAdmin === true;
+  });
+
+  const isVirtualMachineAdmin = computed(() => {
+    if (!user.value) return false;
+    return user.value.isVirtualMachineAdmin === true;
   });
 
   // ユーザー情報を取得する非同期関数
@@ -20,7 +53,17 @@ export const useUser = () => {
       const { data } = await useFetch("users/me", {
         $fetch: useNuxtApp().$apiFetch,
       });
-      user.value = data.value as Record<string, any>;
+      const res = data.value as UserResponse;
+      user.value = {
+        id: res.id,
+        isAdmin: res.isAdmin,
+        isImageAdmin: res.isImageAdmin,
+        isInstanceTypeAdmin: res.isInstanceTypeAdmin,
+        isNetworkAdmin: res.isNetworkAdmin,
+        isNodeAdmin: res.isNodeAdmin,
+        isSecurityGroupAdmin: res.isSecurityGroupAdmin,
+        isVirtualMachineAdmin: res.isVirtualMachineAdmin,
+      };
     } catch (error) {
       console.error("Failed to fetch user:", error);
       user.value = null; // エラー時はnullに設定
@@ -30,6 +73,12 @@ export const useUser = () => {
   return {
     user,
     isAdmin,
+    isImageAdmin,
+    isInstanceTypeAdmin,
+    isNetworkAdmin,
+    isNodeAdmin,
+    isSecurityGroupAdmin,
+    isVirtualMachineAdmin,
     fetchUser,
   };
 };
