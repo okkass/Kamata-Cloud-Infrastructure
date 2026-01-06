@@ -106,39 +106,42 @@ async function main() {
       isNodeAdmin: false,
     },
   ];
-
-  const createUserPromises = permissions.map((perm) => {
-    return prisma.user.create({
-      data: {
-        name: perm.name,
-        email: perm.email,
-        cpuLimitCores: 0,
-        memoryLimitMb: 0,
-        storageLimitGb: 0,
-        credentials: {
-          create: {
-            hashedPassword: hash,
+  try {
+    const createUserPromises = permissions.map((perm) => {
+      return prisma.user.create({
+        data: {
+          name: perm.name,
+          email: perm.email,
+          cpuLimitCores: 0,
+          memoryLimitMb: 0,
+          storageLimitGb: 0,
+          credentials: {
+            create: {
+              hashedPassword: hash,
+            },
+          },
+          permission: {
+            create: {
+              isAdmin: perm.isAdmin,
+              isImageAdmin: perm.isImageAdmin,
+              isInstanceTypeAdmin: perm.isInstanceTypeAdmin,
+              isVirtualMachineAdmin: perm.isVirtualMachineAdmin,
+              isNetworkAdmin: perm.isNetworkAdmin,
+              isSecurityGroupAdmin: perm.isSecurityGroupAdmin,
+              isNodeAdmin: perm.isNodeAdmin,
+            },
           },
         },
-        permission: {
-          create: {
-            isAdmin: perm.isAdmin,
-            isImageAdmin: perm.isImageAdmin,
-            isInstanceTypeAdmin: perm.isInstanceTypeAdmin,
-            isVirtualMachineAdmin: perm.isVirtualMachineAdmin,
-            isNetworkAdmin: perm.isNetworkAdmin,
-            isSecurityGroupAdmin: perm.isSecurityGroupAdmin,
-            isNodeAdmin: perm.isNodeAdmin,
-          },
+        include: {
+          credentials: true,
+          permission: true,
         },
-      },
-      include: {
-        credentials: true,
-        permission: true,
-      },
+      });
     });
-  });
-  await Promise.all(createUserPromises);
+    await Promise.all(createUserPromises);
+  } catch (error) {
+    console.error("Error creating users:", error);
+  }
 
   const users = await prisma.user.findMany();
   console.log(`Created ${users.length} users:`);
