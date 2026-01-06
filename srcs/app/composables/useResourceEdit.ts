@@ -15,8 +15,6 @@ export const useResourceUpdate = <
 ) => {
   const isUpdating = ref(false);
 
-  const runtimeConfig = useRuntimeConfig();
-
   /**
    * リソースの更新を実行し、詳細な結果オブジェクトを返す
    * @param id - 更新するリソースのID
@@ -41,10 +39,9 @@ export const useResourceUpdate = <
 
     try {
       // $fetchを使用してPUTリクエストを送信
-      const responseData = await $fetch<TResponse>(
-        `/api/${resourceName}/${id}`,
+      const responseData = await useNuxtApp().$apiFetch<TResponse>(
+        `${resourceName}/${id}`,
         {
-          baseURL: runtimeConfig.public.apiBaseUrl,
           method: "PUT",
           body: payload,
         }

@@ -1,5 +1,6 @@
 get:
   summary: ノードに新規接続されたストレージデバイスの一覧取得
+  operationId: getNodeNewDevices
   description: 指定したIDの物理ノードに新規接続されたストレージデバイスの一覧を取得します。
   tags:
     - Node
@@ -11,6 +12,7 @@ get:
         type: string
         format: uuid
       description: 物理ノードの一意なID
+      example: "86c4bfd5-b791-4733-852c-15c8bde42574"
   responses:
     "200":
       description: 成功
@@ -20,6 +22,12 @@ get:
             type: array
             items:
               $ref: "../../components/schemas/node/DeviceResponse.yml"
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
     "401":
       description: 認証エラー
       content:

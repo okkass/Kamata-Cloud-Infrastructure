@@ -1,257 +1,311 @@
 <template>
-  <div class="space-y-6">
-    <div class="form-section space-y-4">
-      <h3 class="section-title">ネットワーク</h3>
-      <div>
-        <FormSelect
-          label="サブネット (NIC 1)"
-          name="vm-edit-subnet"
-          v-model="firstNicSubnetId"
-          :options="networks ?? []"
-          option-value="id"
-          option-label="name"
-          placeholder="ネットワークが割り当てられていません"
-          :pending="networksPending"
-          :error="networksError"
-          :error-message="errors['nics[0].subnetId']"
-          :required="true"
-          :placeholder-value="undefined"
-          disabled
-        />
-        <p class="text-xs text-gray-500 mt-1">
-          ※サブネットの変更はできません。
-        </p>
-      </div>
-    </div>
-
-    <div class="form-section">
-      <h3 class="section-title mb-4">セキュリティグループ</h3>
-
-      <table class="w-full text-sm text-left text-gray-700">
-        <thead class="text-xs text-gray-800 uppercase bg-gray-100">
-          <tr>
-            <th class="px-4 py-2">グループ名</th>
-            <th class="px-4 py-2 text-center w-20">操作</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-if="sgFields.length === 0">
-            <td colspan="2" class="text-center py-4 text-gray-500">
-              適用中のセキュリティグループはありません。
-            </td>
-          </tr>
-          <tr v-for="(group, index) in appliedGroups" :key="group.id">
-            <td class="px-4 py-3">{{ group.name }}</td>
-            <td class="px-4 py-3 text-center">
-              <button
-                type="button"
-                @click="removeSg(index)"
-                class="text-red-500 hover:text-red-700"
-              >
-                削除
-              </button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
-
-      <div class="mt-4 flex items-end gap-3">
-        <div class="flex-1">
-          <FormSelect
-            label="セキュリティグループを追加"
-            name="vm-edit-sg-add"
-            v-model="selectedGroupToAdd"
-            :options="availableGroups ?? []"
-            option-value="id"
-            option-label="name"
-            placeholder="グループを選択"
-            :pending="sgPending"
-            :error="sgError"
-            :label-hidden="true"
-          />
+  <div class="p-6 h-full overflow-y-auto">
+    <div class="max-w-4xl space-y-8">
+      <section>
+        <div class="flex justify-between items-center mb-4">
+          <h3 class="text-lg font-medium text-gray-900 flex items-center gap-2">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke-width="1.5"
+              stroke="currentColor"
+              class="size-5 text-gray-500"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582m15.686 0A11.953 11.953 0 0 1 12 10.5c-2.998 0-5.74-1.1-7.843-2.918m15.686 0A8.959 8.959 0 0 1 21 12c0 .778-.099 1.533-.284 2.253m0 0A17.919 17.919 0 0 1 12 16.5c-3.162 0-6.133-.815-8.716-2.247m0 0A9.015 9.015 0 0 1 3 12c0-1.605.42-3.113 1.157-4.418"
+              />
+            </svg>
+            ネットワークインターフェース
+          </h3>
+          <button
+            type="button"
+            @click="addInterface"
+            class="text-sm px-3 py-1.5 bg-white border border-gray-300 rounded text-gray-700 hover:bg-gray-50 shadow-sm transition-colors"
+          >
+            + インターフェース追加
+          </button>
         </div>
-        <button
-          type="button"
-          @click="addSecurityGroup"
-          class="btn-secondary-outline"
-          :disabled="!selectedGroupToAdd"
+
+        <div v-if="networksPending" class="text-sm text-gray-500 mb-2">
+          ネットワーク情報を取得中...
+        </div>
+        <div v-if="networksError" class="text-sm text-red-500 mb-2">
+          ネットワーク情報の取得に失敗しました。
+        </div>
+
+        <div class="space-y-4">
+          <div
+            v-for="(iface, index) in model.networkInterfaces"
+            :key="iface.id || index"
+            class="p-4 bg-gray-50 rounded-lg border border-gray-100 relative group"
+          >
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
+              <FormSelect
+                label="接続ネットワーク"
+                :name="`net-id-${index}`"
+                v-model="iface.networkId"
+                :options="networkOptions"
+                :errorMessage="errors?.networkInterfaces?.[index]?.networkId"
+                placeholder="ネットワークを選択"
+                @update:model-value="iface.subnetId = ''"
+              />
+
+              <FormSelect
+                label="サブネット"
+                :name="`subnet-id-${index}`"
+                v-model="iface.subnetId"
+                :options="getSubnetOptions(iface.networkId)"
+                :errorMessage="errors?.networkInterfaces?.[index]?.subnetId"
+                placeholder="サブネットを選択"
+                :disabled="!iface.networkId"
+              />
+
+              <FormInput
+                label="IPアドレス"
+                :name="`ip-${index}`"
+                v-model="iface.ipAddress"
+                placeholder="自動割り当て"
+                readonly
+                class="bg-gray-200 text-gray-500 cursor-not-allowed"
+              />
+            </div>
+
+            <button
+              type="button"
+              @click="removeInterface(index)"
+              class="absolute top-2 right-2 text-gray-400 hover:text-red-500 p-1 rounded-full hover:bg-gray-200 transition-colors"
+              title="削除"
+            >
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+                class="w-5 h-5"
+              >
+                <path
+                  d="M6.28 5.22a.75.75 0 00-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 101.06 1.06L10 11.06l3.72 3.72a.75.75 0 101.06-1.06L11.06 10l3.72-3.72a.75.75 0 00-1.06-1.06L10 8.94 6.28 5.22z"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div
+            v-if="
+              !model.networkInterfaces || model.networkInterfaces.length === 0
+            "
+            class="text-center text-gray-400 py-8 border-2 border-dashed rounded-lg"
+          >
+            インターフェースがありません
+          </div>
+        </div>
+      </section>
+
+      <hr class="border-gray-200" />
+
+      <section>
+        <h3
+          class="text-lg font-medium text-gray-900 mb-4 flex items-center gap-2"
         >
-          追加
-        </button>
-      </div>
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke-width="1.5"
+            stroke="currentColor"
+            class="size-5 text-gray-500"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z"
+            />
+          </svg>
+          セキュリティグループ
+        </h3>
+
+        <div v-if="sgError" class="text-sm text-red-500 mb-2">
+          セキュリティグループ情報の取得に失敗しました。
+        </div>
+
+        <div class="flex gap-2 mb-4">
+          <FormSelect
+            name="sg-select"
+            v-model="selectedSgId"
+            :options="availableSgOptions"
+            placeholder="セキュリティグループを追加..."
+            class="w-64"
+          />
+          <button
+            type="button"
+            @click="addSecurityGroup"
+            :disabled="!selectedSgId"
+            class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          >
+            追加
+          </button>
+        </div>
+
+        <div class="flex flex-wrap gap-2">
+          <div
+            v-for="(sg, index) in model.securityGroups"
+            :key="sg.id"
+            class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-50 text-blue-700 border border-blue-100"
+          >
+            {{ sg.name }}
+            <button
+              type="button"
+              @click="removeSecurityGroup(index)"
+              class="ml-2 inline-flex items-center justify-center w-4 h-4 rounded-full text-blue-400 hover:bg-blue-200 hover:text-blue-800 transition-colors"
+            >
+              <span class="sr-only">削除</span>
+              <svg
+                class="h-3 w-3"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M6 18L18 6M6 6l12 12"
+                />
+              </svg>
+            </button>
+          </div>
+          <div
+            v-if="!model.securityGroups || model.securityGroups.length === 0"
+            class="text-sm text-gray-400 py-1"
+          >
+            割り当てなし
+          </div>
+        </div>
+        <div v-if="errors?.securityGroups" class="text-sm text-red-500 mt-1">
+          {{ errors.securityGroups }}
+        </div>
+      </section>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-/**
- * =================================================================================
- * VM編集モーダル: ネットワークタブ (VmEditTabNetwork.vue)
- * ---------------------------------------------------------------------------------
- * 親 (MoVirtualMachineEdit) から initialData を props で受け取り、
- * VeeValidate の初期値に設定します。
- * =================================================================================
- */
-import { ref, computed } from "vue"; // ★ computed をインポート
-import { useForm, useFieldArray } from "vee-validate";
-import { toTypedSchema } from "@vee-validate/zod";
-import { z } from "zod";
+import { ref, computed } from "vue";
+import FormInput from "~/components/Form/Input.vue";
+import FormSelect from "~/components/Form/Select.vue";
 import { useResourceList } from "~/composables/useResourceList";
-import type { VirtualNetworkDTO } from "~~/shared/types/virtual-networks";
-import type { SecurityGroupDTO } from "~~/shared/types/security-groups";
+import type { VirtualMachineEditForm } from "~/composables/modal/useVirtualMachineEditForm";
 
-// =============================================================================
-// Props (初期値受け取り)
-// =============================================================================
-// ★ 1. 親コンポーネントから初期値を受け取る
-// (useVirtualMachineEdit.ts の getInitialDataForTab(2) が返す型)
+// 親コンポーネントからのモデル受け取り
+const model = defineModel<VirtualMachineEditForm>({ required: true });
+
 const props = defineProps<{
-  initialData: {
-    nics: {
-      id: string;
-      subnetId: string | null;
-      name: string;
-      macAddress: string;
-      ipAddress: string;
-    }[];
-    securityGroupIds: string[];
+  errors?: {
+    networkInterfaces?: Record<
+      number,
+      { networkId?: string; subnetId?: string }
+    >;
+    securityGroups?: string;
   };
 }>();
 
-// =============================================================================
-// Data Fetching (ネットワーク & セキュリティグループ一覧)
-// =============================================================================
-// ★ 2. サブネット（ネットワーク）一覧を取得
+// ----------------------------------------------------------------------------
+// Network Data Fetching
+// ----------------------------------------------------------------------------
 const {
-  data: networks,
+  data: networkMaster,
   pending: networksPending,
   error: networksError,
-} = useResourceList<VirtualNetworkDTO>("virtual-networks");
+} = useResourceList<VirtualNetworkResponse>("virtual-networks");
+const { data: securityGroupMaster, error: sgError } =
+  useResourceList<SecurityGroupResponse>("security-groups");
 
-// ★ 3. セキュリティグループ一覧を取得
-const {
-  data: allSecurityGroups,
-  pending: sgPending,
-  error: sgError,
-} = useResourceList<SecurityGroupDTO>("security-groups");
-
-// =============================================================================
-// Validation Schema (バリデーション定義)
-// =============================================================================
-// ★ 4. バリデーション定義 (変更なし)
-const nicSchema = z.object({
-  id: z.string(),
-  name: z.string(),
-  macAddress: z.string(),
-  ipAddress: z.string(),
-  // ネットワークタブは編集 disabled だが、バリデーションのために定義
-  subnetId: z.string().nullable(),
-});
-
-const validationSchema = toTypedSchema(
-  z.object({
-    nics: z.array(nicSchema),
-    securityGroupIds: z.array(z.string()),
-  })
-);
-
-// =============================================================================
-// Form Setup (VeeValidate)
-// =============================================================================
-// ★ 5. フォームのセットアップ
-const {
-  errors,
-  defineField,
-  values,
-  meta,
-  validate,
-  push: pushSg,
-  remove: removeSg,
-} = useForm({
-  validationSchema,
-  /**
-   * ★ 6. 初期値を props.initialData から設定
-   */
-  initialValues: {
-    // nics は配列ごと初期値として渡す (NICの追加/削除は非対応)
-    nics: props.initialData.nics,
-    // securityGroupIds はIDの配列
-    securityGroupIds: props.initialData.securityGroupIds,
-  },
-});
-
-// ★ 7. v-model ヘルパー (変更なし)
-// NIC 1 (nics[0].subnetId) を v-model でバインド
-const [firstNicSubnetId] = defineField("nics[0].subnetId");
-
-// セキュリティグループ (FieldArray) の設定
-const { fields: sgFields } = useFieldArray<string>("securityGroupIds");
-
-// =============================================================================
-// Security Group (SG) Logic
-// =============================================================================
-// ★ 8. セキュリティグループの追加ロジック (変更なし)
-
-// 追加用プルダウンの v-model
-const selectedGroupToAdd = ref<string | null>(null);
-
-// 適用済みSG (values.securityGroupIds) と ID->名 辞書 (allSecurityGroups) を使って、
-// v-for で表示するための {id, name} の配列を生成
-const appliedGroups = computed(() => {
-  const allSgsMap = new Map(
-    allSecurityGroups.value?.map((g) => [g.id, g.name])
-  );
-  return values.securityGroupIds.map((id) => ({
-    id: id,
-    name: allSgsMap.get(id) || id, // 見つからなければIDをそのまま表示
+// Select用オプション作成
+const networkOptions = computed(() => {
+  return (networkMaster.value || []).map((net) => ({
+    id: net.id,
+    name: `${net.name} (${net.cidr})`,
   }));
 });
 
-// 追加用プルダウンに表示する「まだ適用されていない」SGのリスト
-const availableGroups = computed(() => {
-  const appliedIds = new Set(values.securityGroupIds);
-  return (allSecurityGroups.value ?? []).filter((g) => !appliedIds.has(g.id));
+// ----------------------------------------------------------------------------
+// Network Interfaces Logic
+// ----------------------------------------------------------------------------
+
+const getSubnetOptions = (networkId?: string) => {
+  if (!networkId) return [];
+  const network = networkMaster.value?.find((n) => n.id === networkId);
+  if (!network || !network.subnets) return [];
+  return network.subnets.map((subnet) => ({
+    id: subnet.id,
+    name: `${subnet.name} (${subnet.cidr})`,
+  }));
+};
+
+const addInterface = () => {
+  if (!model.value) return;
+  if (!Array.isArray(model.value.networkInterfaces)) {
+    model.value.networkInterfaces = [];
+  }
+
+  model.value.networkInterfaces.push({
+    // ★重要: useResourceUpdater の "newIdPrefix" ("new-") に合わせたIDを付与
+    id: `new-${Date.now()}`,
+    // フォーム用の選択値
+    networkId: "",
+    subnetId: "",
+  });
+};
+
+const removeInterface = (index: number) => {
+  if (!model.value?.networkInterfaces) return;
+  model.value.networkInterfaces.splice(index, 1);
+};
+
+// ----------------------------------------------------------------------------
+// Security Groups Logic
+// ----------------------------------------------------------------------------
+
+const selectedSgId = ref<string>("");
+
+// 追加可能なSGリスト（既に割り当て済みのものは除外）
+const availableSgOptions = computed(() => {
+  const currentIds = new Set(
+    (model.value?.securityGroups || []).map(
+      (sg: SecurityGroupResponse) => sg.id
+    )
+  );
+
+  return (securityGroupMaster.value || [])
+    .filter((sg) => !currentIds.has(sg.id))
+    .map((sg) => ({
+      id: sg.id,
+      name: sg.name,
+    }));
 });
 
-// "追加" ボタン押下時の処理
 const addSecurityGroup = () => {
-  if (selectedGroupToAdd.value) {
-    // (useFieldArray の pushSg を呼ぶ)
-    pushSg(selectedGroupToAdd.value);
-    selectedGroupToAdd.value = null; // 選択プルダウンをリセット
+  if (!selectedSgId.value || !model.value) return;
+
+  const sgToAdd = securityGroupMaster.value?.find(
+    (sg) => sg.id === selectedSgId.value
+  );
+
+  if (sgToAdd) {
+    if (!Array.isArray(model.value.securityGroups)) {
+      model.value.securityGroups = [];
+    }
+    // セキュリティグループは既存リソースの紐付けなので、一時IDは不要でそのままpush
+    model.value.securityGroups.push(sgToAdd);
+    selectedSgId.value = ""; // リセット
   }
 };
 
-// =============================================================================
-// Expose (親へのインターフェース公開)
-// =============================================================================
-// ★ 9. 親 (useVirtualMachineEdit) が必要とするものだけを公開
-// (resetForm は削除)
-defineExpose({
-  validate,
-  values,
-  meta,
-});
+const removeSecurityGroup = (index: number) => {
+  if (!model.value?.securityGroups) return;
+  model.value.securityGroups.splice(index, 1);
+};
 </script>
-
-<style scoped>
-/* (スタイルは変更なし) */
-.form-section {
-  @apply p-4 border border-gray-200 rounded-lg;
-}
-.section-title {
-  @apply font-semibold text-gray-800;
-}
-.form-label-sm {
-  @apply block mb-1.5 text-sm font-medium text-gray-600;
-}
-.form-input {
-  @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500;
-}
-.form-input:disabled {
-  @apply bg-gray-100 cursor-not-allowed;
-}
-.btn-secondary-outline {
-  @apply py-2 px-4 bg-white border border-gray-300 text-gray-700 rounded-lg shadow-sm hover:bg-gray-50;
-}
-</style>

@@ -11,6 +11,7 @@ post:
         type: string
         format: uuid
       description: セキュリティグループの一意なID
+      example: "12fbed88-2dc4-4537-af98-f1f796046d16"
   requestBody:
     required: true
     content:

@@ -7,7 +7,8 @@
     "gen-apipath": "node scripts/poka.mjs",
     "mock": "cd mock && pnpm run dev",
     "app": "cd srcs && pnpm run dev",
-    "mock-app": "concurrently -n MOCK,APP -c blue,green \"pnpm mock\" \"pnpm app\"",
+    "app:mock": "cd srcs && pnpm run dev:mock",
+    "mock-app": "concurrently -n MOCK,APP -c blue,green \"pnpm mock\" \"pnpm app:mock\"",
     "prisma:gen": "cd srcs && pnpm exec prisma generate",
     "prisma:migrate": "cd srcs && pnpm exec prisma migrate dev",
     "prisma:studio": "cd srcs && pnpm exec prisma studio"

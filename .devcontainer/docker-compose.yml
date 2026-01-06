@@ -1,8 +1,6 @@
 services:
   nuxt-app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: bukidai/kci-app:0.1.1
     volumes:
       - ..:/workspace:cached
     command: sleep infinity
@@ -37,7 +35,7 @@ services:
       - MYSQL_PASSWORD=moimoi1204
 
     ports:
-      - "3306:3306"
+      - "127.0.0.1:3306:3306"
 
 volumes:
   mysql-data:

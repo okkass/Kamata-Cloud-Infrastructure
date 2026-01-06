@@ -70,9 +70,7 @@
 
     <MoStorageEdit
       :show="activeModal === EDIT_STORAGE_ACTION"
-      :storageData="
-        targetForEditing?.originalData ?? targetForEditing ?? undefined
-      "
+      :data="targetForEditing?.originalData"
       @close="closeModal"
       @success="handleSuccess"
     />

@@ -21,6 +21,7 @@
       @action="handleAction"
     />
 
+<<<<<<< HEAD
     <!-- 編集モーダル（モーダル側を触らず、ページ側で初期値注入を保証） -->
     <MoSecurityGroupEdit
       :show="isEditOpen"
@@ -29,6 +30,16 @@
       @success="handleEditSuccess"
     />
   </div>
+=======
+  <!-- 編集モーダル（モック） -->
+  <MoSecurityGroupEdit
+    v-if="securityGroup"
+    :show="isEditOpen"
+    :data="securityGroup"
+    @close="handleEditClose"
+    @success="handleEditSuccess"
+  />
+>>>>>>> a8df92b4fcac0fff4749d76c04bfcfcfda50f312
 </template>
 
 <script setup lang="ts">

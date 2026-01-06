@@ -1,6 +1,13 @@
 type: object
 description: 仮想マシンイメージ更新リクエスト(PUT)オブジェクト
-allOf:
-  - $ref: "./ImageClientUpdatable.yml"
+properties:
+  name:
+    type: string
+    description: 仮想マシンイメージの名前
+    example: Ubuntu 22.04 LTS
+  description:
+    type: string
+    description: 仮想マシンイメージの説明
+    example: Ubuntu 22.04 LTS イメージ
 required:
   - name

@@ -3,14 +3,17 @@
  * ストレージプール追加フォーム Composable (useStorageAddForm.ts)
  * =================================================================================
  */
-import { ref, computed, watch } from "vue";
+import { computed, ref, watch } from "vue";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useResourceList } from "~/composables/useResourceList";
 import { useApiClient } from "~/composables/useResourceClient";
-import { useToast } from "~/composables/useToast";
+import { useFormAction } from "~/composables/modal/useModalAction";
+import {
+  StorageAddSchema,
+  type StorageAddFormValues,
+} from "~/utils/validations/storage";
 
 // デバイス情報の型 (APIレスポンス)
 interface DeviceDTO {
@@ -26,27 +29,15 @@ interface SelectOption {
 // ==============================================================================
 // Validation Schema
 // ==============================================================================
-const zodSchema = z.object({
-  name: z.string().min(1, "プール名は必須です。"),
-  nodeId: z
-    .string({ message: "物理ノードを選択してください。" })
-    .min(1, "物理ノードを選択してください。"),
-  devicePath: z
-    .string({ message: "デバイスパスを選択してください。" })
-    .min(1, "デバイスパスを選択してください。"),
-  hasNetworkAccess: z.string(),
-});
-
-const validationSchema = toTypedSchema(zodSchema);
-type FormValues = z.infer<typeof zodSchema>;
+const validationSchema = toTypedSchema(StorageAddSchema);
+type FormValues = StorageAddFormValues;
 
 /**
  * ストレージプール追加フォームのロジック
  */
 export function useStorageAddForm() {
-  const { addToast } = useToast();
-  // API Clientの定義
   const api = useApiClient();
+  const { handleFormSubmit, makeHandleClose } = useFormAction();
 
   const { executeCreate, isCreating } = useResourceCreate<
     StoragePoolCreateRequest,
@@ -62,25 +53,25 @@ export function useStorageAddForm() {
   // ============================================================================
   // Form Setup
   // ============================================================================
-  const { errors, handleSubmit, resetForm, defineField, values } =
+  const { errors, handleSubmit, resetForm, defineField, values, meta } =
     useForm<FormValues>({
       validationSchema,
       initialValues: {
         name: "",
         nodeId: "",
         devicePath: "",
-        hasNetworkAccess: "false", // 初期値は文字列の "false"
+        hasNetworkAccess: "false",
       },
     });
 
   // --- フィールド定義 ---
   const [name, nameAttrs] = defineField("name");
 
-  const [nodeId, nodeIdAttrs] = defineField("nodeId");
+  const [nodeId, nodeAttrs] = defineField("nodeId");
 
-  const [devicePath] = defineField("devicePath");
+  const [devicePath, devicePathAttrs] = defineField("devicePath");
 
-  const [hasNetworkAccess] = defineField("hasNetworkAccess");
+  const [hasNetworkAccess, hasNetworkAccessAttrs] = defineField("hasNetworkAccess");
 
   // ============================================================================
   // デバイスパス一覧の動的取得
@@ -92,26 +83,21 @@ export function useStorageAddForm() {
   watch(
     () => values.nodeId,
     async (newNodeId) => {
-      // ノード選択が解除されたらクリア
       if (!newNodeId) {
         devices.value = [];
-        devicePath.value = "";
         return;
       }
 
-      // 念のため: newNodeId がオブジェクトになってしまっている場合のガード処理
       const targetId =
         typeof newNodeId === "object" ? (newNodeId as any).id : newNodeId;
 
       devicesPending.value = true;
       devicesError.value = null;
-      devicePath.value = ""; // パス選択をリセット
 
       try {
         const response = await api.get<DeviceDTO[]>(
-          `nodes/${targetId}/new-devices`
+          `${NODE.name}/${targetId}/new-devices`
         );
-
         devices.value = response || [];
       } catch (err) {
         console.error("デバイス一覧取得エラー:", err);
@@ -123,7 +109,6 @@ export function useStorageAddForm() {
     }
   );
 
-  // デバイス一覧を SelectOption[] ({id, name}) に変換する
   const deviceOptions = computed<SelectOption[]>(() => {
     return devices.value.map((d) => ({
       id: d.devicePath,
@@ -134,51 +119,49 @@ export function useStorageAddForm() {
   // ============================================================================
   // Submission Handler
   // ============================================================================
-  const onFormSubmit = (emit: (event: "success" | "close") => void) =>
-    handleSubmit(async (formValues) => {
-      // API送信時に型を合わせる
-      const payload: StoragePoolCreateRequest = {
-        name: formValues.name,
-        nodeId: formValues.nodeId,
-        devicePath: formValues.devicePath,
-        hasNetworkAccess: formValues.hasNetworkAccess === "true",
-      };
+  const onFormSubmit = (emit: any) =>
+    handleFormSubmit<FormValues, StoragePoolResponse>(
+      handleSubmit,
+      {
+        execute: async (formValues) => {
+          const payload: StoragePoolCreateRequest = {
+            name: formValues.name,
+            nodeId: formValues.nodeId,
+            devicePath: formValues.devicePath,
+            hasNetworkAccess: formValues.hasNetworkAccess === "true",
+          };
+          return await executeCreate(payload);
+        },
+        onSuccess: () => {
+          resetForm();
+        },
+        onSuccessMessage: (payload) =>
+          `ストレージプール「${payload.name}」を作成しました。`,
+      },
+      emit
+    );
 
-      const result = await executeCreate(payload);
-
-      if (result.success) {
-        addToast({
-          type: "success",
-          message: `ストレージプール「${payload.name}」を作成しました。`,
-        });
-        emit("success");
-        emit("close");
-      } else {
-        addToast({
-          type: "error",
-          message: "作成に失敗しました。",
-          details: result.error?.message,
-        });
-      }
-    });
+  const makehandleClose = (emit: any) => makeHandleClose(resetForm, emit);
 
   return {
     errors,
     name,
     nameAttrs,
     nodeId,
-    nodeIdAttrs,
+    nodeAttrs,
     devicePath,
+    devicePathAttrs,
     hasNetworkAccess,
+    hasNetworkAccessAttrs,
     nodes,
     nodesPending,
     nodesError,
-    // 整形済みのオプションを返す
     deviceOptions,
     devicesPending,
     devicesError,
+    isValid: computed(() => meta.value.valid),
     isCreating,
     onFormSubmit,
-    resetForm,
+    makehandleClose,
   };
 }

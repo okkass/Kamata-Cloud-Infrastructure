@@ -2,11 +2,11 @@
   <DashboardLayout
     title="仮想マシン"
     :columns="columns"
-    :rows="rowsForTable"
+    :rows="rows"
     rowKey="id"
     :headerButtons="headerButtons"
-    @header-action="onHeaderAction"
-    @row-action="handleRowAction"
+    @header-action="handleHeaderAction"
+    @row-action="onRowAction"
   >
     <template #cell-name="{ row }">
       <NuxtLink :to="`/machine/${row.id}`" class="table-link">
@@ -16,14 +16,12 @@
 
     <template #cell-instanceType="{ row }">
       <span class="text-sm">
-        {{ formatVmSpec(row) }}
+        {{ row.specText }}
       </span>
     </template>
 
     <template #cell-storage="{ row }">
-      <span class="font-mono text-sm">
-        {{ calculateTotalStorage(row.attachedStorages) }} GB
-      </span>
+      <span class="font-mono text-sm"> {{ row.totalStorageGB }} GB </span>
     </template>
     <template #cell-node="{ row }">
       <span class="text-sm">{{ row.node.name }}</span>
@@ -35,6 +33,36 @@
     </template>
     <template #cell-createdAt="{ row }">
       <span class="text-sm font-mono">{{ formatDateTime(row.createdAt) }}</span>
+    </template>
+    <template #cell-cpu="{ row }">
+      <div class="space-y-1">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-mono">{{ row.cpuUsageText }}</span>
+          <span class="text-slate-600">{{ row.cpuUtilizationPercent }}%</span>
+        </div>
+        <div class="h-2 w-full rounded-full bg-slate-200">
+          <div
+            class="h-full rounded-full bg-blue-500"
+            :style="{ width: `${row.cpuUtilizationPercent}%` }"
+          />
+        </div>
+      </div>
+    </template>
+    <template #cell-memory="{ row }">
+      <div class="space-y-1">
+        <div class="flex items-center justify-between text-xs">
+          <span class="font-mono">{{ row.memoryUsageText }}</span>
+          <span class="text-slate-600"
+            >{{ row.memoryUtilizationPercent }}%</span
+          >
+        </div>
+        <div class="h-2 w-full rounded-full bg-slate-200">
+          <div
+            class="h-full rounded-full bg-blue-500"
+            :style="{ width: `${row.memoryUtilizationPercent}%` }"
+          />
+        </div>
+      </div>
     </template>
 
     <template #row-actions="{ row, emit }">
@@ -72,7 +100,7 @@
    
   <MoVirtualMachineEdit
     :show="activeModal === EDIT_VIRTUAL_MACHINE_ACTION"
-    :virtual-machine="targetForEditing"
+    :vmData="targetForEditing ?? null"
     @close="cancelAction"
     @success="handleSuccess"
   />
@@ -90,29 +118,33 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
+import { MACHINE } from "@/utils/constants";
+import {
+  useVMachineManagement,
+  type VirtualMachineRow,
+} from "~/composables/dashboard/useVMachineManagement";
+import { usePageActions } from "~/composables/usePageActions";
+import DashboardLayout from "~/components/DashboardLayout.vue";
+import MoVirtualMachineCreate from "~/components/MoVirtualMachineCreate.vue";
+import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
+import MoDeleteConfirm from "~/components/MoDeleteConfirm.vue";
 
-// ==============================================================================
-// 定数定義 (Constants)
-// ==============================================================================
-const CREATE_VIRTUAL_MACHINE_ACTION = `create-${MACHINE.name}`;
-const EDIT_VIRTUAL_MACHINE_ACTION = `edit-${MACHINE.name}`;
-const DELETE_VIRTUAL_MACHINE_ACTION = `delete-${MACHINE.name}`;
+/* データ取得 */
+const {
+  columns,
+  headerButtons,
+  rows,
+  refresh,
+  CREATE_VIRTUAL_MACHINE_ACTION,
+  EDIT_VIRTUAL_MACHINE_ACTION,
+  DELETE_VIRTUAL_MACHINE_ACTION,
+} = useVMachineManagement();
 
-// ==============================================================================
-// 状態管理 (State Management via Composables)
-// ==============================================================================
-const { data: virtualMachines, refresh } = useResourceList<VirtualMachineDTO>(
-  MACHINE.name
-);
-
-const rowsForTable = computed<VirtualMachineDTO[]>(
-  () => virtualMachines.value ?? []
-);
-
+/* ページ共通アクション */
 const {
   activeModal,
   openModal,
+  closeModal,
   targetForDeletion,
   targetForEditing,
   isDeleting,
@@ -120,35 +152,27 @@ const {
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<VirtualMachineDTO>({
+} = usePageActions<VirtualMachineRow>({
   resourceName: MACHINE.name,
   resourceLabel: MACHINE.label,
   refresh,
 });
 
-/**
- * テーブルのカラム定義。
- */
-const columns = [
-  { key: "name", label: "仮想マシン名" },
-  { key: "instanceType", label: "スペック (CPU/メモリ)" },
-  { key: "storage", label: "ストレージ" },
-  { key: "node", label: "配置ノード" },
-  { key: "status", label: "状態" },
-  { key: "createdAt", label: "作成日時" },
-];
-
-/**
- * ヘッダーに表示するボタンの定義。
- */
-const headerButtons = [{ label: "新規作成", action: "create" }];
-
-// ==============================================================================
-// イベントハンドラ (Event Handlers)
-// ==============================================================================
-const onHeaderAction = (action: string) => {
+/* ヘッダーボタンのハンドラー */
+function handleHeaderAction(action: string) {
   if (action === "create") {
     openModal(CREATE_VIRTUAL_MACHINE_ACTION);
   }
-};
+}
+
+/* 行アクションのハンドラー */
+function onRowAction({
+  action,
+  row,
+}: {
+  action: string;
+  row: VirtualMachineRow;
+}) {
+  handleRowAction({ action, row });
+}
 </script>

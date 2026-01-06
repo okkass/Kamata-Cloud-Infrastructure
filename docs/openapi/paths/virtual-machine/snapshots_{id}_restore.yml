@@ -11,6 +11,7 @@ post:
         type: string
         format: uuid
       description: スナップショットの一意なID
+      example: "12fbed88-2dc4-4537-af98-f1f796046d16"
   responses:
     "202":
       description: 復元リクエスト受理

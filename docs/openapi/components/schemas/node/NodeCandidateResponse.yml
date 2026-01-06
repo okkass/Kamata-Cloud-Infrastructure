@@ -4,10 +4,12 @@ properties:
   name:
     type: string
     description: 物理ノードの名前
+    example: node-01
   ipAddress:
     type: string
     format: ipv4
     description: 物理ノードのIPアドレス
+    example: 10.0.0.1
 required:
   - name
   - ipAddress

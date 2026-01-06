@@ -1,4 +1,7 @@
 openapi: "3.0.3"
+servers:
+  - url: "localhost:3030"
+    description: "Local Server"
 info:
   title: "KCI API"
   description: "KCI API documentation"
@@ -34,17 +37,17 @@ paths:
     $ref: "paths/security-group/security-groups_{groupId}_rules.yml"
   /api/security-groups/{groupId}/rules/bulk:
     $ref: "paths/security-group/security-groups_{groupId}_rules_bulk.yml"
-  /api/security/groups{groupId}/rules/{ruleId}:
-    $ref: "paths/security-group/security_groups{groupId}_rules_{ruleId}.yml"
+  /api/security-groups/{groupId}/rules/{ruleId}:
+    $ref: "paths/security-group/security-groups_{groupId}_rules_{ruleId}.yml"
   /api/storage-pools:
     $ref: "paths/storage-pool/storage-pools.yml"
   /api/storage-pools/node/{nodeId}:
     $ref: "paths/storage-pool/storage-pools_node_{nodeId}.yml"
   /api/storage-pools/{id}:
     $ref: "paths/storage-pool/storage-pools_{id}.yml"
-  /api/history:
+  /api/summary/history:
     $ref: "paths/summary/history.yml"
-  /api/realtime:
+  /api/summary/realtime:
     $ref: "paths/summary/realtime.yml"
   /api/users:
     $ref: "paths/user/users.yml"

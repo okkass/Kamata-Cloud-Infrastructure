@@ -1,22 +1,18 @@
-import { z } from "zod";
+import { getResourceList } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getVirtualMachineService } from "@/service/VirtualMachineService";
 
-export default defineEventHandler(async (event) => {
-  const paramsSchema = z.uuid();
-
-  const id = event.context.params?.id;
-  const res = paramsSchema.safeParse(id);
-  if (!res.success) {
-    event.node.res.statusCode = 400;
-    return {
-      type: "Invalid request",
-      detail: z.treeifyError(res.error).errors.join(", "),
-      status: 400,
-    };
+export default defineEventHandler((event) => {
+  const { scope } = getQuery(event) as { scope?: string };
+  if (scope !== undefined && scope !== "all" && scope !== "mine") {
+    throw createError({
+      statusCode: 400,
+      statusMessage: "Invalid scope parameter",
+    });
   }
+  const permission = getPermissionFromEvent(event);
+  const service = getVirtualMachineService(permission);
 
-  // モックなので成功レスポンスを返すだけ
-  return {
-    status: "success",
-    message: "Snapshot restore started",
-  };
+  setResponseStatus(event, 202);
+  return getResourceList(service.list)[0];
 });

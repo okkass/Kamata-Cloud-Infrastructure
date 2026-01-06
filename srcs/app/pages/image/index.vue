@@ -7,13 +7,11 @@
       rowKey="id"
       :headerButtons="headerButtons"
       @header-action="() => openModal(ADD_IMAGE_ACTION)"
+      @row-action="handleRowAction"
     >
       <template #cell-name="{ row }">
         <NuxtLink :to="`/image/${row.id}`" class="table-link">
           {{ row.name }}
-          <span v-if="row.description" class="cell-description">
-            {{ row.description }}
-          </span>
         </NuxtLink>
       </template>
 
@@ -48,40 +46,42 @@
         </button>
       </template>
     </DashboardLayout>
-  </div>
 
-  <MoDeleteConfirm
-    :show="activeModal === DELETE_IMAGE_ACTION"
-    :message="`本当にイメージ「${targetForDeletion?.name}」を削除しますか？`"
-    :is-loading="isDeleting"
-    @close="cancelAction"
-    @confirm="handleDelete"
-  />
-  <MoImageAdd
-    :show="activeModal === ADD_IMAGE_ACTION"
-    @close="closeModal"
-    @success="handleSuccess"
-  />
-  <MoImageEdit
-    :show="activeModal === EDIT_IMAGE_ACTION"
-    :image-data="targetForEditing ?? undefined"
-    @close="closeModal"
-    @success="handleSuccess"
-  />
+    <MoDeleteConfirm
+      :show="activeModal === DELETE_IMAGE_ACTION"
+      :message="`本当にイメージ「${targetForDeletion?.name}」を削除しますか？`"
+      :is-loading="isDeleting"
+      @close="cancelAction"
+      @confirm="handleDelete"
+    />
+    <MoImageAdd
+      :show="activeModal === ADD_IMAGE_ACTION"
+      @close="cancelAction"
+      @success="handleSuccess"
+    />
+    <MoImageEdit
+      :show="activeModal === EDIT_IMAGE_ACTION"
+      :image-data="targetForEditing?.originalData ?? undefined"
+      @close="cancelAction"
+      @success="handleSuccess"
+    />
+  </div>
 </template>
 
 <script setup lang="ts">
-import { useImageManagement } from "~/composables/dashboard/useImageManagement";
+import {
+  useImageManagement,
+  type ImageRow,
+} from "~/composables/dashboard/useImageManagement";
+import { IMAGE } from "~/utils/constants";
 import { usePageActions } from "~/composables/usePageActions";
-
-import type { UiImage } from "~/composables/dashboard/useImageManagement";
 
 // --- データロジックの取得 ---
 const {
   columns,
   images,
   headerButtons,
-  refreshImageList,
+  refresh,
   ADD_IMAGE_ACTION,
   EDIT_IMAGE_ACTION,
   DELETE_IMAGE_ACTION,
@@ -93,15 +93,15 @@ const {
   openModal,
   closeModal,
   targetForDeletion,
-  targetForEditing, // ★ 編集対象のデータを取得
+  targetForEditing,
   isDeleting,
   handleRowAction,
   handleDelete,
   handleSuccess,
   cancelAction,
-} = usePageActions<UiImage>({
+} = usePageActions<ImageRow>({
   resourceName: IMAGE.name,
-  resourceLabel: IMAGE.label,
-  refresh: refreshImageList,
+  resourceLabel: "イメージ",
+  refresh,
 });
 </script>
