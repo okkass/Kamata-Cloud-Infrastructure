@@ -21,10 +21,11 @@
       @action="handleAction"
     />
 
-    <!-- 編集モーダル（モーダル側を触らず、ページ側で初期値注入を保証） -->
+    <!-- 編集モーダル -->
     <MoSecurityGroupEdit
+      v-if="securityGroup"
       :show="isEditOpen"
-      :security-group-data="editSecurityGroupData"
+      :security-group-data="securityGroup"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />
@@ -32,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
@@ -59,7 +60,11 @@ const {
 
 // --- ポーリング設定 ---
 const polling = createPolling(async () => {
-  await refresh();
+  try {
+    await refresh();
+  } catch (e) {
+    console.error("ポーリング中のデータ取得に失敗しました", e);
+  }
 });
 
 // lifecycle
@@ -74,25 +79,19 @@ onUnmounted(() => {
 // 操作メニュー（編集のみ）
 const actions = ref([{ label: "編集", value: "edit" }]);
 
+
 // 編集モーダル
 const isEditOpen = ref(false);
 
-// ★ モーダルに渡すデータ（ページ側で“変化”を作って初期化を確実にする）
-const editSecurityGroupData = ref<SecurityGroupResponse | null>(null);
-
-const openEditModal = async () => {
+const openEditModal = () => {
   if (!securityGroup.value) return;
-
-  // モーダル側が data 変化で初期化する実装でも確実に発火させる
-  editSecurityGroupData.value = null;
-  await nextTick();
-
-  editSecurityGroupData.value = securityGroup.value;
   isEditOpen.value = true;
 };
 
 const handleEditClose = () => {
   isEditOpen.value = false;
+  // キャンセル時はポーリングを再開
+  polling.startPolling();
 };
 
 const handleEditSuccess = async () => {
@@ -104,18 +103,17 @@ const handleEditSuccess = async () => {
     console.error("SecurityGroup再取得に失敗しました", e);
   }
 
-  // 次回の編集も確実に初期値が入るように同期しておく
-  if (securityGroup.value) {
-    editSecurityGroupData.value = securityGroup.value;
-  }
+  // 保存成功後はポーリングを再開（refresh直後だが次回から通常動作）
+  polling.startPolling();
 };
 
 // 編集中はポーリング停止（更新チカチカ防止）
 watch(
   () => isEditOpen.value,
   (open) => {
-    if (open) polling.stopPolling();
-    else polling.startPolling();
+    if (open) {
+      polling.stopPolling();
+    }
   }
 );
 
@@ -125,11 +123,11 @@ const goBack = () => {
 };
 
 // アクション実行
-const handleAction = async (action: { label: string; value: string }) => {
+const handleAction = (action: { label: string; value: string }) => {
   if (!securityGroup.value) return;
 
   if (action.value === "edit") {
-    await openEditModal();
+    openEditModal();
   }
 };
 </script>
