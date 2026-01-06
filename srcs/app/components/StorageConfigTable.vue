@@ -46,10 +46,12 @@
                 type="number"
                 v-model.number="storage.size"
                 :error="errors?.[index]?.size"
-                :disabled="storage.type === 'backup'"
+                :disabled="storage.type === 'backup' || !isNewStorage(storage)"
                 :title="
                   storage.type === 'backup'
                     ? 'バックアップ元のサイズに固定されています'
+                    : !isNewStorage(storage)
+                    ? '既存ディスクのサイズは変更できません'
                     : ''
                 "
                 class="w-full"
@@ -65,6 +67,12 @@
                 :errorMessage="errors?.[index]?.poolId"
                 placeholder="プールを選択"
                 class="w-full"
+                :disabled="!isNewStorage(storage)"
+                :title="
+                  !isNewStorage(storage)
+                    ? '既存ディスクの保存先プールは変更できません'
+                    : ''
+                "
               />
             </div>
 
@@ -112,4 +120,8 @@ const props = defineProps<{
 }>();
 
 defineEmits(["add", "remove"]);
+
+const isNewStorage = (storage: any) => {
+  return typeof storage.id === "string" && storage.id.startsWith("new-");
+};
 </script>
