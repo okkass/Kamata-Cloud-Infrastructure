@@ -1,6 +1,10 @@
 import type { UserPermissions } from "~~/shared/types";
 import type { UserResponse } from "~~/shared/types";
 
+/**
+ * ログインユーザーの権限フラグを共有し、API から一度だけ取得するためのコンポーザブル。
+ * 取得済みなら再フェッチを避け、`useState` でタブ内共有する。
+ */
 export const useUserPermission = () => {
   // NuxtのuseStateを使い、ユーザー情報をアプリ全体で共有・保持する
   const user = useState<UserPermissions | null>("user", () => null);
@@ -44,7 +48,10 @@ export const useUserPermission = () => {
     return user.value.isVirtualMachineAdmin === true;
   });
 
-  // ユーザー情報を取得する非同期関数
+  /**
+   * ユーザー情報を API から取得して保持する。
+   * 既に保持済みの場合は再取得しない。
+   */
   const fetchUser = async () => {
     // 既にユーザー情報があれば再取得しない
     if (user.value !== null) return;
