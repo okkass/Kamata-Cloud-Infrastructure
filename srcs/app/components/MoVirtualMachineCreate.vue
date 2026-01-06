@@ -49,14 +49,14 @@
             次へ
           </button>
 
-          <button
+          <UiSubmitButton
             v-else
+            label="作成"
+            :loading="isCreating"
+            :disabled="isValid"
+            btnVariant="btn-submit"
             @click="onFinalSubmit"
-            :disabled="isCreating"
-            class="btn btn-submit"
-          >
-            {{ isCreating ? "作成中..." : "作成" }}
-          </button>
+          />
         </div>
       </div>
     </template>
@@ -64,6 +64,7 @@
 </template>
 
 <script setup lang="ts">
+import { ref } from "vue";
 import { useVmWizardForm } from "~/composables/modal/useVmWizardForm";
 /**
  * =================================================================================
@@ -94,6 +95,7 @@ const {
   nextTab,
   handleFinalSubmit,
   isCreating,
+  isValid,
 } = useVmWizardForm();
 
 // --- コンポーネントのローカルState ---

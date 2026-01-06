@@ -161,5 +161,6 @@ export function useVmWizardForm() {
     nextTab,
     handleFinalSubmit,
     isCreating,
+    isValid: computed(() => !tabValidity.value[currentTab.value]),
   };
 }
