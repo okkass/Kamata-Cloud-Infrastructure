@@ -1,3 +1,3 @@
 export interface VmSecurityGroupAddRequest {
-  id: string;
+  securityGroupId: string;
 }
