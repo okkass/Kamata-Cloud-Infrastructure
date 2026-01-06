@@ -16,10 +16,12 @@ properties:
     type: string
     format: uuid
     description: インストールするミドルウェアのID
-  subnetId:
-    type: string
-    format: uuid
-    description: 仮想マシンを配置するサブネットのID
+  subnetIds:
+    type: array
+    items:
+      type: string
+      format: uuid
+    description: 仮想マシンを配置するサブネットのIDのリスト
   storages:
     type: array
     description: 仮想マシンにアタッチするストレージのリスト
@@ -54,6 +56,6 @@ required:
   - publicKey
   - nodeId
   - imageId
-  - subnetId
+  - subnetIds
   - storages
   - securityGroupIds
