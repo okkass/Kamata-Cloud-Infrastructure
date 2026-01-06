@@ -64,7 +64,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, watch } from "vue";
 import { useVmWizardForm } from "~/composables/modal/useVmWizardForm";
 /**
  * =================================================================================
@@ -78,7 +78,7 @@ import { useVmWizardForm } from "~/composables/modal/useVmWizardForm";
 
 // --- 親コンポーネントとの連携 ---
 // `show` prop を受け取り、`close` と `success` イベントを通知します。
-defineProps({ show: { type: Boolean, required: true } });
+const props = defineProps({ show: { type: Boolean, required: true } });
 const emit = defineEmits(["close", "success"]);
 
 // --- Composableのセットアップ ---
@@ -96,10 +96,21 @@ const {
   handleFinalSubmit,
   isCreating,
   isValid,
+  reset,
 } = useVmWizardForm();
 
 // --- コンポーネントのローカルState ---
 const modalTitle = ref("仮想マシン作成");
+
+// モーダルが開くときにリセット
+watch(
+  () => props.show,
+  (newShow) => {
+    if (newShow) {
+      reset();
+    }
+  }
+);
 
 // handleFinalSubmitに emit を注入
 const onFinalSubmit = () => handleFinalSubmit(emit);

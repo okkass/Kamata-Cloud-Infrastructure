@@ -13,7 +13,6 @@ import { convertUnitToByte } from "~/utils/format";
 import { useFormAction } from "~/composables/modal/useModalAction";
 
 export function useVmWizardForm() {
-  const { addToast } = useToast();
   const { handleModalSubmit } = useFormAction();
   const currentTab = ref(0);
   const tabRefs = ref<any[]>([]);
@@ -152,6 +151,13 @@ export function useVmWizardForm() {
     );
   };
 
+  /**
+   * モーダルをリセット（初回表示状態に戻す）
+   */
+  const reset = () => {
+    currentTab.value = 0;
+  };
+
   return {
     currentTab,
     tabRefs,
@@ -162,5 +168,6 @@ export function useVmWizardForm() {
     handleFinalSubmit,
     isCreating,
     isValid: computed(() => !tabValidity.value[currentTab.value]),
+    reset,
   };
 }
