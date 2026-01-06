@@ -79,7 +79,6 @@ onUnmounted(() => {
 // 操作メニュー（編集のみ）
 const actions = ref([{ label: "編集", value: "edit" }]);
 
-
 // 編集モーダル
 const isEditOpen = ref(false);
 
@@ -108,6 +107,7 @@ const handleEditSuccess = async () => {
 };
 
 // 編集中はポーリング停止（更新チカチカ防止）
+// ポーリング再開は各ハンドラ（handleEditClose, handleEditSuccess）で個別に制御
 watch(
   () => isEditOpen.value,
   (open) => {
