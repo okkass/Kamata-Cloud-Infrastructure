@@ -46,9 +46,9 @@
                 type="number"
                 v-model.number="storage.size"
                 :error="errors?.[index]?.size"
-                :disabled="storage.type === 'backup' || !isNewStorage(storage)"
+                :disabled="isBackupStorage(storage) || !isNewStorage(storage)"
                 :title="
-                  storage.type === 'backup'
+                  isBackupStorage(storage)
                     ? 'バックアップ元のサイズに固定されています'
                     : !isNewStorage(storage)
                     ? '既存ディスクのサイズは変更できません'
@@ -111,17 +111,22 @@ import FormInput from "~/components/Form/Input.vue";
 import FormSelect from "~/components/Form/Select.vue";
 
 // 型定義は環境に合わせて適宜調整してください
-// import type { StoragePoolResponse } from "~~/shared/types";
+import type { VmStorageForm } from "~/composables/modal/useVirtualMachineEditForm";
 
 const props = defineProps<{
-  storages: any[];
-  storagePools: any[];
+  storages: VmStorageForm[];
+  storagePools: StoragePoolResponse[];
   errors?: Record<number, { name?: string; size?: string; poolId?: string }>;
 }>();
 
 defineEmits(["add", "remove"]);
 
-const isNewStorage = (storage: any) => {
+const isNewStorage = (storage: VmStorageForm) => {
   return typeof storage.id === "string" && storage.id.startsWith("new-");
+};
+
+// 型定義に存在しない 'type' へのアクセスを避けるための安全な判定
+const isBackupStorage = (storage: VmStorageForm) => {
+  return "type" in storage && (storage as any).type === "backup";
 };
 </script>
