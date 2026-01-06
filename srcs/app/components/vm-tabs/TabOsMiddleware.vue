@@ -42,7 +42,7 @@
 import { useResourceList } from "~/composables/useResourceList";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
+import { vmOsMiddlewareCreateSchema } from "~/utils/validations/virtual-machine";
 
 import FormSelect from "~/components/Form/Select.vue";
 
@@ -51,14 +51,7 @@ import FormSelect from "~/components/Form/Select.vue";
  * Validation Schema
  * ==============================================================================
  */
-const validationSchema = toTypedSchema(
-  z.object({
-    osImageId: z
-      .string({ message: "OSイメージを選択してください。" })
-      .min(1, "OSイメージを選択してください。"),
-    middlewareId: z.string().nullable(),
-  })
-);
+const validationSchema = toTypedSchema(vmOsMiddlewareCreateSchema);
 
 /**
  * ==============================================================================
@@ -86,14 +79,14 @@ const {
   data: osImages,
   pending: imagesPending,
   error: imagesError,
-} = useResourceList<ImageResponse>("images");
+} = useResourceList<ImageResponse>(IMAGE.name);
 
 // 2. ミドルウェア
 const {
   data: middlewares,
   pending: middlewaresPending,
   error: middlewaresError,
-} = useResourceList<MiddlewareResponse>("middlewares");
+} = useResourceList<MiddlewareResponse>(MIDDLEWARE.name);
 
 /**
  * ==============================================================================

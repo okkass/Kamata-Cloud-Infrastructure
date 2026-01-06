@@ -41,6 +41,7 @@ import { useResourceList } from "~/composables/useResourceList";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
+import { vmGeneralCreateSchema } from "~/utils/validations/virtual-machine";
 
 // 共通コンポーネントのインポート (自動インポートされない場合のために念のため記述)
 import FormInput from "~/components/Form/Input.vue";
@@ -54,14 +55,7 @@ import FormSelect from "~/components/Form/Select.vue";
  * Validation Schema
  * ==============================================================================
  */
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "仮想マシン名は必須です。"),
-    nodeId: z
-      .string({ message: "ノードを選択してください。" })
-      .min(1, "ノードを選択してください。"),
-  })
-);
+const validationSchema = toTypedSchema(vmGeneralCreateSchema);
 
 /**
  * ==============================================================================
@@ -85,7 +79,11 @@ const [nodeId, nodeIdAttrs] = defineField("nodeId");
  * API Data Fetching
  * ==============================================================================
  */
-const { data: nodes, pending, error } = useResourceList<NodeResponse>("nodes");
+const {
+  data: nodes,
+  pending,
+  error,
+} = useResourceList<NodeResponse>(NODE.name);
 
 /**
  * ==============================================================================

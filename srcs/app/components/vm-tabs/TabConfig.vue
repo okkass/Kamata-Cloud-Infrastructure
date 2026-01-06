@@ -75,6 +75,7 @@ import { useResourceList } from "~/composables/useResourceList";
 import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
+import { vmConfigSchema } from "~/utils/validations/virtual-machine";
 import { convertByteToUnit } from "~/utils/format";
 import FormInput from "~/components/Form/Input.vue";
 import FormSelect from "~/components/Form/Select.vue";
@@ -86,34 +87,8 @@ import StorageConfigTable from "~/components/StorageConfigTable.vue";
  * Validation Schema
  * ==============================================================================
  */
-const zodObject = z
-  .object({
-    templateId: z.string().optional(),
-    cpuCore: z.preprocess(
-      (val) => (val === "" || val === null ? undefined : Number(val)),
-      z.number().min(1, "1コア以上を指定してください").optional()
-    ),
-    memorySize: z.preprocess(
-      (val) => (val === "" || val === null ? undefined : Number(val)),
-      z.number().min(512, "512MB以上を指定してください").optional()
-    ),
-    backupId: z.string().optional().nullable(),
-    storages: z.array(
-      z.object({
-        id: z.any(),
-        name: z.string().min(1, "必須"),
-        size: z.number().min(1, "1GB以上"),
-        poolId: z.string().min(1, "必須"),
-        type: z.enum(["manual", "backup"]).default("manual"),
-      })
-    ),
-  })
-  .superRefine((data, ctx) => {
-    // テンプレート未選択時は CPU/メモリ が必須
-  });
-
 const validationSchema = toTypedSchema(
-  zodObject.superRefine((data, ctx) => {
+  vmConfigSchema.superRefine((data, ctx) => {
     if (!data.templateId) {
       if (!data.cpuCore) {
         ctx.addIssue({
@@ -141,7 +116,7 @@ const validationSchema = toTypedSchema(
   })
 );
 
-type ConfigFormValues = z.infer<typeof zodObject>;
+type ConfigFormValues = z.infer<typeof vmConfigSchema>;
 
 /**
  * ==============================================================================
@@ -183,21 +158,21 @@ const {
   data: templates,
   pending: templatesPending,
   error: templatesError,
-} = useResourceList<InstanceTypeResponse>("instance-types");
+} = useResourceList<InstanceTypeResponse>(INSTANCE_TYPE.name);
 
 // 2. バックアップ
 const {
   data: backups,
   pending: backupsPending,
   error: backupsError,
-} = useResourceList<BackupResponse>("backups");
+} = useResourceList<BackupResponse>(BACKUP.name);
 
 // 3. ストレージプール
 const {
   data: storagePools,
   pending: poolsPending,
   error: poolsError,
-} = useResourceList<StoragePoolResponse>("storage-pools");
+} = useResourceList<StoragePoolResponse>(STORAGE.name);
 
 /**
  * ==============================================================================
