@@ -1,3 +1,4 @@
+<!-- /workspace/srcs/app/pages/security-group/[id].vue -->
 <template>
   <div class="mx-auto max-w-6xl px-4 py-6">
     <!-- 初回ロードだけ表示（以降はチカチカ防止で常時シェル表示） -->
@@ -9,7 +10,7 @@
       エラーが発生しました：{{ error.message }}
     </div>
 
-    <!-- securityGroup が一度でも取れたら、以降は常にこれ -->
+    <!-- securityGroup が一度でも取得できたら、以降は常にこれ -->
     <ResourceDetailShell
       v-else
       title="セキュリティグループ詳細"
@@ -21,29 +22,19 @@
       @action="handleAction"
     />
 
-<<<<<<< HEAD
-    <!-- 編集モーダル（モーダル側を触らず、ページ側で初期値注入を保証） -->
+    <!-- 編集モーダル（データがあるときだけ生成） -->
     <MoSecurityGroupEdit
+      v-if="securityGroup"
       :show="isEditOpen"
-      :security-group-data="editSecurityGroupData"
+      :security-group-data="securityGroup"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />
   </div>
-=======
-  <!-- 編集モーダル（モック） -->
-  <MoSecurityGroupEdit
-    v-if="securityGroup"
-    :show="isEditOpen"
-    :data="securityGroup"
-    @close="handleEditClose"
-    @success="handleEditSuccess"
-  />
->>>>>>> a8df92b4fcac0fff4749d76c04bfcfcfda50f312
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
+import { ref, watch, onMounted, onUnmounted } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
@@ -68,9 +59,13 @@ const {
   route.params.id as string
 );
 
-// --- ポーリング設定 ---
+// --- ポーリング設定（refresh失敗は握りつぶさずログ） ---
 const polling = createPolling(async () => {
-  await refresh();
+  try {
+    await refresh();
+  } catch (e) {
+    console.error("SecurityGroupの再取得に失敗しました", e);
+  }
 });
 
 // lifecycle
@@ -82,23 +77,19 @@ onUnmounted(() => {
   polling.stopPolling();
 });
 
+// 戻る
+const goBack = () => {
+  router.back();
+};
+
 // 操作メニュー（編集のみ）
 const actions = ref([{ label: "編集", value: "edit" }]);
 
 // 編集モーダル
 const isEditOpen = ref(false);
 
-// ★ モーダルに渡すデータ（ページ側で“変化”を作って初期化を確実にする）
-const editSecurityGroupData = ref<SecurityGroupResponse | null>(null);
-
-const openEditModal = async () => {
+const openEditModal = () => {
   if (!securityGroup.value) return;
-
-  // モーダル側が data 変化で初期化する実装でも確実に発火させる
-  editSecurityGroupData.value = null;
-  await nextTick();
-
-  editSecurityGroupData.value = securityGroup.value;
   isEditOpen.value = true;
 };
 
@@ -114,11 +105,6 @@ const handleEditSuccess = async () => {
   } catch (e) {
     console.error("SecurityGroup再取得に失敗しました", e);
   }
-
-  // 次回の編集も確実に初期値が入るように同期しておく
-  if (securityGroup.value) {
-    editSecurityGroupData.value = securityGroup.value;
-  }
 };
 
 // 編集中はポーリング停止（更新チカチカ防止）
@@ -130,17 +116,10 @@ watch(
   }
 );
 
-// 戻る
-const goBack = () => {
-  router.back();
-};
-
 // アクション実行
-const handleAction = async (action: { label: string; value: string }) => {
-  if (!securityGroup.value) return;
-
+const handleAction = (action: { label: string; value: string }) => {
   if (action.value === "edit") {
-    await openEditModal();
+    openEditModal();
   }
 };
 </script>
