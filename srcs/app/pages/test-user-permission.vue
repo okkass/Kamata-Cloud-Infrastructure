@@ -24,8 +24,11 @@
  * ユーザーパーミッションテストページ (test-user-permission.vue)
  * =================================================================================
  */
+
+// インポート
 import { useUserPermission } from "~/composables/useUserPermission";
 
+// ユーザーパーミッションの取得(全部使うから全部展開するが、本来は必要なものだけ使う)
 const {
   user,
   isAdmin,
@@ -38,5 +41,6 @@ const {
   fetchUser,
 } = useUserPermission();
 
+// こいつをsetup内で呼ぶとユーザー情報を取得できる
 fetchUser();
 </script>
