@@ -1,7 +1,11 @@
 <template>
-  <BaseModal :show="show" title="ストレージプール追加" @close="$emit('close')">
-    <form @submit.prevent="submitForm">
-      <FormSection>
+  <BaseModal :show="show" title="ストレージプール追加" @close="handleClose">
+    <form
+      id="storage-add-form"
+      @submit.prevent="submitForm"
+      class="space-y-6"
+    >
+      <div class="space-y-4">
         <FormInput
           label="プール名"
           name="storage-name"
@@ -25,6 +29,7 @@
           :error="nodesError"
           :error-message="errors.nodeId"
           v-model="nodeId"
+          v-bind="nodeAttrs"
         />
 
         <FormSelect
@@ -38,6 +43,7 @@
           :error-message="errors.devicePath"
           :disabled="!nodeId"
           v-model="devicePath"
+          v-bind="devicePathAttrs"
         />
         <p v-if="!nodeId" class="text-xs text-gray-500 mt-1">
           ※ 先に物理ノードを選択してください
@@ -56,20 +62,20 @@
           :required="true"
           :error-message="errors.hasNetworkAccess"
           v-model="hasNetworkAccess"
+          v-bind="hasNetworkAccessAttrs"
         />
-      </FormSection>
+      </div>
     </form>
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="submitForm"
-          class="btn btn-primary"
-          :disabled="isCreating"
-        >
-          {{ isCreating ? "追加中..." : "追加" }}
-        </button>
+        <UiSubmitButton
+          :disabled="isCreating || !isValid"
+          :loading="isCreating"
+          label="ストレージプールを追加"
+          form="storage-add-form"
+          type="submit"
+        />
       </div>
     </template>
   </BaseModal>
@@ -84,7 +90,7 @@
 import { useStorageAddForm } from "~/composables/modal/useStorageAddForm";
 import FormInput from "~/components/Form/Input.vue";
 import FormSelect from "~/components/Form/Select.vue";
-import FormSection from "~/components/Form/Section.vue";
+import UiSubmitButton from "~/components/ui/SubmitButton.vue";
 
 // --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
@@ -96,30 +102,30 @@ const {
   name,
   nameAttrs,
   nodeId,
+  nodeAttrs,
   devicePath,
+  devicePathAttrs,
   hasNetworkAccess,
+  hasNetworkAccessAttrs,
   nodes,
   nodesPending,
   nodesError,
   deviceOptions,
   devicesPending,
-  devicesError, // deviceOptionsを使用
-
+  devicesError,
+  isValid,
   isCreating,
   onFormSubmit,
+  makehandleClose,
 } = useStorageAddForm();
 
-// --- 定数 ---
-// Selectコンポーネントが要求する { id, name } 形式にする
-// id は文字列にする必要があります
+// --- 選択肢定数 ---
 const networkOptions = [
   { id: "true", name: "許可 (True)" },
   { id: "false", name: "拒否 (False)" },
 ];
 
-// --- イベントハンドラ ---
-const submitHandler = onFormSubmit(emit);
-const submitForm = () => {
-  submitHandler();
-};
+// --- Submit Handler ---
+const submitForm = onFormSubmit(emit);
+const handleClose = makehandleClose(emit);
 </script>

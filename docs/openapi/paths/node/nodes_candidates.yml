@@ -12,6 +12,18 @@ get:
             type: array
             items:
               $ref: "../../components/schemas/node/NodeCandidateResponse.yml"
+              example:
+                - name: "node-01"
+                  ipAddress: "10.0.0.1"
+                - name: "node-02"
+                  ipAddress: "10.0.0.2"
+      links:
+        CreateNode:
+          operationId: createNode
+          requestBody:
+            ipAddress: "$response.body#/0/ipAddress"
+          description: >
+            物理ノードを追加するには、このノード候補のIPアドレスを使用してノードを作成できます。
     "401":
       description: 認証エラー
       content:

@@ -5,98 +5,56 @@
  */
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
-import { useToast } from "~/composables/useToast";
 import { convertUnitToByte } from "~/utils/format";
-
-// ★ 共有型定義をインポート
-import type { UserCreateRequest } from "~~/shared/types/dto/user/UserCreateRequest";
-import type { UserServerBase } from "~~/shared/types/dto/user/UserServerBase";
-
-// =============================================================================
-// Validation Schema (バリデーションスキーマ)
-// =============================================================================
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "アカウント名は必須です。"),
-    email: z
-      .string()
-      .min(1, "メールアドレスは必須です。")
-      .email("有効なメールアドレスを入力してください。"),
-    password: z.string().min(8, "パスワードは8文字以上で入力してください。"),
-
-    // クォータ
-    maxCpuCores: z.preprocess(
-      (val) => (val === "" ? undefined : val),
-      z.number().positive("1以上の値を入力してください。").optional()
-    ),
-    maxMemorySizeInMb: z.preprocess(
-      (val) => (val === "" ? undefined : val),
-      z.number().positive("1以上の値を入力してください。").optional()
-    ),
-    maxStorageSizeInGb: z.preprocess(
-      (val) => (val === "" ? undefined : val),
-      z.number().positive("1以上の値を入力してください。").optional()
-    ),
-
-    // 権限
-    isAdmin: z.boolean(),
-    isImageAdmin: z.boolean(),
-    isInstanceTypeAdmin: z.boolean(),
-    isNetworkAdmin: z.boolean(),
-    isNodeAdmin: z.boolean(),
-    isSecurityGroupAdmin: z.boolean(),
-    isVirtualMachineAdmin: z.boolean(),
-  })
-);
+import { UserSchema } from "~/utils/validations/user";
+import { useFormAction } from "~/composables/modal/useModalAction";
 
 /**
  * 利用者追加フォームのロジック
  */
 export function useUserAddForm() {
-  const { addToast } = useToast();
+  const { handleFormSubmit, makeHandleClose: createHandleClose } =
+    useFormAction();
 
   // ★ useResourceCreate の型引数を共有型定義に変更
   // Request: UserCreateRequest, Response: UserServerBase
   const { executeCreate, isCreating } = useResourceCreate<
     UserCreateRequest,
-    UserServerBase
-  >("users");
+    UserResponse
+  >(USER.name);
 
   // ============================================================================
   // Form Setup (VeeValidate)
   // ============================================================================
-  const { errors, defineField, handleSubmit, resetForm } = useForm({
-    validationSchema,
-    initialValues: {
-      name: "",
-      email: "",
-      password: "",
-      maxCpuCores: undefined,
-      maxMemorySizeInMb: undefined,
-      maxStorageSizeInGb: undefined,
-      isAdmin: false,
-      isImageAdmin: false,
-      isInstanceTypeAdmin: false,
-      isNetworkAdmin: false,
-      isNodeAdmin: false,
-      isSecurityGroupAdmin: false,
-      isVirtualMachineAdmin: false,
-    },
-  });
-
+  const { errors, defineField, handleSubmit, resetForm, meta } =
+    useForm<UserCreateRequest>({
+      validationSchema: toTypedSchema(UserSchema),
+      initialValues: {
+        name: "",
+        email: "",
+        password: "",
+        maxCpuCore: undefined,
+        maxMemorySize: undefined,
+        maxStorageSize: undefined,
+        isAdmin: false,
+        isImageAdmin: false,
+        isInstanceTypeAdmin: false,
+        isNetworkAdmin: false,
+        isNodeAdmin: false,
+        isSecurityGroupAdmin: false,
+        isVirtualMachineAdmin: false,
+      },
+    });
   // --- フィールド定義 ---
   const [name, nameAttrs] = defineField("name");
   const [email, emailAttrs] = defineField("email");
   const [password, passwordAttrs] = defineField("password");
 
-  const [maxCpuCores, maxCpuCoresAttrs] = defineField("maxCpuCores");
-  const [maxMemorySizeInMb, maxMemorySizeInMbAttrs] =
-    defineField("maxMemorySizeInMb");
-  const [maxStorageSizeInGb, maxStorageSizeInGbAttrs] =
-    defineField("maxStorageSizeInGb");
-
+  const [maxCpuCore, maxCpuCoreAttrs] = defineField("maxCpuCore");
+  const [maxMemorySize, maxMemorySizeAttrs] = defineField("maxMemorySize");
+  const [maxStorageSize, maxStorageSizeAttrs] = defineField("maxStorageSize");
+  // 権限
   const [isAdmin, isAdminAttrs] = defineField("isAdmin");
   const [isImageAdmin, isImageAdminAttrs] = defineField("isImageAdmin");
   const [isInstanceTypeAdmin, isInstanceTypeAdminAttrs] = defineField(
@@ -111,56 +69,64 @@ export function useUserAddForm() {
     "isVirtualMachineAdmin"
   );
 
+  const permissions = {
+    isAdmin: { label: "全体管理者", value: isAdmin },
+    isImageAdmin: { label: "イメージ管理", value: isImageAdmin },
+    isInstanceTypeAdmin: {
+      label: "インスタンスタイプ管理",
+      value: isInstanceTypeAdmin,
+    },
+    isNetworkAdmin: { label: "ネットワーク管理", value: isNetworkAdmin },
+    isNodeAdmin: { label: "ノード管理", value: isNodeAdmin },
+    isSecurityGroupAdmin: {
+      label: "セキュリティグループ管理",
+      value: isSecurityGroupAdmin,
+    },
+    isVirtualMachineAdmin: {
+      label: "仮想マシン管理",
+      value: isVirtualMachineAdmin,
+    },
+  };
+
   // ============================================================================
   // Submission Handler (送信処理)
   // ============================================================================
-  const onFormSubmit = (emit: (event: "close" | "success") => void) => {
-    return handleSubmit(async (values) => {
-      // 単位変換
-      const maxMemorySizeInBytes = values.maxMemorySizeInMb
-        ? convertUnitToByte(values.maxMemorySizeInMb, "MB")
-        : null;
+  const onFormSubmit = (emit: any) =>
+    handleFormSubmit<UserCreateRequest, UserResponse>(
+      handleSubmit,
+      {
+        execute: async (formValues) => {
+          const payload: UserCreateRequest = {
+            name: formValues.name,
+            email: formValues.email,
+            password: formValues.password,
+            maxCpuCore: formValues.maxCpuCore || null,
+            maxMemorySize: formValues.maxMemorySize
+              ? convertUnitToByte(formValues.maxMemorySize, "MB")
+              : null,
+            maxStorageSize: formValues.maxStorageSize
+              ? convertUnitToByte(formValues.maxStorageSize, "GB")
+              : null,
+            isAdmin: formValues.isAdmin,
+            isImageAdmin: formValues.isImageAdmin,
+            isInstanceTypeAdmin: formValues.isInstanceTypeAdmin,
+            isNetworkAdmin: formValues.isNetworkAdmin,
+            isNodeAdmin: formValues.isNodeAdmin,
+            isSecurityGroupAdmin: formValues.isSecurityGroupAdmin,
+            isVirtualMachineAdmin: formValues.isVirtualMachineAdmin,
+          };
 
-      const maxStorageSizeInBytes = values.maxStorageSizeInGb
-        ? convertUnitToByte(values.maxStorageSizeInGb, "GB")
-        : null;
+          return await executeCreate(payload);
+        },
+        onSuccessMessage: (payload) =>
+          `利用者「${payload.name}」を作成しました。`,
+        onSuccess: () => resetForm(),
+      },
+      emit
+    );
 
-      // APIリクエストボディ (UserCreateRequest型)
-      const payload: UserCreateRequest = {
-        name: values.name,
-        email: values.email,
-        password: values.password,
-        maxCpuCore: values.maxCpuCores ?? null,
-        maxMemorySize: maxMemorySizeInBytes,
-        maxStorageSize: maxStorageSizeInBytes,
-        isAdmin: values.isAdmin,
-        isImageAdmin: values.isImageAdmin,
-        isInstanceTypeAdmin: values.isInstanceTypeAdmin,
-        isNetworkAdmin: values.isNetworkAdmin,
-        isNodeAdmin: values.isNodeAdmin,
-        isSecurityGroupAdmin: values.isSecurityGroupAdmin,
-        isVirtualMachineAdmin: values.isVirtualMachineAdmin,
-      };
-
-      // APIリクエストを実行
-      const result = await executeCreate(payload);
-
-      if (result.success) {
-        addToast({
-          message: `利用者「${values.name}」を追加しました。`,
-          type: "success",
-        });
-        emit("success");
-        emit("close");
-      } else {
-        addToast({
-          message: "ユーザーの作成に失敗しました。",
-          type: "error",
-          details: result.error?.message,
-        });
-      }
-    });
-  };
+  // ★ Close ハンドラーのファクトリ
+  const makeHandleClose = (emit: any) => createHandleClose(resetForm, emit);
 
   return {
     errors,
@@ -170,28 +136,18 @@ export function useUserAddForm() {
     emailAttrs,
     password,
     passwordAttrs,
-    maxCpuCores,
-    maxCpuCoresAttrs,
-    maxMemorySizeInMb,
-    maxMemorySizeInMbAttrs,
-    maxStorageSizeInGb,
-    maxStorageSizeInGbAttrs,
-    isAdmin,
-    isAdminAttrs,
-    isImageAdmin,
-    isImageAdminAttrs,
-    isInstanceTypeAdmin,
-    isInstanceTypeAdminAttrs,
-    isNetworkAdmin,
-    isNetworkAdminAttrs,
-    isNodeAdmin,
-    isNodeAdminAttrs,
-    isSecurityGroupAdmin,
-    isSecurityGroupAdminAttrs,
-    isVirtualMachineAdmin,
-    isVirtualMachineAdminAttrs,
+    maxCpuCore,
+    maxCpuCoreAttrs,
+    maxMemorySize,
+    maxMemorySizeAttrs,
+    maxStorageSize,
+    maxStorageSizeAttrs,
+    // 権限
+    permissions,
+    // 状態
+    isValid: computed(() => meta.value.valid),
     isCreating,
     onFormSubmit,
-    resetForm,
+    makeHandleClose,
   };
 }

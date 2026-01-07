@@ -3,91 +3,57 @@
  * イメージ編集フォーム Composable (useImageEditForm.ts)
  * =================================================================================
  */
-import { watch } from "vue";
-import { useForm, useField } from "vee-validate";
+import { computed, watch } from "vue";
+import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
 import { useResourceUpdate } from "~/composables/useResourceEdit";
 import { useToast } from "~/composables/useToast";
+import {
+  ImageUpdateSchema,
+  type ImageUpdateInput,
+} from "~/utils/validations/image";
+import { useFormAction } from "~/composables/modal/useModalAction";
 
-import type { ImagePutRequest } from "~~/shared/types/dto/image/ImagePutRequest";
-import type { ImageResponse } from "~~/shared/types/dto/image/ImageResponse";
-import type { ImageServerBase } from "~~/shared/types/dto/image/ImageServerBase";
-
-interface ImageEditProps {
-  show: boolean;
-  // ★ ImageDTO -> ImageServerBase に変更
-  imageData: ImageServerBase | null;
-}
-
-// ==============================================================================
-// Validation Schema
-// ==============================================================================
-const zodSchema = z.object({
-  name: z.string().min(1, "イメージ名は必須です。"),
-  // ImagePutRequestの定義により description は必須(NonNullable)
-  description: z.string(),
-});
-
-const validationSchema = toTypedSchema(zodSchema);
-type FormValues = z.infer<typeof zodSchema>;
+type ImageEditProps = ModalFormProps<ImageResponse>;
 
 /**
  * イメージ編集フォームのロジック
  */
 export function useImageEditForm(props: ImageEditProps) {
-  const { addToast } = useToast();
+  const { handleFormSubmit, makeHandleClose: createHandleClose } =
+    useFormAction();
 
   const { executeUpdate, isUpdating } = useResourceUpdate<
-    ImagePutRequest,
+    ImageUpdateInput,
     ImageResponse
-  >("images");
+  >(IMAGE.name);
 
   // ============================================================================
   // Form Setup
   // ============================================================================
-  const { errors, handleSubmit, resetForm } = useForm<FormValues>({
-    validationSchema,
-    initialValues: {
-      name: "",
-      description: "",
-    },
-  });
+  const { errors, handleSubmit, resetForm, defineField, meta } =
+    useForm<ImageUpdateInput>({
+      validationSchema: toTypedSchema(ImageUpdateSchema),
+      initialValues: {
+        name: "",
+        description: "",
+      },
+    });
 
   // --- フィールド定義 (useField) ---
-  const {
-    value: name,
-    handleBlur: nameBlur,
-    handleChange: nameChange,
-  } = useField<string>("name");
-
-  const nameAttrs = {
-    onBlur: nameBlur,
-    onChange: nameChange,
-  };
-
-  const {
-    value: description,
-    handleBlur: descBlur,
-    handleChange: descChange,
-  } = useField<string>("description");
-
-  const descriptionAttrs = {
-    onBlur: descBlur,
-    onChange: descChange,
-  };
+  const [name, nameAttrs] = defineField("name");
+  const [description, descriptionAttrs] = defineField("description");
 
   // ============================================================================
   // 初期値の反映
   // ============================================================================
   watch(
-    () => props.imageData,
+    () => props.data,
     (newData) => {
       if (props.show && newData) {
         resetForm({
           values: {
             name: newData.name,
-            // description が undefined の場合は空文字を入れて必須要件を満たす
             description: newData.description || "",
           },
         });
@@ -99,36 +65,29 @@ export function useImageEditForm(props: ImageEditProps) {
   // ============================================================================
   // Submission Handler
   // ============================================================================
-  const onFormSubmit = (emit: (event: "close" | "success") => void) => {
-    return handleSubmit(async (formValues) => {
-      if (!props.imageData?.id) return;
+  const onFormSubmit = (emit: any) =>
+    handleFormSubmit<ImageUpdateInput, ImageResponse>(
+      handleSubmit,
+      {
+        // API実行ロジック
+        execute: async (payload: ImageUpdateInput) => {
+          if (!props.data) {
+            return { success: false, error: new Error("No image data") };
+          }
 
-      const payload: ImagePutRequest = {
-        name: formValues.name,
-        description: formValues.description,
-      }
+          return await executeUpdate(props.data.id, payload);
+        },
+        onSuccessMessage: (values: ImageUpdateInput) =>
+          `イメージ「${values.name}」を更新しました。`,
+        onSuccess: () => {
+          resetForm();
+        },
+      },
+      emit
+    );
 
-      const { success, error, data } = await executeUpdate(
-        props.imageData.id,
-        payload
-      );
-
-      if (success) {
-        addToast({
-          message: `イメージ「${data?.name ?? payload.name}」を更新しました。`,
-          type: "success",
-        });
-        emit("success");
-        emit("close");
-      } else {
-        addToast({
-          message: "イメージの更新に失敗しました。",
-          type: "error",
-          details: error?.message,
-        });
-      }
-    });
-  };
+  // ★ Close ハンドラーのファクトリ
+  const makeHandleClose = (emit: any) => createHandleClose(resetForm, emit);
 
   return {
     errors,
@@ -137,6 +96,8 @@ export function useImageEditForm(props: ImageEditProps) {
     description,
     descriptionAttrs,
     isUpdating,
+    isValid: computed(() => meta.value.valid),
+    makeHandleClose,
     onFormSubmit,
   };
 }

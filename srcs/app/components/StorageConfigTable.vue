@@ -27,57 +27,56 @@
           :key="storage.id || index"
           class="border-b border-gray-100 pb-3 last:border-0 last:pb-0"
         >
-          <div class="grid grid-cols-12 gap-2 items-end">
+          <div class="grid grid-cols-12 gap-3 items-start">
             <div class="col-span-4">
-              <label class="block text-xs text-gray-500 mb-1">名前</label>
-              <input
-                type="text"
+              <FormInput
+                label="名前"
+                :name="`storage-name-${index}`"
                 v-model="storage.name"
-                class="form-input-sm w-full"
-                :class="{ 'border-red-500': getError(index, 'name') }"
+                :error="errors?.[index]?.name"
                 placeholder="disk-1"
+                class="w-full"
               />
             </div>
 
             <div class="col-span-3">
-              <label class="block text-xs text-gray-500 mb-1"
-                >サイズ (GB)</label
-              >
-              <input
+              <FormInput
+                label="サイズ (GB)"
+                :name="`storage-size-${index}`"
                 type="number"
                 v-model.number="storage.size"
-                class="form-input-sm w-full"
-                :class="{ 'border-red-500': getError(index, 'size') }"
-                :disabled="storage.type === 'backup'"
+                :error="errors?.[index]?.size"
+                :disabled="isBackupStorage(storage) || !isNewStorage(storage)"
                 :title="
-                  storage.type === 'backup'
+                  isBackupStorage(storage)
                     ? 'バックアップ元のサイズに固定されています'
+                    : !isNewStorage(storage)
+                    ? '既存ディスクのサイズは変更できません'
+                    : ''
+                "
+                class="w-full"
+              />
+            </div>
+
+            <div class="col-span-4">
+              <FormSelect
+                label="保存先プール"
+                :name="`storage-pool-${index}`"
+                v-model="storage.poolId"
+                :options="storagePools"
+                :errorMessage="errors?.[index]?.poolId"
+                placeholder="プールを選択"
+                class="w-full"
+                :disabled="!isNewStorage(storage)"
+                :title="
+                  !isNewStorage(storage)
+                    ? '既存ディスクの保存先プールは変更できません'
                     : ''
                 "
               />
             </div>
 
-            <div class="col-span-4">
-              <label class="block text-xs text-gray-500 mb-1"
-                >保存先プール</label
-              >
-              <select
-                v-model="storage.poolId"
-                class="form-select-sm w-full"
-                :class="{ 'border-red-500': getError(index, 'poolId') }"
-              >
-                <option value="" disabled>プールを選択</option>
-                <option
-                  v-for="pool in storagePools ?? []"
-                  :key="pool.id"
-                  :value="pool.id"
-                >
-                  {{ pool.name }}
-                </option>
-              </select>
-            </div>
-
-            <div class="col-span-1 flex justify-end pb-1">
+            <div class="col-span-1 flex justify-end mt-7">
               <button
                 type="button"
                 @click="$emit('remove', index)"
@@ -99,18 +98,6 @@
               </button>
             </div>
           </div>
-
-          <div class="mt-1 space-y-1">
-            <p v-if="getError(index, 'name')" class="text-xs text-red-500">
-              名前: {{ getError(index, "name") }}
-            </p>
-            <p v-if="getError(index, 'size')" class="text-xs text-red-500">
-              サイズ: {{ getError(index, "size") }}
-            </p>
-            <p v-if="getError(index, 'poolId')" class="text-xs text-red-500">
-              プール: {{ getError(index, "poolId") }}
-            </p>
-          </div>
         </div>
       </div>
     </div>
@@ -119,51 +106,27 @@
 
 <script setup lang="ts">
 import type { PropType } from "vue";
-// 型定義は環境に合わせて適宜調整してください
-// import type { StoragePoolResponse } from "~~/shared/types";
+// 共通コンポーネントのインポート
+import FormInput from "~/components/Form/Input.vue";
+import FormSelect from "~/components/Form/Select.vue";
 
-const props = defineProps({
-  // 親でアンラップ済みのストレージ配列を受け取る
-  storages: {
-    type: Array as PropType<any[]>,
-    default: () => [],
-  },
-  // ストレージプールの選択肢
-  storagePools: {
-    type: Array as PropType<any[]>,
-    default: () => [],
-  },
-  // バリデーションエラーオブジェクト
-  errors: {
-    type: Object as PropType<Record<string, string | undefined>>,
-    default: () => ({}),
-  },
-  // エラーキーのプレフィックス (例: "storages")
-  fieldNamePrefix: {
-    type: String,
-    default: "storages",
-  },
-});
+// 型定義は環境に合わせて適宜調整してください
+import type { VmStorageForm } from "~/composables/modal/useVirtualMachineEditForm";
+
+const props = defineProps<{
+  storages: VmStorageForm[];
+  storagePools: StoragePoolResponse[];
+  errors?: Record<number, { name?: string; size?: string; poolId?: string }>;
+}>();
 
 defineEmits(["add", "remove"]);
 
-// エラー取得ヘルパー
-const getError = (index: number, field: string) => {
-  const prefix = props.fieldNamePrefix;
-  // 配列形式のエラーキーに対応 (storages[0].name または storages.0.name)
-  return (
-    props.errors[`${prefix}[${index}].${field}`] ||
-    props.errors[`${prefix}.${index}.${field}`]
-  );
+const isNewStorage = (storage: VmStorageForm) => {
+  return typeof storage.id === "string" && storage.id.startsWith("new-");
+};
+
+// 型定義に存在しない 'type' へのアクセスを避けるための安全な判定
+const isBackupStorage = (storage: VmStorageForm) => {
+  return "type" in storage && (storage as any).type === "backup";
 };
 </script>
-
-<style scoped>
-.form-input-sm,
-.form-select-sm {
-  @apply border border-gray-300 rounded px-2 py-1 text-xs w-full focus:outline-none focus:ring-1 focus:ring-blue-500 bg-white;
-}
-.form-input-sm:disabled {
-  @apply bg-gray-100 text-gray-500 cursor-not-allowed;
-}
-</style>

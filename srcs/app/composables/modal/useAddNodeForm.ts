@@ -3,9 +3,11 @@
  * ノード追加フォーム Composable (useAddNodeForm.ts)
  * =================================================================================
  */
+import { computed } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useToast } from "~/composables/useToast";
+import { useForm } from "vee-validate";
 
 export function useAddNodeForm() {
   const { addToast } = useToast();
@@ -23,6 +25,11 @@ export function useAddNodeForm() {
     NodeCreateRequest,
     NodeResponse
   >(NODE.name);
+
+  // 3. フォーム検証（簡易版：password 入力チェック）
+  const { meta: formMeta } = useForm({
+    initialValues: { password: "" },
+  });
 
   /**
    * ノード追加実行処理
@@ -73,6 +80,7 @@ export function useAddNodeForm() {
     candidatesPending,
     candidatesError,
     isCreating,
+    isValid: computed(() => formMeta.value.valid),
     handleAddNode,
     refreshCandidates,
   };

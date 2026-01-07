@@ -1,0 +1,24 @@
+{
+  "name": "nitro-app",
+  "private": true,
+  "scripts": {
+    "build": "nitro build",
+    "dev": "nitro dev --port 3030",
+    "preview": "node .output/server/index.mjs"
+  },
+  "devDependencies": {
+    "@types/busboy": "^1.5.4",
+    "busboy": "^1.6.0",
+    "h3": "^1.15.4",
+    "nitropack": "^2.12.4",
+    "prisma": "^7.1.0",
+    "tsx": "^4.21.0"
+  },
+  "dependencies": {
+    "@prisma/adapter-mariadb": "^7.1.0",
+    "@prisma/client": "^7.1.0",
+    "@prisma/client-runtime-utils": "^7.1.0",
+    "argon2": "^0.44.0",
+    "zod": "^4.1.13"
+  }
+}
