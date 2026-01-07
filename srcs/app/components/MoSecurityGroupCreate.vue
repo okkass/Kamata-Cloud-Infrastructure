@@ -28,26 +28,29 @@
         />
       </div>
 
-      <RuleTable
-        title="インバウンドルール"
-        :rules="inboundRules"
-        :errors="errors"
-        field-name-prefix="inboundRules"
-        @add-rule="addInboundRule"
-        @delete-rule="removeInboundRule"
-      />
-      <div v-if="errors.inboundRules" class="text-sm text-red-600 px-1">
-        {{ errors.inboundRules }}
-      </div>
+      <FormSection>
+        <div v-if="errors.inboundRules" class="text-sm text-red-600 px-1">
+          {{ errors.inboundRules }}
+        </div>
 
-      <RuleTable
-        title="アウトバウンドルール"
-        :rules="outboundRules"
-        :errors="errors"
-        field-name-prefix="outboundRules"
-        @add-rule="addOutboundRule"
-        @delete-rule="removeOutboundRule"
-      />
+        <RuleTable
+          title="インバウンドルール"
+          :rules="inboundRules"
+          :errors="errors"
+          field-name-prefix="inboundRules"
+          @add-rule="addInboundRule"
+          @delete-rule="removeInboundRule"
+        />
+
+        <RuleTable
+          title="アウトバウンドルール"
+          :rules="outboundRules"
+          :errors="errors"
+          field-name-prefix="outboundRules"
+          @add-rule="addOutboundRule"
+          @delete-rule="removeOutboundRule"
+        />
+      </FormSection>
     </form>
 
     <template #footer>
