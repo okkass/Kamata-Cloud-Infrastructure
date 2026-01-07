@@ -17,7 +17,13 @@
         "42Crunch.vscode-openapi",
         "bradlc.vscode-tailwindcss",
         "Prisma.prisma",
-        "MermaidChart.vscode-mermaid-chart"
+        "MermaidChart.vscode-mermaid-chart",
+        "ms-python.python",
+        "ms-python.vscode-pylance",
+        "ms-python.black-formatter",
+        "ms-python.flake8",
+        "GitHub.copilot-chat",
+        "GitHub.copilot"
       ],
       "settings": {
         "editor.formatOnSave": true,
@@ -33,7 +39,11 @@
         "editor.quickSuggestions": {
           "strings": true
         },
-        "css.lint.unknownAtRules": "ignore"
+        "css.lint.unknownAtRules": "ignore",
+        "[python]": {
+          "editor.defaultFormatter": "ms-python.black-formatter"
+        },
+        "flake8.args": ["--max-line-length=120"]
       }
     }
   },
