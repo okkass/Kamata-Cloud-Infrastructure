@@ -154,15 +154,13 @@ const nextTab = () => {
 };
 
 watch(
-  () => props.vmData,
-  (newData) => {
-    // データが渡ってきたら、編集フォームを初期化する
-    if (newData && props.show) {
-      console.log("初期化を開始します:", newData); // デバッグ用ログ
-      initializeForm(newData);
+  () => props.show,
+  (open) => {
+    if (open && props.vmData) {
+      console.log("初期化を開始します:", props.vmData);
+      initializeForm(props.vmData);
     }
-  },
-  { immediate: true } // マウント時にデータがあれば即座に実行するオプション
+  }
 );
 
 const submitForm = () => {
