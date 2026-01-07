@@ -117,7 +117,7 @@
           type="submit"
           label="更新"
           :loading="isUpdating"
-          :disabled="!isValid || isUpdating"
+          :disabled="!isValid"
         />
       </div>
     </template>
