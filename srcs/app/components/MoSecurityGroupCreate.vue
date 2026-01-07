@@ -36,6 +36,9 @@
         @add-rule="addInboundRule"
         @delete-rule="removeInboundRule"
       />
+      <div v-if="errors.inboundRules" class="text-sm text-red-600 px-1">
+        {{ errors.inboundRules }}
+      </div>
 
       <RuleTable
         title="アウトバウンドルール"
