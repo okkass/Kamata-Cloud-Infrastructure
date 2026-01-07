@@ -14,12 +14,12 @@
 </template>
 
 <script setup lang="ts">
-import { useUser } from "~/composables/useUser";
+import { useUserPermission } from "~/composables/useUserPermission";
 import { useSidebar } from "~/composables/useSidebar"; // useSidebarをインポート
 import UserSidebar from "~/components/Sidebar.vue";
 import DefaultHeader from "~/components/DefaultHeader.vue";
 
-const { isAdmin, fetchUser } = useUser();
+const { isAdmin, fetchUser } = useUserPermission();
 const { isSidebarOpen } = useSidebar(); // サイドバーの開閉状態を取得
 
 onMounted(() => {
