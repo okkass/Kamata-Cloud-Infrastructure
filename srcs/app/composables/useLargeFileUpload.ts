@@ -116,9 +116,7 @@ export const useLargeFileUpload = () => {
           }`
         : url;
       xhr.open("POST", fullUrl);
-      // 必要なら認証ヘッダーを追加
-      // const token = useCookie('auth_token');
-      // if (token.value) xhr.setRequestHeader("Authorization", `Bearer ${token.value}`);
+      xhr.setRequestHeader("Authorization", "Bearer mock-token"); // ハードコードなので、いずれ本物のトークンに置き換える必要があります
 
       xhr.send(formData);
     });
