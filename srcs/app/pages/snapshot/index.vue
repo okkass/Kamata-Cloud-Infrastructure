@@ -10,7 +10,7 @@
   >
     <template #cell-name="{ row }">
       <div>
-        <span class="table-link">{{ row.name }}</span>
+        <span>{{ row.name }}</span>
         <span v-if="row.description" class="text-sm text-gray-500 block mt-0.5">
           {{ row.description }}
         </span>
@@ -129,5 +129,4 @@ const onRestoreSuccess = async () => {
   closeModal();
   await refresh();
 };
-
 </script>
