@@ -19,8 +19,10 @@ const mapDbUserToUserResponse = (user: any, permission: any): UserResponse => {
     createdAt: user.createdAt.toISOString(),
     lastLoginAt: user.lastLoginAt?.toISOString() ?? "",
     maxCpuCore: user.cpuLimitCores === 0 ? null : user.cpuLimitCores,
-    maxMemorySize: user.memoryLimitMb === 0 ? null : user.memoryLimitMb,
-    maxStorageSize: user.storageLimitGb === 0 ? null : user.storageLimitGb,
+    maxMemorySize:
+      user.memoryLimitMb === 0 ? null : user.memoryLimitMb * 1024 ** 2,
+    maxStorageSize:
+      user.storageLimitGb === 0 ? null : user.storageLimitGb * 1024 ** 3,
     isAdmin: permission.isAdmin ?? false,
     isImageAdmin: permission.isImageAdmin ?? false,
     isInstanceTypeAdmin: permission.isInstanceTypeAdmin ?? false,
@@ -92,7 +94,7 @@ export const getUserService = (permission: UserPermissions | null = null) => {
           passwordHash: hash,
           maxCpuCore: data.maxCpuCore ?? 0,
           maxMemorySizeMb:
-            data.maxMemorySize === null ? 0 : data.maxMemorySize / 1024 ** 3,
+            data.maxMemorySize === null ? 0 : data.maxMemorySize / 1024 ** 2,
           maxStorageSizeGb:
             data.maxStorageSize === null ? 0 : data.maxStorageSize / 1024 ** 3,
           isAdmin: data.isAdmin ?? false,
@@ -134,8 +136,14 @@ export const getUserService = (permission: UserPermissions | null = null) => {
         name: data.name,
         email: data.email,
         maxCpuCore: data.maxCpuCore ?? 0,
-        maxMemorySizeMb: data.maxMemorySize ?? 0,
-        maxStorageSizeGb: data.maxStorageSize ?? 0,
+        maxMemorySizeMb:
+          data.maxMemorySize === null || data.maxMemorySize === undefined
+            ? 0
+            : data.maxMemorySize / 1024 ** 2,
+        maxStorageSizeGb:
+          data.maxStorageSize === null || data.maxStorageSize === undefined
+            ? 0
+            : data.maxStorageSize / 1024 ** 3,
       });
       const updatedPermission = await UserRepository.updatePermission(id, {
         isAdmin: data.isAdmin,

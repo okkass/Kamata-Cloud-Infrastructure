@@ -2,7 +2,8 @@ import { JWTPayload, SignJWT, jwtVerify } from "jose";
 
 const secret = new TextEncoder().encode(process.env.JWT_SECRET || "secret-key");
 const alg = "HS256";
-const TOKEN_EXP = "30s";
+const DEFAULT_TOKEN_EXP = "15m";
+const TOKEN_EXP = process.env.JWT_EXPIRATION || DEFAULT_TOKEN_EXP;
 
 if (!process.env.JWT_SECRET) {
   console.warn("Using default JWT secret. This is not secure for production.");

@@ -100,7 +100,7 @@ model Permission {
   @@map("permissions")
 }
 
-model RefleshToken {
+model RefreshToken {
   id        BigInt   @id @default(autoincrement())
   token     Bytes   @unique @db.Binary(32) // 32バイトのバイナリデータ
   createdAt DateTime @default(now()) @map("created_at")
@@ -108,7 +108,7 @@ model RefleshToken {
   revokedAt DateTime? @map("revoked_at")
   userId    BigInt   @map("user_id")
 
-  @@map("reflesh_tokens")
+  @@map("refresh_tokens")
 }
 
 model Portfolio {
