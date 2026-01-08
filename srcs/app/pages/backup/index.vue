@@ -11,19 +11,21 @@
       @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink :to="`/backup/${row.id}`" class="table-link">
-          {{ row.name }}
+        <div>
+          <span>{{ row.name }}</span>
           <div
             v-if="row.description"
             class="cell-description text-sm text-gray-500"
           >
             {{ row.description }}
           </div>
-        </NuxtLink>
+        </div>
       </template>
 
       <template #cell-createdAtText="{ row }">
-        <span>{{ row.createdAtText }}</span>
+        <ClientOnly>
+          <span>{{ row.createdAtText }}</span>
+        </ClientOnly>
       </template>
 
       <template #cell-sizeText="{ row }">
@@ -31,8 +33,6 @@
       </template>
 
       <template #row-actions="{ row }">
-        <NuxtLink :to="`/backup/${row?.id}`" class="action-item">詳細</NuxtLink>
-
         <button
           type="button"
           class="action-item action-item-primary"
