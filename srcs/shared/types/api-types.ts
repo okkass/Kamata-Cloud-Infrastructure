@@ -4,7 +4,7 @@
  */
 
 export interface paths {
-    "/api/login": {
+    "/api/auth/login": {
         parameters: {
             query?: never;
             header?: never;
@@ -36,12 +36,7 @@ export interface paths {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            /** @description リフレッシュトークン */
-                            refreshToken?: string;
-                            /** @description 認証トークン */
-                            token?: string;
-                        };
+                        "application/json": components["schemas"]["LoginResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -70,7 +65,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/login/web": {
+    "/api/auth/refresh": {
         parameters: {
             query?: never;
             header?: never;
@@ -80,8 +75,8 @@ export interface paths {
         get?: never;
         put?: never;
         /**
-         * ユーザのログイン
-         * @description ユーザのメールアドレスとパスワードを使用してログインします。トークンはCookieに保存されます。
+         * ユーザのトークンリフレッシュ
+         * @description リフレッシュトークンを使用して新しい認証トークンを取得します。
          */
         post: {
             parameters: {
@@ -92,20 +87,17 @@ export interface paths {
             };
             requestBody: {
                 content: {
-                    "application/json": components["schemas"]["LoginRequest"];
+                    "application/json": components["schemas"]["RefreshRequest"];
                 };
             };
             responses: {
-                /** @description ログイン成功 */
+                /** @description トークンリフレッシュ成功 */
                 200: {
                     headers: {
                         [name: string]: unknown;
                     };
                     content: {
-                        "application/json": {
-                            /** @description ログイン成功メッセージ */
-                            message?: string;
-                        };
+                        "application/json": components["schemas"]["LoginResponse"];
                     };
                 };
                 /** @description リクエストエラー */
@@ -1827,7 +1819,7 @@ export interface paths {
         };
         trace?: never;
     };
-    "/api/summary/history": {
+    "/api/history": {
         parameters: {
             query?: never;
             header?: never;
@@ -1847,7 +1839,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/api/summary/realtime": {
+    "/api/realtime": {
         parameters: {
             query?: never;
             header?: never;
@@ -6579,6 +6571,13 @@ export interface components {
              */
             password: string;
         };
+        /** @description ログインレスポンスオブジェクト */
+        LoginResponse: {
+            /** @description リフレッシュトークン */
+            refreshToken: string;
+            /** @description アクセストークン */
+            token: string;
+        };
         /** @description RFC 9457 (Problem Details for HTTP APIs) に準拠した標準のエラーレスポンス形式 */
         ErrorResponse: {
             /**
@@ -6606,6 +6605,11 @@ export interface components {
              * @example /requests/12345
              */
             instance?: string;
+        };
+        /** @description リフレッシュリクエストオブジェクト */
+        RefreshRequest: {
+            /** @description リフレッシュトークン */
+            refreshToken: string;
         };
         /** @description 物理ノードレスポンスオブジェクト */
         NodeResponse: {
@@ -7790,7 +7794,9 @@ export interface components {
     pathItems: never;
 }
 export type LoginRequest = components['schemas']['LoginRequest'];
+export type LoginResponse = components['schemas']['LoginResponse'];
 export type ErrorResponse = components['schemas']['ErrorResponse'];
+export type RefreshRequest = components['schemas']['RefreshRequest'];
 export type NodeResponse = components['schemas']['NodeResponse'];
 export type ImageResponse = components['schemas']['ImageResponse'];
 export type ImageClientUpdatable = components['schemas']['ImageClientUpdatable'];

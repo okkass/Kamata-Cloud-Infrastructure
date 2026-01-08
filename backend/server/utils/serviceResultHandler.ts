@@ -3,32 +3,37 @@ import type { Result } from "@/common/type";
 import { z } from "zod";
 import { validateQuery, validateUUID, validateBody } from "./validate";
 import type { BulkRequest } from "@/types/BulkRequest";
-import { InstanceTypeCreateRequest } from "@app/shared/types";
 /**
  * Service 層から返却されたエラーを HTTP エラーに変換して投げる。
  * @param error Service 層で発生したエラー種別
  * @throws {Error} HTTP ステータスに対応する例外
  */
 const throwServiceError = (error: ServiceError): never => {
-  switch (error) {
+  switch (error.reason) {
     case "NotFound":
       throw createError({
         statusCode: 404,
-        statusMessage: "Resource not found",
+        message: "Resource not found\n" + (error.message ?? ""),
       });
     case "BadRequest":
-      throw createError({ statusCode: 400, statusMessage: "Bad request" });
+      throw createError({
+        statusCode: 400,
+        message: "Bad request\n" + (error.message ?? ""),
+      });
     case "Forbidden":
-      throw createError({ statusCode: 403, statusMessage: "Forbidden" });
+      throw createError({
+        statusCode: 403,
+        message: "Forbidden\n" + (error.message ?? ""),
+      });
     case "NotImplemented":
       throw createError({
         statusCode: 501,
-        statusMessage: "Not implemented",
+        message: "Not implemented\n" + (error.message ?? ""),
       });
     default:
       throw createError({
         statusCode: 500,
-        statusMessage: "Internal server error",
+        message: "Internal server error\n" + (error.message ?? ""),
       });
   }
 };
@@ -43,19 +48,18 @@ const throwServiceError = (error: ServiceError): never => {
  * @throws {Error} バリデーションエラーまたは Service エラーに対応する HTTP 例外
  */
 // リソースのリストを取得する共通ハンドラー
-export const getResourceList = <T>(
-  listFunc: (query?: string) => Result<T[], ServiceError>,
+export const getResourceList = async <T>(
+  listFunc: (query?: string) => Promise<Result<T[], ServiceError>>,
   query?: string,
   querySchema?: z.ZodType
-): T[] => {
+): Promise<T[]> => {
   // queryがあればバリデート
   let validatedQuery: string | undefined = undefined;
   if (query && querySchema) {
     validatedQuery = validateQuery(query, querySchema);
   }
 
-  // listFuncを呼び出す
-  const result = listFunc(validatedQuery);
+  const result = await listFunc(validatedQuery);
 
   // エラーが返ってきたら例外を投げる
   if (!result.success) {
@@ -75,16 +79,15 @@ export const getResourceList = <T>(
  * @throws {Error} バリデーションエラーまたは Service エラーに対応する HTTP 例外
  */
 // 単一リソースを取得する共通ハンドラー
-export const getResource = <T>(
+export const getResource = async <T>(
   resourceId: string,
-  getByIdFunc: (id: string) => Result<T, ServiceError>
-): T => {
+  getByIdFunc: (id: string) => Promise<Result<T, ServiceError>>
+): Promise<T> => {
   // idをバリデート
   const validatedId = validateUUID(resourceId);
 
   // getByIdFuncを呼び出す
-  const result = getByIdFunc(validatedId);
-
+  const result = await getByIdFunc(validatedId);
   // エラーが返ってきたら例外を投げる
   if (!result.success) {
     throwServiceError(result.error);
@@ -105,16 +108,16 @@ export const getResource = <T>(
  * @throws {Error} バリデーションエラーまたは Service エラーに対応する HTTP 例外
  */
 // リソースを新規作成する共通ハンドラー
-export const createResource = <TRequest, TResponse>(
+export const createResource = async <TRequest, TResponse>(
   requestBody: TRequest,
   bodySchema: z.ZodType,
-  createFunc: (params: TRequest) => Result<TResponse, ServiceError>
-): TResponse => {
+  createFunc: (params: TRequest) => Promise<Result<TResponse, ServiceError>>
+): Promise<TResponse> => {
   // bodyをバリデート
   const body = validateBody<TRequest>(requestBody, bodySchema);
 
   // createFuncを呼び出す
-  const result = createFunc(body);
+  const result = await createFunc(body);
 
   // エラーが返ってきたら例外を投げる
   if (!result.success) {
@@ -137,12 +140,15 @@ export const createResource = <TRequest, TResponse>(
  * @throws {Error} バリデーションエラーまたは Service エラーに対応する HTTP 例外
  */
 // リソースを更新する共通ハンドラー(PUT/PATCH共通)
-export const updateResource = <TRequest, TResponse>(
+export const updateResource = async <TRequest, TResponse>(
   id: string,
   requestBody: TRequest,
   bodySchema: z.ZodType,
-  updateFunc: (id: string, params: TRequest) => Result<TResponse, ServiceError>
-): TResponse => {
+  updateFunc: (
+    id: string,
+    params: TRequest
+  ) => Promise<Result<TResponse, ServiceError>>
+): Promise<TResponse> => {
   // idをバリデート
   const validatedId = validateUUID(id);
 
@@ -150,7 +156,7 @@ export const updateResource = <TRequest, TResponse>(
   const body = validateBody<TRequest>(requestBody, bodySchema);
 
   // updateFuncを呼び出す
-  const result = updateFunc(validatedId, body);
+  const result = await updateFunc(validatedId, body);
 
   // エラーが返ってきたら例外を投げる
   if (!result.success) {
@@ -168,16 +174,15 @@ export const updateResource = <TRequest, TResponse>(
  * @throws {Error} バリデーションエラーまたは Service エラーに対応する HTTP 例外
  */
 // リソースを削除する共通ハンドラー
-export const deleteResource = (
+export const deleteResource = async (
   id: string,
-  deleteFunc: (id: string) => Result<null, ServiceError>
-): void => {
+  deleteFunc: (id: string) => Promise<Result<null, ServiceError>>
+): Promise<void> => {
   // idをバリデート
   const validatedId = validateUUID(id);
 
   // deleteFuncを呼び出す
-  const result = deleteFunc(validatedId);
-
+  const result = await deleteFunc(validatedId);
   // エラーが返ってきたら例外を投げる
   if (!result.success) {
     throwServiceError(result.error);
@@ -187,29 +192,28 @@ export const deleteResource = (
   return;
 };
 
-export const bulkResource = <TCreate, TUpdate, TResponse>(
+export const bulkResource = async <TCreate, TUpdate, TResponse>(
   body: BulkRequest<TCreate, TUpdate>,
   createSchema: z.ZodType,
   updateSchema: z.ZodType,
-  createFunc: (params: TCreate) => Result<TResponse, ServiceError>,
+  createFunc: (params: TCreate) => Promise<Result<TResponse, ServiceError>>,
   updateFunc:
-    | ((id: string, params: TUpdate) => Result<TResponse, ServiceError>)
+    | ((
+        id: string,
+        params: TUpdate
+      ) => Promise<Result<TResponse, ServiceError>>)
     | null,
-  deleteFunc: (id: string) => Result<null, ServiceError>,
-  listFunc: () => Result<TResponse[], ServiceError>
-): TResponse[] => {
-  // 追加処理
-  for (const item of body.add) {
-    createResource(item as TCreate, createSchema, createFunc);
-  }
-  // 更新処理
-  for (const item of body.patch) {
-    updateResource(item.id, item.data as TUpdate, updateSchema, updateFunc!);
-  }
-  // 削除処理
-  for (const id of body.remove) {
-    deleteResource(id, deleteFunc);
-  }
-  // 処理後のリストを返す
+  deleteFunc: (id: string) => Promise<Result<null, ServiceError>>,
+  listFunc: () => Promise<Result<TResponse[], ServiceError>>
+): Promise<TResponse[]> => {
+  await Promise.all([
+    ...body.add.map((item) =>
+      createResource(item as TCreate, createSchema, createFunc)
+    ),
+    ...body.patch.map((item) =>
+      updateResource(item.id, item.data as TUpdate, updateSchema, updateFunc!)
+    ),
+    ...body.remove.map((id) => deleteResource(id, deleteFunc)),
+  ]);
   return getResourceList(listFunc);
 };

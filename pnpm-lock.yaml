@@ -29,6 +29,9 @@ importers:
       argon2:
         specifier: ^0.44.0
         version: 0.44.0
+      jose:
+        specifier: ^6.1.3
+        version: 6.1.3
       zod:
         specifier: ^4.1.13
         version: 4.1.13
