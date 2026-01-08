@@ -22,11 +22,10 @@
       @action="handleAction"
     />
 
-    <!-- 編集モーダル（データがあるときだけ生成） -->
+    <!-- 編集モーダル（モーダル側を触らず、ページ側で初期値注入を保証） -->
     <MoSecurityGroupEdit
-      v-if="securityGroup"
       :show="isEditOpen"
-      :security-group-data="securityGroup"
+      :security-group-data="editSecurityGroupData"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />
@@ -34,7 +33,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted } from "vue";
+import { ref, watch, onMounted, onUnmounted, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
@@ -43,8 +42,6 @@ import { useResourceDetail } from "~/composables/useResourceDetail";
 import { SECURITY_GROUP } from "@/utils/constants";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 import { createPolling } from "@/utils/polling";
-
-type SecurityGroupResponse = components["schemas"]["SecurityGroupResponse"];
 
 const route = useRoute();
 const router = useRouter();
@@ -59,7 +56,7 @@ const {
   route.params.id as string
 );
 
-// --- ポーリング設定（refresh失敗は握りつぶさずログ） ---
+// --- ポーリング設定（refresh失敗はログだけ） ---
 const polling = createPolling(async () => {
   try {
     await refresh();
@@ -68,14 +65,8 @@ const polling = createPolling(async () => {
   }
 });
 
-// lifecycle
-onMounted(() => {
-  polling.startPolling();
-});
-
-onUnmounted(() => {
-  polling.stopPolling();
-});
+onMounted(() => polling.startPolling());
+onUnmounted(() => polling.stopPolling());
 
 // 戻る
 const goBack = () => {
@@ -88,8 +79,18 @@ const actions = ref([{ label: "編集", value: "edit" }]);
 // 編集モーダル
 const isEditOpen = ref(false);
 
-const openEditModal = () => {
+// ★ モーダルに渡すデータ（“変化”を作って初期化を確実にする）
+const editSecurityGroupData = ref<SecurityGroupResponse | null>(null);
+
+const openEditModal = async () => {
   if (!securityGroup.value) return;
+
+  // 同じ参照を渡し続けるとモーダル側のwatchが発火しない実装があるため、
+  // null を挟んで「確実に props の変化」を作る
+  editSecurityGroupData.value = null;
+  await nextTick();
+
+  editSecurityGroupData.value = securityGroup.value;
   isEditOpen.value = true;
 };
 
@@ -105,6 +106,11 @@ const handleEditSuccess = async () => {
   } catch (e) {
     console.error("SecurityGroup再取得に失敗しました", e);
   }
+
+  // 次回の編集でも確実に初期化が走るよう、最新をセットしておく（保険）
+  if (securityGroup.value) {
+    editSecurityGroupData.value = securityGroup.value;
+  }
 };
 
 // 編集中はポーリング停止（更新チカチカ防止）
@@ -117,9 +123,9 @@ watch(
 );
 
 // アクション実行
-const handleAction = (action: { label: string; value: string }) => {
+const handleAction = async (action: { label: string; value: string }) => {
   if (action.value === "edit") {
-    openEditModal();
+    await openEditModal();
   }
 };
 </script>
