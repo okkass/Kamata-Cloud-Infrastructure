@@ -9,6 +9,8 @@ info:
 paths:
   /api/auth/login:
     $ref: "paths/auth/auth_login.yml"
+  /api/auth/logout:
+    $ref: "paths/auth/auth_logout.yml"
   /api/auth/refresh:
     $ref: "paths/auth/auth_refresh.yml"
   /api/images:
