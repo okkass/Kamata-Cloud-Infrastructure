@@ -23,9 +23,7 @@
       </template>
 
       <template #cell-createdAtText="{ row }">
-        <ClientOnly>
-          <span>{{ row.createdAtText }}</span>
-        </ClientOnly>
+        <span>{{ row.createdAtText }}</span>
       </template>
 
       <template #cell-sizeText="{ row }">
