@@ -39,18 +39,30 @@
             v-if="showActionMenu"
             class="absolute right-0 mt-2 w-48 bg-white border border-slate-300 rounded-lg shadow-xl z-50"
           >
-            <button
+            <div
               v-for="(action, index) in bulkActions"
               :key="action.value"
-              class="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 transition"
-              :class="{
-                'first:rounded-t-lg': index === 0,
-                'last:rounded-b-lg': index === bulkActions.length - 1,
-              }"
-              @click="handleBulkActionClick(action.value)"
+              class="relative group"
             >
-              {{ action.label }}
-            </button>
+              <button
+                class="w-full px-4 py-2 text-left text-sm hover:bg-slate-100 transition disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-white"
+                :class="{
+                  'first:rounded-t-lg': index === 0,
+                  'last:rounded-b-lg': index === bulkActions.length - 1,
+                }"
+                :disabled="selectedVmIds.length === 0"
+                @click="handleBulkActionClick(action.value)"
+              >
+                {{ action.label }}
+              </button>
+              <!-- ツールチップ -->
+              <div
+                v-if="selectedVmIds.length === 0"
+                class="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block bg-gray-800 text-white text-xs py-1 px-2 rounded whitespace-nowrap z-50"
+              >
+                VMにチェックを入れてください
+              </div>
+            </div>
           </div>
         </div>
       </div>
