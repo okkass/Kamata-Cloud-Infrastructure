@@ -76,39 +76,6 @@ export function useUserEditForm(props: UserEditProps) {
     "isVirtualMachineAdmin"
   );
 
-  const permissions = {
-    isAdmin: { label: "全体管理者", value: isAdmin, attrs: isAdminAttrs },
-    isImageAdmin: {
-      label: "イメージ管理",
-      value: isImageAdmin,
-      attrs: isImageAdminAttrs,
-    },
-    isInstanceTypeAdmin: {
-      label: "インスタンスタイプ管理",
-      value: isInstanceTypeAdmin,
-      attrs: isInstanceTypeAdminAttrs,
-    },
-    isNetworkAdmin: {
-      label: "ネットワーク管理",
-      value: isNetworkAdmin,
-      attrs: isNetworkAdminAttrs,
-    },
-    isNodeAdmin: {
-      label: "ノード管理",
-      value: isNodeAdmin,
-      attrs: isNodeAdminAttrs,
-    },
-    isSecurityGroupAdmin: {
-      label: "セキュリティグループ管理",
-      value: isSecurityGroupAdmin,
-      attrs: isSecurityGroupAdminAttrs,
-    },
-    isVirtualMachineAdmin: {
-      label: "仮想マシン管理",
-      value: isVirtualMachineAdmin,
-      attrs: isVirtualMachineAdminAttrs,
-    },
-  };
   // ============================================================================
   // 初期値の反映 (Watch)
   // ============================================================================
@@ -196,7 +163,20 @@ export function useUserEditForm(props: UserEditProps) {
     maxMemorySizeAttrs,
     maxStorageSize,
     maxStorageSizeAttrs,
-    permissions,
+    isAdmin,
+    isAdminAttrs,
+    isImageAdmin,
+    isImageAdminAttrs,
+    isInstanceTypeAdmin,
+    isInstanceTypeAdminAttrs,
+    isNetworkAdmin,
+    isNetworkAdminAttrs,
+    isNodeAdmin,
+    isNodeAdminAttrs,
+    isSecurityGroupAdmin,
+    isSecurityGroupAdminAttrs,
+    isVirtualMachineAdmin,
+    isVirtualMachineAdminAttrs,
     // 状態
     isValid: computed(() => meta.value.valid),
     isUpdating,

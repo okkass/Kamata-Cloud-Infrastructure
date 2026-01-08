@@ -26,6 +26,7 @@ type FormValues = StorageEditFormValues;
 
 export function useStorageEditForm(props: Props) {
   const { handleFormSubmit, makeHandleClose } = useFormAction();
+  const { addToast } = useToast();
 
   const { editedData, init, save, isDirty, isSaving } =
     useResourceUpdater<StoragePoolResponse>();
@@ -81,8 +82,8 @@ export function useStorageEditForm(props: Props) {
   );
 
   // --- 送信ハンドラ ---
-  const onFormSubmit = (emit: any) =>
-    handleFormSubmit<FormValues, StoragePoolResponse>(
+  const onFormSubmit = (emit: any) => {
+    const submitHandler = handleFormSubmit<FormValues, StoragePoolResponse>(
       handleSubmit,
       {
         execute: async () => {
@@ -97,6 +98,18 @@ export function useStorageEditForm(props: Props) {
       },
       emit
     );
+
+    return async (e?: Event) => {
+      if (!isDirty.value) {
+        addToast({
+          message: "変更がありません。",
+          type: "info",
+        });
+        return;
+      }
+      return submitHandler(e);
+    };
+  };
 
   const makehandleClose = (emit: any) => makeHandleClose(resetForm, emit);
 

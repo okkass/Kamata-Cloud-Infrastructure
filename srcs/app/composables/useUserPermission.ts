@@ -60,6 +60,12 @@ export const useUserPermission = () => {
       const { data } = await useFetch("users/me", {
         $fetch: useNuxtApp().$apiFetch,
       });
+
+      if (!data.value) {
+        user.value = null; // または適切な初期値
+        return;
+      }
+
       const res = data.value as UserResponse;
       user.value = {
         id: res.id,
