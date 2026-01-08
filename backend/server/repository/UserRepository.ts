@@ -1,110 +1,280 @@
-import type {
-  UserResponse,
-  UserCreateRequest,
-  UserPatchRequest,
-  UserPutRequest,
-} from "@app/shared/types";
+import { getPrismaClient, NotFoundError } from "./common";
 
-let users: UserResponse[] | null = null;
+export interface UserInsertProps {
+  name: string;
+  email: string;
+  passwordHash: string;
+  maxCpuCore: number;
+  maxMemorySizeMb: number;
+  maxStorageSizeGb: number;
+  isAdmin: boolean;
+  isImageAdmin: boolean;
+  isInstanceTypeAdmin: boolean;
+  isVirtualMachineAdmin: boolean;
+  isNetworkAdmin: boolean;
+  isSecurityGroupAdmin: boolean;
+  isNodeAdmin: boolean;
+}
 
-const init = (): UserResponse[] => {
-  return [
-    {
-      id: "c93b589b-5389-48aa-b37f-878be7663cf2",
-      name: "John Doe",
-      email: "john.doe@example.com",
-      createdAt: new Date().toISOString(),
-      lastLoginAt: new Date().toISOString(),
-      isAdmin: false,
-      isImageAdmin: false,
-      isInstanceTypeAdmin: false,
-      isNetworkAdmin: false,
-      isNodeAdmin: false,
-      isSecurityGroupAdmin: false,
-      isVirtualMachineAdmin: false,
+export interface UserUpdateProps {
+  name?: string;
+  email?: string;
+  maxCpuCore?: number;
+  maxMemorySizeMb?: number;
+  maxStorageSizeGb?: number;
+}
+
+export interface UserPermissionUpdateProps {
+  isAdmin?: boolean;
+  isImageAdmin?: boolean;
+  isInstanceTypeAdmin?: boolean;
+  isVirtualMachineAdmin?: boolean;
+  isNetworkAdmin?: boolean;
+  isSecurityGroupAdmin?: boolean;
+  isNodeAdmin?: boolean;
+}
+
+const list = async () => {
+  const prisma = getPrismaClient();
+
+  const users = await prisma.user.findMany({
+    select: {
+      uuid: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      lastLoginAt: true,
+      cpuLimitCores: true,
+      memoryLimitMb: true,
+      storageLimitGb: true,
+      permission: {
+        select: {
+          isAdmin: true,
+          isImageAdmin: true,
+          isInstanceTypeAdmin: true,
+          isVirtualMachineAdmin: true,
+          isNetworkAdmin: true,
+          isSecurityGroupAdmin: true,
+          isNodeAdmin: true,
+        },
+      },
     },
-    {
-      id: "5ab9e787-ad30-4f12-9ee4-f00c0491ee5d",
-      name: "Admin Taro",
-      email: "admin.taro@example.com",
-      createdAt: new Date().toISOString(),
-      lastLoginAt: new Date().toISOString(),
-      isAdmin: true,
-      isImageAdmin: false,
-      isInstanceTypeAdmin: false,
-      isNetworkAdmin: false,
-      isNodeAdmin: false,
-      isSecurityGroupAdmin: false,
-      isVirtualMachineAdmin: false,
-    },
-  ];
-};
-
-const list = (): UserResponse[] => {
-  if (!users) {
-    users = init();
-  }
+  });
   return users;
 };
 
-const getById = (id: string): UserResponse | undefined => {
-  return list().find((user) => user.id === id);
-};
+const getById = async (id: string) => {
+  const prisma = getPrismaClient();
 
-const create = (userCreateRequest: UserCreateRequest): UserResponse => {
-  const newUser: UserResponse = {
-    id: crypto.randomUUID(),
-    name: userCreateRequest.name,
-    email: userCreateRequest.email,
-    createdAt: new Date().toISOString(),
-    lastLoginAt: new Date().toISOString(),
-    isAdmin: userCreateRequest.isAdmin || false,
-    isImageAdmin: userCreateRequest.isImageAdmin || false,
-    isInstanceTypeAdmin: userCreateRequest.isInstanceTypeAdmin || false,
-    isNetworkAdmin: userCreateRequest.isNetworkAdmin || false,
-    isNodeAdmin: userCreateRequest.isNodeAdmin || false,
-    isSecurityGroupAdmin: userCreateRequest.isSecurityGroupAdmin || false,
-    isVirtualMachineAdmin: userCreateRequest.isVirtualMachineAdmin || false,
-  };
-  list().push(newUser);
-  return newUser;
-};
-
-const update = (
-  id: string,
-  userPutRequest: UserPutRequest | UserPatchRequest
-): UserResponse | undefined => {
-  const user = getById(id);
-  if (!user) {
-    return undefined;
-  }
-  user.name = userPutRequest.name ?? user.name;
-  user.email = userPutRequest.email ?? user.email;
-  user.isAdmin = userPutRequest.isAdmin ?? user.isAdmin;
-  user.isImageAdmin = userPutRequest.isImageAdmin ?? user.isImageAdmin;
-  user.isInstanceTypeAdmin =
-    userPutRequest.isInstanceTypeAdmin ?? user.isInstanceTypeAdmin;
-  user.isNetworkAdmin = userPutRequest.isNetworkAdmin ?? user.isNetworkAdmin;
-  user.isNodeAdmin = userPutRequest.isNodeAdmin ?? user.isNodeAdmin;
-  user.isSecurityGroupAdmin =
-    userPutRequest.isSecurityGroupAdmin ?? user.isSecurityGroupAdmin;
-  user.isVirtualMachineAdmin =
-    userPutRequest.isVirtualMachineAdmin ?? user.isVirtualMachineAdmin;
+  const user = await prisma.user.findUnique({
+    where: {
+      uuid: id,
+    },
+    select: {
+      uuid: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      lastLoginAt: true,
+      permission: {
+        select: {
+          isAdmin: true,
+          isImageAdmin: true,
+          isInstanceTypeAdmin: true,
+          isVirtualMachineAdmin: true,
+          isNetworkAdmin: true,
+          isSecurityGroupAdmin: true,
+          isNodeAdmin: true,
+        },
+      },
+      credentials: {
+        select: {
+          hashedPassword: true,
+        },
+      },
+    },
+  });
   return user;
 };
 
-const deleteById = (id: string): boolean => {
-  const initialLength = list().length;
-  users = list().filter((user) => user.id !== id);
-  return list().length < initialLength;
+const getByEmail = async (email: string) => {
+  const prisma = getPrismaClient();
+
+  const user = await prisma.user.findUnique({
+    where: {
+      email: email,
+    },
+    select: {
+      uuid: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      lastLoginAt: true,
+      permission: {
+        select: {
+          isAdmin: true,
+          isImageAdmin: true,
+          isInstanceTypeAdmin: true,
+          isVirtualMachineAdmin: true,
+          isNetworkAdmin: true,
+          isSecurityGroupAdmin: true,
+          isNodeAdmin: true,
+        },
+      },
+      credentials: {
+        select: {
+          hashedPassword: true,
+        },
+      },
+    },
+  });
+  return user;
+};
+
+const create = async (userInsertProps: UserInsertProps) => {
+  const prisma = getPrismaClient();
+
+  const user = await prisma.user.create({
+    data: {
+      name: userInsertProps.name,
+      email: userInsertProps.email,
+      cpuLimitCores: userInsertProps.maxCpuCore,
+      memoryLimitMb: userInsertProps.maxMemorySizeMb,
+      storageLimitGb: userInsertProps.maxStorageSizeGb,
+      credentials: {
+        create: {
+          hashedPassword: userInsertProps.passwordHash,
+        },
+      },
+      permission: {
+        create: {
+          isAdmin: userInsertProps.isAdmin,
+          isImageAdmin: userInsertProps.isImageAdmin,
+          isInstanceTypeAdmin: userInsertProps.isInstanceTypeAdmin,
+          isVirtualMachineAdmin: userInsertProps.isVirtualMachineAdmin,
+          isNetworkAdmin: userInsertProps.isNetworkAdmin,
+          isSecurityGroupAdmin: userInsertProps.isSecurityGroupAdmin,
+          isNodeAdmin: userInsertProps.isNodeAdmin,
+        },
+      },
+    },
+    include: {
+      credentials: true,
+      permission: true,
+    },
+  });
+  return user;
+};
+
+const update = async (id: string, userUpdateProps: UserUpdateProps) => {
+  const prisma = getPrismaClient();
+  const user = await prisma.user.update({
+    where: {
+      uuid: id,
+    },
+    data: {
+      name: userUpdateProps.name,
+      email: userUpdateProps.email,
+      cpuLimitCores: userUpdateProps.maxCpuCore,
+      memoryLimitMb: userUpdateProps.maxMemorySizeMb,
+      storageLimitGb: userUpdateProps.maxStorageSizeGb,
+    },
+  });
+  return user;
+};
+
+const updateLastLoginAt = async (id: string) => {
+  const prisma = getPrismaClient();
+  const user = await prisma.user.update({
+    where: {
+      uuid: id,
+    },
+    data: {
+      lastLoginAt: new Date(),
+    },
+  });
+  return user;
+};
+
+const updatePermission = async (
+  uuid: string,
+  permissionUpdateProps: UserPermissionUpdateProps
+) => {
+  const prisma = getPrismaClient();
+  // uuidからuid引っ張ってくる
+  const user = await prisma.user.findUnique({
+    where: {
+      uuid: uuid,
+    },
+    select: {
+      id: true,
+    },
+  });
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+  const permission = await prisma.permission.update({
+    where: {
+      id: user.id,
+    },
+    data: {
+      isAdmin: permissionUpdateProps.isAdmin,
+      isImageAdmin: permissionUpdateProps.isImageAdmin,
+      isInstanceTypeAdmin: permissionUpdateProps.isInstanceTypeAdmin,
+      isVirtualMachineAdmin: permissionUpdateProps.isVirtualMachineAdmin,
+      isNetworkAdmin: permissionUpdateProps.isNetworkAdmin,
+      isSecurityGroupAdmin: permissionUpdateProps.isSecurityGroupAdmin,
+      isNodeAdmin: permissionUpdateProps.isNodeAdmin,
+    },
+  });
+  return permission;
+};
+
+const updatePassword = async (uuid: string, newPasswordHash: string) => {
+  const prisma = getPrismaClient();
+  const user = await prisma.user.findUnique({
+    where: {
+      uuid: uuid,
+    },
+    select: {
+      id: true,
+    },
+  });
+  if (!user) {
+    throw new NotFoundError("User not found");
+  }
+  const credential = await prisma.userCredential.update({
+    where: {
+      userId: user.id,
+    },
+    data: {
+      hashedPassword: newPasswordHash,
+    },
+  });
+  return credential;
+};
+
+const deleteById = async (id: string) => {
+  const prisma = getPrismaClient();
+
+  const result = await prisma.user.delete({
+    where: {
+      uuid: id,
+    },
+  });
+  return result;
 };
 
 export const UserRepository = {
   list,
   getById,
+  getByEmail,
   create,
   update,
   deleteById,
+  updatePermission,
+  updatePassword,
+  updateLastLoginAt,
 };
 
 export default UserRepository;

@@ -54,13 +54,57 @@
 
       <FormSection title="管理者権限">
         <div class="checkbox-grid">
-          <label
-            v-for="(perm, index) in permissions"
-            :key="index"
-            class="checkbox-label"
-          >
-            <input type="checkbox" v-model="perm.value" v-bind="perm.attrs" />
-            {{ perm.label }}
+          <label class="checkbox-label">
+            <input type="checkbox" v-model="isAdmin" v-bind="isAdminAttrs" />
+            全体管理者
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isImageAdmin"
+              v-bind="isImageAdminAttrs"
+            />
+            イメージ管理
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isInstanceTypeAdmin"
+              v-bind="isInstanceTypeAdminAttrs"
+            />
+            インスタンスタイプ管理
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isNetworkAdmin"
+              v-bind="isNetworkAdminAttrs"
+            />
+            ネットワーク管理
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isNodeAdmin"
+              v-bind="isNodeAdminAttrs"
+            />
+            ノード管理
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isSecurityGroupAdmin"
+              v-bind="isSecurityGroupAdminAttrs"
+            />
+            セキュリティグループ管理
+          </label>
+          <label class="checkbox-label">
+            <input
+              type="checkbox"
+              v-model="isVirtualMachineAdmin"
+              v-bind="isVirtualMachineAdminAttrs"
+            />
+            仮想マシン管理
           </label>
         </div>
       </FormSection>
@@ -73,7 +117,7 @@
           type="submit"
           label="更新"
           :loading="isUpdating"
-          :disabled="!isValid || isUpdating"
+          :disabled="!isValid"
         />
       </div>
     </template>
@@ -114,7 +158,20 @@ const {
   maxMemorySizeAttrs,
   maxStorageSize,
   maxStorageSizeAttrs,
-  permissions,
+  isAdmin,
+  isAdminAttrs,
+  isImageAdmin,
+  isImageAdminAttrs,
+  isInstanceTypeAdmin,
+  isInstanceTypeAdminAttrs,
+  isNetworkAdmin,
+  isNetworkAdminAttrs,
+  isNodeAdmin,
+  isNodeAdminAttrs,
+  isSecurityGroupAdmin,
+  isSecurityGroupAdminAttrs,
+  isVirtualMachineAdmin,
+  isVirtualMachineAdminAttrs,
   isUpdating,
   onFormSubmit,
 } = useUserEditForm(props);

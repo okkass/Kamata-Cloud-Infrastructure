@@ -2,7 +2,7 @@ import { getResourceList } from "@/utils/serviceResultHandler";
 import { getPermissionFromEvent } from "@/utils/permission";
 import { getUserService } from "@/service/UserService";
 
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const permission = getPermissionFromEvent(event);
   const service = getUserService(permission);
 

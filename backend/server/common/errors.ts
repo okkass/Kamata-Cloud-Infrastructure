@@ -1,6 +1,10 @@
-export type ServiceError =
-  | "NotFound"
-  | "BadRequest"
-  | "InternalError"
-  | "Forbidden"
-  | "NotImplemented";
+export type ServiceError = {
+  reason:
+    | "NotFound"
+    | "BadRequest"
+    | "InternalError"
+    | "Forbidden"
+    | "Unauthorized"
+    | "NotImplemented";
+  message?: string;
+};

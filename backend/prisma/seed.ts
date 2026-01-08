@@ -16,22 +16,138 @@ async function main() {
   console.log("Seeding test data started...");
   const hash = await argon2.hash("my-strong-password");
 
-  // トランザクションでユーザとパスワードを作成
-  await prisma.$transaction(async (tx) => {
-    const user = await tx.user.create({
-      data: {
-        name: "Test User",
-        email: "poka@example.com",
-      },
+  const permissions = [
+    {
+      name: "all-admin",
+      email: "all.admin@example.test",
+      isAdmin: true,
+      isImageAdmin: false,
+      isInstanceTypeAdmin: false,
+      isVirtualMachineAdmin: false,
+      isNetworkAdmin: false,
+      isSecurityGroupAdmin: false,
+      isNodeAdmin: false,
+    },
+    {
+      name: "image-admin",
+      email: "image.admin@example.test",
+      isAdmin: false,
+      isImageAdmin: true,
+      isInstanceTypeAdmin: false,
+      isVirtualMachineAdmin: false,
+      isNetworkAdmin: false,
+      isSecurityGroupAdmin: false,
+      isNodeAdmin: false,
+    },
+    {
+      name: "instance-type-admin",
+      email: "instance.type.admin@example.test",
+      isAdmin: false,
+      isImageAdmin: false,
+      isInstanceTypeAdmin: true,
+      isVirtualMachineAdmin: false,
+      isNetworkAdmin: false,
+      isSecurityGroupAdmin: false,
+      isNodeAdmin: false,
+    },
+    {
+      name: "virtual-machine-admin",
+      email: "virtual.machine.admin@example.test",
+      isAdmin: false,
+      isImageAdmin: false,
+      isInstanceTypeAdmin: false,
+      isVirtualMachineAdmin: true,
+      isNetworkAdmin: false,
+      isSecurityGroupAdmin: false,
+      isNodeAdmin: false,
+    },
+    {
+      name: "network-admin",
+      email: "network.admin@example.test",
+      isAdmin: false,
+      isImageAdmin: false,
+      isInstanceTypeAdmin: false,
+      isVirtualMachineAdmin: false,
+      isNetworkAdmin: true,
+      isSecurityGroupAdmin: false,
+      isNodeAdmin: false,
+    },
+    {
+      name: "security-group-admin",
+      email: "security.group.admin@example.test",
+      isAdmin: false,
+      isImageAdmin: false,
+      isInstanceTypeAdmin: false,
+      isVirtualMachineAdmin: false,
+      isNetworkAdmin: false,
+      isSecurityGroupAdmin: true,
+      isNodeAdmin: false,
+    },
+    {
+      name: "node-admin",
+      email: "node.admin@example.test",
+      isAdmin: false,
+      isImageAdmin: false,
+      isInstanceTypeAdmin: false,
+      isVirtualMachineAdmin: false,
+      isNetworkAdmin: false,
+      isSecurityGroupAdmin: false,
+      isNodeAdmin: true,
+    },
+    {
+      name: "normal user",
+      email: "normal.user@example.test",
+      isAdmin: false,
+      isImageAdmin: false,
+      isInstanceTypeAdmin: false,
+      isVirtualMachineAdmin: false,
+      isNetworkAdmin: false,
+      isSecurityGroupAdmin: false,
+      isNodeAdmin: false,
+    },
+  ];
+  try {
+    const createUserPromises = permissions.map((perm) => {
+      return prisma.user.create({
+        data: {
+          name: perm.name,
+          email: perm.email,
+          cpuLimitCores: 0,
+          memoryLimitMb: 0,
+          storageLimitGb: 0,
+          credentials: {
+            create: {
+              hashedPassword: hash,
+            },
+          },
+          permission: {
+            create: {
+              isAdmin: perm.isAdmin,
+              isImageAdmin: perm.isImageAdmin,
+              isInstanceTypeAdmin: perm.isInstanceTypeAdmin,
+              isVirtualMachineAdmin: perm.isVirtualMachineAdmin,
+              isNetworkAdmin: perm.isNetworkAdmin,
+              isSecurityGroupAdmin: perm.isSecurityGroupAdmin,
+              isNodeAdmin: perm.isNodeAdmin,
+            },
+          },
+        },
+        include: {
+          credentials: true,
+          permission: true,
+        },
+      });
     });
-    console.log(`Created user with ID: ${user.id}`);
-    await tx.userCredential.create({
-      data: {
-        userId: user.id,
-        hashedPassword: hash,
-      },
-    });
-    console.log(`Created credentials for user ID: ${user.id}`);
+    await Promise.all(createUserPromises);
+  } catch (error) {
+    console.error("Error creating users:", error);
+  }
+
+  const users = await prisma.user.findMany();
+  console.log(`Created ${users.length} users:`);
+
+  users.forEach((user) => {
+    console.log(`- ${user.email}`);
   });
 
   console.log("Seeding test data finished.");

@@ -1,27 +1,30 @@
 <template>
   <div class="mx-auto max-w-6xl px-4 py-6">
-    <div v-if="pending" class="text-sm text-neutral-500">読み込み中…</div>
+    <!-- 初回ロードだけ表示 -->
+    <div v-if="!pool && pending" class="text-sm text-neutral-500">
+      読み込み中…
+    </div>
 
-    <div v-else-if="error" class="text-sm text-red-500">
+    <div v-else-if="!pool && error" class="text-sm text-red-500">
       エラーが発生しました：{{ error.message }}
     </div>
 
+    <!-- pool が一度でも取得できたら、以降は常にこれ -->
     <ResourceDetailShell
       v-else
       title="ストレージプール詳細"
       subtitle="Storage Pool Information"
       :tabs="storagePoolTabs"
-      :context="pool!"
+      :context="poolContext"
       :actions="actions"
       @back="goBack"
       @action="handleAction"
     />
 
-    <!-- 編集モーダル -->
+    <!-- 編集モーダル（モーダル側に触らず、ページ側で初期値注入を保証） -->
     <MoStorageEdit
-      v-if="pool"
       :show="isEditOpen"
-      :data="pool"
+      :storage-data="editStorageData"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />
@@ -29,22 +32,25 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
+import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
 import { useRoute, useRouter } from "vue-router";
-import { STORAGE } from "~/utils/constants";
-import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
-import { useResourceDetail } from "~/composables/useResourceDetail";
 
-// Tabs
+import { STORAGE } from "~/utils/constants";
+import { createPolling } from "~/utils/polling";
+
+import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
+import MoStorageEdit from "~/components/MoStorageEdit.vue";
 import { storagePoolTabs } from "~/composables/detail/useStoragePoolTabs";
 
-// 編集モーダル
-import MoStorageEdit from "~/components/MoStorageEdit.vue";
+import { computed } from "vue";
+
+const poolContext = computed<Record<string, any> | undefined>(() => {
+  return pool.value ?? undefined;
+});
 
 const route = useRoute();
 const router = useRouter();
 
-// データ取得
 const {
   data: pool,
   pending,
@@ -55,6 +61,31 @@ const {
   route.params.id as string
 );
 
+// --- ポーリング設定 ---
+const polling = createPolling(async () => {
+  await refresh();
+});
+
+// lifecycle
+onMounted(() => {
+  polling.startPolling();
+});
+
+onUnmounted(() => {
+  polling.stopPolling();
+});
+
+// 編集モーダル開閉でポーリング制御（チカチカ/上書き防止）
+const isEditOpen = ref(false);
+
+watch(
+  () => isEditOpen.value,
+  (open) => {
+    if (open) polling.stopPolling();
+    else polling.startPolling();
+  }
+);
+
 // 戻る
 const goBack = () => {
   router.back();
@@ -63,11 +94,17 @@ const goBack = () => {
 // 操作メニュー（編集のみ）
 const actions = ref([{ label: "編集", value: "edit" }]);
 
-// 編集モーダル制御
-const isEditOpen = ref(false);
+// ★ モーダルに渡すデータ（ページ側で“変化”を作って初期化を確実にする）
+const editStorageData = ref<StoragePoolResponse | null>(null);
 
-const openEditModal = () => {
+const openEditModal = async () => {
   if (!pool.value) return;
+
+  // モーダル側が storageData の変化で初期化する実装でも確実に発火させる
+  editStorageData.value = null;
+  await nextTick();
+
+  editStorageData.value = pool.value;
   isEditOpen.value = true;
 };
 
@@ -78,21 +115,25 @@ const handleEditClose = () => {
 const handleEditSuccess = async () => {
   isEditOpen.value = false;
 
-  // VM詳細と同じ：成功トーストはモーダル側に任せる
-  if (typeof refresh === "function") {
-    try {
-      await refresh();
-    } catch (e) {
-      console.error("ストレージプール再取得に失敗しました", e);
-    }
+  // トースト不要：失敗時はログだけ
+  try {
+    await refresh();
+  } catch (e) {
+    console.error("StoragePool再取得に失敗しました", e);
+  }
+
+  // 次回の編集も確実に初期値が入るように同期しておく
+  if (pool.value) {
+    editStorageData.value = pool.value;
   }
 };
 
-// 操作ハンドラ
-const handleAction = (action: { label: string; value: string }) => {
+// アクション実行
+const handleAction = async (action: { label: string; value: string }) => {
+  if (!pool.value) return;
+
   if (action.value === "edit") {
-    openEditModal();
-    return;
+    await openEditModal();
   }
 };
 </script>

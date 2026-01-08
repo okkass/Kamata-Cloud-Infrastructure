@@ -15,14 +15,7 @@ post:
       content:
         application/json:
           schema:
-            type: object
-            properties:
-              refreshToken:
-                type: string
-                description: リフレッシュトークン
-              token:
-                type: string
-                description: 認証トークン
+            $ref: "../../components/schemas/auth/LoginResponse.yml"
     "400":
       description: リクエストエラー
       content:

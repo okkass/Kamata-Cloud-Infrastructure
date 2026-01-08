@@ -8,7 +8,7 @@ import type {
 import { validateUUID } from "@/utils/validate";
 import {
   createNetworkInterfaceSchema,
-  updateNetworkInterfaceSchema,
+  partialUpdateNetworkInterfaceSchema,
 } from "@/zodSchemas";
 import type { BulkRequest } from "@/types/BulkRequest";
 
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
   return bulkResource(
     body,
     createNetworkInterfaceSchema,
-    updateNetworkInterfaceSchema,
+    partialUpdateNetworkInterfaceSchema,
     service.create,
     service.update,
     service.delete,

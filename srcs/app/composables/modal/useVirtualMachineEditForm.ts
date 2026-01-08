@@ -164,12 +164,12 @@ export const useVirtualMachineEditForm = () => {
       collections: {
         storages: {
           endpoint: "", // bulk使用時は未使用
-          // Bulk送信先: /api/virtual-machines/{id}/storages/bulk
+          // Bulk送信先: /api/virtual-machines/${id}/storages/bulk
           bulkEndpoint: `virtual-machines/${id}/storages/bulk`,
           idKey: "id",
           newIdPrefix: "new-", // UI側で新規作成時に "new-xxx" というIDを振る必要があります
           fields: ["name", "size", "poolId", "type"],
-          bulkKeys: { create: "add", update: "patch", delete: "remove" },
+          bulkKeys: { add: "add", update: "patch", delete: "remove" },
         },
         networkInterfaces: {
           endpoint: "",
@@ -177,7 +177,7 @@ export const useVirtualMachineEditForm = () => {
           idKey: "id", // ネットワークIF自体がIDを持つ前提
           newIdPrefix: "new-",
           fields: ["subnetId"],
-          bulkKeys: { create: "add", update: "patch", delete: "remove" },
+          bulkKeys: { add: "add", update: "patch", delete: "remove" },
         },
         securityGroups: {
           endpoint: "",
@@ -185,7 +185,7 @@ export const useVirtualMachineEditForm = () => {
           idKey: "id",
           newIdPrefix: "new-",
           fields: [], // SGはIDの紐付けのみなのでフィールド監視は不要
-          bulkKeys: { create: "add", delete: "remove" },
+          bulkKeys: { add: "add", delete: "remove" },
           isAttachable: true,
         },
       },
@@ -237,10 +237,18 @@ export const useVirtualMachineEditForm = () => {
           JSON.stringify(editedData.value.storages)
         );
         editedData.value.storages = editedData.value.storages.map(
-          (storage: VmStorageForm) => ({
-            ...storage,
-            size: convertUnitToByte(storage.size, "GB"),
-          })
+          (storage: VmStorageForm) => {
+            // 新規追加 (idが "new-" で始まる) の場合のみバイト変換を行う
+            // 既存ストレージは変更不可(UI制御)かつPATCHでサイズ送信不要なため、
+            // GBのままにしておくことで originalData との一致を保ち、変更検知されないようにする
+            if (String(storage.id).startsWith("new-")) {
+              return {
+                ...storage,
+                size: convertUnitToByte(storage.size, "GB"),
+              };
+            }
+            return storage;
+          }
         );
       }
 
