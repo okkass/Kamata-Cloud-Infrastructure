@@ -68,12 +68,12 @@ export const createNetworkInterfaceSchema = z.object({
 });
 
 export const updateNetworkInterfaceSchema = z.object({
-  virtualMachineId: looseUuidSchema,
+  name: z.string(),
   subnetId: looseUuidSchema,
 });
 
 export const partialUpdateNetworkInterfaceSchema = z.object({
-  virtualMachineId: looseUuidSchema.optional(),
+  name: z.string().optional(),
   subnetId: looseUuidSchema.optional(),
 });
 
