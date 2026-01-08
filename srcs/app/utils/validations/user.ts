@@ -42,5 +42,15 @@ export const UserSchema = UserBaseSchema.extend({
 // --- ユーザー更新用スキーマ ---
 export const UserUpdateSchema = UserBaseSchema;
 
+// --- ユーザークライアント側更新用スキーマ ---
+export const UserClientUpdateSchema = z.object({
+  name: z.string().min(1, "アカウント名は必須です。"),
+  email: z.email("有効なメールアドレスを入力してください。"),
+  password: passwordSchema.optional(),
+});
+
+// --- 型エクスポート ---
+
 export type UserCreateInput = z.infer<typeof UserSchema>;
 export type UserUpdateInput = z.infer<typeof UserUpdateSchema>;
+export type UserClientUpdateInput = z.infer<typeof UserClientUpdateSchema>;
