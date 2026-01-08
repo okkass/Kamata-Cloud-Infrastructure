@@ -92,7 +92,7 @@ export function useSecurityGroupEditForm(props: Props) {
       collections: {
         rules: {
           endpoint: `security-groups/${data.id}/rules`,
-          bulkEndpoint: `security-groups/${data.id}/bulk`,
+          bulkEndpoint: `security-groups/${data.id}/rules/bulk`,
           idKey: "id",
           newIdPrefix: "new-",
           fields: [
