@@ -7,6 +7,7 @@ import type {
 import crypto from "crypto";
 
 import { VirtualMachineRepository } from "./VirtualMachineRepository";
+import UserRepository from "./UserRepository";
 
 let snapshots: Array<SnapshotResponse> | null = null;
 
@@ -17,6 +18,7 @@ const initSnapshots = (): Array<SnapshotResponse> => {
       name: "VM-01-snapshot",
       description: "First snapshot",
       createdAt: new Date().toISOString(),
+      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
       targetVirtualMachine: VirtualMachineRepository.getById(
         "fd8467e4-f334-4827-bf69-79d6434a176e"
       )!,
@@ -26,6 +28,7 @@ const initSnapshots = (): Array<SnapshotResponse> => {
       name: "VM-01-snapshot-2",
       description: "First snapshot",
       createdAt: new Date().toISOString(),
+      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
       targetVirtualMachine: VirtualMachineRepository.getById(
         "fd8467e4-f334-4827-bf69-79d6434a176e"
       )!,
@@ -35,6 +38,7 @@ const initSnapshots = (): Array<SnapshotResponse> => {
       name: "VM-02-snapshot",
       description: "First snapshot",
       createdAt: new Date().toISOString(),
+      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
       targetVirtualMachine: VirtualMachineRepository.getById(
         "fa7a4b5f-bd6a-42da-a1de-e12d26459377"
       )!,
@@ -65,6 +69,7 @@ const create = (
     name: request.name,
     description: request.description,
     createdAt: new Date().toISOString(),
+    owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
     targetVirtualMachine: vm,
   };
   list().push(newSnapshot);

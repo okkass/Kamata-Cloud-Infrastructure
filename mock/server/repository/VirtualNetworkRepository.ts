@@ -11,6 +11,7 @@ import type {
 } from "@app/shared/types";
 
 import crypto from "crypto";
+import UserRepository from "./UserRepository";
 
 let virtualNetworks: VirtualNetworkResponse[] | null = null;
 
@@ -21,6 +22,7 @@ const init = (): VirtualNetworkResponse[] => {
       name: "vnet-1",
       cidr: "10.0.0.0/16",
       createdAt: new Date().toISOString(),
+      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
       subnets: [
         {
           id: "4bb1712a-c3e1-4655-a0e4-1d3d2fb63631",
@@ -41,6 +43,7 @@ const init = (): VirtualNetworkResponse[] => {
       name: "vnet-2",
       cidr: "10.2.0.0/16",
       createdAt: new Date().toISOString(),
+      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
       subnets: [
         {
           id: "90bc1042-479c-4de2-a62e-78d205ad1c99",
@@ -78,6 +81,7 @@ const create = (
     name: request.name,
     cidr: request.cidr,
     createdAt: new Date().toISOString(),
+    owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
     subnets: request.initialSubnets.map((subnet) => ({
       id: crypto.randomUUID(),
       name: subnet.name,
