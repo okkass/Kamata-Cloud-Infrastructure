@@ -1,62 +1,56 @@
 <template>
-  <DashboardLayout
-    title="仮想ネットワーク"
-    :columns="columns"
-    :rows="rowsForTable"
-    rowKey="id"
-    :headerButtons="headerButtons"
-    @header-action="onHeaderAction"
-    @row-action="handleRowAction"
-  >
-    <template #cell-name="{ row }">
-      <NuxtLink
-        :to="`network/${encodeURIComponent(String(row.id))}`"
-        class="table-link"
-      >
-        {{ row.name }}
-      </NuxtLink>
-    </template>
+  <div>
+    <DashboardLayout
+      title="仮想ネットワーク"
+      :columns="columns"
+      :rows="rows"
+      rowKey="id"
+      :headerButtons="headerButtons"
+      @header-action="handleHeaderAction"
+      @row-action="onRowAction"
+    >
+      <template #cell-name="{ row }">
+        <NuxtLink
+          :to="`/network/${encodeURIComponent(String(row.id))}`"
+          class="table-link"
+        >
+          {{ row.name }}
+        </NuxtLink>
+      </template>
 
-    <template #cell-cidr="{ row }">
-      <span class="font-mono">{{ row.cidr }}</span>
-    </template>
+      <template #cell-cidr="{ row }">
+        <span class="font-mono">{{ row.cidr }}</span>
+      </template>
 
-    <template #cell-subnets="{ row }">
-      <span class="font-mono">{{ row.subnets }}</span>
-    </template>
+      <template #cell-subnets="{ row }">
+        <span class="font-mono">{{ row.subnets }}</span>
+      </template>
 
-    <template #cell-createdAtText="{ row }">
-      <span>{{ row.createdAtText }}</span>
-    </template>
+      <template #cell-createdAtText="{ row }">
+        <span>{{ row.createdAtText }}</span>
+      </template>
 
-    <template #row-actions="{ row }">
-      <NuxtLink
-        v-if="row"
-        :to="`/network/${encodeURIComponent(String(row.id))}`"
-        class="action-item first:border-t-0"
-      >
-        詳細
-      </NuxtLink>
-
-      <button
-        type="button"
-        class="action-item"
-        @click.stop.prevent="row && handleRowAction({ action: 'edit', row })"
-      >
-        編集
-      </button>
-
-      <button
-        type="button"
-        class="action-item action-item-danger"
-        :disabled="isDeleting && targetForDeletion?.id === row?.id"
-        @click.stop.prevent="row && handleRowAction({ action: 'delete', row })"
-      >
-        削除
-      </button>
-    </template>
-  </DashboardLayout>
-
+      <template #row-actions="{ row }">
+        <NuxtLink v-if="row" :to="`/network/${row.id}`" class="action-item">
+          詳細
+        </NuxtLink>
+        <button
+          type="button"
+          class="action-item"
+          @click.stop.prevent="row && onRowAction({ action: 'edit', row })"
+        >
+          編集
+        </button>
+        <button
+          type="button"
+          class="action-item action-item-danger"
+          @click.stop.prevent="row && onRowAction({ action: 'delete', row })"
+        >
+          削除
+        </button>
+      </template>
+    </DashboardLayout>
+  </div>
   <MoVirtualNetworkCreate
     :show="activeModal === `create-${NETWORK.name}`"
     @close="cancelAction"
@@ -65,7 +59,7 @@
 
   <MoVirtualNetworkEdit
     :show="activeModal === `edit-${NETWORK.name}`"
-    :data="targetForEditing?.dto"
+    :data="targetForEditing?.originalData"
     @close="cancelAction"
     @success="handleSuccess"
   />
@@ -80,23 +74,33 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from "vue";
-import DashboardLayout from "@/components/DashboardLayout.vue";
-import MoVirtualNetworkCreate from "@/components/MoVirtualNetworkCreate.vue";
-import MoVirtualNetworkEdit from "@/components/MoVirtualNetworkEdit.vue";
-import MoDeleteConfirm from "@/components/MoDeleteConfirm.vue";
-import { useVNetManagement } from "~/composables/dashboard/useVNetManagement";
-import { usePageActions } from "@/composables/usePageActions";
 import { NETWORK } from "@/utils/constants";
-import type { VnetRow } from "~/composables/dashboard/useVNetManagement";
+import {
+  useVNetManagement,
+  type VnetRow,
+} from "~/composables/dashboard/useVNetManagement";
+import { usePageActions } from "@/composables/usePageActions";
+import DashboardLayout from "~/components/DashboardLayout.vue";
+import MoVirtualNetworkCreate from "~/components/MoVirtualNetworkCreate.vue";
+import MoVirtualNetworkEdit from "~/components/MoVirtualNetworkEdit.vue";
+import MoDeleteConfirm from "~/components/MoDeleteConfirm.vue";
 
-const { columns, headerButtons, rows, refresh } = useVNetManagement();
-const rowsForTable = computed(() => rows.value ?? []);
+/* データ取得 */
+const {
+  columns,
+  headerButtons,
+  rows,
+  refresh,
+  CREATE_VNET_ACTION,
+  EDIT_VNET_ACTION,
+  DELETE_VNET_ACTION,
+} = useVNetManagement();
 
-/* ここでジェネリクスに VNetRow を渡す */
+/* ページ共通アクション */
 const {
   activeModal,
   openModal,
+  closeModal,
   targetForDeletion,
   targetForEditing,
   isDeleting,
@@ -110,9 +114,15 @@ const {
   refresh,
 });
 
-const onHeaderAction = (action: string) => {
+/* ヘッダーボタンのハンドラー */
+function handleHeaderAction(action: string) {
   if (action === "add") {
-    openModal?.(`create-${NETWORK.name}`);
+    openModal(CREATE_VNET_ACTION);
   }
-};
+}
+
+/* 行アクションのハンドラー */
+function onRowAction({ action, row }: { action: string; row: VnetRow }) {
+  handleRowAction({ action, row });
+}
 </script>
