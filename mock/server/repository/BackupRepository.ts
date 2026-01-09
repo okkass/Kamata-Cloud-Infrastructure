@@ -8,6 +8,7 @@ import type {
 import { VirtualMachineRepository } from "./VirtualMachineRepository";
 
 import crypto from "crypto";
+import UserRepository from "./UserRepository";
 
 let backups: Array<BackupResponse> | null = null;
 
@@ -18,6 +19,7 @@ const initBackups = (): Array<BackupResponse> => {
       name: "Vm-01-backup-2024-05-01",
       description: "バックアップ元のVM現存パターン",
       createdAt: new Date().toISOString(),
+      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
       size: 100 * 1024 * 1024 * 1024, // 100 GB
       targetStorage: VirtualMachineRepository.listStoragesByVirtualMachineId(
         "fd8467e4-f334-4827-bf69-79d6434a176e"
@@ -31,6 +33,7 @@ const initBackups = (): Array<BackupResponse> => {
       name: "Vm-00-No-Machine-backup-2024-05-01",
       description: "バックアップ元のVMが削除済みパターン",
       createdAt: new Date().toISOString(),
+      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
       size: 80 * 1024 * 1024 * 1024, // 80 GB
     },
   ];
@@ -61,6 +64,7 @@ const create = (backup: BackupCreateRequest): BackupResponse | undefined => {
     name: backup.name,
     description: backup.description,
     createdAt: new Date().toISOString(),
+    owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
     size: storage.size,
     targetStorage: storage,
     targetVirtualMachine: VirtualMachineRepository.getById(
