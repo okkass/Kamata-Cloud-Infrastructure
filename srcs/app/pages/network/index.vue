@@ -50,7 +50,7 @@
         </button>
       </template>
     </DashboardLayout>
-
+  </div>
   <MoVirtualNetworkCreate
     :show="activeModal === `create-${NETWORK.name}`"
     @close="cancelAction"
