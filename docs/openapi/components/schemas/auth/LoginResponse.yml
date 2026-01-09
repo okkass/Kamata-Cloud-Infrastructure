@@ -1,0 +1,12 @@
+type: object
+description: ログインレスポンスオブジェクト
+properties:
+  refreshToken:
+    type: string
+    description: リフレッシュトークン
+  token:
+    type: string
+    description: アクセストークン
+required:
+  - refreshToken
+  - token

@@ -1,28 +1,11 @@
-import { z } from "zod";
-import { getNodeById } from "../../../services/nodeService";
+import { getResource } from "@/utils/serviceResultHandler";
+import { getPermissionFromEvent } from "@/utils/permission";
+import { getNodeService } from "@/service/NodeService";
 
-export default defineEventHandler(async (event) => {
-  const paramsSchema = z.uuid();
-  const res = paramsSchema.safeParse(event.context.params?.id);
+export default defineEventHandler((event) => {
+  const permission = getPermissionFromEvent(event);
+  const service = getNodeService(permission);
+  const { id } = event.context.params as { id: string };
 
-  if (!res.success) {
-    event.node.res.statusCode = 400;
-    return {
-      type: "Invalid request",
-      detail: z.treeifyError(res.error).errors.join(", "),
-      status: 400,
-    };
-  }
-
-  const nodeId = res.data;
-  const node = getNodeById(nodeId);
-  if (!node) {
-    event.node.res.statusCode = 404;
-    return {
-      type: "Not Found",
-      detail: "Node not found",
-      status: 404,
-    };
-  }
-  return node;
+  return getResource(id, service.getById);
 });

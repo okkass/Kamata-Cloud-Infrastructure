@@ -1,0 +1,31 @@
+post:
+  summary: ユーザのトークンリフレッシュ
+  description: リフレッシュトークンを使用して新しい認証トークンを取得します。
+  tags:
+    - Auth
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../components/schemas/auth/RefreshRequest.yml"
+  responses:
+    "200":
+      description: トークンリフレッシュ成功
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/auth/LoginResponse.yml"
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+  security: []

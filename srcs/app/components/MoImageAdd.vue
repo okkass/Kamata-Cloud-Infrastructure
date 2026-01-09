@@ -1,6 +1,6 @@
 <template>
-  <BaseModal :show="show" title="イメージ追加" @close="$emit('close')">
-    <form @submit.prevent="submitForm" class="modal-space">
+  <BaseModal :show="show" title="イメージ追加" @close="handleClose">
+    <form id="image-add-form" @submit.prevent="onSubmit" class="modal-space">
       <FormInput
         label="イメージ名"
         name="image-name-add"
@@ -24,6 +24,7 @@
         :error="nodesError"
         :error-message="errors.nodeId"
         v-model="nodeId"
+        v-bind="nodeIdAttrs"
       >
       </FormSelect>
 
@@ -48,14 +49,13 @@
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="submitForm"
-          class="btn btn-primary"
-          :disabled="isCreating"
-        >
-          {{ isCreating ? "追加中..." : "追加" }}
-        </button>
+        <UiSubmitButton
+          :disabled="isCreating || !isValid"
+          :loading="isCreating"
+          label="イメージを追加"
+          form="image-add-form"
+          type="submit"
+        />
       </div>
     </template>
   </BaseModal>
@@ -86,13 +86,16 @@ const {
   file,
   // ★ ノード関連
   nodeId,
+  nodeIdAttrs,
   nodes,
   nodesPending,
   nodesError,
 
+  isValid,
   isCreating,
-  onFormSubmit
+  onFormSubmit,
+  makeHandleClose,
 } = useImageAddForm();
-
-const submitForm = onFormSubmit(emit);
+const onSubmit = onFormSubmit(emit);
+const handleClose = makeHandleClose(emit);
 </script>

@@ -64,42 +64,25 @@ export const getNodeStatusDisplay = (status: string) => {
 
 /**
  * VMに接続された全ストレージの合計容量を計算し、GB単位で返します。
- * @param {AttachedStorageDTO[] | undefined} storages - VMのストレージ情報の配列。未定義や空配列も安全に扱います。
+ * @param {StorageResponse[] | undefined} storages - VMのストレージ情報の配列。未定義や空配列も安全に扱います。
  * @returns {number} 合計ストレージ容量（GB）。
  */
-export const calculateTotalStorage = (
-  storages?: AttachedStorageDTO[]
-): number => {
+export const calculateTotalStorage = (storages?: StorageResponse[]): number => {
   if (!storages || storages.length === 0) {
     return 0;
   }
-  const totalBytes = storages.reduce(
-    (sum, s) => sum + (s.storage?.size ?? 0),
-    0
-  );
+  const totalBytes = storages.reduce((sum, s) => sum + (s.size ?? 0), 0);
   return convertByteToUnit(totalBytes, "GB");
 };
 
 /**
  * VMオブジェクトからスペック情報（CPUコア数とメモリ）を整形した文字列を生成します。
- * 'instanceType' を持つパターンとカスタムスペックを持つパターンの両方に対応します。
- * @param {VirtualMachineDTO} vm - 仮想マシンデータオブジェクト。
+ * @param {VirtualMachineResponse} vm - 仮想マシンデータオブジェクト。
  * @returns {string} 「4 cores / 8 GB」のようなフォーマットされた文字列、または「-」。
  */
-export const formatVmSpec = (vm: VirtualMachineDTO): string => {
-  let cores: number | undefined;
-  let memorySize: number | undefined;
-
-  // 型ガードを使い、VMのパターンに応じて適切なプロパティから値を取得
-  if ("instanceType" in vm && vm.instanceType) {
-    // パターンA: 定義済みのインスタンスタイプを持つVM
-    cores = vm.instanceType.cpuCore;
-    memorySize = vm.instanceType.memorySize;
-  } else {
-    // パターンB: CPUとメモリをカスタム指定したVM
-    cores = vm.cpuCore;
-    memorySize = vm.memorySize;
-  }
+export const formatVmSpec = (vm: VirtualMachineResponse): string => {
+  const cores = vm.cpuCore;
+  const memorySize = vm.memorySize;
 
   // 最終的な文字列をフォーマット
   if (cores === undefined || memorySize === undefined) {

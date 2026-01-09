@@ -1,7 +1,14 @@
 type: object
 description: 物理ノード更新リクエストオブジェクト(PUT)
-allOf:
-  - $ref: "./NodeUpdatable.yml"
+properties:
+  name:
+    type: string
+    description: 物理ノードの名前
+    example: node-01
+  isAdmin:
+    type: boolean
+    description: 物理ノードが管理ノードかどうかを示すフラグ
+    example: true
 required:
   - name
   - isAdmin

@@ -51,30 +51,26 @@
       </template>
     </DashboardLayout>
 
-    <!-- 仮想ネットワーク作成モーダル -->
-    <MoVirtualNetworkCreate
-      :show="activeModal === CREATE_VNET_ACTION"
-      @close="cancelAction"
-      @success="handleSuccess"
-    />
+  <MoVirtualNetworkCreate
+    :show="activeModal === `create-${NETWORK.name}`"
+    @close="cancelAction"
+    @success="handleSuccess"
+  />
 
-    <!-- 仮想ネットワーク編集モーダル -->
-    <MoVirtualNetworkEdit
-      :show="activeModal === EDIT_VNET_ACTION"
-      :networkData="targetForEditing?.originalData"
-      @close="cancelAction"
-      @success="handleSuccess"
-    />
+  <MoVirtualNetworkEdit
+    :show="activeModal === `edit-${NETWORK.name}`"
+    :data="targetForEditing?.originalData"
+    @close="cancelAction"
+    @success="handleSuccess"
+  />
 
-    <!-- 削除確認モーダル -->
-    <MoDeleteConfirm
-      :show="activeModal === DELETE_VNET_ACTION"
-      :message="`本当に仮想ネットワーク「${targetForDeletion?.name}」を削除しますか？`"
-      :is-loading="isDeleting"
-      @close="cancelAction"
-      @confirm="handleDelete"
-    />
-  </div>
+  <MoDeleteConfirm
+    :show="activeModal === `delete-${NETWORK.name}`"
+    :is-loading="isDeleting"
+    :message="`本当に「${targetForDeletion?.name ?? ''}」を削除しますか？`"
+    @close="cancelAction"
+    @confirm="handleDelete"
+  />
 </template>
 
 <script setup lang="ts">

@@ -22,6 +22,9 @@ properties:
     type: string
     format: date-time
     description: 仮想マシンが作成された日時
+  owner:
+    description: 仮想マシンの所有者情報
+    $ref: "../user/UserResponse.yml"
   securityGroups:
     type: array
     items:
@@ -63,9 +66,10 @@ required:
   - name
   - status
   - createdAt
+  - owner
   - securityGroups
-  - attachedStorages
+  - storages
   - node
-  - attachedNics
+  - networkInterfaces
   - cpuCore
   - memorySize

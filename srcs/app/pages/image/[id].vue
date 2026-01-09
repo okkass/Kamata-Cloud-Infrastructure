@@ -24,7 +24,7 @@
     <!-- 編集モーダル（モーダル側に触らず、ページ側で初期値注入を保証） -->
     <MoImageEdit
       :show="isEditOpen"
-      :image-data="editImageData"
+      :data="editImageData"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />

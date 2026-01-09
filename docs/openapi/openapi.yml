@@ -1,13 +1,18 @@
 openapi: "3.0.3"
+servers:
+  - url: "localhost:3030"
+    description: "Local Server"
 info:
   title: "KCI API"
   description: "KCI API documentation"
-  version: "0.47.0"
+  version: "0.48.0"
 paths:
-  /api/login:
-    $ref: "paths/auth/login.yml"
-  /api/login/web:
-    $ref: "paths/auth/login_web.yml"
+  /api/auth/login:
+    $ref: "paths/auth/auth_login.yml"
+  /api/auth/logout:
+    $ref: "paths/auth/auth_logout.yml"
+  /api/auth/refresh:
+    $ref: "paths/auth/auth_refresh.yml"
   /api/images:
     $ref: "paths/image/images.yml"
   /api/images/{imageId}:
@@ -34,8 +39,8 @@ paths:
     $ref: "paths/security-group/security-groups_{groupId}_rules.yml"
   /api/security-groups/{groupId}/rules/bulk:
     $ref: "paths/security-group/security-groups_{groupId}_rules_bulk.yml"
-  /api/security/groups{groupId}/rules/{ruleId}:
-    $ref: "paths/security-group/security_groups{groupId}_rules_{ruleId}.yml"
+  /api/security-groups/{groupId}/rules/{ruleId}:
+    $ref: "paths/security-group/security-groups_{groupId}_rules_{ruleId}.yml"
   /api/storage-pools:
     $ref: "paths/storage-pool/storage-pools.yml"
   /api/storage-pools/node/{nodeId}:

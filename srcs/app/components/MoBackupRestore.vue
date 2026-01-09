@@ -26,21 +26,21 @@
                 >バックアップ名</span
               >
               <span class="font-medium text-gray-900">{{
-                backupData?.name || "-"
+                data?.name || "-"
               }}</span>
             </div>
 
             <div>
               <span class="block text-xs text-gray-500 mb-1">作成日時</span>
               <span class="text-gray-900">{{
-                formatDateTime(backupData?.createdAt)
+                formatDateTime(data?.createdAt)
               }}</span>
             </div>
 
             <div class="sm:col-span-2">
               <span class="block text-xs text-gray-500 mb-1">ID</span>
               <span class="text-xs text-gray-400 font-mono break-all">{{
-                backupData?.id || "-"
+                data?.id || "-"
               }}</span>
             </div>
           </div>
@@ -49,14 +49,13 @@
 
       <template #footer>
         <div class="modal-footer flex justify-end gap-2">
-          <button
-            type="button"
+          <UiSubmitButton
+            :btn-variant="'btn-danger'"
+            label="バックアップから復元"
             @click="openConfirm"
-            class="btn btn-danger"
-            :disabled="isRestoring || !backupData?.id"
-          >
-            {{ isRestoring ? "復元中..." : "復元を実行" }}
-          </button>
+            :disabled="isRestoring"
+            :loading="isRestoring"
+          />
         </div>
       </template>
     </BaseModal>
@@ -81,7 +80,7 @@ import ConfirmationModal from "~/components/ConfirmationModal.vue";
 // Props & Emits
 const props = defineProps({
   show: { type: Boolean, required: true },
-  backupData: { type: Object as PropType<any>, default: null },
+  data: { type: Object as PropType<any>, default: null },
 });
 
 const emit = defineEmits(["close", "success"]);
@@ -98,12 +97,9 @@ const openConfirm = () => {
 
 const onConfirmed = async () => {
   showConfirm.value = false;
-  if (!props.backupData?.id) return;
+  if (!props.data?.id) return;
 
-  const success = await executeRestoreApi(
-    props.backupData.id,
-    props.backupData.name
-  );
+  const success = await executeRestoreApi(props.data.id, props.data.name);
 
   if (success) {
     emit("success");

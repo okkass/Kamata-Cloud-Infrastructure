@@ -4,13 +4,13 @@ import { useToast } from "~/composables/useToast";
 export const useLargeFileUpload = () => {
   const isUploading = ref(false);
   const progress = ref(0);
-  
+
   // useToastから必要な関数を取得
   const { addToast, updateToast, removeToast } = useToast();
-  
+
   // トーストIDを保持する変数
   let toastId: string | null = null;
-  
+
   // XHRオブジェクト
   let xhr: XMLHttpRequest | null = null;
 
@@ -18,6 +18,7 @@ export const useLargeFileUpload = () => {
    * ファイルアップロードを実行する
    */
   const uploadFile = (url: string, formData: FormData): Promise<any> => {
+    const runtimeconfig = useRuntimeConfig();
     return new Promise((resolve, reject) => {
       if (isUploading.value) return;
 
@@ -45,7 +46,7 @@ export const useLargeFileUpload = () => {
           if (toastId) {
             updateToast(toastId, {
               progress: percent,
-              message: `アップロード中... (${percent}%)`
+              message: `アップロード中... (${percent}%)`,
             });
           }
         }
@@ -54,7 +55,7 @@ export const useLargeFileUpload = () => {
       // --- 3. 完了時の処理 ---
       xhr.addEventListener("load", () => {
         isUploading.value = false;
-        
+
         if (xhr && xhr.status >= 200 && xhr.status < 300) {
           // ★ 成功トーストに更新
           if (toastId) {
@@ -102,15 +103,23 @@ export const useLargeFileUpload = () => {
         reject(error);
       };
 
-      xhr.addEventListener("error", () => handleError(new Error("Network error")));
+      xhr.addEventListener("error", () =>
+        handleError(new Error("Network error"))
+      );
       xhr.addEventListener("abort", () => handleError(new Error("Aborted")));
 
       // --- 5. 送信 ---
-      xhr.open("POST", url);
+      const baseUrl = runtimeconfig.public.apiBaseUrl || "";
+      const fullUrl = baseUrl
+        ? `${baseUrl.replace(/\/$/, "")}/api${
+            url.startsWith("/") ? url : `/${url}`
+          }`
+        : url;
+      xhr.open("POST", fullUrl);
       // 必要なら認証ヘッダーを追加
       // const token = useCookie('auth_token');
       // if (token.value) xhr.setRequestHeader("Authorization", `Bearer ${token.value}`);
-      
+
       xhr.send(formData);
     });
   };
@@ -123,7 +132,7 @@ export const useLargeFileUpload = () => {
       xhr.abort();
       xhr = null;
       isUploading.value = false;
-      
+
       // ★ キャンセル時はトーストを更新して消す
       if (toastId) {
         updateToast(toastId, {

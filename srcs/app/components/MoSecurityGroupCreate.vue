@@ -1,10 +1,10 @@
 <template>
-  <BaseModal
-    :show="show"
-    title="セキュリティグループ作成"
-    @close="$emit('close')"
-  >
-    <form @submit.prevent="submitForm" class="space-y-6">
+  <BaseModal :show="show" title="セキュリティグループ作成" @close="handleClose">
+    <form
+      id="security-group-create-form"
+      @submit.prevent="onSubmit"
+      class="space-y-6"
+    >
       <div class="space-y-4">
         <FormInput
           label="セキュリティグループ名"
@@ -28,35 +28,40 @@
         />
       </div>
 
-      <RuleTable
-        title="インバウンドルール"
-        :rules="inboundRules"
-        :errors="errors"
-        field-name-prefix="inboundRules"
-        @add-rule="addInboundRule"
-        @delete-rule="removeInboundRule"
-      />
+      <FormSection>
+        <div v-if="errors.inboundRules" class="text-sm text-red-600 px-1">
+          {{ errors.inboundRules }}
+        </div>
 
-      <RuleTable
-        title="アウトバウンドルール"
-        :rules="outboundRules"
-        :errors="errors"
-        field-name-prefix="outboundRules"
-        @add-rule="addOutboundRule"
-        @delete-rule="removeOutboundRule"
-      />
+        <RuleTable
+          title="インバウンドルール"
+          :rules="inboundRules"
+          :errors="errors"
+          field-name-prefix="inboundRules"
+          @add-rule="addInboundRule"
+          @delete-rule="removeInboundRule"
+        />
+
+        <RuleTable
+          title="アウトバウンドルール"
+          :rules="outboundRules"
+          :errors="errors"
+          field-name-prefix="outboundRules"
+          @add-rule="addOutboundRule"
+          @delete-rule="removeOutboundRule"
+        />
+      </FormSection>
     </form>
 
     <template #footer>
       <div class="modal-footer">
-        <button
-          type="button"
-          @click="submitForm"
-          class="btn btn-primary"
-          :disabled="isCreating"
-        >
-          {{ isCreating ? "作成中..." : "作成" }}
-        </button>
+        <UiSubmitButton
+          :disabled="isCreating || !isValid"
+          :loading="isCreating"
+          label="セキュリティグループを作成"
+          form="security-group-create-form"
+          type="submit"
+        />
       </div>
     </template>
   </BaseModal>
@@ -73,7 +78,10 @@ import FormInput from "~/components/Form/Input.vue";
 import FormTextarea from "~/components/Form/Textarea.vue";
 import RuleTable from "~/components/RuleTable.vue";
 
-defineProps({ show: { type: Boolean, required: true } });
+defineProps({
+  show: { type: Boolean, required: true },
+  group: { type: Object, required: false },
+});
 const emit = defineEmits(["close", "success"]);
 
 const {
@@ -90,11 +98,10 @@ const {
   addOutboundRule,
   removeOutboundRule,
   isCreating,
+  isValid,
   onFormSubmit,
+  makehandleClose,
 } = useSecurityGroupForm();
-
-const submitHandler = onFormSubmit(emit);
-const submitForm = () => {
-  submitHandler();
-};
+const handleClose = makehandleClose(emit);
+const onSubmit = onFormSubmit(emit);
 </script>
