@@ -7598,7 +7598,7 @@ export interface components {
              * @description スナップショットが作成された日時
              */
             createdAt: string;
-            /** @description 仮想マシンの所有者情報 */
+            /** @description スナップショットの所有者情報 */
             owner: components["schemas"]["UserResponse"];
             /** @description スナップショット取得元の仮想マシン */
             targetVirtualMachine: components["schemas"]["VirtualMachineResponse"];
@@ -7799,7 +7799,7 @@ export interface components {
              * @description 仮想ネットワークが作成された日時
              */
             createdAt: string;
-            /** @description 仮想マシンの所有者情報 */
+            /** @description 仮想ネットワークの所有者情報 */
             owner: components["schemas"]["UserResponse"];
             subnets: components["schemas"]["SubnetResponse"][];
         };
