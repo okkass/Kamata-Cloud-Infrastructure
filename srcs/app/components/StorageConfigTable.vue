@@ -63,8 +63,12 @@
                 label="保存先プール"
                 :name="`storage-pool-${index}`"
                 v-model="storage.poolId"
-                :options="storagePools"
-                :errorMessage="errors?.[index]?.poolId"
+                :options="poolDisplayOptions"
+                :option-label="(opt) => opt.displayName"
+                :option-value="(opt) => opt.id"
+                :columns="['プール名', '空き容量', '総容量', '使用率']"
+                grid-template-columns="2fr 1fr 1fr 1fr"
+                :error-message="errors?.[index]?.poolId"
                 placeholder="プールを選択"
                 placeholder-value=""
                 class="w-full"
@@ -72,12 +76,11 @@
                 :title="getPoolSelectTitle(storage.poolId)"
               >
                 <template #option="{ option }">
-                  <div class="flex justify-between items-center w-full">
-                    <span>{{ option.name }}</span>
-                    <span class="text-xs text-gray-500 ml-2">
-                      (空き: {{ getPoolAvailableSize(option.id) }} / 総:
-                      {{ getPoolTotalSize(option.id) }})
-                    </span>
+                  <div class="grid grid-cols-4 gap-3 w-full text-sm">
+                    <span class="font-medium">{{ option.displayName }}</span>
+                    <span class="text-gray-600">{{ option.available }}</span>
+                    <span class="text-gray-600">{{ option.total }}</span>
+                    <span class="text-gray-600">{{ option.usage }}%</span>
                   </div>
                 </template>
               </FormSelect>
@@ -134,6 +137,7 @@ import FormSelect from "~/components/Form/Select.vue";
 // 型定義は環境に合わせて適宜調整してください
 import type { VmStorageForm } from "~/composables/modal/useVirtualMachineEditForm";
 import { getStoragePoolInfo, getStoragePoolTitle } from "~/utils/storage";
+import { computed } from "vue";
 
 const props = defineProps<{
   storages: VmStorageForm[];
@@ -151,6 +155,22 @@ const isNewStorage = (storage: VmStorageForm) => {
 const isBackupStorage = (storage: VmStorageForm) => {
   return "type" in storage && (storage as any).type === "backup";
 };
+
+/**
+ * プール情報を表示用フォーマットに変換したオプション一覧
+ */
+const poolDisplayOptions = computed(() => {
+  return props.storagePools.map((pool) => {
+    const poolInfo = getStoragePoolInfo(pool);
+    return {
+      id: pool.id,
+      displayName: pool.name,
+      available: poolInfo.availableSizeFormatted,
+      total: poolInfo.totalSizeFormatted,
+      usage: poolInfo.usagePercent,
+    };
+  });
+});
 
 /**
  * 選択されたストレージプールの情報を取得
