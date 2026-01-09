@@ -58,7 +58,7 @@ export function useSnapshotManagement() {
     vmName: s.targetVirtualMachine?.name ?? "-",
     createdAtText: formatDateTime(s.createdAt),
     description: s.description,
-    ownerName: s.owner?.name ?? "",
+    ownerName: s.owner?.name ?? "-",
     originalData: s,
   });
 
