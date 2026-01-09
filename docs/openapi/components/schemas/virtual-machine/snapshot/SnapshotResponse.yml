@@ -17,7 +17,7 @@ properties:
     description: スナップショットが作成された日時
   owner:
     description: 仮想マシンの所有者情報
-    $ref: "../user/UserResponse.yml"
+    $ref: "../../user/UserResponse.yml"
   targetVirtualMachine:
     $ref: "../VirtualMachineResponse.yml"
     description: スナップショット取得元の仮想マシン
