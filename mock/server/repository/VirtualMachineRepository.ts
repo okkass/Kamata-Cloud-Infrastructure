@@ -19,7 +19,7 @@ import { NodeRepository } from "./NodeRepository";
 import { StoragePoolRepository } from "./StoragePoolRepository";
 import { ImageRepository } from "./ImageRepository";
 import { InstanceTypeRepository } from "./InstanceTypeRepository";
-import { UserRepository } from "./UserRepository";
+import UserRepository from "./UserRepository";
 import crypto from "crypto";
 import VirtualNetworkRepository from "./VirtualNetworkRepository";
 
