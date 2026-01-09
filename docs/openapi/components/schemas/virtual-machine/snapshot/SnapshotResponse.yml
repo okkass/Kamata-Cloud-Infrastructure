@@ -16,7 +16,7 @@ properties:
     format: date-time
     description: スナップショットが作成された日時
   owner:
-    description: 仮想マシンの所有者情報
+    description: スナップショットの所有者情報
     $ref: "../../user/UserResponse.yml"
   targetVirtualMachine:
     $ref: "../VirtualMachineResponse.yml"
