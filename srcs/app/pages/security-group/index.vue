@@ -37,6 +37,47 @@
         </button>
       </template>
     </DashboardLayout>
+
+    <div v-if="isManager" class="mt-8">
+      <DashboardLayout
+        title="全ユーザーのセキュリティグループ"
+        :columns="columns"
+        :rows="allGroups || []"
+        rowKey="id"
+        :headerButtons="[]"
+      >
+        <template #cell-name="{ row }">
+          <div v-if="row">
+            <NuxtLink :to="`/security-group/${row.id}`" class="table-link">
+              {{ row.name }}
+            </NuxtLink>
+          </div>
+        </template>
+        <template #row-actions="{ row }">
+          <NuxtLink :to="`/security-group/${row?.id}`" class="action-item">
+            詳細
+          </NuxtLink>
+          <button
+            type="button"
+            class="action-item"
+            @click.stop.prevent="
+              row && handleRowAction({ action: 'edit', row })
+            "
+          >
+            編集
+          </button>
+          <button
+            type="button"
+            class="action-item action-item-danger"
+            @click.stop.prevent="
+              row && handleRowAction({ action: 'delete', row })
+            "
+          >
+            削除
+          </button>
+        </template>
+      </DashboardLayout>
+    </div>
   </div>
 
   <MoDeleteConfirm
@@ -66,8 +107,15 @@ import { usePageActions } from "~/composables/usePageActions";
 import type { UiEnhancedSecurityGroup } from "~/composables/dashboard/useSecurityManagement";
 
 // ★ 1. データ関連のComposableを呼び出し
-const { columns, groups, headerButtons, refreshGroupList } =
-  useSecurityDashboard();
+const {
+  columns,
+  groups,
+  allGroups,
+  isManager,
+  headerButtons,
+  refreshGroupList,
+  refreshAllGroupList,
+} = useSecurityDashboard();
 
 // ★ 2. アクション関連のComposableを呼び出し
 const {
@@ -84,7 +132,12 @@ const {
 } = usePageActions<UiEnhancedSecurityGroup>({
   resourceName: SECURITY_GROUP.name,
   resourceLabel: SECURITY_GROUP.label,
-  refresh: refreshGroupList, // refresh関数を渡す
+  refresh: async () => {
+    await refreshGroupList();
+    if (isManager.value && refreshAllGroupList) {
+      await refreshAllGroupList();
+    }
+  }, // refresh関数を渡す
 });
 
 const addSecurityGroupAction = `create-${SECURITY_GROUP.name}`;
