@@ -232,10 +232,10 @@ const {
 } = useVMachineManagement();
 
 // チェックボックス列を追加
-const columns = ref([
+const columns = [
   { key: "checkbox", label: "", align: "center" as const },
   ...originalColumns,
-]);
+];
 
 // チェックボックス選択状態
 const selectedVmIds = ref<string[]>([]);
@@ -503,15 +503,18 @@ const executeBulkVmAction = async (actionValue: string) => {
   let successCount = 0;
   let failCount = 0;
 
-  for (const vmId of vmIds) {
-    try {
-      await callVmAction(vmId, actionValue);
+  const results = await Promise.allSettled(
+    vmIds.map((vmId) => callVmAction(vmId, actionValue))
+  );
+  results.forEach((result, index) => {
+    const vmId = vmIds[index];
+    if (result.status === "fulfilled") {
       successCount++;
-    } catch (e) {
-      console.error("VM操作失敗:", vmId, actionValue, e);
+    } else {
+      console.error("VM操作失敗:", vmId, actionValue, result.reason);
       failCount++;
     }
-  }
+  });
 
   // 結果を通知
   if (successCount > 0) {
