@@ -9,6 +9,7 @@
       :pending="templatesPending"
       :error="templatesError"
       placeholder="使用しない（カスタム構成）"
+      placeholder-value=""
       v-model="templateId"
       v-bind="templateIdAttrs"
     />
@@ -47,6 +48,7 @@
       :pending="backupsPending"
       :error="backupsError"
       placeholder="使用しない"
+      placeholder-value=""
       v-model="backupId"
       v-bind="backupIdAttrs"
     />
@@ -55,7 +57,7 @@
       <StorageConfigTable
         :storages="displayStorages"
         :storage-pools="storagePools ?? []"
-        :errors="errors"
+        :errors="errors.storages"
         field-name-prefix="storages"
         @add="addStorage"
         @remove="removeStorage"

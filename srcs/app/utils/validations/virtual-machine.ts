@@ -48,7 +48,7 @@ export const vmConfigSchema = z.object({
       id: z.any().optional(),
       name: z.string().min(1, "名前は必須です。"),
       size: z.number().min(1, "1GB以上の正の数値を指定してください。"),
-      poolId: z.string().min(1, "プールを選択してください。"),
+      poolId: z.string("プールを選択してください。").min(1, "プールを選択してください。"),
       type: z.string().optional(),
     })
   ),
@@ -60,7 +60,9 @@ export type VmConfigInput = z.infer<typeof vmConfigSchema>;
  * OS/ミドルウェアタブのスキーマ（Create 用）
  */
 export const vmOsMiddlewareCreateSchema = z.object({
-  osImageId: z.string().min(1, "OSイメージを選択してください。"),
+  osImageId: z
+    .string("OSイメージを選択してください。")
+    .min(1, "OSイメージを選択してください。"),
   middlewareId: z.string().optional().nullable(),
 });
 
