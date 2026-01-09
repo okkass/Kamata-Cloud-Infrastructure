@@ -278,8 +278,8 @@ const hasMultipleColumns = computed(
 
 const hasOptions = computed(
   () =>
-    !props.options ||
-    (props.options.length === 0 && props.placeholderValue === undefined)
+    !!props.options &&
+    (props.options.length > 0 || props.placeholderValue !== undefined)
 );
 
 const selectedLabel = computed(() => {
