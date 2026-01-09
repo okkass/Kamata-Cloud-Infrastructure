@@ -17,6 +17,9 @@ properties:
     type: string
     format: date-time
     description: 仮想ネットワークが作成された日時
+  owner:
+    description: 仮想ネットワークの所有者情報
+    $ref: "../user/UserResponse.yml"
   subnets:
     type: array
     items:
@@ -27,3 +30,4 @@ required:
   - cidr
   - subnets
   - createdAt
+  - owner
