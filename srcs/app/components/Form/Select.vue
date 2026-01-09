@@ -26,9 +26,13 @@
           {{ placeholder }}
         </option>
 
-        <option v-for="option in options" :key="option.id" :value="option.id">
+        <option
+          v-for="option in options"
+          :key="getOptionValue(option)"
+          :value="getOptionValue(option)"
+        >
           <slot name="option" :option="option">
-            {{ option.name }}
+            {{ getOptionLabel(option) }}
           </slot>
         </option>
       </select>
@@ -63,8 +67,8 @@ defineOptions({
  * ==============================================================================
  */
 interface Option {
-  id: string;
-  name: string;
+  id?: string | number;
+  name?: string;
   [key: string]: any; // その他の任意のプロパティを許容
 }
 
@@ -73,28 +77,6 @@ interface Option {
  * Props (親からの受け取りデータ)
  * ==============================================================================
  */
-defineProps<{
-  /** ラベルとして表示するテキスト。指定されなければラベルは表示されない。 */
-  label?: string;
-  /** select要素のid属性とlabel要素のfor属性を結びつけるための名前。 */
-  name: string;
-  /** データをローディング中かどうか。trueの場合、ローディング表示になる。 */
-  pending?: boolean;
-  /** データの取得に失敗したかどうか。trueの場合、エラー表示になる。 */
-  error?: any;
-  /** selectの選択肢となるオブジェクトの配列。 */
-  options?: Option[];
-  /** プレースホルダー（未選択時の項目）のテキスト。 */
-  placeholder?: string;
-  /** バリデーションエラーメッセージ。存在する場合にエラー表示を行う。 */
-  errorMessage?: string;
-  /** 必須項目かどうか。アスタリスク表示やプレースホルダーの無効化に使用。 */
-  required?: boolean;
-  /** プレースホルダーに対応する値。v-modelの初期値と一致させる必要がある。 */
-  placeholderValue?: string | null | undefined;
-  /** select要素を無効化するかどうか。 */
-  disabled?: boolean;
-}>();
 
 /**
  * ==============================================================================
@@ -115,4 +97,50 @@ const allAttrs = computed(() => {
     ...fallthroughAttrs,
   };
 });
+
+// propsを取得
+const props = defineProps<{
+  /** ラベルとして表示するテキスト。指定されなければラベルは表示されない。 */
+  label?: string;
+  /** select要素のid属性とlabel要素のfor属性を結びつけるための名前。 */
+  name: string;
+  /** データをローディング中かどうか。trueの場合、ローディング表示になる。 */
+  pending?: boolean;
+  /** データの取得に失敗したかどうか。trueの場合、エラー表示になる。 */
+  error?: any;
+  /** selectの選択肢となるオブジェクトの配列。 */
+  options?: Option[];
+  /** プレースホルダー（未選択時の項目）のテキスト。 */
+  placeholder?: string;
+  /** バリデーションエラーメッセージ。存在する場合にエラー表示を行う。 */
+  errorMessage?: string;
+  /** 必須項目かどうか。アスタリスク表示やプレースホルダーの無効化に使用。 */
+  required?: boolean;
+  /** プレースホルダーに対応する値。v-modelの初期値と一致させる必要がある。 */
+  placeholderValue?: string | null | undefined;
+  /** select要素を無効化するかどうか。 */
+  disabled?: boolean;
+  /** オプションから表示用ラベルを取得するプロパティ名またはコールバック。デフォルトは'name' */
+  optionLabel?: string | ((option: any) => string);
+  /** オプションから値を取得するプロパティ名またはコールバック。デフォルトは'id' */
+  optionValue?: string | ((option: any) => string | number);
+}>();
+
+// オプションラベルの取得
+const getOptionLabel = (option: Option): string => {
+  if (!props.optionLabel) return String(option.name ?? option.id ?? "");
+  if (typeof props.optionLabel === "function") {
+    return props.optionLabel(option);
+  }
+  return String(option[props.optionLabel] ?? option.name ?? option.id ?? "");
+};
+
+// オプション値の取得
+const getOptionValue = (option: Option): string | number => {
+  if (!props.optionValue) return option.id ?? "";
+  if (typeof props.optionValue === "function") {
+    return props.optionValue(option);
+  }
+  return option[props.optionValue] ?? option.id ?? "";
+};
 </script>

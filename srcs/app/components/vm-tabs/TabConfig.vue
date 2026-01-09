@@ -131,7 +131,7 @@ const { errors, defineField, values, meta } = useForm<ConfigFormValues>({
     memorySize: 2048,
     backupId: null,
     storages: [
-      { id: 1, name: "root-disk", size: 20, poolId: "", type: "manual" },
+      { id: "new-0", name: "root-disk", size: 20, poolId: "", type: "manual" },
     ],
   },
 });
@@ -205,7 +205,7 @@ let nextStorageId = 100;
 // 手動ストレージ追加
 const addStorage = () => {
   pushStorage({
-    id: nextStorageId++,
+    id: `new-${nextStorageId++}`,
     name: `disk-${storageFields.value.length + 1}`,
     size: 20,
     poolId: "",
@@ -246,25 +246,11 @@ watch(backupId, (newBackupId) => {
 /**
  * テンプレート選択時の表示ラベル生成
  */
-const getTemplateLabel = (tpl: InstanceTypeResponse) => {
+const getTemplateLabel = (tpl: any): string => {
   // tpl.memorySize が unknown と判定されるのを防ぐため as number を付与
   const memMB = convertByteToUnit(tpl.memorySize as number, "MB");
   return `${tpl.name} (${tpl.cpuCore}vCPU, ${memMB}MB)`;
 };
-
-/**
- * テンプレート選択時に CPU/メモリ を自動設定
- */
-watch(templateId, (newId) => {
-  if (newId && templates.value) {
-    const tpl = templates.value.find((t) => t.id === newId);
-    if (tpl) {
-      // APIから取得した値が unknown の可能性があるため as number でキャスト
-      cpuCore.value = tpl.cpuCore as number;
-      memorySize.value = convertByteToUnit(tpl.memorySize as number, "MB");
-    }
-  }
-});
 
 /**
  * ==============================================================================

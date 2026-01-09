@@ -105,7 +105,6 @@
 </template>
 
 <script setup lang="ts">
-import type { PropType } from "vue";
 // 共通コンポーネントのインポート
 import FormInput from "~/components/Form/Input.vue";
 import FormSelect from "~/components/Form/Select.vue";
