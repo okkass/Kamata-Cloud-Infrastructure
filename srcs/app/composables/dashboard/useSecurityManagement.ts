@@ -46,10 +46,9 @@ export function useSecurityDashboard() {
     useResourceList<SecurityGroupResponse>(SECURITY_GROUP.name);
 
   const { data: rawAllGroups, refresh: refreshAllGroupList } =
-    useResourceList<SecurityGroupResponse>(
-      SECURITY_GROUP.name,
-      computed(() => (isManager.value ? { scope: "all" } : undefined))
-    );
+    useResourceList<SecurityGroupResponse>(SECURITY_GROUP.name, {
+      scope: computed(() => (isManager.value ? "all" : undefined)),
+    });
 
   // --- UI Configuration ---
   const columns: TableColumn[] = [
