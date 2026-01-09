@@ -10,9 +10,24 @@
       :error="templatesError"
       placeholder="使用しない（カスタム構成）"
       placeholder-value=""
+      :columns="['テンプレート名', 'CPU', 'メモリ']"
+      grid-template-columns="2fr 1fr 1fr"
       v-model="templateId"
       v-bind="templateIdAttrs"
-    />
+    >
+      <template #option="{ option }">
+        <div
+          class="grid gap-4 items-center w-full"
+          style="grid-template-columns: 2fr 1fr 1fr"
+        >
+          <div>{{ option.name }}</div>
+          <div class="text-sm text-gray-600">{{ option.cpuCore }}vCPU</div>
+          <div class="text-sm text-gray-600">
+            {{ convertByteToUnit(option.memorySize, "MB") }}MB
+          </div>
+        </div>
+      </template>
+    </FormSelect>
 
     <FormSection title="CPU / メモリ" v-if="!values.templateId">
       <div class="grid grid-cols-2 gap-4">
@@ -78,7 +93,6 @@ import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
 import { vmConfigSchema } from "~/utils/validations/virtual-machine";
-import { convertByteToUnit } from "~/utils/format";
 import FormInput from "~/components/Form/Input.vue";
 import FormSelect from "~/components/Form/Select.vue";
 import FormSection from "~/components/Form/Section.vue";

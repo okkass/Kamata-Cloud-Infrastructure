@@ -11,14 +11,30 @@
         name="sg-select"
         v-model="selectedSgId"
         :options="availableOptions"
+        option-label="name"
+        option-value="id"
         placeholder="セキュリティグループを追加..."
+        :columns="['名前', '説明']"
+        grid-template-columns="2fr 1fr"
         class="flex-1"
-      />
+      >
+        <template #option="{ option }">
+          <div
+            class="grid gap-4 items-center w-full"
+            style="grid-template-columns: 2fr 1fr"
+          >
+            <div>{{ option.name }}</div>
+            <div class="text-sm text-gray-500">
+              {{ option.description || "-" }}
+            </div>
+          </div>
+        </template>
+      </FormSelect>
       <button
         type="button"
         @click="addSecurityGroup"
         :disabled="!selectedSgId"
-        class="px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+        class="flex-shrink-0 px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors whitespace-nowrap"
       >
         追加
       </button>

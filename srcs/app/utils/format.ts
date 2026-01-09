@@ -68,3 +68,45 @@ export const toSize = (bytes: number): string => {
 
   return `${formatter.format(value)} ${unit}`;
 };
+
+/**
+ * バイトを最適な単位でフォーマット（詳細版：単位と数値を個別に取得可能）
+ * @param bytes - バイト数
+ * @returns オブジェクト { value: 数値, unit: 単位 } または null
+ */
+export const formatBytes = (
+  bytes: number | undefined
+): { value: number; unit: string } | null => {
+  if (!bytes || !Number.isFinite(bytes)) {
+    return null;
+  }
+
+  if (bytes === 0) {
+    return { value: 0, unit: "B" };
+  }
+
+  const units = ["B", "KB", "MB", "GB", "TB"];
+  const index = Math.floor(Math.log(bytes) / Math.log(1024));
+  const clampedIndex = Math.min(index, units.length - 1);
+  const unit = units[clampedIndex]!;
+  const value = bytes / Math.pow(1024, clampedIndex);
+
+  return { value: Math.round(value * 10) / 10, unit };
+};
+
+/**
+ * イメージサイズをGB/MB単位でフォーマット
+ * @param sizeBytes - バイト数
+ * @returns フォーマットされたサイズ文字列 (例: "2.5GB", "512MB")
+ */
+export const formatImageSize = (sizeBytes: number | undefined): string => {
+  if (!sizeBytes) return "-";
+  if (sizeBytes >= 1024 * 1024 * 1024) {
+    return `${(sizeBytes / (1024 * 1024 * 1024)).toFixed(1)}GB`;
+  }
+  if (sizeBytes >= 1024 * 1024) {
+    return `${(sizeBytes / (1024 * 1024)).toFixed(1)}MB`;
+  }
+  return `${sizeBytes}B`;
+};
+

@@ -1,42 +1,54 @@
 <template>
-  <div class="p-4 bg-gray-50 rounded-lg border border-gray-100 relative group">
+  <div class="p-4 bg-white rounded-lg section-form relative group">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pr-8">
       <FormSelect
         label="仮想ネットワーク (VPC)"
         :name="`vpc-id-${index}`"
         v-model="modelValue.vpcId"
         :options="networks"
-        :errorMessage="errors?.vpcId"
+        :error-message="errors?.vpcId"
         placeholder="VPCを選択してください"
         :required="true"
         :pending="networksPending"
         :error="networksError"
+        :columns="['VPC名', 'CIDR']"
+        grid-template-columns="2fr 1fr"
         @update:model-value="handleVpcChange"
       >
         <template #option="{ option }">
-          {{ option.name }}
-          <span v-if="option.cidr" class="text-gray-500"
-            >({{ option.cidr }})</span
+          <div
+            class="grid gap-4 items-center w-full"
+            style="grid-template-columns: 2fr 1fr"
           >
+            <div>{{ option.name }}</div>
+            <div class="text-gray-500 text-sm">{{ option.cidr }}</div>
+          </div>
         </template>
       </FormSelect>
 
       <FormSelect
         label="サブネット"
         :name="`subnet-ids-${index}`"
-        :model-value="modelValue.subnetIds"
+        :model-value="modelValue.subnetIds?.[0]"
         :options="availableSubnets"
-        :errorMessage="errors?.subnetIds"
+        :error-message="errors?.subnetIds"
         placeholder="サブネットを選択してください"
         :required="true"
         :pending="networksPending"
         :disabled="!modelValue.vpcId"
         :error="networksError"
+        :columns="['サブネット名', 'CIDR']"
+        grid-template-columns="2fr 1fr"
         @update:model-value="handleSubnetChange"
       >
         <template #option="{ option }">
-          {{ option.name }}
-          <span class="text-gray-500">({{ option.cidr }})</span>
+          <div
+            class="grid gap-4 items-center w-full"
+            style="grid-template-columns: 2fr 1fr"
+          >
+            <div>{{ option.name }}</div>
+            <div class="text-gray-500 text-sm">{{ option.cidr }}</div>
+          </div>
         </template>
       </FormSelect>
     </div>
