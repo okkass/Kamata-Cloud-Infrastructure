@@ -74,7 +74,7 @@ export function useVmWizardForm() {
         : "",
       securityGroupIds: securityGroupIds,
       imageId: osData?.osImageId ?? "",
-      middlewareId: osData?.middlewareId ?? undefined,
+      middlewareId: osData?.middlewareId || null,
       storages:
         configData?.storages.map((storage: any) => ({
           name: storage.name,
