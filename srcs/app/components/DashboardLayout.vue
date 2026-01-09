@@ -146,9 +146,7 @@ onBeforeUnmount(() => {
             <th
               v-if="hasRowActions"
               class="table-header-cell text-center sticky right-0 z-10 bg-gray-100"
-            >
-              操作
-            </th>
+            ></th>
           </tr>
         </thead>
         <tbody>
