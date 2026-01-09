@@ -152,6 +152,24 @@ defineOptions({
 
 /**
  * ==============================================================================
+ * Constants - マジックナンバーを一元管理
+ * ==============================================================================
+ */
+const DROPDOWN_CONFIG = {
+  /** ドロップダウンとトリガーボタン間のパディング(px) */
+  PADDING: 8,
+  /** ドロップダウンの最小高さ(px) */
+  MIN_HEIGHT: 150,
+  /** ドロップダウンの最大高さ(px) */
+  MAX_HEIGHT: 560,
+  /** ドロップダウンの最小幅(px) */
+  MIN_WIDTH: 400,
+  /** z-index層の優先度 */
+  Z_INDEX: 9999,
+} as const;
+
+/**
+ * ==============================================================================
  * Type Definitions
  * ==============================================================================
  */
@@ -293,8 +311,8 @@ const chevronClasses = computed(() => [
 ]);
 
 const dropdownContainerClasses = computed(() => [
-  "fixed bg-white border border-gray-300 rounded-lg shadow-lg",
-  "z-[9999] overflow-y-auto",
+  `fixed bg-white border border-gray-300 rounded-lg shadow-lg`,
+  `z-[${DROPDOWN_CONFIG.Z_INDEX}] overflow-y-auto`,
 ]);
 
 const dropdownHeaderClasses = computed(() => [
@@ -306,7 +324,7 @@ const dropdownPositionStyle = computed(() => ({
   top: `${dropdownPosition.value.top}px`,
   left: `${dropdownPosition.value.left}px`,
   width: `${dropdownPosition.value.width}px`,
-  minWidth: "400px", // 最小幅を確保
+  minWidth: `${DROPDOWN_CONFIG.MIN_WIDTH}px`,
   maxHeight: `${dropdownPosition.value.maxHeight}px`,
 }));
 
@@ -327,9 +345,6 @@ const calculateDropdownPosition = (): void => {
   const rect = buttonRef.value.getBoundingClientRect();
   const viewportHeight = window.innerHeight;
   const viewportWidth = window.innerWidth;
-  const padding = 8; // ドロップダウンとボタンの間隔
-  const dropdownMinHeight = 150; // 最小高さ
-  const dropdownMaxHeight = 560; // 最大高さ（より大きなスペース確保）
 
   // 下方向の空き
   const spaceBelow = viewportHeight - rect.bottom;
@@ -341,46 +356,57 @@ const calculateDropdownPosition = (): void => {
   let positionAbove = false;
 
   // 下に十分な空きがある場合は下に開く
-  if (spaceBelow >= dropdownMaxHeight + padding) {
+  if (spaceBelow >= DROPDOWN_CONFIG.MAX_HEIGHT + DROPDOWN_CONFIG.PADDING) {
     // ビューポート相対座標で計算（scrollY を加算しない）
-    top = rect.bottom + padding;
-    maxHeight = dropdownMaxHeight;
+    top = rect.bottom + DROPDOWN_CONFIG.PADDING;
+    maxHeight = DROPDOWN_CONFIG.MAX_HEIGHT;
     positionAbove = false;
   }
   // 上に十分な空きがある場合は上に開く
-  else if (spaceAbove >= dropdownMaxHeight + padding) {
-    top = rect.top - dropdownMaxHeight - padding;
-    maxHeight = dropdownMaxHeight;
+  else if (spaceAbove >= DROPDOWN_CONFIG.MAX_HEIGHT + DROPDOWN_CONFIG.PADDING) {
+    top = rect.top - DROPDOWN_CONFIG.MAX_HEIGHT - DROPDOWN_CONFIG.PADDING;
+    maxHeight = DROPDOWN_CONFIG.MAX_HEIGHT;
     positionAbove = true;
   }
   // 下に開く（制限あり）
   else if (spaceBelow >= spaceAbove) {
-    top = rect.bottom + padding;
-    maxHeight = Math.max(dropdownMinHeight, spaceBelow - padding);
+    top = rect.bottom + DROPDOWN_CONFIG.PADDING;
+    maxHeight = Math.max(
+      DROPDOWN_CONFIG.MIN_HEIGHT,
+      spaceBelow - DROPDOWN_CONFIG.PADDING
+    );
     positionAbove = false;
   }
   // 上に開く（制限あり）
   else {
-    const availableHeight = Math.max(dropdownMinHeight, spaceAbove - padding);
-    top = rect.top - availableHeight - padding;
+    const availableHeight = Math.max(
+      DROPDOWN_CONFIG.MIN_HEIGHT,
+      spaceAbove - DROPDOWN_CONFIG.PADDING
+    );
+    top = rect.top - availableHeight - DROPDOWN_CONFIG.PADDING;
     maxHeight = availableHeight;
     positionAbove = true;
   }
 
   // 画面外にはみ出さないように左右を調整
-  const minDropdownWidth = 400; // 最小幅
-  let dropdownWidth = Math.max(rect.width, minDropdownWidth);
+  let dropdownWidth = Math.max(rect.width, DROPDOWN_CONFIG.MIN_WIDTH);
   let left = rect.left;
 
   // 画面右側からはみ出す場合、左寄せに調整
   if (left + dropdownWidth > viewportWidth) {
-    left = Math.max(padding, viewportWidth - dropdownWidth - padding);
+    left = Math.max(
+      DROPDOWN_CONFIG.PADDING,
+      viewportWidth - dropdownWidth - DROPDOWN_CONFIG.PADDING
+    );
   }
   // 画面左側からはみ出す場合、右寄せに調整
-  if (left < padding) {
-    left = padding;
+  if (left < DROPDOWN_CONFIG.PADDING) {
+    left = DROPDOWN_CONFIG.PADDING;
     // それでも画面に収まらない場合は幅を縮小
-    dropdownWidth = Math.max(minDropdownWidth, viewportWidth - padding * 2);
+    dropdownWidth = Math.max(
+      DROPDOWN_CONFIG.MIN_WIDTH,
+      viewportWidth - DROPDOWN_CONFIG.PADDING * 2
+    );
   }
 
   dropdownPosition.value = {
@@ -409,17 +435,16 @@ const adjustDropdownPositionForActualHeight = (): void => {
   }
 
   const rect = buttonRef.value.getBoundingClientRect();
-  const padding = 8;
 
   // ドロップダウンの実際の高さを取得
   const actualHeight = dropdownContentRef.value.offsetHeight;
 
   // 上に出ている場合、ボタン位置から実際の高さを引いた位置に調整
-  const newTop = rect.top - actualHeight - padding;
+  const newTop = rect.top - actualHeight - DROPDOWN_CONFIG.PADDING;
 
   // 画面上部から padding だけ離す
-  if (newTop < padding) {
-    dropdownPosition.value.top = padding;
+  if (newTop < DROPDOWN_CONFIG.PADDING) {
+    dropdownPosition.value.top = DROPDOWN_CONFIG.PADDING;
   } else {
     dropdownPosition.value.top = newTop;
   }

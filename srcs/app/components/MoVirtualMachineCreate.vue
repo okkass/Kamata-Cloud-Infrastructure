@@ -53,7 +53,7 @@
             v-else
             label="作成"
             :loading="isCreating"
-            :disabled="isValid"
+            :disabled="isInvalid"
             btnVariant="btn-submit"
             @click="onFinalSubmit"
           />
@@ -95,7 +95,7 @@ const {
   nextTab,
   handleFinalSubmit,
   isCreating,
-  isValid,
+  isInvalid,
   reset,
 } = useVmWizardForm();
 

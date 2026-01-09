@@ -97,16 +97,20 @@ export const formatBytes = (
 /**
  * イメージサイズをGB/MB単位でフォーマット
  * @param sizeBytes - バイト数
- * @returns フォーマットされたサイズ文字列 (例: "2.5GB", "512MB")
+ * @returns フォーマットされたサイズ文字列 (例: "2.5GB", "512.3MB")
  */
 export const formatImageSize = (sizeBytes: number | undefined): string => {
-  if (!sizeBytes) return "-";
-  if (sizeBytes >= 1024 * 1024 * 1024) {
-    return `${(sizeBytes / (1024 * 1024 * 1024)).toFixed(1)}GB`;
+  const formatted = formatBytes(sizeBytes);
+  if (!formatted) {
+    return "—";
   }
-  if (sizeBytes >= 1024 * 1024) {
-    return `${(sizeBytes / (1024 * 1024)).toFixed(1)}MB`;
+  const { value, unit } = formatted;
+  if (unit === "GB" || unit === "TB") {
+    return `${value}${unit}`;
+  } else {
+    // MB未満の場合もMB単位で小数第1位まで表示
+    const sizeInMB = convertByteToUnit(sizeBytes!, "MB", false);
+    const roundedValue = Math.round(sizeInMB * 10) / 10;
+    return `${roundedValue}MB`;
   }
-  return `${sizeBytes}B`;
 };
-
