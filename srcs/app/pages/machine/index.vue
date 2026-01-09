@@ -134,7 +134,7 @@
       </div>
     </template>
 
-    <template #row-actions="{ row, emit }">
+    <template #row-actions="{ row }">
       <NuxtLink
         v-if="row"
         :to="`/machine/${row.id}`"
@@ -159,14 +159,13 @@
       </button>
     </template>
   </DashboardLayout>
-   
+
   <MoVirtualMachineCreate
     :show="activeModal === CREATE_VIRTUAL_MACHINE_ACTION"
     @close="cancelAction"
     @success="handleSuccess"
   />
 
-   
   <MoVirtualMachineEdit
     :show="activeModal === EDIT_VIRTUAL_MACHINE_ACTION"
     :vmData="targetForEditing ?? null"
@@ -174,7 +173,6 @@
     @success="handleSuccess"
   />
 
-   
   <MoDeleteConfirm
     :show="activeModal === DELETE_VIRTUAL_MACHINE_ACTION"
     :is-loading="isDeleting"
@@ -291,7 +289,6 @@ onUnmounted(() => {
 const {
   activeModal,
   openModal,
-  closeModal,
   targetForDeletion,
   targetForEditing,
   isDeleting,
@@ -369,6 +366,19 @@ const handleBulkAction = (action: string) => {
 const { addToast } = useToast();
 const apiClient = useApiClient();
 
+type VmActionResponse = {
+  message: string;
+  data: {
+    id: string;
+    status?: VirtualMachineResponse["status"];
+  };
+};
+
+const callVmAction = (vmId: string, actionValue: string) =>
+  apiClient.post<VmActionResponse>(`${MACHINE.name}/${vmId}/${actionValue}`, {
+    action: actionValue,
+  });
+
 // 確認ダイアログ
 const confirmDialog = ref<{
   show: boolean;
@@ -381,7 +391,7 @@ const confirmDialog = ref<{
   show: false,
   title: "",
   message: "",
-  confirmText: "",
+  confirmText: "確認",
   actionValue: "",
   vmId: "",
 });
@@ -469,18 +479,7 @@ const executeConfirmedVmAction = async () => {
 // 実際のVMアクション実行
 const executeVmAction = async (vmId: string, actionValue: string) => {
   try {
-    type VmActionResponse = {
-      message: string;
-      data: {
-        id: string;
-        status?: VirtualMachineResponse["status"];
-      };
-    };
-
-    const res = await apiClient.post<VmActionResponse>(
-      `${MACHINE.name}/${vmId}/${actionValue}`,
-      { action: actionValue }
-    );
+    const res = await callVmAction(vmId, actionValue);
 
     addToast({
       message: actionSuccessMessage[actionValue] ?? res.message,
@@ -506,18 +505,7 @@ const executeBulkVmAction = async (actionValue: string) => {
 
   for (const vmId of vmIds) {
     try {
-      type VmActionResponse = {
-        message: string;
-        data: {
-          id: string;
-          status?: VirtualMachineResponse["status"];
-        };
-      };
-
-      await apiClient.post<VmActionResponse>(
-        `${MACHINE.name}/${vmId}/${actionValue}`,
-        { action: actionValue }
-      );
+      await callVmAction(vmId, actionValue);
       successCount++;
     } catch (e) {
       console.error("VM操作失敗:", vmId, actionValue, e);
