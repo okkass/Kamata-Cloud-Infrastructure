@@ -22,9 +22,25 @@
       placeholder="ノードを選択してください"
       :required="true"
       :error-message="errors.nodeId"
+      :columns="['ノード名', '状態']"
+      grid-template-columns="2fr 1fr"
       v-model="nodeId"
       v-bind="nodeIdAttrs"
-    />
+    >
+      <template #option="{ option }">
+        <div
+          class="grid gap-4 items-center w-full"
+          style="grid-template-columns: 2fr 1fr"
+        >
+          <div>{{ option.name }}</div>
+          <div class="text-sm">
+            <span :class="getNodeStatusClass(option.status)">
+              {{ formatNodeStatus(option.status) }}
+            </span>
+          </div>
+        </div>
+      </template>
+    </FormSelect>
   </div>
 </template>
 
@@ -41,6 +57,7 @@ import { useResourceList } from "~/composables/useResourceList";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
+import { vmGeneralCreateSchema } from "~/utils/validations/virtual-machine";
 
 // 共通コンポーネントのインポート (自動インポートされない場合のために念のため記述)
 import FormInput from "~/components/Form/Input.vue";
@@ -54,14 +71,7 @@ import FormSelect from "~/components/Form/Select.vue";
  * Validation Schema
  * ==============================================================================
  */
-const validationSchema = toTypedSchema(
-  z.object({
-    name: z.string().min(1, "仮想マシン名は必須です。"),
-    nodeId: z
-      .string({ message: "ノードを選択してください。" })
-      .min(1, "ノードを選択してください。"),
-  })
-);
+const validationSchema = toTypedSchema(vmGeneralCreateSchema);
 
 /**
  * ==============================================================================
@@ -85,7 +95,45 @@ const [nodeId, nodeIdAttrs] = defineField("nodeId");
  * API Data Fetching
  * ==============================================================================
  */
-const { data: nodes, pending, error } = useResourceList<NodeResponse>("nodes");
+const {
+  data: nodes,
+  pending,
+  error,
+} = useResourceList<NodeResponse>(NODE.name);
+
+/**
+ * ==============================================================================
+ * Helper Functions
+ * ==============================================================================
+ */
+
+/**
+ * ノードのステータスをフォーマット
+ */
+const formatNodeStatus = (status: string | undefined): string => {
+  if (!status) return "不明";
+  const statusMap: Record<string, string> = {
+    running: "実行中",
+    stopped: "停止中",
+    error: "エラー",
+    updating: "更新中",
+  };
+  return statusMap[status] || status;
+};
+
+/**
+ * ノードのステータスに応じたCSSクラスを取得
+ */
+const getNodeStatusClass = (status: string | undefined): string => {
+  if (!status) return "text-gray-500";
+  const classMap: Record<string, string> = {
+    running: "text-green-600 font-semibold",
+    stopped: "text-red-600",
+    error: "text-red-700 font-semibold",
+    updating: "text-yellow-600",
+  };
+  return classMap[status] || "text-gray-600";
+};
 
 /**
  * ==============================================================================

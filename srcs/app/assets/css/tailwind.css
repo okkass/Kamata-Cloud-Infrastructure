@@ -56,7 +56,7 @@
   }
   /* 標準的な入力フォーム（input, select, textarea） */
   .form-input {
-    @apply w-full p-2.5 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+    @apply w-full p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
   }
   /* 無効化された入力フォーム */
   .form-input:disabled {

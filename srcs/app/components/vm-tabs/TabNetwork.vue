@@ -1,69 +1,43 @@
 <template>
-  <div class="modal-space space-y-4">
-    <FormSelect
-      label="仮想ネットワーク (VPC)"
-      name="vpcId"
-      :options="networks ?? []"
-      option-label="name"
-      option-value="id"
-      placeholder="VPCを選択してください"
-      :required="true"
-      :pending="networksPending"
-      :error="networksError"
-      :error-message="errors.vpcId"
-      v-model="vpcId"
-      v-bind="vpcIdAttrs"
-    >
-      <template #option="{ option }">
-        {{ option.name }}
-        <span v-if="option.cidr" class="text-gray-500"
-          >({{ option.cidr }})</span
-        >
-      </template>
-    </FormSelect>
+  <div class="modal-space space-y-6">
+    <!-- ネットワークインターフェース設定 -->
+    <NetworkInterfaceSection
+      :model-value="networkInterfaces"
+      :networks="networks ?? []"
+      :networks-pending="networksPending"
+      :networks-error="networksError"
+      :error="errors?.networkInterfaces"
+      :error-message="errors?.networkInterfaces"
+      @update:model-value="updateNetworkInterface($event.index, $event.value)"
+      @remove="removeNetworkInterface($event)"
+      @add="addNetworkInterface"
+    />
 
-    <FormSelect
-      label="サブネット"
-      name="subnetId"
-      :options="availableSubnets"
-      option-label="name"
-      option-value="id"
-      placeholder="サブネットを選択してください"
-      :required="true"
-      :pending="networksPending"
-      :disabled="!vpcId"
-      :error="networksError"
-      :error-message="errors.subnetId"
-      v-model="subnetId"
-      v-bind="subnetIdAttrs"
-    >
-      <template #option="{ option }">
-        {{ option.name }} <span class="text-gray-500">({{ option.cidr }})</span>
-      </template>
-    </FormSelect>
+    <hr class="border-gray-200" />
 
-    <FormSelect
-      label="セキュリティグループ"
-      name="securityGroupId"
-      :options="securityGroups ?? []"
-      option-label="name"
-      option-value="id"
-      placeholder="なし"
-      :pending="sgPending"
+    <!-- セキュリティグループ設定 -->
+    <SecurityGroupSection
+      :model-value="securityGroupIds"
+      :master-security-groups="securityGroupMaster ?? []"
       :error="sgError"
-      :error-message="errors.securityGroupId"
-      v-model="securityGroupId"
-      v-bind="securityGroupIdAttrs"
+      :error-message="errors?.securityGroupIds"
+      @add="addSecurityGroup"
+      @remove="removeSecurityGroup"
     />
 
-    <DropZone
-      label="公開鍵 (任意)"
-      name="keyPairFile"
-      accept=".pub"
-      :error="errors.keyPairFile"
-      v-model="keyPairFile"
-      v-bind="keyPairFileAttrs"
-    />
+    <hr class="border-gray-200" />
+
+    <!-- SSH公開鍵 -->
+    <section>
+      <DropZone
+        label="公開鍵 (任意)"
+        name="keyPairFile"
+        accept=".pub"
+        :error="errors.keyPairFile"
+        v-model="keyPairFile"
+        v-bind="keyPairFileAttrs"
+      />
+    </section>
   </div>
 </template>
 
@@ -73,62 +47,124 @@
  * ネットワーク/セキュリティ タブ (TabNetwork.vue)
  * ---------------------------------------------------------------------------------
  * 仮想マシン作成ウィザードのネットワーク設定を行うタブ。
- * VPC、サブネット、セキュリティグループ、SSH公開鍵の設定を行います。
+ * 複数のネットワークインターフェース、セキュリティグループ、SSH公開鍵の設定を行います。
  * =================================================================================
  */
-import { computed, watch } from "vue";
+import { computed } from "vue";
 import { useResourceList } from "~/composables/useResourceList";
-import { useForm } from "vee-validate";
+import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
 
-// 共通コンポーネント
-import FormSelect from "~/components/Form/Select.vue";
-// ★ InputFile を DropZone に変更
+// サブコンポーネント
+import NetworkInterfaceSection from "./NetworkInterfaceSection.vue";
+import SecurityGroupSection from "./SecurityGroupSection.vue";
 import DropZone from "~/components/Form/DropZone.vue";
+import { vmNetworkCreateSchema } from "~/utils/validations/virtual-machine";
 
-// 型定義 (自動インポート)
-// type VirtualNetworkResponse
-// type SecurityGroupResponse
+/**
+ * ==============================================================================
+ * Data Structures
+ * ==============================================================================
+ */
+
+interface SecurityGroupItem {
+  id: string;
+  name: string;
+}
 
 /**
  * ==============================================================================
  * Validation Schema
  * ==============================================================================
  */
-const validationSchema = toTypedSchema(
-  z.object({
-    vpcId: z
-      .string({ message: "VPCを選択してください。" })
-      .min(1, "VPCを選択してください。"),
-    subnetId: z
-      .string({ message: "サブネットを選択してください。" })
-      .min(1, "サブネットを選択してください。"),
-    securityGroupId: z.string().optional(),
-    // ファイルオブジェクト(File) または undefined
-    keyPairFile: z.any().optional().nullable(),
-  })
-);
+const validationSchema = toTypedSchema(vmNetworkCreateSchema);
 
 /**
  * ==============================================================================
  * Form State Management
  * ==============================================================================
  */
-const { errors, defineField, values, meta, setFieldValue } = useForm({
+const { errors, defineField, values, meta, validate } = useForm({
   validationSchema,
   initialValues: {
-    vpcId: undefined,
-    subnetId: undefined,
-    securityGroupId: undefined,
+    networkInterfaces: [{ vpcId: "", subnetIds: [] }],
+    securityGroupIds: [],
     keyPairFile: undefined,
   },
 });
 
-const [vpcId, vpcIdAttrs] = defineField("vpcId");
-const [subnetId, subnetIdAttrs] = defineField("subnetId");
-const [securityGroupId, securityGroupIdAttrs] = defineField("securityGroupId");
 const [keyPairFile, keyPairFileAttrs] = defineField("keyPairFile");
+
+/**
+ * ネットワークインターフェース配列を useFieldArray で管理
+ */
+const {
+  fields: networkInterfaceFields,
+  push: pushNetworkInterface,
+  remove: removeNetworkInterface,
+} = useFieldArray<NetworkInterface>("networkInterfaces");
+
+/**
+ * セキュリティグループ配列を useFieldArray で管理
+ */
+const {
+  fields: securityGroupFields,
+  push: pushSecurityGroup,
+  remove: removeSecurityGroup,
+} = useFieldArray<SecurityGroupItem>("securityGroupIds");
+
+/**
+ * テンプレート用: networkInterfaceFields を unwrap
+ */
+const networkInterfaces = computed(() => {
+  return networkInterfaceFields.value.map((field) =>
+    field && typeof field === "object" && "value" in field ? field.value : field
+  );
+});
+
+/**
+ * テンプレート用: securityGroupFields を unwrap
+ */
+const securityGroupIds = computed(() => {
+  return securityGroupFields.value.map((field) =>
+    field && typeof field === "object" && "value" in field ? field.value : field
+  );
+});
+
+/**
+ * ネットワークインターフェースを追加
+ */
+const addNetworkInterface = () => {
+  pushNetworkInterface({
+    vpcId: "",
+    subnetIds: [],
+  } as NetworkInterface);
+};
+
+/**
+ * セキュリティグループを追加
+ */
+const addSecurityGroup = (sg: SecurityGroupItem) => {
+  pushSecurityGroup(sg);
+};
+
+/**
+ * ネットワークインターフェースを更新
+ */
+const updateNetworkInterface = (index: number, updated: NetworkInterface) => {
+  const field = networkInterfaceFields.value[index];
+  if (field) {
+    field.value = updated;
+  }
+};
+
+/**
+ * バリデーションを実行（外部から呼び出し用）
+ */
+const validateForm = async () => {
+  const { valid } = await validate();
+  return valid;
+};
 
 /**
  * ==============================================================================
@@ -140,33 +176,11 @@ const {
   data: networks,
   pending: networksPending,
   error: networksError,
-} = useResourceList<VirtualNetworkResponse>("virtual-networks");
+} = useResourceList<VirtualNetworkResponse>(NETWORK.name);
 
 // 2. セキュリティグループ
-const {
-  data: securityGroups,
-  pending: sgPending,
-  error: sgError,
-} = useResourceList<SecurityGroupResponse>("security-groups");
-
-/**
- * ==============================================================================
- * UI Logic
- * ==============================================================================
- */
-
-// 選択されたVPCに紐づくサブネットリストを計算
-const availableSubnets = computed(() => {
-  if (!vpcId.value || !networks.value) return [];
-  const selectedVPC = networks.value.find((net) => net.id === vpcId.value);
-  return selectedVPC?.subnets || [];
-});
-
-// VPCが変更されたら、選択中のサブネットをリセットする
-watch(vpcId, () => {
-  setFieldValue("subnetId", undefined);
-});
-
+const { data: securityGroupMaster, error: sgError } =
+  useResourceList<SecurityGroupResponse>(SECURITY_GROUP.name);
 /**
  * ==============================================================================
  * Expose
@@ -175,6 +189,8 @@ watch(vpcId, () => {
 defineExpose({
   formData: values,
   isValid: meta,
+  errors,
+  validate: validateForm,
 });
 </script>
 

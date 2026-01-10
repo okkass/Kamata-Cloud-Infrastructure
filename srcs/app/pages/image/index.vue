@@ -61,7 +61,7 @@
     />
     <MoImageEdit
       :show="activeModal === EDIT_IMAGE_ACTION"
-      :image-data="targetForEditing?.originalData ?? undefined"
+      :data="targetForEditing?.originalData ?? undefined"
       @close="cancelAction"
       @success="handleSuccess"
     />

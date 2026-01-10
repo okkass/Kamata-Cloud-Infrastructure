@@ -25,8 +25,7 @@
         :error-message="errors.nodeId"
         v-model="nodeId"
         v-bind="nodeIdAttrs"
-      >
-      </FormSelect>
+      />
 
       <FormDropZone
         id="image-file-add"
@@ -70,7 +69,6 @@
 import { useImageAddForm } from "~/composables/modal/useImageAddForm";
 import FormInput from "~/components/Form/Input.vue";
 import FormDropZone from "~/components/Form/DropZone.vue";
-import FormSelect from "~/components/Form/Select.vue";
 
 // --- 親コンポーネントとの連携 ---
 defineProps({ show: { type: Boolean, required: true } });
