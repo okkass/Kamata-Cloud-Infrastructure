@@ -1,6 +1,7 @@
-import { ref, onMounted, onUnmounted } from "vue";
+import { ref, onMounted, onUnmounted, watch } from "vue";
 import { useToast } from "~/composables/useToast";
 import { useApiClient } from "~/composables/useResourceClient";
+import { useModal } from "~/composables/useModal";
 import {
   MACHINE,
   VM_ACTION_CONFIRMATION,
@@ -33,6 +34,7 @@ type AlertDialogState = {
 export function useVMBulkOperations() {
   const { addToast } = useToast();
   const apiClient = useApiClient();
+  const { activeModal } = useModal();
 
   // チェックボックス選択
   const selectedVmIds = ref<string[]>([]);
@@ -66,6 +68,13 @@ export function useVMBulkOperations() {
 
   onMounted(() => document.addEventListener("click", handleClickOutside));
   onUnmounted(() => document.removeEventListener("click", handleClickOutside));
+
+  // モーダルが開いたら操作メニューを閉じる
+  watch(activeModal, (newVal) => {
+    if (newVal !== null) {
+      closeActionMenu();
+    }
+  });
 
   // ダイアログ管理
   const confirmDialog = ref<ConfirmDialogState>({
