@@ -1,7 +1,11 @@
 <template>
   <div>
     <DashboardLayout
-      title="セキュリティグループ"
+      :title="
+        isManager
+          ? 'セキュリティグループ（全ユーザーの情報）'
+          : 'セキュリティグループ（自分のリソース）'
+      "
       :columns="columns"
       :rows="groups || []"
       rowKey="id"
@@ -37,47 +41,6 @@
         </button>
       </template>
     </DashboardLayout>
-
-    <div v-if="isManager" class="mt-8">
-      <DashboardLayout
-        title="全ユーザーのセキュリティグループ"
-        :columns="columns"
-        :rows="allGroups || []"
-        rowKey="id"
-        :headerButtons="[]"
-      >
-        <template #cell-name="{ row }">
-          <div v-if="row">
-            <NuxtLink :to="`/security-group/${row.id}`" class="table-link">
-              {{ row.name }}
-            </NuxtLink>
-          </div>
-        </template>
-        <template #row-actions="{ row }">
-          <NuxtLink :to="`/security-group/${row?.id}`" class="action-item">
-            詳細
-          </NuxtLink>
-          <button
-            type="button"
-            class="action-item"
-            @click.stop.prevent="
-              row && handleRowAction({ action: 'edit', row })
-            "
-          >
-            編集
-          </button>
-          <button
-            type="button"
-            class="action-item action-item-danger"
-            @click.stop.prevent="
-              row && handleRowAction({ action: 'delete', row })
-            "
-          >
-            削除
-          </button>
-        </template>
-      </DashboardLayout>
-    </div>
   </div>
 
   <MoDeleteConfirm
@@ -107,15 +70,8 @@ import { usePageActions } from "~/composables/usePageActions";
 import type { UiEnhancedSecurityGroup } from "~/composables/dashboard/useSecurityManagement";
 
 // ★ 1. データ関連のComposableを呼び出し
-const {
-  columns,
-  groups,
-  allGroups,
-  isManager,
-  headerButtons,
-  refreshGroupList,
-  refreshAllGroupList,
-} = useSecurityDashboard();
+const { columns, groups, isManager, headerButtons, refreshGroupList } =
+  useSecurityDashboard();
 
 // ★ 2. アクション関連のComposableを呼び出し
 const {
@@ -134,9 +90,6 @@ const {
   resourceLabel: SECURITY_GROUP.label,
   refresh: async () => {
     await refreshGroupList();
-    if (isManager.value && refreshAllGroupList) {
-      await refreshAllGroupList();
-    }
   }, // refresh関数を渡す
 });
 

@@ -38,21 +38,16 @@ export function useSecurityDashboard() {
   );
 
   // --- API Data ---
-  const { data: rawGroups, refresh: refreshGroupList } =
-    useResourceList<SecurityGroupResponse>(SECURITY_GROUP.name);
+  const queryOptions = computed(() => {
+    return isManager.value ? { scope: "all" } : undefined;
+  });
 
-  const { data: rawAllGroups, refresh: refreshAllGroupList } =
-    useResourceList<SecurityGroupResponse>(
-      SECURITY_GROUP.name,
-      computed(() => (isManager.value ? { scope: "all" } : undefined))
-    );
+  const { data: rawGroups, refresh: refreshGroupList } =
+    useResourceList<SecurityGroupResponse>(SECURITY_GROUP.name, queryOptions);
 
   // --- Polling ---
   const { startPolling, runOnce, stopPolling } = createPolling(async () => {
     await refreshGroupList();
-    if (isManager.value) {
-      await refreshAllGroupList();
-    }
   }, 3000);
 
   onMounted(() => {
@@ -97,19 +92,12 @@ export function useSecurityDashboard() {
     (rawGroups.value ?? []).map(formatGroup)
   );
 
-  const allGroups = computed<UiEnhancedSecurityGroup[]>(() => {
-    if (!isManager.value) return [];
-    return (rawAllGroups.value ?? []).map(formatGroup);
-  });
-
   return {
     columns,
     groups,
-    allGroups,
     isManager,
     headerButtons,
     refreshGroupList,
-    refreshAllGroupList,
     ADD_SECURITY_GROUP_ACTION: addSecurityGroupAction,
     EDIT_SECURITY_GROUP_ACTION: editSecurityGroupAction,
     DELETE_SECURITY_GROUP_ACTION: deleteSecurityGroupAction,
