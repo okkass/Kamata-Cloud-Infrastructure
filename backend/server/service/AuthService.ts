@@ -27,6 +27,7 @@ export const getAuthService = (): AuthService => {
       try {
         const user = await UserRepository.getByEmail(req.email);
         if (!user) {
+          console.error("User not found for email:", req.email);
           // ユーザが見つからないときはダミーのハッシュと比較して時間を稼ぐ
           await argon2.verify(DUMMY_PASSWORD_HASH, req.password);
           return {

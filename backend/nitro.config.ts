@@ -11,4 +11,8 @@ export default defineNitroConfig({
     "@@": resolve(__dirname, "./"),
   },
   errorHandler: "@/errorHandler",
+  runtimeConfig: {
+    pveBaseUrl: process.env.PVE_BASE_URL || "",
+    pveToken: process.env.PVE_TOKEN || "",
+  },
 });
