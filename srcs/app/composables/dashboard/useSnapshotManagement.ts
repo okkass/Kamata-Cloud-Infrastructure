@@ -22,15 +22,12 @@ export const deleteSnapshotAction = `delete-${SNAPSHOT.name}`;
 
 export function useSnapshotManagement() {
   // --- Permissions ---
-  const { isAdmin, isVirtualMachineAdmin } = useUserPermission();
+  const { fetchUser, isAdmin, isVirtualMachineAdmin } = useUserPermission();
+  void fetchUser();
 
-  // TODO: 本実装用のコード。テスト完了後に有効化する。
-  // const isManager = computed(
-  //   () => isAdmin.value === true || isVirtualMachineAdmin.value === true
-  // );
-
-  // TEST: テスト用に強制的にtrueにする
-  const isManager = computed(() => true);
+  const isManager = computed(
+    () => isAdmin.value === true || isVirtualMachineAdmin.value === true
+  );
 
   // --- API Data ---
   const { data, pending, error, refresh } = useResourceList<SnapshotResponse>(

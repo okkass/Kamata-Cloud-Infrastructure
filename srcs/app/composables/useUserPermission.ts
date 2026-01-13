@@ -11,40 +11,53 @@ export const useUserPermission = () => {
 
   // isAdminの状態を算出プロパティとして定義
   const isAdmin = computed(() => {
-    // ユーザー情報がなければfalse
-    if (!user.value) return false;
+    if (!user.value) {
+      return false;
+    }
 
     // isAdminプロパティがtrueかどうかを安全にチェック
     return user.value.isAdmin === true;
   });
 
   const isImageAdmin = computed(() => {
-    if (!user.value) return false;
+    if (!user.value) {
+      return false;
+    }
     return user.value.isImageAdmin === true;
   });
 
   const isInstanceTypeAdmin = computed(() => {
-    if (!user.value) return false;
+    if (!user.value) {
+      return false;
+    }
     return user.value.isInstanceTypeAdmin === true;
   });
 
   const isNetworkAdmin = computed(() => {
-    if (!user.value) return false;
+    if (!user.value) {
+      return false;
+    }
     return user.value.isNetworkAdmin === true;
   });
 
   const isNodeAdmin = computed(() => {
-    if (!user.value) return false;
+    if (!user.value) {
+      return false;
+    }
     return user.value.isNodeAdmin === true;
   });
 
   const isSecurityGroupAdmin = computed(() => {
-    if (!user.value) return false;
+    if (!user.value) {
+      return false;
+    }
     return user.value.isSecurityGroupAdmin === true;
   });
 
   const isVirtualMachineAdmin = computed(() => {
-    if (!user.value) return false;
+    if (!user.value) {
+      return false;
+    }
     return user.value.isVirtualMachineAdmin === true;
   });
 
