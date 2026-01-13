@@ -49,6 +49,11 @@
                   type="button"
                   class="absolute right-3 top-[38px] text-sm text-gray-600 hover:text-gray-900"
                   @click="showCurrentPassword = !showCurrentPassword"
+                  :aria-label="
+                    showCurrentPassword
+                      ? '現在のパスワードを隠す'
+                      : '現在のパスワードを表示'
+                  "
                 >
                   {{ showCurrentPassword ? "隠す" : "表示" }}
                 </button>
@@ -69,6 +74,11 @@
                   type="button"
                   class="absolute right-3 top-[38px] text-sm text-gray-600 hover:text-gray-900"
                   @click="showNewPassword = !showNewPassword"
+                  :aria-label="
+                    showNewPassword
+                      ? '新しいパスワードを隠す'
+                      : '新しいパスワードを表示'
+                  "
                 >
                   {{ showNewPassword ? "隠す" : "表示" }}
                 </button>
@@ -89,6 +99,11 @@
                   type="button"
                   class="absolute right-3 top-[38px] text-sm text-gray-600 hover:text-gray-900"
                   @click="showNewPasswordConfirm = !showNewPasswordConfirm"
+                  :aria-label="
+                    showNewPasswordConfirm
+                      ? 'パスワード確認を隠す'
+                      : 'パスワード確認を表示'
+                  "
                 >
                   {{ showNewPasswordConfirm ? "隠す" : "表示" }}
                 </button>
@@ -112,17 +127,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from "vue";
 import FormInput from "~/components/Form/Input.vue";
 import FormSection from "~/components/Form/Section.vue";
 import { useUserSettingsForm } from "~/composables/useUserSettingsForm";
+import { useResourceDetail } from "~/composables/useResourceDetail";
+import { useUserPermission } from "~/composables/useUserPermission";
+import { USER } from "@/utils/constants";
+import type { UserResponse } from "~~/shared/types";
 
-// ★ TODO: ログイン中ユーザー取得に差し替え
-const me = ref({
-  id: "me",
-  name: "Alice",
-  email: "sample@example.com",
+// ログイン中のユーザーIDを取得
+const { user: userPermission, fetchUser } = useUserPermission();
+const userId = ref<string>("");
+
+// マウント時にユーザー情報を取得
+onMounted(async () => {
+  await fetchUser();
+  if (userPermission.value?.id) {
+    userId.value = userPermission.value.id;
+  }
 });
+
+// ユーザー詳細情報を取得
+const { data: userData } = useResourceDetail<UserResponse>(USER.name, userId);
+
+// フォーム用の ref
+const me = computed(() => userData.value ?? null);
 
 // パスワード表示/非表示
 const showCurrentPassword = ref(false);

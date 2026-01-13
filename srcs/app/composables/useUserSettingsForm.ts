@@ -6,16 +6,26 @@ import {
   type UserClientUpdateInput,
 } from "~/utils/validations/user";
 import { useToast } from "~/composables/useToast";
-import type { PasswordChangeRequest } from "~~/shared/types";
-
-type MeUser = {
-  id: string;
-  name: string;
-  email: string;
-};
+import { extractErrorMessage } from "~/utils/errorHandler";
+import type { PasswordChangeRequest, UserResponse } from "~~/shared/types";
 
 type PropsLike = {
-  data: Ref<MeUser | null>;
+  data: Ref<UserResponse | null>;
+};
+
+/**
+ * パスワード変更の意図を判定
+ * 現在のパスワード、新しいパスワード、または確認用パスワードのいずれかが空でない場合、true を返す
+ */
+export const hasPasswordChangeIntent = (
+  cpValue: string | null | undefined,
+  npValue: string | null | undefined,
+  ncValue: string | null | undefined
+): boolean => {
+  const currentPwd = (cpValue ?? "").trim();
+  const newPwd = (npValue ?? "").trim();
+  const newPwdConfirm = (ncValue ?? "").trim();
+  return currentPwd !== "" || newPwd !== "" || newPwdConfirm !== "";
 };
 
 /**
@@ -25,13 +35,7 @@ const getErrorMessage = (
   error: unknown,
   defaultMessage: string = "更新に失敗しました。"
 ): string => {
-  if (typeof error === "object" && error !== null) {
-    const err = error as Record<string, unknown>;
-    return ((err.data as Record<string, unknown> | undefined)?.message ??
-      err.message ??
-      defaultMessage) as string;
-  }
-  return defaultMessage;
+  return extractErrorMessage(error, defaultMessage);
 };
 
 export const useUserSettingsForm = (props: PropsLike) => {
@@ -60,20 +64,6 @@ export const useUserSettingsForm = (props: PropsLike) => {
   const [newPassword, newPasswordAttrs] = defineField("newPassword");
   const [newPasswordConfirm, newPasswordConfirmAttrs] =
     defineField("newPasswordConfirm");
-
-  /**
-   * パスワード変更の意図を判定（スキーマの検証ロジックと統一）
-   */
-  const hasPasswordChangeIntent = (
-    cpValue: string | null | undefined,
-    npValue: string | null | undefined,
-    ncValue: string | null | undefined
-  ): boolean => {
-    const cp = (cpValue ?? "").trim();
-    const np = (npValue ?? "").trim();
-    const nc = (ncValue ?? "").trim();
-    return cp !== "" || np !== "" || nc !== "";
-  };
 
   const wantsPasswordChange = computed(() =>
     hasPasswordChangeIntent(
@@ -104,14 +94,11 @@ export const useUserSettingsForm = (props: PropsLike) => {
     return payload;
   };
 
-  // ★ TODO: 実APIに差し替え
   const updateMe = async (
     payload: ReturnType<typeof buildPayload>
   ): Promise<void> => {
-    // await $fetch("/api/me", { method: "PATCH", body: payload })
-    return;
+    await $fetch("/api/me", { method: "PATCH", body: payload });
   };
-
   const onFormSubmit = () =>
     handleSubmit(async () => {
       try {
