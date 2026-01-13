@@ -40,16 +40,7 @@
         :disabled="!targetVirtualMachineId || availableStorages.length === 0"
         :error-message="errors.targetStorageId"
         required
-      >
-        <template
-          #help
-          v-if="targetVirtualMachineId && availableStorages.length === 0"
-        >
-          <p class="text-sm text-gray-500 mt-1">
-            選択した仮想マシンにはバックアップ可能なストレージがありません。
-          </p>
-        </template>
-      </FormSelect>
+      />
     </form>
 
     <template #footer>

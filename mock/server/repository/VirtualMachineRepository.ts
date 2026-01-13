@@ -19,6 +19,7 @@ import { NodeRepository } from "./NodeRepository";
 import { StoragePoolRepository } from "./StoragePoolRepository";
 import { ImageRepository } from "./ImageRepository";
 import { InstanceTypeRepository } from "./InstanceTypeRepository";
+import UserRepository from "./UserRepository";
 import crypto from "crypto";
 import VirtualNetworkRepository from "./VirtualNetworkRepository";
 
@@ -32,6 +33,7 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
       status: "running",
       node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
       createdAt: new Date().toISOString(),
+      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
       securityGroups: [
         SecurityGroupRepository.getById(
           "81c210f6-8f8a-4554-9dd4-c58986827357"
@@ -83,6 +85,7 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
       status: "running",
       node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
       createdAt: new Date().toISOString(),
+      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
       securityGroups: [
         SecurityGroupRepository.getById(
           "81c210f6-8f8a-4554-9dd4-c58986827357"
@@ -216,6 +219,7 @@ const create = (
     status: "running",
     node: node,
     createdAt: new Date().toISOString(),
+    owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
     securityGroups: securityGroups as SecurityGroupResponse[],
     storages: storages as StorageResponse[],
     networkInterfaces: nics as NetworkInterfaceResponse[],

@@ -6934,6 +6934,86 @@ export interface components {
              */
             size: number;
         };
+        /** @description TOTP情報オブジェクト */
+        TotpInfo: {
+            /** @description TOTPシークレットキー */
+            secret: string;
+            /** @description TOTP URI（QRコード生成用） */
+            uri: string;
+        };
+        /** @description ユーザレスポンスオブジェクト */
+        UserResponse: {
+            /**
+             * Format: uuid
+             * @description ユーザを識別するための一意なID
+             */
+            id: string;
+            /** @description ユーザの名前 */
+            name: string;
+            /**
+             * Format: email
+             * @description ユーザのメールアドレス
+             */
+            email: string;
+            /**
+             * Format: date-time
+             * @description ユーザが作成された日時
+             */
+            createdAt: string;
+            /** @description ユーザが管理者かどうかを示すフラグ */
+            isAdmin: boolean;
+            /**
+             * Format: date-time
+             * @description ユーザが最後にログインした日時
+             */
+            lastLoginAt: string;
+            /**
+             * @description ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
+             * @example 32
+             */
+            maxCpuCore?: number | null;
+            /**
+             * @description ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
+             * @example 17179869184
+             */
+            maxMemorySize?: number | null;
+            /**
+             * @description ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
+             * @example 1099511627776
+             */
+            maxStorageSize?: number | null;
+            totpInfo?: components["schemas"]["TotpInfo"];
+            /**
+             * @description ユーザがイメージ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isImageAdmin: boolean;
+            /**
+             * @description ユーザがインスタンスタイプ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isInstanceTypeAdmin: boolean;
+            /**
+             * @description ユーザが物理ノード管理者かどうかを示すフラグ
+             * @example false
+             */
+            isNodeAdmin: boolean;
+            /**
+             * @description ユーザが仮想マシン管理者かどうかを示すフラグ
+             * @example false
+             */
+            isVirtualMachineAdmin: boolean;
+            /**
+             * @description ユーザがネットワーク管理者かどうかを示すフラグ
+             * @example false
+             */
+            isNetworkAdmin: boolean;
+            /**
+             * @description ユーザがセキュリティグループ管理者かどうかを示すフラグ
+             * @example false
+             */
+            isSecurityGroupAdmin: boolean;
+        };
         /** @description セキュリティルールレスポンスオブジェクト */
         SecurityRuleResponse: {
             /**
@@ -6985,6 +7065,8 @@ export interface components {
             name: string;
             /** @description セキュリティグループの説明 */
             description?: string;
+            /** @description セキュリティグループの所有者情報 */
+            owner: components["schemas"]["UserResponse"];
             rules: components["schemas"]["SecurityRuleResponse"][];
             /**
              * Format: date-time
@@ -7228,86 +7310,6 @@ export interface components {
         SummaryResponse: {
             clusterSummary: components["schemas"]["Summary"];
         };
-        /** @description TOTP情報オブジェクト */
-        TotpInfo: {
-            /** @description TOTPシークレットキー */
-            secret: string;
-            /** @description TOTP URI（QRコード生成用） */
-            uri: string;
-        };
-        /** @description ユーザレスポンスオブジェクト */
-        UserResponse: {
-            /**
-             * Format: uuid
-             * @description ユーザを識別するための一意なID
-             */
-            id: string;
-            /** @description ユーザの名前 */
-            name: string;
-            /**
-             * Format: email
-             * @description ユーザのメールアドレス
-             */
-            email: string;
-            /**
-             * Format: date-time
-             * @description ユーザが作成された日時
-             */
-            createdAt: string;
-            /** @description ユーザが管理者かどうかを示すフラグ */
-            isAdmin: boolean;
-            /**
-             * Format: date-time
-             * @description ユーザが最後にログインした日時
-             */
-            lastLoginAt: string;
-            /**
-             * @description ユーザが使用できる最大CPUコア数 制限がある場合だけ設定されます
-             * @example 32
-             */
-            maxCpuCore?: number | null;
-            /**
-             * @description ユーザが使用できる最大メモリサイズ（バイト単位） 制限がある場合だけ設定されます
-             * @example 17179869184
-             */
-            maxMemorySize?: number | null;
-            /**
-             * @description ユーザが使用できる最大ストレージサイズ（バイト単位） 制限がある場合だけ設定されます
-             * @example 1099511627776
-             */
-            maxStorageSize?: number | null;
-            totpInfo?: components["schemas"]["TotpInfo"];
-            /**
-             * @description ユーザがイメージ管理者かどうかを示すフラグ
-             * @example false
-             */
-            isImageAdmin: boolean;
-            /**
-             * @description ユーザがインスタンスタイプ管理者かどうかを示すフラグ
-             * @example false
-             */
-            isInstanceTypeAdmin: boolean;
-            /**
-             * @description ユーザが物理ノード管理者かどうかを示すフラグ
-             * @example false
-             */
-            isNodeAdmin: boolean;
-            /**
-             * @description ユーザが仮想マシン管理者かどうかを示すフラグ
-             * @example false
-             */
-            isVirtualMachineAdmin: boolean;
-            /**
-             * @description ユーザがネットワーク管理者かどうかを示すフラグ
-             * @example false
-             */
-            isNetworkAdmin: boolean;
-            /**
-             * @description ユーザがセキュリティグループ管理者かどうかを示すフラグ
-             * @example false
-             */
-            isSecurityGroupAdmin: boolean;
-        };
         /** @description ユーザ作成時のみに設定可能なプロパティ */
         UserCreateOnly: {
             /**
@@ -7495,6 +7497,8 @@ export interface components {
              * @description 仮想マシンが作成された日時
              */
             createdAt: string;
+            /** @description 仮想マシンの所有者情報 */
+            owner: components["schemas"]["UserResponse"];
             /** @description 仮想マシンに関連付けられたセキュリティグループのリスト */
             securityGroups: components["schemas"]["SecurityGroupResponse"][];
             /** @description アタッチされたストレージのリスト */
@@ -7540,6 +7544,8 @@ export interface components {
              * @description バックアップが作成された日時
              */
             createdAt: string;
+            /** @description バックアップの所有者情報 */
+            owner: components["schemas"]["UserResponse"];
             /**
              * Format: integer
              * @description バックアップのサイズ(バイト単位)
@@ -7592,6 +7598,8 @@ export interface components {
              * @description スナップショットが作成された日時
              */
             createdAt: string;
+            /** @description スナップショットの所有者情報 */
+            owner: components["schemas"]["UserResponse"];
             /** @description スナップショット取得元の仮想マシン */
             targetVirtualMachine: components["schemas"]["VirtualMachineResponse"];
         };
@@ -7634,7 +7642,7 @@ export interface components {
              * Format: uuid
              * @description インストールするミドルウェアのID
              */
-            middlewareId?: string;
+            middlewareId?: string | null;
             /** @description 仮想マシンを配置するサブネットのIDのリスト */
             subnetIds: string[];
             /** @description 仮想マシンにアタッチするストレージのリスト */
@@ -7791,6 +7799,8 @@ export interface components {
              * @description 仮想ネットワークが作成された日時
              */
             createdAt: string;
+            /** @description 仮想ネットワークの所有者情報 */
+            owner: components["schemas"]["UserResponse"];
             subnets: components["schemas"]["SubnetResponse"][];
         };
         /** @description 仮想ネットワークの更新可能なプロパティ */
@@ -7876,6 +7886,8 @@ export type NodeCandidateResponse = components['schemas']['NodeCandidateResponse
 export type NodePutRequest = components['schemas']['NodePutRequest'];
 export type NodePatchRequest = components['schemas']['NodePatchRequest'];
 export type DeviceResponse = components['schemas']['DeviceResponse'];
+export type TotpInfo = components['schemas']['TotpInfo'];
+export type UserResponse = components['schemas']['UserResponse'];
 export type SecurityRuleResponse = components['schemas']['SecurityRuleResponse'];
 export type SecurityGroupResponse = components['schemas']['SecurityGroupResponse'];
 export type SecurityGroupUpdatable = components['schemas']['SecurityGroupUpdatable'];
@@ -7899,8 +7911,6 @@ export type HistoryData = components['schemas']['HistoryData'];
 export type SummaryHistoryResponse = components['schemas']['SummaryHistoryResponse'];
 export type Summary = components['schemas']['Summary'];
 export type SummaryResponse = components['schemas']['SummaryResponse'];
-export type TotpInfo = components['schemas']['TotpInfo'];
-export type UserResponse = components['schemas']['UserResponse'];
 export type UserCreateOnly = components['schemas']['UserCreateOnly'];
 export type UserUpdatable = components['schemas']['UserUpdatable'];
 export type UserCreateRequest = components['schemas']['UserCreateRequest'];

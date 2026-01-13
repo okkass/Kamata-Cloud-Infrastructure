@@ -20,6 +20,7 @@ export interface UiEnhancedSecurityGroup extends SecurityGroupResponse {
   ruleSummary: string;
   rulesText: string;
   originalData?: SecurityGroupResponse;
+  ownerName: string;
 }
 
 export const addSecurityGroupAction = `add-${SECURITY_GROUP.name}`;
@@ -35,6 +36,7 @@ export function useSecurityDashboard() {
   // --- UI Configuration ---
   const columns: TableColumn[] = [
     { key: "name", label: "グループ名", align: "left" },
+    { key: "ownerName", label: "所有者", align: "left" },
     { key: "description", label: "説明", align: "left" },
     { key: "rulesText", label: "イン/アウト ルール数", align: "center" },
     { key: "createdAt", label: "作成日時", align: "left" },
@@ -55,6 +57,7 @@ export function useSecurityDashboard() {
         outboundRuleCount,
         ruleSummary: summary,
         rulesText: summary,
+        ownerName: g.owner?.name ?? "",
         createdAt: formatDateTime(g.createdAt),
         originalData: g,
       };

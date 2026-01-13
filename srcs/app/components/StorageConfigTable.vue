@@ -63,20 +63,30 @@
                 label="保存先プール"
                 :name="`storage-pool-${index}`"
                 v-model="storage.poolId"
-                :options="storagePools"
-                :errorMessage="errors?.[index]?.poolId"
+                :options="poolDisplayOptions"
+                :option-label="(opt) => opt.displayName"
+                :option-value="(opt) => opt.id"
+                :columns="['プール名', '空き容量', '総容量', '使用率']"
+                grid-template-columns="2fr 1fr 1fr 1fr"
+                :error-message="errors?.[index]?.poolId"
                 placeholder="プールを選択"
+                placeholder-value=""
                 class="w-full"
                 :disabled="!isNewStorage(storage)"
-                :title="
-                  !isNewStorage(storage)
-                    ? '既存ディスクの保存先プールは変更できません'
-                    : ''
-                "
-              />
+                :title="getPoolSelectTitle(storage.poolId)"
+              >
+                <template #option="{ option }">
+                  <div class="grid grid-cols-4 gap-3 w-full text-sm">
+                    <span class="font-medium">{{ option.displayName }}</span>
+                    <span class="text-gray-600">{{ option.available }}</span>
+                    <span class="text-gray-600">{{ option.total }}</span>
+                    <span class="text-gray-600">{{ option.usage }}%</span>
+                  </div>
+                </template>
+              </FormSelect>
             </div>
 
-            <div class="col-span-1 flex justify-end mt-7">
+            <div class="col-span-1 flex justify-end">
               <button
                 type="button"
                 @click="$emit('remove', index)"
@@ -98,6 +108,21 @@
               </button>
             </div>
           </div>
+
+          <!-- ストレージプール容量情報表示 -->
+          <div
+            v-if="storage.poolId && selectedPoolInfo(storage.poolId)"
+            class="mt-2 ml-0 text-xs text-gray-600"
+          >
+            <div class="text-gray-700">
+              {{ selectedPoolName(storage.poolId) }} - 空き:
+              {{ selectedPoolInfo(storage.poolId)?.availableSizeFormatted }} /
+              総容量:
+              {{ selectedPoolInfo(storage.poolId)?.totalSizeFormatted }} ({{
+                selectedPoolInfo(storage.poolId)?.usagePercent
+              }}% 使用中)
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -105,13 +130,14 @@
 </template>
 
 <script setup lang="ts">
-import type { PropType } from "vue";
 // 共通コンポーネントのインポート
 import FormInput from "~/components/Form/Input.vue";
 import FormSelect from "~/components/Form/Select.vue";
 
 // 型定義は環境に合わせて適宜調整してください
 import type { VmStorageForm } from "~/composables/modal/useVirtualMachineEditForm";
+import { getStoragePoolInfo, getStoragePoolTitle } from "~/utils/storage";
+import { computed } from "vue";
 
 const props = defineProps<{
   storages: VmStorageForm[];
@@ -128,5 +154,60 @@ const isNewStorage = (storage: VmStorageForm) => {
 // 型定義に存在しない 'type' へのアクセスを避けるための安全な判定
 const isBackupStorage = (storage: VmStorageForm) => {
   return "type" in storage && (storage as any).type === "backup";
+};
+
+/**
+ * プール情報を表示用フォーマットに変換したオプション一覧
+ */
+const poolDisplayOptions = computed(() => {
+  return props.storagePools.map((pool) => {
+    const poolInfo = getStoragePoolInfo(pool);
+    return {
+      id: pool.id,
+      displayName: pool.name,
+      available: poolInfo.availableSizeFormatted,
+      total: poolInfo.totalSizeFormatted,
+      usage: poolInfo.usagePercent,
+    };
+  });
+});
+
+/**
+ * 選択されたストレージプールの情報を取得
+ */
+const selectedPoolInfo = (poolId: string) => {
+  const pool = props.storagePools.find((p) => p.id === poolId);
+  return pool ? getStoragePoolInfo(pool) : null;
+};
+
+/**
+ * 選択されたストレージプールの名前を取得
+ */
+const selectedPoolName = (poolId: string) => {
+  return props.storagePools.find((p) => p.id === poolId)?.name ?? "";
+};
+
+/**
+ * プール選択ボックスのタイトル属性を取得
+ */
+const getPoolSelectTitle = (poolId?: string) => {
+  if (!poolId) return "";
+  const pool = props.storagePools.find((p) => p.id === poolId);
+  return pool ? getStoragePoolTitle(pool) : "";
+};
+
+/**
+ * プール名から容量情報を取得（オプション表示用）
+ */
+const getPoolAvailableSize = (poolId?: string | number): string => {
+  if (!poolId) return "-";
+  const pool = props.storagePools.find((p) => p.id === String(poolId));
+  return pool ? getStoragePoolInfo(pool).availableSizeFormatted : "-";
+};
+
+const getPoolTotalSize = (poolId?: string | number): string => {
+  if (!poolId) return "-";
+  const pool = props.storagePools.find((p) => p.id === String(poolId));
+  return pool ? getStoragePoolInfo(pool).totalSizeFormatted : "-";
 };
 </script>
