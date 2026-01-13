@@ -11,6 +11,9 @@ properties:
   description:
     type: string
     description: セキュリティグループの説明
+  owner:
+    description: セキュリティグループの所有者情報
+    $ref: "../user/UserResponse.yml"
   rules:
     type: array
     items:
@@ -22,5 +25,6 @@ properties:
 required:
   - id
   - name
+  - owner
   - rules
   - createdAt

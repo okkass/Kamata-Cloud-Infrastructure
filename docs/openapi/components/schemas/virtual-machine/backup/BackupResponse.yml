@@ -15,6 +15,9 @@ properties:
     type: string
     format: date-time
     description: バックアップが作成された日時
+  owner:
+    description: バックアップの所有者情報
+    $ref: "../../user/UserResponse.yml"
   size:
     type: number
     format: integer
@@ -29,4 +32,5 @@ required:
   - id
   - name
   - createdAt
+  - owner
   - size
