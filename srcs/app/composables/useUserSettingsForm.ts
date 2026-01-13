@@ -6,6 +6,7 @@ import {
   type UserClientUpdateInput,
 } from "~/utils/validations/user";
 import { useToast } from "~/composables/useToast";
+import type { PasswordChangeRequest } from "~~/shared/types";
 
 type MeUser = {
   id: string;
@@ -17,8 +18,24 @@ type PropsLike = {
   data: Ref<MeUser | null>;
 };
 
+/**
+ * エラーメッセージを抽出する（型安全）
+ */
+const getErrorMessage = (
+  error: unknown,
+  defaultMessage: string = "更新に失敗しました。"
+): string => {
+  if (typeof error === "object" && error !== null) {
+    const err = error as Record<string, unknown>;
+    return ((err.data as Record<string, unknown> | undefined)?.message ??
+      err.message ??
+      defaultMessage) as string;
+  }
+  return defaultMessage;
+};
+
 export const useUserSettingsForm = (props: PropsLike) => {
-  const toast = useToast();
+  const { addToast } = useToast();
   const isUpdating = ref(false);
 
   const { errors, meta, defineField, handleSubmit, resetForm } =
@@ -44,30 +61,54 @@ export const useUserSettingsForm = (props: PropsLike) => {
   const [newPasswordConfirm, newPasswordConfirmAttrs] =
     defineField("newPasswordConfirm");
 
-  const wantsPasswordChange = computed(() => {
-    const cp = (currentPassword.value ?? "").trim();
-    const np = (newPassword.value ?? "").trim();
-    const nc = (newPasswordConfirm.value ?? "").trim();
+  /**
+   * パスワード変更の意図を判定（スキーマの検証ロジックと統一）
+   */
+  const hasPasswordChangeIntent = (
+    cpValue: string | null | undefined,
+    npValue: string | null | undefined,
+    ncValue: string | null | undefined
+  ): boolean => {
+    const cp = (cpValue ?? "").trim();
+    const np = (npValue ?? "").trim();
+    const nc = (ncValue ?? "").trim();
     return cp !== "" || np !== "" || nc !== "";
-  });
+  };
 
-  const buildPayload = () => {
-    const payload: any = {
+  const wantsPasswordChange = computed(() =>
+    hasPasswordChangeIntent(
+      currentPassword.value,
+      newPassword.value,
+      newPasswordConfirm.value
+    )
+  );
+
+  const buildPayload = (): {
+    name: string;
+    email: string;
+    passwordChange?: PasswordChangeRequest;
+  } => {
+    const payload = {
       name: name.value,
       email: email.value,
     };
 
     if (wantsPasswordChange.value) {
-      payload.currentPassword = (currentPassword.value ?? "").trim();
-      payload.newPassword = (newPassword.value ?? "").trim();
+      const passwordChange: PasswordChangeRequest = {
+        currentPassword: (currentPassword.value ?? "").trim(),
+        newPassword: (newPassword.value ?? "").trim(),
+      };
+      return { ...payload, passwordChange };
     }
 
     return payload;
   };
 
   // ★ TODO: 実APIに差し替え
-  const updateMe = async (_payload: any) => {
-    // await $fetch("/api/me", { method: "PATCH", body: _payload })
+  const updateMe = async (
+    payload: ReturnType<typeof buildPayload>
+  ): Promise<void> => {
+    // await $fetch("/api/me", { method: "PATCH", body: payload })
     return;
   };
 
@@ -79,7 +120,7 @@ export const useUserSettingsForm = (props: PropsLike) => {
         const payload = buildPayload();
         await updateMe(payload);
 
-        toast.addToast({ type: "success", message: "設定を更新しました。" });
+        addToast({ type: "success", message: "設定を更新しました。" });
 
         // 更新後：パスワード欄だけクリア（name/emailは保持）
         resetForm({
@@ -91,9 +132,9 @@ export const useUserSettingsForm = (props: PropsLike) => {
             newPasswordConfirm: "",
           },
         });
-      } catch (e: any) {
-        const msg = e?.data?.message ?? e?.message ?? "更新に失敗しました。";
-        toast.addToast({ type: "error", message: msg });
+      } catch (error: unknown) {
+        const msg = getErrorMessage(error);
+        addToast({ type: "error", message: msg });
       } finally {
         isUpdating.value = false;
       }

@@ -58,11 +58,11 @@ export const UserClientUpdateSchema = z
     const np = (data.newPassword ?? "").trim();
     const nc = (data.newPasswordConfirm ?? "").trim();
 
-    // どれか入力されたら「変更する意志あり」
+    // パスワード変更の意思がない場合はここで終了
     const anyFilled = cp !== "" || np !== "" || nc !== "";
     if (!anyFilled) return;
 
-    // 変更するなら全部必須
+    // パスワード変更時は全フィールドが必須
     if (cp === "") {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -77,12 +77,18 @@ export const UserClientUpdateSchema = z
         path: ["newPassword"],
         message: "新しいパスワードは必須です。",
       });
-    } else if (np.length < 8) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        path: ["newPassword"],
-        message: "パスワードは8文字以上である必要があります。",
-      });
+    } else {
+      // passwordSchemaで新しいパスワードを検証
+      const passwordValidation = passwordSchema.safeParse(np);
+      if (!passwordValidation.success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["newPassword"],
+          message:
+            passwordValidation.error.issues[0]?.message ||
+            "パスワードが無効です。",
+        });
+      }
     }
 
     if (nc === "") {
@@ -93,6 +99,7 @@ export const UserClientUpdateSchema = z
       });
     }
 
+    // パスワード一致確認
     if (np !== "" && nc !== "" && np !== nc) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
@@ -101,7 +108,7 @@ export const UserClientUpdateSchema = z
       });
     }
 
-    // 任意：現在PWと同一はNG（不要ならこのブロック削除OK）
+    // 現在のパスワードと異なることを確認
     if (cp !== "" && np !== "" && cp === np) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
