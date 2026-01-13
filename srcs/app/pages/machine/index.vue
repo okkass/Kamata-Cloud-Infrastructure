@@ -279,8 +279,6 @@ const handleBulkActionClick = (action: string) => {
  * 一括操作の処理
  */
 const handleBulkAction = (action: string) => {
-  if (selectedVmIds.value.length === 0) return;
-
   const selectedVms = rows.value.filter((vm) =>
     selectedVmIds.value.includes(vm.id)
   );
