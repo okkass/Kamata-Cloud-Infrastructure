@@ -1,6 +1,10 @@
 <template>
   <DashboardLayout
-    title="スナップショット"
+    :title="
+      isManager
+        ? 'スナップショット（全ユーザーの情報）'
+        : 'スナップショット（自分のリソース）'
+    "
     :columns="columns"
     :rows="displaySnapshots"
     rowKey="id"
@@ -45,56 +49,6 @@
     </template>
   </DashboardLayout>
 
-  <div v-if="isManager" class="mt-8">
-    <DashboardLayout
-      title="全ユーザーのスナップショット"
-      :columns="columns"
-      :rows="allDisplaySnapshots || []"
-      rowKey="id"
-      :headerButtons="[]"
-      @row-action="onRowAction"
-    >
-      <template #cell-name="{ row }">
-        <div>
-          <span>{{ row.name }}</span>
-          <span
-            v-if="row.description"
-            class="text-sm text-gray-500 block mt-0.5"
-          >
-            {{ row.description }}
-          </span>
-        </div>
-      </template>
-
-      <template #cell-vmName="{ row }">
-        <span class="font-mono">{{ row.vmName }}</span>
-      </template>
-
-      <template #cell-createdAtText="{ row }">
-        <span>{{ row.createdAtText }}</span>
-      </template>
-
-      <template #row-actions="{ row }">
-        <div v-if="row">
-          <button
-            type="button"
-            class="action-item"
-            @click.stop.prevent="onRowAction({ action: 'restore', row })"
-          >
-            復元
-          </button>
-          <button
-            type="button"
-            class="action-item action-item-danger"
-            @click.stop.prevent="onRowAction({ action: 'delete', row })"
-          >
-            削除
-          </button>
-        </div>
-      </template>
-    </DashboardLayout>
-  </div>
-
   <!-- スナップショット作成モーダル -->
   <MoSnapshotCreate
     :show="activeModal === CREATE_SNAPSHOT_ACTION"
@@ -135,10 +89,8 @@ const {
   columns,
   headerButtons,
   displaySnapshots,
-  allDisplaySnapshots,
   isManager,
   refresh,
-  refreshAll,
   CREATE_SNAPSHOT_ACTION,
   RESTORE_SNAPSHOT_ACTION,
   DELETE_SNAPSHOT_ACTION,
@@ -159,9 +111,6 @@ const {
   resourceLabel: SNAPSHOT.label,
   refresh: async () => {
     await refresh();
-    if (isManager.value && refreshAll) {
-      await refreshAll();
-    }
   },
 });
 
