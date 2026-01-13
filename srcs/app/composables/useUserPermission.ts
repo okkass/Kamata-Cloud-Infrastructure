@@ -95,8 +95,6 @@ export const useUserPermission = () => {
       user.value = null; // エラー時はnullに設定
     }
   };
-  // ここでfetchUserを呼んで初期化してまう
-  void fetchUser();
 
   return {
     user,
