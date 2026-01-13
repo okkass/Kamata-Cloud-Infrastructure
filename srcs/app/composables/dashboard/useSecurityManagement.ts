@@ -1,13 +1,12 @@
 /**
  * =================================================================================
  * セキュリティグループ ダッシュボード Composable
- * ---------------------------------------------------------------------------------
- * /api/security-groups の仕様に合わせて一覧を整形し、ページ用のハンドラを提供。
  * =================================================================================
  */
-import { computed } from "vue";
+import { computed, onMounted, onUnmounted } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 import { useUserPermission } from "@/composables/useUserPermission";
+import { createPolling } from "@/utils/polling";
 import { SECURITY_GROUP } from "@/utils/constants";
 import { formatDateTime } from "@/utils/date";
 import type { SecurityGroupResponse } from "~~/shared/types";
@@ -31,24 +30,39 @@ export const deleteSecurityGroupAction = `delete-${SECURITY_GROUP.name}`;
 /* =========================== Main Composable =========================== */
 export function useSecurityDashboard() {
   // --- Permissions ---
-  const { isAdmin, isSecurityGroupAdmin } = useUserPermission();
+  const { fetchUser, isAdmin, isSecurityGroupAdmin } = useUserPermission();
+  void fetchUser();
 
-  // TODO: 本実装用のコード。テスト完了後に有効化する。
-  // const isManager = computed(
-  //   () => isAdmin.value === true || isSecurityGroupAdmin.value === true
-  // );
-
-  // TEST: テスト用に強制的にtrueにする
-  const isManager = computed(() => true);
+  const isManager = computed(
+    () => isAdmin.value === true || isSecurityGroupAdmin.value === true
+  );
 
   // --- API Data ---
   const { data: rawGroups, refresh: refreshGroupList } =
     useResourceList<SecurityGroupResponse>(SECURITY_GROUP.name);
 
   const { data: rawAllGroups, refresh: refreshAllGroupList } =
-    useResourceList<SecurityGroupResponse>(SECURITY_GROUP.name, {
-      scope: computed(() => (isManager.value ? "all" : undefined)),
-    });
+    useResourceList<SecurityGroupResponse>(
+      SECURITY_GROUP.name,
+      computed(() => (isManager.value ? { scope: "all" } : undefined))
+    );
+
+  // --- Polling ---
+  const { startPolling, runOnce, stopPolling } = createPolling(async () => {
+    await refreshGroupList();
+    if (isManager.value) {
+      await refreshAllGroupList();
+    }
+  }, 3000);
+
+  onMounted(() => {
+    void runOnce();
+    startPolling();
+  });
+
+  onUnmounted(() => {
+    stopPolling();
+  });
 
   // --- UI Configuration ---
   const columns: TableColumn[] = [
