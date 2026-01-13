@@ -22,8 +22,7 @@ export const deleteSnapshotAction = `delete-${SNAPSHOT.name}`;
 
 export function useSnapshotManagement() {
   // --- Permissions ---
-  const { fetchUser, isAdmin, isVirtualMachineAdmin } = useUserPermission();
-  void fetchUser();
+  const { isAdmin, isVirtualMachineAdmin } = useUserPermission();
 
   const isManager = computed(
     () => isAdmin.value === true || isVirtualMachineAdmin.value === true
