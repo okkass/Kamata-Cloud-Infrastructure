@@ -1,6 +1,10 @@
 <template>
   <DashboardLayout
-    title="仮想マシン"
+    :title="
+      isManager
+        ? '仮想マシン（全ユーザーの情報）'
+        : '仮想マシン（自分のリソース）'
+    "
     :columns="columns"
     :rows="rows"
     rowKey="id"
@@ -134,6 +138,7 @@ const {
   columns,
   headerButtons,
   rows,
+  isManager,
   refresh,
   CREATE_VIRTUAL_MACHINE_ACTION,
   EDIT_VIRTUAL_MACHINE_ACTION,
