@@ -249,7 +249,7 @@ watch(backupId, (newBackupId) => {
     const backup = backups.value.find((b) => b.id === newBackupId);
     if (backup) {
       pushStorage({
-        id: `backup-${backup.id}`,
+        id: `new-${backup.id}`,
         name: backup.name,
         size: convertByteToUnit(backup.size, "GB"),
         poolId: "",
