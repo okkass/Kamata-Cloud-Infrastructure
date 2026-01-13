@@ -11,41 +11,55 @@ export const useUserPermission = () => {
 
   // isAdminの状態を算出プロパティとして定義
   const isAdmin = computed(() => {
-    // ユーザー情報がなければfalse
-    if (!user.value) return false;
+    // ユーザー情報がなければfetchUserを呼び出してから評価する
+    if (!user.value) {
+      void fetchUser();
+    }
 
     // isAdminプロパティがtrueかどうかを安全にチェック
-    return user.value.isAdmin === true;
+    return user.value?.isAdmin === true;
   });
 
   const isImageAdmin = computed(() => {
-    if (!user.value) return false;
-    return user.value.isImageAdmin === true;
+    if (!user.value) {
+      void fetchUser();
+    }
+    return user.value?.isImageAdmin === true;
   });
 
   const isInstanceTypeAdmin = computed(() => {
-    if (!user.value) return false;
-    return user.value.isInstanceTypeAdmin === true;
+    if (!user.value) {
+      void fetchUser();
+    }
+    return user.value?.isInstanceTypeAdmin === true;
   });
 
   const isNetworkAdmin = computed(() => {
-    if (!user.value) return false;
-    return user.value.isNetworkAdmin === true;
+    if (!user.value) {
+      void fetchUser();
+    }
+    return user.value?.isNetworkAdmin === true;
   });
 
   const isNodeAdmin = computed(() => {
-    if (!user.value) return false;
-    return user.value.isNodeAdmin === true;
+    if (!user.value) {
+      void fetchUser();
+    }
+    return user.value?.isNodeAdmin === true;
   });
 
   const isSecurityGroupAdmin = computed(() => {
-    if (!user.value) return false;
-    return user.value.isSecurityGroupAdmin === true;
+    if (!user.value) {
+      void fetchUser();
+    }
+    return user.value?.isSecurityGroupAdmin === true;
   });
 
   const isVirtualMachineAdmin = computed(() => {
-    if (!user.value) return false;
-    return user.value.isVirtualMachineAdmin === true;
+    if (!user.value) {
+      void fetchUser();
+    }
+    return user.value?.isVirtualMachineAdmin === true;
   });
 
   /**
