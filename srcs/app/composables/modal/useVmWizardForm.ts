@@ -167,7 +167,7 @@ export function useVmWizardForm() {
     nextTab,
     handleFinalSubmit,
     isCreating,
-    isInvalid: computed(() => !tabValidity.value[currentTab.value]),
+    isInvalid: computed(() => !tabValidity.value.every((valid) => valid)),
     reset,
   };
 }
