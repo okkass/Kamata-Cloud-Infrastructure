@@ -23,7 +23,8 @@
         "ms-python.black-formatter",
         "ms-python.flake8",
         "GitHub.copilot-chat",
-        "GitHub.copilot"
+        "GitHub.copilot",
+        "golang.Go"
       ],
       "settings": {
         "editor.formatOnSave": true,
