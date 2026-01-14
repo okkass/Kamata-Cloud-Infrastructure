@@ -1,5 +1,6 @@
 import { computed, onMounted, onUnmounted } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
+import { useUserPermission } from "@/composables/useUserPermission";
 import { MACHINE } from "@/utils/constants";
 import { createPolling } from "@/utils/polling";
 import { calculateTotalStorage } from "@/utils/status";
@@ -12,15 +13,29 @@ export type VirtualMachineRow = VirtualMachineResponse & {
   cpuUtilizationPercent: number;
   memoryUsageText: string;
   memoryUtilizationPercent: number;
+  ownerName: string;
 };
 
 export function useVMachineManagement() {
+  // --- Permissions ---
+  const { fetchUser, isAdmin, isVirtualMachineAdmin } = useUserPermission();
+  void fetchUser();
+
+  const isManager = computed(
+    () => isAdmin.value === true || isVirtualMachineAdmin.value === true
+  );
+
+  // --- API Data ---
+  const queryOptions = computed(() => {
+    return isManager.value ? { scope: "all" } : undefined;
+  });
+
   const {
     data: virtualMachines,
     pending,
     refresh,
     error,
-  } = useResourceList<VirtualMachineResponse>(MACHINE.name);
+  } = useResourceList<VirtualMachineResponse>(MACHINE.name, queryOptions);
 
   // --- ポーリング設定 ---
   const { startPolling, stopPolling, runOnce, lastUpdatedTime } = createPolling(
@@ -41,6 +56,7 @@ export function useVMachineManagement() {
 
   const columns = [
     { key: "name", label: "仮想マシン名", align: "left" as const },
+    { key: "ownerName", label: "所有者", align: "left" as const },
     { key: "status", label: "状態", align: "left" as const },
     {
       key: "instanceType",
@@ -93,6 +109,7 @@ export function useVMachineManagement() {
         cpuUtilizationPercent,
         memoryUsageText,
         memoryUtilizationPercent,
+        ownerName: vm.owner?.name ?? "-",
       };
     })
   );
@@ -101,6 +118,7 @@ export function useVMachineManagement() {
     columns,
     headerButtons,
     rows,
+    isManager,
     pending,
     error,
     refresh,
