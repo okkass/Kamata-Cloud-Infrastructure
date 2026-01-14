@@ -132,7 +132,7 @@ import FormSection from "~/components/Form/Section.vue";
 import { useUserSettingsForm } from "~/composables/useUserSettingsForm";
 import { useResourceDetail } from "~/composables/useResourceDetail";
 import { useUserPermission } from "~/composables/useUserPermission";
-import { USER } from "@/utils/constants";
+import { ME } from "@/utils/constants";
 import type { UserResponse } from "~~/shared/types";
 
 // ログイン中のユーザーIDを取得
@@ -148,7 +148,7 @@ onMounted(async () => {
 });
 
 // ユーザー詳細情報を取得
-const { data: userData } = useResourceDetail<UserResponse>(USER.name, userId);
+const { data: userData } = useResourceDetail<UserResponse>(ME.name);
 
 // フォーム用の ref
 const me = computed(() => userData.value ?? null);

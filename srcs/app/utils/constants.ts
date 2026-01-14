@@ -18,6 +18,7 @@ export const STORAGE = { name: "storage-pools", label: "ストレージプール
 export const NETWORK = { name: "virtual-networks", label: "仮想ネットワーク" };
 export const IMAGE = { name: "images", label: "イメージ" };
 export const USER = { name: "users", label: "ユーザー" };
+export const ME = { name: "users/me", label: "自分自身" };
 export const SECURITY_GROUP = {
   name: "security-groups",
   label: "セキュリティグループ",
