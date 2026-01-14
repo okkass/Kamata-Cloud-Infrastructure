@@ -20,3 +20,12 @@ RUN set -eux; \
     rm -rf /tmp/Python-3.14.2 /tmp/Python-3.14.2.tgz
 # PATHを通す
 ENV PATH="/opt/python3.14/bin:$PATH"
+# GoLangのインストール
+RUN set -eux; \
+    cd /tmp; \
+    curl -LO https://go.dev/dl/go1.25.5.linux-amd64.tar.gz; \
+    echo "9e9b755d63b36acf30c12a9a3fc379243714c1c6d3dd72861da637f336ebb35b go1.25.5.linux-amd64.tar.gz" | sha256sum -c -; \
+    tar -C /usr/local -xzf go1.25.5.linux-amd64.tar.gz; \
+    rm -rf /tmp/go1.25.5.linux-amd64.tar.gz
+# GoLangのPATHを通す
+ENV PATH="/usr/local/go/bin:$PATH"

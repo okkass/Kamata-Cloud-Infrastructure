@@ -11,9 +11,23 @@
       placeholder="OSイメージを選択してください"
       :required="true"
       :error-message="errors.osImageId"
+      :columns="['イメージ名', 'サイズ']"
+      grid-template-columns="2fr 1fr"
       v-model="osImageId"
       v-bind="osImageIdAttrs"
-    />
+    >
+      <template #option="{ option }">
+        <div
+          class="grid gap-4 items-center w-full"
+          style="grid-template-columns: 2fr 1fr"
+        >
+          <div>{{ option.name }}</div>
+          <div class="text-sm text-gray-600">
+            {{ formatImageSize(option.size) }}
+          </div>
+        </div>
+      </template>
+    </FormSelect>
 
     <FormSelect
       label="ミドルウェア"
@@ -24,10 +38,12 @@
       :pending="middlewaresPending"
       :error="middlewaresError"
       placeholder="なし"
+      placeholder-value=""
       :error-message="errors.middlewareId"
       v-model="middlewareId"
       v-bind="middlewareIdAttrs"
-    />
+    >
+    </FormSelect>
   </div>
 </template>
 
@@ -42,7 +58,8 @@
 import { useResourceList } from "~/composables/useResourceList";
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
-import * as z from "zod";
+import { vmOsMiddlewareCreateSchema } from "~/utils/validations/virtual-machine";
+import { formatImageSize } from "~/utils/format";
 
 import FormSelect from "~/components/Form/Select.vue";
 
@@ -51,14 +68,7 @@ import FormSelect from "~/components/Form/Select.vue";
  * Validation Schema
  * ==============================================================================
  */
-const validationSchema = toTypedSchema(
-  z.object({
-    osImageId: z
-      .string({ message: "OSイメージを選択してください。" })
-      .min(1, "OSイメージを選択してください。"),
-    middlewareId: z.string().nullable(),
-  })
-);
+const validationSchema = toTypedSchema(vmOsMiddlewareCreateSchema);
 
 /**
  * ==============================================================================
@@ -86,14 +96,14 @@ const {
   data: osImages,
   pending: imagesPending,
   error: imagesError,
-} = useResourceList<ImageResponse>("images");
+} = useResourceList<ImageResponse>(IMAGE.name);
 
 // 2. ミドルウェア
 const {
   data: middlewares,
   pending: middlewaresPending,
   error: middlewaresError,
-} = useResourceList<MiddlewareResponse>("middlewares");
+} = useResourceList<MiddlewareResponse>(MIDDLEWARE.name);
 
 /**
  * ==============================================================================

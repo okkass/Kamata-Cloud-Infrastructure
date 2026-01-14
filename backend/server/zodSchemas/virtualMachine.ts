@@ -40,7 +40,7 @@ export const createVirtualMachineSchema = z.object({
   publicKey: z.string(),
   nodeId: looseUuidSchema,
   imageId: looseUuidSchema,
-  middlewareId: looseUuidSchema.optional(),
+  middlewareId: looseUuidSchema.optional().nullable(),
   subnetIds: z.array(looseUuidSchema),
   storages: z.array(createStorageSchema),
   securityGroupIds: z.array(looseUuidSchema),
@@ -68,12 +68,12 @@ export const createNetworkInterfaceSchema = z.object({
 });
 
 export const updateNetworkInterfaceSchema = z.object({
-  virtualMachineId: looseUuidSchema,
+  name: z.string(),
   subnetId: looseUuidSchema,
 });
 
 export const partialUpdateNetworkInterfaceSchema = z.object({
-  virtualMachineId: looseUuidSchema.optional(),
+  name: z.string().optional(),
   subnetId: looseUuidSchema.optional(),
 });
 

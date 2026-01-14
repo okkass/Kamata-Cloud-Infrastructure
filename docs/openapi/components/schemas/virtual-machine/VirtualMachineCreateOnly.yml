@@ -16,6 +16,7 @@ properties:
     type: string
     format: uuid
     description: インストールするミドルウェアのID
+    nullable: true
   subnetIds:
     type: array
     items:

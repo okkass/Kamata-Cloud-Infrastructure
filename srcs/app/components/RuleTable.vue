@@ -27,19 +27,21 @@
           :key="getKey(rule, index)"
           class="rule-row"
         >
-          <div class="grid grid-cols-12 gap-2 items-start">
-            <div class="col-span-4">
+          <!-- 第1行: 名前、プロトコル、ポート、削除ボタン -->
+          <div class="grid grid-cols-12 gap-3 items-start">
+            <!-- エラーメッセージ用の最小高さを確保（約5.5rem = label + input + error） -->
+            <div class="col-span-4 min-h-[5.5rem]">
               <FormInput
                 :name="`rule-name-${index}`"
                 label="名前"
                 v-model="rule.name"
                 :error="getError(index, 'name')"
                 placeholder="ルール名"
-                class="py-1 text-sm"
               />
             </div>
 
-            <div class="col-span-3">
+            <!-- Selectは固定されたデザインなので最小高さ調整 -->
+            <div class="col-span-3 min-h-[5.5rem]">
               <FormSelect
                 :name="`rule-protocol-${index}`"
                 label="プロトコル"
@@ -53,7 +55,7 @@
               />
             </div>
 
-            <div class="col-span-3">
+            <div class="col-span-3 min-h-[5.5rem]">
               <FormInput
                 :name="`rule-port-${index}`"
                 label="ポート"
@@ -62,15 +64,14 @@
                 :error="getError(index, 'port')"
                 placeholder="Any"
                 :disabled="isPortDisabled(rule.protocol)"
-                class="py-1 text-sm"
               />
             </div>
 
-            <div class="col-span-2 flex justify-end pt-5">
+            <div class="col-span-2 flex justify-start">
               <button
                 type="button"
                 @click="$emit('delete-rule', index)"
-                class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50"
+                class="text-gray-400 hover:text-red-500 transition-colors p-2 rounded hover:bg-red-50 h-fit mt-6"
                 title="削除"
               >
                 <svg
@@ -89,18 +90,19 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-12 gap-2 items-start mt-2">
-            <div class="col-span-8">
+          <!-- 第2行: 送信元/宛先 IP、アクション -->
+          <div class="grid grid-cols-12 gap-3 items-start mt-4">
+            <!-- エラーメッセージ用の最小高さを確保 -->
+            <div class="col-span-8 min-h-[5.5rem]">
               <FormInput
                 :name="`rule-targetIp-${index}`"
                 label="送信元/宛先 IP"
                 v-model="rule.targetIp"
                 :error="getError(index, 'targetIp')"
                 placeholder="0.0.0.0/0"
-                class="py-1 text-sm"
               />
             </div>
-            <div class="col-span-4">
+            <div class="col-span-4 min-h-[5.5rem]">
               <FormSelect
                 :name="`rule-action-${index}`"
                 label="アクション"

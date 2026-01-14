@@ -4,6 +4,13 @@ import { PrismaMariaDb } from "@prisma/adapter-mariadb";
 let adapter: PrismaMariaDb | undefined;
 let prisma: PrismaClient | undefined;
 
+export class NotFoundError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "NotFoundError";
+  }
+}
+
 export const getPrismaClient = (): PrismaClient => {
   if (!adapter) {
     adapter = new PrismaMariaDb({

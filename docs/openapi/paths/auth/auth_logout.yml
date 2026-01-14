@@ -1,0 +1,28 @@
+post:
+  summary: ユーザのログアウト
+  description: 現在の認証トークンを無効化してユーザをログアウトします。
+  tags:
+    - Auth
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          $ref: "../../components/schemas/auth/RefreshRequest.yml"
+  responses:
+    "204":
+      description: ログアウト成功
+    "400":
+      description: リクエストエラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+    "401":
+      description: 認証エラー
+      content:
+        application/json:
+          schema:
+            $ref: "../../components/schemas/ErrorResponse.yml"
+  security:
+    - BearerAuth: []

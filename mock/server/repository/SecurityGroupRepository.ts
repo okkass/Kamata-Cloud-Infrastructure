@@ -9,6 +9,7 @@ import type {
   SecurityRulePatchRequest,
 } from "@app/shared/types";
 import crypto from "crypto";
+import UserRepository from "./UserRepository";
 
 let securityGroups: Array<SecurityGroupResponse> = [
   {
@@ -16,6 +17,7 @@ let securityGroups: Array<SecurityGroupResponse> = [
     name: "Web-SG",
     description: "Security group for web servers",
     createdAt: new Date().toISOString(),
+    owner: UserRepository.getById("c93b589b-5389-48aa-b37f-878be7663cf2")!,
     rules: [
       {
         id: "52f69034-1b7f-4bfc-a30e-0bd0284f7d0d",
@@ -54,6 +56,7 @@ let securityGroups: Array<SecurityGroupResponse> = [
     name: "Wireguard-SG",
     description: "Security group for wireguard servers",
     createdAt: new Date().toISOString(),
+    owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
     rules: [
       {
         id: "71d1b46e-f673-4b8e-a246-460c175fef70",
@@ -95,6 +98,7 @@ const create = (
     name: securityGroupData.name,
     description: securityGroupData.description,
     createdAt: new Date().toISOString(),
+    owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
     rules: securityGroupData.rules.map((rule) => ({
       id: crypto.randomUUID(),
       name: rule.name,

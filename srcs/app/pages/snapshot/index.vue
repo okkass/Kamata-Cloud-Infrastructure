@@ -1,6 +1,10 @@
 <template>
   <DashboardLayout
-    title="スナップショット"
+    :title="
+      isManager
+        ? 'スナップショット（全ユーザーの情報）'
+        : 'スナップショット（自分のリソース）'
+    "
     :columns="columns"
     :rows="displaySnapshots"
     rowKey="id"
@@ -10,7 +14,7 @@
   >
     <template #cell-name="{ row }">
       <div>
-        <span class="table-link">{{ row.name }}</span>
+        <span>{{ row.name }}</span>
         <span v-if="row.description" class="text-sm text-gray-500 block mt-0.5">
           {{ row.description }}
         </span>
@@ -44,6 +48,7 @@
       </div>
     </template>
   </DashboardLayout>
+
   <!-- スナップショット作成モーダル -->
   <MoSnapshotCreate
     :show="activeModal === CREATE_SNAPSHOT_ACTION"
@@ -84,6 +89,7 @@ const {
   columns,
   headerButtons,
   displaySnapshots,
+  isManager,
   refresh,
   CREATE_SNAPSHOT_ACTION,
   RESTORE_SNAPSHOT_ACTION,
@@ -103,7 +109,9 @@ const {
 } = usePageActions<SnapshotRow>({
   resourceName: SNAPSHOT.name,
   resourceLabel: SNAPSHOT.label,
-  refresh,
+  refresh: async () => {
+    await refresh();
+  },
 });
 
 const handleHeaderAction = (action: string) => {
@@ -129,5 +137,4 @@ const onRestoreSuccess = async () => {
   closeModal();
   await refresh();
 };
-
 </script>
