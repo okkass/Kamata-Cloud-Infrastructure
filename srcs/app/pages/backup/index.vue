@@ -2,7 +2,7 @@
 <template>
   <div>
     <DashboardLayout
-      title="バックアップ・復元管理"
+      :title="tableTitle"
       :columns="columns"
       :rows="backups"
       rowKey="id"
@@ -11,15 +11,19 @@
       @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink :to="`/backup/${row.id}`" class="table-link">
-          {{ row.name }}
+        <div>
+          <span>{{ row.name }}</span>
           <div
             v-if="row.description"
             class="cell-description text-sm text-gray-500"
           >
             {{ row.description }}
           </div>
-        </NuxtLink>
+        </div>
+      </template>
+
+      <template #cell-ownerName="{ row }">
+        <span>{{ row.ownerName }}</span>
       </template>
 
       <template #cell-createdAtText="{ row }">
@@ -31,8 +35,6 @@
       </template>
 
       <template #row-actions="{ row }">
-        <NuxtLink :to="`/backup/${row?.id}`" class="action-item">詳細</NuxtLink>
-
         <button
           type="button"
           class="action-item action-item-primary"
@@ -99,6 +101,7 @@ const {
   ADD_BACKUP_ACTION,
   DELETE_BACKUP_ACTION,
   RESTORE_BACKUP_ACTION,
+  tableTitle,
 } = useBackupManagement();
 
 /* ページ共通アクション */

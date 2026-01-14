@@ -6,6 +6,7 @@
   "scripts": {
     "gen-apipath": "node scripts/poka.mjs",
     "mock": "cd mock && pnpm run dev",
+    "backend": "cd backend && pnpm run dev",
     "app": "cd srcs && pnpm run dev",
     "app:mock": "cd srcs && pnpm run dev:mock",
     "mock-app": "concurrently -n MOCK,APP -c blue,green \"pnpm mock\" \"pnpm app:mock\"",

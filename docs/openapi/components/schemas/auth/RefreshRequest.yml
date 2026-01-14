@@ -1,0 +1,8 @@
+type: object
+description: リフレッシュリクエストオブジェクト
+properties:
+  refreshToken:
+    type: string
+    description: リフレッシュトークン
+required:
+  - refreshToken

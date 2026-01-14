@@ -1,7 +1,11 @@
 <template>
   <div>
     <DashboardLayout
-      title="セキュリティグループ"
+      :title="
+        isManager
+          ? 'セキュリティグループ（全ユーザーの情報）'
+          : 'セキュリティグループ（自分のリソース）'
+      "
       :columns="columns"
       :rows="groups || []"
       rowKey="id"
@@ -66,7 +70,7 @@ import { usePageActions } from "~/composables/usePageActions";
 import type { UiEnhancedSecurityGroup } from "~/composables/dashboard/useSecurityManagement";
 
 // ★ 1. データ関連のComposableを呼び出し
-const { columns, groups, headerButtons, refreshGroupList } =
+const { columns, groups, isManager, headerButtons, refreshGroupList } =
   useSecurityDashboard();
 
 // ★ 2. アクション関連のComposableを呼び出し
@@ -84,7 +88,9 @@ const {
 } = usePageActions<UiEnhancedSecurityGroup>({
   resourceName: SECURITY_GROUP.name,
   resourceLabel: SECURITY_GROUP.label,
-  refresh: refreshGroupList, // refresh関数を渡す
+  refresh: async () => {
+    await refreshGroupList();
+  }, // refresh関数を渡す
 });
 
 const addSecurityGroupAction = `create-${SECURITY_GROUP.name}`;

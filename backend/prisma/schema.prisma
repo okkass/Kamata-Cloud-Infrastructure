@@ -100,6 +100,17 @@ model Permission {
   @@map("permissions")
 }
 
+model RefreshToken {
+  id        BigInt   @id @default(autoincrement())
+  token     Bytes   @unique @db.Binary(32) // 32バイトのバイナリデータ
+  createdAt DateTime @default(now()) @map("created_at")
+  expiredAt DateTime @map("expired_at")
+  revokedAt DateTime? @map("revoked_at")
+  userId    BigInt   @map("user_id")
+
+  @@map("refresh_tokens")
+}
+
 model Portfolio {
   id        BigInt   @id @default(autoincrement())
   uuid      String   @unique @default(uuid())

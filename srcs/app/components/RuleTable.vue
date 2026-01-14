@@ -27,65 +27,47 @@
           :key="getKey(rule, index)"
           class="rule-row"
         >
-          <div class="grid grid-cols-12 gap-2 items-start">
-            <div class="col-span-4">
-              <label class="block text-xs text-gray-500 mb-1">名前</label>
-              <input
-                type="text"
+          <!-- 第1行: 名前、プロトコル、ポート、削除ボタン -->
+          <div class="grid grid-cols-12 gap-3 items-start">
+            <!-- エラーメッセージ用の最小高さを確保（約5.5rem = label + input + error） -->
+            <div class="col-span-4 min-h-[5.5rem]">
+              <FormInput
+                :name="`rule-name-${index}`"
+                label="名前"
                 v-model="rule.name"
-                class="form-input-sm w-full"
-                :class="{ 'border-red-500': getError(index, 'name') }"
+                :error="getError(index, 'name')"
                 placeholder="ルール名"
               />
-              <p
-                v-if="getError(index, 'name')"
-                class="text-xs text-red-500 mt-1"
-              >
-                {{ getError(index, "name") }}
-              </p>
             </div>
 
-            <div class="col-span-3">
-              <label class="block text-xs text-gray-500 mb-1">プロトコル</label>
-              <select
+            <!-- Selectは固定されたデザインなので最小高さ調整 -->
+            <div class="col-span-3 min-h-[5.5rem]">
+              <FormSelect
+                :name="`rule-protocol-${index}`"
+                label="プロトコル"
                 v-model="rule.protocol"
+                :options="protocolOptions"
                 @change="onProtocolChange(rule)"
-                class="form-select-sm w-full"
-              >
-                <option value="tcp">TCP</option>
-                <option value="udp">UDP</option>
-                <option value="icmp">ICMP</option>
-                <option value="any">Any</option>
-              </select>
+              />
             </div>
 
-            <div class="col-span-3">
-              <label class="block text-xs text-gray-500 mb-1">ポート</label>
-              <input
+            <div class="col-span-3 min-h-[5.5rem]">
+              <FormInput
+                :name="`rule-port-${index}`"
+                label="ポート"
                 type="number"
                 v-model.number="rule.port"
-                class="form-input-sm w-full"
-                :class="{
-                  'border-red-500': getError(index, 'port'),
-                  'bg-gray-100 text-gray-400 cursor-not-allowed':
-                    isPortDisabled(rule.protocol),
-                }"
+                :error="getError(index, 'port')"
                 placeholder="Any"
                 :disabled="isPortDisabled(rule.protocol)"
               />
-              <p
-                v-if="getError(index, 'port')"
-                class="text-xs text-red-500 mt-1"
-              >
-                {{ getError(index, "port") }}
-              </p>
             </div>
 
-            <div class="col-span-2 flex justify-end pt-5">
+            <div class="col-span-2 flex justify-start">
               <button
                 type="button"
                 @click="$emit('delete-rule', index)"
-                class="text-gray-400 hover:text-red-500 transition-colors p-1 rounded hover:bg-red-50"
+                class="text-gray-400 hover:text-red-500 transition-colors p-2 rounded hover:bg-red-50 h-fit mt-6"
                 title="削除"
               >
                 <svg
@@ -104,31 +86,25 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-12 gap-2 items-start mt-2">
-            <div class="col-span-8">
-              <label class="block text-xs text-gray-500 mb-1"
-                >送信元/宛先 IP</label
-              >
-              <input
-                type="text"
+          <!-- 第2行: 送信元/宛先 IP、アクション -->
+          <div class="grid grid-cols-12 gap-3 items-start mt-4">
+            <!-- エラーメッセージ用の最小高さを確保 -->
+            <div class="col-span-8 min-h-[5.5rem]">
+              <FormInput
+                :name="`rule-targetIp-${index}`"
+                label="送信元/宛先 IP"
                 v-model="rule.targetIp"
-                class="form-input-sm w-full"
-                :class="{ 'border-red-500': getError(index, 'targetIp') }"
+                :error="getError(index, 'targetIp')"
                 placeholder="0.0.0.0/0"
               />
-              <p
-                v-if="getError(index, 'targetIp')"
-                class="text-xs text-red-500 mt-1"
-              >
-                {{ getError(index, "targetIp") }}
-              </p>
             </div>
-            <div class="col-span-4">
-              <label class="block text-xs text-gray-500 mb-1">アクション</label>
-              <select v-model="rule.action" class="form-select-sm w-full">
-                <option value="allow">許可 (Allow)</option>
-                <option value="deny">拒否 (Deny)</option>
-              </select>
+            <div class="col-span-4 min-h-[5.5rem]">
+              <FormSelect
+                :name="`rule-action-${index}`"
+                label="アクション"
+                v-model="rule.action"
+                :options="actionOptions"
+              />
             </div>
           </div>
         </div>
@@ -181,6 +157,18 @@ const getKey = (rule: any, index: number) => {
   return rule.id || index;
 };
 
+const protocolOptions = [
+  { id: "tcp", name: "TCP" },
+  { id: "udp", name: "UDP" },
+  { id: "icmp", name: "ICMP" },
+  { id: "any", name: "Any" },
+];
+
+const actionOptions = [
+  { id: "allow", name: "許可 (Allow)" },
+  { id: "deny", name: "拒否 (Deny)" },
+];
+
 // --- ヘルパーメソッド ---
 const isPortDisabled = (protocol: string) => {
   const p = protocol ? protocol.toLowerCase() : "";
@@ -206,10 +194,6 @@ const getError = (index: number, field: string) => {
 </script>
 
 <style scoped>
-.form-input-sm,
-.form-select-sm {
-  @apply border border-gray-300 rounded px-2 py-1 text-sm w-full focus:outline-none focus:ring-1 focus:ring-blue-500;
-}
 .rule-row {
   @apply border-b border-gray-100 pb-4 mb-4;
 }

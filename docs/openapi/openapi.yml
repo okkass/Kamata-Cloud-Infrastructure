@@ -5,12 +5,14 @@ servers:
 info:
   title: "KCI API"
   description: "KCI API documentation"
-  version: "0.47.0"
+  version: "0.48.0"
 paths:
-  /api/login:
-    $ref: "paths/auth/login.yml"
-  /api/login/web:
-    $ref: "paths/auth/login_web.yml"
+  /api/auth/login:
+    $ref: "paths/auth/auth_login.yml"
+  /api/auth/logout:
+    $ref: "paths/auth/auth_logout.yml"
+  /api/auth/refresh:
+    $ref: "paths/auth/auth_refresh.yml"
   /api/images:
     $ref: "paths/image/images.yml"
   /api/images/{imageId}:
@@ -45,9 +47,9 @@ paths:
     $ref: "paths/storage-pool/storage-pools_node_{nodeId}.yml"
   /api/storage-pools/{id}:
     $ref: "paths/storage-pool/storage-pools_{id}.yml"
-  /api/summary/history:
+  /api/history:
     $ref: "paths/summary/history.yml"
-  /api/summary/realtime:
+  /api/realtime:
     $ref: "paths/summary/realtime.yml"
   /api/users:
     $ref: "paths/user/users.yml"

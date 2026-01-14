@@ -20,12 +20,21 @@ const ruleSchema = z.object({
   createdAt: z.string().optional(),
 });
 
-export const securityGroupSchema = z.object({
-  name: z.string().min(1, "グループ名は必須です。"),
-  description: z.string().optional(),
-  inboundRules: z.array(ruleSchema),
-  outboundRules: z.array(ruleSchema),
-});
+export const securityGroupSchema = z
+  .object({
+    name: z.string().min(1, "グループ名は必須です。"),
+    description: z.string().optional(),
+    inboundRules: z.array(ruleSchema),
+    outboundRules: z.array(ruleSchema),
+  })
+  .refine(
+    (data) => data.inboundRules.length > 0 || data.outboundRules.length > 0,
+    {
+      message:
+        "インバウンドルールまたはアウトバウンドルールのいずれかを設定してください。",
+      path: ["inboundRules"],
+    }
+  );
 
 export type SecurityGroupFormValues = z.infer<typeof securityGroupSchema>;
 export type SecurityRuleFormValues = z.infer<typeof ruleSchema>;

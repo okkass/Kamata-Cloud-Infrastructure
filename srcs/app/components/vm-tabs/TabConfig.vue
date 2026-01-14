@@ -9,9 +9,25 @@
       :pending="templatesPending"
       :error="templatesError"
       placeholder="使用しない（カスタム構成）"
+      placeholder-value=""
+      :columns="['テンプレート名', 'CPU', 'メモリ']"
+      grid-template-columns="2fr 1fr 1fr"
       v-model="templateId"
       v-bind="templateIdAttrs"
-    />
+    >
+      <template #option="{ option }">
+        <div
+          class="grid gap-4 items-center w-full"
+          style="grid-template-columns: 2fr 1fr 1fr"
+        >
+          <div>{{ option.name }}</div>
+          <div class="text-sm text-gray-600">{{ option.cpuCore }}vCPU</div>
+          <div class="text-sm text-gray-600">
+            {{ convertByteToUnit(option.memorySize, "MB") }}MB
+          </div>
+        </div>
+      </template>
+    </FormSelect>
 
     <FormSection title="CPU / メモリ" v-if="!values.templateId">
       <div class="grid grid-cols-2 gap-4">
@@ -47,6 +63,7 @@
       :pending="backupsPending"
       :error="backupsError"
       placeholder="使用しない"
+      placeholder-value=""
       v-model="backupId"
       v-bind="backupIdAttrs"
     />
@@ -55,7 +72,7 @@
       <StorageConfigTable
         :storages="displayStorages"
         :storage-pools="storagePools ?? []"
-        :errors="errors"
+        :errors="errors.storages"
         field-name-prefix="storages"
         @add="addStorage"
         @remove="removeStorage"
@@ -75,7 +92,7 @@ import { useResourceList } from "~/composables/useResourceList";
 import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import { convertByteToUnit } from "~/utils/format";
+import { vmConfigSchema } from "~/utils/validations/virtual-machine";
 import FormInput from "~/components/Form/Input.vue";
 import FormSelect from "~/components/Form/Select.vue";
 import FormSection from "~/components/Form/Section.vue";
@@ -86,34 +103,8 @@ import StorageConfigTable from "~/components/StorageConfigTable.vue";
  * Validation Schema
  * ==============================================================================
  */
-const zodObject = z
-  .object({
-    templateId: z.string().optional(),
-    cpuCore: z.preprocess(
-      (val) => (val === "" || val === null ? undefined : Number(val)),
-      z.number().min(1, "1コア以上を指定してください").optional()
-    ),
-    memorySize: z.preprocess(
-      (val) => (val === "" || val === null ? undefined : Number(val)),
-      z.number().min(512, "512MB以上を指定してください").optional()
-    ),
-    backupId: z.string().optional().nullable(),
-    storages: z.array(
-      z.object({
-        id: z.any(),
-        name: z.string().min(1, "必須"),
-        size: z.number().min(1, "1GB以上"),
-        poolId: z.string().min(1, "必須"),
-        type: z.enum(["manual", "backup"]).default("manual"),
-      })
-    ),
-  })
-  .superRefine((data, ctx) => {
-    // テンプレート未選択時は CPU/メモリ が必須
-  });
-
 const validationSchema = toTypedSchema(
-  zodObject.superRefine((data, ctx) => {
+  vmConfigSchema.superRefine((data, ctx) => {
     if (!data.templateId) {
       if (!data.cpuCore) {
         ctx.addIssue({
@@ -141,7 +132,7 @@ const validationSchema = toTypedSchema(
   })
 );
 
-type ConfigFormValues = z.infer<typeof zodObject>;
+type ConfigFormValues = z.infer<typeof vmConfigSchema>;
 
 /**
  * ==============================================================================
@@ -156,7 +147,7 @@ const { errors, defineField, values, meta } = useForm<ConfigFormValues>({
     memorySize: 2048,
     backupId: null,
     storages: [
-      { id: 1, name: "root-disk", size: 20, poolId: "", type: "manual" },
+      { id: "new-0", name: "root-disk", size: 20, poolId: "", type: "manual" },
     ],
   },
 });
@@ -183,21 +174,21 @@ const {
   data: templates,
   pending: templatesPending,
   error: templatesError,
-} = useResourceList<InstanceTypeResponse>("instance-types");
+} = useResourceList<InstanceTypeResponse>(INSTANCE_TYPE.name);
 
 // 2. バックアップ
 const {
   data: backups,
   pending: backupsPending,
   error: backupsError,
-} = useResourceList<BackupResponse>("backups");
+} = useResourceList<BackupResponse>(BACKUP.name);
 
 // 3. ストレージプール
 const {
   data: storagePools,
   pending: poolsPending,
   error: poolsError,
-} = useResourceList<StoragePoolResponse>("storage-pools");
+} = useResourceList<StoragePoolResponse>(STORAGE.name);
 
 /**
  * ==============================================================================
@@ -230,7 +221,7 @@ let nextStorageId = 100;
 // 手動ストレージ追加
 const addStorage = () => {
   pushStorage({
-    id: nextStorageId++,
+    id: `new-${nextStorageId++}`,
     name: `disk-${storageFields.value.length + 1}`,
     size: 20,
     poolId: "",
@@ -258,7 +249,7 @@ watch(backupId, (newBackupId) => {
     const backup = backups.value.find((b) => b.id === newBackupId);
     if (backup) {
       pushStorage({
-        id: `backup-${backup.id}`,
+        id: `new-${backup.id}`,
         name: backup.name,
         size: convertByteToUnit(backup.size, "GB"),
         poolId: "",
@@ -271,25 +262,11 @@ watch(backupId, (newBackupId) => {
 /**
  * テンプレート選択時の表示ラベル生成
  */
-const getTemplateLabel = (tpl: InstanceTypeResponse) => {
+const getTemplateLabel = (tpl: any): string => {
   // tpl.memorySize が unknown と判定されるのを防ぐため as number を付与
   const memMB = convertByteToUnit(tpl.memorySize as number, "MB");
   return `${tpl.name} (${tpl.cpuCore}vCPU, ${memMB}MB)`;
 };
-
-/**
- * テンプレート選択時に CPU/メモリ を自動設定
- */
-watch(templateId, (newId) => {
-  if (newId && templates.value) {
-    const tpl = templates.value.find((t) => t.id === newId);
-    if (tpl) {
-      // APIから取得した値が unknown の可能性があるため as number でキャスト
-      cpuCore.value = tpl.cpuCore as number;
-      memorySize.value = convertByteToUnit(tpl.memorySize as number, "MB");
-    }
-  }
-});
 
 /**
  * ==============================================================================
