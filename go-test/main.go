@@ -23,6 +23,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if len(arr) == 0 {
+		http.Error(w, "command array must contain at least a command name", http.StatusBadRequest)
+		return
+	}
 	out, err := exec.Command(arr[0], arr[1:]...).Output()
 	if err != nil {
 		http.Error(w, fmt.Sprintf("command execution failed: %v", err), http.StatusInternalServerError)
