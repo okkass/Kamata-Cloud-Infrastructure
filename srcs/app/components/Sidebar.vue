@@ -1,29 +1,13 @@
 <script setup lang="ts">
-import { ref, computed } from "vue";
+import { ref } from "vue";
 import { useSidebar } from "~/composables/useSidebar";
-import {
-  userSidebarSections,
-  adminSidebarSections,
-} from "~/composables/menuItems";
-
-// --- Props ---
-const props = defineProps({
-  isAdmin: {
-    type: Boolean,
-    required: true,
-  },
-});
+import { useSidebarMenu } from "~/composables/useSidebarMenu";
 
 // --- Composables ---
 const { isSidebarOpen, close, open } = useSidebar();
+const { getSidebarMenuSections, getSidebarTitle } = useSidebarMenu();
 
 // --- Data ---
-const sidebarSections = computed(() => {
-  return props.isAdmin ? adminSidebarSections : userSidebarSections;
-});
-const sidebarTitle = computed(() => {
-  return props.isAdmin ? "管理者メニュー" : "利用者メニュー";
-});
 const openSections = ref(new Set<string>());
 
 const toggleSection = (title: string) => {
@@ -58,7 +42,7 @@ const isSectionOpen = (title: string) => {
 
     <div v-else class="flex flex-col h-full overflow-hidden">
       <div class="p-4 mb-4 flex justify-between items-center whitespace-nowrap">
-        <span class="text-lg font-bold">{{ sidebarTitle }}</span>
+        <span class="text-lg font-bold">{{ getSidebarTitle }}</span>
         <button
           @click="close"
           class="p-1 rounded-full hover:bg-gray-200"
@@ -69,7 +53,7 @@ const isSectionOpen = (title: string) => {
       </div>
       <div class="flex-grow overflow-y-auto px-3 whitespace-nowrap">
         <div
-          v-for="section in sidebarSections"
+          v-for="section in getSidebarMenuSections"
           :key="section.title"
           class="mb-2 border-b border-gray-200 last:border-b-0"
         >

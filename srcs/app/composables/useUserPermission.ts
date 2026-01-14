@@ -62,6 +62,22 @@ export const useUserPermission = () => {
   });
 
   /**
+   * 何らかの管理者権限を持っているかどうかを判定
+   * isAdmin が true、または他の admin 権限のいずれかが true の場合に true を返す
+   */
+  const hasAdminAccess = computed(() => {
+    return (
+      isAdmin.value ||
+      isImageAdmin.value ||
+      isInstanceTypeAdmin.value ||
+      isNetworkAdmin.value ||
+      isNodeAdmin.value ||
+      isSecurityGroupAdmin.value ||
+      isVirtualMachineAdmin.value
+    );
+  });
+
+  /**
    * ユーザー情報を API から取得して保持する。
    * 既に保持済みの場合は再取得しない。
    */
@@ -105,6 +121,7 @@ export const useUserPermission = () => {
     isNodeAdmin,
     isSecurityGroupAdmin,
     isVirtualMachineAdmin,
+    hasAdminAccess,
     fetchUser,
   };
 };
