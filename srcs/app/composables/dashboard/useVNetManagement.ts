@@ -30,29 +30,26 @@ export function useVNetManagement() {
   const { fetchUser, isNetworkAdmin } = useUserPermission();
   void fetchUser();
 
-  // 自分のリソースを取得
+  const tableTitle = computed(() => {
+    return isNetworkAdmin.value
+      ? "仮想ネットワーク（全ユーザー）"
+      : "仮想ネットワーク";
+  });
+
+  const queryOptions = computed(() => {
+    return isNetworkAdmin.value ? { scope: "all" } : undefined;
+  });
+
   const {
     data: rawList,
     pending,
     refresh,
     error,
-  } = useResourceList<VirtualNetworkResponse>(RESOURCE_NAME);
-
-  // スコープ付き（全ユーザーのリソース）を取得
-  const {
-    data: allUsersList,
-    pending: allUsersPending,
-    refresh: refreshAllUsers,
-  } = useResourceList<VirtualNetworkResponse>(RESOURCE_NAME, {
-    scope: "all",
-  });
+  } = useResourceList<VirtualNetworkResponse>(RESOURCE_NAME, queryOptions);
 
   const { startPolling, stopPolling, runOnce, lastUpdatedTime } = createPolling(
     async () => {
       await refresh();
-      if (isNetworkAdmin.value) {
-        await refreshAllUsers();
-      }
     }
   );
 
@@ -90,33 +87,17 @@ export function useVNetManagement() {
     }))
   );
 
-  const allUsersRows = computed<VnetRow[]>(() =>
-    (allUsersList.value ?? []).map((v: VirtualNetworkResponse) => ({
-      id: v.id,
-      name: v.name ?? "-",
-      cidr: v.cidr ?? "-",
-      subnets: Array.isArray(v.subnets) ? v.subnets.length : 0,
-      ownerName: v.owner?.name ?? "-",
-      createdAtText: v.createdAt ? formatDateTime(v.createdAt) : "-",
-      originalData: v,
-    }))
-  );
-
   return {
     pending,
     error,
     columns,
     headerButtons,
     rows,
-    isNetworkAdmin,
-    allUsersList,
-    allUsersRows,
-    allUsersPending,
     refresh,
-    refreshAllUsers,
     lastUpdatedTime,
     startPolling,
     stopPolling,
+    tableTitle,
     CREATE_VNET_ACTION,
     EDIT_VNET_ACTION,
     DELETE_VNET_ACTION,
