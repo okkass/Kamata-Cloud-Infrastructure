@@ -30,16 +30,14 @@ export function useSnapshotManagement() {
   );
 
   // --- API Data ---
-  const { data, pending, error, refresh } = useResourceList<SnapshotResponse>(
-    SNAPSHOT.name
-  );
+  const queryOptions = computed(() => {
+    return isManager.value ? { scope: "all" } : undefined;
+  });
 
-  // 管理者の場合は全リソースを取得
-  const { data: allData, refresh: refreshAll } =
-    useResourceList<SnapshotResponse>(
-      SNAPSHOT.name,
-      computed(() => (isManager.value ? { scope: "all" } : undefined))
-    );
+  const { data, pending, error, refresh } = useResourceList<SnapshotResponse>(
+    SNAPSHOT.name,
+    queryOptions
+  );
 
   const columns = [
     { key: "name", label: "スナップショット名", align: "left" as const },
@@ -63,18 +61,10 @@ export function useSnapshotManagement() {
     (data.value || []).map(formatSnapshot)
   );
 
-  const allDisplaySnapshots = computed<SnapshotRow[]>(() => {
-    if (!isManager.value) return [];
-    return (allData.value || []).map(formatSnapshot);
-  });
-
   // 共通ポーリングユーティリティでのポーリング
   const { startPolling, runOnce, stopPolling, lastUpdatedTime } = createPolling(
     async () => {
       await refresh();
-      if (isManager.value) {
-        await refreshAll();
-      }
     },
     3000
   );
@@ -92,10 +82,8 @@ export function useSnapshotManagement() {
     columns,
     headerButtons,
     displaySnapshots,
-    allDisplaySnapshots,
     isManager,
     refresh,
-    refreshAll,
     startPolling,
     stopPolling,
     lastUpdatedTime,
