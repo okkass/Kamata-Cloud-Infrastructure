@@ -82,6 +82,7 @@ export function useImageEditForm(props: ImageEditProps) {
         onSuccess: () => {
           resetForm();
         },
+        emitCloseImmediately: true,
       },
       emit
     );

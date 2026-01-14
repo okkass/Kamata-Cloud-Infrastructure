@@ -98,6 +98,7 @@ export function useSecurityGroupForm() {
         },
         onSuccessMessage: (payload) =>
           `セキュリティグループ「${payload.name}」を作成しました。`,
+        emitCloseImmediately: true,
       },
       emit
     );

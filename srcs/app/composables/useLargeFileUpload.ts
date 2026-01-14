@@ -110,11 +110,7 @@ export const useLargeFileUpload = () => {
 
       // --- 5. 送信 ---
       const baseUrl = runtimeconfig.public.apiBaseUrl || "";
-      const fullUrl = baseUrl
-        ? `${baseUrl.replace(/\/$/, "")}/api${
-            url.startsWith("/") ? url : `/${url}`
-          }`
-        : url;
+      const fullUrl = baseUrl + `${url}`;
       xhr.open("POST", fullUrl);
       xhr.setRequestHeader("Authorization", "Bearer mock-token"); // ハードコードなので、いずれ本物のトークンに置き換える必要があります
 
