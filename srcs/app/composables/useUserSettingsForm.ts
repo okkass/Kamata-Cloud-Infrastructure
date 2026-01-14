@@ -6,6 +6,7 @@ import {
   type UserClientUpdateInput,
 } from "~/utils/validations/user";
 import { useToast } from "~/composables/useToast";
+import { useUserPermission } from "~/composables/useUserPermission";
 import { extractErrorMessage } from "~/utils/errorHandler";
 import type { PasswordChangeRequest, UserResponse } from "~~/shared/types";
 import { useApiClient } from "~/composables/useResourceClient";
@@ -43,6 +44,7 @@ export const useUserSettingsForm = (props: PropsLike) => {
   const { addToast } = useToast();
   const isUpdating = ref(false);
   const client = useApiClient();
+  const { user } = useUserPermission();
 
   const { errors, meta, defineField, handleSubmit, resetForm } =
     useForm<UserClientUpdateInput>({
@@ -108,7 +110,7 @@ export const useUserSettingsForm = (props: PropsLike) => {
         isUpdating.value = true;
 
         const payload = buildPayload();
-        await updateMe(payload, props.data.value?.id ?? "");
+        await updateMe(payload, user.value?.id ?? "");
 
         addToast({ type: "success", message: "設定を更新しました。" });
 
