@@ -24,8 +24,11 @@
 
     <!-- 編集モーダル（モーダル側を触らず、ページ側で初期値注入を保証） -->
     <MoSecurityGroupEdit
-      :show="isEditOpen"
-      :security-group-data="editSecurityGroupData"
+      v-if="isEditOpen && securityGroup"
+      :key="editKey"
+      :show="true"
+      :data="securityGroup"
+      :security-group-data="securityGroup"
       @close="handleEditClose"
       @success="handleEditSuccess"
     />
@@ -78,12 +81,14 @@ const actions = ref([{ label: "編集", value: "edit" }]);
 
 // 編集モーダル
 const isEditOpen = ref(false);
+const editKey = ref(0);
 
 // ★ モーダルに渡すデータ（“変化”を作って初期化を確実にする）
 const editSecurityGroupData = ref<SecurityGroupResponse | null>(null);
 
 const openEditModal = async () => {
   if (!securityGroup.value) return;
+  editKey.value += 1;
 
   // 同じ参照を渡し続けるとモーダル側のwatchが発火しない実装があるため、
   // null を挟んで「確実に props の変化」を作る
