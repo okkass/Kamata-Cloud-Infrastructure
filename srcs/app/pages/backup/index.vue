@@ -2,7 +2,7 @@
 <template>
   <div>
     <DashboardLayout
-      title="バックアップ・復元管理"
+      :title="tableTitle"
       :columns="columns"
       :rows="backups"
       rowKey="id"
@@ -20,6 +20,10 @@
             {{ row.description }}
           </div>
         </div>
+      </template>
+
+      <template #cell-ownerName="{ row }">
+        <span>{{ row.ownerName }}</span>
       </template>
 
       <template #cell-createdAtText="{ row }">
@@ -97,6 +101,7 @@ const {
   ADD_BACKUP_ACTION,
   DELETE_BACKUP_ACTION,
   RESTORE_BACKUP_ACTION,
+  tableTitle,
 } = useBackupManagement();
 
 /* ページ共通アクション */
