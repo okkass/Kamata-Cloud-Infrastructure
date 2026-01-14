@@ -1,6 +1,7 @@
 // 仮想ネットワーク用の簡易 composable（ページ単体で動くように最小実装）
 import { computed, onMounted, onUnmounted } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
+import { useUserPermission } from "@/composables/useUserPermission";
 import { NETWORK } from "@/utils/constants";
 import { formatDateTime } from "@/utils/date";
 import { createPolling } from "@/utils/polling";
@@ -11,6 +12,7 @@ export type VnetRow = {
   name: string;
   cidr: string;
   subnets: number;
+  ownerName: string;
   createdAtText: string;
   originalData: VirtualNetworkResponse;
 };
@@ -24,6 +26,11 @@ export const DELETE_VNET_ACTION = `delete-${RESOURCE_NAME}`;
  * useVNetManagement
  */
 export function useVNetManagement() {
+  // --- Permissions ---
+  const { fetchUser, isNetworkAdmin } = useUserPermission();
+  void fetchUser();
+
+  // 自分のリソースを取得
   const {
     data: rawList,
     pending,
@@ -31,9 +38,21 @@ export function useVNetManagement() {
     error,
   } = useResourceList<VirtualNetworkResponse>(RESOURCE_NAME);
 
+  // スコープ付き（全ユーザーのリソース）を取得
+  const {
+    data: allUsersList,
+    pending: allUsersPending,
+    refresh: refreshAllUsers,
+  } = useResourceList<VirtualNetworkResponse>(RESOURCE_NAME, {
+    scope: "all",
+  });
+
   const { startPolling, stopPolling, runOnce, lastUpdatedTime } = createPolling(
     async () => {
       await refresh();
+      if (isNetworkAdmin.value) {
+        await refreshAllUsers();
+      }
     }
   );
 
@@ -51,6 +70,7 @@ export function useVNetManagement() {
     { key: "name", label: "名前", align: "left" as const },
     { key: "cidr", label: "CIDR", align: "left" as const },
     { key: "subnets", label: "サブネット数", align: "right" as const },
+    { key: "ownerName", label: "所有者", align: "left" as const },
     { key: "createdAtText", label: "作成日時", align: "left" as const },
   ];
 
@@ -64,6 +84,19 @@ export function useVNetManagement() {
       name: v.name ?? "-",
       cidr: v.cidr ?? "-",
       subnets: Array.isArray(v.subnets) ? v.subnets.length : 0,
+      ownerName: v.owner?.name ?? "-",
+      createdAtText: v.createdAt ? formatDateTime(v.createdAt) : "-",
+      originalData: v,
+    }))
+  );
+
+  const allUsersRows = computed<VnetRow[]>(() =>
+    (allUsersList.value ?? []).map((v: VirtualNetworkResponse) => ({
+      id: v.id,
+      name: v.name ?? "-",
+      cidr: v.cidr ?? "-",
+      subnets: Array.isArray(v.subnets) ? v.subnets.length : 0,
+      ownerName: v.owner?.name ?? "-",
       createdAtText: v.createdAt ? formatDateTime(v.createdAt) : "-",
       originalData: v,
     }))
@@ -75,7 +108,12 @@ export function useVNetManagement() {
     columns,
     headerButtons,
     rows,
+    isNetworkAdmin,
+    allUsersList,
+    allUsersRows,
+    allUsersPending,
     refresh,
+    refreshAllUsers,
     lastUpdatedTime,
     startPolling,
     stopPolling,

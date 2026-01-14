@@ -1,5 +1,6 @@
 <template>
   <div>
+    <!-- ユーザーの所有リソース -->
     <DashboardLayout
       title="仮想ネットワーク"
       :columns="columns"
@@ -50,6 +51,45 @@
         </button>
       </template>
     </DashboardLayout>
+
+    <!-- 管理者用：全ユーザーの所有リソース -->
+    <div v-if="isNetworkAdmin" class="mt-8">
+      <h2 class="text-2xl font-bold mb-4">全ユーザーの仮想ネットワーク</h2>
+      <DashboardLayout
+        :columns="columns"
+        :rows="allUsersRows"
+        rowKey="id"
+        :headerButtons="[]"
+        :pending="allUsersPending"
+      >
+        <template #cell-name="{ row }">
+          <NuxtLink
+            :to="`/network/${encodeURIComponent(String(row.id))}`"
+            class="table-link"
+          >
+            {{ row.name }}
+          </NuxtLink>
+        </template>
+
+        <template #cell-cidr="{ row }">
+          <span class="font-mono">{{ row.cidr }}</span>
+        </template>
+
+        <template #cell-subnets="{ row }">
+          <span class="font-mono">{{ row.subnets }}</span>
+        </template>
+
+        <template #cell-createdAtText="{ row }">
+          <span>{{ row.createdAtText }}</span>
+        </template>
+
+        <template #row-actions="{ row }">
+          <NuxtLink v-if="row" :to="`/network/${row.id}`" class="action-item">
+            詳細
+          </NuxtLink>
+        </template>
+      </DashboardLayout>
+    </div>
   </div>
   <MoVirtualNetworkCreate
     :show="activeModal === `create-${NETWORK.name}`"
@@ -90,7 +130,11 @@ const {
   columns,
   headerButtons,
   rows,
+  isNetworkAdmin,
+  allUsersRows,
+  allUsersPending,
   refresh,
+  refreshAllUsers,
   CREATE_VNET_ACTION,
   EDIT_VNET_ACTION,
   DELETE_VNET_ACTION,
@@ -106,13 +150,21 @@ const {
   isDeleting,
   handleRowAction,
   handleDelete,
-  handleSuccess,
+  handleSuccess: baseHandleSuccess,
   cancelAction,
 } = usePageActions<VnetRow>({
   resourceName: NETWORK.name,
   resourceLabel: NETWORK.label,
   refresh,
 });
+
+/* handleSuccessをカスタマイズして、管理者の場合は全ユーザーテーブルもリフレッシュ */
+const handleSuccess = async () => {
+  await baseHandleSuccess();
+  if (isNetworkAdmin.value) {
+    await refreshAllUsers();
+  }
+};
 
 /* ヘッダーボタンのハンドラー */
 function handleHeaderAction(action: string) {
