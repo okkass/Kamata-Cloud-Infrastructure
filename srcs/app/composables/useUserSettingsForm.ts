@@ -77,25 +77,18 @@ export const useUserSettingsForm = (props: PropsLike) => {
     )
   );
 
-  const buildPayload = (): {
-    name: string;
-    email: string;
-    passwordChange?: PasswordChangeRequest;
-  } => {
-    const payload = {
+  const buildPayload = (): { name: string; email: string } => {
+    return {
       name: name.value,
       email: email.value,
     };
+  };
 
-    if (wantsPasswordChange.value) {
-      const passwordChange: PasswordChangeRequest = {
-        currentPassword: (currentPassword.value ?? "").trim(),
-        newPassword: (newPassword.value ?? "").trim(),
-      };
-      return { ...payload, passwordChange };
-    }
-
-    return payload;
+  const buildPasswordChangePayload = (): PasswordChangeRequest => {
+    return {
+      currentPassword: (currentPassword.value ?? "").trim(),
+      newPassword: (newPassword.value ?? "").trim(),
+    };
   };
 
   const updateMe = async (
@@ -104,15 +97,44 @@ export const useUserSettingsForm = (props: PropsLike) => {
   ): Promise<void> => {
     await client.patch(`/users/${id}`, payload);
   };
+
+  const changePassword = async (
+    payload: PasswordChangeRequest,
+    id: string
+  ): Promise<void> => {
+    await client.post(`/users/${id}/change-password`, payload);
+  };
   const onFormSubmit = () =>
     handleSubmit(async () => {
       try {
         isUpdating.value = true;
+        const userId = user.value?.id ?? "";
 
+        // 基本情報の更新
         const payload = buildPayload();
-        await updateMe(payload, user.value?.id ?? "");
+        await updateMe(payload, userId);
 
-        addToast({ type: "success", message: "設定を更新しました。" });
+        // パスワード変更が必要な場合は別途処理
+        if (wantsPasswordChange.value) {
+          const passwordPayload = buildPasswordChangePayload();
+          try {
+            await changePassword(passwordPayload, userId);
+            addToast({
+              type: "success",
+              message: "設定とパスワードを更新しました。",
+            });
+          } catch (passwordError: unknown) {
+            const passwordMsg = getErrorMessage(
+              passwordError,
+              "パスワード変更に失敗しました。"
+            );
+            addToast({ type: "error", message: passwordMsg });
+            // パスワード変更エラー時は基本情報更新のみ成功状態で終了
+            return;
+          }
+        } else {
+          addToast({ type: "success", message: "設定を更新しました。" });
+        }
 
         // 更新後：パスワード欄だけクリア（name/emailは保持）
         resetForm({
