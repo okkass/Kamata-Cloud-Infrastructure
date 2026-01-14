@@ -36,9 +36,13 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	fmt.Printf("Command output: %s\n", out)
 
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(map[string]any{
+	if err := json.NewEncoder(w).Encode(map[string]any{
 		"output": string(out),
-	})
+	}); err != nil {
+		fmt.Printf("failed to encode JSON response: %v\n", err)
+		http.Error(w, "failed to encode JSON response", http.StatusInternalServerError)
+		return
+	}
 }
 
 func main() {
