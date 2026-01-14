@@ -46,6 +46,9 @@
                 v-model="rule.protocol"
                 :options="protocolOptions"
                 @change="onProtocolChange(rule)"
+                placeholder="選択してください"
+                placeholderValue=""
+                required
                 class="py-1 text-sm"
               />
             </div>
@@ -103,6 +106,9 @@
                 label="アクション"
                 v-model="rule.action"
                 :options="actionOptions"
+                placeholder="選択してください"
+                placeholderValue=""
+                required
                 class="py-1 text-sm"
               />
             </div>
