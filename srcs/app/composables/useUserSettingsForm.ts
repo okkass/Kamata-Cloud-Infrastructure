@@ -8,6 +8,7 @@ import {
 import { useToast } from "~/composables/useToast";
 import { extractErrorMessage } from "~/utils/errorHandler";
 import type { PasswordChangeRequest, UserResponse } from "~~/shared/types";
+import { useApiClient } from "~/composables/useResourceClient";
 
 type PropsLike = {
   data: Ref<UserResponse | null>;
@@ -41,6 +42,7 @@ const getErrorMessage = (
 export const useUserSettingsForm = (props: PropsLike) => {
   const { addToast } = useToast();
   const isUpdating = ref(false);
+  const client = useApiClient();
 
   const { errors, meta, defineField, handleSubmit, resetForm } =
     useForm<UserClientUpdateInput>({
@@ -95,9 +97,10 @@ export const useUserSettingsForm = (props: PropsLike) => {
   };
 
   const updateMe = async (
-    payload: ReturnType<typeof buildPayload>
+    payload: ReturnType<typeof buildPayload>,
+    id: string
   ): Promise<void> => {
-    await $fetch("/api/me", { method: "PATCH", body: payload });
+    await client.patch(`/users/${id}`, payload);
   };
   const onFormSubmit = () =>
     handleSubmit(async () => {
@@ -105,7 +108,7 @@ export const useUserSettingsForm = (props: PropsLike) => {
         isUpdating.value = true;
 
         const payload = buildPayload();
-        await updateMe(payload);
+        await updateMe(payload, props.data.value?.id ?? "");
 
         addToast({ type: "success", message: "設定を更新しました。" });
 
