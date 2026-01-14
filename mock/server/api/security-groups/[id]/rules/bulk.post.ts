@@ -8,7 +8,7 @@ import type {
 import { validateUUID } from "@/utils/validate";
 import {
   createSecurityGroupRuleSchema,
-  updateSecurityGroupRuleSchema,
+  partialUpdateSecurityGroupRuleSchema,
 } from "@/zodSchemas";
 import type { BulkRequest } from "@/types/BulkRequest";
 
@@ -27,7 +27,7 @@ export default defineEventHandler(async (event) => {
   return bulkResource(
     body,
     createSecurityGroupRuleSchema,
-    updateSecurityGroupRuleSchema,
+    partialUpdateSecurityGroupRuleSchema,
     service.create,
     service.update,
     service.delete,
