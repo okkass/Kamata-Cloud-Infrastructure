@@ -30,7 +30,7 @@ const createRefreshToken = async (uuid: string): Promise<string> => {
   const expiredAt = new Date(
     now.getTime() + TOKEN_EXPIRATION_DAYS * 24 * 60 * 60 * 1000
   );
-  await prisma.refleshToken.create({
+  await prisma.refreshToken.create({
     data: {
       token: hashedToken,
       userId: user.id,
@@ -46,17 +46,17 @@ const getRefreshTokenByToken = async (
   const prisma = getPrismaClient();
   const tokenBuffer = Buffer.from(token, "base64");
   const hashedToken = createHash("sha256").update(tokenBuffer).digest();
-  const refleshToken = await prisma.refleshToken.findUnique({
+  const refreshToken = await prisma.refreshToken.findUnique({
     where: {
       token: hashedToken,
     },
   });
-  if (!refleshToken) {
+  if (!refreshToken) {
     return null;
   }
   const user = await prisma.user.findUnique({
     where: {
-      id: refleshToken.userId,
+      id: refreshToken.userId,
     },
     select: {
       uuid: true,
@@ -67,8 +67,8 @@ const getRefreshTokenByToken = async (
   }
   return {
     userId: user.uuid,
-    expiredAt: refleshToken.expiredAt,
-    revokedAt: refleshToken.revokedAt,
+    expiredAt: refreshToken.expiredAt,
+    revokedAt: refreshToken.revokedAt,
   };
 };
 
@@ -76,7 +76,7 @@ const revokeRefreshToken = async (token: string): Promise<void> => {
   const prisma = getPrismaClient();
   const tokenBuffer = Buffer.from(token, "base64");
   const hashedToken = createHash("sha256").update(tokenBuffer).digest();
-  await prisma.refleshToken.update({
+  await prisma.refreshToken.update({
     where: {
       token: hashedToken,
       revokedAt: null,
@@ -100,7 +100,7 @@ const revokeTokenByUserId = async (userId: string): Promise<void> => {
   if (!user) {
     throw new NotFoundError("User not found");
   }
-  await prisma.refleshToken.updateMany({
+  await prisma.refreshToken.updateMany({
     where: {
       userId: user.id,
       revokedAt: null,
