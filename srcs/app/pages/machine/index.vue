@@ -123,6 +123,7 @@
 
 <script setup lang="ts">
 import { MACHINE } from "@/utils/constants";
+import { clampPercent } from "@/utils/format";
 import {
   useVMachineManagement,
   type VirtualMachineRow,
@@ -186,10 +187,5 @@ const deleteMessage = computed(() => {
   const name = targetForDeletion.value?.name ?? "";
   return `本当に「${name}」を削除しますか？`;
 });
-
-/* パーセント値を安全に0-100の範囲に制限 */
-function clampPercent(value: number | undefined | null): number {
-  if (value == null || isNaN(value)) return 0;
-  return Math.max(0, Math.min(100, value));
-}
+</script>
 </script>
