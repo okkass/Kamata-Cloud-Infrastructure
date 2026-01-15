@@ -31,7 +31,11 @@
       </template>
 
       <template #row-actions="{ row }">
-        <NuxtLink v-if="row" :to="`/network/${row.id}`" class="action-item">
+        <NuxtLink
+          v-if="row"
+          :to="`/network/${encodeURIComponent(String(row.id))}`"
+          class="action-item"
+        >
           詳細
         </NuxtLink>
         <button

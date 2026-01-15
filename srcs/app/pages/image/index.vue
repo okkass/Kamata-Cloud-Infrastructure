@@ -10,7 +10,10 @@
       @row-action="handleRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink :to="`/image/${row.id}`" class="table-link">
+        <NuxtLink
+          :to="`/image/${encodeURIComponent(String(row.id))}`"
+          class="table-link"
+        >
           {{ row.name }}
         </NuxtLink>
       </template>
@@ -24,7 +27,11 @@
       </template>
 
       <template #row-actions="{ row }">
-        <NuxtLink :to="`/image/${row?.id}`" class="action-item">詳細</NuxtLink>
+        <NuxtLink
+          :to="`/image/${encodeURIComponent(String(row?.id))}`"
+          class="action-item"
+          >詳細</NuxtLink
+        >
 
         <button
           type="button"

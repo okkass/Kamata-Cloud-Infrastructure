@@ -11,7 +11,10 @@
     >
       <template #cell-name="{ row }">
         <div v-if="row">
-          <NuxtLink :to="`/node/${row.id}`" class="table-link">
+          <NuxtLink
+            :to="`/node/${encodeURIComponent(String(row.id))}`"
+            class="table-link"
+          >
             {{ row.name }}
             <span v-if="row.isMgmt" class="cell-note">（管理ノード）</span>
           </NuxtLink>
@@ -34,7 +37,10 @@
 
       <template #row-actions="{ row }">
         <div v-if="row">
-          <NuxtLink :to="`/node/${row.id}`" class="action-item">
+          <NuxtLink
+            :to="`/node/${encodeURIComponent(String(row.id))}`"
+            class="action-item"
+          >
             詳細
           </NuxtLink>
           <button

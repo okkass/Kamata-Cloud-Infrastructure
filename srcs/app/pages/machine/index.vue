@@ -13,7 +13,10 @@
     @row-action="onRowAction"
   >
     <template #cell-name="{ row }">
-      <NuxtLink :to="`/machine/${row.id}`" class="table-link">
+      <NuxtLink
+        :to="`/machine/${encodeURIComponent(String(row.id))}`"
+        class="table-link"
+      >
         {{ row.name }}
       </NuxtLink>
     </template>
@@ -72,7 +75,7 @@
     <template #row-actions="{ row, emit }">
       <NuxtLink
         v-if="row"
-        :to="`/machine/${row.id}`"
+        :to="`/machine/${encodeURIComponent(String(row.id))}`"
         class="action-item first:border-t-0"
       >
         詳細

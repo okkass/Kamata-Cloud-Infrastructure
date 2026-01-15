@@ -14,13 +14,19 @@
     >
       <template #cell-name="{ row }">
         <div v-if="row">
-          <NuxtLink :to="`/security-group/${row.id}`" class="table-link">
+          <NuxtLink
+            :to="`/security-group/${encodeURIComponent(String(row.id))}`"
+            class="table-link"
+          >
             {{ row.name }}
           </NuxtLink>
         </div>
       </template>
       <template #row-actions="{ row }">
-        <NuxtLink :to="`/security-group/${row?.id}`" class="action-item">
+        <NuxtLink
+          :to="`/security-group/${encodeURIComponent(String(row?.id))}`"
+          class="action-item"
+        >
           詳細
         </NuxtLink>
         <button

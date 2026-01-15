@@ -10,7 +10,10 @@
       @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink :to="`/user/${row.id}`" class="table-link">
+        <NuxtLink
+          :to="`/user/${encodeURIComponent(String(row.id))}`"
+          class="table-link"
+        >
           {{ row.name }}
         </NuxtLink>
       </template>
@@ -25,7 +28,11 @@
 
       <template #row-actions="{ row }">
         <div v-if="row">
-          <NuxtLink :to="`/user/${row.id}`" class="action-item">詳細</NuxtLink>
+          <NuxtLink
+            :to="`/user/${encodeURIComponent(String(row.id))}`"
+            class="action-item"
+            >詳細</NuxtLink
+          >
 
           <button
             class="action-item"

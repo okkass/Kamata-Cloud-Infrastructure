@@ -10,7 +10,10 @@
       @row-action="handleRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink :to="`/instance-type/${row.id}`" class="table-link">
+        <NuxtLink
+          :to="`/instance-type/${encodeURIComponent(String(row.id))}`"
+          class="table-link"
+        >
           {{ row.name }}
         </NuxtLink>
       </template>
@@ -30,7 +33,7 @@
       <template #row-actions="{ row }">
         <NuxtLink
           v-if="row"
-          :to="`/instance-type/${row.id}`"
+          :to="`/instance-type/${encodeURIComponent(String(row.id))}`"
           class="action-item"
         >
           詳細
