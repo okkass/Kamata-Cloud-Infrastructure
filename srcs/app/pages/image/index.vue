@@ -56,7 +56,7 @@
 
     <MoDeleteConfirm
       :show="activeModal === DELETE_IMAGE_ACTION"
-      :message="`本当にイメージ「${targetForDeletion?.name}」を削除しますか？`"
+      :message="deleteMessage"
       :is-loading="isDeleting"
       @close="cancelAction"
       @confirm="handleDelete"
@@ -110,5 +110,11 @@ const {
   resourceName: IMAGE.name,
   resourceLabel: "イメージ",
   refresh,
+});
+
+/* 削除確認メッセージ（XSS対策） */
+const deleteMessage = computed(() => {
+  const name = targetForDeletion.value?.name ?? "";
+  return `本当にイメージ「${name}」を削除しますか？`;
 });
 </script>

@@ -50,7 +50,7 @@
         <div class="h-2 w-full rounded-full bg-slate-200">
           <div
             class="h-full rounded-full bg-blue-500"
-            :style="{ width: `${row.cpuUtilizationPercent}%` }"
+            :style="{ width: `${clampPercent(row.cpuUtilizationPercent)}%` }"
           />
         </div>
       </div>
@@ -66,7 +66,7 @@
         <div class="h-2 w-full rounded-full bg-slate-200">
           <div
             class="h-full rounded-full bg-blue-500"
-            :style="{ width: `${row.memoryUtilizationPercent}%` }"
+            :style="{ width: `${clampPercent(row.memoryUtilizationPercent)}%` }"
           />
         </div>
       </div>
@@ -118,7 +118,7 @@
     :is-loading="isDeleting"
     :resource-label="MACHINE.label"
     :resource-name="targetForDeletion?.name"
-    :message="`本当に「${targetForDeletion?.name ?? ''}」を削除しますか？`"
+    :message="deleteMessage"
     @close="cancelAction"
     @confirm="handleDelete"
   />
@@ -182,5 +182,17 @@ function onRowAction({
   row: VirtualMachineRow;
 }) {
   handleRowAction({ action, row });
+}
+
+/* 削除確認メッセージ（XSS対策） */
+const deleteMessage = computed(() => {
+  const name = targetForDeletion.value?.name ?? "";
+  return `本当に「${name}」を削除しますか？`;
+});
+
+/* パーセント値を安全に0-100の範囲に制限 */
+function clampPercent(value: number | undefined | null): number {
+  if (value == null || isNaN(value)) return 0;
+  return Math.max(0, Math.min(100, value));
 }
 </script>

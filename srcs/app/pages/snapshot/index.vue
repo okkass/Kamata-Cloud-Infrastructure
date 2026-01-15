@@ -65,7 +65,7 @@
 
   <MoDeleteConfirm
     :show="activeModal === DELETE_SNAPSHOT_ACTION"
-    :message="`本当にスナップショット「${targetForDeletion?.name}」を削除しますか？`"
+    :message="deleteMessage"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
@@ -137,4 +137,10 @@ const onRestoreSuccess = async () => {
   closeModal();
   await refresh();
 };
+
+/* 削除確認メッセージ（XSS対策） */
+const deleteMessage = computed(() => {
+  const name = targetForDeletion.value?.name ?? "";
+  return `本当にスナップショット「${name}」を削除しますか？`;
+});
 </script>

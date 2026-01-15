@@ -61,7 +61,7 @@
           <div class="h-2 w-full rounded-full bg-black/20">
             <div
               class="h-full rounded-full bg-white transition-all duration-300 ease-out"
-              :style="{ width: `${toast.progress}%` }"
+              :style="{ width: `${clampPercent(toast.progress)}%` }"
             ></div>
           </div>
         </div>
@@ -88,4 +88,10 @@ const toastIcons = {
   warning: resolveComponent("IconWarning"),
   error: resolveComponent("IconError"),
 };
+
+/* パーセント値を安全に0-100の範囲に制限 */
+function clampPercent(value: number | undefined | null): number {
+  if (value == null || isNaN(value)) return 0;
+  return Math.max(0, Math.min(100, value));
+}
 </script>

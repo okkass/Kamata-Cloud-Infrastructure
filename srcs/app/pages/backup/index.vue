@@ -64,7 +64,7 @@
     <!-- 削除確認モーダル -->
     <MoDeleteConfirm
       :show="activeModal === DELETE_BACKUP_ACTION"
-      :message="`本当にバックアップ「${targetForDeletion?.name}」を削除しますか？`"
+      :message="deleteMessage"
       :is-loading="isDeleting"
       @close="cancelAction"
       @confirm="handleDelete"
@@ -138,4 +138,10 @@ function onRowAction({ action, row }: { action: string; row: BackupRow }) {
   }
   handleRowAction({ action, row });
 }
+
+/* 削除確認メッセージ（XSS対策） */
+const deleteMessage = computed(() => {
+  const name = targetForDeletion.value?.name ?? "";
+  return `本当にバックアップ「${name}」を削除しますか？`;
+});
 </script>
