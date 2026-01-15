@@ -82,20 +82,22 @@ export const useUserPermission = () => {
    * 既に保持済みの場合は再取得しない。
    */
   const fetchUser = async () => {
+    console.log("fetchUser called. Current user state:", user.value);
     // 既にユーザー情報があれば再取得しない
     if (user.value !== null) return;
 
+    const config = useRuntimeConfig();
+    // console.log("Permission Debug: apiBaseUrl is", config.public.apiBaseUrl);
+
     try {
-      const { data } = await useFetch("users/me", {
-        $fetch: useNuxtApp().$apiFetch,
-      });
+      // useFetch は setup 直下以外で使うと挙動が不安定になるため、
+      // 関数内では直接 $apiFetch を使用してデータを取得する
+      // console.log("Permission Debug: Executing $apiFetch...");
 
-      if (!data.value) {
-        user.value = null; // または適切な初期値
-        return;
-      }
+      const res = await useNuxtApp().$apiFetch<UserResponse>("users/me");
 
-      const res = data.value as UserResponse;
+      // console.log("Permission Debug: $apiFetch success", res);
+
       user.value = {
         id: res.id,
         isAdmin: res.isAdmin,
@@ -111,7 +113,6 @@ export const useUserPermission = () => {
       user.value = null; // エラー時はnullに設定
     }
   };
-
   return {
     user,
     isAdmin,

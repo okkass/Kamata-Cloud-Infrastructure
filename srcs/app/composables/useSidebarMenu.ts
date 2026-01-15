@@ -57,10 +57,7 @@ export const useSidebarMenu = () => {
     {
       title: "セキュリティグループ",
       links: [{ text: "セキュリティグループ", href: "/security-group" }],
-      shouldDisplay: (p) =>
-        p.isSecurityGroupAdmin.value ||
-        p.isVirtualMachineAdmin.value ||
-        p.isAdmin.value,
+      shouldDisplay: () => true,
     },
     {
       title: "仮想マシン管理",
@@ -69,16 +66,12 @@ export const useSidebarMenu = () => {
         { text: "スナップショット", href: "/snapshot" },
         { text: "バックアップ管理", href: "/backup" },
       ],
-      shouldDisplay: (p) =>
-        p.isVirtualMachineAdmin.value ||
-        p.isAdmin.value ||
-        !p.hasAdminAccess.value,
+      shouldDisplay: () => true,
     },
     {
       title: "仮想ネットワーク管理",
       links: [{ text: "仮想ネットワーク", href: "/network" }],
-      shouldDisplay: (p) =>
-        p.isNetworkAdmin.value || p.isAdmin.value || !p.hasAdminAccess.value,
+      shouldDisplay: () => true,
     },
     {
       title: "インスタンスタイプ",

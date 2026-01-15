@@ -22,7 +22,6 @@ import DefaultHeader from "~/components/DefaultHeader.vue";
 const { fetchUser } = useUserPermission();
 const { isSidebarOpen } = useSidebar(); // サイドバーの開閉状態を取得
 
-onMounted(() => {
-  fetchUser();
-});
+// SSRで実行されるようにトップレベルで呼び出す
+await fetchUser();
 </script>

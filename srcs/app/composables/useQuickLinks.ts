@@ -32,10 +32,7 @@ export const useQuickLinks = () => {
     {
       text: "仮想マシン管理",
       href: "/machine",
-      shouldDisplay: (p) =>
-        p.isVirtualMachineAdmin.value ||
-        p.isAdmin.value ||
-        !p.hasAdminAccess.value,
+      shouldDisplay: () => true,
     },
     {
       text: "ノード",
@@ -55,17 +52,12 @@ export const useQuickLinks = () => {
     {
       text: "仮想ネットワーク管理",
       href: "/network",
-      shouldDisplay: (p) =>
-        p.isNetworkAdmin.value || p.isAdmin.value || !p.hasAdminAccess.value,
+      shouldDisplay: () => true,
     },
     {
       text: "セキュリティグループ",
       href: "/security-group",
-      shouldDisplay: (p) =>
-        p.isSecurityGroupAdmin.value ||
-        p.isVirtualMachineAdmin.value ||
-        p.isAdmin.value ||
-        !p.hasAdminAccess.value,
+      shouldDisplay: () => true,
     },
     {
       text: "ストレージ",

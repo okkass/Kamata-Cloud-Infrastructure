@@ -12,9 +12,10 @@ const SECURITY_GROUP_ADMIN = "e8aa4853-30a3-4eb9-8003-2216c8fd34d9";
 const VM_ADMIN = "ce30b9d2-cadf-47b8-8676-3f97a6cd4ef3";
 
 export default defineEventHandler((event) => {
-  const target = NO_ADMIN; // ここを書き換えると返すユーザーを変更できる
+  const target = ADMIN; // ここを書き換えると返すユーザーを変更できる
 
   // モックなので固定のユーザーを返す
+  console.log("Mock Debug: Target User ID", target);
   const permission = getPermissionFromEvent(event);
   const service = getUserService(permission);
 
