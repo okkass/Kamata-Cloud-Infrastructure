@@ -1,7 +1,15 @@
 <script setup lang="ts" generic="T extends Record<string, any>">
 // ✨ generic属性を追加
-import { ref, computed, onMounted, onBeforeUnmount, useSlots } from "vue";
+import {
+  ref,
+  computed,
+  onMounted,
+  onBeforeUnmount,
+  useSlots,
+  watch,
+} from "vue";
 import type { PropType } from "vue";
+import { useModal } from "~/composables/useModal";
 
 // ==============================================================================
 // 型定義 (Type Definitions)
@@ -36,6 +44,7 @@ const emit = defineEmits<{
 // ==============================================================================
 const openKey = ref<string | number | null>(null);
 const menuPos = ref({ top: 0, left: 0 });
+const { activeModal } = useModal();
 
 // ==============================================================================
 // 算出プロパティ (Computed Properties)
@@ -93,6 +102,13 @@ const handleEscapeKey = (event: KeyboardEvent) => {
 // ==============================================================================
 // ライフサイクルフック (Lifecycle Hooks)
 // ==============================================================================
+// モーダルが開いたら三点リーダーメニューを閉じる
+watch(activeModal, (newVal) => {
+  if (newVal !== null) {
+    closeMenu();
+  }
+});
+
 onMounted(() => {
   document.addEventListener("click", handleOutsideClick);
   window.addEventListener("keydown", handleEscapeKey);
@@ -146,9 +162,7 @@ onBeforeUnmount(() => {
             <th
               v-if="hasRowActions"
               class="table-header-cell text-center sticky right-0 z-10 bg-gray-100"
-            >
-              操作
-            </th>
+            ></th>
           </tr>
         </thead>
         <tbody>
