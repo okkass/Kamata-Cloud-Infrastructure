@@ -15,7 +15,6 @@ export default defineEventHandler((event) => {
   const target = ADMIN; // ここを書き換えると返すユーザーを変更できる
 
   // モックなので固定のユーザーを返す
-  console.log("Mock Debug: Target User ID", target);
   const permission = getPermissionFromEvent(event);
   const service = getUserService(permission);
 
