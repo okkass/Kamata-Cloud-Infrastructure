@@ -35,21 +35,6 @@ export const useQuickLinks = () => {
       shouldDisplay: () => true,
     },
     {
-      text: "ノード",
-      href: "/node",
-      shouldDisplay: (p) => p.isNodeAdmin.value || p.isAdmin.value,
-    },
-    {
-      text: "イメージ管理",
-      href: "/image",
-      shouldDisplay: (p) => p.isImageAdmin.value || p.isAdmin.value,
-    },
-    {
-      text: "インスタンスタイプ",
-      href: "/instance-type",
-      shouldDisplay: (p) => p.isInstanceTypeAdmin.value || p.isAdmin.value,
-    },
-    {
       text: "仮想ネットワーク管理",
       href: "/network",
       shouldDisplay: () => true,
@@ -58,21 +43,6 @@ export const useQuickLinks = () => {
       text: "セキュリティグループ",
       href: "/security-group",
       shouldDisplay: () => true,
-    },
-    {
-      text: "ストレージ",
-      href: "/storage-pool",
-      shouldDisplay: (p) => p.isAdmin.value,
-    },
-    {
-      text: "利用者管理",
-      href: "/user",
-      shouldDisplay: (p) => p.isAdmin.value,
-    },
-    {
-      text: "アカウント設定",
-      href: "/settings",
-      shouldDisplay: () => true, // 全員表示
     },
   ];
 
