@@ -10,10 +10,7 @@
       @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink
-          :to="`/network/${encodeURIComponent(String(row.id))}`"
-          class="table-link"
-        >
+        <NuxtLink :to="`/network/${row.id}`" class="table-link">
           {{ row.name }}
         </NuxtLink>
       </template>
@@ -31,11 +28,7 @@
       </template>
 
       <template #row-actions="{ row }">
-        <NuxtLink
-          v-if="row"
-          :to="`/network/${encodeURIComponent(String(row.id))}`"
-          class="action-item"
-        >
+        <NuxtLink v-if="row" :to="`/network/${row.id}`" class="action-item">
           詳細
         </NuxtLink>
         <button
@@ -131,7 +124,7 @@ function onRowAction({ action, row }: { action: string; row: VnetRow }) {
   handleRowAction({ action, row });
 }
 
-/* 削除確認メッセージ（XSS対策） */
+/* 削除確認メッセージ */
 const deleteMessage = computed(() => {
   const name = targetForDeletion.value?.name ?? "";
   return `本当に「${name}」を削除しますか？`;

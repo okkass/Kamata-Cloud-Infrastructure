@@ -11,10 +11,7 @@
       @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink
-          :to="`/storage-pool/${encodeURIComponent(String(row.id))}`"
-          class="table-link"
-        >
+        <NuxtLink :to="`/storage-pool/${row.id}`" class="table-link">
           {{ row.name }}
         </NuxtLink>
       </template>
@@ -42,7 +39,7 @@
       <template #row-actions="{ row }">
         <NuxtLink
           v-if="row"
-          :to="`/storage-pool/${encodeURIComponent(String(row.id))}`"
+          :to="`/storage-pool/${row.id}`"
           class="action-item"
         >
           詳細
@@ -142,7 +139,7 @@ function onRowAction({ action, row }: { action: string; row: StoragePoolRow }) {
   handleRowAction({ action, row });
 }
 
-/* 削除確認メッセージ（XSS対策） */
+/* 削除確認メッセージ */
 const deleteMessage = computed(() => {
   const name = targetForDeletion.value?.name ?? "";
   return `本当にストレージプール「${name}」を削除しますか？`;

@@ -138,7 +138,7 @@ const onRestoreSuccess = async () => {
   await refresh();
 };
 
-/* 削除確認メッセージ（XSS対策） */
+/* 削除確認メッセージ */
 const deleteMessage = computed(() => {
   const name = targetForDeletion.value?.name ?? "";
   return `本当にスナップショット「${name}」を削除しますか？`;

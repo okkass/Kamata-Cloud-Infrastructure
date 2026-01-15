@@ -10,10 +10,7 @@
       @row-action="handleRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink
-          :to="`/image/${encodeURIComponent(String(row.id))}`"
-          class="table-link"
-        >
+        <NuxtLink :to="`/image/${row.id}`" class="table-link">
           {{ row.name }}
         </NuxtLink>
       </template>
@@ -27,11 +24,7 @@
       </template>
 
       <template #row-actions="{ row }">
-        <NuxtLink
-          :to="`/image/${encodeURIComponent(String(row?.id))}`"
-          class="action-item"
-          >詳細</NuxtLink
-        >
+        <NuxtLink :to="`/image/${row?.id}`" class="action-item">詳細</NuxtLink>
 
         <button
           type="button"
@@ -112,7 +105,7 @@ const {
   refresh,
 });
 
-/* 削除確認メッセージ（XSS対策） */
+/* 削除確認メッセージ */
 const deleteMessage = computed(() => {
   const name = targetForDeletion.value?.name ?? "";
   return `本当にイメージ「${name}」を削除しますか？`;

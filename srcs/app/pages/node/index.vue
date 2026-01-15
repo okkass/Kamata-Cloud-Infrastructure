@@ -11,10 +11,7 @@
     >
       <template #cell-name="{ row }">
         <div v-if="row">
-          <NuxtLink
-            :to="`/node/${encodeURIComponent(String(row.id))}`"
-            class="table-link"
-          >
+          <NuxtLink :to="`/node/${row.id}`" class="table-link">
             {{ row.name }}
             <span v-if="row.isMgmt" class="cell-note">（管理ノード）</span>
           </NuxtLink>
@@ -37,10 +34,7 @@
 
       <template #row-actions="{ row }">
         <div v-if="row">
-          <NuxtLink
-            :to="`/node/${encodeURIComponent(String(row.id))}`"
-            class="action-item"
-          >
+          <NuxtLink :to="`/node/${row.id}`" class="action-item">
             詳細
           </NuxtLink>
           <button
@@ -130,7 +124,7 @@ const onRowAction = ({ action, row }: { action: string; row: UiNode }) => {
   }
 };
 
-/* 削除確認メッセージ（XSS対策） */
+/* 削除確認メッセージ */
 const deleteMessage = computed(() => {
   const name = targetForDeletion.value?.name ?? "";
   return `本当にノード「${name}」を削除しますか？`;

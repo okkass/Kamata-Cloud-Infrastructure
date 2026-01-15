@@ -10,10 +10,7 @@
       @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink
-          :to="`/user/${encodeURIComponent(String(row.id))}`"
-          class="table-link"
-        >
+        <NuxtLink :to="`/user/${row.id}`" class="table-link">
           {{ row.name }}
         </NuxtLink>
       </template>
@@ -28,11 +25,7 @@
 
       <template #row-actions="{ row }">
         <div v-if="row">
-          <NuxtLink
-            :to="`/user/${encodeURIComponent(String(row.id))}`"
-            class="action-item"
-            >詳細</NuxtLink
-          >
+          <NuxtLink :to="`/user/${row.id}`" class="action-item">詳細</NuxtLink>
 
           <button
             class="action-item"
@@ -114,7 +107,7 @@ const onRowAction = ({ action, row }: { action: string; row: UserRow }) => {
   handleRowAction({ action, row });
 };
 
-/* 削除確認メッセージ（XSS対策） */
+/* 削除確認メッセージ */
 const deleteMessage = computed(() => {
   const name = targetForDeletion.value?.name ?? "";
   return `本当に利用者「${name}」を削除しますか？`;

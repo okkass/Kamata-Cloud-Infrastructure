@@ -38,7 +38,7 @@
             <NuxtLink
               v-for="vm in group.vms"
               :key="vm.id"
-              :to="`/machine/${encodeURIComponent(String(vm.id))}`"
+              :to="`/machine/${vm.id}`"
               class="block rounded-lg border border-neutral-200 bg-white px-4 py-3 text-sm hover:border-indigo-300 hover:shadow-sm transition"
             >
               <div class="flex items-center justify-between">

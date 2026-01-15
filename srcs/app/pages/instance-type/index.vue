@@ -10,10 +10,7 @@
       @row-action="handleRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink
-          :to="`/instance-type/${encodeURIComponent(String(row.id))}`"
-          class="table-link"
-        >
+        <NuxtLink :to="`/instance-type/${row.id}`" class="table-link">
           {{ row.name }}
         </NuxtLink>
       </template>
@@ -33,7 +30,7 @@
       <template #row-actions="{ row }">
         <NuxtLink
           v-if="row"
-          :to="`/instance-type/${encodeURIComponent(String(row.id))}`"
+          :to="`/instance-type/${row.id}`"
           class="action-item"
         >
           詳細
@@ -130,7 +127,7 @@ function handleHeaderAction(action: string) {
   }
 }
 
-/* 削除確認メッセージ（XSS対策） */
+/* 削除確認メッセージ */
 const deleteMessage = computed(() => {
   const name = targetForDeletion.value?.name ?? "";
   return `本当にインスタンスタイプ「${name}」を削除しますか？`;

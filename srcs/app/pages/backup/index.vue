@@ -139,7 +139,7 @@ function onRowAction({ action, row }: { action: string; row: BackupRow }) {
   handleRowAction({ action, row });
 }
 
-/* 削除確認メッセージ（XSS対策） */
+/* 削除確認メッセージ */
 const deleteMessage = computed(() => {
   const name = targetForDeletion.value?.name ?? "";
   return `本当にバックアップ「${name}」を削除しますか？`;

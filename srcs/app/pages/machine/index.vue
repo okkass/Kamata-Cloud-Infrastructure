@@ -13,10 +13,7 @@
     @row-action="onRowAction"
   >
     <template #cell-name="{ row }">
-      <NuxtLink
-        :to="`/machine/${encodeURIComponent(String(row.id))}`"
-        class="table-link"
-      >
+      <NuxtLink :to="`/machine/${row.id}`" class="table-link">
         {{ row.name }}
       </NuxtLink>
     </template>
@@ -75,7 +72,7 @@
     <template #row-actions="{ row, emit }">
       <NuxtLink
         v-if="row"
-        :to="`/machine/${encodeURIComponent(String(row.id))}`"
+        :to="`/machine/${row.id}`"
         class="action-item first:border-t-0"
       >
         詳細
@@ -184,7 +181,7 @@ function onRowAction({
   handleRowAction({ action, row });
 }
 
-/* 削除確認メッセージ（XSS対策） */
+/* 削除確認メッセージ */
 const deleteMessage = computed(() => {
   const name = targetForDeletion.value?.name ?? "";
   return `本当に「${name}」を削除しますか？`;

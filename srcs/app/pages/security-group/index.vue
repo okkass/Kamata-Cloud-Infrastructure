@@ -14,19 +14,13 @@
     >
       <template #cell-name="{ row }">
         <div v-if="row">
-          <NuxtLink
-            :to="`/security-group/${encodeURIComponent(String(row.id))}`"
-            class="table-link"
-          >
+          <NuxtLink :to="`/security-group/${row.id}`" class="table-link">
             {{ row.name }}
           </NuxtLink>
         </div>
       </template>
       <template #row-actions="{ row }">
-        <NuxtLink
-          :to="`/security-group/${encodeURIComponent(String(row?.id))}`"
-          class="action-item"
-        >
+        <NuxtLink :to="`/security-group/${row?.id}`" class="action-item">
           詳細
         </NuxtLink>
         <button
@@ -103,7 +97,7 @@ const addSecurityGroupAction = `create-${SECURITY_GROUP.name}`;
 const editSecurityGroupAction = `edit-${SECURITY_GROUP.name}`;
 const deleteSecurityGroupAction = `delete-${SECURITY_GROUP.name}`;
 
-/* 削除確認メッセージ（XSS対策） */
+/* 削除確認メッセージ */
 const deleteMessage = computed(() => {
   const name = targetForDeletion.value?.name ?? "";
   return `本当に「${name}」を削除しますか？`;
