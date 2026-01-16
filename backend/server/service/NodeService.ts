@@ -91,7 +91,7 @@ export const getNodeService = (permission: UserPermissions) => {
         const result = mapNodeToResponse(node, pveNodeData);
         return { success: true, data: result };
       } catch (error) {
-        console.error("Error listing nodes:", error);
+        console.error("Error getting node:", error);
         return { success: false, error: { reason: "InternalError" } };
       }
     },
