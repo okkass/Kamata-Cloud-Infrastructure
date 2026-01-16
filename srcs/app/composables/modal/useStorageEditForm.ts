@@ -95,6 +95,7 @@ export function useStorageEditForm(props: Props) {
         },
         onSuccessMessage: () =>
           `ストレージプール「${name.value}」を更新しました。`,
+        emitCloseImmediately: true,
       },
       emit
     );

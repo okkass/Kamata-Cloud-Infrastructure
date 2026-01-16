@@ -146,6 +146,7 @@ export function useVmWizardForm() {
         onSuccessMessage: (payload: VirtualMachineCreateRequest) =>
           `仮想マシン「${payload.name}」が作成されました`,
         onErrorMessage: "仮想マシンの作成に失敗しました。",
+        emitCloseImmediately: true,
       },
       emit
     );
