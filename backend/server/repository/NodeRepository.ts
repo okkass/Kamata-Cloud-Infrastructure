@@ -47,59 +47,71 @@ const getById = async (uuid: string) => {
 const create = async (data: NodeInsertProps) => {
   const prisma = getPrismaClient();
 
-  const node = await prisma.node.create({
-    data: {
-      name: data.name,
-      ipAddress: data.ipAddress,
-      isAdmin: data.isAdmin,
-    },
-    select: {
-      uuid: true,
-      name: true,
-      ipAddress: true,
-      isAdmin: true,
-      createdAt: true,
-    },
+  // トランザクションを使用して一貫性を保つ
+  const result = await prisma.$transaction(async (tx) => {
+    if (data.isAdmin) {
+      await tx.node.updateMany({
+        where: {
+          isAdmin: true,
+        },
+        data: {
+          isAdmin: false,
+        },
+      });
+    }
+    const node = await tx.node.create({
+      data: {
+        name: data.name,
+        ipAddress: data.ipAddress,
+        isAdmin: data.isAdmin,
+      },
+      select: {
+        uuid: true,
+        name: true,
+        ipAddress: true,
+        isAdmin: true,
+        createdAt: true,
+      },
+    });
+    return node;
   });
-
-  return node;
+  return result;
 };
 
 const update = async (uuid: string, data: NodeUpdateProps) => {
   const prisma = getPrismaClient();
-
-  const node = await prisma.node.update({
-    where: {
-      uuid,
-    },
-    data: {
-      name: data.name,
-      isAdmin: data.isAdmin,
-    },
-    select: {
-      uuid: true,
-      name: true,
-      ipAddress: true,
-      isAdmin: true,
-      createdAt: true,
-    },
+  // トランザクションを使用して一貫性を保つ
+  const result = await prisma.$transaction(async (tx) => {
+    // isAdminがtrueの場合、既存のisAdminをfalseに更新する
+    if (data.isAdmin) {
+      await tx.node.updateMany({
+        where: {
+          isAdmin: true,
+        },
+        data: {
+          isAdmin: false,
+        },
+      });
+    }
+    const node = await prisma.node.update({
+      where: {
+        uuid,
+      },
+      data: {
+        name: data.name,
+        isAdmin: data.isAdmin,
+      },
+      select: {
+        uuid: true,
+        name: true,
+        ipAddress: true,
+        isAdmin: true,
+        createdAt: true,
+      },
+    });
+    return node;
   });
-
-  return node;
-};
-
-const updateIsAdminFalse = async () => {
-  const prisma = getPrismaClient();
-
-  const nodes = await prisma.node.updateMany({
-    where: {
-      isAdmin: true,
-    },
-    data: {
-      isAdmin: false,
-    },
-  });
-  return nodes;
+  return result;
 };
 
 const deleteById = async (uuid: string) => {
@@ -116,7 +128,6 @@ export const NodeRepository = {
   getById,
   create,
   update,
-  updateIsAdminFalse,
   deleteById,
 };
 

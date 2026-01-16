@@ -83,7 +83,7 @@ def test_patch_node(node_id, update_data, headers=None):
     res = requests.patch(
         f"http://localhost:3030/api/nodes/{node_id}", json=update_data, headers=headers
     )
-    assert res.status_code == 200
+    assert res.status_code == 200, res.status_code
     node = res.json()
     assert isinstance(node, dict)
 
@@ -95,7 +95,7 @@ def test_put_node(node_id, new_data, headers=None):
     res = requests.put(
         f"http://localhost:3030/api/nodes/{node_id}", json=new_data, headers=headers
     )
-    assert res.status_code == 200
+    assert res.status_code == 200, res.status_code
     node = res.json()
     assert isinstance(node, dict)
 

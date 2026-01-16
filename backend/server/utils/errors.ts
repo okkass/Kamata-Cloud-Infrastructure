@@ -89,13 +89,13 @@ export const createErrorResponse = (
   message: string,
   detail?: string
 ): ErrorResponse => {
-  if (status == 400) return create400Error(message, detail);
-  if (status == 401) return create401Error(message, detail);
-  if (status == 403) return create403Error(message, detail);
-  if (status == 404) return create404Error(message, detail);
-  if (status == 500) return create500Error(message, detail);
-  if (status == 501) return create501Error(message, detail);
-  if (status == 503) return create503Error(message, detail);
+  if (status === 400) return create400Error(message, detail);
+  if (status === 401) return create401Error(message, detail);
+  if (status === 403) return create403Error(message, detail);
+  if (status === 404) return create404Error(message, detail);
+  if (status === 500) return create500Error(message, detail);
+  if (status === 501) return create501Error(message, detail);
+  if (status === 503) return create503Error(message, detail);
   return {
     type: "Error",
     status: status,

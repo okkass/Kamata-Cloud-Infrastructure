@@ -91,11 +91,8 @@ export const getNodeService = (permission: UserPermissions) => {
       };
 
       try {
-        // isAdminが立ってたらすでにあるisAdminをfalseに
-        if (req.isAdmin) {
-          await NodeRepository.updateIsAdminFalse();
-        }
         const newNode = await NodeRepository.create(req);
+        console.log("Created new node:", newNode);
         const pveNodeData = {
           status: "active",
           cpuUtilization: 0.8,
@@ -115,10 +112,6 @@ export const getNodeService = (permission: UserPermissions) => {
         isAdmin: data.isAdmin,
       };
       try {
-        // isAdminが立ってたらすでにあるisAdminをfalseに
-        if (req.isAdmin) {
-          await NodeRepository.updateIsAdminFalse();
-        }
         const res = await NodeRepository.update(id, req);
         const pveNodeData = {
           status: "active",
