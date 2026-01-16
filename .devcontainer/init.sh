@@ -16,6 +16,8 @@ pnpx prisma db seed
 
 # コケたときのためにtrapで元に戻す
 trap 'mv tsconfig.tmp.json tsconfig.json 2>/dev/null || true' EXIT ERR
+# 正常系
+mv tsconfig.tmp.json tsconfig.json
 
 # nitroをビルド
 pnpm run build
