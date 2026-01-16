@@ -11,6 +11,14 @@ export interface NodeUpdateProps {
   isAdmin?: boolean;
 }
 
+export interface NodeRecord {
+  uuid: string;
+  name: string;
+  ipAddress: string;
+  isAdmin: boolean;
+  createdAt: Date;
+}
+
 const list = async () => {
   const prisma = getPrismaClient();
   const nodes = await prisma.node.findMany({
@@ -25,7 +33,7 @@ const list = async () => {
   return nodes;
 };
 
-const getById = async (uuid: string) => {
+const getById = async (uuid: string): Promise<NodeRecord | null> => {
   const prisma = getPrismaClient();
 
   const node = await prisma.node.findUnique({

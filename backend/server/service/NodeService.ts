@@ -11,7 +11,11 @@ import type {
 import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import NodeRepository from "@/repository/NodeRepository";
-import { NodeInsertProps, NodeUpdateProps } from "@/repository/NodeRepository";
+import {
+  NodeInsertProps,
+  NodeUpdateProps,
+  NodeRecord,
+} from "@/repository/NodeRepository";
 import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
 type NodeService = ResourceService<
@@ -26,13 +30,21 @@ type NodeService = ResourceService<
   listCandidates: () => Promise<Result<NodeCandidateResponse[], ServiceError>>;
 };
 
-const mapNodeToResponse = (node: any, pveNodeData: any): NodeResponse => {
+const mapNodeToResponse = (
+  node: NodeRecord,
+  pveNodeData: {
+    status: "active" | "inactive";
+    cpuUtilization: number;
+    memoryUtilization: number;
+    storageUtilization: number;
+  }
+): NodeResponse => {
   return {
     id: node.uuid,
     name: node.name,
     ipAddress: node.ipAddress,
     isAdmin: node.isAdmin,
-    createdAt: node.createdAt,
+    createdAt: node.createdAt.toISOString(),
     status: pveNodeData.status,
     cpuUtilization: pveNodeData.cpuUtilization,
     memoryUtilization: pveNodeData.memoryUtilization,
@@ -48,7 +60,7 @@ export const getNodeService = (permission: UserPermissions) => {
         const nodes = await NodeRepository.list();
         const results = nodes.map((node) => {
           const pveNodeData = {
-            status: "active",
+            status: "active" as const,
             cpuUtilization: 0.8,
             memoryUtilization: 0.6,
             storageUtilization: 0.7,
@@ -71,7 +83,7 @@ export const getNodeService = (permission: UserPermissions) => {
           };
         }
         const pveNodeData = {
-          status: "active",
+          status: "active" as const,
           cpuUtilization: 0.8,
           memoryUtilization: 0.6,
           storageUtilization: 0.7,
@@ -94,7 +106,7 @@ export const getNodeService = (permission: UserPermissions) => {
         const newNode = await NodeRepository.create(req);
         console.log("Created new node:", newNode);
         const pveNodeData = {
-          status: "active",
+          status: "active" as const,
           cpuUtilization: 0.8,
           memoryUtilization: 0.6,
           storageUtilization: 0.7,
@@ -114,7 +126,7 @@ export const getNodeService = (permission: UserPermissions) => {
       try {
         const res = await NodeRepository.update(id, req);
         const pveNodeData = {
-          status: "active",
+          status: "active" as const,
           cpuUtilization: 0.8,
           memoryUtilization: 0.6,
           storageUtilization: 0.7,
