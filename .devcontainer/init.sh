@@ -14,9 +14,8 @@ pnpx prisma migrate dev
 pnpx prisma generate
 pnpx prisma db seed
 
-# 退避しておいたtsconfigを戻す
-rm tsconfig.json
-mv tsconfig.tmp.json tsconfig.json
+# コケたときのためにtrapで元に戻す
+trap 'mv tsconfig.tmp.json tsconfig.json 2>/dev/null || true' EXIT ERR
 
 # nitroをビルド
 pnpm run build
