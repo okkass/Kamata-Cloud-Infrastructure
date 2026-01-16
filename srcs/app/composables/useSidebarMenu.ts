@@ -35,6 +35,25 @@ export const useSidebarMenu = () => {
    */
   const sidebarMenuItems: SidebarMenuItemDef[] = [
     {
+      title: "仮想マシン管理",
+      links: [
+        { text: "仮想マシン一覧", href: "/machine" },
+        { text: "スナップショット", href: "/snapshot" },
+        { text: "バックアップ管理", href: "/backup" },
+      ],
+      shouldDisplay: () => true,
+    },
+    {
+      title: "仮想ネットワーク管理",
+      links: [{ text: "仮想ネットワーク", href: "/network" }],
+      shouldDisplay: () => true,
+    },
+    {
+      title: "セキュリティグループ",
+      links: [{ text: "セキュリティグループ", href: "/security-group" }],
+      shouldDisplay: () => true,
+    },
+    {
       title: "ノード",
       links: [{ text: "ノード管理ダッシュボード", href: "/node" }],
       shouldDisplay: (p) => p.isNodeAdmin.value || p.isAdmin.value,
@@ -53,25 +72,6 @@ export const useSidebarMenu = () => {
       title: "ストレージ",
       links: [{ text: "ストレージプール", href: "/storage-pool" }],
       shouldDisplay: (p) => p.isAdmin.value,
-    },
-    {
-      title: "セキュリティグループ",
-      links: [{ text: "セキュリティグループ", href: "/security-group" }],
-      shouldDisplay: () => true,
-    },
-    {
-      title: "仮想マシン管理",
-      links: [
-        { text: "仮想マシン一覧", href: "/machine" },
-        { text: "スナップショット", href: "/snapshot" },
-        { text: "バックアップ管理", href: "/backup" },
-      ],
-      shouldDisplay: () => true,
-    },
-    {
-      title: "仮想ネットワーク管理",
-      links: [{ text: "仮想ネットワーク", href: "/network" }],
-      shouldDisplay: () => true,
     },
     {
       title: "インスタンスタイプ",
