@@ -2,7 +2,7 @@
   <div class="relative min-h-[calc(100vh-theme(spacing.16))] pt-8">
     <DefaultHeader />
     <div>
-      <UserSidebar :isAdmin="isAdmin" />
+      <UserSidebar />
       <main
         class="p-8 transition-all duration-300"
         :class="isSidebarOpen ? 'ml-56' : 'ml-8'"
@@ -19,10 +19,9 @@ import { useSidebar } from "~/composables/useSidebar"; // useSidebarをインポ
 import UserSidebar from "~/components/Sidebar.vue";
 import DefaultHeader from "~/components/DefaultHeader.vue";
 
-const { isAdmin, fetchUser } = useUserPermission();
+const { fetchUser } = useUserPermission();
 const { isSidebarOpen } = useSidebar(); // サイドバーの開閉状態を取得
 
-onMounted(() => {
-  fetchUser();
-});
+// SSRで実行されるようにトップレベルで呼び出す
+await fetchUser();
 </script>

@@ -4,9 +4,9 @@
 
     <nav class="flex-grow overflow-y-auto mt-4 space-y-2">
       <NuxtLink
-        v-for="link in visibleLinks"
-        :key="link.to"
-        :to="link.to"
+        v-for="link in getQuickLinks"
+        :key="link.href"
+        :to="link.href"
         class="quick-link"
       >
         {{ link.text }}
@@ -20,54 +20,10 @@
  * =================================================================================
  * クイックリンク コンポーネント (Summary/QuickLink.vue)
  * ---------------------------------------------------------------------------------
- * ユーザーのロール(isAdmin)に基づき、適切なナビゲーションリンクの一覧を表示します。
+ * ユーザーの権限に基づき、適切なナビゲーションリンクの一覧を表示します。
  * =================================================================================
  */
-import { computed } from "vue";
+import { useQuickLinks } from "~/composables/useQuickLinks";
 
-/**
- * ==================================================================
- * Props
- * ==================================================================
- */
-const props = defineProps<{
-  /**
-   * ユーザーが管理者かどうか。
-   * これに基づいて表示するリンクを切り替える。
-   */
-  isAdmin: boolean;
-}>();
-
-/**
- * ==================================================================
- * リンクの定義
- * ==================================================================
- */
-// 管理者用のリンク一覧
-const adminLinks = [
-  { to: "/machine", text: "VM管理" },
-  { to: "/node", text: "ノード管理" },
-  { to: "/storage-pool", text: "ストレージ" },
-  { to: "/security-group", text: "セキュリティ" },
-  { to: "/user", text: "ユーザー管理" },
-  { to: "/settings", text: "アカウント設定" },
-];
-
-// 一般ユーザー用のリンク一覧
-const userLinks = [
-  { to: "/machine", text: "VM管理" },
-  { to: "/security-group", text: "セキュリティ" },
-  { to: "/settings", text: "アカウント設定" },
-];
-
-/**
- * ==================================================================
- * Computed
- * ------------------------------------------------------------------
- * props.isAdmin の値に基づいて、表示すべきリンクの配列を返す。
- * ==================================================================
- */
-const visibleLinks = computed(() => {
-  return props.isAdmin ? adminLinks : userLinks;
-});
+const { getQuickLinks } = useQuickLinks();
 </script>
