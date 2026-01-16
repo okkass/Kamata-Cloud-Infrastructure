@@ -188,4 +188,3 @@ const deleteMessage = computed(() => {
   return `本当に「${name}」を削除しますか？`;
 });
 </script>
-</script>
