@@ -45,7 +45,7 @@
 
   <MoDeleteConfirm
     :show="activeModal === deleteSecurityGroupAction"
-    :message="`本当に「${targetForDeletion?.name}」を削除しますか？`"
+    :message="deleteMessage"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
@@ -96,4 +96,10 @@ const {
 const addSecurityGroupAction = `create-${SECURITY_GROUP.name}`;
 const editSecurityGroupAction = `edit-${SECURITY_GROUP.name}`;
 const deleteSecurityGroupAction = `delete-${SECURITY_GROUP.name}`;
+
+/* 削除確認メッセージ */
+const deleteMessage = computed(() => {
+  const name = targetForDeletion.value?.name ?? "";
+  return `本当に「${name}」を削除しますか？`;
+});
 </script>
