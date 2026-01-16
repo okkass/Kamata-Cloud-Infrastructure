@@ -1,7 +1,7 @@
 <template>
   <div>
     <DashboardLayout
-      title="仮想ネットワーク"
+      :title="tableTitle"
       :columns="columns"
       :rows="rows"
       rowKey="id"
@@ -90,6 +90,7 @@ const {
   columns,
   headerButtons,
   rows,
+  tableTitle,
   refresh,
   CREATE_VNET_ACTION,
   EDIT_VNET_ACTION,
