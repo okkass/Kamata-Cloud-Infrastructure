@@ -144,7 +144,7 @@ export const getNodeService = (permission: UserPermissions) => {
         return { success: true, data: null };
       } catch (error) {
         // P2025を捕捉してNotFoundを返すようにする
-        if ((error as PrismaClientKnownRequestError).code === "P2025") {
+        if (error instanceof PrismaClientKnownRequestError && error.code === "P2025") {
           return { success: false, error: { reason: "NotFound" } };
         }
         console.error("Error deleting node:", error);
