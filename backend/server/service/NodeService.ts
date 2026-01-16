@@ -104,7 +104,6 @@ export const getNodeService = (permission: UserPermissions) => {
 
       try {
         const newNode = await NodeRepository.create(req);
-        console.log("Created new node:", newNode);
         const pveNodeData = {
           status: "active" as const,
           cpuUtilization: 0.8,
