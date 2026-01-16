@@ -5,7 +5,6 @@ import { NodeCreateRequest } from "@app/shared/types";
 import { addNodeSchema } from "@/zodSchemas";
 
 export default defineEventHandler(async (event) => {
-  console.log("POST /api/nodes called");
   const permission = getPermissionFromEvent(event);
   const body = await readBody(event);
   const service = getNodeService(permission);

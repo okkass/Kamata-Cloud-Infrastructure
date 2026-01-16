@@ -12,6 +12,7 @@ import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import NodeRepository from "@/repository/NodeRepository";
 import { NodeInsertProps, NodeUpdateProps } from "@/repository/NodeRepository";
+import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
 type NodeService = ResourceService<
   NodeResponse,
@@ -138,6 +139,10 @@ export const getNodeService = (permission: UserPermissions) => {
 
         return { success: true, data: null };
       } catch (error) {
+        // P2025を捕捉してNotFoundを返すようにする
+        if ((error as PrismaClientKnownRequestError).code === "P2025") {
+          return { success: false, error: { reason: "NotFound" } };
+        }
         console.error("Error deleting node:", error);
         return { success: false, error: { reason: "InternalError" } };
       }
