@@ -62,6 +62,22 @@ export const useUserPermission = () => {
   });
 
   /**
+   * 何らかの管理者権限を持っているかどうかを判定
+   * isAdmin が true、または他の admin 権限のいずれかが true の場合に true を返す
+   */
+  const hasAdminAccess = computed(() => {
+    return (
+      isAdmin.value ||
+      isImageAdmin.value ||
+      isInstanceTypeAdmin.value ||
+      isNetworkAdmin.value ||
+      isNodeAdmin.value ||
+      isSecurityGroupAdmin.value ||
+      isVirtualMachineAdmin.value
+    );
+  });
+
+  /**
    * ユーザー情報を API から取得して保持する。
    * 既に保持済みの場合は再取得しない。
    */
@@ -70,16 +86,10 @@ export const useUserPermission = () => {
     if (user.value !== null) return;
 
     try {
-      const { data } = await useFetch("users/me", {
-        $fetch: useNuxtApp().$apiFetch,
-      });
+      // useFetch はコンポーネントの setup コンテキスト直下でのみ正しく動作するため、
+      // setup 外からも呼ばれるこの関数内では、直接 $apiFetch を使用してデータを取得する
+      const res = await useNuxtApp().$apiFetch<UserResponse>("users/me");
 
-      if (!data.value) {
-        user.value = null; // または適切な初期値
-        return;
-      }
-
-      const res = data.value as UserResponse;
       user.value = {
         id: res.id,
         isAdmin: res.isAdmin,
@@ -95,7 +105,6 @@ export const useUserPermission = () => {
       user.value = null; // エラー時はnullに設定
     }
   };
-
   return {
     user,
     isAdmin,
@@ -105,6 +114,7 @@ export const useUserPermission = () => {
     isNodeAdmin,
     isSecurityGroupAdmin,
     isVirtualMachineAdmin,
+    hasAdminAccess,
     fetchUser,
   };
 };

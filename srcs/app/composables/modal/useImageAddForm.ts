@@ -15,6 +15,7 @@ import {
   type ImageCreateInput,
 } from "~/utils/validations/image";
 import { useFormAction } from "~/composables/modal/useModalAction";
+import { extractErrorMessage } from "~/utils/errorHandler";
 
 /**
  * イメージ追加フォームのロジック
@@ -86,8 +87,12 @@ export function useImageAddForm() {
 
             await uploadFile("images", formData);
             return { success: true };
-          } catch (error: any) {
-            return { success: false, error };
+          } catch (error: unknown) {
+            const message = extractErrorMessage(
+              error,
+              "ファイルのアップロードに失敗しました。"
+            );
+            return { success: false, error: new Error(message) };
           }
         },
         // 成功メッセージ
