@@ -86,8 +86,8 @@ export const useUserPermission = () => {
     if (user.value !== null) return;
 
     try {
-      // useFetch は setup 直下以外で使うと挙動が不安定になるため、
-      // 関数内では直接 $apiFetch を使用してデータを取得する
+      // useFetch はコンポーネントの setup コンテキスト直下でのみ正しく動作するため、
+      // setup 外からも呼ばれるこの関数内では、直接 $apiFetch を使用してデータを取得する
       const res = await useNuxtApp().$apiFetch<UserResponse>("users/me");
 
       user.value = {

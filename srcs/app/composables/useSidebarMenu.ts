@@ -104,7 +104,7 @@ export const useSidebarMenu = () => {
   const getSidebarTitle = computed((): string => {
     return permissions.isAdmin.value || permissions.hasAdminAccess.value
       ? "管理者メニュー"
-      : "リンクメニュー";
+      : "利用者メニュー";
   });
 
   return {
