@@ -2,6 +2,7 @@ import requests
 import json
 import random
 
+# 定数の宣言
 API_URL = "http://localhost:3030/api/"
 headers = {"Authorization": "Bearer mock-token"}
 
@@ -31,6 +32,7 @@ FIRST_NAMES = [
 ]
 
 
+# 一覧取得、作成、一件取得、更新、削除のテストが必要
 def main():
     test_get_users()
     user_id = test_create_user()
@@ -42,7 +44,7 @@ def main():
 
 def test_get_users():
     res = requests.get(f"{API_URL}users", headers=headers)
-    assert res.status_code == 200
+    assert res.status_code == 200, res.status_code
     users = res.json()
     assert isinstance(users, list)
 
@@ -52,7 +54,7 @@ def test_get_users():
 
 def test_get_user(user_id):
     res = requests.get(f"{API_URL}users/{user_id}", headers=headers)
-    assert res.status_code == 200
+    assert res.status_code == 200, res.status_code
     user = res.json()
     print("User:", json.dumps(user, indent=2))
     return user

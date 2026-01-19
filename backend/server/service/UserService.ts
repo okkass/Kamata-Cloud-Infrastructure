@@ -8,10 +8,15 @@ import type {
 import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import UserRepository from "@/repository/UserRepository";
+import { UserRecord, PermissionRecord } from "@/repository/UserRepository";
 import * as argon2 from "argon2";
 import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
-const mapDbUserToUserResponse = (user: any, permission: any): UserResponse => {
+// DBのUserRecordをUserResponseに変換するユーティリティ関数
+const mapDbUserToUserResponse = (
+  user: UserRecord,
+  permission: PermissionRecord | null,
+): UserResponse => {
   return {
     id: user.uuid,
     name: user.name,
@@ -23,16 +28,17 @@ const mapDbUserToUserResponse = (user: any, permission: any): UserResponse => {
       user.memoryLimitMb === 0 ? null : user.memoryLimitMb * 1024 ** 2,
     maxStorageSize:
       user.storageLimitGb === 0 ? null : user.storageLimitGb * 1024 ** 3,
-    isAdmin: permission.isAdmin ?? false,
-    isImageAdmin: permission.isImageAdmin ?? false,
-    isInstanceTypeAdmin: permission.isInstanceTypeAdmin ?? false,
-    isVirtualMachineAdmin: permission.isVirtualMachineAdmin ?? false,
-    isNetworkAdmin: permission.isNetworkAdmin ?? false,
-    isSecurityGroupAdmin: permission.isSecurityGroupAdmin ?? false,
-    isNodeAdmin: permission.isNodeAdmin ?? false,
+    isAdmin: permission?.isAdmin ?? false,
+    isImageAdmin: permission?.isImageAdmin ?? false,
+    isInstanceTypeAdmin: permission?.isInstanceTypeAdmin ?? false,
+    isVirtualMachineAdmin: permission?.isVirtualMachineAdmin ?? false,
+    isNetworkAdmin: permission?.isNetworkAdmin ?? false,
+    isSecurityGroupAdmin: permission?.isSecurityGroupAdmin ?? false,
+    isNodeAdmin: permission?.isNodeAdmin ?? false,
   };
 };
 
+// このへんはいじらなくていい
 type UserService = ResourceService<
   UserResponse,
   UserCreateRequest,
@@ -42,7 +48,7 @@ type UserService = ResourceService<
   updatePassword: (
     id: string,
     currentPassword: string,
-    newPassword: string
+    newPassword: string,
   ) => Promise<
     { success: true; data: null } | { success: false; error: ServiceError }
   >;
@@ -51,12 +57,15 @@ type UserService = ResourceService<
 export const getUserService = (permission: UserPermissions | null = null) => {
   const userService: UserService = {
     permission,
+    // 一覧取得
     list: async (query) => {
+      // try-catchで囲う(prismaは例外を投げる)
       try {
         const users = await UserRepository.list();
         const ret: UserResponse[] = users.map((user) => {
           return mapDbUserToUserResponse(user, user.permission);
         });
+        // 戻り値はResult型で返す
         return { success: true, data: ret };
       } catch (error) {
         return {
@@ -65,7 +74,9 @@ export const getUserService = (permission: UserPermissions | null = null) => {
         };
       }
     },
+    // UUIDでの取得
     getById: async (id) => {
+      // try-catchで囲う(prismaは例外を投げる)
       try {
         const user = await UserRepository.getById(id);
         if (!user) {
@@ -85,7 +96,9 @@ export const getUserService = (permission: UserPermissions | null = null) => {
         };
       }
     },
+    // ユーザ新規作成
     create: async (data) => {
+      // パスワードをハッシュ化
       const hash = await argon2.hash(data.password);
       try {
         const newUser = await UserRepository.create({
@@ -124,7 +137,9 @@ export const getUserService = (permission: UserPermissions | null = null) => {
         };
       }
     },
+    // ユーザ情報更新
     update: async (id, data) => {
+      // try-catchで囲う(prismaは例外を投げる)
       const user = await UserRepository.getById(id);
       if (!user) {
         return {
@@ -159,6 +174,7 @@ export const getUserService = (permission: UserPermissions | null = null) => {
         data: mapDbUserToUserResponse(updatedUser, updatedPermission),
       };
     },
+    // ユーザ削除
     delete: async (id) => {
       const user = await UserRepository.getById(id);
       if (!user) {
@@ -180,7 +196,7 @@ export const getUserService = (permission: UserPermissions | null = null) => {
       }
       const isPasswordValid = await argon2.verify(
         user.credentials!.hashedPassword,
-        currentPassword
+        currentPassword,
       );
       if (!isPasswordValid) {
         return {
