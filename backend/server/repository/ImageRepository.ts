@@ -16,6 +16,7 @@ const initImages = (): Array<ImageResponse> => {
     {
       id: "9456327e-7f15-48a5-875e-e367ec02ebaf",
       name: "Ubuntu 20.04",
+      description: "Ubuntu 20.04 LTS image",
       createdAt: new Date().toISOString(),
       size: 2 * 1024 * 1024 * 1024, // 2 GB
       node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
@@ -74,6 +75,9 @@ const update = (
     return undefined;
   }
   target.name = updateFields.name ?? target.name;
+  if ("description" in updateFields) {
+    target.description = updateFields.description;
+  }
   return target;
 };
 
