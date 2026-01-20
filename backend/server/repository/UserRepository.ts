@@ -137,7 +137,7 @@ const getById = async (id: string): Promise<UserRecord | null> => {
   return user;
 };
 
-// emailをキーにして取得。該当なしだととnullを返す
+// emailをキーにして取得。該当なしだとnullを返す
 const getByEmail = async (email: string): Promise<UserRecord | null> => {
   const prisma = getPrismaClient();
 

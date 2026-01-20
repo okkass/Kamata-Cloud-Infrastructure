@@ -4,7 +4,7 @@ import random
 
 # 定数の宣言
 API_URL = "http://localhost:3030/api/"
-headers = {"Authorization": "Bearer mock-token"}
+HEADERS = {"Authorization": "Bearer mock-token"}
 
 LAST_NAMES = [
     "Smith",
@@ -43,7 +43,7 @@ def main():
 
 
 def test_get_users():
-    res = requests.get(f"{API_URL}users", headers=headers)
+    res = requests.get(f"{API_URL}users", headers=HEADERS)
     assert res.status_code == 200, res.status_code
     users = res.json()
     assert isinstance(users, list)
@@ -53,7 +53,7 @@ def test_get_users():
 
 
 def test_get_user(user_id):
-    res = requests.get(f"{API_URL}users/{user_id}", headers=headers)
+    res = requests.get(f"{API_URL}users/{user_id}", headers=HEADERS)
     assert res.status_code == 200, res.status_code
     user = res.json()
     print("User:", json.dumps(user, indent=2))
@@ -82,7 +82,7 @@ def test_create_user():
         "isNodeAdmin": False if is_admin else random.choice([True, False]),
     }
     print("Creating User with payload:", json.dumps(payload, indent=2))
-    res = requests.post(f"{API_URL}users", headers=headers, json=payload)
+    res = requests.post(f"{API_URL}users", headers=HEADERS, json=payload)
     print(res.status_code, res.text)
     assert res.status_code == 201
     user = res.json()
@@ -96,7 +96,7 @@ def test_patch_user(user_id):
     current_user = test_get_user(user_id)
     new_name = "Patched " + current_user["name"]
     payload = {"name": new_name}
-    res = requests.patch(f"{API_URL}users/{user_id}", headers=headers, json=payload)
+    res = requests.patch(f"{API_URL}users/{user_id}", headers=HEADERS, json=payload)
     assert res.status_code == 200
     patched_user = res.json()
     assert patched_user["name"] == new_name
@@ -121,7 +121,7 @@ def test_put_user(user_id):
         "isSecurityGroupAdmin": current_user.get("isSecurityGroupAdmin"),
         "isNodeAdmin": current_user.get("isNodeAdmin"),
     }
-    res = requests.put(f"{API_URL}users/{user_id}", headers=headers, json=payload)
+    res = requests.put(f"{API_URL}users/{user_id}", headers=HEADERS, json=payload)
     assert res.status_code == 200
     replaced_user = res.json()
     assert replaced_user["name"] == new_name
@@ -130,10 +130,10 @@ def test_put_user(user_id):
 
 
 def test_delete_user(user_id):
-    res = requests.delete(f"{API_URL}users/{user_id}", headers=headers)
+    res = requests.delete(f"{API_URL}users/{user_id}", headers=HEADERS)
     assert res.status_code == 204
     print(f"Deleted User ID: {user_id}")
-    res = requests.get(f"{API_URL}users/{user_id}", headers=headers)
+    res = requests.get(f"{API_URL}users/{user_id}", headers=HEADERS)
     assert res.status_code == 404
 
 
