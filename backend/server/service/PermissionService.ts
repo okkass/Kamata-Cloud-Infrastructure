@@ -1,4 +1,4 @@
-import { UserPermissions } from "@/types";
+import type { UserPermissions } from "@/types";
 import UserRepository from "@/repository/UserRepository";
 
 // Prismaから最新の権限情報に応じてユーザーの権限を確認するサービス
@@ -26,154 +26,129 @@ export type PermissionService = {
   hasUserAdminPermission(permissions: UserPermissions): Promise<boolean>;
 };
 
+const checkPermission = async (
+  permissions: UserPermissions,
+  initialCheck: boolean,
+  dbcheck: (user: any) => boolean,
+): Promise<boolean> => {
+  if (!initialCheck) {
+    return false;
+  }
+  const user = await UserRepository.getById(permissions.id);
+  if (!user) {
+    return false;
+  }
+  return dbcheck(user);
+};
+
 export const getPermissionService = (): PermissionService => {
   return {
     hasImageAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
-      // もし、もらったpermissionがfalseなら、即座にfalseを返す
-      if (!permissions.isAdmin && !permissions.isImageAdmin) {
-        return false;
-      }
-      // trueのときだけ真面目にDBを見に行く
-      const user = await UserRepository.getById(permissions.id);
-      if (!user) {
-        return false;
-      }
-      // 管理者またはイメージ管理者であればtrue
-      return (
-        (user.permission?.isAdmin ?? false) ||
-        (user.permission?.isImageAdmin ?? false)
+      const check = await checkPermission(
+        permissions,
+        permissions.isAdmin || permissions.isImageAdmin,
+        (user) =>
+          (user.permission?.isAdmin ?? false) ||
+          (user.permission?.isImageAdmin ?? false),
       );
+      return check;
     },
     hasInstanceTypeAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
-      if (!permissions.isAdmin && !permissions.isInstanceTypeAdmin) {
-        return false;
-      }
-      const user = await UserRepository.getById(permissions.id);
-      if (!user) {
-        return false;
-      }
-      // 管理者またはインスタンスタイプ管理者であればtrue
-      return (
-        (user.permission?.isAdmin ?? false) ||
-        (user.permission?.isInstanceTypeAdmin ?? false)
+      const check = await checkPermission(
+        permissions,
+        permissions.isAdmin || permissions.isInstanceTypeAdmin,
+        (user) =>
+          (user.permission?.isAdmin ?? false) ||
+          (user.permission?.isInstanceTypeAdmin ?? false),
       );
+      return check;
     },
     hasNodeAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
-      if (!permissions.isAdmin && !permissions.isNodeAdmin) {
-        return false;
-      }
-      const user = await UserRepository.getById(permissions.id);
-      if (!user) {
-        return false;
-      }
-      // 管理者またはノード管理者であればtrue
-      return (
-        (user.permission?.isAdmin ?? false) ||
-        (user.permission?.isNodeAdmin ?? false)
+      const check = await checkPermission(
+        permissions,
+        permissions.isAdmin || permissions.isNodeAdmin,
+        (user) =>
+          (user.permission?.isAdmin ?? false) ||
+          (user.permission?.isNodeAdmin ?? false),
       );
+      return check;
     },
     hasVirtualMachineAdminPermission: async (
       permissions: UserPermissions,
       resourceId?: string,
     ): Promise<boolean> => {
-      // resourceIdをもらわなかったとき(全体権限チェック)は、もらったpermissionがfalseなら、即座にfalseを返す
-      if (
-        !resourceId &&
-        !permissions.isAdmin &&
-        !permissions.isVirtualMachineAdmin
-      ) {
-        return false;
-      }
-
-      const user = await UserRepository.getById(permissions.id);
-      if (!user) {
-        return false;
-      }
-      // TODO: resourceIdに基づく追加チェック
-
-      // 管理者または仮想マシン管理者であればtrue
-      return (
-        (user.permission?.isAdmin ?? false) ||
-        (user.permission?.isVirtualMachineAdmin ?? false)
+      const checkAdmin = await checkPermission(
+        permissions,
+        permissions.isAdmin || permissions.isVirtualMachineAdmin,
+        (user) =>
+          (user.permission?.isAdmin ?? false) ||
+          (user.permission?.isVirtualMachineAdmin ?? false),
       );
+
+      // TODO: resourceIdからリソースを取得、所有者チェックを実装
+      const checkOwner = false;
+
+      return checkAdmin || checkOwner;
     },
     hasNetworkAdminPermission: async (
       permissions: UserPermissions,
       resourceId?: string,
     ): Promise<boolean> => {
-      // resourceIdをもらわなかったとき(全体権限チェック)は、もらったpermissionがfalseなら、即座にfalseを返す
-      if (!resourceId && !permissions.isAdmin && !permissions.isNetworkAdmin) {
-        return false;
-      }
-      const user = await UserRepository.getById(permissions.id);
-      if (!user) {
-        return false;
-      }
-      // TODO: resourceIdに基づく追加チェック
-
-      // 管理者または仮想ネットワーク管理者であればtrue
-      return (
-        (user.permission?.isAdmin ?? false) ||
-        (user.permission?.isNetworkAdmin ?? false)
+      const checkAdmin = await checkPermission(
+        permissions,
+        permissions.isAdmin || permissions.isNetworkAdmin,
+        (user) =>
+          (user.permission?.isAdmin ?? false) ||
+          (user.permission?.isNetworkAdmin ?? false),
       );
+
+      // TODO: resourceIdからリソースを取得、所有者チェックを実装
+      const checkOwner = false;
+
+      return checkAdmin || checkOwner;
     },
     hasSecurityGroupAdminPermission: async (
       permissions: UserPermissions,
       resourceId?: string,
     ): Promise<boolean> => {
-      // resourceIdをもらわなかったとき(全体権限チェック)は、もらったpermissionがfalseなら、即座にfalseを返す
-      if (
-        !resourceId &&
-        !permissions.isAdmin &&
-        !permissions.isSecurityGroupAdmin
-      ) {
-        return false;
-      }
-      const user = await UserRepository.getById(permissions.id);
-      if (!user) {
-        return false;
-      }
-      // TODO: resourceIdに基づく追加チェック
-
-      // 管理者またはセキュリティグループ管理者であればtrue
-      return (
-        (user.permission?.isAdmin ?? false) ||
-        (user.permission?.isSecurityGroupAdmin ?? false)
+      const checkAdmin = await checkPermission(
+        permissions,
+        permissions.isAdmin || permissions.isSecurityGroupAdmin,
+        (user) =>
+          (user.permission?.isAdmin ?? false) ||
+          (user.permission?.isSecurityGroupAdmin ?? false),
       );
+
+      // TODO: resourceIdからリソースを取得、所有者チェックを実装
+      const checkOwner = false;
+
+      return checkAdmin || checkOwner;
     },
     hasStoragePoolAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
-      // もし、もらったpermissionがfalseなら、即座にfalseを返す
-      if (!permissions.isAdmin) {
-        return false;
-      }
-      const user = await UserRepository.getById(permissions.id);
-      if (!user) {
-        return false;
-      }
-      // 管理者であればtrue
-      return user.permission?.isAdmin ?? false;
+      const check = await checkPermission(
+        permissions,
+        permissions.isAdmin,
+        (user) => user.permission?.isAdmin ?? false,
+      );
+      return check;
     },
     hasUserAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
-      // もし、もらったpermissionがfalseなら、即座にfalseを返す
-      if (!permissions.isAdmin) {
-        return false;
-      }
-      const user = await UserRepository.getById(permissions.id);
-      if (!user) {
-        return false;
-      }
-      // 管理者であればtrue
-      return user.permission?.isAdmin ?? false;
+      const check = await checkPermission(
+        permissions,
+        permissions.isAdmin,
+        (user) => user.permission?.isAdmin ?? false,
+      );
+      return check;
     },
   };
 };
