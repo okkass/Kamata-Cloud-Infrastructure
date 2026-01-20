@@ -96,7 +96,7 @@ const list = async (): Promise<UserRecord[]> => {
   return users;
 };
 
-// UUIDでの取得。該当なしだととnullを返す
+// UUIDでの取得。該当なしだとnullを返す
 const getById = async (id: string): Promise<UserRecord | null> => {
   const prisma = getPrismaClient();
 
