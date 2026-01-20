@@ -31,6 +31,11 @@ export const getPermissionService = (): PermissionService => {
     hasImageAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
+      // もし、もらったpermissionがfalseなら、即座にfalseを返す
+      if (!permissions.isAdmin && !permissions.isImageAdmin) {
+        return false;
+      }
+      // trueのときだけ真面目にDBを見に行く
       const user = await UserRepository.getById(permissions.id);
       if (!user) {
         return false;
@@ -44,6 +49,9 @@ export const getPermissionService = (): PermissionService => {
     hasInstanceTypeAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
+      if (!permissions.isAdmin && !permissions.isInstanceTypeAdmin) {
+        return false;
+      }
       const user = await UserRepository.getById(permissions.id);
       if (!user) {
         return false;
@@ -57,6 +65,9 @@ export const getPermissionService = (): PermissionService => {
     hasNodeAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
+      if (!permissions.isAdmin && !permissions.isNodeAdmin) {
+        return false;
+      }
       const user = await UserRepository.getById(permissions.id);
       if (!user) {
         return false;
@@ -71,6 +82,15 @@ export const getPermissionService = (): PermissionService => {
       permissions: UserPermissions,
       resourceId?: string,
     ): Promise<boolean> => {
+      // resourceIdをもらわなかったとき(全体権限チェック)は、もらったpermissionがfalseなら、即座にfalseを返す
+      if (
+        !resourceId &&
+        !permissions.isAdmin &&
+        !permissions.isVirtualMachineAdmin
+      ) {
+        return false;
+      }
+
       const user = await UserRepository.getById(permissions.id);
       if (!user) {
         return false;
@@ -87,6 +107,10 @@ export const getPermissionService = (): PermissionService => {
       permissions: UserPermissions,
       resourceId?: string,
     ): Promise<boolean> => {
+      // resourceIdをもらわなかったとき(全体権限チェック)は、もらったpermissionがfalseなら、即座にfalseを返す
+      if (!resourceId && !permissions.isAdmin && !permissions.isNetworkAdmin) {
+        return false;
+      }
       const user = await UserRepository.getById(permissions.id);
       if (!user) {
         return false;
@@ -103,6 +127,14 @@ export const getPermissionService = (): PermissionService => {
       permissions: UserPermissions,
       resourceId?: string,
     ): Promise<boolean> => {
+      // resourceIdをもらわなかったとき(全体権限チェック)は、もらったpermissionがfalseなら、即座にfalseを返す
+      if (
+        !resourceId &&
+        !permissions.isAdmin &&
+        !permissions.isSecurityGroupAdmin
+      ) {
+        return false;
+      }
       const user = await UserRepository.getById(permissions.id);
       if (!user) {
         return false;
@@ -118,6 +150,10 @@ export const getPermissionService = (): PermissionService => {
     hasStoragePoolAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
+      // もし、もらったpermissionがfalseなら、即座にfalseを返す
+      if (!permissions.isAdmin) {
+        return false;
+      }
       const user = await UserRepository.getById(permissions.id);
       if (!user) {
         return false;
@@ -128,6 +164,10 @@ export const getPermissionService = (): PermissionService => {
     hasUserAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
+      // もし、もらったpermissionがfalseなら、即座にfalseを返す
+      if (!permissions.isAdmin) {
+        return false;
+      }
       const user = await UserRepository.getById(permissions.id);
       if (!user) {
         return false;
