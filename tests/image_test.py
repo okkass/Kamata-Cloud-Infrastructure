@@ -113,7 +113,8 @@ def test_patch_image(image_id):
     print(f"\n--- PATCH /api/images/{image_id} のテスト ---")
     current_image = test_get_image(image_id)
     new_name = "Patched " + current_image["name"]
-    payload = {"name": new_name}
+    new_desc = "PATCHによって更新された説明"
+    payload = {"name": new_name, "description": new_desc}
 
     res = requests.patch(f"{API_URL}images/{image_id}", headers=HEADERS, json=payload)
     assert (
@@ -122,6 +123,11 @@ def test_patch_image(image_id):
 
     patched_image = res.json()
     assert patched_image["name"] == new_name
+
+    # description は任意項目のため、存在する場合のみ検証
+    if "description" in patched_image:
+        assert patched_image["description"] == new_desc
+
     print(f"パッチ更新後のイメージ名: {patched_image['name']}")
     return patched_image
 
