@@ -46,38 +46,35 @@ export const getPermissionService = (): PermissionService => {
     hasImageAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
-      const check = await checkPermission(
+      return await checkPermission(
         permissions,
         permissions.isAdmin || permissions.isImageAdmin,
         (user) =>
           (user.permission?.isAdmin ?? false) ||
           (user.permission?.isImageAdmin ?? false),
       );
-      return check;
     },
     hasInstanceTypeAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
-      const check = await checkPermission(
+      return await checkPermission(
         permissions,
         permissions.isAdmin || permissions.isInstanceTypeAdmin,
         (user) =>
           (user.permission?.isAdmin ?? false) ||
           (user.permission?.isInstanceTypeAdmin ?? false),
       );
-      return check;
     },
     hasNodeAdminPermission: async (
       permissions: UserPermissions,
     ): Promise<boolean> => {
-      const check = await checkPermission(
+      return await checkPermission(
         permissions,
         permissions.isAdmin || permissions.isNodeAdmin,
         (user) =>
           (user.permission?.isAdmin ?? false) ||
           (user.permission?.isNodeAdmin ?? false),
       );
-      return check;
     },
     hasVirtualMachineAdminPermission: async (
       permissions: UserPermissions,
