@@ -71,7 +71,8 @@ export function useStorageAddForm() {
 
   const [devicePath, devicePathAttrs] = defineField("devicePath");
 
-  const [hasNetworkAccess, hasNetworkAccessAttrs] = defineField("hasNetworkAccess");
+  const [hasNetworkAccess, hasNetworkAccessAttrs] =
+    defineField("hasNetworkAccess");
 
   // ============================================================================
   // デバイスパス一覧の動的取得
@@ -137,6 +138,7 @@ export function useStorageAddForm() {
         },
         onSuccessMessage: (payload) =>
           `ストレージプール「${payload.name}」を作成しました。`,
+        emitCloseImmediately: true,
       },
       emit
     );

@@ -8,7 +8,6 @@ import { useForm, useFieldArray } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import { useResourceCreate } from "~/composables/useResourceCreate";
 import { useFormAction } from "~/composables/modal/useModalAction";
-import { useToast } from "~/composables/useToast";
 import { type SubnetFormValues } from "~/utils/validations/virtual-network";
 import {
   VirtualNetworkCreateFullSchema,
@@ -78,6 +77,7 @@ export function useVirtualNetworkCreateForm(emit: any) {
         },
         onSuccessMessage: (payload) =>
           `仮想ネットワーク「${payload.name}」を作成しました。`,
+        emitCloseImmediately: true,
       },
       emit
     );
