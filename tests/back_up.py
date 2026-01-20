@@ -17,16 +17,26 @@ def main():
         vm_id, storage_id = get_vm_and_storage()
         print(f"Using VM ID: {vm_id}, Storage ID: {storage_id}")
 
+        # 1. CRUD Tests
+        print("\n=== Running CRUD Tests ===")
         backup_id = test_create_backup(vm_id, storage_id)
 
         test_get_backup(backup_id)
         test_patch_backup(backup_id)
         test_put_backup(backup_id)
-
-        # Restore test might take time or require VM state, just calling the API
-        test_restore_backup(backup_id)
-
         test_delete_backup(backup_id)
+
+        # 2. Restore Test
+        print("\n=== Running Restore Test ===")
+        backup_id_restore = test_create_backup(vm_id, storage_id)
+        test_restore_backup(backup_id_restore)
+
+        # Cleanup
+        print("\n=== Cleaning up Restore Test Resource ===")
+        try:
+            test_delete_backup(backup_id_restore)
+        except AssertionError as e:
+            print(f"Cleanup deletion failed (possibly locked during restore): {e}")
 
     except Exception as e:
         print(f"Skipping some tests due to error or missing resources: {e}")
