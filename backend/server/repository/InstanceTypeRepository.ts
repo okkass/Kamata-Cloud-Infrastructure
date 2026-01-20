@@ -4,81 +4,139 @@ import type {
   InstanceTypePutRequest,
   InstanceTypeCreateRequest,
 } from "@app/shared/types";
-import crypto from "crypto";
+import { getPrismaClient } from "./common";
 
-let instanceTypes: Array<InstanceTypeResponse> | null = null;
+const toResponse = (row: {
+  uuid: string;
+  name: string;
+  createdAt: Date;
+  cpuCore: number;
+  memorySize: number;
+}): InstanceTypeResponse => ({
+  id: row.uuid,
+  name: row.name,
+  createdAt: row.createdAt.toISOString(),
+  cpuCore: row.cpuCore,
+  memorySize: row.memorySize,
+});
 
-const initInstanceTypes = (): Array<InstanceTypeResponse> => {
-  return [
-    {
-      id: "f4841834-88f5-43c5-8d74-c8bc62d0ee3f",
-      name: "nano",
-      createdAt: new Date().toISOString(),
-      cpuCore: 1,
-      memorySize: 1 * 1024 * 1024 * 1024, // 1 GB
+const list = async (): Promise<Array<InstanceTypeResponse>> => {
+  const prisma = getPrismaClient();
+  const rows = await prisma.instanceType.findMany({
+    select: {
+      uuid: true,
+      name: true,
+      createdAt: true,
+      cpuCore: true,
+      memorySize: true,
     },
-    {
-      id: "94628e75-6f53-42ea-aa85-1fecc7859d19",
-      name: "small",
-      createdAt: new Date().toISOString(),
-      cpuCore: 2,
-      memorySize: 2 * 1024 * 1024 * 1024, // 2 GB
-    },
-    {
-      id: "42c3099f-bcd4-4d59-8661-e665aa59f6f1",
-      name: "medium",
-      createdAt: new Date().toISOString(),
-      cpuCore: 4,
-      memorySize: 4 * 1024 * 1024 * 1024, // 4 GB
-    },
-  ];
+    orderBy: { createdAt: "desc" },
+  });
+
+  return rows.map(toResponse);
 };
 
-const list = (): Array<InstanceTypeResponse> => {
-  if (!instanceTypes) {
-    instanceTypes = initInstanceTypes();
-  }
-  return instanceTypes;
+const getById = async (id: string): Promise<InstanceTypeResponse | undefined> => {
+  const prisma = getPrismaClient();
+  const row = await prisma.instanceType.findUnique({
+    where: { uuid: id },
+    select: {
+      uuid: true,
+      name: true,
+      createdAt: true,
+      cpuCore: true,
+      memorySize: true,
+    },
+  });
+
+  if (!row) return undefined;
+  return toResponse(row);
 };
 
-const getById = (id: string): InstanceTypeResponse | undefined => {
-  return list().find((instanceType) => instanceType.id === id);
-};
-
-const create = (
+const create = async (
   instanceType: InstanceTypeCreateRequest
-): InstanceTypeResponse => {
-  const newInstanceType: InstanceTypeResponse = {
-    id: crypto.randomUUID(),
-    name: instanceType.name,
-    createdAt: new Date().toISOString(),
-    cpuCore: instanceType.cpuCore,
-    memorySize: instanceType.memorySize,
-  };
-  list().push(newInstanceType);
-  return newInstanceType;
-};
+): Promise<InstanceTypeResponse | undefined> => {
+  // 最低限のバリデーション（ServiceのBadRequest分岐を活かす）
+  if (!instanceType.name?.trim()) return undefined;
+  if (instanceType.cpuCore <= 0) return undefined;
+  if (instanceType.memorySize <= 0) return undefined;
 
-const update = (
-  id: string,
-  updateFields: InstanceTypePatchRequest | InstanceTypePutRequest
-): InstanceTypeResponse | undefined => {
-  let target = getById(id);
-  if (target === undefined) {
+  const prisma = getPrismaClient();
+
+  try {
+    const row = await prisma.instanceType.create({
+      data: {
+        name: instanceType.name.trim(),
+        cpuCore: instanceType.cpuCore,
+        memorySize: instanceType.memorySize,
+        // uuid/createdAt は schema の default(now()/uuid()) に任せる
+      },
+      select: {
+        uuid: true,
+        name: true,
+        createdAt: true,
+        cpuCore: true,
+        memorySize: true,
+      },
+    });
+
+    return toResponse(row);
+  } catch {
+    // UNIQUE制約なども含めて BadRequest 扱いにしたいなら undefined
     return undefined;
   }
-
-  target.name = updateFields.name ?? target.name;
-  target.cpuCore = updateFields.cpuCore ?? target.cpuCore;
-  target.memorySize = updateFields.memorySize ?? target.memorySize;
-
-  return target;
 };
 
-const deleteById = (id: string): boolean => {
-  const initialLength = list().length;
-  instanceTypes = list().filter((instanceType) => instanceType.id !== id);
-  return list().length < initialLength;
+const update = async (
+  id: string,
+  updateFields: InstanceTypePatchRequest | InstanceTypePutRequest
+): Promise<InstanceTypeResponse | undefined> => {
+  const prisma = getPrismaClient();
+
+  // 対象チェック
+  const exists = await prisma.instanceType.findUnique({
+    where: { uuid: id },
+    select: { uuid: true },
+  });
+  if (!exists) return undefined;
+
+  // PATCH/PUT 両対応：来たものだけ更新（PUTを厳密全置換にしたければここで必須チェックを追加）
+  const name = updateFields.name;
+  const cpuCore = updateFields.cpuCore;
+  const memorySize = updateFields.memorySize;
+
+  // バリデーション（来た項目だけ）
+  if (name !== undefined && !name.trim()) return undefined;
+  if (cpuCore !== undefined && cpuCore <= 0) return undefined;
+  if (memorySize !== undefined && memorySize <= 0) return undefined;
+
+  const row = await prisma.instanceType.update({
+    where: { uuid: id },
+    data: {
+      name: name !== undefined ? name.trim() : undefined,
+      cpuCore,
+      memorySize,
+    },
+    select: {
+      uuid: true,
+      name: true,
+      createdAt: true,
+      cpuCore: true,
+      memorySize: true,
+    },
+  });
+
+  return toResponse(row);
+};
+
+const deleteById = async (id: string): Promise<boolean> => {
+  const prisma = getPrismaClient();
+  try {
+    await prisma.instanceType.delete({ where: { uuid: id } });
+    return true;
+  } catch {
+    return false;
+  }
 };
 
 export const InstanceTypeRepository = {
