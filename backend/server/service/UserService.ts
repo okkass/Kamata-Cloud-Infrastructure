@@ -8,7 +8,7 @@ import type {
 import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import UserRepository from "@/repository/UserRepository";
-import { UserRecord, PermissionRecord } from "@/repository/UserRepository";
+import type { UserRecord, PermissionRecord } from "@/repository/UserRepository";
 import * as argon2 from "argon2";
 import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
