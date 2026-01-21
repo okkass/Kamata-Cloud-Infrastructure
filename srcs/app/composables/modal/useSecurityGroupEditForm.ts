@@ -141,6 +141,7 @@ export function useSecurityGroupEditForm(props: Props) {
         },
         onSuccessMessage: () =>
           `セキュリティグループ「${values.name}」を更新しました。`,
+        emitCloseImmediately: true,
       },
       emit
     );

@@ -137,6 +137,7 @@ export function useVirtualNetworkEditForm(props: Props) {
         },
         onSuccessMessage: () =>
           `仮想ネットワーク「${values.name}」を更新しました。`,
+        emitCloseImmediately: true,
       },
       emit
     );

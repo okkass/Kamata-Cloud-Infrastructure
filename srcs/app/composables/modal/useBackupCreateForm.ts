@@ -91,6 +91,7 @@ export function useBackupCreateForm(emit: any) {
         },
         onSuccessMessage: (payload) =>
           `バックアップ「${payload.name}」を作成しました。`,
+        emitCloseImmediately: true,
       },
       emit
     );

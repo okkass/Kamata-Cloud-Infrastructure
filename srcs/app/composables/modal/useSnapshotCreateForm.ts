@@ -68,6 +68,7 @@ export function useSnapshotCreateForm(emit: any) {
         },
         onSuccessMessage: (payload) =>
           `スナップショット「${payload.name}」を作成しました。`,
+        emitCloseImmediately: true,
       },
       emit
     );

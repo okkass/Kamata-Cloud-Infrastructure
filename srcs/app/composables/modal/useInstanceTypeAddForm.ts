@@ -64,6 +64,7 @@ export function useInstanceTypeAddForm() {
         onSuccess: () => {
           resetForm();
         },
+        emitCloseImmediately: true,
       },
       emit
     );
