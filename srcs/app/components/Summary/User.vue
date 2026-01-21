@@ -1,7 +1,7 @@
 <template>
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <section class="summary-section lg:col-span-1">
-      <SummaryQuickLink :isAdmin="isAdmin" />
+      <SummaryQuickLink />
     </section>
     <section v-if="summaryData" class="summary-section lg:col-span-1">
       <h2 class="summary-section-title">あなたのリソース割り当て</h2>
@@ -86,11 +86,11 @@
   </div>
 </template>
 <script setup lang="ts">
-import { ref } from "vue";
 import SummaryProgressBar from "~/components/Summary/ProgressBar.vue";
 import SummaryTimeSeries from "~/components/Summary/TimeSeries.vue";
 
-const isAdmin = ref(false); // ここ変えてください。
+const { isAdmin } = useUserPermission();
+
 const {
   summaryData,
   summaryPending,

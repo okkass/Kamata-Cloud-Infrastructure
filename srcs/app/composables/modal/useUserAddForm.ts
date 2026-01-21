@@ -121,6 +121,7 @@ export function useUserAddForm() {
         onSuccessMessage: (payload) =>
           `利用者「${payload.name}」を作成しました。`,
         onSuccess: () => resetForm(),
+        emitCloseImmediately: true,
       },
       emit
     );

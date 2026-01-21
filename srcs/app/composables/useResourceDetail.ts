@@ -11,10 +11,10 @@ import { unref } from "vue";
  */
 export const useResourceDetail = <T>(
   resourceName: string,
-  id: MaybeRef<string>
+  id?: MaybeRef<string>
 ) => {
   // unref() を使い、引数のidがrefでも文字列でもその値を取得できるようにする
-  const resourceId = unref(id);
+  const resourceId = unref(id) ?? "";
 
   const url = `${resourceName}/${resourceId}`;
   // useFetch を使い、単一のオブジェクトを取得する

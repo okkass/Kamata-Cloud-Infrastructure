@@ -3,6 +3,7 @@ interface FormActionOptions<TReq, TRes> {
   onSuccessMessage: (values: any) => string;
   onErrorMessage?: string;
   onSuccess?: () => void;
+  emitCloseImmediately?: boolean; // 送信直後にモーダルを閉じる（API結果待たず）
 }
 
 interface ModalActionOptions<TReq>
@@ -21,19 +22,28 @@ export function useFormAction() {
     return handleSubmit(async (values: any) => {
       const payload = values as TReq;
 
-      // 2. API実行
+      // 送信直後にモーダルを閉じるオプションが有効な場合
+      if (options.emitCloseImmediately) {
+        options.onSuccess?.(); // resetFormなどを実行
+        emit("success");
+        emit("close");
+      }
+
+      // API実行
       const result = await options.execute(payload);
 
-      // 3. 結果処理
+      // 結果処理
       if (result.success) {
         addToast({
           message: options.onSuccessMessage(values),
           type: "success",
         });
 
-        options.onSuccess?.(); // resetFormなどを実行
-        emit("success");
-        emit("close");
+        if (!options.emitCloseImmediately) {
+          options.onSuccess?.(); // resetFormなどを実行
+          emit("success");
+          emit("close");
+        }
       } else {
         addToast({
           message: options.onErrorMessage || "処理に失敗しました。",
@@ -57,6 +67,13 @@ export function useFormAction() {
       // 1. ペイロード取得（バリデーション含む）
       const payload = await asyncFn();
 
+      // 送信直後にモーダルを閉じるオプションが有効な場合
+      if (options.emitCloseImmediately) {
+        options.onSuccess?.();
+        emit("success");
+        emit("close");
+      }
+
       // 2. API実行
       const result = await options.execute(payload);
 
@@ -67,9 +84,11 @@ export function useFormAction() {
           type: "success",
         });
 
-        options.onSuccess?.();
-        emit("success");
-        emit("close");
+        if (!options.emitCloseImmediately) {
+          options.onSuccess?.();
+          emit("success");
+          emit("close");
+        }
       } else {
         addToast({
           message: options.onErrorMessage || "処理に失敗しました。",

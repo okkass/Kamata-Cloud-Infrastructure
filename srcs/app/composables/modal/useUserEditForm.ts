@@ -144,6 +144,7 @@ export function useUserEditForm(props: UserEditProps) {
         onSuccessMessage: (payload) =>
           `利用者「${payload.name}」の情報を更新しました。`,
         onSuccess: () => resetForm(),
+        emitCloseImmediately: true,
       },
       emit
     );

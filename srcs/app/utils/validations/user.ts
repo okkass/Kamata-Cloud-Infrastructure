@@ -42,5 +42,83 @@ export const UserSchema = UserBaseSchema.extend({
 // --- ユーザー更新用スキーマ ---
 export const UserUpdateSchema = UserBaseSchema;
 
+// --- ユーザークライアント側更新用スキーマ（設定画面：条件付きPW変更対応） ---
+export const UserClientUpdateSchema = z
+  .object({
+    name: z.string().min(1, "アカウント名は必須です。"),
+    email: z.email("有効なメールアドレスを入力してください。"),
+
+    // パスワード変更（変更しないなら全部空でOK）
+    currentPassword: z.string().optional(),
+    newPassword: z.string().optional(),
+    newPasswordConfirm: z.string().optional(),
+  })
+  .superRefine((data, ctx) => {
+    const cp = (data.currentPassword ?? "").trim();
+    const np = (data.newPassword ?? "").trim();
+    const nc = (data.newPasswordConfirm ?? "").trim();
+
+    // パスワード変更の意思がない場合はここで終了
+    const anyFilled = cp !== "" || np !== "" || nc !== "";
+    if (!anyFilled) return;
+
+    // パスワード変更時は全フィールドが必須
+    if (cp === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["currentPassword"],
+        message: "現在のパスワードは必須です。",
+      });
+    }
+
+    if (np === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["newPassword"],
+        message: "新しいパスワードは必須です。",
+      });
+    } else {
+      // passwordSchemaで新しいパスワードを検証
+      const passwordValidation = passwordSchema.safeParse(np);
+      if (!passwordValidation.success) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          path: ["newPassword"],
+          message:
+            passwordValidation.error.issues[0]?.message ||
+            "パスワードが無効です。",
+        });
+      }
+    }
+
+    if (nc === "") {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["newPasswordConfirm"],
+        message: "新しいパスワード（確認）は必須です。",
+      });
+    }
+
+    // パスワード一致確認
+    if (np !== "" && nc !== "" && np !== nc) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["newPasswordConfirm"],
+        message: "新しいパスワードが一致しません。",
+      });
+    }
+
+    // 現在のパスワードと異なることを確認
+    if (cp !== "" && np !== "" && cp === np) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        path: ["newPassword"],
+        message: "現在のパスワードと異なる値を指定してください。",
+      });
+    }
+  });
+
+// --- 型エクスポート ---
 export type UserCreateInput = z.infer<typeof UserSchema>;
 export type UserUpdateInput = z.infer<typeof UserUpdateSchema>;
+export type UserClientUpdateInput = z.infer<typeof UserClientUpdateSchema>;
