@@ -15,6 +15,7 @@ import {
   type ImageCreateInput,
 } from "~/utils/validations/image";
 import { useFormAction } from "~/composables/modal/useModalAction";
+import { extractErrorMessage } from "~/utils/errorHandler";
 
 /**
  * イメージ追加フォームのロジック
@@ -80,14 +81,23 @@ export function useImageAddForm() {
           try {
             const formData = new FormData();
             formData.append("file", payload.file);
-            formData.append("name", payload.name);
-            formData.append("description", payload.description || "");
-            formData.append("nodeId", payload.nodeId);
+
+            // バックエンドが期待するmetadataフィールド（JSON形式）
+            const metadata = {
+              name: payload.name,
+              description: payload.description || "",
+              nodeId: payload.nodeId,
+            };
+            formData.append("metadata", JSON.stringify(metadata));
 
             await uploadFile("images", formData);
             return { success: true };
-          } catch (error: any) {
-            return { success: false, error };
+          } catch (error: unknown) {
+            const message = extractErrorMessage(
+              error,
+              "ファイルのアップロードに失敗しました。"
+            );
+            return { success: false, error: new Error(message) };
           }
         },
         // 成功メッセージ
@@ -95,6 +105,8 @@ export function useImageAddForm() {
           `イメージ「${values.name}」のアップロードが完了しました。`,
         // 成功時処理
         onSuccess: () => resetForm(),
+        // 送信直後にモーダルを閉じる
+        emitCloseImmediately: true,
       },
       emit
     );

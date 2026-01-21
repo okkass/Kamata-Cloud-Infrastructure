@@ -8,6 +8,7 @@ import type {
 import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import UserRepository from "@/repository/UserRepository";
+import { UserCredentialsRepository } from "@/repository/UserCredentials";
 
 export const getUserService = (permission: UserPermissions) => {
   const UserService: ResourceService<
@@ -39,6 +40,10 @@ export const getUserService = (permission: UserPermissions) => {
           error: "BadRequest",
         };
       }
+      // パスワード情報も登録
+      if (data.password) {
+        UserCredentialsRepository.create(newUser.id, data.password);
+      }
       return { success: true, data: newUser };
     },
     update(id, data) {
@@ -59,6 +64,8 @@ export const getUserService = (permission: UserPermissions) => {
           error: "NotFound",
         };
       }
+      // パスワード情報も削除
+      UserCredentialsRepository.deleteById(id);
       return { success: true, data: null };
     },
   };

@@ -121,6 +121,7 @@ export const createResource = async <TRequest, TResponse>(
 
   // エラーが返ってきたら例外を投げる
   if (!result.success) {
+    console.error("createResource error:", result.error);
     throwServiceError(result.error);
   }
 

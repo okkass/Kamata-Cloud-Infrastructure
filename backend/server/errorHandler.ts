@@ -7,7 +7,8 @@ export default defineNitroErrorHandler(
 
     const res = createErrorResponse(
       statusCode,
-      error.statusMessage || error.message || "Internal Server Error"
+      error.statusMessage || "Internal Server Error",
+      error.message
     );
     setHeader(event, "Content-Type", "application/json");
     setResponseStatus(event, res.status);
