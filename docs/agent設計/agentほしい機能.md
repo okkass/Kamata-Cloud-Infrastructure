@@ -51,6 +51,17 @@ pvecm add 192.168.3.10
 - NFS を構築する
 - 返却値を別途検討(ストレージプールを識別するため)
 
+#### NFS-KERNEL-SERVERのインストール
+
+```
+# 必要なパッケージのインストール
+apt update
+apt install nfs-kernel-server -y
+
+# EXPORTSファイルの準備
+mkdir -p /etc/exports.d
+```
+
 #### LVM の新規作成
 
 ```
@@ -121,16 +132,16 @@ pvesm add nfs shared-nfs-01 --server 192.168.3.40 --export /mnt/nfs/nfs-vol-01 -
 
 ```
 # 1. クローン作成 (9000 -> 105)
-# --full 0 (同じストレージなら爆速), --full 1 (別ストレージなら完全コピー)
+# --full 0 (同じストレージなら爆速)（でも無理）, --full 1 (別ストレージなら完全コピー)
 qm clone 9000 105 --name "user-vm" --full 1
 
-# 2. 基本スペックとネットワークのFirewallフラグ有効化
+# 2. 基本スペックとネットワークのFirewallフラグ有効化（firewall=1じゃないとSGは意味ない、すべてのNICでfirewall=1にすべき）
 qm set 105 --cores 2 --memory 2048 --net0 virtio,bridge=vmbr0,firewall=1
 
 # 3. Security Group (SG) のアタッチ
 # qm set ではできないため、API用CLIツール "pvesh" を使います
 # 例: net0 に "web-server-sg" を適用
-pvesh create /nodes/localhost/qemu/105/firewall/rules --type group --action web-server-sg --iface net0
+pvesh create /nodes/localhost/qemu/105/firewall/rules --type group --action web-server-sg --comment {SGのUUID}
 ```
 
 ## バックアップ
