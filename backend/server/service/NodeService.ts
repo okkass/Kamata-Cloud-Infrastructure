@@ -11,6 +11,12 @@ import type {
 import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import NodeRepository from "@/repository/NodeRepository";
+import {
+  NodeInsertProps,
+  NodeUpdateProps,
+  NodeRecord,
+} from "@/repository/NodeRepository";
+import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
 type NodeService = ResourceService<
   NodeResponse,
@@ -18,61 +24,138 @@ type NodeService = ResourceService<
   NodePatchRequest | NodePutRequest,
   ServiceError
 > & {
-  listNewDevices: (nodeId: string) => Result<DeviceResponse[], ServiceError>;
-  listCandidates: () => Result<NodeCandidateResponse[], ServiceError>;
+  listNewDevices: (
+    nodeId: string
+  ) => Promise<Result<DeviceResponse[], ServiceError>>;
+  listCandidates: () => Promise<Result<NodeCandidateResponse[], ServiceError>>;
+};
+
+const mapNodeToResponse = (
+  node: NodeRecord,
+  pveNodeData: {
+    status: "active" | "inactive";
+    cpuUtilization: number;
+    memoryUtilization: number;
+    storageUtilization: number;
+  }
+): NodeResponse => {
+  return {
+    id: node.uuid,
+    name: node.name,
+    ipAddress: node.ipAddress,
+    isAdmin: node.isAdmin,
+    createdAt: node.createdAt.toISOString(),
+    status: pveNodeData.status,
+    cpuUtilization: pveNodeData.cpuUtilization,
+    memoryUtilization: pveNodeData.memoryUtilization,
+    storageUtilization: pveNodeData.storageUtilization,
+  };
 };
 
 export const getNodeService = (permission: UserPermissions) => {
   const nodeService: NodeService = {
     permission,
-    list(query) {
-      const nodes = NodeRepository.list();
-      return { success: true, data: nodes };
+    async list(query) {
+      try {
+        const nodes = await NodeRepository.list();
+        const results = nodes.map((node) => {
+          const pveNodeData = {
+            status: "active" as const,
+            cpuUtilization: 0.8,
+            memoryUtilization: 0.6,
+            storageUtilization: 0.7,
+          };
+          return mapNodeToResponse(node, pveNodeData);
+        });
+        return { success: true, data: results };
+      } catch (error) {
+        console.error("Error listing nodes:", error);
+        return { success: false, error: { reason: "InternalError" } };
+      }
     },
-    getById(id) {
-      const node = NodeRepository.getById(id);
-      if (!node) {
-        return {
-          success: false,
-          error: "NotFound",
+    async getById(id) {
+      try {
+        const node = await NodeRepository.getById(id);
+        if (!node) {
+          return {
+            success: false,
+            error: { reason: "NotFound" },
+          };
+        }
+        const pveNodeData = {
+          status: "active" as const,
+          cpuUtilization: 0.8,
+          memoryUtilization: 0.6,
+          storageUtilization: 0.7,
         };
+        const result = mapNodeToResponse(node, pveNodeData);
+        return { success: true, data: result };
+      } catch (error) {
+        console.error("Error getting node:", error);
+        return { success: false, error: { reason: "InternalError" } };
       }
-      return { success: true, data: node };
     },
-    create(data) {
-      const newNode = NodeRepository.create(data);
-      if (!newNode) {
-        return {
-          success: false,
-          error: "BadRequest",
+    async create(data) {
+      const req: NodeInsertProps = {
+        name: data.name ?? `node-${data.ipAddress}`,
+        ipAddress: data.ipAddress,
+        isAdmin: data.isAdmin ?? false,
+      };
+
+      try {
+        const newNode = await NodeRepository.create(req);
+        const pveNodeData = {
+          status: "active" as const,
+          cpuUtilization: 0.8,
+          memoryUtilization: 0.6,
+          storageUtilization: 0.7,
         };
+        const result = mapNodeToResponse(newNode, pveNodeData);
+        return { success: true, data: result };
+      } catch (error) {
+        console.error("Error creating node:", error);
+        return { success: false, error: { reason: "InternalError" } };
       }
-      return { success: true, data: newNode };
     },
-    update(id, data) {
-      const updatedNode = NodeRepository.update(id, data);
-      if (!updatedNode) {
-        return {
-          success: false,
-          error: "NotFound",
+    async update(id, data) {
+      const req: NodeUpdateProps = {
+        name: data.name,
+        isAdmin: data.isAdmin,
+      };
+      try {
+        const res = await NodeRepository.update(id, req);
+        const pveNodeData = {
+          status: "active" as const,
+          cpuUtilization: 0.8,
+          memoryUtilization: 0.6,
+          storageUtilization: 0.7,
         };
+        const result = mapNodeToResponse(res, pveNodeData);
+        return { success: true, data: result };
+      } catch (error) {
+        console.error("Error updating node:", error);
+        return { success: false, error: { reason: "InternalError" } };
       }
-      return { success: true, data: updatedNode };
     },
-    delete(id) {
-      const deleted = NodeRepository.deleteById(id);
-      if (!deleted) {
-        return { success: false, error: "NotFound" };
+    async delete(id) {
+      try {
+        await NodeRepository.deleteById(id);
+
+        return { success: true, data: null };
+      } catch (error) {
+        // P2025を捕捉してNotFoundを返すようにする
+        if (error instanceof PrismaClientKnownRequestError && error.code === "P2025") {
+          return { success: false, error: { reason: "NotFound" } };
+        }
+        console.error("Error deleting node:", error);
+        return { success: false, error: { reason: "InternalError" } };
       }
-      return { success: true, data: null };
     },
-    listNewDevices(nodeId) {
-      const devices = NodeRepository.listDevices();
-      return { success: true, data: devices };
+    async listNewDevices(nodeId) {
+      return { success: false, error: { reason: "NotImplemented" } };
     },
-    listCandidates() {
-      const candidates = NodeRepository.listCandidates();
-      return { success: true, data: candidates };
+    async listCandidates() {
+      return { success: false, error: { reason: "NotImplemented" } };
     },
   };
   return nodeService;

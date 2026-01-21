@@ -116,6 +116,7 @@ export const useInstanceTypeEditForm = (props: Props) => {
         },
         onSuccessMessage: () =>
           `インスタンスタイプ「${name.value}」を更新しました。`,
+        emitCloseImmediately: true,
       },
       emit
     );
