@@ -1,14 +1,13 @@
-from auth_test import test_login
 import requests
 import json
+import sys
+
+from auth_test import get_header
+
+headers = get_header(sys.argv, headers={"Authorization": "Bearer mock-token"})
 
 
 def main():
-    print("1. ログインしてトークンを取得する")
-    res = test_login()
-    token = res["token"]
-    headers = {"Authorization": f"Bearer {token}"}
-
     print("2. ノード一覧を取得する")
     test_get_nodes(headers=headers)
 

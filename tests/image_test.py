@@ -2,11 +2,14 @@ import requests
 import json
 import random
 import os
+import sys
+
+from auth_test import get_header
 
 # 定数の宣言
 API_URL = os.environ.get("API_URL", "http://localhost:3030/api/")
 TOKEN = os.environ.get("API_TOKEN", "mock-token")
-HEADERS = {"Authorization": f"Bearer {TOKEN}"}
+headers = get_header(sys.argv, headers={"Authorization": f"Bearer {TOKEN}"})
 
 
 def main():
@@ -39,7 +42,7 @@ def main():
 
 def test_get_images():
     print("\n--- GET /api/images のテスト ---")
-    res = requests.get(f"{API_URL}images", headers=HEADERS)
+    res = requests.get(f"{API_URL}images", headers=headers)
     assert (
         res.status_code == 200
     ), f"イメージ一覧の取得に失敗しました: {res.status_code}"
@@ -51,7 +54,7 @@ def test_get_images():
 
 def get_node_id():
     print("\n--- イメージ作成対象のノードを取得しています ---")
-    res = requests.get(f"{API_URL}nodes", headers=HEADERS)
+    res = requests.get(f"{API_URL}nodes", headers=headers)
     assert res.status_code == 200, f"ノード一覧の取得に失敗しました: {res.status_code}"
     nodes = res.json()
 
@@ -86,7 +89,7 @@ def test_create_image(node_id):
         data = {"metadata": metadata_json}
 
         # files引数を渡すと自動的に Content-Type: multipart/form-data; boundary=... が設定される
-        res = requests.post(f"{API_URL}images", headers=HEADERS, data=data, files=files)
+        res = requests.post(f"{API_URL}images", headers=headers, data=data, files=files)
 
     print("ステータスコード:", res.status_code)
     print("レスポンス:", res.text)
@@ -100,7 +103,7 @@ def test_create_image(node_id):
 
 def test_get_image(image_id):
     print(f"\n--- GET /api/images/{image_id} のテスト ---")
-    res = requests.get(f"{API_URL}images/{image_id}", headers=HEADERS)
+    res = requests.get(f"{API_URL}images/{image_id}", headers=headers)
     assert (
         res.status_code == 200
     ), f"イメージ詳細の取得に失敗しました: {res.status_code}"
@@ -116,7 +119,7 @@ def test_patch_image(image_id):
     new_desc = "PATCHによって更新された説明"
     payload = {"name": new_name, "description": new_desc}
 
-    res = requests.patch(f"{API_URL}images/{image_id}", headers=HEADERS, json=payload)
+    res = requests.patch(f"{API_URL}images/{image_id}", headers=headers, json=payload)
     assert (
         res.status_code == 200
     ), f"イメージのパッチ更新に失敗しました: {res.status_code}"
@@ -140,7 +143,7 @@ def test_put_image(image_id):
 
     payload = {"name": new_name, "description": new_desc}
 
-    res = requests.put(f"{API_URL}images/{image_id}", headers=HEADERS, json=payload)
+    res = requests.put(f"{API_URL}images/{image_id}", headers=headers, json=payload)
     assert (
         res.status_code == 200
     ), f"イメージの更新(PUT)に失敗しました: {res.status_code}"
@@ -158,12 +161,12 @@ def test_put_image(image_id):
 
 def test_delete_image(image_id):
     print(f"\n--- DELETE /api/images/{image_id} のテスト ---")
-    res = requests.delete(f"{API_URL}images/{image_id}", headers=HEADERS)
+    res = requests.delete(f"{API_URL}images/{image_id}", headers=headers)
     assert res.status_code == 204, f"イメージの削除に失敗しました: {res.status_code}"
     print(f"削除されたイメージID: {image_id}")
 
     # 削除確認
-    res_get = requests.get(f"{API_URL}images/{image_id}", headers=HEADERS)
+    res_get = requests.get(f"{API_URL}images/{image_id}", headers=headers)
     assert (
         res_get.status_code == 404
     ), f"削除後にイメージがまだ存在しています: {res_get.status_code}"
