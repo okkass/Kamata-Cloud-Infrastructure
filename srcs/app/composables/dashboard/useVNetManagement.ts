@@ -27,17 +27,16 @@ export const DELETE_VNET_ACTION = `delete-${RESOURCE_NAME}`;
  */
 export function useVNetManagement() {
   // --- Permissions ---
-  const { fetchUser, isNetworkAdmin } = useUserPermission();
-  void fetchUser();
+  const { isNetworkAdmin, isAdmin } = useUserPermission();
 
   const tableTitle = computed(() => {
-    return isNetworkAdmin.value
+    return isNetworkAdmin.value || isAdmin.value
       ? "仮想ネットワーク（全ユーザー）"
       : "仮想ネットワーク";
   });
 
   const queryOptions = computed(() => {
-    return isNetworkAdmin.value ? { scope: "all" } : undefined;
+    return isNetworkAdmin.value || isAdmin.value ? { scope: "all" } : undefined;
   });
 
   const {
@@ -50,7 +49,7 @@ export function useVNetManagement() {
   const { startPolling, stopPolling, runOnce, lastUpdatedTime } = createPolling(
     async () => {
       await refresh();
-    }
+    },
   );
 
   // マウント時に即時実行し、その後ポーリング開始。アンマウント時に停止。
@@ -84,7 +83,7 @@ export function useVNetManagement() {
       ownerName: v.owner?.name ?? "-",
       createdAtText: v.createdAt ? formatDateTime(v.createdAt) : "-",
       originalData: v,
-    }))
+    })),
   );
 
   return {
