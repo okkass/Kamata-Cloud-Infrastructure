@@ -117,7 +117,7 @@ def test_get_security_group(group_id):
 
 def test_patch_security_group(group_id):
     print(f"\n--- PATCH /api/security-groups/{group_id} のテスト ---")
-    # current_group = test_get_security_group(group_id)
+    current_group = test_get_security_group(group_id)
     new_description = f"Patched desc {random.randint(100, 999)}"
 
     payload = {"description": new_description}
@@ -131,13 +131,14 @@ def test_patch_security_group(group_id):
 
     patched_group = res.json()
 
-    # レスポンスに description が含まれていない場合、GETして再確認するなどの手もあるが
-    # ここではキーがある場合のみ確認する実装とする（InstanceType_testなどと同様）
-    if "description" in patched_group:
-        assert patched_group["description"] == new_description
-        print(f"パッチ更新後の説明: {patched_group['description']}")
-    else:
-        print("パッチ更新成功 (レスポンスにdescriptionフィールドなし)")
+    # レスポンスに description が含まれていない場合は、GETで再取得して検証する
+    # これにより、InstanceType_testと同様に常にdescriptionの更新結果を確認する
+    if "description" not in patched_group:
+        print("レスポンスにdescriptionが含まれていないため、再取得して検証します。")
+        patched_group = test_get_security_group(group_id)
+
+    assert patched_group["description"] == new_description
+    print(f"パッチ更新後の説明: {patched_group['description']}")
 
     return patched_group
 
@@ -219,8 +220,9 @@ def test_patch_security_rule(group_id, rule_id):
     ), f"セキュリティルールのパッチ更新に失敗しました: {res.status_code}"
 
     rule = res.json()
-    if "port" in rule:
-        assert rule["port"] == 8080
+
+    assert "port" in rule, "レスポンスにportフィールドが含まれていません"
+    assert rule["port"] == 8080
     print("セキュリティルールをパッチ更新しました。")
 
 
