@@ -31,6 +31,14 @@ def main():
         # 4. 更新 (Put)
         test_put_security_group(group_id)
 
+        print("\n=== セキュリティルールAPIテスト ===")
+        # グループにルールを追加してテスト
+        rule_id = test_create_security_rule(group_id)
+        test_get_security_rule(group_id, rule_id)
+        test_patch_security_rule(group_id, rule_id)
+        test_put_security_rule(group_id, rule_id)
+        test_delete_security_rule(group_id, rule_id)
+
         # 5. 削除 (Delete)
         test_delete_security_group(group_id)
 
@@ -109,7 +117,7 @@ def test_get_security_group(group_id):
 
 def test_patch_security_group(group_id):
     print(f"\n--- PATCH /api/security-groups/{group_id} のテスト ---")
-    current_group = test_get_security_group(group_id)
+    # current_group = test_get_security_group(group_id)
     new_description = f"Patched desc {random.randint(100, 999)}"
 
     payload = {"description": new_description}
@@ -158,6 +166,98 @@ def test_put_security_group(group_id):
 
     print(f"更新(PUT)後のセキュリティグループ名: {replaced_group['name']}")
     return replaced_group
+
+
+# --- Security Rule Tests ---
+
+
+def test_create_security_rule(group_id):
+    print(f"\n--- POST /api/security-groups/{group_id}/rules のテスト ---")
+    payload = {
+        "name": f"TestRule_{random.randint(100, 999)}",
+        "ruleType": "inbound",
+        "port": 443,
+        "protocol": "tcp",
+        "targetIp": "192.168.1.0/24",
+        "action": "allow",
+    }
+
+    res = requests.post(
+        f"{API_URL}security-groups/{group_id}/rules", headers=headers, json=payload
+    )
+    assert (
+        res.status_code == 201
+    ), f"セキュリティルールの作成に失敗しました: {res.status_code}"
+
+    rule = res.json()
+    assert rule["port"] == 443
+    print(f"セキュリティルールを作成しました。ID: {rule['id']}")
+    return rule["id"]
+
+
+def test_get_security_rule(group_id, rule_id):
+    print(f"\n--- GET /api/security-groups/{group_id}/rules/{rule_id} のテスト ---")
+    res = requests.get(
+        f"{API_URL}security-groups/{group_id}/rules/{rule_id}", headers=headers
+    )
+    assert (
+        res.status_code == 200
+    ), f"セキュリティルールの詳細取得に失敗しました: {res.status_code}"
+    print("セキュリティルールの詳細を正常に取得しました。")
+
+
+def test_patch_security_rule(group_id, rule_id):
+    print(f"\n--- PATCH /api/security-groups/{group_id}/rules/{rule_id} のテスト ---")
+    payload = {"port": 8080}
+    res = requests.patch(
+        f"{API_URL}security-groups/{group_id}/rules/{rule_id}",
+        headers=headers,
+        json=payload,
+    )
+    assert (
+        res.status_code == 200
+    ), f"セキュリティルールのパッチ更新に失敗しました: {res.status_code}"
+
+    rule = res.json()
+    if "port" in rule:
+        assert rule["port"] == 8080
+    print("セキュリティルールをパッチ更新しました。")
+
+
+def test_put_security_rule(group_id, rule_id):
+    print(f"\n--- PUT /api/security-groups/{group_id}/rules/{rule_id} のテスト ---")
+    # PUT requires all fields
+    payload = {
+        "name": "UpdatedRule",
+        "ruleType": "inbound",
+        "port": 80,
+        "protocol": "tcp",
+        "targetIp": "10.0.0.0/8",
+        "action": "deny",
+    }
+    res = requests.put(
+        f"{API_URL}security-groups/{group_id}/rules/{rule_id}",
+        headers=headers,
+        json=payload,
+    )
+    assert (
+        res.status_code == 200
+    ), f"セキュリティルールのPUT更新に失敗しました: {res.status_code}"
+
+    rule = res.json()
+    assert rule["action"] == "deny"
+    print("セキュリティルールをPUT更新しました。")
+
+
+def test_delete_security_rule(group_id, rule_id):
+    print(f"\n--- DELETE /api/security-groups/{group_id}/rules/{rule_id} のテスト ---")
+    res = requests.delete(
+        f"{API_URL}security-groups/{group_id}/rules/{rule_id}", headers=headers
+    )
+    assert (
+        res.status_code == 204
+    ), f"セキュリティルールの削除に失敗しました: {res.status_code}"
+    print("セキュリティルールを削除しました。")
 
 
 def test_delete_security_group(group_id):
