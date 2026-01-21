@@ -189,6 +189,48 @@ async function main() {
     console.log(`- ${node.name} (${node.ipAddress})`);
   });
 
+  const instanceTypes = [
+    {
+      name: "Tiny",
+      cpuCore: 1,
+      memorySize: 1024,
+    },
+    {
+      name: "Small",
+      cpuCore: 2,
+      memorySize: 2048,
+    },
+    {
+      name: "Medium",
+      cpuCore: 4,
+      memorySize: 4096,
+    },
+  ];
+
+  try {
+    const createInstanceTypePromises = instanceTypes.map((type) => {
+      return prisma.instanceType.create({
+        data: {
+          name: type.name,
+          cpuCore: type.cpuCore,
+          memorySize: type.memorySize,
+        },
+      });
+    });
+    await Promise.all(createInstanceTypePromises);
+  } catch (error) {
+    console.error("Error creating instance types:", error);
+  }
+
+  const allInstanceTypes = await prisma.instanceType.findMany();
+  console.log(`Created ${allInstanceTypes.length} instance types:`);
+
+  allInstanceTypes.forEach((type) => {
+    console.log(
+      `- ${type.name} (CPU: ${type.cpuCore}, Memory: ${type.memorySize}MB)`,
+    );
+  });
+
   console.log("Seeding test data finished.");
 }
 
