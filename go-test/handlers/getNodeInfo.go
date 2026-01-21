@@ -8,8 +8,8 @@ import (
 
 func HandleNodeInfo(w http.ResponseWriter, r *http.Request) {
 	var resp NodeInfoResponse
-	hostnameCmd := exec.Command("hostname", "-I", "|", "awk", "{print $1}")
-	hostnameOut, err := hostnameCmd.Output()
+	hostnameCmd := exec.Command("sh", "-c", "hostname -I | awk '{print $1}'")
+	hostnameOut, err := hostnameCmd.CombinedOutput()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed to get IP address")
 		return
@@ -25,5 +25,4 @@ func HandleNodeInfo(w http.ResponseWriter, r *http.Request) {
 	resp.Hostname = strings.TrimSpace(string(hostnameOut))
 
 	respondWithJSON(w, http.StatusOK, resp)
-
 }
