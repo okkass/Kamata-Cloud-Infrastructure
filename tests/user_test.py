@@ -101,7 +101,6 @@ def test_patch_user(user_id):
     current_user = test_get_user(user_id)
     new_name = "Patched " + current_user["name"]
     payload = {"name": new_name}
-    print(headers)
     res = requests.patch(f"{API_URL}users/{user_id}", headers=headers, json=payload)
     assert res.status_code == 200, res.status_code
     patched_user = res.json()
