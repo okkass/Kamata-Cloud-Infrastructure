@@ -116,7 +116,7 @@
         <div class="h-2 w-full rounded-full bg-slate-200">
           <div
             class="h-full rounded-full bg-blue-500"
-            :style="{ width: `${row.cpuUtilizationPercent}%` }"
+            :style="{ width: `${clampPercent(row.cpuUtilizationPercent)}%` }"
           />
         </div>
       </div>
@@ -132,7 +132,7 @@
         <div class="h-2 w-full rounded-full bg-slate-200">
           <div
             class="h-full rounded-full bg-blue-500"
-            :style="{ width: `${row.memoryUtilizationPercent}%` }"
+            :style="{ width: `${clampPercent(row.memoryUtilizationPercent)}%` }"
           />
         </div>
       </div>
@@ -182,7 +182,7 @@
     :is-loading="isDeleting"
     :resource-label="MACHINE.label"
     :resource-name="targetForDeletion?.name"
-    :message="`本当に「${targetForDeletion?.name ?? ''}」を削除しますか？`"
+    :message="deleteMessage"
     @close="cancelAction"
     @confirm="handleDelete"
   />
@@ -210,6 +210,7 @@
 
 <script setup lang="ts">
 import { MACHINE } from "@/utils/constants";
+import { clampPercent } from "@/utils/format";
 import {
   useVMachineManagement,
   type VirtualMachineRow,
@@ -370,4 +371,10 @@ function onRowAction({
 }) {
   handleRowAction({ action, row });
 }
+
+/* 削除確認メッセージ */
+const deleteMessage = computed(() => {
+  const name = targetForDeletion.value?.name ?? "";
+  return `本当に「${name}」を削除しますか？`;
+});
 </script>

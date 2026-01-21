@@ -10,10 +10,7 @@
       @row-action="onRowAction"
     >
       <template #cell-name="{ row }">
-        <NuxtLink
-          :to="`/network/${encodeURIComponent(String(row.id))}`"
-          class="table-link"
-        >
+        <NuxtLink :to="`/network/${row.id}`" class="table-link">
           {{ row.name }}
         </NuxtLink>
       </template>
@@ -67,7 +64,7 @@
   <MoDeleteConfirm
     :show="activeModal === `delete-${NETWORK.name}`"
     :is-loading="isDeleting"
-    :message="`本当に「${targetForDeletion?.name ?? ''}」を削除しますか？`"
+    :message="deleteMessage"
     @close="cancelAction"
     @confirm="handleDelete"
   />
@@ -126,4 +123,10 @@ function handleHeaderAction(action: string) {
 function onRowAction({ action, row }: { action: string; row: VnetRow }) {
   handleRowAction({ action, row });
 }
+
+/* 削除確認メッセージ */
+const deleteMessage = computed(() => {
+  const name = targetForDeletion.value?.name ?? "";
+  return `本当に「${name}」を削除しますか？`;
+});
 </script>

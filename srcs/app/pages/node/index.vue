@@ -65,7 +65,7 @@
 
   <MoDeleteConfirm
     :show="activeModal === DELETE_NODE_ACTION"
-    :message="`本当にノード「${targetForDeletion?.name}」を削除しますか？`"
+    :message="deleteMessage"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
@@ -123,4 +123,10 @@ const onRowAction = ({ action, row }: { action: string; row: UiNode }) => {
     handleRowAction({ action, row });
   }
 };
+
+/* 削除確認メッセージ */
+const deleteMessage = computed(() => {
+  const name = targetForDeletion.value?.name ?? "";
+  return `本当にノード「${name}」を削除しますか？`;
+});
 </script>
