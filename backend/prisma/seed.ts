@@ -150,6 +150,45 @@ async function main() {
     console.log(`- ${user.email}`);
   });
 
+  const nodes = [
+    {
+      name: "Node 1",
+      ipAddress: "10.0.0.1",
+      isAdmin: true,
+    },
+    {
+      name: "Node 2",
+      ipAddress: "10.0.0.2",
+      isAdmin: false,
+    },
+    {
+      name: "Node 3",
+      ipAddress: "10.0.0.3",
+      isAdmin: false,
+    },
+  ];
+  try {
+    const createNodePromises = nodes.map((node) => {
+      return prisma.node.create({
+        data: {
+          name: node.name,
+          ipAddress: node.ipAddress,
+          isAdmin: node.isAdmin,
+        },
+      });
+    });
+    await Promise.all(createNodePromises);
+  } catch (error) {
+    console.error("Error creating nodes:", error);
+  }
+
+  const allNodes = await prisma.node.findMany();
+  console.log(`Created ${allNodes.length} nodes:`);
+
+  allNodes.forEach((node) => {
+    console.log(`- ${node.name} (${node.ipAddress})`);
+  });
+
   console.log("Seeding test data finished.");
 }
 

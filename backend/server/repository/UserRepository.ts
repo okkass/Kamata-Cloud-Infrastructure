@@ -1,5 +1,6 @@
 import { getPrismaClient, NotFoundError } from "./common";
 
+// ユーザを新規作成する際に必要な情報
 export interface UserInsertProps {
   name: string;
   email: string;
@@ -16,6 +17,7 @@ export interface UserInsertProps {
   isNodeAdmin: boolean;
 }
 
+// ユーザを更新する際に使用する情報
 export interface UserUpdateProps {
   name?: string;
   email?: string;
@@ -24,6 +26,7 @@ export interface UserUpdateProps {
   maxStorageSizeGb?: number;
 }
 
+// ユーザの権限を更新する際に使用する情報
 export interface UserPermissionUpdateProps {
   isAdmin?: boolean;
   isImageAdmin?: boolean;
@@ -34,9 +37,39 @@ export interface UserPermissionUpdateProps {
   isNodeAdmin?: boolean;
 }
 
-const list = async () => {
+// ユーザの権限情報
+export interface PermissionRecord {
+  isAdmin: boolean;
+  isImageAdmin: boolean;
+  isInstanceTypeAdmin: boolean;
+  isVirtualMachineAdmin: boolean;
+  isNetworkAdmin: boolean;
+  isSecurityGroupAdmin: boolean;
+  isNodeAdmin: boolean;
+}
+
+// ユーザ情報の型定義
+export interface UserRecord {
+  uuid: string;
+  name: string;
+  email: string;
+  createdAt: Date;
+  lastLoginAt: Date | null;
+  cpuLimitCores: number;
+  memoryLimitMb: number;
+  storageLimitGb: number;
+  permission: PermissionRecord | null;
+  credentials?: {
+    hashedPassword: string;
+  } | null;
+}
+
+// 一覧取得
+const list = async (): Promise<UserRecord[]> => {
+  // prisma clientの取得
   const prisma = getPrismaClient();
 
+  // ユーザ一覧を取得
   const users = await prisma.user.findMany({
     select: {
       uuid: true,
@@ -63,9 +96,11 @@ const list = async () => {
   return users;
 };
 
-const getById = async (id: string) => {
+// UUIDでの取得。該当なしだとnullを返す
+const getById = async (id: string): Promise<UserRecord | null> => {
   const prisma = getPrismaClient();
 
+  // findUniqueでUUID検索
   const user = await prisma.user.findUnique({
     where: {
       uuid: id,
@@ -76,6 +111,10 @@ const getById = async (id: string) => {
       email: true,
       createdAt: true,
       lastLoginAt: true,
+      cpuLimitCores: true,
+      memoryLimitMb: true,
+      storageLimitGb: true,
+      // 権限情報も一緒に取得
       permission: {
         select: {
           isAdmin: true,
@@ -87,6 +126,7 @@ const getById = async (id: string) => {
           isNodeAdmin: true,
         },
       },
+      // パスワードハッシュも取得
       credentials: {
         select: {
           hashedPassword: true,
@@ -97,7 +137,8 @@ const getById = async (id: string) => {
   return user;
 };
 
-const getByEmail = async (email: string) => {
+// emailをキーにして取得。該当なしだとnullを返す
+const getByEmail = async (email: string): Promise<UserRecord | null> => {
   const prisma = getPrismaClient();
 
   const user = await prisma.user.findUnique({
@@ -110,6 +151,9 @@ const getByEmail = async (email: string) => {
       email: true,
       createdAt: true,
       lastLoginAt: true,
+      cpuLimitCores: true,
+      memoryLimitMb: true,
+      storageLimitGb: true,
       permission: {
         select: {
           isAdmin: true,
@@ -131,9 +175,13 @@ const getByEmail = async (email: string) => {
   return user;
 };
 
-const create = async (userInsertProps: UserInsertProps) => {
+// ユーザ新規作成
+const create = async (
+  userInsertProps: UserInsertProps,
+): Promise<UserRecord> => {
   const prisma = getPrismaClient();
 
+  // credentials、 permissionも同時に作成
   const user = await prisma.user.create({
     data: {
       name: userInsertProps.name,
@@ -166,7 +214,11 @@ const create = async (userInsertProps: UserInsertProps) => {
   return user;
 };
 
-const update = async (id: string, userUpdateProps: UserUpdateProps) => {
+// ユーザ情報更新
+const update = async (
+  id: string,
+  userUpdateProps: UserUpdateProps,
+): Promise<UserRecord> => {
   const prisma = getPrismaClient();
   const user = await prisma.user.update({
     where: {
@@ -179,11 +231,33 @@ const update = async (id: string, userUpdateProps: UserUpdateProps) => {
       memoryLimitMb: userUpdateProps.maxMemorySizeMb,
       storageLimitGb: userUpdateProps.maxStorageSizeGb,
     },
+    select: {
+      uuid: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      lastLoginAt: true,
+      cpuLimitCores: true,
+      memoryLimitMb: true,
+      storageLimitGb: true,
+      permission: {
+        select: {
+          isAdmin: true,
+          isImageAdmin: true,
+          isInstanceTypeAdmin: true,
+          isVirtualMachineAdmin: true,
+          isNetworkAdmin: true,
+          isSecurityGroupAdmin: true,
+          isNodeAdmin: true,
+        },
+      },
+    },
   });
   return user;
 };
 
-const updateLastLoginAt = async (id: string) => {
+// 最終ログイン日時更新 ほかのrepositoryならこれはいらないよ
+const updateLastLoginAt = async (id: string): Promise<UserRecord> => {
   const prisma = getPrismaClient();
   const user = await prisma.user.update({
     where: {
@@ -192,14 +266,36 @@ const updateLastLoginAt = async (id: string) => {
     data: {
       lastLoginAt: new Date(),
     },
+    select: {
+      uuid: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      lastLoginAt: true,
+      cpuLimitCores: true,
+      memoryLimitMb: true,
+      storageLimitGb: true,
+      permission: {
+        select: {
+          isAdmin: true,
+          isImageAdmin: true,
+          isInstanceTypeAdmin: true,
+          isVirtualMachineAdmin: true,
+          isNetworkAdmin: true,
+          isSecurityGroupAdmin: true,
+          isNodeAdmin: true,
+        },
+      },
+    },
   });
   return user;
 };
 
+// ユーザ権限更新
 const updatePermission = async (
   uuid: string,
-  permissionUpdateProps: UserPermissionUpdateProps
-) => {
+  permissionUpdateProps: UserPermissionUpdateProps,
+): Promise<PermissionRecord> => {
   const prisma = getPrismaClient();
   // uuidからuid引っ張ってくる
   const user = await prisma.user.findUnique({
@@ -208,6 +304,25 @@ const updatePermission = async (
     },
     select: {
       id: true,
+      uuid: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      lastLoginAt: true,
+      cpuLimitCores: true,
+      memoryLimitMb: true,
+      storageLimitGb: true,
+      permission: {
+        select: {
+          isAdmin: true,
+          isImageAdmin: true,
+          isInstanceTypeAdmin: true,
+          isVirtualMachineAdmin: true,
+          isNetworkAdmin: true,
+          isSecurityGroupAdmin: true,
+          isNodeAdmin: true,
+        },
+      },
     },
   });
   if (!user) {
@@ -230,6 +345,7 @@ const updatePermission = async (
   return permission;
 };
 
+// パスワード更新　これもserviceでやるべきかも
 const updatePassword = async (uuid: string, newPasswordHash: string) => {
   const prisma = getPrismaClient();
   const user = await prisma.user.findUnique({
@@ -254,17 +370,40 @@ const updatePassword = async (uuid: string, newPasswordHash: string) => {
   return credential;
 };
 
-const deleteById = async (id: string) => {
+// uuidでユーザ削除
+const deleteById = async (id: string): Promise<UserRecord> => {
   const prisma = getPrismaClient();
 
   const result = await prisma.user.delete({
     where: {
       uuid: id,
     },
+    select: {
+      uuid: true,
+      name: true,
+      email: true,
+      createdAt: true,
+      lastLoginAt: true,
+      cpuLimitCores: true,
+      memoryLimitMb: true,
+      storageLimitGb: true,
+      permission: {
+        select: {
+          isAdmin: true,
+          isImageAdmin: true,
+          isInstanceTypeAdmin: true,
+          isVirtualMachineAdmin: true,
+          isNetworkAdmin: true,
+          isSecurityGroupAdmin: true,
+          isNodeAdmin: true,
+        },
+      },
+    },
   });
   return result;
 };
 
+// エクスポート
 export const UserRepository = {
   list,
   getById,

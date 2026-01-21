@@ -80,9 +80,10 @@ const createNetworkChartOptions = (): ApexOptions => {
  * ==================================================================
  */
 export function useSummary(isAdmin: Ref<boolean>) {
-  // 1. APIを叩く際の共通パラメータ
   const apiParams = computed(() => ({
     admin: isAdmin.value ? "1" : "0",
+    lazy: true,
+    server: false,
   }));
 
   // 2. リアルタイムAPIの呼び出し
@@ -91,11 +92,7 @@ export function useSummary(isAdmin: Ref<boolean>) {
     pending: summaryPending,
     error: summaryError,
     refresh: summaryRefresh,
-  } = useResourceList<SummaryResponse>("summary/realtime", {
-    params: apiParams,
-    lazy: true,
-    server: false,
-  });
+  } = useResourceList<SummaryResponse>("summary/realtime", apiParams);
 
   // 3. 履歴APIの呼び出し
   const {
@@ -103,11 +100,7 @@ export function useSummary(isAdmin: Ref<boolean>) {
     pending: historyPending,
     error: historyError,
     refresh: historyRefresh,
-  } = useResourceList<SummaryHistoryResponse>("summary/history", {
-    params: apiParams,
-    lazy: true,
-    server: false,
-  });
+  } = useResourceList<SummaryHistoryResponse>("summary/history", apiParams);
 
   // 4. グラフデータ整形ロジック
   const chartConfigData = computed(() => {
