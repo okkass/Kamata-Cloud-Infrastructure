@@ -55,6 +55,17 @@ def test_login():
     return data
 
 
+def get_header(args: list, headers=None):
+    # headers が None の場合は必ず空の辞書を初期化して返す
+    if headers is None:
+        headers = {}
+
+    if len(args) > 1 and args[1] == "db":
+        token = test_login()
+        headers["Authorization"] = f"Bearer {token['token']}"
+    return headers
+
+
 def test_get_users(headers=None):
     res = requests.get(f"{API_URL}users", headers=headers)
     assert res.status_code == 200, res.status_code
