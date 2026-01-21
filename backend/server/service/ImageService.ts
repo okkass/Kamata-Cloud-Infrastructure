@@ -8,60 +8,137 @@ import type {
 import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import ImageRepository from "@/repository/ImageRepository";
-import type { Result } from "@/common/type";
 
-export const getImageService = (permission: UserPermissions) => {
-  const ImageService: ResourceService<
+// PrismaのKnownRequestErrorっぽい形（import不要）
+type PrismaKnownRequestErrorLike = {
+  code: string;
+  message?: string;
+  meta?: unknown;
+};
+
+const isPrismaKnownRequestError = (e: unknown): e is PrismaKnownRequestErrorLike =>
+  typeof e === "object" &&
+  e !== null &&
+  "code" in e &&
+  typeof (e as any).code === "string";
+
+// 権限（必要なら厳密化）
+const canManageImages = (permission: UserPermissions | null) => {
+  if (!permission) return false;
+  return permission.isAdmin === true || permission.isImageAdmin === true;
+};
+
+export const getImageService = (permission: UserPermissions | null = null) => {
+  const imageService: ResourceService<
     ImageResponse,
     ImageCreateRequest,
     ImagePatchRequest | ImagePutRequest,
     ServiceError
   > = {
     permission,
-    list(query?: string): Result<ImageResponse[], ServiceError> {
-      const images = ImageRepository.list();
-      return { success: true, data: images };
-    },
-    getById(id): Result<ImageResponse, ServiceError> {
-      const image = ImageRepository.getById(id);
-      if (!image) {
+
+    list: async (_query?: string) => {
+      try {
+        const images = await ImageRepository.list();
+        return { success: true, data: images };
+      } catch (_error: unknown) {
         return {
           success: false,
-          error: "NotFound",
+          error: { reason: "InternalError", message: "Failed to list images" },
         };
       }
-      return { success: true, data: image };
     },
-    create(data) {
-      const newImage = ImageRepository.create(data);
-      if (!newImage) {
+
+    getById: async (id: string) => {
+      try {
+        const image = await ImageRepository.getById(id);
+        if (!image) return { success: false, error: { reason: "NotFound" } };
+        return { success: true, data: image };
+      } catch (_error: unknown) {
         return {
           success: false,
-          error: "BadRequest",
+          error: { reason: "InternalError", message: "Failed to get image" },
         };
       }
-      return { success: true, data: newImage };
     },
-    update(id, data) {
-      const updatedImage = ImageRepository.update(id, data);
-      if (!updatedImage) {
+
+    create: async (data: ImageCreateRequest) => {
+      if (!canManageImages(permission)) {
+        return { success: false, error: { reason: "Forbidden" } };
+      }
+
+      try {
+        const created = await ImageRepository.create(data);
+        return { success: true, data: created };
+      } catch (error: unknown) {
+        if (isPrismaKnownRequestError(error)) {
+          if (error.code === "P2002") {
+            return {
+              success: false,
+              error: { reason: "BadRequest", message: "Image already exists" },
+            };
+          }
+          if (error.code === "P2003") {
+            return {
+              success: false,
+              error: { reason: "BadRequest", message: "Invalid nodeId" },
+            };
+          }
+        }
         return {
           success: false,
-          error: "NotFound",
+          error: { reason: "InternalError", message: "Failed to create image" },
         };
       }
-      return { success: true, data: updatedImage };
     },
-    delete(id) {
-      const deleted = ImageRepository.deleteById(id);
-      if (!deleted) {
+
+    update: async (id: string, data: ImagePatchRequest | ImagePutRequest) => {
+      if (!canManageImages(permission)) {
+        return { success: false, error: { reason: "Forbidden" } };
+      }
+
+      try {
+        const updated = await ImageRepository.update(id, data);
+        if (!updated) return { success: false, error: { reason: "NotFound" } };
+        return { success: true, data: updated };
+      } catch (error: unknown) {
+        if (isPrismaKnownRequestError(error) && error.code === "P2002") {
+          return {
+            success: false,
+            error: { reason: "BadRequest", message: "Image already exists" },
+          };
+        }
         return {
           success: false,
-          error: "NotFound",
+          error: { reason: "InternalError", message: "Failed to update image" },
         };
       }
-      return { success: true, data: null };
+    },
+
+    delete: async (id: string) => {
+      if (!canManageImages(permission)) {
+        return { success: false, error: { reason: "Forbidden" } };
+      }
+
+      try {
+        const deleted = await ImageRepository.deleteById(id);
+        if (!deleted) return { success: false, error: { reason: "NotFound" } };
+        return { success: true, data: null };
+      } catch (error: unknown) {
+        // 参照制約などをここで Conflict/BadRequest に寄せたい場合は code を見て分岐できる
+        if (isPrismaKnownRequestError(error)) {
+          return {
+            success: false,
+            error: { reason: "BadRequest", message: "Failed to delete image" },
+          };
+        }
+        return {
+          success: false,
+          error: { reason: "InternalError", message: "Failed to delete image" },
+        };
+      }
     },
   };
-  return ImageService;
+
+  return imageService;
 };

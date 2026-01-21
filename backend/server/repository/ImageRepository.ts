@@ -5,86 +5,179 @@ import type {
   ImagePutRequest,
 } from "@app/shared/types";
 
-import { NodeRepository } from "./NodeRepository";
+import { getPrismaClient, NotFoundError } from "./common";
 
-import crypto from "crypto";
-
-let images: Array<ImageResponse> | null = null;
-
-const initImages = (): Array<ImageResponse> => {
-  return [
-    {
-      id: "9456327e-7f15-48a5-875e-e367ec02ebaf",
-      name: "Ubuntu 20.04",
-      description: "Ubuntu 20.04 LTS image",
-      createdAt: new Date().toISOString(),
-      size: 2 * 1024 * 1024 * 1024, // 2 GB
-      node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
-    },
-    {
-      id: "616294c5-65fc-4336-8655-f61726ca55cd",
-      name: "CentOS 8",
-      createdAt: new Date().toISOString(),
-      size: 3 * 1024 * 1024 * 1024, // 3 GB
-      node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
-    },
-    {
-      id: "42af756f-6710-4994-b993-f2b2c2c5393b",
-      name: "Debian 10",
-      createdAt: new Date().toISOString(),
-      size: 2.5 * 1024 * 1024 * 1024, // 2.5 GB
-      node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
-    },
-  ];
-};
-
-const list = (): Array<ImageResponse> => {
-  if (!images) {
-    images = initImages();
-  }
-  return images;
-};
-
-const getById = (id: string): ImageResponse | undefined => {
-  return list().find((image) => image.id === id);
-};
-
-const create = (image: ImageCreateRequest): ImageResponse | undefined => {
-  const node = NodeRepository.getById(image.nodeId);
-  if (!node) {
-    return undefined;
-  }
-
-  const newImage: ImageResponse = {
-    id: crypto.randomUUID(),
+// PrismaのImage -> ImageResponse へ変換（nodeも含める）
+const mapDbImageToImageResponse = (image: any): ImageResponse => {
+  return {
+    id: image.uuid,
     name: image.name,
-    createdAt: new Date().toISOString(),
-    size: 2 * 1024 * 1024 * 1024, // 2 GB
-    node: node,
-  };
-  list().push(newImage);
-  return newImage;
+    description: image.description ?? undefined,
+    createdAt: image.createdAt.toISOString(),
+    size: image.size,
+    node: {
+      id: image.ownNode.uuid,
+      name: image.ownNode.name,
+      ipAddress: image.ownNode.ipAddress,
+      isAdmin: image.ownNode.isAdmin,
+      createdAt: image.ownNode.createdAt.toISOString(),
+    },
+  } as ImageResponse;
 };
 
-const update = (
+// 一覧取得
+const list = async (): Promise<ImageResponse[]> => {
+  const prisma = getPrismaClient();
+
+  const images = await prisma.image.findMany({
+    orderBy: { createdAt: "desc" },
+    select: {
+      uuid: true,
+      name: true,
+      description: true,
+      size: true,
+      createdAt: true,
+      ownNode: {
+        select: {
+          uuid: true,
+          name: true,
+          ipAddress: true,
+          isAdmin: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  return images.map(mapDbImageToImageResponse);
+};
+
+// uuidで取得（無ければnull）
+const getById = async (id: string): Promise<ImageResponse | null> => {
+  const prisma = getPrismaClient();
+
+  const image = await prisma.image.findUnique({
+    where: { uuid: id },
+    select: {
+      uuid: true,
+      name: true,
+      description: true,
+      size: true,
+      createdAt: true,
+      ownNode: {
+        select: {
+          uuid: true,
+          name: true,
+          ipAddress: true,
+          isAdmin: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  return image ? mapDbImageToImageResponse(image) : null;
+};
+
+// 作成
+const create = async (image: ImageCreateRequest): Promise<ImageResponse> => {
+  const prisma = getPrismaClient();
+
+  // ImageCreateRequest が nodeId(uuid) を持つ前提で、Node.uuid -> Node.id に変換してつなぐ
+  const node = await prisma.node.findUnique({
+    where: { uuid: image.nodeId },
+    select: { id: true },
+  });
+  if (!node) {
+    throw new NotFoundError("Node not found");
+  }
+
+  const created = await prisma.image.create({
+    data: {
+      name: image.name,
+      description: "description" in image ? (image as any).description ?? null : null,
+      // いまのモックは size 固定だけど、API側で渡せるなら image.size を使う
+      size: (image as any).size ?? 2 * 1024 * 1024 * 1024,
+      ownNodeId: node.id,
+    },
+    select: {
+      uuid: true,
+      name: true,
+      description: true,
+      size: true,
+      createdAt: true,
+      ownNode: {
+        select: {
+          uuid: true,
+          name: true,
+          ipAddress: true,
+          isAdmin: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  return mapDbImageToImageResponse(created);
+};
+
+// 更新（Patch/Put）
+// 無ければ null を返す（UserRepositoryと同じノリにしたいなら例外でもOK）
+const update = async (
   id: string,
-  updateFields: ImagePatchRequest | ImagePutRequest
-): ImageResponse | undefined => {
-  let target = getById(id);
-  if (target === undefined) {
-    return undefined;
-  }
-  target.name = updateFields.name ?? target.name;
-  if ("description" in updateFields) {
-    target.description = updateFields.description;
-  }
-  return target;
+  updateFields: ImagePatchRequest | ImagePutRequest,
+): Promise<ImageResponse | null> => {
+  const prisma = getPrismaClient();
+
+  // Prismaは update で無いと例外なので、先に存在確認する（UserServiceのノリに合わせる）
+  const exists = await prisma.image.findUnique({
+    where: { uuid: id },
+    select: { id: true },
+  });
+  if (!exists) return null;
+
+  const updated = await prisma.image.update({
+    where: { uuid: id },
+    data: {
+      name: updateFields.name,
+      ...(("description" in updateFields)
+        ? { description: (updateFields as any).description ?? null }
+        : {}),
+      // nodeId を更新したい仕様ならここに接続更新を足す（今のモックは更新してないので無し）
+    },
+    select: {
+      uuid: true,
+      name: true,
+      description: true,
+      size: true,
+      createdAt: true,
+      ownNode: {
+        select: {
+          uuid: true,
+          name: true,
+          ipAddress: true,
+          isAdmin: true,
+          createdAt: true,
+        },
+      },
+    },
+  });
+
+  return mapDbImageToImageResponse(updated);
 };
 
-const deleteById = (id: string): boolean => {
-  const initialLength = list().length;
-  images = list().filter((image) => image.id !== id);
-  return list().length < initialLength;
+// 削除（成功したら true、無ければ false）
+const deleteById = async (id: string): Promise<boolean> => {
+  const prisma = getPrismaClient();
+
+  const exists = await prisma.image.findUnique({
+    where: { uuid: id },
+    select: { uuid: true },
+  });
+  if (!exists) return false;
+
+  await prisma.image.delete({ where: { uuid: id } });
+  return true;
 };
 
 export const ImageRepository = {
