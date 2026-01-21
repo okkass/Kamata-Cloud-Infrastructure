@@ -19,6 +19,3 @@ CREATE TABLE `refresh_tokens` (
     UNIQUE INDEX `refresh_tokens_token_key`(`token`),
     PRIMARY KEY (`id`)
 ) DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
-
--- virtual_machines TB AI from 100
-ALTER TABLE `virtual_machines` AUTO_INCREMENT = 100;
