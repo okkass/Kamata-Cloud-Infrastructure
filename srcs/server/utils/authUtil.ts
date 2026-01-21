@@ -4,7 +4,7 @@ import { FetchError } from "ofetch";
 export const fetchRefreshToken = async (
   refreshToken: string,
 ): Promise<LoginResponse | null> => {
-  const baseUrl = useRuntimeConfig().public.backEndUrl;
+  const baseUrl = useRuntimeConfig().public.backendUrl;
   const url = `${baseUrl}auth/refresh`;
 
   try {

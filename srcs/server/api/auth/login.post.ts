@@ -34,5 +34,6 @@ export default defineEventHandler(async (event) => {
     if (error instanceof FetchError) {
       return sendApiError(event, error.response?._data as ErrorResponse);
     }
+    throw error;
   }
 });

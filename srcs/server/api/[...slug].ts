@@ -3,7 +3,10 @@
 // ここでcookie->JWTの変換を行う
 export default defineEventHandler(async (event) => {
   // ミドルウェアでチェック済みなのでクッキーからトークンを取得するだけ
-  const token = getTokenFromEvent(event) as string;
+  const token = getTokenFromEvent(event);
+  if (!token) {
+    throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
+  }
 
   const baseUrl = useRuntimeConfig().public.backendUrl;
   // 元のリクエストからパスを取得
