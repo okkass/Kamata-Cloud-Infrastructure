@@ -23,5 +23,6 @@ logs
 .env.*
 !.env.example
 !.env.mock
+!.env.backend
 
 /app/generated/prisma

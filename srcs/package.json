@@ -6,6 +6,7 @@
   "scripts": {
     "build": "nuxt build",
     "dev:mock": "nuxt dev --dotenv .env.mock",
+    "dev:backend": "nuxt dev --dotenv .env.backend",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
