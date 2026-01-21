@@ -2,11 +2,15 @@ import requests
 import json
 import random
 import os
+import sys
+
+from auth_test import get_header
 
 # 定数の宣言
 API_URL = os.environ.get("API_URL", "http://localhost:3030/api/")
 TOKEN = os.environ.get("API_TOKEN", "mock-token")
-HEADERS = {"Authorization": f"Bearer {TOKEN}"}
+
+headers = get_header(sys.argv, headers={"Authorization": f"Bearer {TOKEN}"})
 
 
 def main():
@@ -44,7 +48,7 @@ def main():
 
 def test_get_backups():
     print("\n--- Testing GET /api/backups ---")
-    res = requests.get(f"{API_URL}backups", headers=HEADERS)
+    res = requests.get(f"{API_URL}backups", headers=headers)
     assert res.status_code == 200, f"Failed to get backups: {res.status_code}"
     backups = res.json()
     assert isinstance(backups, list)
@@ -55,7 +59,7 @@ def test_get_backups():
 
 def get_vm_and_storage():
     print("\n--- Fetching a target VM and Storage for backup tests ---")
-    res = requests.get(f"{API_URL}virtual-machines", headers=HEADERS)
+    res = requests.get(f"{API_URL}virtual-machines", headers=headers)
     assert res.status_code == 200, f"Failed to get VMs: {res.status_code}"
     vms = res.json()
 
@@ -81,7 +85,7 @@ def test_create_backup(vm_id, storage_id):
     }
     print("Creating Backup with payload:", json.dumps(payload, indent=2))
 
-    res = requests.post(f"{API_URL}backups", headers=HEADERS, json=payload)
+    res = requests.post(f"{API_URL}backups", headers=headers, json=payload)
     print("Status:", res.status_code)
     print("Response:", res.text)
 
@@ -94,7 +98,7 @@ def test_create_backup(vm_id, storage_id):
 
 def test_get_backup(backup_id):
     print(f"\n--- Testing GET /api/backups/{backup_id} ---")
-    res = requests.get(f"{API_URL}backups/{backup_id}", headers=HEADERS)
+    res = requests.get(f"{API_URL}backups/{backup_id}", headers=headers)
     assert res.status_code == 200, f"Failed to get backup details: {res.status_code}"
     backup = res.json()
     print("Backup details retrieved successfully.")
@@ -108,7 +112,7 @@ def test_patch_backup(backup_id):
     new_name = "Patched " + current_backup["name"]
     payload = {"name": new_name}
 
-    res = requests.patch(f"{API_URL}backups/{backup_id}", headers=HEADERS, json=payload)
+    res = requests.patch(f"{API_URL}backups/{backup_id}", headers=headers, json=payload)
     assert res.status_code == 200, f"Failed to patch backup: {res.status_code}"
 
     patched_backup = res.json()
@@ -127,7 +131,7 @@ def test_put_backup(backup_id):
     # Based on api.yml BackupUpdatable checks name and description.
     payload = {"name": new_name, "description": new_desc}
 
-    res = requests.put(f"{API_URL}backups/{backup_id}", headers=HEADERS, json=payload)
+    res = requests.put(f"{API_URL}backups/{backup_id}", headers=headers, json=payload)
     assert res.status_code == 200, f"Failed to put backup: {res.status_code}"
 
     replaced_backup = res.json()
@@ -139,7 +143,7 @@ def test_put_backup(backup_id):
 
 def test_restore_backup(backup_id):
     print(f"\n--- Testing POST /api/backups/{backup_id}/restore ---")
-    res = requests.post(f"{API_URL}backups/{backup_id}/restore", headers=HEADERS)
+    res = requests.post(f"{API_URL}backups/{backup_id}/restore", headers=headers)
     print("Status:", res.status_code)
     # 202 Accepted is expected
     assert res.status_code == 202, f"Failed to request restore: {res.status_code}"
@@ -148,12 +152,12 @@ def test_restore_backup(backup_id):
 
 def test_delete_backup(backup_id):
     print(f"\n--- Testing DELETE /api/backups/{backup_id} ---")
-    res = requests.delete(f"{API_URL}backups/{backup_id}", headers=HEADERS)
+    res = requests.delete(f"{API_URL}backups/{backup_id}", headers=headers)
     assert res.status_code == 204, f"Failed to delete backup: {res.status_code}"
     print(f"Deleted Backup ID: {backup_id}")
 
     # Verify deletion
-    res_get = requests.get(f"{API_URL}backups/{backup_id}", headers=HEADERS)
+    res_get = requests.get(f"{API_URL}backups/{backup_id}", headers=headers)
     assert (
         res_get.status_code == 404
     ), f"Backup still exists after deletion: {res_get.status_code}"

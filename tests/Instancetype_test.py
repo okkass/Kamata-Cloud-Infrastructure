@@ -2,11 +2,15 @@ import requests
 import json
 import random
 import os
+import sys
+
+from auth_test import get_header
 
 # 定数の宣言
 API_URL = os.environ.get("API_URL", "http://localhost:3030/api/")
 TOKEN = os.environ.get("API_TOKEN", "mock-token")
-HEADERS = {"Authorization": f"Bearer {TOKEN}"}
+
+headers = get_header(sys.argv, headers={"Authorization": f"Bearer {TOKEN}"})
 
 
 def main():
@@ -36,7 +40,7 @@ def main():
 
 def test_get_instance_types():
     print("\n--- GET /api/instance-types のテスト ---")
-    res = requests.get(f"{API_URL}instance-types", headers=HEADERS)
+    res = requests.get(f"{API_URL}instance-types", headers=headers)
     assert (
         res.status_code == 200
     ), f"インスタンスタイプ一覧の取得に失敗しました: {res.status_code}"
@@ -63,7 +67,7 @@ def test_create_instance_type():
         json.dumps(payload, indent=2),
     )
 
-    res = requests.post(f"{API_URL}instance-types", headers=HEADERS, json=payload)
+    res = requests.post(f"{API_URL}instance-types", headers=headers, json=payload)
     print("ステータスコード:", res.status_code)
     # print("レスポンス:", res.text)
 
@@ -80,7 +84,7 @@ def test_create_instance_type():
 
 def test_get_instance_type(type_id):
     print(f"\n--- GET /api/instance-types/{type_id} のテスト ---")
-    res = requests.get(f"{API_URL}instance-types/{type_id}", headers=HEADERS)
+    res = requests.get(f"{API_URL}instance-types/{type_id}", headers=headers)
     assert (
         res.status_code == 200
     ), f"インスタンスタイプ詳細の取得に失敗しました: {res.status_code}"
@@ -96,7 +100,7 @@ def test_patch_instance_type(type_id):
     payload = {"name": new_name}
 
     res = requests.patch(
-        f"{API_URL}instance-types/{type_id}", headers=HEADERS, json=payload
+        f"{API_URL}instance-types/{type_id}", headers=headers, json=payload
     )
     assert (
         res.status_code == 200
@@ -123,7 +127,7 @@ def test_put_instance_type(type_id):
     }
 
     res = requests.put(
-        f"{API_URL}instance-types/{type_id}", headers=HEADERS, json=payload
+        f"{API_URL}instance-types/{type_id}", headers=headers, json=payload
     )
     assert (
         res.status_code == 200
@@ -140,14 +144,14 @@ def test_put_instance_type(type_id):
 
 def test_delete_instance_type(type_id):
     print(f"\n--- DELETE /api/instance-types/{type_id} のテスト ---")
-    res = requests.delete(f"{API_URL}instance-types/{type_id}", headers=HEADERS)
+    res = requests.delete(f"{API_URL}instance-types/{type_id}", headers=headers)
     assert (
         res.status_code == 204
     ), f"インスタンスタイプの削除に失敗しました: {res.status_code}"
     print(f"削除されたインスタンスタイプID: {type_id}")
 
     # 削除確認
-    res_get = requests.get(f"{API_URL}instance-types/{type_id}", headers=HEADERS)
+    res_get = requests.get(f"{API_URL}instance-types/{type_id}", headers=headers)
     assert (
         res_get.status_code == 404
     ), f"削除後にインスタンスタイプがまだ存在しています: {res_get.status_code}"
