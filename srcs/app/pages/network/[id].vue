@@ -5,14 +5,9 @@
       読み込み中…
     </div>
 
-    <!-- 初回エラー時のみ表示 -->
-    <div v-else-if="error && !stableVnet" class="text-sm text-red-500">
-      エラーが発生しました：{{ error.message }}
-    </div>
-
     <!-- 一度でも取得できたら常に表示（pending で消さない） -->
     <ResourceDetailShell
-      v-else
+      v-else-if="stableVnet"
       title="仮想ネットワーク詳細"
       subtitle="Virtual Network Information"
       :tabs="vnTabs"
@@ -43,6 +38,7 @@ import { useToast } from "@/composables/useToast";
 import MoVirtualNetworkEdit from "@/components/MoVirtualNetworkEdit.vue";
 import { NETWORK } from "@/utils/constants";
 import { createPolling } from "@/utils/polling";
+import { useResourceErrorGuard } from "~/composables/useResourceErrorGuard";
 
 const { addToast } = useToast();
 
@@ -50,11 +46,18 @@ const route = useRoute();
 const router = useRouter();
 
 // ---------- データ取得 ----------
-const { data: vnet, pending, error, refresh } =
-  await useResourceDetail<VirtualNetworkResponse>(
-    NETWORK.name,
-    route.params.id as string
-  );
+const {
+  data: vnet,
+  pending,
+  error,
+  refresh,
+} = await useResourceDetail<VirtualNetworkResponse>(
+  NETWORK.name,
+  route.params.id as string,
+);
+
+// エラーをカスタムエラーページに統一
+useResourceErrorGuard(vnet, pending, error);
 
 // ---------- 表示を安定させるための保持用 ----------
 const stableVnet = ref<VirtualNetworkResponse | null>(null);
@@ -64,7 +67,7 @@ watch(
   (val) => {
     if (val) stableVnet.value = val;
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 // ---------- 戻る ----------

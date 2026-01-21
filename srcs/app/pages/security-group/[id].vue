@@ -6,13 +6,9 @@
       読み込み中…
     </div>
 
-    <div v-else-if="!securityGroup && error" class="text-sm text-red-500">
-      エラーが発生しました：{{ error.message }}
-    </div>
-
     <!-- securityGroup が一度でも取得できたら、以降は常にこれ -->
     <ResourceDetailShell
-      v-else
+      v-else-if="securityGroup"
       title="セキュリティグループ詳細"
       subtitle="Security Group Information"
       :tabs="securityGroupTabs"
@@ -45,6 +41,7 @@ import { useResourceDetail } from "~/composables/useResourceDetail";
 import { SECURITY_GROUP } from "@/utils/constants";
 import MoSecurityGroupEdit from "~/components/MoSecurityGroupEdit.vue";
 import { createPolling } from "@/utils/polling";
+import { useResourceErrorGuard } from "~/composables/useResourceErrorGuard";
 
 const route = useRoute();
 const router = useRouter();
@@ -56,8 +53,11 @@ const {
   refresh,
 } = await useResourceDetail<SecurityGroupResponse>(
   SECURITY_GROUP.name, // "security-groups"
-  route.params.id as string
+  route.params.id as string,
 );
+
+// エラーをカスタムエラーページに統一
+useResourceErrorGuard(securityGroup, pending, error);
 
 // --- ポーリング設定（refresh失敗はログだけ） ---
 const polling = createPolling(async () => {
@@ -124,7 +124,7 @@ watch(
   (open) => {
     if (open) polling.stopPolling();
     else polling.startPolling();
-  }
+  },
 );
 
 // アクション実行

@@ -13,12 +13,12 @@ export default defineEventHandler((event) => {
     const authHeader = getHeader(event, "authorization");
     if (!authHeader) {
       setHeader(event, "www-authenticate", 'Bearer realm="example"');
-      throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
+      throw createError({ statusCode: 401, message: "Unauthorized" });
     }
     const token = authHeader.replace("Bearer ", "");
     if (token !== "mock-token") {
       setHeader(event, "www-authenticate", 'Bearer error="invalid_token"');
-      throw createError({ statusCode: 401, statusMessage: "Unauthorized" });
+      throw createError({ statusCode: 401, message: "Unauthorized" });
     }
 
     const permission: UserPermissions = {
