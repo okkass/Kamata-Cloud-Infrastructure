@@ -56,9 +56,13 @@ def test_login():
 
 
 def get_header(args: list, headers=None):
+    # headers が None の場合は必ず空の辞書を初期化して返す
+    if headers is None:
+        headers = {}
+
     if len(args) > 1 and args[1] == "db":
         token = test_login()
-        headers = {"Authorization": f"Bearer {token['token']}"}
+        headers["Authorization"] = f"Bearer {token['token']}"
     return headers
 
 
