@@ -4,7 +4,7 @@
 
 - アップロードした OS イメージをテンプレートに変換する
 
-```
+```sh
 # 1. テンプレート用VMのガワを作成 (ID: 9000)
 qm create 9000 --name "template-base" --memory 1024 --net0 virtio,bridge=vmbr0
 
@@ -23,7 +23,7 @@ qm template 9000
 
 - アップロードした OS イメージの削除。rm コマンドの発行
 
-```
+```sh
 # Goの os.Remove() 推奨ですが、コマンドなら:
 rm -f /var/lib/vz/template/iso/upload.img
 ```
@@ -33,12 +33,12 @@ rm -f /var/lib/vz/template/iso/upload.img
 - ノードの認識(この agent が ip アドレスとかの返答を返すようにする)
 - 追加は、なんか SSh を使った大規模からくり仕掛け？
 
-```
+```sh
 # 先頭のプライベートIPだけを取得
 hostname -I | awk '{print $1}'
 ```
 
-```
+```sh
 # expectとか使うかも
 pvecm add 192.168.3.10
 ```
@@ -53,75 +53,69 @@ pvecm add 192.168.3.10
 
 #### NFS-KERNEL-SERVERのインストール
 
-```
+```sh
 # 必要なパッケージのインストール
 apt update
 apt install nfs-kernel-server -y
-
-# EXPORTSファイルの準備
-mkdir -p /etc/exports.d
 ```
 
-#### LVM の新規作成
+#### 新規ストレージの認識
 
-```
-# 1. 物理ボリューム (PV) の初期化
-# デバイス名はユーザー入力、または lsblk 等で特定したもの
-pvcreate /dev/sdb
-
-# 2. ボリュームグループ (VG) の作成
-# 名前 (new-vg) は一意になるよう生成する
-vgcreate new-vg /dev/sdb
-
-# 3. Proxmoxへの登録
-# id: Proxmox上での表示名 (例: secondary-lvm)
-# vgname: 作成したVG名
-# content: images,rootdir (VMディスクとコンテナ用)
-pvesm add lvm secondary-lvm --vgname new-vg --content images,rootdir
+```sh
+lsblk -o NAME,SIZE,FSTYPE,MODEL,TYPE
 ```
 
-#### 領域の作成と公開
+#### ZFS の新規作成
 
-```
-# 1. LV (論理ボリューム) の切り出し
-# -L: サイズ (例: 500G), -n: LV名 (例: nfs-vol-01), pve: 親VG名
-lvcreate -L 500G -n nfs-vol-01 pve
+#### 領域の作成
 
-# 2. フォーマット (ext4)
-mkfs.ext4 /dev/pve/nfs-vol-01
+```sh
+# 2-1. ZFSプール作成 (OSレベル)
+# -f: 強制上書き (既存データ消去)
+zpool create -f poka /dev/sdb
 
-# 3. マウントポイント作成
-mkdir -p /mnt/nfs/nfs-vol-01
-
-# 4. マウント
-mount /dev/pve/nfs-vol-01 /mnt/nfs/nfs-vol-01
-
-# 5. fstabへの追記 (再起動後もマウントされるように)
-# Goでファイルを追記編集するか、以下のコマンドを実行
-echo "/dev/pve/nfs-vol-01 /mnt/nfs/nfs-vol-01 ext4 defaults 0 0" >> /etc/fstab
-
-# 6. NFS公開設定 (/etc/exports への追記)
-# no_root_squash は必須
-echo "/mnt/nfs/nfs-vol-01 192.168.3.0/24(rw,sync,no_root_squash,no_subtree_check)" >> /etc/exports
-
-# 7. 設定反映
-exportfs -a
-systemctl reload nfs-kernel-server
+# 2-2. Proxmoxへの登録 (自分専用)
+# --nodes test01: これが超重要！これがないとtest02にも勝手に追加されて「？」になる
+pvesm add zfspool poka --pool poka --content images,rootdir --nodes test01
 ```
 
-#### PVE に登録
+#### 領域の公開
 
-```
-# id: shared-nfs-01 (Proxmoxでの表示名)
-# server: 自分のIP (192.168.3.40)
-# export: 公開したパス (/mnt/nfs/nfs-vol-01)
-# content: images,iso (VMイメージとISOファイル用)
-pvesm add nfs shared-nfs-01 --server 192.168.3.40 --export /mnt/nfs/nfs-vol-01 --content images,iso
+```sh
+# NodeAで実行
+# ネットワーク(192.168.3.0/24)に対してRW権限で公開
+zfs set sharenfs="rw=@192.168.3.0/24,no_root_squash" poka
+
+# -----------------------------------
+
+# NodeBで実行
+# remote-pokaという名前で登録する
+# --nodes test02: test02だけで使う設定 (Server自身がマウントしないようにする)
+pvesm add nfs remote-poka --server 192.168.3.50 --export /poka --content images,rootdir --nodes test02
 ```
 
 ### 更新
 
 - NFS サーバーの設定を変更する窓口
+
+```sh
+# NodeBで実行
+# これでアンマウントされます
+pvesm remove remote-poka
+
+# -----------------------------------
+
+# NodeAで実行
+# 公開停止
+zfs set sharenfs=off poka
+```
+
+- 再度登録する場合
+
+```sh
+# 相手方だけに登録（自分は登録済み）
+pvesm add nfs remote-poka --server 192.168.3.50 --export /poka --nodes test02
+```
 
 ## 仮想マシン
 
@@ -130,7 +124,7 @@ pvesm add nfs shared-nfs-01 --server 192.168.3.40 --export /mnt/nfs/nfs-vol-01 -
 - コマンドからじゃないと SG をアタッチできないらしい。
 - 作成結果（成功/失敗）などを返してほしい
 
-```
+```sh
 # 1. クローン作成 (9000 -> 105)
 # --full 0 (同じストレージなら爆速)（でも無理）, --full 1 (別ストレージなら完全コピー)
 qm clone 9000 105 --name "user-vm" --full 1
@@ -149,7 +143,7 @@ pvesh create /nodes/localhost/qemu/105/firewall/rules --type group --action web-
 - dd コマンドを使ってストレージをファイルにダンプ
 - 復元も dd でいいはず
 
-```
+```sh
 # 1. スナップショット作成 (例: vm-105-disk-0 を対象に、snap-tmp という名前で)
 # -L 1G は変更差分用の一時領域サイズ
 lvcreate -s -n snap-tmp -L 1G /dev/pve/vm-105-disk-0
@@ -161,7 +155,7 @@ dd if=/dev/pve/snap-tmp of=/mnt/backup/vm-105.img bs=1M status=progress
 lvremove -f /dev/pve/snap-tmp
 ```
 
-```
+```sh
 # 1. VM停止
 qm stop 105
 
