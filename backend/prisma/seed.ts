@@ -193,17 +193,17 @@ async function main() {
     {
       name: "Tiny",
       cpuCore: 1,
-      memorySize: 1024,
+      memorySizeMb: 1024,
     },
     {
       name: "Small",
       cpuCore: 2,
-      memorySize: 2048,
+      memorySizeMb: 2048,
     },
     {
       name: "Medium",
       cpuCore: 4,
-      memorySize: 4096,
+      memorySizeMb: 4096,
     },
   ];
 
@@ -213,7 +213,7 @@ async function main() {
         data: {
           name: type.name,
           cpuCore: type.cpuCore,
-          memorySize: type.memorySize,
+          memorySizeMb: type.memorySizeMb,
         },
       });
     });
@@ -227,7 +227,7 @@ async function main() {
 
   allInstanceTypes.forEach((type) => {
     console.log(
-      `- ${type.name} (CPU: ${type.cpuCore}, Memory: ${type.memorySize}MB)`,
+      `- ${type.name} (CPU: ${type.cpuCore}, Memory: ${type.memorySizeMb}MB)`,
     );
   });
 

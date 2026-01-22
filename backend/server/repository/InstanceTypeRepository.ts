@@ -27,14 +27,14 @@ const toResponse = (row: {
   name: string;
   createdAt: Date;
   cpuCore: number;
-  memorySize: number; // DB上は "MB"
+  memorySizeMb: number; // DB上は "MB"
 }): InstanceTypeResponse => ({
   id: row.uuid,
   name: row.name,
   createdAt: row.createdAt.toISOString(),
   cpuCore: row.cpuCore,
   // DB(MB) -> API(bytes)
-  memorySize: mbToBytes(row.memorySize),
+  memorySize: mbToBytes(row.memorySizeMb),
 });
 
 const list = async (): Promise<Array<InstanceTypeResponse>> => {
@@ -45,7 +45,7 @@ const list = async (): Promise<Array<InstanceTypeResponse>> => {
       name: true,
       createdAt: true,
       cpuCore: true,
-      memorySize: true, // MB
+      memorySizeMb: true, // MB
     },
     orderBy: { createdAt: "desc" },
   });
@@ -54,7 +54,7 @@ const list = async (): Promise<Array<InstanceTypeResponse>> => {
 };
 
 const getById = async (
-  id: string
+  id: string,
 ): Promise<InstanceTypeResponse | undefined> => {
   const prisma = getPrismaClient();
   const row = await prisma.instanceType.findUnique({
@@ -64,7 +64,7 @@ const getById = async (
       name: true,
       createdAt: true,
       cpuCore: true,
-      memorySize: true, // MB
+      memorySizeMb: true, // MB
     },
   });
 
@@ -73,7 +73,7 @@ const getById = async (
 };
 
 const create = async (
-  instanceType: InstanceTypeCreateRequest
+  instanceType: InstanceTypeCreateRequest,
 ): Promise<InstanceTypeResponse | undefined> => {
   // 最低限のバリデーション（ServiceのBadRequest分岐を活かす）
   if (!instanceType.name?.trim()) return undefined;
@@ -92,7 +92,7 @@ const create = async (
         name: instanceType.name.trim(),
         cpuCore: instanceType.cpuCore,
         // DBへはMBで保存
-        memorySize: memorySizeMb,
+        memorySizeMb: memorySizeMb,
         // uuid/createdAt は schema の default(now()/uuid()) に任せる
       },
       select: {
@@ -100,7 +100,7 @@ const create = async (
         name: true,
         createdAt: true,
         cpuCore: true,
-        memorySize: true, // MB
+        memorySizeMb: true, // MB
       },
     });
 
@@ -113,7 +113,7 @@ const create = async (
 
 const update = async (
   id: string,
-  updateFields: InstanceTypePatchRequest | InstanceTypePutRequest
+  updateFields: InstanceTypePatchRequest | InstanceTypePutRequest,
 ): Promise<InstanceTypeResponse | undefined> => {
   const prisma = getPrismaClient();
 
@@ -146,14 +146,14 @@ const update = async (
       name: name !== undefined ? name.trim() : undefined,
       cpuCore,
       // DBへはMBで保存
-      memorySize: memorySizeMb,
+      memorySizeMb: memorySizeMb,
     },
     select: {
       uuid: true,
       name: true,
       createdAt: true,
       cpuCore: true,
-      memorySize: true, // MB
+      memorySizeMb: true, // MB
     },
   });
 
