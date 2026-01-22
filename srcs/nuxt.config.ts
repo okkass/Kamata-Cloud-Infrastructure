@@ -3,12 +3,6 @@ export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
   devtools: { enabled: true },
 
-  nitro: {
-    // srcsフォルダから見て「一つ上(..)」の「mock」フォルダを読み込み対象にする
-    scanDirs: ["../mock"],
-    errorHandler: "server/errorHandler.ts",
-  },
-
   vite: {
     server: {
       watch: {
@@ -34,6 +28,7 @@ export default defineNuxtConfig({
   runtimeConfig: {
     public: {
       apiBaseUrl: "",
+      backendUrl: "",
     },
   },
 });
