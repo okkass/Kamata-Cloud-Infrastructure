@@ -6,18 +6,35 @@ import type {
 } from "@app/shared/types";
 import { getPrismaClient } from "./common";
 
+// ---------------------------------------------
+// Unit conversion
+// API: bytes
+// DB : MB (Int)
+// ---------------------------------------------
+const BYTES_PER_MB = 1024 * 1024;
+
+const bytesToMb = (bytes: number): number => {
+  // DBはInt想定なので切り捨て（必要なら round/ceil に変更）
+  return Math.floor(bytes / BYTES_PER_MB);
+};
+
+const mbToBytes = (mb: number): number => {
+  return mb * BYTES_PER_MB;
+};
+
 const toResponse = (row: {
   uuid: string;
   name: string;
   createdAt: Date;
   cpuCore: number;
-  memorySize: number;
+  memorySize: number; // DB上は "MB"
 }): InstanceTypeResponse => ({
   id: row.uuid,
   name: row.name,
   createdAt: row.createdAt.toISOString(),
   cpuCore: row.cpuCore,
-  memorySize: row.memorySize,
+  // DB(MB) -> API(bytes)
+  memorySize: mbToBytes(row.memorySize),
 });
 
 const list = async (): Promise<Array<InstanceTypeResponse>> => {
@@ -28,7 +45,7 @@ const list = async (): Promise<Array<InstanceTypeResponse>> => {
       name: true,
       createdAt: true,
       cpuCore: true,
-      memorySize: true,
+      memorySize: true, // MB
     },
     orderBy: { createdAt: "desc" },
   });
@@ -36,7 +53,9 @@ const list = async (): Promise<Array<InstanceTypeResponse>> => {
   return rows.map(toResponse);
 };
 
-const getById = async (id: string): Promise<InstanceTypeResponse | undefined> => {
+const getById = async (
+  id: string
+): Promise<InstanceTypeResponse | undefined> => {
   const prisma = getPrismaClient();
   const row = await prisma.instanceType.findUnique({
     where: { uuid: id },
@@ -45,7 +64,7 @@ const getById = async (id: string): Promise<InstanceTypeResponse | undefined> =>
       name: true,
       createdAt: true,
       cpuCore: true,
-      memorySize: true,
+      memorySize: true, // MB
     },
   });
 
@@ -63,12 +82,17 @@ const create = async (
 
   const prisma = getPrismaClient();
 
+  // bytes -> MB
+  const memorySizeMb = bytesToMb(instanceType.memorySize);
+  if (memorySizeMb <= 0) return undefined;
+
   try {
     const row = await prisma.instanceType.create({
       data: {
         name: instanceType.name.trim(),
         cpuCore: instanceType.cpuCore,
-        memorySize: instanceType.memorySize,
+        // DBへはMBで保存
+        memorySize: memorySizeMb,
         // uuid/createdAt は schema の default(now()/uuid()) に任せる
       },
       select: {
@@ -76,7 +100,7 @@ const create = async (
         name: true,
         createdAt: true,
         cpuCore: true,
-        memorySize: true,
+        memorySize: true, // MB
       },
     });
 
@@ -100,29 +124,36 @@ const update = async (
   });
   if (!exists) return undefined;
 
-  // PATCH/PUT 両対応：来たものだけ更新（PUTを厳密全置換にしたければここで必須チェックを追加）
+  // 来たものだけ更新
   const name = updateFields.name;
   const cpuCore = updateFields.cpuCore;
-  const memorySize = updateFields.memorySize;
+  const memorySizeBytes = updateFields.memorySize;
 
   // バリデーション（来た項目だけ）
   if (name !== undefined && !name.trim()) return undefined;
   if (cpuCore !== undefined && cpuCore <= 0) return undefined;
-  if (memorySize !== undefined && memorySize <= 0) return undefined;
+  if (memorySizeBytes !== undefined && memorySizeBytes <= 0) return undefined;
+
+  // bytes -> MB（来ている時だけ）
+  const memorySizeMb =
+    memorySizeBytes !== undefined ? bytesToMb(memorySizeBytes) : undefined;
+
+  if (memorySizeMb !== undefined && memorySizeMb <= 0) return undefined;
 
   const row = await prisma.instanceType.update({
     where: { uuid: id },
     data: {
       name: name !== undefined ? name.trim() : undefined,
       cpuCore,
-      memorySize,
+      // DBへはMBで保存
+      memorySize: memorySizeMb,
     },
     select: {
       uuid: true,
       name: true,
       createdAt: true,
       cpuCore: true,
-      memorySize: true,
+      memorySize: true, // MB
     },
   });
 

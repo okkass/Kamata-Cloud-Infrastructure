@@ -28,7 +28,7 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
       if (!instanceType) {
         return {
           success: false,
-          error: "NotFound" as unknown as ServiceError,
+          error: { reason: "NotFound" },
         };
       }
       return { success: true, data: instanceType };
@@ -39,7 +39,7 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
       if (!newInstanceType) {
         return {
           success: false,
-          error: "BadRequest" as unknown as ServiceError,
+          error: { reason: "BadRequest" },
         };
       }
       return { success: true, data: newInstanceType };
@@ -50,7 +50,7 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
       if (!updatedInstanceType) {
         return {
           success: false,
-          error: "NotFound" as unknown as ServiceError,
+          error: { reason: "NotFound" },
         };
       }
       return { success: true, data: updatedInstanceType };
@@ -61,7 +61,7 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
       if (!deleted) {
         return {
           success: false,
-          error: "NotFound" as unknown as ServiceError,
+          error: { reason: "NotFound" },
         };
       }
       return { success: true, data: null };
