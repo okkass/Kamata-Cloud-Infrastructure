@@ -9,8 +9,20 @@
 [質問]: 実装意図の確認
 [軽微修正]: 細かな修正（typo、フォーマットなど）
 
+## 命名規則
+
+### TypeScript
+
 関数と変数: camelCase
 定数: UPPER_SNAKE_CASE
+
+### Python
+
+PEP8に従う
+
+### Go
+
+Effective Goに従う
 
 ## 再利用可能なリソースの活用確認
 
