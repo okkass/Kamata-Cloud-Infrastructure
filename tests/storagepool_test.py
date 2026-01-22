@@ -142,7 +142,7 @@ def test_patch_storage_pool(pool_id):
 
 def test_put_storage_pool(pool_id):
     print(f"\n--- PUT /api/storage-pools/{pool_id} のテスト ---")
-    current_pool = test_get_storage_pool(pool_id)
+    test_get_storage_pool(pool_id)
 
     new_name = "ReplacedPool_" + str(random.randint(1000, 9999))
     new_access = True  # PUTで強制設定
