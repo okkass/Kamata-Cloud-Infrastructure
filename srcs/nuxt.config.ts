@@ -1,7 +1,11 @@
 // https://nuxt.com/docs/api/configuration/nuxt-config
 export default defineNuxtConfig({
   compatibilityDate: "2025-07-15",
+
   devtools: { enabled: true },
+
+  // 開発環境でもカスタムエラーページを使用
+  debug: false, // デバッグモードを無効化してカスタムエラーページを表示
 
   nitro: {
     // srcsフォルダから見て「一つ上(..)」の「mock」フォルダを読み込み対象にする

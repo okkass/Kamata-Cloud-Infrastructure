@@ -23,5 +23,11 @@ const { fetchUser } = useUserPermission();
 const { isSidebarOpen } = useSidebar(); // サイドバーの開閉状態を取得
 
 // SSRで実行されるようにトップレベルで呼び出す
-await fetchUser();
+// エラーが発生してもレイアウト全体を壊さないようにtry-catchで囲む
+try {
+  await fetchUser();
+} catch (error) {
+  console.error("Failed to fetch user in layout:", error);
+  // エラーは無視してレイアウトを表示し続ける
+}
 </script>
