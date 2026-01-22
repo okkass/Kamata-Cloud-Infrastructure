@@ -60,7 +60,7 @@
 
   <MoDeleteConfirm
     :show="activeModal === 'delete-users'"
-    :message="`本当に利用者「${targetForDeletion?.name}」を削除しますか？`"
+    :message="deleteMessage"
     :is-loading="isDeleting"
     @close="cancelAction"
     @confirm="handleDelete"
@@ -106,4 +106,10 @@ const onHeaderAction = (action: string) => {
 const onRowAction = ({ action, row }: { action: string; row: UserRow }) => {
   handleRowAction({ action, row });
 };
+
+/* 削除確認メッセージ */
+const deleteMessage = computed(() => {
+  const name = targetForDeletion.value?.name ?? "";
+  return `本当に利用者「${name}」を削除しますか？`;
+});
 </script>
