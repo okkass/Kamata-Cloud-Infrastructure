@@ -61,7 +61,7 @@
           <div class="h-2 w-full rounded-full bg-black/20">
             <div
               class="h-full rounded-full bg-white transition-all duration-300 ease-out"
-              :style="{ width: `${toast.progress}%` }"
+              :style="{ width: `${clampPercent(toast.progress)}%` }"
             ></div>
           </div>
         </div>
@@ -71,6 +71,8 @@
 </template>
 
 <script setup lang="ts">
+import { clampPercent } from "@/utils/format";
+
 const { toasts, removeToast } = useToast();
 
 // トーストのタイプに応じたTailwindのクラスを定義

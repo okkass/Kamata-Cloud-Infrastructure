@@ -72,7 +72,7 @@
     <!-- 削除確認モーダル -->
     <MoDeleteConfirm
       :show="activeModal === DELETE_INSTANCE_TYPE_ACTION"
-      :message="`本当にインスタンスタイプ「${targetForDeletion?.name}」を削除しますか？`"
+      :message="deleteMessage"
       :is-loading="isDeleting"
       @close="cancelAction"
       @confirm="handleDelete"
@@ -126,4 +126,10 @@ function handleHeaderAction(action: string) {
     openModal(ADD_INSTANCE_TYPE_ACTION);
   }
 }
+
+/* 削除確認メッセージ */
+const deleteMessage = computed(() => {
+  const name = targetForDeletion.value?.name ?? "";
+  return `本当にインスタンスタイプ「${name}」を削除しますか？`;
+});
 </script>
