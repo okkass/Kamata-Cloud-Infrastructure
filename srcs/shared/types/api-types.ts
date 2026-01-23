@@ -6943,11 +6943,6 @@ export interface components {
             id: string;
             /** @description ユーザの名前 */
             name: string;
-            /**
-             * Format: email
-             * @description ユーザのメールアドレス
-             */
-            email: string;
         };
         /** @description セキュリティルールレスポンスオブジェクト */
         SecurityRuleResponse: {
