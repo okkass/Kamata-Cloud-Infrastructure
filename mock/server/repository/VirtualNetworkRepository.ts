@@ -22,7 +22,15 @@ const init = (): VirtualNetworkResponse[] => {
       name: "vnet-1",
       cidr: "10.0.0.0/16",
       createdAt: new Date().toISOString(),
-      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
+      owner: (() => {
+        const user = UserRepository.getById(
+          "5ab9e787-ad30-4f12-9ee4-f00c0491ee5d",
+        )!;
+        return {
+          id: user.id,
+          name: user.name,
+        };
+      })(),
       subnets: [
         {
           id: "4bb1712a-c3e1-4655-a0e4-1d3d2fb63631",
@@ -43,7 +51,15 @@ const init = (): VirtualNetworkResponse[] => {
       name: "vnet-2",
       cidr: "10.2.0.0/16",
       createdAt: new Date().toISOString(),
-      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
+      owner: (() => {
+        const user = UserRepository.getById(
+          "5ab9e787-ad30-4f12-9ee4-f00c0491ee5d",
+        )!;
+        return {
+          id: user.id,
+          name: user.name,
+        };
+      })(),
       subnets: [
         {
           id: "90bc1042-479c-4de2-a62e-78d205ad1c99",
@@ -74,7 +90,7 @@ const getById = (id: string): VirtualNetworkResponse | undefined => {
 };
 
 const create = (
-  request: VirtualNetworkCreateRequest
+  request: VirtualNetworkCreateRequest,
 ): VirtualNetworkResponse => {
   const newVNet: VirtualNetworkResponse = {
     id: crypto.randomUUID(),
@@ -95,7 +111,7 @@ const create = (
 
 const update = (
   id: string,
-  request: VirtualNetworkPatchRequest | VirtualNetworkPutRequest
+  request: VirtualNetworkPatchRequest | VirtualNetworkPutRequest,
 ): VirtualNetworkResponse | undefined => {
   const vnet = getById(id);
   if (!vnet) {
@@ -113,7 +129,7 @@ const deleteById = (id: string): boolean => {
 
 const getSubnet = (
   vnetId: string,
-  subnetId: string
+  subnetId: string,
 ): SubnetResponse | undefined => {
   const vnet = getById(vnetId);
   if (!vnet) {
@@ -160,7 +176,7 @@ const listSubnets = (vnetId: string): SubnetResponse[] | undefined => {
 
 const createSubnet = (
   vnetId: string,
-  request: SubnetCreateRequest
+  request: SubnetCreateRequest,
 ): SubnetResponse | undefined => {
   const vnet = getById(vnetId);
   if (!vnet) {
@@ -179,7 +195,7 @@ const createSubnet = (
 const updateSubnet = (
   vnetId: string,
   subnetId: string,
-  request: SubnetPatchRequest | SubnetPutRequest
+  request: SubnetPatchRequest | SubnetPutRequest,
 ): SubnetResponse | undefined => {
   const vnet = getById(vnetId);
   if (!vnet) {

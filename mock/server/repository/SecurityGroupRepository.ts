@@ -17,7 +17,15 @@ let securityGroups: Array<SecurityGroupResponse> = [
     name: "Web-SG",
     description: "Security group for web servers",
     createdAt: new Date().toISOString(),
-    owner: UserRepository.getById("c93b589b-5389-48aa-b37f-878be7663cf2")!,
+    owner: (() => {
+      const user = UserRepository.getById(
+        "c93b589b-5389-48aa-b37f-878be7663cf2",
+      )!;
+      return {
+        id: user.id,
+        name: user.name,
+      };
+    })(),
     rules: [
       {
         id: "52f69034-1b7f-4bfc-a30e-0bd0284f7d0d",
@@ -56,7 +64,12 @@ let securityGroups: Array<SecurityGroupResponse> = [
     name: "Wireguard-SG",
     description: "Security group for wireguard servers",
     createdAt: new Date().toISOString(),
-    owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
+    owner: (() => {
+      const user = UserRepository.getById(
+        "5ab9e787-ad30-4f12-9ee4-f00c0491ee5d",
+      )!;
+      return { id: user.id, name: user.name };
+    })(),
     rules: [
       {
         id: "71d1b46e-f673-4b8e-a246-460c175fef70",
@@ -91,7 +104,7 @@ const getById = (id: string): SecurityGroupResponse | undefined => {
 };
 
 const create = (
-  securityGroupData: SecurityGroupCreateRequest
+  securityGroupData: SecurityGroupCreateRequest,
 ): SecurityGroupResponse => {
   const newSecurityGroup: SecurityGroupResponse = {
     id: crypto.randomUUID(),
@@ -116,7 +129,7 @@ const create = (
 
 const update = (
   id: string,
-  updateFields: SecurityGroupPutRequest | SecurityGroupPatchRequest
+  updateFields: SecurityGroupPutRequest | SecurityGroupPatchRequest,
 ): SecurityGroupResponse | undefined => {
   let target = getById(id);
   if (target === undefined) {
@@ -136,7 +149,7 @@ const deleteById = (id: string): boolean => {
 };
 
 const listRules = (
-  securityGroupId: string
+  securityGroupId: string,
 ): Array<SecurityRuleResponse> | undefined => {
   const securityGroup = getById(securityGroupId);
   return securityGroup?.rules;
@@ -144,7 +157,7 @@ const listRules = (
 
 const getRuleById = (
   sgId: string,
-  ruleId: string
+  ruleId: string,
 ): SecurityRuleResponse | undefined => {
   const securityGroup = getById(sgId);
   return securityGroup?.rules.find((rule) => rule.id === ruleId);
@@ -152,7 +165,7 @@ const getRuleById = (
 
 const createRule = (
   sgId: string,
-  ruleData: SecurityRuleCreateRequest
+  ruleData: SecurityRuleCreateRequest,
 ): SecurityRuleResponse | undefined => {
   const securityGroup = getById(sgId);
   if (!securityGroup) {
@@ -177,7 +190,7 @@ const createRule = (
 const updateRule = (
   sgId: string,
   ruleId: string,
-  updateFields: SecurityRulePutRequest | SecurityRulePatchRequest
+  updateFields: SecurityRulePutRequest | SecurityRulePatchRequest,
 ): SecurityRuleResponse | undefined => {
   const rule = getRuleById(sgId, ruleId);
   if (!rule) {
@@ -201,7 +214,7 @@ const deleteRule = (sgId: string, ruleId: string): boolean => {
 
   const initialLength = securityGroup.rules.length;
   securityGroup.rules = securityGroup.rules.filter(
-    (rule) => rule.id !== ruleId
+    (rule) => rule.id !== ruleId,
   );
   return securityGroup.rules.length < initialLength;
 };
