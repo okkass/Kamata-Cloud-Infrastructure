@@ -1,12 +1,78 @@
-const list = (): Array<SecurityGroupResponse> => {
-  return securityGroups;
+import { getPrismaClient } from "./common";
+import { Prisma } from "@@/generated/client";
+
+const securityRuleArgs = {
+  select: {
+    uuid: true,
+    name: true,
+    roleType: true,
+    port: true,
+    protocol: true,
+    targetIp: true,
+    action: true,
+    createdAt: true,
+  },
+} satisfies Prisma.SecurityRuleFindManyArgs;
+
+const securityGroupArgs = {
+  select: {
+    uuid: true,
+    name: true,
+    description: true,
+    createdAt: true,
+    rules: securityRuleArgs,
+    user: {
+      select: {
+        uuid: true,
+        name: true,
+        email: true,
+      },
+    },
+  },
+} satisfies Prisma.SecurityGroupFindManyArgs;
+
+export type SecurityGroupRecord = Prisma.SecurityGroupGetPayload<
+  typeof securityGroupArgs
+>;
+export type SecurityRuleRecord = Prisma.SecurityRuleGetPayload<
+  typeof securityRuleArgs
+>;
+
+export type SecurityRuleCreateInput = {
+  userId: string;
+  securityGroupId: string;
+  name: string;
+  ruleType: "inbound" | "outbound";
+  port: number | null;
+  protocol: "tcp" | "udp" | "icmp" | "all";
+  targetIp: string;
+  action: "allow" | "deny";
 };
 
-const getById = (id: string): SecurityGroupResponse | undefined => {
-  return securityGroups.find((sg) => sg.id === id);
+export type SecurityGroupCreateInput = {
+  userId: string;
+  name: string;
+  description?: string;
+  rules: Array<SecurityRuleCreateInput>;
+};
+const list = async (): Promise<Array<SecurityGroupRecord>> => {
+  const prisma = getPrismaClient();
+
+  return await prisma.securityGroup.findMany({
+    ...securityGroupArgs,
+  });
 };
 
-const create = (
+const getById = async (id: string): Promise<SecurityGroupRecord | null> => {
+  const prisma = getPrismaClient();
+
+  return await prisma.securityGroup.findUnique({
+    where: { uuid: id },
+    ...securityGroupArgs,
+  });
+};
+
+const create = async (
   securityGroupData: SecurityGroupCreateRequest,
 ): SecurityGroupResponse => {
   const newSecurityGroup: SecurityGroupResponse = {
