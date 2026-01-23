@@ -12,6 +12,8 @@ TOKEN = os.environ.get("API_TOKEN", "mock-token")
 
 headers = get_header(sys.argv, headers={"Authorization": f"Bearer {TOKEN}"})
 
+HEADERS = headers
+
 
 def main():
     print("仮想ネットワークAPIのテストを開始します...")
@@ -64,7 +66,7 @@ def main():
 
 def test_get_virtual_networks():
     print("\n--- GET /api/virtual-networks のテスト ---")
-    res = requests.get(f"{API_URL}virtual-networks", headers=headers)
+    res = requests.get(f"{API_URL}virtual-networks", headers=HEADERS)
     assert (
         res.status_code == 200
     ), f"仮想ネットワーク一覧の取得に失敗しました: {res.status_code}"
@@ -91,7 +93,7 @@ def test_create_virtual_network(prefix="TestNetwork"):
         json.dumps(payload, indent=2),
     )
 
-    res = requests.post(f"{API_URL}virtual-networks", headers=headers, json=payload)
+    res = requests.post(f"{API_URL}virtual-networks", headers=HEADERS, json=payload)
     print("ステータスコード:", res.status_code)
 
     assert (
@@ -107,7 +109,7 @@ def test_create_virtual_network(prefix="TestNetwork"):
 
 def test_get_virtual_network(network_id):
     print(f"\n--- GET /api/virtual-networks/{network_id} のテスト ---")
-    res = requests.get(f"{API_URL}virtual-networks/{network_id}", headers=headers)
+    res = requests.get(f"{API_URL}virtual-networks/{network_id}", headers=HEADERS)
     assert (
         res.status_code == 200
     ), f"仮想ネットワーク詳細の取得に失敗しました: {res.status_code}"
@@ -118,13 +120,12 @@ def test_get_virtual_network(network_id):
 
 def test_patch_virtual_network(network_id):
     print(f"\n--- PATCH /api/virtual-networks/{network_id} のテスト ---")
-    test_get_virtual_network(network_id)
     new_name = f"PatchedNetwork_{random.randint(100, 999)}"
 
     payload = {"name": new_name}
 
     res = requests.patch(
-        f"{API_URL}virtual-networks/{network_id}", headers=headers, json=payload
+        f"{API_URL}virtual-networks/{network_id}", headers=HEADERS, json=payload
     )
     assert (
         res.status_code == 200
@@ -144,13 +145,12 @@ def test_patch_virtual_network(network_id):
 
 def test_put_virtual_network(network_id):
     print(f"\n--- PUT /api/virtual-networks/{network_id} のテスト ---")
-    test_get_virtual_network(network_id)
-    new_name = "ReplacedNetwork_" + str(random.randint(1000, 9999))
+    new_name = f"ReplacedNetwork_{random.randint(1000, 9999)}"
 
     payload = {"name": new_name}
 
     res = requests.put(
-        f"{API_URL}virtual-networks/{network_id}", headers=headers, json=payload
+        f"{API_URL}virtual-networks/{network_id}", headers=HEADERS, json=payload
     )
     assert (
         res.status_code == 200
@@ -165,13 +165,13 @@ def test_put_virtual_network(network_id):
 
 def test_delete_virtual_network(network_id):
     print(f"\n--- DELETE /api/virtual-networks/{network_id} のテスト ---")
-    res = requests.delete(f"{API_URL}virtual-networks/{network_id}", headers=headers)
+    res = requests.delete(f"{API_URL}virtual-networks/{network_id}", headers=HEADERS)
     assert (
         res.status_code == 204
     ), f"仮想ネットワークの削除に失敗しました: {res.status_code}"
     print(f"削除された仮想ネットワークID: {network_id}")
 
-    res_get = requests.get(f"{API_URL}virtual-networks/{network_id}", headers=headers)
+    res_get = requests.get(f"{API_URL}virtual-networks/{network_id}", headers=HEADERS)
     assert (
         res_get.status_code == 404
     ), f"削除後に仮想ネットワークがまだ存在しています: {res_get.status_code}"
@@ -190,14 +190,18 @@ def test_create_subnet(network_id):
     payload = {"name": name, "cidr": cidr}
 
     res = requests.post(
-        f"{API_URL}virtual-networks/{network_id}/subnets", headers=headers, json=payload
+        f"{API_URL}virtual-networks/{network_id}/subnets", headers=HEADERS, json=payload
     )
 
     assert res.status_code == 201, f"サブネットの作成に失敗しました: {res.status_code}"
 
     subnet = res.json()
     assert subnet["name"] == name
-    assert subnet["cidr"] == cidr  # CIDRは変わらないはず
+
+    created_cidr = cidr
+    assert (
+        subnet["cidr"] == created_cidr
+    ), f"CIDR が期待値と異なります: expected={created_cidr}, actual={subnet['cidr']}"
 
     print(f"作成されたサブネットID: {subnet['id']}")
     return subnet["id"]
@@ -209,7 +213,7 @@ def test_get_subnet(network_id, subnet_id):
     )
 
     res = requests.get(
-        f"{API_URL}virtual-networks/{network_id}/subnets/{subnet_id}", headers=headers
+        f"{API_URL}virtual-networks/{network_id}/subnets/{subnet_id}", headers=HEADERS
     )
 
     assert (
@@ -232,7 +236,7 @@ def test_patch_subnet(network_id, subnet_id):
 
     res = requests.patch(
         f"{API_URL}virtual-networks/{network_id}/subnets/{subnet_id}",
-        headers=headers,
+        headers=HEADERS,
         json=payload,
     )
 
@@ -261,7 +265,7 @@ def test_put_subnet(network_id, subnet_id):
 
     res = requests.put(
         f"{API_URL}virtual-networks/{network_id}/subnets/{subnet_id}",
-        headers=headers,
+        headers=HEADERS,
         json=payload,
     )
 
@@ -271,7 +275,11 @@ def test_put_subnet(network_id, subnet_id):
 
     subnet = res.json()
     assert subnet["name"] == new_name
-    assert subnet["cidr"] == new_cidr if "cidr" in subnet else True
+
+    if "cidr" in subnet:
+        assert subnet["cidr"] == new_cidr
+    else:
+        print("警告: レスポンスにcidrフィールドが含まれていません")
 
     print(f"更新(PUT)後のサブネット名: {subnet['name']}")
     return subnet
@@ -284,7 +292,7 @@ def test_get_subnet_vms(network_id, subnet_id):
 
     res = requests.get(
         f"{API_URL}virtual-networks/{network_id}/subnets/{subnet_id}/virtual-machines",
-        headers=headers,
+        headers=HEADERS,
     )
 
     assert (
@@ -317,15 +325,14 @@ def test_bulk_subnets(network_id):
 
     res = requests.post(
         f"{API_URL}virtual-networks/{network_id}/subnets/bulk",
-        headers=headers,
+        headers=HEADERS,
         json=bulk_payload,
     )
 
     # Bulk実装の応答を確認
-    assert res.status_code in [
-        200,
-        201,
-    ], f"サブネット一括更新に失敗しました: {res.status_code}"
+    assert (
+        res.status_code == 200
+    ), f"サブネット一括更新に失敗しました: {res.status_code}"
 
     print("サブネット一括更新(Bulk) APIが正常に応答しました。")
 
@@ -336,7 +343,7 @@ def test_delete_subnet(network_id, subnet_id):
     )
 
     res = requests.delete(
-        f"{API_URL}virtual-networks/{network_id}/subnets/{subnet_id}", headers=headers
+        f"{API_URL}virtual-networks/{network_id}/subnets/{subnet_id}", headers=HEADERS
     )
 
     assert res.status_code == 204, f"サブネットの削除に失敗しました: {res.status_code}"
@@ -344,7 +351,7 @@ def test_delete_subnet(network_id, subnet_id):
 
     # 削除確認
     res_get = requests.get(
-        f"{API_URL}virtual-networks/{network_id}/subnets/{subnet_id}", headers=headers
+        f"{API_URL}virtual-networks/{network_id}/subnets/{subnet_id}", headers=HEADERS
     )
     assert (
         res_get.status_code == 404
