@@ -17,13 +17,15 @@ def main():
     print("仮想マシンAPIのテストを開始します...")
     test_get_vms()
 
+    network_id = None
     try:
         # 前提リソースの準備
         node_id = get_random_node()
         image_id = get_random_image()
         pool_id = get_random_storage_pool()
-        network_id, subnet_id = create_test_network_and_subnet()
         sg_id = get_random_sg()
+
+        network_id, subnet_id = create_test_network_and_subnet()
 
         print("\n=== CRUDテストを実行します ===")
         # 1. 作成 (Create)
@@ -57,9 +59,6 @@ def main():
         # 23. 削除 (Delete)
         test_delete_vm(vm_id)
 
-        # 後始末
-        delete_test_network(network_id)
-
     except AssertionError:
         raise
     except Exception as e:
@@ -67,6 +66,10 @@ def main():
         import traceback
 
         traceback.print_exc()
+    finally:
+        # 後始末
+        if network_id:
+            delete_test_network(network_id)
 
 
 # --- Helper Functions ---
@@ -105,7 +108,7 @@ def get_random_sg():
     sgs = res.json()
     # Create one if needed
     if not sgs:
-        payload = {"name": f"TestSG_{random.randint(100,999)}"}
+        payload = {"name": f"TestSG_{random.randint(100, 999)}"}
         res = requests.post(f"{API_URL}security-groups", headers=HEADERS, json=payload)
         return res.json()["id"]
     return sgs[0]["id"]
@@ -118,7 +121,7 @@ def create_test_network_and_subnet():
         "name": net_name,
         "cidr": "10.0.0.0/16",
         "initialSubnets": [
-            {"name": f"VMTestSubnet_{random.randint(100,999)}", "cidr": "10.0.1.0/24"}
+            {"name": f"VMTestSubnet_{random.randint(100, 999)}", "cidr": "10.0.1.0/24"}
         ],
     }
     res = requests.post(f"{API_URL}virtual-networks", headers=HEADERS, json=net_payload)
@@ -127,9 +130,7 @@ def create_test_network_and_subnet():
 
     # サブネットID取得 (initialSubnetsで作られているはずだが、GETで確認しても良い)
     # create responseに含まれていればそれを使う
-    res_subs = requests.get(
-        f"{API_URL}virtual-networks/{net['id']}/subnets", headers=HEADERS
-    )  # Endpoint not in api.yml?
+
     # Actually api.yml doesn't list GET /subnets list? NO.
     # But GET /virtual-networks/{id} returns subnets list usually.
 
@@ -143,7 +144,9 @@ def create_test_network_and_subnet():
 
 
 def delete_test_network(network_id):
-    requests.delete(f"{API_URL}virtual-networks/{network_id}", headers=HEADERS)
+    res = requests.delete(f"{API_URL}virtual-networks/{network_id}", headers=HEADERS)
+    if res.status_code != 204:
+        print(f"ネットワーク削除警告: {res.status_code} {res.text}")
 
 
 # --- VM CRUD Tests ---
@@ -290,7 +293,7 @@ def test_nics(vm_id, subnet_id):
     assert res.status_code == 200
 
     # Patch
-    new_name = f"patched_nic_{random.randint(100,999)}"
+    new_name = f"patched_nic_{random.randint(100, 999)}"
     res = requests.patch(
         f"{API_URL}virtual-machines/{vm_id}/network-interfaces/{nic_id}",
         headers=HEADERS,
@@ -299,7 +302,7 @@ def test_nics(vm_id, subnet_id):
     assert res.status_code == 200
 
     # Put
-    put_name = f"put_nic_{random.randint(100,999)}"
+    put_name = f"put_nic_{random.randint(100, 999)}"
     # Put requires subnetId? NetworkInterfacePutRequest: WithRequired<Updatable, "name" | "subnetId">
     res = requests.put(
         f"{API_URL}virtual-machines/{vm_id}/network-interfaces/{nic_id}",
@@ -344,10 +347,16 @@ def test_security_groups(vm_id):
         sg_id = sg_res.json()[0]["id"]
     else:
         # Create one if needed
-        sg_payload = {"name": f"TestSG_{random.randint(100,999)}"}
-        sg_new = requests.post(
+        sg_payload = {"name": f"TestSG_{random.randint(100, 999)}"}
+        sg_new_res = requests.post(
             f"{API_URL}security-groups", headers=HEADERS, json=sg_payload
-        ).json()
+        )
+        if sg_new_res.status_code not in (200, 201):
+            print(
+                f"セキュリティグループ作成に失敗しました: "
+                f"{sg_new_res.status_code} {sg_new_res.text}"
+            )
+        sg_new = sg_new_res.json()
         sg_id = sg_new["id"]
 
     # Add (Post) -> Actually POST /api/virtual-machines/{vmId}/security-groups is "Add"
@@ -410,7 +419,7 @@ def test_storages(vm_id, pool_id):
 
     # Add (Post)
     # StorageCreateRequest: { name, size, poolId, backupId? }
-    storage_name = f"data_disk_{random.randint(100,999)}"
+    storage_name = f"data_disk_{random.randint(100, 999)}"
     payload = {
         "name": storage_name,
         "size": 1024 * 1024 * 1024,  # 1GB
@@ -425,30 +434,36 @@ def test_storages(vm_id, pool_id):
     print(f"Storage追加成功: {st_id}")
 
     # Get List
-    requests.get(f"{API_URL}virtual-machines/{vm_id}/storages", headers=HEADERS)
+    res = requests.get(f"{API_URL}virtual-machines/{vm_id}/storages", headers=HEADERS)
+    assert res.status_code == 200, f"Storage一覧取得失敗: {res.status_code}"
 
     # Get Detail
-    requests.get(f"{API_URL}virtual-machines/{vm_id}/storages/{st_id}", headers=HEADERS)
+    res = requests.get(
+        f"{API_URL}virtual-machines/{vm_id}/storages/{st_id}", headers=HEADERS
+    )
+    assert res.status_code == 200, f"Storage詳細取得失敗: {res.status_code}"
 
     # Patch
-    requests.patch(
+    res = requests.patch(
         f"{API_URL}virtual-machines/{vm_id}/storages/{st_id}",
         headers=HEADERS,
         json={"name": f"patched_{storage_name}"},
     )
+    assert res.status_code == 200, f"Storage Patch失敗: {res.status_code}"
 
     # Put (requires name)
-    requests.put(
+    res = requests.put(
         f"{API_URL}virtual-machines/{vm_id}/storages/{st_id}",
         headers=HEADERS,
         json={"name": f"put_{storage_name}"},
     )
+    assert res.status_code == 200, f"Storage Put失敗: {res.status_code}"
 
     # Bulk
     bulk_payload = {
         "add": [
             {
-                "name": f"bulk_disk_{random.randint(100,999)}",
+                "name": f"bulk_disk_{random.randint(100, 999)}",
                 "size": 1024 * 1024 * 1024,
                 "poolId": pool_id,
             }
