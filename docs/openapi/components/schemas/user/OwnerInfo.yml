@@ -1,0 +1,13 @@
+type: object
+description: 所有者レスポンスオブジェクト
+properties:
+  id:
+    type: string
+    format: uuid
+    description: ユーザを識別するための一意なID
+  name:
+    type: string
+    description: ユーザの名前
+required:
+  - id
+  - name

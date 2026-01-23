@@ -13,7 +13,7 @@ properties:
     description: セキュリティグループの説明
   owner:
     description: セキュリティグループの所有者情報
-    $ref: "../user/UserResponse.yml"
+    $ref: "../user/OwnerInfo.yml"
   rules:
     type: array
     items:
