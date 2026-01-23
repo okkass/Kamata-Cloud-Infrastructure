@@ -8,11 +8,6 @@ properties:
   name:
     type: string
     description: ユーザの名前
-  email:
-    type: string
-    format: email
-    description: ユーザのメールアドレス
 required:
   - id
   - name
-  - email
