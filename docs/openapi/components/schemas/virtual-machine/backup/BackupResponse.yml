@@ -17,7 +17,7 @@ properties:
     description: バックアップが作成された日時
   owner:
     description: バックアップの所有者情報
-    $ref: "../../user/UserResponse.yml"
+    $ref: "../../user/OwnerInfo.yml"
   size:
     type: number
     format: integer
