@@ -9,7 +9,9 @@
     "backend": "cd backend && pnpm run dev",
     "app": "cd srcs && pnpm run dev",
     "app:mock": "cd srcs && pnpm run dev:mock",
+    "app:backend": "cd srcs && pnpm run dev:backend",
     "mock-app": "concurrently -n MOCK,APP -c blue,green \"pnpm mock\" \"pnpm app:mock\"",
+    "backend-app": "concurrently -n BACKEND,APP -c yellow,green \"pnpm backend\" \"pnpm app:backend\"",
     "prisma:gen": "cd srcs && pnpm exec prisma generate",
     "prisma:migrate": "cd srcs && pnpm exec prisma migrate dev",
     "prisma:studio": "cd srcs && pnpm exec prisma studio"

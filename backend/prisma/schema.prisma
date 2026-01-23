@@ -147,7 +147,7 @@ model VirtualMachine {
   name      String   @db.VarChar(256)
   status    VmStatus @default(pending)
   cpu       Int
-  memory    Int
+  memoryMb  Int      @map("memory_mb")
   createdAt DateTime @default(now()) @map("created_at")
 
   // Foreign Keys
@@ -188,7 +188,7 @@ model Image {
   uuid        String   @unique @default(uuid())
   name        String   @db.VarChar(256)
   description String?  @db.Text
-  size        Int
+  sizeMb      Int      @map("size_mb")
   createdAt   DateTime @default(now()) @map("created_at")
   ownNodeId   BigInt   @map("own_node_id")
 
@@ -200,12 +200,12 @@ model Image {
 }
 
 model InstanceType {
-  id         BigInt   @id @default(autoincrement())
-  uuid       String   @unique @default(uuid())
-  name       String   @db.VarChar(256)
-  cpuCore    Int      @map("cpu_core")
-  memorySize Int      @map("memory_size")
-  createdAt  DateTime @default(now()) @map("created_at")
+  id           BigInt   @id @default(autoincrement())
+  uuid         String   @unique @default(uuid())
+  name         String   @db.VarChar(256)
+  cpuCore      Int      @map("cpu_core")
+  memorySizeMb Int      @map("memory_size_mb")
+  createdAt    DateTime @default(now()) @map("created_at")
 
   @@map("instance_types")
 }
@@ -228,8 +228,8 @@ model StoragePool {
   uuid             String   @unique @default(uuid())
   name             String   @db.VarChar(256)
   hasNetworkAccess Boolean  @default(false) @map("has_network_access")
-  availableSize    BigInt   @map("available_size")
-  totalSize        BigInt   @map("total_size")
+  availableSizeMb  Int      @map("available_size_mb")
+  totalSizeMb      Int      @map("total_size_mb")
   createdAt        DateTime @default(now()) @map("created_at")
 
   // Relations
@@ -242,7 +242,7 @@ model VirtualStorage {
   id            BigInt   @id @default(autoincrement())
   uuid          String   @unique @default(uuid())
   name          String   @db.VarChar(256)
-  size          BigInt
+  sizeMb        Int      @map("size_mb")
   createdAt     DateTime @default(now()) @map("created_at")
   storagePoolId BigInt   @map("storage_pool_id")
 
@@ -273,7 +273,7 @@ model Backup {
   uuid                   String   @unique @default(uuid())
   name                   String   @db.VarChar(256)
   description            String?  @db.Text
-  size                   Int
+  sizeMb                 Int      @map("size_mb")
   createdAt              DateTime @default(now()) @map("created_at")
   virtualStorageId       BigInt   @map("virtual_storage_id")
   sourceVirtualMachineId BigInt   @map("source_virtual_machine_id")

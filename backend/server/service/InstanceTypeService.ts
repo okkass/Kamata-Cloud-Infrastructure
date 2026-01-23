@@ -17,47 +17,56 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
     ServiceError
   > = {
     permission,
-    list(query) {
-      const instanceTypes = InstanceTypeRepository.list();
+
+    async list(query) {
+      const instanceTypes = await InstanceTypeRepository.list();
       return { success: true, data: instanceTypes };
     },
-    getById(id) {
-      const instanceType = InstanceTypeRepository.getById(id);
+
+    async getById(id) {
+      const instanceType = await InstanceTypeRepository.getById(id);
       if (!instanceType) {
         return {
           success: false,
-          error: "NotFound",
+          error: { reason: "NotFound" },
         };
       }
       return { success: true, data: instanceType };
     },
-    create(data) {
-      const newInstanceType = InstanceTypeRepository.create(data);
+
+    async create(data) {
+      const newInstanceType = await InstanceTypeRepository.create(data);
       if (!newInstanceType) {
         return {
           success: false,
-          error: "BadRequest",
+          error: { reason: "BadRequest" },
         };
       }
       return { success: true, data: newInstanceType };
     },
-    update(id, data) {
-      const updatedInstanceType = InstanceTypeRepository.update(id, data);
+
+    async update(id, data) {
+      const updatedInstanceType = await InstanceTypeRepository.update(id, data);
       if (!updatedInstanceType) {
         return {
           success: false,
-          error: "NotFound",
+          error: { reason: "NotFound" },
         };
       }
       return { success: true, data: updatedInstanceType };
     },
-    delete(id) {
-      const deleted = InstanceTypeRepository.deleteById(id);
+
+    async delete(id) {
+      const deleted = await InstanceTypeRepository.deleteById(id);
       if (!deleted) {
-        return { success: false, error: "NotFound" };
+        return {
+          success: false,
+          error: { reason: "NotFound" },
+        };
       }
       return { success: true, data: null };
     },
   };
+
   return InstanceTypeService;
 };
