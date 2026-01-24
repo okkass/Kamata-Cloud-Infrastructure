@@ -3,6 +3,7 @@ import json
 import random
 import os
 import sys
+import uuid
 
 from auth_test import get_header
 
@@ -29,6 +30,11 @@ def main():
         test_patch_backup(backup_id)
         test_put_backup(backup_id)
         test_delete_backup(backup_id)
+
+        print("\n=== Testing Non-Existing Backup Cases ===")
+        test_get_not_exist_backup()
+        test_patch_not_exist_backup()
+        test_put_not_exist_backup()
 
         # 2. Restore Test
         print("\n=== Running Restore Test ===")
@@ -106,6 +112,16 @@ def test_get_backup(backup_id):
     return backup
 
 
+def test_get_not_exist_backup():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- Testing GET /api/backups/{not_exist_id} for non-existing backup ---")
+    res = requests.get(f"{API_URL}backups/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"Expected 404 for non-existing backup, got: {res.status_code}"
+    print("Correctly received 404 for non-existing backup.")
+
+
 def test_patch_backup(backup_id):
     print(f"\n--- Testing PATCH /api/backups/{backup_id} ---")
     current_backup = test_get_backup(backup_id)
@@ -119,6 +135,21 @@ def test_patch_backup(backup_id):
     assert patched_backup["name"] == new_name
     print(f"Patched Backup Name: {patched_backup['name']}")
     return patched_backup
+
+
+def test_patch_not_exist_backup():
+    not_exist_id = str(uuid.uuid4())
+    print(
+        f"\n--- Testing PATCH /api/backups/{not_exist_id} for non-existing backup ---"
+    )
+    payload = {"name": "ShouldNotExist"}
+    res = requests.patch(
+        f"{API_URL}backups/{not_exist_id}", headers=headers, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"Expected 404 for non-existing backup, got: {res.status_code}"
+    print("Correctly received 404 for non-existing backup.")
 
 
 def test_put_backup(backup_id):
@@ -141,6 +172,19 @@ def test_put_backup(backup_id):
     return replaced_backup
 
 
+def test_put_not_exist_backup():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- Testing PUT /api/backups/{not_exist_id} for non-existing backup ---")
+    payload = {"name": "ShouldNotExist"}
+    res = requests.put(
+        f"{API_URL}backups/{not_exist_id}", headers=headers, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"Expected 404 for non-existing backup, got: {res.status_code}"
+    print("Correctly received 404 for non-existing backup.")
+
+
 def test_restore_backup(backup_id):
     print(f"\n--- Testing POST /api/backups/{backup_id}/restore ---")
     res = requests.post(f"{API_URL}backups/{backup_id}/restore", headers=headers)
@@ -155,6 +199,13 @@ def test_delete_backup(backup_id):
     res = requests.delete(f"{API_URL}backups/{backup_id}", headers=headers)
     assert res.status_code == 204, f"Failed to delete backup: {res.status_code}"
     print(f"Deleted Backup ID: {backup_id}")
+
+    # Test Delete again to confirm 404
+    res_del_again = requests.delete(f"{API_URL}backups/{backup_id}", headers=headers)
+    assert (
+        res_del_again.status_code == 404
+    ), f"Expected 404 when deleting non-existing backup, got: {res_del_again.status_code}"
+    print("Confirmed backup deletion with second delete (404).")
 
     # Verify deletion
     res_get = requests.get(f"{API_URL}backups/{backup_id}", headers=headers)
