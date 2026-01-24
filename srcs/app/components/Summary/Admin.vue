@@ -4,29 +4,29 @@
       <SummaryQuickLink />
     </section>
     <section
-      v-if="summaryData && summaryData.clusterSummary"
+      v-if="summaryData &&summaryData[0]?.clusterSummary"
       class="summary-section lg:col-span-1"
     >
       <h2 class="summary-section-title">現在のリソース状況</h2>
       <div class="summary-grid">
         <SummaryProgressBar
           title="CPU 使用率"
-          :usage="summaryData.clusterSummary.usedCpu.toFixed(1)"
-          :total="summaryData.clusterSummary.totalCpu"
+          :usage="summaryData[0].clusterSummary.usedCpu.toFixed(1)"
+          :total="summaryData[0].clusterSummary.totalCpu"
           unit="Cores"
         />
         <SummaryProgressBar
           title="メモリ使用率"
           :usage="
             convertByteToUnit(
-              summaryData.clusterSummary.usedMemory,
+              summaryData[0].clusterSummary.usedMemory,
               'GB',
               DISABLE_ROUNDING
             ).toFixed(1)
           "
           :total="
             convertByteToUnit(
-              summaryData.clusterSummary.totalMemory,
+              summaryData[0].clusterSummary.totalMemory,
               'GB',
               DISABLE_ROUNDING
             ).toFixed(0)
@@ -37,14 +37,14 @@
           title="ストレージ使用率"
           :usage="
             convertByteToUnit(
-              summaryData.clusterSummary.usedStorage,
+              summaryData[0].clusterSummary.usedStorage,
               'GB',
               DISABLE_ROUNDING
             ).toFixed(1)
           "
           :total="
             convertByteToUnit(
-              summaryData.clusterSummary.totalStorage,
+              summaryData[0].clusterSummary.totalStorage,
               'GB',
               DISABLE_ROUNDING
             ).toFixed(0)
