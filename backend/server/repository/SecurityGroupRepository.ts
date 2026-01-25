@@ -5,7 +5,7 @@ import { Prisma } from "@@/generated/client";
 // Service層で必要に応じて例外処理を行う。
 
 // DB上での全ポート(=APIで言うnull)を表す定数
-const PORT_ALL = 65536;
+export const PORT_ALL = 65536;
 
 const securityRuleArgs = {
   select: {
@@ -31,7 +31,6 @@ const securityGroupArgs = {
       select: {
         uuid: true,
         name: true,
-        email: true,
       },
     },
   },
@@ -166,11 +165,21 @@ const listRules = async (
 };
 
 const getRuleById = async (
+  sgId: string,
   ruleId: string,
 ): Promise<SecurityRuleRecord | null> => {
   const prisma = getPrismaClient();
+  const sg = await prisma.securityGroup.findUnique({
+    where: { uuid: sgId },
+    select: { id: true },
+  });
+  if (!sg) {
+    return null;
+  }
+
   return await prisma.securityRule.findUnique({
-    where: { uuid: ruleId },
+    where: { uuid: ruleId, securityGroupId: sg.id },
+
     ...securityRuleArgs,
   });
 };
@@ -197,12 +206,20 @@ const createRule = async (
 };
 
 const updateRule = async (
+  sgId: string,
   ruleId: string,
   updateFields: SecurityRuleUpdateInput,
 ): Promise<SecurityRuleRecord> => {
   const prisma = getPrismaClient();
+  const sg = await prisma.securityGroup.findUnique({
+    where: { uuid: sgId },
+    select: { id: true },
+  });
+  if (!sg) {
+    throw new Error("Security group not found");
+  }
   return prisma.securityRule.update({
-    where: { uuid: ruleId },
+    where: { uuid: ruleId, securityGroupId: sg.id },
     data: {
       name: updateFields.name,
       roleType: updateFields.ruleType,
@@ -220,9 +237,18 @@ const updateRule = async (
   });
 };
 
-const deleteRule = async (ruleId: string): Promise<void> => {
+const deleteRule = async (sgId: string, ruleId: string): Promise<void> => {
   const prisma = getPrismaClient();
-  await prisma.securityRule.delete({ where: { uuid: ruleId } });
+  const sg = await prisma.securityGroup.findUnique({
+    where: { uuid: sgId },
+    select: { id: true },
+  });
+  if (!sg) {
+    throw new Error("Security group not found");
+  }
+  await prisma.securityRule.delete({
+    where: { uuid: ruleId, securityGroupId: sg.id },
+  });
 };
 
 export const SecurityGroupRepository = {

@@ -11,13 +11,14 @@ import type {
 } from "@app/shared/types";
 import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
-import type {
+import {
   SecurityGroupRecord,
   SecurityRuleRecord,
   SecurityGroupCreateInput,
   SecurityRuleCreateInput,
   SecurityGroupUpdateInput,
   SecurityRuleUpdateInput,
+  PORT_ALL,
 } from "@/repository/SecurityGroupRepository";
 import SecurityGroupRepository from "@/repository/SecurityGroupRepository";
 
@@ -43,7 +44,7 @@ const mapRuleRecordToResponse = (
     id: record.uuid,
     name: record.name,
     ruleType: record.roleType,
-    port: record.port === 65536 ? null : record.port,
+    port: record.port === PORT_ALL ? null : record.port,
     protocol: record.protocol,
     targetIp: record.targetIp,
     action: record.action,
@@ -57,7 +58,7 @@ const mapGroupRecordToResponse = (
   return {
     id: record.uuid,
     name: record.name,
-    description: record.description || undefined,
+    description: record.description ?? undefined,
     owner: {
       id: record.user.uuid,
       name: record.user.name,
@@ -87,7 +88,7 @@ const mapGroupCreateRequestToInput = (
   return {
     userId,
     name: request.name,
-    description: request.description,
+    description: request.description ?? undefined,
     rules: request.rules.map(mapRuleCreateRequestToInput),
   };
 };
@@ -98,7 +99,7 @@ const mapRuleUpdateRequestToInput = (
   return {
     name: request.name,
     ruleType: request.ruleType,
-    port: request.port,
+    port: request.port === null ? PORT_ALL : request.port,
     protocol: request.protocol,
     targetIp: request.targetIp,
     action: request.action,
@@ -110,7 +111,7 @@ const mapGroupUpdateRequestToInput = (
 ): SecurityGroupUpdateInput => {
   return {
     name: request.name,
-    description: request.description,
+    description: request.description ?? undefined,
   };
 };
 
@@ -190,7 +191,7 @@ export const getSecurityGroupService = (permission: UserPermissions) => {
         },
         async getById(id) {
           try {
-            const rule = await SecurityGroupRepository.getRuleById(id);
+            const rule = await SecurityGroupRepository.getRuleById(sgId, id);
             if (!rule) {
               return {
                 success: false,
@@ -219,6 +220,7 @@ export const getSecurityGroupService = (permission: UserPermissions) => {
         async update(id, data) {
           try {
             const updatedRule = await SecurityGroupRepository.updateRule(
+              sgId,
               id,
               mapRuleUpdateRequestToInput(data),
             );
@@ -232,7 +234,7 @@ export const getSecurityGroupService = (permission: UserPermissions) => {
         },
         async delete(id) {
           try {
-            await SecurityGroupRepository.deleteRule(id);
+            await SecurityGroupRepository.deleteRule(sgId, id);
             return { success: true, data: null };
           } catch (error) {
             return { success: false, error: { reason: "InternalError" } };
