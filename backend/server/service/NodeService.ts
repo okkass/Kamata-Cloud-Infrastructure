@@ -25,19 +25,19 @@ type NodeService = ResourceService<
   ServiceError
 > & {
   listNewDevices: (
-    nodeId: string
+    nodeId: string,
   ) => Promise<Result<DeviceResponse[], ServiceError>>;
   listCandidates: () => Promise<Result<NodeCandidateResponse[], ServiceError>>;
 };
 
-const mapNodeToResponse = (
+export const mapNodeToResponse = (
   node: NodeRecord,
   pveNodeData: {
     status: "active" | "inactive";
     cpuUtilization: number;
     memoryUtilization: number;
     storageUtilization: number;
-  }
+  },
 ): NodeResponse => {
   return {
     id: node.uuid,
@@ -144,7 +144,10 @@ export const getNodeService = (permission: UserPermissions) => {
         return { success: true, data: null };
       } catch (error) {
         // P2025を捕捉してNotFoundを返すようにする
-        if (error instanceof PrismaClientKnownRequestError && error.code === "P2025") {
+        if (
+          error instanceof PrismaClientKnownRequestError &&
+          error.code === "P2025"
+        ) {
           return { success: false, error: { reason: "NotFound" } };
         }
         console.error("Error deleting node:", error);

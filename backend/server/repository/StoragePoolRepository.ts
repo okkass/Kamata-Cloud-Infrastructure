@@ -1,102 +1,88 @@
-import type {
-  StoragePoolResponse,
-  StoragePoolCreateRequest,
-  StoragePoolPatchRequest,
-  StoragePoolPutRequest,
-} from "@app/shared/types";
+import { getPrismaClient } from "./common";
+import { Prisma } from "@@/generated/client";
 
-import crypto from "crypto";
-import NodeRepository from "./NodeRepository";
-import { generateRandomUsage } from "../api/summary/realtime.get.js";
-
-let storagePools: Array<StoragePoolResponse> = [
-  {
-    id: "6b593061-0281-4ef1-8b63-96924137b878",
-    name: "Node1-Pool1-Network",
-    node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
-    createdAt: new Date().toISOString(),
-    totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: getRandomInt(0, 500) * 1024 * 1024 * 1024,
+// Nodeの情報はUUIDから別途Serviceたたいてください
+const StoragePoolArgs = {
+  select: {
+    uuid: true,
+    name: true,
     hasNetworkAccess: true,
+    availableSizeMb: true,
+    totalSizeMb: true,
+    createdAt: true,
+    node: {
+      select: {
+        uuid: true,
+      },
+    },
   },
-  {
-    id: "dc88d67a-848c-48f4-80ab-2066231f75ed",
-    name: "Node1-Pool1-NoNetwork",
-    node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
-    createdAt: new Date().toISOString(),
-    totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: getRandomInt(0, 500) * 1024 * 1024 * 1024,
-    hasNetworkAccess: false,
-  },
-  {
-    id: "31d51cf9-ce8a-4406-9fe1-3bf4a2a1fb68",
-    name: "Node1-Pool2-Network",
-    node: NodeRepository.getById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
-    createdAt: new Date().toISOString(),
-    totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: getRandomInt(0, 1000) * 1024 * 1024 * 1024,
-    hasNetworkAccess: true,
-  },
-  {
-    id: "9e5d1831-218f-47b0-a82c-77f031862107",
-    name: "Node1-Pool2-NoNetwork",
-    node: NodeRepository.getById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
-    createdAt: new Date().toISOString(),
-    totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: getRandomInt(0, 1000) * 1024 * 1024 * 1024,
-    hasNetworkAccess: false,
-  },
-];
+} satisfies Prisma.StoragePoolFindManyArgs;
 
-const list = (): Array<StoragePoolResponse> => {
-  return storagePools;
+export type StoragePoolRecord = Prisma.StoragePoolGetPayload<
+  typeof StoragePoolArgs
+>;
+
+export type StoragePoolCreateInput = {
+  name: string;
+  hasNetworkAccess: boolean;
+  totalSizeMb: number;
+  nodeId: string;
 };
 
-const getById = (id: string): StoragePoolResponse | undefined => {
-  return storagePools.find((pool) => pool.id === id);
+export type StoragePoolUpdateInput = {
+  name?: string;
+  hasNetworkAccess?: boolean;
 };
 
-const add = (
-  pool: StoragePoolCreateRequest
-): StoragePoolResponse | undefined => {
-  const node = NodeRepository.getById(pool.nodeId);
-  if (!node) {
-    return undefined;
-  }
-  const uuid = crypto.randomUUID();
-  const newPool: StoragePoolResponse = {
-    id: uuid,
-    node: node,
-    name: pool.name,
-    createdAt: new Date().toISOString(),
-    totalSize: getRandomInt(100, 1000) * 1024 * 1024 * 1024, // Random size between 100 GB and 1000 GB
-    usedSize: 0,
-    hasNetworkAccess: pool.hasNetworkAccess,
-  };
-  storagePools.push(newPool);
-  return newPool;
+const list = async (): Promise<Array<StoragePoolRecord>> => {
+  const prisma = getPrismaClient();
+  return await prisma.storagePool.findMany(StoragePoolArgs);
 };
 
-const update = (
+const getById = (id: string): Promise<StoragePoolRecord | null> => {
+  const prisma = getPrismaClient();
+  return prisma.storagePool.findUnique({
+    where: { uuid: id },
+    ...StoragePoolArgs,
+  });
+};
+
+const add = async (
+  input: StoragePoolCreateInput,
+): Promise<StoragePoolRecord> => {
+  const prisma = getPrismaClient();
+  return await prisma.storagePool.create({
+    data: {
+      name: input.name,
+      hasNetworkAccess: input.hasNetworkAccess,
+      totalSizeMb: input.totalSizeMb,
+      availableSizeMb: input.totalSizeMb,
+      node: {
+        connect: { uuid: input.nodeId },
+      },
+    },
+    ...StoragePoolArgs,
+  });
+};
+
+const update = async (
   id: string,
-  updateFields: StoragePoolPatchRequest | StoragePoolPutRequest
-): StoragePoolResponse | undefined => {
-  let target = getById(id);
-  if (target === undefined) {
-    return undefined;
-  }
-
-  target.name = updateFields.name ?? target.name;
-  target.hasNetworkAccess =
-    updateFields.hasNetworkAccess ?? target.hasNetworkAccess;
-
-  return target;
+  updateFields: StoragePoolUpdateInput,
+): Promise<StoragePoolRecord> => {
+  const prisma = getPrismaClient();
+  return await prisma.storagePool.update({
+    where: { uuid: id },
+    data: {
+      name: updateFields.name,
+      hasNetworkAccess: updateFields.hasNetworkAccess,
+    },
+    ...StoragePoolArgs,
+  });
 };
 
-const deleteById = (id: string): boolean => {
-  const initialLength = storagePools.length;
-  storagePools = storagePools.filter((pool) => pool.id !== id);
-  return storagePools.length < initialLength;
+const deleteById = async (id: string): Promise<void> => {
+  const prisma = getPrismaClient();
+  await prisma.storagePool.delete({ where: { uuid: id } });
 };
 
 export const StoragePoolRepository = {
