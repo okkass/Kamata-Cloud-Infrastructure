@@ -8,12 +8,11 @@ import (
 	"time"
 )
 
-// リクエスト構造体
-
-
+// HandleBackupRestore はバックアップファイルからVMを復元します
+// リクエスト: RestoreRequest (vmid, backup_path, target_volume_id)
+// 処理: VM停止 → dd で書き戻し → VM起動
 func HandleBackupRestore(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	if !validateHTTPMethod(w, r, http.MethodPost) {
 		return
 	}
 
@@ -29,54 +28,30 @@ func HandleBackupRestore(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ---------------------------------------------------------
-	// Step 1: VMを停止 (qm stop)
-	// ---------------------------------------------------------
-	// 既に停止しているかもしれないのでエラーは無視するか、statusを確認する手もあるが
-	// 強制的に stop を送って少し待つのがシンプル
-	fmt.Printf("Stopping VM %s...\n", req.VMID)
-	execCommand("qm", "stop", req.VMID)
-	
-	// 完全に停止するまで少し待機 (簡易的な実装)
-	// 本来は "qm status" をポーリングして "stopped" になるのを待つのがベスト
-	time.Sleep(5 * time.Second)
+	// ステップ1: VM停止
+	execCommand("qm", "stop", req.VMID) // エラーは無視（既に停止している可能性）
+	time.Sleep(3 * time.Second)
 
-	// ---------------------------------------------------------
-	// Step 2: 書き戻し先の物理パスを特定 (pvesm path)
-	// ---------------------------------------------------------
-	// TargetVolumeID (例: local-lvm:vm-105-disk-0) から /dev/pve/... を引く
+	// ステップ2: 書き戻し先の物理パスを特定
 	out, err := exec.Command("pvesm", "path", req.TargetVolumeID).Output()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to resolve volume path: %v", err))
-		// 失敗したらVMを起動し直してあげる優しさがあってもいい
-		execCommand("qm", "start", req.VMID) 
+		execCommand("qm", "start", req.VMID) // エラー時もVM起動試行
 		return
 	}
 	targetDevicePath := strings.TrimSpace(string(out))
-	fmt.Printf("Target device resolved: %s\n", targetDevicePath)
 
-	// ---------------------------------------------------------
-	// Step 3: DDで書き戻し
-	// ---------------------------------------------------------
-	// dd if=<バックアップファイル> of=<デバイス> bs=1M status=none
-	fmt.Printf("Restoring backup from %s to %s...\n", req.BackupPath, targetDevicePath)
-	if err := execCommand("dd", "if="+req.BackupPath, "of="+targetDevicePath, "bs=1M", "status=none"); err != nil {
+	// ステップ3: dd で書き戻し
+	if err := execCommand("dd", fmt.Sprintf("if=%s", req.BackupPath), fmt.Sprintf("of=%s", targetDevicePath), "bs=1M", "status=progress"); err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to restore backup: %v", err))
 		return
 	}
 
-	// ---------------------------------------------------------
-	// Step 4: VMを起動 (qm start)
-	// ---------------------------------------------------------
-	fmt.Printf("Starting VM %s...\n", req.VMID)
+	// ステップ4: VM起動
 	if err := execCommand("qm", "start", req.VMID); err != nil {
-		// リストアは成功しているが起動に失敗した場合
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Restore successful but failed to start VM: %v", err))
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, BaseResponse{
-		Status:  "success",
-		Message: fmt.Sprintf("VM %s restored and started successfully", req.VMID),
-	})
+	respondWithSuccess(w, fmt.Sprintf("VM %s restored and started successfully", req.VMID), nil)
 }

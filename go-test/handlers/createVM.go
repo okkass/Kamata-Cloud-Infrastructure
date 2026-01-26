@@ -7,15 +7,37 @@ import (
 	"os"
 )
 
+// HandleCreateVM はテンプレートからVMを作成します
+// リクエスト: VMCreateRequest (source_vmid, new_vmid, new_name, cores, memory, disks, networks, ssh_key, auto_start)
+// 処理: VM クローン → 設定変更 → ディスク設定 → VM 起動
+// 失敗時: 自動的に作成されたVMを削除
 func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
+	if !validateHTTPMethod(w, r, http.MethodPost) {
+		return
+	}
+
 	var req VMCreateRequest
 	if err := parseJSONRequest(r, &req); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
-	// 1. SSH鍵の一時ファイル作成
-	// ---------------------------------------------------------
+	// バリデーション
+	if req.SourceVMID == "" || req.NewVMID == "" || req.NewName == "" {
+		respondWithError(w, http.StatusBadRequest, "source_vmid, new_vmid, and new_name are required")
+		return
+	}
+
+	// 失敗時の自動ロールバック: VM 削除
+	shouldRollback := true
+	defer func() {
+		if shouldRollback {
+			log.Printf("[ROLLBACK] Removing VM %s due to creation failure...", req.NewVMID)
+			execCommand("qm", "destroy", req.NewVMID)
+		}
+	}()
+
+	// ステップ1: SSH鍵の一時ファイル作成
 	var sshKeyPath string
 	if req.SSHKey != "" {
 		tmpFile, err := os.CreateTemp("", "sshkey-*.pub")
@@ -23,7 +45,7 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 			respondWithError(w, http.StatusInternalServerError, "Failed to create temp key file")
 			return
 		}
-		defer os.Remove(tmpFile.Name()) // 処理終了後に削除
+		defer os.Remove(tmpFile.Name())
 
 		if _, err := tmpFile.WriteString(req.SSHKey); err != nil {
 			respondWithError(w, http.StatusInternalServerError, "Failed to write ssh key")
@@ -33,29 +55,21 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 		sshKeyPath = tmpFile.Name()
 	}
 
-	// 2. ベースクローンの実行 (qm clone)
-	// ---------------------------------------------------------
-	// 基本的にはDisk[0]のストレージ指定があればここで使う
-	// PVEの仕様上、テンプレートのディスク(scsi0)がクローンされる
+	// ステップ2: VMクローン
 	cloneArgs := []string{"clone", req.SourceVMID, req.NewVMID, "--name", req.NewName}
-
-	// ルートディスク(Disks[0])のストレージ指定があれば適用
 	if len(req.Disks) > 0 && req.Disks[0].Storage != "" {
-		cloneArgs = append(cloneArgs, "--target", req.Disks[0].Storage)
-		cloneArgs = append(cloneArgs, "--full") // ストレージ指定時はFull Clone必須
+		cloneArgs = append(cloneArgs, "--target", req.Disks[0].Storage, "--full")
 	}
 
 	if err := execCommand("qm", cloneArgs...); err != nil {
-		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to clone VM: %s", err))
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to clone VM: %v", err))
 		return
 	}
 
-	// 3. 設定変更のコマンド構築 (qm set)
-	// ---------------------------------------------------------
-	// 何度もAPIを叩くと遅いので、可能な限り1回の `qm set` にまとめる
+	// ステップ3: 設定変更 (qm set - CPU/Memory/Network/Cloud-Init)
 	setArgs := []string{"set", req.NewVMID}
 
-	// CPU / Memory
+	// CPU / Memory 設定
 	if req.Cores > 0 {
 		setArgs = append(setArgs, "--cores", fmt.Sprintf("%d", req.Cores))
 	}
@@ -68,83 +82,68 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 		setArgs = append(setArgs, "--sshkeys", sshKeyPath)
 	}
 
-	// ネットワーク & Cloud-Init設定
+	// ネットワーク & Cloud-Init 設定
 	for i, net := range req.Networks {
-		// --- NIC設定 (net0, net1...) ---
-		// 基本: virtio,bridge=vmbr0
+		// NIC設定
 		netConfig := fmt.Sprintf("%s,bridge=%s", net.Model, net.Bridge)
-
-		// MACアドレス指定がある場合 (DHCP固定割り当て用)
 		if net.MacAddress != "" {
 			netConfig += fmt.Sprintf(",macaddr=%s", net.MacAddress)
 		}
-
 		setArgs = append(setArgs, fmt.Sprintf("--net%d", i), netConfig)
 
-		// --- Cloud-Init IP設定 (ipconfig0, ipconfig1...) ---
+		// Cloud-Init IP設定
 		var ipConfig string
-
 		if net.IPAddress != "" {
-			// 固定IP指定がある場合: ip=192.168.1.50/24,gw=192.168.1.1
 			ipConfig = fmt.Sprintf("ip=%s", net.IPAddress)
 			if net.Gateway != "" {
 				ipConfig += fmt.Sprintf(",gw=%s", net.Gateway)
 			}
 		} else {
-			// 指定がない場合: DHCPモード
-			// これにしておけば、MACアドレスに基づいたIPがルーターから降ってきます
 			ipConfig = "ip=dhcp"
 		}
-
 		setArgs = append(setArgs, fmt.Sprintf("--ipconfig%d", i), ipConfig)
 	}
 
-	// 設定適用実行
-	if len(setArgs) > 2 { // "set", "vmid" 以外に引数がある場合
+	// 設定適用
+	if len(setArgs) > 2 {
 		if err := execCommand("qm", setArgs...); err != nil {
-			respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to configure VM: %s", err))
+			respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to configure VM: %v", err))
 			return
 		}
 	}
 
-	// 4. ディスクの調整 (Resize & Create)
-	// ---------------------------------------------------------
-	// ディスク操作は `qm set` で一括にできない場合が多いので個別に処理します
-
+	// ステップ4: ディスク調整
 	for i, disk := range req.Disks {
-		// Disk[0] はテンプレートから継承したルートディスクとみなしてリサイズのみ行う
-		// (ストレージ移動はclone時に実施済み)
 		if i == 0 {
-			// サイズ指定があり、かつ "+" (増分) または絶対値指定の場合
+			// ルートディスク: リサイズのみ
 			if disk.Size != "" {
-				// qm resize <vmid> <disk> <size>
 				if err := execCommand("qm", "resize", req.NewVMID, disk.Device, disk.Size); err != nil {
-					log.Printf("[WARN] Failed to resize root disk: %s", err)
+					log.Printf("[WARN] Failed to resize root disk: %v", err)
 				}
 			}
 			continue
 		}
 
-		// Disk[1] 以降は新規ディスク追加
-		// qm set <vmid> --scsi1 storage:size
-		// 例: local-zfs:50G
+		// 追加ディスク: 新規作成
 		storageSize := fmt.Sprintf("%s:%s", disk.Storage, disk.Size)
 		if err := execCommand("qm", "set", req.NewVMID, fmt.Sprintf("--%s", disk.Device), storageSize); err != nil {
-			log.Printf("[WARN] Failed to add disk %s: %s", disk.Device, err)
-			respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to add disk %s", disk.Device))
+			respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to add disk %s: %v", disk.Device, err))
 			return
 		}
 	}
 
-	// 6. 起動
-	// ---------------------------------------------------------
+	// ステップ5: VM起動
 	if err := execCommand("qm", "start", req.NewVMID); err != nil {
-		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to start VM: %s", err))
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to start VM: %v", err))
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, BaseResponse{
-		Status:  "success",
-		Message: fmt.Sprintf("VM %s created successfully", req.NewVMID),
+	// 成功時: ロールバック無効化
+	shouldRollback = false
+
+	respondWithSuccess(w, fmt.Sprintf("VM %s created successfully", req.NewVMID), map[string]string{
+		"vm_id":  req.NewVMID,
+		"name":   req.NewName,
+		"status": "running",
 	})
 }

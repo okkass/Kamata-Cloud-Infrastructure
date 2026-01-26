@@ -38,10 +38,11 @@ func registerZFSPoolLogic(storageName, poolName, nodeName string, content []stri
 // ハンドラー
 // ---------------------------------------------------------
 
-// HandleCreateAndRegisterZFS : 作成から登録まで一括で行う
+// HandleCreateAndRegisterZFS はZFSプール作成とProxmox登録を一括実行します
+// リクエスト: CreateAndRegisterZFSRequest (pool_name, device, storage_name, node_name, content)
+// 処理: ZFSプール作成 → Proxmox登録、失敗時はロールバック
 func HandleCreateAndRegisterZFS(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
+	if !validateHTTPMethod(w, r, http.MethodPost) {
 		return
 	}
 
@@ -57,37 +58,31 @@ func HandleCreateAndRegisterZFS(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// storage_name が空なら pool_name と同じにする便利機能
+	// storage_name が空なら pool_name と同じにする
 	if req.StorageName == "" {
 		req.StorageName = req.PoolName
 	}
 
-	// --- Step 1: ZFSプール作成 ---
+	// ステップ1: ZFSプール作成
 	if err := createZFSPoolLogic(req.PoolName, req.Device); err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to create ZFS pool: %v", err))
 		return
 	}
 
-	// --- Step 2: Proxmoxへの登録 ---
+	// ステップ2: Proxmoxへの登録
 	if err := registerZFSPoolLogic(req.StorageName, req.PoolName, req.NodeName, req.Content); err != nil {
-		// ロールバック処理
-		fmt.Printf("Registration failed, rolling back ZFS pool '%s'...\n", req.PoolName)
+		// エラー時はロールバック
 		execCommand("zpool", "destroy", "-f", req.PoolName)
 		execCommand("wipefs", "-a", req.Device)
-
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to register storage (Rolled back): %v", err))
 		return
 	}
 
-	// --- 完了レスポンス ---
-	respondWithJSON(w, http.StatusOK, BaseResponse{
-		Status:  "success",
-		Message: fmt.Sprintf("ZFS pool '%s' created and registered as '%s' on node '%s'", req.PoolName, req.StorageName, req.NodeName),
-		Data: map[string]string{
-			"pool_name":    req.PoolName,
-			"storage_name": req.StorageName,
-			"device":       req.Device,
-			"node":         req.NodeName,
-		},
+	// 完了
+	respondWithSuccess(w, "ZFS pool created and registered successfully", map[string]string{
+		"pool_name":    req.PoolName,
+		"storage_name": req.StorageName,
+		"device":       req.Device,
+		"node":         req.NodeName,
 	})
 }

@@ -6,28 +6,28 @@ import (
 )
 
 func registerHandlers() {
-	// ===== テンプレート & イメージ =====
+	// イメージ・テンプレート管理
 	http.HandleFunc(EndpointCreateTemplate, handlers.HandleCreateTemplate)
 	http.HandleFunc(EndpointDeleteImage, handlers.HandleDeleteImage)
 
-	// ===== ノード =====
+	// ノード管理
 	http.HandleFunc(EndpointNodeInfo, handlers.HandleNodeInfo)
 	http.HandleFunc(EndpointNodeAdd, handlers.HandleNodeAdd)
 
-	// ===== ストレージ - LVM =====
-	http.HandleFunc(EndpointLVMCreate, handlers.HandleLVMCreate)
+	// ストレージ管理
+	http.HandleFunc(EndpointZFSCreate, handlers.HandleCreateAndRegisterZFS)
+	http.HandleFunc(EndpointZFSShare, handlers.HandleZFSShareNFS)
+	http.HandleFunc(EndpointZFSStopShare, handlers.HandleStopNFSShare)
+	http.HandleFunc(EndpointNFSRegister, handlers.HandleRemoteNFSRegister)
 
-	// ===== ストレージ - NFS =====
-	http.HandleFunc(EndpointNFSCreate, handlers.HandleZFSPoolCreate)
-	http.HandleFunc(EndpointNFSUpdate, handlers.HandleNFSUpdate)
-	// ===== 仮想マシン =====
+	// 仮想マシン管理
 	http.HandleFunc(EndpointCreateVM, handlers.HandleCreateVM)
 
-	// ===== ファイアウォール / セキュリティグループ =====
+	// セキュリティグループ
 	http.HandleFunc(EndpointAttachSecurityGroup, handlers.HandleSecurityGroupAttach)
 	http.HandleFunc(EndpointDetachSecurityGroup, handlers.HandleSecurityGroupDetach)
 
-	// ===== バックアップ =====
+	// バックアップ
 	http.HandleFunc(EndpointBackupCreate, handlers.HandleBackupCreate)
 	http.HandleFunc(EndpointBackupRestore, handlers.HandleBackupRestore)
 }

@@ -5,32 +5,34 @@ import (
 	"net/http"
 )
 
+// HandleDeleteImage はProxmoxストレージ上のイメージを削除します
+// リクエスト: ImageDeleteRequest (storage_id, image_name)
+// 処理: pvesm free コマンドで削除
 func HandleDeleteImage(w http.ResponseWriter, r *http.Request) {
-var req ImageDeleteRequest
+	if !validateHTTPMethod(w, r, http.MethodPost) {
+		return
+	}
+
+	var req ImageDeleteRequest
 	if err := parseJSONRequest(r, &req); err != nil {
 		respondWithError(w, http.StatusBadRequest, "Invalid request payload")
 		return
 	}
 
+	// バリデーション
 	if req.StorageID == "" || req.ImageName == "" {
 		respondWithError(w, http.StatusBadRequest, "storage_id and image_name are required")
 		return
 	}
 
-	// 1. Volume ID を構築する
-	// ISOイメージの場合、プレフィックスは通常 "iso/" になります
-	// 形式: storage_id:iso/image_name
+	// VolumeIDを構築 (形式: storage_id:iso/image_name)
 	volumeID := fmt.Sprintf("%s:iso/%s", req.StorageID, req.ImageName)
 
-	// 2. pvesm free コマンドを実行
-	// これだけで、対象がローカルディレクトリだろうがNFSだろうがZFSだろうが適切に削除されます
+	// pvesm free コマンドでイメージを削除
 	if err := execCommand("pvesm", "free", volumeID); err != nil {
-		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to delete image: %s", err))
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to delete image: %v", err))
 		return
 	}
 
-	respondWithJSON(w, http.StatusOK, BaseResponse{
-		Status:  "success",
-		Message: fmt.Sprintf("Image '%s' deleted successfully from '%s'", req.ImageName, req.StorageID),
-	})
+	respondWithSuccess(w, fmt.Sprintf("Image '%s' deleted successfully", req.ImageName), nil)
 }
