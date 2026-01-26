@@ -18,7 +18,7 @@ func registerHandlers() {
 	http.HandleFunc(EndpointLVMCreate, handlers.HandleLVMCreate)
 
 	// ===== ストレージ - NFS =====
-	http.HandleFunc(EndpointNFSCreate, handlers.HandleNFSCreate)
+	http.HandleFunc(EndpointNFSCreate, handlers.HandleZFSPoolCreate)
 	http.HandleFunc(EndpointNFSUpdate, handlers.HandleNFSUpdate)
 	// ===== 仮想マシン =====
 	http.HandleFunc(EndpointCreateVM, handlers.HandleCreateVM)

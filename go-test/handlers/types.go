@@ -17,6 +17,7 @@ type TemplateRequest struct {
 // 2. イメージ削除
 type ImageDeleteRequest struct {
 	ImageName string `json:"image_name"`
+	StorageID string `json:"storage_id"`
 }
 
 // 3. ノード情報
@@ -39,13 +40,6 @@ type MasterMigrationRequest struct {
 	NewMasterIP       string `json:"new_master_ip"`
 	CurrentMasterIP   string `json:"current_master_ip"`
 	CurrentMasterPass string `json:"current_master_pass"`
-}
-
-// 4. ストレージ作成 (LVM)
-type LVMCreateRequest struct {
-	Device string `json:"device"`  // 例: "/dev/sdb"
-	VGName string `json:"vg_name"` // 例: "new-vg"
-	ID     string `json:"id"`      // Proxmox上のID (例: "secondary-lvm")
 }
 
 // 5. ストレージ作成 (NFSサーバー構築 & 登録)
@@ -107,15 +101,57 @@ type SecurityGroupDetachRequest struct {
 }
 
 // 7. バックアップ (DD)
-type BackupRequest struct {
-	VMID       string `json:"vmid"`
-	SourceDev  string `json:"source_dev"`  // 例: "/dev/pve/vm-105-disk-0"
-	BackupName string `json:"backup_name"` // 例: "vm-105.img"
+type RawDiskExportRequest struct {
+	VMID           string `json:"vmid"`             // スナップショット名に使うため必須
+	SourceVolumeID string `json:"source_volume_id"` // 例: "local-lvm:vm-105-disk-0"
+	DestStorageID  string `json:"dest_storage_id"`  // 例: "poka"
+	DestFilename   string `json:"dest_filename"`    // 例: "vm-105.img"
 }
 
 // 8. リストア (DD)
 type RestoreRequest struct {
-	VMID       string `json:"vmid"`
-	TargetDev  string `json:"target_dev"`  // 例: "/dev/pve/vm-105-disk-0"
-	BackupName string `json:"backup_name"` // 例: "vm-105.img"
+	VMID       string `json:"vmid"`        // 例: "105"
+	BackupPath string `json:"backup_path"` // 例: "/mnt/backup/vm-105.img"
+	// リストア対象のディスクID (Volume ID)
+	// わからなければ "local-lvm:vm-105-disk-0" のような形式で指定させるのが確実
+	TargetVolumeID string `json:"target_volume_id"` 
+}
+
+type CreateAndRegisterZFSRequest struct {
+	PoolName    string   `json:"pool_name"`    // ZFSプール名 (例: "poka")
+	Device      string   `json:"device"`       // デバイス (例: "/dev/sdb")
+	StorageName string   `json:"storage_name"` // PVE上の表示名 (指定なければPoolNameと同じにする)
+	NodeName    string   `json:"node_name"`    // 対象ノード (例: "test01")
+	Content     []string `json:"content"`      // 用途 (例: ["images", "rootdir"])
+}
+
+// ZFS領域のNFS公開設定
+type ZFSShareNFSRequest struct {
+	PoolName  string `json:"pool_name"`  // 例: "poka"
+	Network   string `json:"network"`    // 例: "192.168.3.0/24"
+	ReadWrite bool   `json:"read_write"` // rw権限の有無
+	RootSquash bool  `json:"root_squash"` // no_root_squashの逆フラグ (false=no_root_squash)
+}
+
+// リモートNFS登録 (別ノードでの登録)
+type RemoteNFSRegisterRequest struct {
+	StorageName string   `json:"storage_name"` // 例: "remote-poka"
+	ServerIP    string   `json:"server_ip"`    // 例: "192.168.3.50"
+	ExportPath  string   `json:"export_path"`  // 例: "/poka"
+	Content     []string `json:"content"`      // 例: ["images", "rootdir"]
+	NodeName    []string   `json:"node_name"`    // 例: "test02"
+}
+
+// ZFS作成レスポンス
+type ZFSCreateResponse struct {
+	Status    string `json:"status"`    // "success" or "error"
+	Message   string `json:"message,omitempty"`
+	PoolName  string `json:"pool_name,omitempty"`
+	StorageName string `json:"storage_name,omitempty"`
+}
+
+// リクエスト構造体
+type StopNFSShareRequest struct {
+	StorageID string `json:"storage_id"` // NFSとして登録した名前 (例: "remote-poka")
+	PoolName  string `json:"pool_name"`  // 元のZFSプール名 (例: "poka")
 }
