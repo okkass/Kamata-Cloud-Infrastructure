@@ -34,13 +34,14 @@ def main():
         # 4. 更新 (Put)
         test_put_image(image_id)
 
+        # 5. 削除 (Delete)
+        test_delete_image(image_id)
+
         print("\n=== 存在しないリソースのテストを実行します ===")
         test_get_not_exist_image()
         test_patch_not_exist_image()
         test_put_not_exist_image()
-
-        # 5. 削除 (Delete)
-        test_delete_image(image_id)
+        test_delete_not_exist_image()
 
     except Exception as e:
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")

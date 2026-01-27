@@ -32,11 +32,6 @@ def main():
         # 4. 更新 (Put)
         test_put_security_group(group_id)
 
-        print("\n=== 存在しないリソースのテストを実行します ===")
-        test_get_not_exist_security_group()
-        test_patch_not_exist_security_group()
-        test_put_not_exist_security_group()
-
         print("\n=== セキュリティルールAPIテスト ===")
         # グループにルールを追加してテスト
         rule_id = test_create_security_rule(group_id)
@@ -47,6 +42,12 @@ def main():
 
         # 5. 削除 (Delete)
         test_delete_security_group(group_id)
+
+        print("\n=== 存在しないリソースのテストを実行します ===")
+        test_get_not_exist_security_group()
+        test_patch_not_exist_security_group()
+        test_put_not_exist_security_group()
+        test_delete_not_exist_security_group()
 
     except Exception as e:
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")

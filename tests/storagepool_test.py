@@ -32,13 +32,14 @@ def main():
         # 4. 更新 (Put)
         test_put_storage_pool(pool_id)
 
+        # 5. 削除 (Delete)
+        test_delete_storage_pool(pool_id)
+
         print("\n=== 存在しないリソースのテストを実行します ===")
         test_get_not_exist_storage_pool()
         test_patch_not_exist_storage_pool()
         test_put_not_exist_storage_pool()
-
-        # 5. 削除 (Delete)
-        test_delete_storage_pool(pool_id)
+        test_delete_not_exist_storage_pool()
 
     except AssertionError:
         # テストのアサーション失敗はスキップ扱いにせず、そのまま上位に伝播させる
