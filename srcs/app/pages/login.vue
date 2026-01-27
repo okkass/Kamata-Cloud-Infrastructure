@@ -99,13 +99,16 @@ const { addToast } = useToast();
  * ==============================================================================
  */
 const onSubmit = handleSubmit(async (values) => {
+  const runtimeConfig = useRuntimeConfig();
+
   try {
     const dto: LoginRequest = {
       email: values.userName,
       password: values.password,
     };
-
-    await $fetch("/api/auth/login", {
+    const url = runtimeConfig.public.apiBaseUrl + "auth/login";
+    console.log("Submitting login request to:", url);
+    await $fetch(url, {
       method: "POST",
       body: dto,
     });
@@ -113,6 +116,7 @@ const onSubmit = handleSubmit(async (values) => {
     // ログイン成功後にホーム画面へリダイレクト
     await navigateTo("/");
   } catch (error: any) {
+    console.error("Login failed:", error);
     addToast({
       type: "error",
       message: "ログインに失敗しました",
