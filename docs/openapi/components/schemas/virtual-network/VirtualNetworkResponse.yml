@@ -19,7 +19,7 @@ properties:
     description: 仮想ネットワークが作成された日時
   owner:
     description: 仮想ネットワークの所有者情報
-    $ref: "../user/UserResponse.yml"
+    $ref: "../user/OwnerInfo.yml"
   subnets:
     type: array
     items:
