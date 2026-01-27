@@ -8,3 +8,8 @@ export type ServiceError = {
     | "NotImplemented";
   message?: string;
 };
+
+export type RepositoryError = {
+  reason: "BadRequest" | "Conflict" | "NotFound" | "InternalError";
+  message?: string;
+};
