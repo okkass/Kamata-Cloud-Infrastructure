@@ -1,6 +1,7 @@
 import { computed, onMounted, onUnmounted } from "vue";
 import { useResourceList } from "@/composables/useResourceList";
 import { useUserPermission } from "@/composables/useUserPermission";
+import { useResourceFetchHandler } from "@/composables/useResourceFetchHandler";
 import { MACHINE } from "@/utils/constants";
 import { createPolling } from "@/utils/polling";
 import { calculateTotalStorage } from "@/utils/status";
@@ -22,7 +23,7 @@ export function useVMachineManagement() {
   void fetchUser();
 
   const isManager = computed(
-    () => isAdmin.value === true || isVirtualMachineAdmin.value === true
+    () => isAdmin.value === true || isVirtualMachineAdmin.value === true,
   );
 
   // --- API Data ---
@@ -37,11 +38,16 @@ export function useVMachineManagement() {
     error,
   } = useResourceList<VirtualMachineResponse>(MACHINE.name, queryOptions);
 
+  // --- エラーハンドリング ---
+  useResourceFetchHandler(error, {
+    errorMessage: "仮想マシン情報の取得に失敗しました",
+  });
+
   // --- ポーリング設定 ---
   const { startPolling, stopPolling, runOnce, lastUpdatedTime } = createPolling(
     async () => {
       await refresh();
-    }
+    },
   );
 
   // マウント時に即時実行し、その後ポーリング開始。アンマウント時に停止。
@@ -95,10 +101,10 @@ export function useVMachineManagement() {
       const memoryTotalMB = convertByteToUnit(vm.memorySize, "MB");
       const memoryUsedMB = (vm.memoryUtilization ?? 0) * memoryTotalMB;
       const memoryUsageText = `${memoryUsedMB.toFixed(
-        1
+        1,
       )} MB / ${memoryTotalMB} MB`;
       const memoryUtilizationPercent = Math.round(
-        (vm.memoryUtilization ?? 0) * 100
+        (vm.memoryUtilization ?? 0) * 100,
       );
 
       return {
@@ -111,7 +117,7 @@ export function useVMachineManagement() {
         memoryUtilizationPercent,
         ownerName: vm.owner?.name ?? "-",
       };
-    })
+    }),
   );
 
   return {
