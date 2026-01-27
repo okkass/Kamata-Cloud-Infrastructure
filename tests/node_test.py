@@ -47,14 +47,14 @@ def main():
     }
     test_put_node(admin_node_id, new_data, headers=headers)
 
+    print("8. ノードを削除する")
+    test_delete_node(node_id, headers=headers)
+    test_delete_node(admin_node_id, headers=headers)
+
     print("\n=== 存在しないリソースのテストを実行します ===")
     test_get_not_exist_node(headers=headers)
     test_patch_not_exist_node(headers=headers)
     test_put_not_exist_node(headers=headers)
-
-    print("8. ノードを削除する")
-    test_delete_node(node_id, headers=headers)
-    test_delete_node(admin_node_id, headers=headers)
 
 
 def test_get_nodes(headers=None):

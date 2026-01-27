@@ -32,13 +32,13 @@ def main():
         # 4. 更新 (Put)
         test_put_instance_type(type_id)
 
+        # 5. 削除 (Delete)
+        test_delete_instance_type(type_id)
+
         print("\n=== 存在しないリソースのテストを実行します ===")
         test_get_not_exist_instance_type()
         test_patch_not_exist_instance_type()
         test_put_not_exist_instance_type()
-
-        # 5. 削除 (Delete)
-        test_delete_instance_type(type_id)
 
     except Exception as e:
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")

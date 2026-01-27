@@ -270,5 +270,15 @@ def test_put_not_exist_storage_pool():
     print("存在しないストレージプールのPUTで404が返ることを確認しました。")
 
 
+def test_delete_not_exist_storage_pool():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- DELETE /api/storage-pools/{not_exist_id} (存在しないID) のテスト ---")
+    res = requests.delete(f"{API_URL}storage-pools/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"存在しないストレージプールの削除で404以外が返されました: {res.status_code}"
+    print("存在しないストレージプールの削除で404が返ることを確認しました。")
+
+
 if __name__ == "__main__":
     main()

@@ -32,13 +32,13 @@ def main():
         # 4. 更新 (Put)
         test_put_snapshot(snapshot_id)
 
+        # 5. 削除 (Delete)
+        test_delete_snapshot(snapshot_id)
+
         print("\n=== 存在しないリソースのテストを実行します ===")
         test_get_not_exist_snapshot()
         test_patch_not_exist_snapshot()
         test_put_not_exist_snapshot()
-
-        # 5. 削除 (Delete)
-        test_delete_snapshot(snapshot_id)
 
         # 6. リストア (Restore) - 別途作成してテスト
         print("\n=== リストアテストを実行します ===")
