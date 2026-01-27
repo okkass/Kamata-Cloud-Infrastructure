@@ -3,6 +3,7 @@ import json
 import random
 import os
 import sys
+import uuid
 
 from auth_test import get_header
 
@@ -32,6 +33,11 @@ def main():
 
         # 4. 更新 (Put)
         test_put_image(image_id)
+
+        print("\n=== 存在しないリソースのテストを実行します ===")
+        test_get_not_exist_image()
+        test_patch_not_exist_image()
+        test_put_not_exist_image()
 
         # 5. 削除 (Delete)
         test_delete_image(image_id)
@@ -171,6 +177,47 @@ def test_delete_image(image_id):
         res_get.status_code == 404
     ), f"削除後にイメージがまだ存在しています: {res_get.status_code}"
     print("イメージが削除されたことを確認しました (404)。")
+
+    # 再度削除を試みて404が返ることを確認
+    res_del_again = requests.delete(f"{API_URL}images/{image_id}", headers=headers)
+    assert (
+        res_del_again.status_code == 404
+    ), f"存在しないイメージの削除で404以外が返されました: {res_del_again.status_code}"
+    print("存在しないイメージの削除で404が返ることを確認しました。")
+
+
+def test_get_not_exist_image():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- GET /api/images/{not_exist_id} (存在しないID) のテスト ---")
+    res = requests.get(f"{API_URL}images/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"存在しないイメージの取得で404以外が返されました: {res.status_code}"
+    print("存在しないイメージの取得で404が返ることを確認しました。")
+
+
+def test_patch_not_exist_image():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- PATCH /api/images/{not_exist_id} (存在しないID) のテスト ---")
+    payload = {"name": "ShouldNotExist"}
+    res = requests.patch(
+        f"{API_URL}images/{not_exist_id}", headers=headers, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"存在しないイメージのPATCHで404以外が返されました: {res.status_code}"
+    print("存在しないイメージのPATCHで404が返ることを確認しました。")
+
+
+def test_put_not_exist_image():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- PUT /api/images/{not_exist_id} (存在しないID) のテスト ---")
+    payload = {"name": "ShouldNotExist", "description": "ShouldNotExist"}
+    res = requests.put(f"{API_URL}images/{not_exist_id}", headers=headers, json=payload)
+    assert (
+        res.status_code == 404
+    ), f"存在しないイメージのPUTで404以外が返されました: {res.status_code}"
+    print("存在しないイメージのPUTで404が返ることを確認しました。")
 
 
 if __name__ == "__main__":
