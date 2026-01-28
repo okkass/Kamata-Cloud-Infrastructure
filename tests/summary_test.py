@@ -1,6 +1,7 @@
 import requests
 import os
 import sys
+import uuid
 
 from auth_test import get_header
 
@@ -17,6 +18,9 @@ def main():
     try:
         test_get_summary_realtime()
         test_get_summary_history()
+
+        print("\n=== 存在しないリソースのテストを実行します ===")
+        test_get_not_exist_summary()
 
     except AssertionError:
         # テストのアサーション失敗はスキップ扱いにせず、そのまま上位に伝播させる
@@ -130,6 +134,18 @@ def test_get_summary_history():
     ), "dataフィールドはリストである必要があります"
 
     print("管理者用ヒストリーサマリーを正常に取得しました。")
+
+
+def test_get_not_exist_summary():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- GET /api/summary/realtime/{not_exist_id} (存在しないID) のテスト ---")
+
+    # URLにIDを付与してリクエスト（通常は404になるはず）
+    res = requests.get(f"{API_URL}summary/realtime/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"存在しないサマリーリソースの取得で404以外が返されました: {res.status_code}"
+    print("存在しないサマリーリソースの取得で404が返ることを確認しました。")
 
 
 if __name__ == "__main__":
