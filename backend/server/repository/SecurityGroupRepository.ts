@@ -302,14 +302,25 @@ const getRuleById = async (
   try {
     const prisma = getPrismaClient();
 
+    const sg = await prisma.securityGroup.findUnique({
+      where: { uuid: sgId },
+      select: { id: true },
+    });
+    if (!sg) {
+      return {
+        success: false,
+        error: {
+          reason: "NotFound",
+          message: "The specified security group was not found.",
+        },
+      };
+    }
+
     const data = await prisma.securityRule.findUnique({
       where: {
         uuid: ruleId,
-        securityGroup: {
-          uuid: sgId,
-        },
+        securityGroupId: sg.id,
       },
-
       ...securityRuleArgs,
     });
     return { success: true, data: data ? toResponseRule(data) : null };
@@ -363,12 +374,23 @@ const updateRule = async (
 ): Promise<Result<SecurityRuleRecord, RepositoryError>> => {
   try {
     const prisma = getPrismaClient();
+    const sg = await prisma.securityGroup.findUnique({
+      where: { uuid: sgId },
+      select: { id: true },
+    });
+    if (!sg) {
+      return {
+        success: false,
+        error: {
+          reason: "NotFound",
+          message: "The specified security group was not found.",
+        },
+      };
+    }
     const data = await prisma.securityRule.update({
       where: {
         uuid: ruleId,
-        securityGroup: {
-          uuid: sgId,
-        },
+        securityGroupId: sg.id,
       },
       data: {
         name: updateFields.name,
@@ -397,12 +419,23 @@ const deleteRule = async (
 ): Promise<Result<void, RepositoryError>> => {
   try {
     const prisma = getPrismaClient();
+    const sg = await prisma.securityGroup.findUnique({
+      where: { uuid: sgId },
+      select: { id: true },
+    });
+    if (!sg) {
+      return {
+        success: false,
+        error: {
+          reason: "NotFound",
+          message: "The specified security group was not found.",
+        },
+      };
+    }
     await prisma.securityRule.delete({
       where: {
         uuid: ruleId,
-        securityGroup: {
-          uuid: sgId,
-        },
+        securityGroupId: sg.id,
       },
     });
     return { success: true, data: undefined };
