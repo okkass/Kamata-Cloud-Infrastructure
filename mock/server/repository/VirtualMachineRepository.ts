@@ -33,10 +33,18 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
       status: "running",
       node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
       createdAt: new Date().toISOString(),
-      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
+      owner: (() => {
+        const user = UserRepository.getById(
+          "5ab9e787-ad30-4f12-9ee4-f00c0491ee5d",
+        )!;
+        return {
+          id: user.id,
+          name: user.name,
+        };
+      })(),
       securityGroups: [
         SecurityGroupRepository.getById(
-          "81c210f6-8f8a-4554-9dd4-c58986827357"
+          "81c210f6-8f8a-4554-9dd4-c58986827357",
         )!,
       ],
       storages: [
@@ -45,7 +53,7 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
           name: "VM-01-os-disk",
           size: 24 * 1024 * 1024 * 1024, // 24 GB
           pool: StoragePoolRepository.getById(
-            "6b593061-0281-4ef1-8b63-96924137b878"
+            "6b593061-0281-4ef1-8b63-96924137b878",
           )!,
           createdAt: new Date().toISOString(),
           devicePath: "/dev/vda",
@@ -55,7 +63,7 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
           name: "VM-01-data-disk",
           size: 100 * 1024 * 1024 * 1024, // 100 GB
           pool: StoragePoolRepository.getById(
-            "6b593061-0281-4ef1-8b63-96924137b878"
+            "6b593061-0281-4ef1-8b63-96924137b878",
           )!,
           createdAt: new Date().toISOString(),
           devicePath: "/dev/vdb",
@@ -69,7 +77,7 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
           ipAddress: "10.0.0.3",
           subnet: VirtualNetworkRepository.getSubnet(
             "839b86e1-d1d9-4000-b61a-87ce11b6d179",
-            "4bb1712a-c3e1-4655-a0e4-1d3d2fb63631"
+            "4bb1712a-c3e1-4655-a0e4-1d3d2fb63631",
           )!,
         },
       ],
@@ -85,10 +93,18 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
       status: "running",
       node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
       createdAt: new Date().toISOString(),
-      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
+      owner: (() => {
+        const user = UserRepository.getById(
+          "5ab9e787-ad30-4f12-9ee4-f00c0491ee5d",
+        )!;
+        return {
+          id: user.id,
+          name: user.name,
+        };
+      })(),
       securityGroups: [
         SecurityGroupRepository.getById(
-          "81c210f6-8f8a-4554-9dd4-c58986827357"
+          "81c210f6-8f8a-4554-9dd4-c58986827357",
         )!,
       ],
       storages: [
@@ -97,7 +113,7 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
           name: "VM-02-os-disk",
           size: 24 * 1024 * 1024 * 1024, // 24 GB
           pool: StoragePoolRepository.getById(
-            "6b593061-0281-4ef1-8b63-96924137b878"
+            "6b593061-0281-4ef1-8b63-96924137b878",
           )!,
           createdAt: new Date().toISOString(),
           devicePath: "/dev/vda",
@@ -107,7 +123,7 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
           name: "VM-02-data-disk",
           size: 100 * 1024 * 1024 * 1024, // 100 GB
           pool: StoragePoolRepository.getById(
-            "6b593061-0281-4ef1-8b63-96924137b878"
+            "6b593061-0281-4ef1-8b63-96924137b878",
           )!,
           createdAt: new Date().toISOString(),
           devicePath: "/dev/vdb",
@@ -121,7 +137,7 @@ const initVirtualMachines = (): Array<VirtualMachineResponse> => {
           ipAddress: "10.0.0.4",
           subnet: VirtualNetworkRepository.getSubnet(
             "839b86e1-d1d9-4000-b61a-87ce11b6d179",
-            "4bb1712a-c3e1-4655-a0e4-1d3d2fb63631"
+            "4bb1712a-c3e1-4655-a0e4-1d3d2fb63631",
           )!,
         },
       ],
@@ -146,14 +162,14 @@ const getById = (id: string): VirtualMachineResponse | undefined => {
 };
 
 const create = (
-  data: VirtualMachineCreateRequest
+  data: VirtualMachineCreateRequest,
 ): VirtualMachineResponse | undefined => {
   let cpuCore: number | undefined;
   let memorySize: number | undefined;
   // specの型で分岐
   if ("instanceTypeId" in data.spec) {
     const instanceType = InstanceTypeRepository.getById(
-      data.spec.instanceTypeId
+      data.spec.instanceTypeId,
     );
     if (!instanceType) {
       console.warn(`Instance type not found: ${data.spec.instanceTypeId}`);
@@ -171,7 +187,7 @@ const create = (
   const node = NodeRepository.getById(data.nodeId);
   const image = ImageRepository.getById(data.imageId);
   const securityGroups = data.securityGroupIds.map((sgId) =>
-    SecurityGroupRepository.getById(sgId)
+    SecurityGroupRepository.getById(sgId),
   );
   const storages = data.storages.map((storageReq) => {
     const pool = StoragePoolRepository.getById(storageReq.poolId);
@@ -209,7 +225,7 @@ const create = (
     nics.includes(undefined)
   ) {
     console.warn(
-      `Failed to create VM due to missing resources. node: ${node}, image: ${image}, securityGroups: ${securityGroups}, storages: ${storages}, nics: ${nics}`
+      `Failed to create VM due to missing resources. node: ${node}, image: ${image}, securityGroups: ${securityGroups}, storages: ${storages}, nics: ${nics}`,
     );
     return undefined;
   }
@@ -235,7 +251,7 @@ const create = (
 
 const update = (
   id: string,
-  data: VirtualMachinePatchRequest | VirtualMachinePutRequest
+  data: VirtualMachinePatchRequest | VirtualMachinePutRequest,
 ): VirtualMachineResponse | undefined => {
   const vm = getById(id);
   if (!vm) {
@@ -256,7 +272,7 @@ const deleteById = (id: string): boolean => {
 };
 
 const listNetworkInterfacesByVirtualMachineId = (
-  id: string
+  id: string,
 ): NetworkInterfaceResponse[] | undefined => {
   const vm = getById(id);
   return vm?.networkInterfaces;
@@ -264,7 +280,7 @@ const listNetworkInterfacesByVirtualMachineId = (
 
 const getNetworkInterface = (
   vmId: string,
-  nicId: string
+  nicId: string,
 ): NetworkInterfaceResponse | undefined => {
   const nics = listNetworkInterfacesByVirtualMachineId(vmId);
   return nics?.find((nic) => nic.id === nicId);
@@ -272,7 +288,7 @@ const getNetworkInterface = (
 
 const createNetworkInterface = (
   vmId: string,
-  data: NetworkInterfaceCreateRequest
+  data: NetworkInterfaceCreateRequest,
 ): NetworkInterfaceResponse | undefined => {
   const nics = listNetworkInterfacesByVirtualMachineId(vmId);
   if (!nics) {
@@ -296,7 +312,7 @@ const createNetworkInterface = (
 const updateNetworkInterface = (
   vmId: string,
   nicId: string,
-  data: NetworkInterfacePatchRequest | NetworkInterfacePutRequest
+  data: NetworkInterfacePatchRequest | NetworkInterfacePutRequest,
 ): NetworkInterfaceResponse | undefined => {
   const target = getNetworkInterface(vmId, nicId);
   if (!target) {
@@ -328,7 +344,7 @@ const deleteNetworkInterface = (vmId: string, nicId: string): boolean => {
 };
 
 const listStoragesByVirtualMachineId = (
-  id: string
+  id: string,
 ): StorageResponse[] | undefined => {
   const vm = getById(id);
   return vm?.storages;
@@ -336,7 +352,7 @@ const listStoragesByVirtualMachineId = (
 
 const getStorage = (
   vmId: string,
-  storageId: string
+  storageId: string,
 ): StorageResponse | undefined => {
   const storages = listStoragesByVirtualMachineId(vmId);
   return storages?.find((storage) => storage.id === storageId);
@@ -344,7 +360,7 @@ const getStorage = (
 
 const createStorage = (
   vmId: string,
-  data: StorageCreateRequest
+  data: StorageCreateRequest,
 ): StorageResponse | undefined => {
   const vm = getById(vmId);
   if (!vm) {
@@ -369,7 +385,7 @@ const createStorage = (
 const updateStorage = (
   vmId: string,
   storageId: string,
-  data: StoragePatchRequest | StoragePutRequest
+  data: StoragePatchRequest | StoragePutRequest,
 ): StorageResponse | undefined => {
   const target = getStorage(vmId, storageId);
   if (!target) {
@@ -394,7 +410,7 @@ const deleteStorage = (vmId: string, storageId: string): boolean => {
 };
 
 const listSecurityGroupsByVirtualMachineId = (
-  id: string
+  id: string,
 ): SecurityGroupResponse[] | undefined => {
   const vm = getById(id);
   return vm?.securityGroups;
@@ -402,7 +418,7 @@ const listSecurityGroupsByVirtualMachineId = (
 
 const addSecurityGroupToVm = (
   vmId: string,
-  data: VmSecurityGroupAddRequest
+  data: VmSecurityGroupAddRequest,
 ): SecurityGroupResponse | undefined => {
   const vm = getById(vmId);
   if (!vm) {
@@ -422,7 +438,7 @@ const addSecurityGroupToVm = (
 
 const deleteSecurityGroupFromVm = (
   vmId: string,
-  securityGroupId: string
+  securityGroupId: string,
 ): boolean => {
   const vm = getById(vmId);
   if (!vm) {
