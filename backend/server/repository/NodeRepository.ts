@@ -3,6 +3,7 @@ import type { Result } from "@/common/type";
 import type { RepositoryError } from "@/common/errors";
 import { Prisma } from "@@/generated/client";
 import type { Repository } from "./common";
+import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
 const nodeArgs = {
   select: {
@@ -122,13 +123,7 @@ const update = async (
           name: data.name,
           isAdmin: data.isAdmin,
         },
-        select: {
-          uuid: true,
-          name: true,
-          ipAddress: true,
-          isAdmin: true,
-          createdAt: true,
-        },
+        ...nodeArgs,
       });
       return node;
     });
@@ -137,6 +132,18 @@ const update = async (
       data: result,
     };
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      // P2025(レコードが見つからない)エラーを処理
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "The specified node was not found.",
+          },
+        };
+      }
+    }
     return {
       success: false,
       error: {
@@ -155,6 +162,18 @@ const deleteById = async (
     await prisma.node.delete({ where: { uuid } });
     return { success: true, data: undefined };
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      // P2025(レコードが見つからない)エラーを処理
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "The specified node was not found.",
+          },
+        };
+      }
+    }
     return {
       success: false,
       error: {

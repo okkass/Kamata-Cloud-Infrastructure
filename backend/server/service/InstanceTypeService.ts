@@ -100,6 +100,12 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
         toUpdateProps(data),
       );
       if (!updatedInstanceType.success) {
+        if (updatedInstanceType.error.reason === "NotFound") {
+          return {
+            success: false,
+            error: { reason: "NotFound" },
+          };
+        }
         return {
           success: false,
           error: { reason: "InternalError" },
@@ -111,6 +117,12 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
     async delete(id) {
       const deleted = await InstanceTypeRepository.deleteById(id);
       if (!deleted.success) {
+        if (deleted.error.reason === "NotFound") {
+          return {
+            success: false,
+            error: { reason: "NotFound" },
+          };
+        }
         return {
           success: false,
           error: { reason: "InternalError" },
