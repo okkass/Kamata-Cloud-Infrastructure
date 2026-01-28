@@ -35,6 +35,10 @@ def main():
         test_delete_instance_type(type_id)
 
     except Exception as e:
+        # AssertioonErrorはそのまま投げる
+        if isinstance(e, AssertionError):
+            raise
+        # その他の例外はリソース不足や環境依存の可能性があるためスキップ扱いにする
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")
 
 
@@ -134,9 +138,15 @@ def test_put_instance_type(type_id):
     ), f"インスタンスタイプの更新(PUT)に失敗しました: {res.status_code}"
 
     replaced_type = res.json()
-    assert replaced_type["name"] == new_name
-    assert replaced_type["cpuCore"] == new_cpu
-    assert replaced_type["memorySize"] == new_memory
+    assert (
+        replaced_type["name"] == new_name
+    ), f"期待値: {new_name}, 実際: {replaced_type['name']}"
+    assert (
+        replaced_type["cpuCore"] == new_cpu
+    ), f"期待値: {new_cpu}, 実際: {replaced_type['cpuCore']}"
+    assert (
+        replaced_type["memorySize"] == new_memory
+    ), f"期待値: {new_memory}, 実際: {replaced_type['memorySize']}"
 
     print(f"更新(PUT)後のインスタンスタイプ名: {replaced_type['name']}")
     return replaced_type
