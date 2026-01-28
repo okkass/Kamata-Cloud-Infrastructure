@@ -3,6 +3,7 @@ import json
 import random
 import os
 import sys
+import uuid
 
 from auth_test import get_header
 
@@ -57,6 +58,12 @@ def main():
 
         # 12. ネットワーク削除 (Delete)
         test_delete_virtual_network(network_id)
+
+        print("\n=== 存在しないリソースのテストを実行します ===")
+        test_get_not_exist_virtual_network()
+        test_patch_not_exist_virtual_network()
+        test_put_not_exist_virtual_network()
+        test_delete_not_exist_virtual_network()
 
     except AssertionError:
         raise
@@ -176,6 +183,14 @@ def test_delete_virtual_network(network_id):
         res_get.status_code == 404
     ), f"削除後に仮想ネットワークがまだ存在しています: {res_get.status_code}"
     print("仮想ネットワークが削除されたことを確認しました (404)。")
+
+    # 2重削除のテスト
+    print(f"--- DELETE /api/virtual-networks/{network_id} (2回目) のテスト ---")
+    res = requests.delete(f"{API_URL}virtual-networks/{network_id}", headers=HEADERS)
+    assert (
+        res.status_code == 404
+    ), f"削除済みのリソース削除で404以外が返されました: {res.status_code}"
+    print("削除済みのリソース削除で404が返ることを確認しました。")
 
 
 # --- Subnet Tests ---
@@ -357,6 +372,72 @@ def test_delete_subnet(network_id, subnet_id):
         res_get.status_code == 404
     ), f"削除後にサブネットがまだ存在しています: {res_get.status_code}"
     print("サブネットが削除されたことを確認しました (404)。")
+
+    # 2重削除のテスト
+    print(
+        f"--- DELETE /api/virtual-networks/{network_id}/subnets/{subnet_id} (2回目) のテスト ---"
+    )
+    res = requests.delete(
+        f"{API_URL}virtual-networks/{network_id}/subnets/{subnet_id}", headers=HEADERS
+    )
+    assert (
+        res.status_code == 404
+    ), f"削除済みのサブネット削除で404以外が返されました: {res.status_code}"
+    print("削除済みのサブネット削除で404が返ることを確認しました。")
+
+
+def test_get_not_exist_virtual_network():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- GET /api/virtual-networks/{not_exist_id} (存在しないID) のテスト ---")
+    res = requests.get(f"{API_URL}virtual-networks/{not_exist_id}", headers=HEADERS)
+    assert (
+        res.status_code == 404
+    ), f"存在しない仮想ネットワークの取得で404以外が返されました: {res.status_code}"
+    print("存在しない仮想ネットワークの取得で404が返ることを確認しました。")
+
+
+def test_patch_not_exist_virtual_network():
+    not_exist_id = str(uuid.uuid4())
+    print(
+        f"\n--- PATCH /api/virtual-networks/{not_exist_id} (存在しないID) のテスト ---"
+    )
+    payload = {"name": "Test Patch"}
+    res = requests.patch(
+        f"{API_URL}virtual-networks/{not_exist_id}", headers=HEADERS, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"存在しない仮想ネットワークのPATCHで404以外が返されました: {res.status_code}"
+    print("存在しない仮想ネットワークのPATCHで404が返ることを確認しました。")
+
+
+def test_put_not_exist_virtual_network():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- PUT /api/virtual-networks/{not_exist_id} (存在しないID) のテスト ---")
+    payload = {
+        "name": "Test Put",
+        "cidr": "10.0.0.0/16",
+        "initialSubnets": [],
+    }
+    res = requests.put(
+        f"{API_URL}virtual-networks/{not_exist_id}", headers=HEADERS, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"存在しない仮想ネットワークのPUTで404以外が返されました: {res.status_code}"
+    print("存在しない仮想ネットワークのPUTで404が返ることを確認しました。")
+
+
+def test_delete_not_exist_virtual_network():
+    not_exist_id = str(uuid.uuid4())
+    print(
+        f"\n--- DELETE /api/virtual-networks/{not_exist_id} (存在しないID) のテスト ---"
+    )
+    res = requests.delete(f"{API_URL}virtual-networks/{not_exist_id}", headers=HEADERS)
+    assert (
+        res.status_code == 404
+    ), f"存在しない仮想ネットワークの削除で404以外が返されました: {res.status_code}"
+    print("存在しない仮想ネットワークの削除で404が返ることを確認しました。")
 
 
 if __name__ == "__main__":

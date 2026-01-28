@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import sys
+import uuid
 
 from auth_test import get_header
 
@@ -16,6 +17,9 @@ def main():
     print("ミドルウェアAPIのテストを開始します...")
     try:
         test_get_middlewares()
+
+        print("\n=== 存在しないリソースのテストを実行します ===")
+        test_get_not_exist_middleware()
     except Exception as e:
         print(f"エラーが発生しました: {e}")
 
@@ -35,6 +39,16 @@ def test_get_middlewares():
         print("取得したデータ(先頭1件):", json.dumps(middlewares[0], indent=2))
 
     return middlewares
+
+
+def test_get_not_exist_middleware():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- GET /api/middlewares/{not_exist_id} (存在しないID) のテスト ---")
+    res = requests.get(f"{API_URL}middlewares/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"存在しないミドルウェアの取得で404以外が返されました: {res.status_code}"
+    print("存在しないミドルウェアの取得で404が返ることを確認しました。")
 
 
 if __name__ == "__main__":
