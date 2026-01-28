@@ -85,7 +85,7 @@ export const getStoragePoolService = (permission: UserPermissions) => {
       }
 
       const data: StoragePoolResponse[] = repoResult.data.map((pool) => {
-        const nodeData = nodeMap.get(pool.uuid)!;
+        const nodeData = nodeMap.get(pool.nodeId)!;
         return mapStoragePoolToResponse(pool, nodeData);
       });
       return { success: true, data };
@@ -128,14 +128,17 @@ export const getStoragePoolService = (permission: UserPermissions) => {
         poolPromise,
         nodePromise,
       ]);
-      if (!result.success || !nodeResult.success) {
+      if (!nodeResult.success) {
+        if (nodeResult.error.reason === "NotFound") {
+          return { success: false, error: { reason: "BadRequest" } };
+        }
+        return { success: false, error: { reason: "InternalError" } };
+      }
+      if (!result.success) {
         return {
           success: false,
           error: { reason: "InternalError" },
         };
-      }
-      if (!nodeResult.data) {
-        return { success: false, error: { reason: "BadRequest" } };
       }
       return {
         success: true,
