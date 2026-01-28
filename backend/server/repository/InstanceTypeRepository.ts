@@ -66,7 +66,6 @@ const toResponse = (row: {
 const BYTES_PER_MB = 1024 * 1024;
 
 const bytesToMb = (bytes: number): number => {
-  console.log("bytesToMb:", bytes, bytes / BYTES_PER_MB);
   // DBはInt想定なので切り捨て（必要なら round/ceil に変更）
   return bytes / BYTES_PER_MB;
 };
