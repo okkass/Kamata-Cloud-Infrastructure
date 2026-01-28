@@ -65,9 +65,9 @@ def main():
         test_put_not_exist_virtual_network()
         test_delete_not_exist_virtual_network()
 
-    except AssertionError:
-        raise
     except Exception as e:
+        if isinstance(e, AssertionError):
+            raise
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")
 
 
@@ -78,7 +78,7 @@ def test_get_virtual_networks():
         res.status_code == 200
     ), f"仮想ネットワーク一覧の取得に失敗しました: {res.status_code}"
     networks = res.json()
-    assert isinstance(networks, list)
+    assert isinstance(networks, list), "仮想ネットワーク一覧がリストではありません"
     print("仮想ネットワーク一覧を正常に取得しました。件数:", len(networks))
     return networks
 
@@ -108,7 +108,9 @@ def test_create_virtual_network(prefix="TestNetwork"):
     ), f"仮想ネットワークの作成に失敗しました: {res.status_code}"
 
     created_network = res.json()
-    assert created_network["name"] == name
+    assert (
+        created_network["name"] == name
+    ), f"作成されたネットワーク名が一致しません: {created_network['name']}"
 
     print(f"作成された仮想ネットワークID: {created_network['id']}")
     return created_network["id"]
@@ -144,7 +146,9 @@ def test_patch_virtual_network(network_id):
         print("レスポンスにnameが含まれていないため、再取得して検証します。")
         patched_network = test_get_virtual_network(network_id)
 
-    assert patched_network["name"] == new_name
+    assert (
+        patched_network["name"] == new_name
+    ), f"パッチ更新後のネットワーク名が一致しません: {patched_network['name']}"
     print(f"パッチ更新後の名前: {patched_network['name']}")
 
     return patched_network
@@ -164,7 +168,9 @@ def test_put_virtual_network(network_id):
     ), f"仮想ネットワークの更新(PUT)に失敗しました: {res.status_code}"
 
     replaced_network = res.json()
-    assert replaced_network["name"] == new_name
+    assert (
+        replaced_network["name"] == new_name
+    ), f"更新(PUT)後のネットワーク名が一致しません: {replaced_network['name']}"
 
     print(f"更新(PUT)後の仮想ネットワーク名: {replaced_network['name']}")
     return replaced_network
@@ -211,7 +217,9 @@ def test_create_subnet(network_id):
     assert res.status_code == 201, f"サブネットの作成に失敗しました: {res.status_code}"
 
     subnet = res.json()
-    assert subnet["name"] == name
+    assert (
+        subnet["name"] == name
+    ), f"作成されたサブネット名が一致しません: {subnet['name']}"
 
     created_cidr = cidr
     assert (
@@ -263,7 +271,9 @@ def test_patch_subnet(network_id, subnet_id):
     if "name" not in subnet:
         subnet = test_get_subnet(network_id, subnet_id)
 
-    assert subnet["name"] == new_name
+    assert (
+        subnet["name"] == new_name
+    ), f"パッチ更新後のサブネット名が一致しません: {subnet['name']}"
     print(f"パッチ更新後のサブネット名: {subnet['name']}")
     return subnet
 
@@ -289,7 +299,9 @@ def test_put_subnet(network_id, subnet_id):
     ), f"サブネットの更新(PUT)に失敗しました: {res.status_code}"
 
     subnet = res.json()
-    assert subnet["name"] == new_name
+    assert (
+        subnet["name"] == new_name
+    ), f"更新(PUT)後のサブネット名が一致しません: {subnet['name']}"
 
     if "cidr" in subnet:
         assert subnet["cidr"] == new_cidr
@@ -315,7 +327,7 @@ def test_get_subnet_vms(network_id, subnet_id):
     ), f"サブネット内VM一覧の取得に失敗しました: {res.status_code}"
 
     vms = res.json()
-    assert isinstance(vms, list)
+    assert isinstance(vms, list), "サブネット内VM一覧がリストではありません"
     print(f"サブネット内VM一覧を正常に取得しました。件数: {len(vms)}")
 
 

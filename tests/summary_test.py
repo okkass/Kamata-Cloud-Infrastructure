@@ -22,10 +22,10 @@ def main():
         print("\n=== 存在しないリソースのテストを実行します ===")
         test_get_not_exist_summary()
 
-    except AssertionError:
-        # テストのアサーション失敗はスキップ扱いにせず、そのまま上位に伝播させる
-        raise
     except Exception as e:
+        # AssertioonErrorはそのまま投げる
+        if isinstance(e, AssertionError):
+            raise
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")
 
 

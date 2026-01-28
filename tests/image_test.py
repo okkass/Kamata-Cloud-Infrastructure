@@ -44,6 +44,9 @@ def main():
         test_delete_not_exist_image()
 
     except Exception as e:
+        # AssertioonErrorはそのまま投げる
+        if isinstance(e, AssertionError):
+            raise
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")
 
 
@@ -54,7 +57,7 @@ def test_get_images():
         res.status_code == 200
     ), f"イメージ一覧の取得に失敗しました: {res.status_code}"
     images = res.json()
-    assert isinstance(images, list)
+    assert isinstance(images, list), "イメージ一覧のレスポンスがリストではありません"
     print("イメージ一覧を正常に取得しました。件数:", len(images))
     return images
 
@@ -103,7 +106,9 @@ def test_create_image(node_id):
 
     assert res.status_code == 201, f"イメージの作成に失敗しました: {res.status_code}"
     image = res.json()
-    assert image["name"] == name
+    assert (
+        image["name"] == name
+    ), f"作成されたイメージ名が一致しません。期待値: {name}, 実際: {image['name']}"
     print(f"作成されたイメージID: {image['id']}")
     return image["id"]
 
@@ -132,11 +137,15 @@ def test_patch_image(image_id):
     ), f"イメージのパッチ更新に失敗しました: {res.status_code}"
 
     patched_image = res.json()
-    assert patched_image["name"] == new_name
+    assert (
+        patched_image["name"] == new_name
+    ), f"パッチ更新後のイメージ名が一致しません。期待値: {new_name}, 実際: {patched_image['name']}"
 
     # description は任意項目のため、存在する場合のみ検証
     if "description" in patched_image:
-        assert patched_image["description"] == new_desc
+        assert (
+            patched_image["description"] == new_desc
+        ), f"パッチ更新後の説明が一致しません。期待値: {new_desc}, 実際: {patched_image['description']}"
 
     print(f"パッチ更新後のイメージ名: {patched_image['name']}")
     return patched_image
@@ -156,11 +165,15 @@ def test_put_image(image_id):
     ), f"イメージの更新(PUT)に失敗しました: {res.status_code}"
 
     replaced_image = res.json()
-    assert replaced_image["name"] == new_name
+    assert (
+        replaced_image["name"] == new_name
+    ), f"更新(PUT)後のイメージ名が一致しません。期待値: {new_name}, 実際: {replaced_image['name']}"
 
     # description は任意項目のため、存在する場合のみ検証
     if "description" in replaced_image:
-        assert replaced_image["description"] == new_desc
+        assert (
+            replaced_image["description"] == new_desc
+        ), f"更新(PUT)後の説明が一致しません。期待値: {new_desc}, 実際: {replaced_image['description']}"
 
     print(f"更新(PUT)後のイメージ名: {replaced_image['name']}")
     return replaced_image

@@ -51,6 +51,9 @@ def main():
             pass
 
     except Exception as e:
+        # AssertioonErrorはそのまま投げる
+        if isinstance(e, AssertionError):
+            raise
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")
 
 
@@ -61,7 +64,9 @@ def test_get_snapshots():
         res.status_code == 200
     ), f"スナップショット一覧の取得に失敗しました: {res.status_code}"
     snapshots = res.json()
-    assert isinstance(snapshots, list)
+    assert isinstance(
+        snapshots, list
+    ), "スナップショット一覧のレスポンスがリストではありません"
     print("スナップショット一覧を正常に取得しました。件数:", len(snapshots))
     return snapshots
 
@@ -100,7 +105,9 @@ def test_create_snapshot(prefix="TestSnapshot"):
         res.status_code == 201
     ), f"スナップショットの作成に失敗しました: {res.status_code}"
     created_snapshot = res.json()
-    assert created_snapshot["name"] == name
+    assert (
+        created_snapshot["name"] == name
+    ), f"作成されたスナップショット名が一致しません。期待値: {name}, 実際: {created_snapshot['name']}"
 
     print(f"作成されたスナップショットID: {created_snapshot['id']}")
     return created_snapshot["id"]
@@ -133,7 +140,9 @@ def test_patch_snapshot(snapshot_id):
     patched_snapshot = res.json()
 
     if "description" in patched_snapshot:
-        assert patched_snapshot["description"] == new_description
+        assert (
+            patched_snapshot["description"] == new_description
+        ), f"パッチ更新後の説明が一致しません。期待値: {new_description}, 実際: {patched_snapshot['description']}"
         print(f"パッチ更新後の説明: {patched_snapshot['description']}")
     else:
         print("パッチ更新成功 (レスポンスにdescriptionフィールドなし)")
@@ -160,7 +169,9 @@ def test_put_snapshot(snapshot_id):
     ), f"スナップショットの更新(PUT)に失敗しました: {res.status_code}"
 
     replaced_snapshot = res.json()
-    assert replaced_snapshot["name"] == new_name
+    assert (
+        replaced_snapshot["name"] == new_name
+    ), f"更新(PUT)後のスナップショット名が一致しません。期待値: {new_name}, 実際: {replaced_snapshot['name']}"
 
     print(f"更新(PUT)後のスナップショット名: {replaced_snapshot['name']}")
     return replaced_snapshot

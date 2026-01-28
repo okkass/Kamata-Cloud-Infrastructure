@@ -21,6 +21,9 @@ def main():
         print("\n=== 存在しないリソースのテストを実行します ===")
         test_get_not_exist_middleware()
     except Exception as e:
+        # AssertioonErrorはそのまま投げる
+        if isinstance(e, AssertionError):
+            raise
         print(f"エラーが発生しました: {e}")
 
 
@@ -32,7 +35,9 @@ def test_get_middlewares():
     ), f"ミドルウェア一覧の取得に失敗しました: {res.status_code}"
 
     middlewares = res.json()
-    assert isinstance(middlewares, list)
+    assert isinstance(
+        middlewares, list
+    ), "ミドルウェア一覧のレスポンスがリストではありません"
     print("ミドルウェア一覧を正常に取得しました。件数:", len(middlewares))
 
     if len(middlewares) > 0:
