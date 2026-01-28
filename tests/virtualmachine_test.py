@@ -3,6 +3,7 @@ import json
 import random
 import os
 import sys
+import uuid
 
 from auth_test import get_header
 
@@ -58,6 +59,12 @@ def main():
 
         # 23. 削除 (Delete)
         test_delete_vm(vm_id)
+
+        print("\n=== 存在しないリソースのテストを実行します ===")
+        test_get_not_exist_vm()
+        test_patch_not_exist_vm()
+        test_put_not_exist_vm()
+        test_delete_not_exist_vm()
 
     except AssertionError:
         raise
@@ -237,7 +244,14 @@ def test_delete_vm(vm_id):
 
     check = requests.get(f"{API_URL}virtual-machines/{vm_id}", headers=HEADERS)
     assert check.status_code == 404, "削除後も存在しています"
-    print("削除成功")
+
+    # 2重削除のテスト
+    print(f"--- DELETE /api/virtual-machines/{vm_id} (2回目) のテスト ---")
+    res = requests.delete(f"{API_URL}virtual-machines/{vm_id}", headers=HEADERS)
+    assert (
+        res.status_code == 404
+    ), f"削除済みのリソース削除で404以外が返されました: {res.status_code}"
+    print("削除成功 (2重削除チェック完了)")
 
 
 # --- Actions ---
@@ -260,7 +274,7 @@ def test_vm_actions(vm_id):
 
 
 def test_nics(vm_id, subnet_id):
-    print(f"\n--- NIC APIテスト ---")
+    print("\n--- NIC APIテスト ---")
 
     # Create (Add)
     # Zod schema expects virtualMachineId and subnetId. Name is NOT in schema (Mock issue?), but we include vm_id.
@@ -484,6 +498,59 @@ def test_storages(vm_id, pool_id):
     )
     assert res.status_code == 204
     print("Storage削除成功")
+
+
+def test_get_not_exist_vm():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- GET /api/virtual-machines/{not_exist_id} (存在しないID) のテスト ---")
+    res = requests.get(f"{API_URL}virtual-machines/{not_exist_id}", headers=HEADERS)
+    assert (
+        res.status_code == 404
+    ), f"存在しないVMの取得で404以外が返されました: {res.status_code}"
+    print("存在しないVMの取得で404が返ることを確認しました。")
+
+
+def test_patch_not_exist_vm():
+    not_exist_id = str(uuid.uuid4())
+    print(
+        f"\n--- PATCH /api/virtual-machines/{not_exist_id} (存在しないID) のテスト ---"
+    )
+    payload = {"name": "Test Patch"}
+    res = requests.patch(
+        f"{API_URL}virtual-machines/{not_exist_id}", headers=HEADERS, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"存在しないVMのPATCHで404以外が返されました: {res.status_code}"
+    print("存在しないVMのPATCHで404が返ることを確認しました。")
+
+
+def test_put_not_exist_vm():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- PUT /api/virtual-machines/{not_exist_id} (存在しないID) のテスト ---")
+    payload = {
+        "name": "Test Put",
+        "spec": {"cpu": 1, "memory": 1024 * 1024 * 1024},
+    }
+    res = requests.put(
+        f"{API_URL}virtual-machines/{not_exist_id}", headers=HEADERS, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"存在しないVMのPUTで404以外が返されました: {res.status_code} {res.text}"
+    print("存在しないVMのPUTで404が返ることを確認しました。")
+
+
+def test_delete_not_exist_vm():
+    not_exist_id = str(uuid.uuid4())
+    print(
+        f"\n--- DELETE /api/virtual-machines/{not_exist_id} (存在しないID) のテスト ---"
+    )
+    res = requests.delete(f"{API_URL}virtual-machines/{not_exist_id}", headers=HEADERS)
+    assert (
+        res.status_code == 404
+    ), f"存在しないVMの削除で404以外が返されました: {res.status_code}"
+    print("存在しないVMの削除で404が返ることを確認しました。")
 
 
 if __name__ == "__main__":
