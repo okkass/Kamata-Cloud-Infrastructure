@@ -66,13 +66,10 @@ def main():
         test_put_not_exist_vm()
         test_delete_not_exist_vm()
 
-    except AssertionError:
-        raise
     except Exception as e:
+        if isinstance(e, AssertionError):
+            raise
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")
-        import traceback
-
-        traceback.print_exc()
     finally:
         # 後始末
         if network_id:
@@ -164,7 +161,7 @@ def test_get_vms():
     res = requests.get(f"{API_URL}virtual-machines", headers=HEADERS)
     assert res.status_code == 200, f"一覧取得失敗: {res.status_code}"
     vms = res.json()
-    assert isinstance(vms, list)
+    assert isinstance(vms, list), "VM一覧のレスポンスがリストではありません"
     print(f"VM一覧取得成功: {len(vms)}件")
 
 
@@ -193,7 +190,7 @@ def test_create_vm(node_id, image_id, subnet_id, pool_id, sg_id):
         print("エラーレスポンス:", res.text)
     assert res.status_code == 201, f"VM作成失敗: {res.status_code}"
     vm = res.json()
-    assert vm["name"] == name
+    assert vm["name"] == name, f"作成されたVM名が一致しません: {vm['name']}"
     print(f"VM作成成功: ID={vm['id']}")
     return vm["id"]
 
@@ -219,7 +216,7 @@ def test_patch_vm(vm_id):
     # If name not in response, fetch again
     if "name" not in vm:
         vm = test_get_vm(vm_id)
-    assert vm["name"] == new_name
+    assert vm["name"] == new_name, f"Patch後の名前が一致しません: {vm['name']}"
     print(f"Patch成功: {vm['name']}")
 
 
@@ -233,7 +230,7 @@ def test_put_vm(vm_id):
     )
     assert res.status_code == 200, f"Put失敗: {res.status_code}"
     vm = res.json()
-    assert vm["name"] == new_name
+    assert vm["name"] == new_name, f"Put後の名前が一致しません: {vm['name']}"
     print(f"Put成功: {vm['name']}")
 
 
@@ -295,16 +292,16 @@ def test_nics(vm_id, subnet_id):
     res = requests.get(
         f"{API_URL}virtual-machines/{vm_id}/network-interfaces", headers=HEADERS
     )
-    assert res.status_code == 200
+    assert res.status_code == 200, f"NIC一覧取得失敗: {res.status_code}"
     nics = res.json()
-    assert len(nics) >= 1
+    assert len(nics) >= 1, "NIC一覧が空です"
 
     # Get Detail
     res = requests.get(
         f"{API_URL}virtual-machines/{vm_id}/network-interfaces/{nic_id}",
         headers=HEADERS,
     )
-    assert res.status_code == 200
+    assert res.status_code == 200, f"NIC詳細取得失敗: {res.status_code}"
 
     # Patch
     new_name = f"patched_nic_{random.randint(100, 999)}"
@@ -313,7 +310,7 @@ def test_nics(vm_id, subnet_id):
         headers=HEADERS,
         json={"name": new_name},
     )
-    assert res.status_code == 200
+    assert res.status_code == 200, f"NIC Patch失敗: {res.status_code}"
 
     # Put
     put_name = f"put_nic_{random.randint(100, 999)}"
@@ -323,7 +320,7 @@ def test_nics(vm_id, subnet_id):
         headers=HEADERS,
         json={"name": put_name, "subnetId": subnet_id},
     )
-    assert res.status_code == 200
+    assert res.status_code == 200, f"NIC Put失敗: {res.status_code}"
 
     # Bulk
     print("\n--- NIC Bulkテスト ---")
@@ -347,7 +344,7 @@ def test_nics(vm_id, subnet_id):
         f"{API_URL}virtual-machines/{vm_id}/network-interfaces/{nic_id}",
         headers=HEADERS,
     )
-    assert res.status_code == 204
+    assert res.status_code == 204, f"NIC削除失敗: {res.status_code}"
 
 
 # --- Security Groups ---
@@ -399,7 +396,7 @@ def test_security_groups(vm_id):
     res = requests.get(
         f"{API_URL}virtual-machines/{vm_id}/security-groups", headers=HEADERS
     )
-    assert res.status_code == 200
+    assert res.status_code == 200, f"SG一覧取得失敗: {res.status_code}"
 
     # Bulk
     # AttachedSecurityGroupBulkRequest: { add: [{securityGroupId}], remove: [] }
@@ -413,7 +410,7 @@ def test_security_groups(vm_id):
     )
     if res.status_code != 200:
         print("SG Bulkエラー:", res.text)
-    assert res.status_code == 200
+    assert res.status_code == 200, f"SG Bulk失敗: {res.status_code}"
 
     # Delete (Detach)
     res = requests.delete(
@@ -421,7 +418,7 @@ def test_security_groups(vm_id):
     )
     if res.status_code != 204:
         print(f"SG削除(Detach)失敗: {res.status_code}")
-    assert res.status_code == 204
+    assert res.status_code == 204, f"SG削除(Detach)失敗: {res.status_code}"
     print("SG削除(Detach)成功")
 
 
@@ -490,13 +487,13 @@ def test_storages(vm_id, pool_id):
         headers=HEADERS,
         json=bulk_payload,
     )
-    assert res.status_code == 200
+    assert res.status_code == 200, f"Storage Bulk失敗: {res.status_code}"
 
     # Delete
     res = requests.delete(
         f"{API_URL}virtual-machines/{vm_id}/storages/{st_id}", headers=HEADERS
     )
-    assert res.status_code == 204
+    assert res.status_code == 204, f"Storage削除失敗: {res.status_code}"
     print("Storage削除成功")
 
 
