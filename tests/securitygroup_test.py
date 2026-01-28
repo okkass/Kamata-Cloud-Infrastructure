@@ -50,6 +50,9 @@ def main():
         test_delete_not_exist_security_group()
 
     except Exception as e:
+        # AssertioonErrorはそのまま投げる
+        if isinstance(e, AssertionError):
+            raise
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")
 
 
@@ -60,7 +63,9 @@ def test_get_security_groups():
         res.status_code == 200
     ), f"セキュリティグループ一覧の取得に失敗しました: {res.status_code}"
     groups = res.json()
-    assert isinstance(groups, list)
+    assert isinstance(
+        groups, list
+    ), "セキュリティグループ一覧のレスポンスがリストではありません"
     print("セキュリティグループ一覧を正常に取得しました。件数:", len(groups))
     return groups
 
@@ -100,11 +105,13 @@ def test_create_security_group():
         res.status_code == 201
     ), f"セキュリティグループの作成に失敗しました: {res.status_code}"
     created_group = res.json()
-    assert created_group["name"] == name
+    assert (
+        created_group["name"] == name
+    ), f"作成されたセキュリティグループ名が一致しません。期待値: {name}, 実際: {created_group['name']}"
 
     # create時には description が返ってこない場合や、rulesの構造が少し違う場合があるので
     # 最低限 ID の存在を確認する
-    assert "id" in created_group
+    assert "id" in created_group, "作成されたセキュリティグループにIDが含まれていません"
 
     print(f"作成されたセキュリティグループID: {created_group['id']}")
     return created_group["id"]
@@ -143,7 +150,9 @@ def test_patch_security_group(group_id):
         print("レスポンスにdescriptionが含まれていないため、再取得して検証します。")
         patched_group = test_get_security_group(group_id)
 
-    assert patched_group["description"] == new_description
+    assert (
+        patched_group["description"] == new_description
+    ), f"パッチ更新後の説明が一致しません。期待値: {new_description}, 実際: {patched_group['description']}"
     print(f"パッチ更新後の説明: {patched_group['description']}")
 
     return patched_group
@@ -169,7 +178,9 @@ def test_put_security_group(group_id):
     ), f"セキュリティグループの更新(PUT)に失敗しました: {res.status_code}"
 
     replaced_group = res.json()
-    assert replaced_group["name"] == new_name
+    assert (
+        replaced_group["name"] == new_name
+    ), f"更新(PUT)後のセキュリティグループ名が一致しません。期待値: {new_name}, 実際: {replaced_group['name']}"
 
     print(f"更新(PUT)後のセキュリティグループ名: {replaced_group['name']}")
     return replaced_group
@@ -197,7 +208,9 @@ def test_create_security_rule(group_id):
     ), f"セキュリティルールの作成に失敗しました: {res.status_code}"
 
     rule = res.json()
-    assert rule["port"] == 443
+    assert (
+        rule["port"] == 443
+    ), f"作成されたルールのポートが一致しません。期待値: 443, 実際: {rule['port']}"
     print(f"セキュリティルールを作成しました。ID: {rule['id']}")
     return rule["id"]
 
@@ -228,7 +241,9 @@ def test_patch_security_rule(group_id, rule_id):
     rule = res.json()
 
     assert "port" in rule, "レスポンスにportフィールドが含まれていません"
-    assert rule["port"] == 8080
+    assert (
+        rule["port"] == 8080
+    ), f"パッチ更新後のポートが一致しません。期待値: 8080, 実際: {rule['port']}"
     print("セキュリティルールをパッチ更新しました。")
 
 
@@ -253,7 +268,9 @@ def test_put_security_rule(group_id, rule_id):
     ), f"セキュリティルールのPUT更新に失敗しました: {res.status_code}"
 
     rule = res.json()
-    assert rule["action"] == "deny"
+    assert (
+        rule["action"] == "deny"
+    ), f"更新(PUT)後のアクションが一致しません。期待値: deny, 実際: {rule['action']}"
     print("セキュリティルールをPUT更新しました。")
 
 

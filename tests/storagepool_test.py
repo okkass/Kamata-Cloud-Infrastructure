@@ -41,11 +41,10 @@ def main():
         test_put_not_exist_storage_pool()
         test_delete_not_exist_storage_pool()
 
-    except AssertionError:
-        # テストのアサーション失敗はスキップ扱いにせず、そのまま上位に伝播させる
-        raise
-
     except Exception as e:
+        # AssertioonErrorはそのまま投げる
+        if isinstance(e, AssertionError):
+            raise
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")
 
 
@@ -99,7 +98,9 @@ def test_get_storage_pools():
         res.status_code == 200
     ), f"ストレージプール一覧の取得に失敗しました: {res.status_code}"
     pools = res.json()
-    assert isinstance(pools, list)
+    assert isinstance(
+        pools, list
+    ), "ストレージプール一覧のレスポンスがリストではありません"
     print("ストレージプール一覧を正常に取得しました。件数:", len(pools))
     return pools
 
@@ -131,7 +132,9 @@ def test_create_storage_pool(prefix="TestPool"):
         res.status_code == 201
     ), f"ストレージプールの作成に失敗しました: {res.status_code}"
     created_pool = res.json()
-    assert created_pool["name"] == name
+    assert (
+        created_pool["name"] == name
+    ), f"作成されたストレージプール名が一致しません。期待値: {name}, 実際: {created_pool['name']}"
 
     print(f"作成されたストレージプールID: {created_pool['id']}")
     return created_pool["id"]
@@ -174,8 +177,12 @@ def test_patch_storage_pool(pool_id):
         print("レスポンスにnameが含まれていないため、再取得して検証します。")
         patched_pool = test_get_storage_pool(pool_id)
 
-    assert patched_pool["name"] == new_name
-    assert patched_pool["hasNetworkAccess"] == new_access
+    assert (
+        patched_pool["name"] == new_name
+    ), f"パッチ更新後の名前が一致しません。期待値: {new_name}, 実際: {patched_pool['name']}"
+    assert (
+        patched_pool["hasNetworkAccess"] == new_access
+    ), f"パッチ更新後のネットワークアクセス設定が一致しません。期待値: {new_access}, 実際: {patched_pool['hasNetworkAccess']}"
 
     print(f"パッチ更新後の名前: {patched_pool['name']}")
     return patched_pool
@@ -202,8 +209,12 @@ def test_put_storage_pool(pool_id):
     ), f"ストレージプールの更新(PUT)に失敗しました: {res.status_code}"
 
     replaced_pool = res.json()
-    assert replaced_pool["name"] == new_name
-    assert replaced_pool["hasNetworkAccess"] == new_access
+    assert (
+        replaced_pool["name"] == new_name
+    ), f"更新(PUT)後のストレージプール名が一致しません。期待値: {new_name}, 実際: {replaced_pool['name']}"
+    assert (
+        replaced_pool["hasNetworkAccess"] == new_access
+    ), f"更新(PUT)後のネットワークアクセス設定が一致しません。期待値: {new_access}, 実際: {replaced_pool['hasNetworkAccess']}"
 
     print(f"更新(PUT)後のストレージプール名: {replaced_pool['name']}")
     return replaced_pool
