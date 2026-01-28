@@ -50,7 +50,7 @@ type UserService = ResourceService<
     currentPassword: string,
     newPassword: string,
   ) => Promise<
-    { success: true; data: null } | { success: false; error: ServiceError }
+    { success: true; data: void } | { success: false; error: ServiceError }
   >;
 };
 
@@ -184,7 +184,7 @@ export const getUserService = (permission: UserPermissions | null = null) => {
         };
       }
       await UserRepository.deleteById(id);
-      return { success: true, data: null };
+      return { success: true, data: undefined };
     },
     updatePassword: async (id, currentPassword, newPassword) => {
       const user = await UserRepository.getById(id);
@@ -209,7 +209,7 @@ export const getUserService = (permission: UserPermissions | null = null) => {
       }
       const newHashedPassword = await argon2.hash(newPassword);
       await UserRepository.updatePassword(id, newHashedPassword);
-      return { success: true, data: null };
+      return { success: true, data: undefined };
     },
   };
   return userService;

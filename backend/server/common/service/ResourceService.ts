@@ -7,5 +7,5 @@ export type ResourceService<TResource, TCreate, TUpdate, TError> = {
   getById(id: string): Promise<Result<TResource, TError>>;
   create(data: TCreate): Promise<Result<TResource, TError>>;
   update(id: string, data: TUpdate): Promise<Result<TResource, TError>>;
-  delete(id: string): Promise<Result<null, TError>>;
+  delete(id: string): Promise<Result<void, TError>>;
 };
