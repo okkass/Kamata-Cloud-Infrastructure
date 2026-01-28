@@ -148,7 +148,6 @@ const update = async (
   id: string,
   updateFields: InstanceTypeUpdateProps,
 ): Promise<Result<InstanceTypeRecord, RepositoryError>> => {
-  console.log("Updating InstanceType:", id, updateFields);
   try {
     const prisma = getPrismaClient();
     const updatedRow = await prisma.instanceType.update({
