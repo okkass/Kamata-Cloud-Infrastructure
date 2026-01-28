@@ -11,7 +11,7 @@ export default defineEventHandler(async (event) => {
   validateUUID(id);
 
   const service =
-    getSecurityGroupService(permission).getSecurityRuleService(id);
+    await getSecurityGroupService(permission).getSecurityRuleService(id);
 
   const body = await readBody(event);
 
@@ -19,6 +19,6 @@ export default defineEventHandler(async (event) => {
   return createResource(
     body as SecurityRuleCreateRequest,
     createSecurityGroupRuleSchema,
-    service.create
+    service.create,
   );
 });

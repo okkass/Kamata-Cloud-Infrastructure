@@ -37,7 +37,10 @@ export interface NodeRecord {
 const list = async (): Promise<Result<NodeRecord[], RepositoryError>> => {
   try {
     const prisma = getPrismaClient();
-    const nodes = await prisma.node.findMany(nodeArgs);
+    const nodes = await prisma.node.findMany({
+      ...nodeArgs,
+      orderBy: { createdAt: "desc" },
+    });
     return { success: true, data: nodes };
   } catch (error) {
     return {

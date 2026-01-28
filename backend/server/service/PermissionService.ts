@@ -1,5 +1,6 @@
 import type { UserPermissions } from "@/types";
 import UserRepository from "@/repository/UserRepository";
+import SecurityGroupRepository from "@/repository/SecurityGroupRepository";
 
 // Prismaから最新の権限情報に応じてユーザーの権限を確認するサービス
 // 対象リソースのIDを取得することで、特定のリソースに対する権限を確認できるようにする
@@ -122,8 +123,12 @@ export const getPermissionService = (): PermissionService => {
           (user.permission?.isSecurityGroupAdmin ?? false),
       );
 
-      // TODO: resourceIdからリソースを取得、所有者チェックを実装
-      const checkOwner = false;
+      const sg = await SecurityGroupRepository.getById(resourceId ?? "");
+      let checkOwner = false;
+      if (sg && sg.success && sg.data) {
+        // 所有者チェック
+        checkOwner = sg.data.owner.uuid === permissions.id;
+      }
 
       return checkAdmin || checkOwner;
     },
