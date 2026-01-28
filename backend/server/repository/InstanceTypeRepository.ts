@@ -3,6 +3,7 @@ import type { Result } from "@/common/type";
 import type { RepositoryError } from "@/common/errors";
 import { Prisma } from "@@/generated/client";
 import type { Repository } from "./common";
+import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
 const instanceTypeArgs = {
   select: {
@@ -67,7 +68,7 @@ const BYTES_PER_MB = 1024 * 1024;
 
 const bytesToMb = (bytes: number): number => {
   // DBはInt想定なので切り捨て（必要なら round/ceil に変更）
-  return bytes / BYTES_PER_MB;
+  return Math.floor(bytes / BYTES_PER_MB);
 };
 
 const mbToBytes = (mb: number): number => {
@@ -153,7 +154,6 @@ const update = async (
     const updatedRow = await prisma.instanceType.update({
       where: { uuid: id },
       data: {
-        uuid: id,
         name: updateFields.name,
         cpuCore: updateFields.cpuCore,
         // DBへはMBで保存
@@ -165,6 +165,17 @@ const update = async (
     });
     return { success: true, data: toResponse(updatedRow) };
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "The specified instance type was not found.",
+          },
+        };
+      }
+    }
     return {
       success: false,
       error: {
@@ -183,6 +194,17 @@ const deleteById = async (
     await prisma.instanceType.delete({ where: { uuid: id } });
     return { success: true, data: undefined };
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "The specified instance type was not found.",
+          },
+        };
+      }
+    }
     return {
       success: false,
       error: {
