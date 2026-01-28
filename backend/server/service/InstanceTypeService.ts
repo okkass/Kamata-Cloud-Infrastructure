@@ -11,6 +11,7 @@ import InstanceTypeRepository from "@/repository/InstanceTypeRepository";
 import type {
   InstanceTypeRecord,
   InstanceTypeInsertProps,
+  InstanceTypeUpdateProps,
 } from "@/repository/InstanceTypeRepository";
 
 const toResponse = (record: InstanceTypeRecord): InstanceTypeResponse => {
@@ -26,6 +27,16 @@ const toResponse = (record: InstanceTypeRecord): InstanceTypeResponse => {
 const toInsertProps = (
   data: InstanceTypeCreateRequest,
 ): InstanceTypeInsertProps => {
+  return {
+    name: data.name,
+    cpuCore: data.cpuCore,
+    memorySizeBytes: data.memorySize,
+  };
+};
+
+const toUpdateProps = (
+  data: InstanceTypePatchRequest | InstanceTypePutRequest,
+): InstanceTypeUpdateProps => {
   return {
     name: data.name,
     cpuCore: data.cpuCore,
@@ -84,7 +95,10 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
     },
 
     async update(id, data) {
-      const updatedInstanceType = await InstanceTypeRepository.update(id, data);
+      const updatedInstanceType = await InstanceTypeRepository.update(
+        id,
+        toUpdateProps(data),
+      );
       if (!updatedInstanceType.success) {
         return {
           success: false,

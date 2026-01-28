@@ -41,12 +41,6 @@ export interface InstanceTypeRecord {
   createdAt: string; // ISO string
 }
 
-export interface InstanceTypeUpdateProps {
-  name?: string;
-  cpuCore?: number;
-  memorySize?: number; // bytes
-}
-
 const toResponse = (row: {
   uuid: string;
   name: string;
@@ -72,8 +66,9 @@ const toResponse = (row: {
 const BYTES_PER_MB = 1024 * 1024;
 
 const bytesToMb = (bytes: number): number => {
+  console.log("bytesToMb:", bytes, bytes / BYTES_PER_MB);
   // DBはInt想定なので切り捨て（必要なら round/ceil に変更）
-  return Math.floor(bytes / BYTES_PER_MB);
+  return bytes / BYTES_PER_MB;
 };
 
 const mbToBytes = (mb: number): number => {
@@ -154,6 +149,7 @@ const update = async (
   id: string,
   updateFields: InstanceTypeUpdateProps,
 ): Promise<Result<InstanceTypeRecord, RepositoryError>> => {
+  console.log("Updating InstanceType:", id, updateFields);
   try {
     const prisma = getPrismaClient();
     const updatedRow = await prisma.instanceType.update({
