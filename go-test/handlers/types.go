@@ -140,6 +140,7 @@ type VMCreateRequest struct {
 	Networks   []NetworkConfig `json:"networks"`    // ネットワーク設定
 	SSHKey     string          `json:"ssh_key"`     // SSH公開鍵
 	AutoStart  bool            `json:"auto_start"`  // 自動起動設定
+	InstallPackages []string `json:"install_packages"`
 }
 
 // SecurityGroupAttachRequest はセキュリティグループ適用リクエストです
