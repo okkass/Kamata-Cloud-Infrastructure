@@ -123,8 +123,12 @@ export const getPermissionService = (): PermissionService => {
           (user.permission?.isSecurityGroupAdmin ?? false),
       );
 
-      // TODO: resourceIdからリソースを取得、所有者チェックを実装
-      const checkOwner = false;
+      const sg = await SecurityGroupRepository.getById(resourceId ?? "");
+      let checkOwner = false;
+      if (sg && sg.success && sg.data) {
+        // 所有者チェック
+        checkOwner = sg.data.owner.uuid === permissions.id;
+      }
 
       return checkAdmin || checkOwner;
     },

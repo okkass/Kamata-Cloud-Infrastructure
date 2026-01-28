@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
   validateUUID(id);
 
   const service =
-    getSecurityGroupService(permission).getSecurityRuleService(id);
+    await getSecurityGroupService(permission).getSecurityRuleService(id);
 
   const body = (await readBody(event)) as BulkRequest<
     SecurityRuleCreateRequest,
@@ -31,6 +31,6 @@ export default defineEventHandler(async (event) => {
     service.create,
     service.update,
     service.delete,
-    service.list
+    service.list,
   );
 });

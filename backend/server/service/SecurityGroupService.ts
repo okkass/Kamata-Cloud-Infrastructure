@@ -20,6 +20,7 @@ import {
   SecurityRuleUpdateProps,
 } from "@/repository/SecurityGroupRepository";
 import SecurityGroupRepository from "@/repository/SecurityGroupRepository";
+import { getPermissionService } from "./PermissionService";
 
 type SecurityRuleService = ResourceService<
   SecurityRuleResponse,
@@ -33,7 +34,7 @@ type SecurityGroupService = ResourceService<
   SecurityGroupPatchRequest | SecurityGroupPutRequest,
   ServiceError
 > & {
-  getSecurityRuleService: (sgId: string) => SecurityRuleService;
+  getSecurityRuleService: (sgId: string) => Promise<SecurityRuleService>;
 };
 
 const mapRuleRecordToResponse = (
@@ -118,7 +119,22 @@ export const getSecurityGroupService = (permission: UserPermissions) => {
   const SecurityGroupService: SecurityGroupService = {
     permission,
     list: async (query) => {
-      const result = await SecurityGroupRepository.list();
+      let userId: string | undefined = undefined;
+
+      // queryがallなら権限チェック
+      if (query === "all") {
+        const permissionService = getPermissionService();
+        const hasPermission =
+          await permissionService.hasSecurityGroupAdminPermission(permission);
+        if (!hasPermission) {
+          return { success: false, error: { reason: "Forbidden" } };
+        }
+      } else {
+        // 自分のセキュリティグループのみ取得
+        userId = permission.id;
+      }
+
+      const result = await SecurityGroupRepository.list(userId);
       if (!result.success) {
         return { success: false, error: { reason: "InternalError" } };
       }
@@ -151,6 +167,14 @@ export const getSecurityGroupService = (permission: UserPermissions) => {
       };
     },
     update: async (id, data) => {
+      // 権限チェック　管理者か所有者のみ更新可能
+      const permissionService = getPermissionService();
+      const hasPermission =
+        await permissionService.hasSecurityGroupAdminPermission(permission, id);
+      if (!hasPermission) {
+        return { success: false, error: { reason: "Forbidden" } };
+      }
+
       const result = await SecurityGroupRepository.update(
         id,
         mapGroupUpdateRequestToInput(data),
@@ -167,6 +191,13 @@ export const getSecurityGroupService = (permission: UserPermissions) => {
       };
     },
     delete: async (id) => {
+      // 権限チェック　管理者か所有者のみ削除可能
+      const permissionService = getPermissionService();
+      const hasPermission =
+        await permissionService.hasSecurityGroupAdminPermission(permission, id);
+      if (!hasPermission) {
+        return { success: false, error: { reason: "Forbidden" } };
+      }
       const result = await SecurityGroupRepository.deleteById(id);
       if (!result.success) {
         if (result.error.reason === "NotFound") {
@@ -176,7 +207,37 @@ export const getSecurityGroupService = (permission: UserPermissions) => {
       }
       return { success: true, data: undefined };
     },
-    getSecurityRuleService(sgId) {
+    getSecurityRuleService: async (sgId) => {
+      // 権限チェック
+      const permissionService = getPermissionService();
+      const hasPermission =
+        await permissionService.hasSecurityGroupAdminPermission(
+          permission,
+          sgId,
+        );
+
+      // 権限がない場合は、すべての操作でForbiddenを返すダミーサービスを返す
+      if (!hasPermission) {
+        return {
+          list: async () => {
+            return { success: false, error: { reason: "Forbidden" } };
+          },
+          getById: async () => {
+            return { success: false, error: { reason: "Forbidden" } };
+          },
+          create: async () => {
+            return { success: false, error: { reason: "Forbidden" } };
+          },
+          update: async () => {
+            return { success: false, error: { reason: "Forbidden" } };
+          },
+          delete: async () => {
+            return { success: false, error: { reason: "Forbidden" } };
+          },
+          permission,
+        };
+      }
+
       const SecurityRuleService: SecurityRuleService = {
         permission,
         list: async (query) => {
