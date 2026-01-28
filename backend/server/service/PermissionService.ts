@@ -1,5 +1,6 @@
 import type { UserPermissions } from "@/types";
 import UserRepository from "@/repository/UserRepository";
+import SecurityGroupRepository from "@/repository/SecurityGroupRepository";
 
 // Prismaから最新の権限情報に応じてユーザーの権限を確認するサービス
 // 対象リソースのIDを取得することで、特定のリソースに対する権限を確認できるようにする
