@@ -170,7 +170,7 @@ export const getSecurityGroupService = (permission: UserPermissions) => {
     async delete(id) {
       try {
         await SecurityGroupRepository.deleteById(id);
-        return { success: true, data: null };
+        return { success: true, data: undefined };
       } catch (error) {
         return { success: false, error: { reason: "InternalError" } };
       }
@@ -235,7 +235,7 @@ export const getSecurityGroupService = (permission: UserPermissions) => {
         async delete(id) {
           try {
             await SecurityGroupRepository.deleteRule(sgId, id);
-            return { success: true, data: null };
+            return { success: true, data: undefined };
           } catch (error) {
             return { success: false, error: { reason: "InternalError" } };
           }
