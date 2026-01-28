@@ -189,6 +189,51 @@ async function main() {
     console.log(`- ${node.name} (${node.ipAddress})`);
   });
 
+  const storagePools = [
+    {
+      name: "Storage Pool 1",
+      hasNetworkAccess: true,
+      totalSizeMb: 500 * 1024, // 500 GB
+      availableSizeMb: 500 * 1024,
+      nodeId: allNodes[0].id,
+    },
+    {
+      name: "Storage Pool 2",
+      hasNetworkAccess: false,
+      totalSizeMb: 1000 * 1024, // 1 TB
+      availableSizeMb: 1000 * 1024,
+      nodeId: allNodes[1].id,
+    },
+  ];
+
+  try {
+    const createStoragePoolPromises = storagePools.map((pool) => {
+      return prisma.storagePool.create({
+        data: {
+          name: pool.name,
+          hasNetworkAccess: pool.hasNetworkAccess,
+          totalSizeMb: pool.totalSizeMb,
+          availableSizeMb: pool.availableSizeMb,
+          node: {
+            connect: { id: pool.nodeId },
+          },
+        },
+      });
+    });
+    await Promise.all(createStoragePoolPromises);
+  } catch (error) {
+    console.error("Error creating storage pools:", error);
+  }
+
+  const allStoragePools = await prisma.storagePool.findMany();
+  console.log(`Created ${allStoragePools.length} storage pools:`);
+
+  allStoragePools.forEach((pool) => {
+    console.log(
+      `- ${pool.name} (Total Size: ${pool.totalSizeMb}MB, Available Size: ${pool.availableSizeMb}MB)`,
+    );
+  });
+
   const instanceTypes = [
     {
       name: "Tiny",

@@ -59,22 +59,6 @@ const toResponse = (row: {
   };
 };
 
-// ---------------------------------------------
-// Unit conversion
-// API: bytes
-// DB : MB (Int)
-// ---------------------------------------------
-const BYTES_PER_MB = 1024 * 1024;
-
-const bytesToMb = (bytes: number): number => {
-  // DBはInt想定なので切り捨て（必要なら round/ceil に変更）
-  return Math.floor(bytes / BYTES_PER_MB);
-};
-
-const mbToBytes = (mb: number): number => {
-  return mb * BYTES_PER_MB;
-};
-
 const list = async (): Promise<
   Result<Array<InstanceTypeRecord>, RepositoryError>
 > => {
