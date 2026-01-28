@@ -5,9 +5,9 @@ import (
 	"net/http"
 )
 
-// HandleStopNFSShare はZFSプールのNFS公開を停止し、Proxmoxのストレージ登録を削除します
+// HandleStopNFSShare はZFSプールを削除します。
 // リクエスト: StopNFSShareRequest (storage_id, pool_name)
-// 処理: Proxmox登録削除 → ZFS共有設定OFF
+// 処理: pvesm remove コマンドでストレージ登録削除
 func HandleStopNFSShare(w http.ResponseWriter, r *http.Request) {
 	if !validateHTTPMethod(w, r, http.MethodPost) {
 		return
@@ -25,19 +25,9 @@ func HandleStopNFSShare(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ステップ1: Proxmoxからストレージ登録を削除
-	// 存在チェック後に削除（冪等性担保）
-	if err := execCommand("pvesm", "list", req.StorageID); err == nil {
-		if err := execCommand("pvesm", "remove", req.StorageID); err != nil {
-			respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to remove storage: %v", err))
-			return
-		}
-	}
-
-	// ステップ2: ZFS共有設定をOFF
-	if err := execCommand("zfs", "set", "sharenfs=off", req.PoolName); err != nil {
-		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to disable NFS share: %v", err))
-		return
+	// Proxmoxストレージ登録削除
+	if err := execCommand("pvesm", "remove", req.StorageID); err != nil {
+		fmt.Printf("[WARN] Failed to remove Proxmox storage '%s': %v\n", req.StorageID, err)
 	}
 
 	respondWithSuccess(w, fmt.Sprintf("NFS share stopped for pool '%s'", req.PoolName), nil)
