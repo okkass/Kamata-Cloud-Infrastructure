@@ -29,7 +29,7 @@ type NodeService = ResourceService<
   listCandidates: () => Promise<Result<NodeCandidateResponse[], ServiceError>>;
 };
 
-const mapNodeToResponse = (
+export const mapNodeToResponse = (
   node: NodeRecord,
   pveNodeData: {
     status: "active" | "inactive";

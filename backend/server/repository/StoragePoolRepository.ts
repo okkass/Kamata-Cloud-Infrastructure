@@ -1,108 +1,221 @@
-import type {
-  StoragePoolResponse,
-  StoragePoolCreateRequest,
-  StoragePoolPatchRequest,
-  StoragePoolPutRequest,
-} from "@app/shared/types";
+import { getPrismaClient } from "./common";
+import { Prisma } from "@@/generated/client";
+import type { Result } from "@/common/type";
+import type { RepositoryError } from "@/common/errors";
+import type { Repository } from "./common";
+import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
-import crypto from "crypto";
-import NodeRepository from "./NodeRepository";
-import { generateRandomUsage } from "../api/summary/realtime.get.js";
-
-let storagePools: Array<StoragePoolResponse> = [
-  {
-    id: "6b593061-0281-4ef1-8b63-96924137b878",
-    name: "Node1-Pool1-Network",
-    node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
-    createdAt: new Date().toISOString(),
-    totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: getRandomInt(0, 500) * 1024 * 1024 * 1024,
+// Nodeの情報はUUIDから別途Serviceたたいてください
+const StoragePoolArgs = {
+  select: {
+    uuid: true,
+    name: true,
     hasNetworkAccess: true,
+    availableSizeMb: true,
+    totalSizeMb: true,
+    createdAt: true,
+    node: {
+      select: {
+        uuid: true,
+      },
+    },
   },
-  {
-    id: "dc88d67a-848c-48f4-80ab-2066231f75ed",
-    name: "Node1-Pool1-NoNetwork",
-    node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
-    createdAt: new Date().toISOString(),
-    totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: getRandomInt(0, 500) * 1024 * 1024 * 1024,
-    hasNetworkAccess: false,
-  },
-  {
-    id: "31d51cf9-ce8a-4406-9fe1-3bf4a2a1fb68",
-    name: "Node1-Pool2-Network",
-    node: NodeRepository.getById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
-    createdAt: new Date().toISOString(),
-    totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: getRandomInt(0, 1000) * 1024 * 1024 * 1024,
-    hasNetworkAccess: true,
-  },
-  {
-    id: "9e5d1831-218f-47b0-a82c-77f031862107",
-    name: "Node1-Pool2-NoNetwork",
-    node: NodeRepository.getById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
-    createdAt: new Date().toISOString(),
-    totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: getRandomInt(0, 1000) * 1024 * 1024 * 1024,
-    hasNetworkAccess: false,
-  },
-];
+} satisfies Prisma.StoragePoolFindManyArgs;
 
-const list = (): Array<StoragePoolResponse> => {
-  return storagePools;
+const StoragePoolManyArgs = {
+  ...StoragePoolArgs,
+  orderBy: {
+    createdAt: "desc",
+  },
+} satisfies Prisma.StoragePoolFindManyArgs;
+
+export type StoragePoolRecord = {
+  uuid: string;
+  name: string;
+  hasNetworkAccess: boolean;
+  totalSizeBytes: number;
+  availableSizeBytes: number;
+  createdAt: Date;
+  nodeId: string;
 };
 
-const getById = (id: string): StoragePoolResponse | undefined => {
-  return storagePools.find((pool) => pool.id === id);
+export type StoragePoolCreateProps = {
+  name: string;
+  hasNetworkAccess: boolean;
+  totalSizeBytes: number;
+  nodeId: string;
 };
 
-const add = (
-  pool: StoragePoolCreateRequest
-): StoragePoolResponse | undefined => {
-  const node = NodeRepository.getById(pool.nodeId);
-  if (!node) {
-    return undefined;
-  }
-  const uuid = crypto.randomUUID();
-  const newPool: StoragePoolResponse = {
-    id: uuid,
-    node: node,
-    name: pool.name,
-    createdAt: new Date().toISOString(),
-    totalSize: getRandomInt(100, 1000) * 1024 * 1024 * 1024, // Random size between 100 GB and 1000 GB
-    usedSize: 0,
-    hasNetworkAccess: pool.hasNetworkAccess,
+export type StoragePoolUpdateProps = {
+  name?: string;
+  hasNetworkAccess?: boolean;
+};
+
+const toRecord = (
+  data: Prisma.StoragePoolGetPayload<typeof StoragePoolArgs>,
+): StoragePoolRecord => {
+  return {
+    uuid: data.uuid,
+    name: data.name,
+    hasNetworkAccess: data.hasNetworkAccess,
+    totalSizeBytes: mbToBytes(data.totalSizeMb),
+    availableSizeBytes: mbToBytes(data.availableSizeMb),
+    createdAt: data.createdAt,
+    nodeId: data.node.uuid,
   };
-  storagePools.push(newPool);
-  return newPool;
 };
 
-const update = (
-  id: string,
-  updateFields: StoragePoolPatchRequest | StoragePoolPutRequest
-): StoragePoolResponse | undefined => {
-  let target = getById(id);
-  if (target === undefined) {
-    return undefined;
+const list = async (): Promise<
+  Result<StoragePoolRecord[], RepositoryError>
+> => {
+  try {
+    const prisma = getPrismaClient();
+    const rows = await prisma.storagePool.findMany(StoragePoolManyArgs);
+    return { success: true, data: rows.map(toRecord) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+      },
+    };
   }
-
-  target.name = updateFields.name ?? target.name;
-  target.hasNetworkAccess =
-    updateFields.hasNetworkAccess ?? target.hasNetworkAccess;
-
-  return target;
 };
 
-const deleteById = (id: string): boolean => {
-  const initialLength = storagePools.length;
-  storagePools = storagePools.filter((pool) => pool.id !== id);
-  return storagePools.length < initialLength;
+const getById = async (
+  id: string,
+): Promise<Result<StoragePoolRecord | null, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const row = await prisma.storagePool.findUnique({
+      where: { uuid: id },
+      ...StoragePoolArgs,
+    });
+    return { success: true, data: row ? toRecord(row) : null };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+      },
+    };
+  }
 };
 
-export const StoragePoolRepository = {
+const create = async (
+  input: StoragePoolCreateProps,
+): Promise<Result<StoragePoolRecord, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const res = await prisma.storagePool.create({
+      data: {
+        name: input.name,
+        hasNetworkAccess: input.hasNetworkAccess,
+        totalSizeMb: bytesToMb(input.totalSizeBytes),
+        availableSizeMb: bytesToMb(input.totalSizeBytes),
+        node: {
+          connect: { uuid: input.nodeId },
+        },
+      },
+      ...StoragePoolArgs,
+    });
+    return { success: true, data: toRecord(res) };
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "指定されたノードが存在しません。",
+          },
+        };
+      }
+    }
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+const update = async (
+  id: string,
+  updateFields: StoragePoolUpdateProps,
+): Promise<Result<StoragePoolRecord, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const result = await prisma.storagePool.update({
+      where: { uuid: id },
+      data: {
+        name: updateFields.name,
+        hasNetworkAccess: updateFields.hasNetworkAccess,
+      },
+      ...StoragePoolArgs,
+    });
+    return { success: true, data: toRecord(result) };
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "指定されたストレージプールが存在しません。",
+          },
+        };
+      }
+    }
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+const deleteById = async (
+  id: string,
+): Promise<Result<void, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    await prisma.storagePool.delete({ where: { uuid: id } });
+    return { success: true, data: undefined };
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "指定されたストレージプールが存在しません。",
+          },
+        };
+      }
+    }
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+export const StoragePoolRepository: Repository<
+  StoragePoolCreateProps,
+  StoragePoolUpdateProps,
+  StoragePoolRecord
+> = {
   list,
   getById,
-  add,
+  create,
   update,
   deleteById,
 };
