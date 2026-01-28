@@ -3,6 +3,7 @@ import json
 import random
 import os
 import sys
+import uuid
 
 from auth_test import get_header
 
@@ -41,6 +42,12 @@ def main():
 
         # 5. 削除 (Delete)
         test_delete_security_group(group_id)
+
+        print("\n=== 存在しないリソースのテストを実行します ===")
+        test_get_not_exist_security_group()
+        test_patch_not_exist_security_group()
+        test_put_not_exist_security_group()
+        test_delete_not_exist_security_group()
 
     except Exception as e:
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")
@@ -117,7 +124,6 @@ def test_get_security_group(group_id):
 
 def test_patch_security_group(group_id):
     print(f"\n--- PATCH /api/security-groups/{group_id} のテスト ---")
-    current_group = test_get_security_group(group_id)
     new_description = f"Patched desc {random.randint(100, 999)}"
 
     payload = {"description": new_description}
@@ -276,6 +282,65 @@ def test_delete_security_group(group_id):
         res_get.status_code == 404
     ), f"削除後にセキュリティグループがまだ存在しています: {res_get.status_code}"
     print("セキュリティグループが削除されたことを確認しました (404)。")
+
+    # 再度削除を試みて404が返ることを確認
+    res_del_again = requests.delete(
+        f"{API_URL}security-groups/{group_id}", headers=headers
+    )
+    assert (
+        res_del_again.status_code == 404
+    ), f"存在しないセキュリティグループの削除で404以外が返されました: {res_del_again.status_code}"
+    print("存在しないセキュリティグループの削除で404が返ることを確認しました。")
+
+
+def test_get_not_exist_security_group():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- GET /api/security-groups/{not_exist_id} (存在しないID) のテスト ---")
+    res = requests.get(f"{API_URL}security-groups/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"存在しないセキュリティグループの取得で404以外が返されました: {res.status_code}"
+    print("存在しないセキュリティグループの取得で404が返ることを確認しました。")
+
+
+def test_patch_not_exist_security_group():
+    not_exist_id = str(uuid.uuid4())
+    print(
+        f"\n--- PATCH /api/security-groups/{not_exist_id} (存在しないID) のテスト ---"
+    )
+    payload = {"description": "ShouldNotExist"}
+    res = requests.patch(
+        f"{API_URL}security-groups/{not_exist_id}", headers=headers, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"存在しないセキュリティグループのPATCHで404以外が返されました: {res.status_code}"
+    print("存在しないセキュリティグループのPATCHで404が返ることを確認しました。")
+
+
+def test_put_not_exist_security_group():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- PUT /api/security-groups/{not_exist_id} (存在しないID) のテスト ---")
+    payload = {"name": "ShouldNotExist", "description": "ShouldNotExist"}
+    res = requests.put(
+        f"{API_URL}security-groups/{not_exist_id}", headers=headers, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"存在しないセキュリティグループのPUTで404以外が返されました: {res.status_code}"
+    print("存在しないセキュリティグループのPUTで404が返ることを確認しました。")
+
+
+def test_delete_not_exist_security_group():
+    not_exist_id = str(uuid.uuid4())
+    print(
+        f"\n--- DELETE /api/security-groups/{not_exist_id} (存在しないID) のテスト ---"
+    )
+    res = requests.delete(f"{API_URL}security-groups/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"存在しないセキュリティグループの削除で404以外が返されました: {res.status_code}"
+    print("存在しないセキュリティグループの削除で404が返ることを確認しました。")
 
 
 if __name__ == "__main__":

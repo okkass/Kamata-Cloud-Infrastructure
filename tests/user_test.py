@@ -2,6 +2,7 @@ import requests
 import json
 import random
 import sys
+import uuid
 
 from auth_test import get_header
 
@@ -45,6 +46,12 @@ def main():
     test_patch_user(user_id)
     test_put_user(user_id)
     test_delete_user(user_id)
+
+    print("\n=== 存在しないリソースのテストを実行します ===")
+    test_get_not_exist_user()
+    test_patch_not_exist_user()
+    test_put_not_exist_user()
+    test_delete_not_exist_user()
 
 
 def test_get_users():
@@ -135,11 +142,78 @@ def test_put_user(user_id):
 
 
 def test_delete_user(user_id):
+    print(f"\n--- DELETE /api/users/{user_id} のテスト ---")
     res = requests.delete(f"{API_URL}users/{user_id}", headers=headers)
     assert res.status_code == 204, res.status_code
     print(f"Deleted User ID: {user_id}")
     res = requests.get(f"{API_URL}users/{user_id}", headers=headers)
     assert res.status_code == 404, res.status_code
+
+    # 2重削除のテスト
+    print(f"--- DELETE /api/users/{user_id} (2回目) のテスト ---")
+    res = requests.delete(f"{API_URL}users/{user_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"削除済みのリソース削除で404以外が返されました: {res.status_code}"
+    print("削除済みのリソース削除で404が返ることを確認しました。")
+
+
+def test_get_not_exist_user():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- GET /api/users/{not_exist_id} (存在しないID) のテスト ---")
+    res = requests.get(f"{API_URL}users/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"存在しないユーザの取得で404以外が返されました: {res.status_code}"
+    print("存在しないユーザの取得で404が返ることを確認しました。")
+
+
+def test_patch_not_exist_user():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- PATCH /api/users/{not_exist_id} (存在しないID) のテスト ---")
+    payload = {"name": "Test Patch"}
+    res = requests.patch(
+        f"{API_URL}users/{not_exist_id}", headers=headers, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"存在しないユーザのPATCHで404以外が返されました: {res.status_code}"
+    print("存在しないユーザのPATCHで404が返ることを確認しました。")
+
+
+def test_put_not_exist_user():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- PUT /api/users/{not_exist_id} (存在しないID) のテスト ---")
+    # バリデーションエラー(400)を回避するために必要なフィールドを含める
+    payload = {
+        "name": "Test Put",
+        "email": "test.put@example.com",
+        "isAdmin": False,
+        "isImageAdmin": False,
+        "isInstanceTypeAdmin": False,
+        "isVirtualMachineAdmin": False,
+        "isNetworkAdmin": False,
+        "isSecurityGroupAdmin": False,
+        "isNodeAdmin": False,
+        "maxCpuCore": None,
+        "maxMemorySize": None,
+        "maxStorageSize": None,
+    }
+    res = requests.put(f"{API_URL}users/{not_exist_id}", headers=headers, json=payload)
+    assert (
+        res.status_code == 404
+    ), f"存在しないユーザのPUTで404以外が返されました: {res.status_code}"
+    print("存在しないユーザのPUTで404が返ることを確認しました。")
+
+
+def test_delete_not_exist_user():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- DELETE /api/users/{not_exist_id} (存在しないID) のテスト ---")
+    res = requests.delete(f"{API_URL}users/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"存在しないユーザの削除で404以外が返されました: {res.status_code}"
+    print("存在しないユーザの削除で404が返ることを確認しました。")
 
 
 def get_random_name():

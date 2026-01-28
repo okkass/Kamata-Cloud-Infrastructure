@@ -3,6 +3,7 @@ import json
 import random
 import os
 import sys
+import uuid
 
 from auth_test import get_header
 
@@ -34,6 +35,11 @@ def main():
         # 5. 削除 (Delete)
         test_delete_snapshot(snapshot_id)
 
+        print("\n=== 存在しないリソースのテストを実行します ===")
+        test_get_not_exist_snapshot()
+        test_patch_not_exist_snapshot()
+        test_put_not_exist_snapshot()
+
         # 6. リストア (Restore) - 別途作成してテスト
         print("\n=== リストアテストを実行します ===")
         restore_snapshot_id = test_create_snapshot(prefix="RestoreTest")
@@ -41,7 +47,7 @@ def main():
         # リストアテストで使用したスナップショットを削除
         try:
             test_delete_snapshot(restore_snapshot_id)
-        except:
+        except Exception:
             pass
 
     except Exception as e:
@@ -186,6 +192,51 @@ def test_delete_snapshot(snapshot_id):
         res_get.status_code == 404
     ), f"削除後にスナップショットがまだ存在しています: {res_get.status_code}"
     print("スナップショットが削除されたことを確認しました (404)。")
+
+    # 再度削除を試みて404が返ることを確認
+    res_del_again = requests.delete(
+        f"{API_URL}snapshots/{snapshot_id}", headers=headers
+    )
+    assert (
+        res_del_again.status_code == 404
+    ), f"存在しないスナップショットの削除で404以外が返されました: {res_del_again.status_code}"
+    print("存在しないスナップショットの削除で404が返ることを確認しました。")
+
+
+def test_get_not_exist_snapshot():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- GET /api/snapshots/{not_exist_id} (存在しないID) のテスト ---")
+    res = requests.get(f"{API_URL}snapshots/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"存在しないスナップショットの取得で404以外が返されました: {res.status_code}"
+    print("存在しないスナップショットの取得で404が返ることを確認しました。")
+
+
+def test_patch_not_exist_snapshot():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- PATCH /api/snapshots/{not_exist_id} (存在しないID) のテスト ---")
+    payload = {"description": "ShouldNotExist"}
+    res = requests.patch(
+        f"{API_URL}snapshots/{not_exist_id}", headers=headers, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"存在しないスナップショットのPATCHで404以外が返されました: {res.status_code}"
+    print("存在しないスナップショットのPATCHで404が返ることを確認しました。")
+
+
+def test_put_not_exist_snapshot():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- PUT /api/snapshots/{not_exist_id} (存在しないID) のテスト ---")
+    payload = {"name": "ShouldNotExist", "description": "ShouldNotExist"}
+    res = requests.put(
+        f"{API_URL}snapshots/{not_exist_id}", headers=headers, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"存在しないスナップショットのPUTで404以外が返されました: {res.status_code}"
+    print("存在しないスナップショットのPUTで404が返ることを確認しました。")
 
 
 if __name__ == "__main__":
