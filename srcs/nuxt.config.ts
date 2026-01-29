@@ -29,6 +29,7 @@ export default defineNuxtConfig({
     public: {
       apiBaseUrl: "",
       backendUrl: "",
+      mock: "false",
     },
   },
 });
