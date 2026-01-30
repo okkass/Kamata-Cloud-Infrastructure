@@ -51,8 +51,6 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
     InstanceTypePatchRequest | InstanceTypePutRequest,
     ServiceError
   > = {
-    permission,
-
     async list(query) {
       const instanceTypes = await InstanceTypeRepository.list();
       if (!instanceTypes.success) {

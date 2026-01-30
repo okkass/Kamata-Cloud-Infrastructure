@@ -12,7 +12,6 @@ export const getMiddlewareService = (permission: UserPermissions) => {
     never,
     ServiceError
   > = {
-    permission,
     list(query?: string): Result<MiddlewareResponse[], ServiceError> {
       const middlewares = MiddlewareRepository.list();
       return { success: true, data: middlewares };

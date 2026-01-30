@@ -63,7 +63,6 @@ type StoragePoolService = ResourceService<
 
 export const getStoragePoolService = (permission: UserPermissions) => {
   const storagePoolService: StoragePoolService = {
-    permission,
     nodeService: getNodeService(permission),
     list: async (query) => {
       const repoPromise = StoragePoolRepository.list();
