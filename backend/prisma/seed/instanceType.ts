@@ -1,4 +1,4 @@
-import { getPrismaClient } from "./seed";
+import { getPrismaClient } from "./seed.js";
 
 export const createInitialInstanceTypes = async () => {
   const prisma = getPrismaClient();

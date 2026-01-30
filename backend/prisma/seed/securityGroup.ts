@@ -1,4 +1,4 @@
-import { getPrismaClient } from "./seed";
+import { getPrismaClient } from "./seed.js";
 import { Prisma } from "@@/generated/client";
 
 export const createInitialSGs = async (users: Prisma.UserGetPayload<{}>[]) => {

@@ -1,5 +1,5 @@
 // ユーザデータ初期投入ファイル
-import { getPrismaClient } from "./seed";
+import { getPrismaClient } from "./seed.js";
 import * as argon2 from "argon2";
 
 export const createInitialUsers = async () => {

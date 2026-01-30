@@ -1,16 +1,16 @@
 import { PrismaClient } from "@@/generated/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import { createInitialUsers, deleteAllUsers } from "./user";
-import { createInitialNodes, deleteAllNodes } from "./node";
+import { createInitialUsers, deleteAllUsers } from "./user.js";
+import { createInitialNodes, deleteAllNodes } from "./node.js";
 import {
   createInitialStoragePools,
   deleteAllStoragePools,
-} from "./storagePool";
+} from "./storagePool.js";
 import {
   createInitialInstanceTypes,
   deleteAllInstanceTypes,
-} from "./instanceType";
-import { createInitialSGs, deleteAllSGs } from "./securityGroup";
+} from "./instanceType.js";
+import { createInitialSGs, deleteAllSGs } from "./securityGroup.js";
 
 let prisma: PrismaClient | null = null;
 
