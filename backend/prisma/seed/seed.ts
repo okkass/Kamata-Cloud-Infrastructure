@@ -102,7 +102,7 @@ async function main() {
 main()
   .catch(async (e) => {
     console.error(e);
-    await disconnectPrismaClient;
+    await disconnectPrismaClient();
     process.exit(1);
   })
   .finally(async () => {
