@@ -7,7 +7,8 @@
 <script setup lang="ts">
 import SummaryAdmin from "@/components/Summary/Admin.vue";
 import SummaryUser from "@/components/Summary/User.vue";
-const { isAdmin } = useUserPermission();
+const { isAdmin, fetchUser } = useUserPermission();
+await fetchUser();
 const summaryComponent = computed(() => {
   return isAdmin.value ? SummaryAdmin : SummaryUser;
 });
