@@ -16,7 +16,6 @@ import {
   NodeUpdateProps,
   NodeRecord,
 } from "@/repository/NodeRepository";
-import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
 type NodeService = ResourceService<
   NodeResponse,
@@ -25,19 +24,19 @@ type NodeService = ResourceService<
   ServiceError
 > & {
   listNewDevices: (
-    nodeId: string
+    nodeId: string,
   ) => Promise<Result<DeviceResponse[], ServiceError>>;
   listCandidates: () => Promise<Result<NodeCandidateResponse[], ServiceError>>;
 };
 
-const mapNodeToResponse = (
+export const mapNodeToResponse = (
   node: NodeRecord,
   pveNodeData: {
     status: "active" | "inactive";
     cpuUtilization: number;
     memoryUtilization: number;
     storageUtilization: number;
-  }
+  },
 ): NodeResponse => {
   return {
     id: node.uuid,
@@ -56,44 +55,50 @@ export const getNodeService = (permission: UserPermissions) => {
   const nodeService: NodeService = {
     permission,
     async list(query) {
-      try {
-        const nodes = await NodeRepository.list();
-        const results = nodes.map((node) => {
-          const pveNodeData = {
-            status: "active" as const,
+      const repositoryResult = await NodeRepository.list();
+      if (!repositoryResult.success) {
+        return {
+          success: false,
+          error: { reason: "InternalError" },
+        };
+      }
+
+      const nodes = repositoryResult.data;
+      return {
+        success: true,
+        data: nodes.map((node) => {
+          return mapNodeToResponse(node, {
+            status: "active",
             cpuUtilization: 0.8,
             memoryUtilization: 0.6,
             storageUtilization: 0.7,
-          };
-          return mapNodeToResponse(node, pveNodeData);
-        });
-        return { success: true, data: results };
-      } catch (error) {
-        console.error("Error listing nodes:", error);
-        return { success: false, error: { reason: "InternalError" } };
-      }
+          });
+        }),
+      };
     },
     async getById(id) {
-      try {
-        const node = await NodeRepository.getById(id);
-        if (!node) {
-          return {
-            success: false,
-            error: { reason: "NotFound" },
-          };
-        }
-        const pveNodeData = {
-          status: "active" as const,
-          cpuUtilization: 0.8,
-          memoryUtilization: 0.6,
-          storageUtilization: 0.7,
+      const repositoryResult = await NodeRepository.getById(id);
+      if (!repositoryResult.success) {
+        return {
+          success: false,
+          error: { reason: "InternalError" },
         };
-        const result = mapNodeToResponse(node, pveNodeData);
-        return { success: true, data: result };
-      } catch (error) {
-        console.error("Error getting node:", error);
-        return { success: false, error: { reason: "InternalError" } };
       }
+      const node = repositoryResult.data;
+      if (!node) {
+        return {
+          success: false,
+          error: { reason: "NotFound" },
+        };
+      }
+      const pveNodeData = {
+        status: "active" as const,
+        cpuUtilization: 0.8,
+        memoryUtilization: 0.6,
+        storageUtilization: 0.7,
+      };
+      const result = mapNodeToResponse(node, pveNodeData);
+      return { success: true, data: result };
     },
     async create(data) {
       const req: NodeInsertProps = {
@@ -102,54 +107,66 @@ export const getNodeService = (permission: UserPermissions) => {
         isAdmin: data.isAdmin ?? false,
       };
 
-      try {
-        const newNode = await NodeRepository.create(req);
-        const pveNodeData = {
-          status: "active" as const,
-          cpuUtilization: 0.8,
-          memoryUtilization: 0.6,
-          storageUtilization: 0.7,
+      const res = await NodeRepository.create(req);
+      if (!res.success) {
+        return {
+          success: false,
+          error: { reason: "InternalError" },
         };
-        const result = mapNodeToResponse(newNode, pveNodeData);
-        return { success: true, data: result };
-      } catch (error) {
-        console.error("Error creating node:", error);
-        return { success: false, error: { reason: "InternalError" } };
       }
+      const node = res.data;
+      const pveNodeData = {
+        status: "active" as const,
+        cpuUtilization: 0.8,
+        memoryUtilization: 0.6,
+        storageUtilization: 0.7,
+      };
+      const result = mapNodeToResponse(node, pveNodeData);
+      return { success: true, data: result };
     },
     async update(id, data) {
       const req: NodeUpdateProps = {
         name: data.name,
         isAdmin: data.isAdmin,
       };
-      try {
-        const res = await NodeRepository.update(id, req);
-        const pveNodeData = {
-          status: "active" as const,
-          cpuUtilization: 0.8,
-          memoryUtilization: 0.6,
-          storageUtilization: 0.7,
+      const res = await NodeRepository.update(id, req);
+      if (!res.success) {
+        if (res.error.reason === "NotFound") {
+          return {
+            success: false,
+            error: { reason: "NotFound" },
+          };
+        }
+        return {
+          success: false,
+          error: { reason: "InternalError" },
         };
-        const result = mapNodeToResponse(res, pveNodeData);
-        return { success: true, data: result };
-      } catch (error) {
-        console.error("Error updating node:", error);
-        return { success: false, error: { reason: "InternalError" } };
       }
+      const node = res.data;
+      const pveNodeData = {
+        status: "active" as const,
+        cpuUtilization: 0.8,
+        memoryUtilization: 0.6,
+        storageUtilization: 0.7,
+      };
+      const result = mapNodeToResponse(node, pveNodeData);
+      return { success: true, data: result };
     },
     async delete(id) {
-      try {
-        await NodeRepository.deleteById(id);
-
-        return { success: true, data: null };
-      } catch (error) {
-        // P2025を捕捉してNotFoundを返すようにする
-        if (error instanceof PrismaClientKnownRequestError && error.code === "P2025") {
-          return { success: false, error: { reason: "NotFound" } };
+      const res = await NodeRepository.deleteById(id);
+      if (!res.success) {
+        if (res.error.reason === "NotFound") {
+          return {
+            success: false,
+            error: { reason: "NotFound" },
+          };
         }
-        console.error("Error deleting node:", error);
-        return { success: false, error: { reason: "InternalError" } };
+        return {
+          success: false,
+          error: { reason: "InternalError" },
+        };
       }
+      return { success: true, data: undefined };
     },
     async listNewDevices(nodeId) {
       return { success: false, error: { reason: "NotImplemented" } };

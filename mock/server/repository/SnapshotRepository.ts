@@ -18,9 +18,14 @@ const initSnapshots = (): Array<SnapshotResponse> => {
       name: "VM-01-snapshot",
       description: "First snapshot",
       createdAt: new Date().toISOString(),
-      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
+      owner: (() => {
+        const user = UserRepository.getById(
+          "5ab9e787-ad30-4f12-9ee4-f00c0491ee5d",
+        )!;
+        return { id: user.id, name: user.name };
+      })(),
       targetVirtualMachine: VirtualMachineRepository.getById(
-        "fd8467e4-f334-4827-bf69-79d6434a176e"
+        "fd8467e4-f334-4827-bf69-79d6434a176e",
       )!,
     },
     {
@@ -28,9 +33,14 @@ const initSnapshots = (): Array<SnapshotResponse> => {
       name: "VM-01-snapshot-2",
       description: "First snapshot",
       createdAt: new Date().toISOString(),
-      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
+      owner: (() => {
+        const user = UserRepository.getById(
+          "5ab9e787-ad30-4f12-9ee4-f00c0491ee5d",
+        )!;
+        return { id: user.id, name: user.name };
+      })(),
       targetVirtualMachine: VirtualMachineRepository.getById(
-        "fd8467e4-f334-4827-bf69-79d6434a176e"
+        "fd8467e4-f334-4827-bf69-79d6434a176e",
       )!,
     },
     {
@@ -38,9 +48,14 @@ const initSnapshots = (): Array<SnapshotResponse> => {
       name: "VM-02-snapshot",
       description: "First snapshot",
       createdAt: new Date().toISOString(),
-      owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
+      owner: (() => {
+        const user = UserRepository.getById(
+          "5ab9e787-ad30-4f12-9ee4-f00c0491ee5d",
+        )!;
+        return { id: user.id, name: user.name };
+      })(),
       targetVirtualMachine: VirtualMachineRepository.getById(
-        "fa7a4b5f-bd6a-42da-a1de-e12d26459377"
+        "fa7a4b5f-bd6a-42da-a1de-e12d26459377",
       )!,
     },
   ];
@@ -58,7 +73,7 @@ const getById = (id: string): SnapshotResponse | undefined => {
 };
 
 const create = (
-  request: SnapshotCreateRequest
+  request: SnapshotCreateRequest,
 ): SnapshotResponse | undefined => {
   const vm = VirtualMachineRepository.getById(request.targetVmId);
   if (!vm) {
@@ -69,7 +84,12 @@ const create = (
     name: request.name,
     description: request.description,
     createdAt: new Date().toISOString(),
-    owner: UserRepository.getById("5ab9e787-ad30-4f12-9ee4-f00c0491ee5d")!,
+    owner: (() => {
+      const user = UserRepository.getById(
+        "5ab9e787-ad30-4f12-9ee4-f00c0491ee5d",
+      )!;
+      return { id: user.id, name: user.name };
+    })(),
     targetVirtualMachine: vm,
   };
   list().push(newSnapshot);
@@ -78,7 +98,7 @@ const create = (
 
 const update = (
   id: string,
-  updateFields: SnapshotPatchRequest | SnapshotPutRequest
+  updateFields: SnapshotPatchRequest | SnapshotPutRequest,
 ): SnapshotResponse | undefined => {
   let target = getById(id);
   if (target === undefined) {
@@ -104,7 +124,7 @@ const restore = (id: string): boolean => {
   // ほんとはここで失敗したら別の例外を投げたり
   // Mock implementation: In a real scenario, this would involve more complex logic.
   console.log(
-    `Restoring virtual machine ${snapshot.targetVirtualMachine.id} from snapshot ${id}`
+    `Restoring virtual machine ${snapshot.targetVirtualMachine.id} from snapshot ${id}`,
   );
   return true;
 };

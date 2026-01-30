@@ -1,208 +1,483 @@
-import type {
-  SecurityGroupResponse,
-  SecurityRuleResponse,
-  SecurityGroupCreateRequest,
-  SecurityGroupPutRequest,
-  SecurityGroupPatchRequest,
-  SecurityRuleCreateRequest,
-  SecurityRulePutRequest,
-  SecurityRulePatchRequest,
-} from "@app/shared/types";
-import crypto from "crypto";
+import { getPrismaClient } from "./common";
+import { Prisma } from "@@/generated/client";
+import type { Result } from "@/common/type";
+import type { RepositoryError } from "@/common/errors";
+import type { Repository } from "./common";
+import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
-let securityGroups: Array<SecurityGroupResponse> = [
-  {
-    id: "81c210f6-8f8a-4554-9dd4-c58986827357",
-    name: "Web-SG",
-    description: "Security group for web servers",
-    createdAt: new Date().toISOString(),
-    rules: [
-      {
-        id: "52f69034-1b7f-4bfc-a30e-0bd0284f7d0d",
-        name: "allow-http",
-        ruleType: "inbound",
-        port: 80,
-        protocol: "tcp",
-        targetIp: "0.0.0.0/0",
-        action: "allow",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: "ae5257aa-625b-415d-b042-424fd0403f4a",
-        name: "allow-https",
-        ruleType: "inbound",
-        port: 443,
-        protocol: "tcp",
-        targetIp: "0.0.0.0/0",
-        action: "allow",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: "aad48b6d-9940-416d-a06d-c470bccd83f5",
-        name: "allow-outbound",
-        ruleType: "outbound",
-        port: null,
-        protocol: "any",
-        targetIp: "0.0.0.0/0",
-        action: "allow",
-        createdAt: new Date().toISOString(),
-      },
-    ],
-  },
-  {
-    id: "34f76cdb-3c33-4f7c-a27e-ef548e4f1d8c",
-    name: "Wireguard-SG",
-    description: "Security group for wireguard servers",
-    createdAt: new Date().toISOString(),
-    rules: [
-      {
-        id: "71d1b46e-f673-4b8e-a246-460c175fef70",
-        name: "allow-wireguard",
-        ruleType: "inbound",
-        port: 51820,
-        protocol: "udp",
-        targetIp: "0.0.0.0/0",
-        action: "allow",
-        createdAt: new Date().toISOString(),
-      },
-      {
-        id: "bbf19d46-143e-4ebe-bb93-6e805860e40d",
-        name: "allow-outbound",
-        ruleType: "outbound",
-        port: null,
-        protocol: "any",
-        targetIp: "0.0.0.0/0",
-        action: "allow",
-        createdAt: new Date().toISOString(),
-      },
-    ],
-  },
-];
+// DB上での全ポート(=APIで言うnull)を表す定数
+const PORT_ALL = 65536;
 
-const list = (): Array<SecurityGroupResponse> => {
-  return securityGroups;
+const securityRuleArgs = {
+  select: {
+    uuid: true,
+    name: true,
+    roleType: true,
+    port: true,
+    protocol: true,
+    targetIp: true,
+    action: true,
+    createdAt: true,
+  },
+} satisfies Prisma.SecurityRuleFindManyArgs;
+
+const securityGroupArgs = {
+  select: {
+    uuid: true,
+    name: true,
+    description: true,
+    createdAt: true,
+    rules: securityRuleArgs,
+    user: {
+      select: {
+        uuid: true,
+        name: true,
+      },
+    },
+  },
+} satisfies Prisma.SecurityGroupFindManyArgs;
+
+export type SecurityRuleRecord = {
+  uuid: string;
+  name: string;
+  ruleType: "inbound" | "outbound";
+  port: number | null;
+  protocol: "tcp" | "udp" | "icmp" | "any";
+  targetIp: string;
+  action: "allow" | "deny";
+  createdAt: Date;
 };
 
-const getById = (id: string): SecurityGroupResponse | undefined => {
-  return securityGroups.find((sg) => sg.id === id);
-};
-
-const create = (
-  securityGroupData: SecurityGroupCreateRequest
-): SecurityGroupResponse => {
-  const newSecurityGroup: SecurityGroupResponse = {
-    id: crypto.randomUUID(),
-    name: securityGroupData.name,
-    description: securityGroupData.description,
-    createdAt: new Date().toISOString(),
-    rules: securityGroupData.rules.map((rule) => ({
-      id: crypto.randomUUID(),
-      name: rule.name,
-      ruleType: rule.ruleType,
-      port: rule.port ?? null,
-      protocol: rule.protocol,
-      targetIp: rule.targetIp,
-      action: rule.action ?? "allow",
-      createdAt: new Date().toISOString(),
-    })),
+export type SecurityGroupRecord = {
+  uuid: string;
+  name: string;
+  description?: string;
+  createdAt: Date;
+  owner: {
+    uuid: string;
+    name: string;
   };
-  securityGroups.push(newSecurityGroup);
-  return newSecurityGroup;
+  rules: Array<SecurityRuleRecord>;
 };
 
-const update = (
+export type SecurityRuleCreateProps = {
+  name: string;
+  ruleType: "inbound" | "outbound";
+  port: number | null;
+  protocol: "tcp" | "udp" | "icmp" | "any";
+  targetIp: string;
+  action: "allow" | "deny";
+};
+
+export type SecurityGroupCreateProps = {
+  userId: string;
+  name: string;
+  description?: string;
+  rules: Array<SecurityRuleCreateProps>;
+};
+
+export type SecurityGroupUpdateProps = {
+  name?: string;
+  description?: string;
+};
+
+export type SecurityRuleUpdateProps = {
+  name?: string;
+  ruleType?: "inbound" | "outbound";
+  port?: number | null;
+  protocol?: "tcp" | "udp" | "icmp" | "any";
+  targetIp?: string;
+  action?: "allow" | "deny";
+};
+
+const toResponseRule = (
+  row: Prisma.SecurityRuleGetPayload<typeof securityRuleArgs>,
+): SecurityRuleRecord => {
+  return {
+    uuid: row.uuid,
+    name: row.name,
+    ruleType: row.roleType,
+    port: row.port === PORT_ALL ? null : row.port,
+    protocol: row.protocol,
+    targetIp: row.targetIp,
+    action: row.action,
+    createdAt: row.createdAt,
+  };
+};
+
+const toResponseGroup = (
+  row: Prisma.SecurityGroupGetPayload<typeof securityGroupArgs>,
+): SecurityGroupRecord => {
+  return {
+    uuid: row.uuid,
+    name: row.name,
+    description: row.description ?? undefined,
+    createdAt: row.createdAt,
+    owner: {
+      uuid: row.user.uuid,
+      name: row.user.name,
+    },
+    rules: row.rules.map(toResponseRule),
+  };
+};
+
+// 一覧を取得　ユーザIDでフィルタリング可能
+const list = async (
+  userUuid?: string,
+): Promise<Result<Array<SecurityGroupRecord>, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const whereClause = userUuid ? { user: { uuid: userUuid } } : {};
+    const groups = await prisma.securityGroup.findMany({
+      where: whereClause,
+      ...securityGroupArgs,
+      orderBy: { createdAt: "desc" },
+    });
+    return { success: true, data: groups.map(toResponseGroup) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+const getById = async (
   id: string,
-  updateFields: SecurityGroupPutRequest | SecurityGroupPatchRequest
-): SecurityGroupResponse | undefined => {
-  let target = getById(id);
-  if (target === undefined) {
-    return undefined;
+): Promise<Result<SecurityGroupRecord | null, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const group = await prisma.securityGroup.findUnique({
+      where: { uuid: id },
+      ...securityGroupArgs,
+    });
+    return {
+      success: true,
+      data: group ? toResponseGroup(group) : null,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
   }
-
-  target.name = updateFields.name ?? target.name;
-  target.description = updateFields.description ?? target.description;
-
-  return target;
 };
 
-const deleteById = (id: string): boolean => {
-  const initialLength = securityGroups.length;
-  securityGroups = securityGroups.filter((sg) => sg.id !== id);
-  return securityGroups.length < initialLength;
-};
-
-const listRules = (
-  securityGroupId: string
-): Array<SecurityRuleResponse> | undefined => {
-  const securityGroup = getById(securityGroupId);
-  return securityGroup?.rules;
-};
-
-const getRuleById = (
-  sgId: string,
-  ruleId: string
-): SecurityRuleResponse | undefined => {
-  const securityGroup = getById(sgId);
-  return securityGroup?.rules.find((rule) => rule.id === ruleId);
-};
-
-const createRule = (
-  sgId: string,
-  ruleData: SecurityRuleCreateRequest
-): SecurityRuleResponse | undefined => {
-  const securityGroup = getById(sgId);
-  if (!securityGroup) {
-    return undefined;
+const create = async (
+  data: SecurityGroupCreateProps,
+): Promise<Result<SecurityGroupRecord, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const newGroup = await prisma.securityGroup.create({
+      data: {
+        name: data.name,
+        description: data.description,
+        user: {
+          connect: { uuid: data.userId },
+        },
+        rules: {
+          create: data.rules.map((rule) => ({
+            name: rule.name,
+            roleType: rule.ruleType,
+            port: rule.port === null ? PORT_ALL : rule.port,
+            protocol: rule.protocol,
+            targetIp: rule.targetIp,
+            action: rule.action,
+          })),
+        },
+      },
+      ...securityGroupArgs,
+    });
+    return { success: true, data: toResponseGroup(newGroup) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
   }
-
-  const newRule: SecurityRuleResponse = {
-    id: crypto.randomUUID(),
-    name: ruleData.name,
-    ruleType: ruleData.ruleType,
-    port: ruleData.port ?? null,
-    protocol: ruleData.protocol,
-    targetIp: ruleData.targetIp,
-    action: ruleData.action,
-    createdAt: new Date().toISOString(),
-  };
-
-  securityGroup.rules.push(newRule);
-  return newRule;
 };
 
-const updateRule = (
+const update = async (
+  id: string,
+  updateFields: SecurityGroupUpdateProps,
+): Promise<Result<SecurityGroupRecord, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const data = await prisma.securityGroup.update({
+      where: { uuid: id },
+      data: {
+        name: updateFields.name,
+        description: updateFields.description,
+      },
+      ...securityGroupArgs,
+    });
+    return { success: true, data: toResponseGroup(data) };
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      // P2025(レコードが見つからない)エラーを処理
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "The specified security group was not found.",
+          },
+        };
+      }
+    }
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+const deleteById = async (
+  id: string,
+): Promise<Result<void, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    await prisma.securityGroup.delete({ where: { uuid: id } });
+    return { success: true, data: undefined };
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      // P2025(レコードが見つからない)エラーを処理
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "The specified security group was not found.",
+          },
+        };
+      }
+    }
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+const listRules = async (
+  securityGroupId: string,
+): Promise<Result<Array<SecurityRuleRecord>, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const data = await prisma.securityRule.findMany({
+      where: { securityGroup: { uuid: securityGroupId } },
+      ...securityRuleArgs,
+    });
+    return { success: true, data: data.map(toResponseRule) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+const getRuleById = async (
   sgId: string,
   ruleId: string,
-  updateFields: SecurityRulePutRequest | SecurityRulePatchRequest
-): SecurityRuleResponse | undefined => {
-  const rule = getRuleById(sgId, ruleId);
-  if (!rule) {
-    return undefined;
+): Promise<Result<SecurityRuleRecord | null, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+
+    const sg = await prisma.securityGroup.findUnique({
+      where: { uuid: sgId },
+      select: { id: true },
+    });
+    if (!sg) {
+      return {
+        success: false,
+        error: {
+          reason: "NotFound",
+          message: "The specified security group was not found.",
+        },
+      };
+    }
+
+    const data = await prisma.securityRule.findUnique({
+      where: {
+        uuid: ruleId,
+        securityGroupId: sg.id,
+      },
+      ...securityRuleArgs,
+    });
+    return { success: true, data: data ? toResponseRule(data) : null };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
   }
-
-  rule.name = updateFields.name ?? rule.name;
-  rule.ruleType = updateFields.ruleType ?? rule.ruleType;
-  rule.port = updateFields.port ?? rule.port;
-  rule.protocol = updateFields.protocol ?? rule.protocol;
-  rule.targetIp = updateFields.targetIp ?? rule.targetIp;
-  rule.action = updateFields.action ?? rule.action;
-
-  return rule;
 };
-const deleteRule = (sgId: string, ruleId: string): boolean => {
-  const securityGroup = getById(sgId);
-  if (!securityGroup) {
-    return false;
+
+const createRule = async (
+  sgId: string,
+  ruleData: SecurityRuleCreateProps,
+): Promise<Result<SecurityRuleRecord, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const data = await prisma.securityRule.create({
+      data: {
+        name: ruleData.name,
+        roleType: ruleData.ruleType,
+        port: ruleData.port === null ? PORT_ALL : ruleData.port,
+        protocol: ruleData.protocol,
+        targetIp: ruleData.targetIp,
+        action: ruleData.action,
+        securityGroup: {
+          connect: { uuid: sgId },
+        },
+      },
+      ...securityRuleArgs,
+    });
+    return { success: true, data: toResponseRule(data) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
   }
-
-  const initialLength = securityGroup.rules.length;
-  securityGroup.rules = securityGroup.rules.filter(
-    (rule) => rule.id !== ruleId
-  );
-  return securityGroup.rules.length < initialLength;
 };
 
-export const SecurityGroupRepository = {
+const updateRule = async (
+  sgId: string,
+  ruleId: string,
+  updateFields: SecurityRuleUpdateProps,
+): Promise<Result<SecurityRuleRecord, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const sg = await prisma.securityGroup.findUnique({
+      where: { uuid: sgId },
+      select: { id: true },
+    });
+    if (!sg) {
+      return {
+        success: false,
+        error: {
+          reason: "NotFound",
+          message: "The specified security group was not found.",
+        },
+      };
+    }
+    const data = await prisma.securityRule.update({
+      where: {
+        uuid: ruleId,
+        securityGroupId: sg.id,
+      },
+      data: {
+        name: updateFields.name,
+        roleType: updateFields.ruleType,
+        port: updateFields.port === null ? PORT_ALL : updateFields.port,
+        protocol: updateFields.protocol,
+        targetIp: updateFields.targetIp,
+        action: updateFields.action,
+      },
+    });
+    return { success: true, data: toResponseRule(data) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+const deleteRule = async (
+  sgId: string,
+  ruleId: string,
+): Promise<Result<void, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const sg = await prisma.securityGroup.findUnique({
+      where: { uuid: sgId },
+      select: { id: true },
+    });
+    if (!sg) {
+      return {
+        success: false,
+        error: {
+          reason: "NotFound",
+          message: "The specified security group was not found.",
+        },
+      };
+    }
+    await prisma.securityRule.delete({
+      where: {
+        uuid: ruleId,
+        securityGroupId: sg.id,
+      },
+    });
+    return { success: true, data: undefined };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+type SecurityGroupRepositoryType = Repository<
+  SecurityGroupCreateProps,
+  SecurityGroupUpdateProps,
+  SecurityGroupRecord
+> & {
+  listRules: (
+    securityGroupId: string,
+  ) => Promise<Result<Array<SecurityRuleRecord>, RepositoryError>>;
+  getRuleById: (
+    sgId: string,
+    ruleId: string,
+  ) => Promise<Result<SecurityRuleRecord | null, RepositoryError>>;
+  createRule: (
+    sgId: string,
+    ruleData: SecurityRuleCreateProps,
+  ) => Promise<Result<SecurityRuleRecord, RepositoryError>>;
+  updateRule: (
+    sgId: string,
+    ruleId: string,
+    updateFields: SecurityRuleUpdateProps,
+  ) => Promise<Result<SecurityRuleRecord, RepositoryError>>;
+  deleteRule: (
+    sgId: string,
+    ruleId: string,
+  ) => Promise<Result<void, RepositoryError>>;
+};
+
+export const SecurityGroupRepository: SecurityGroupRepositoryType = {
   list,
   getById,
   create,
@@ -211,8 +486,8 @@ export const SecurityGroupRepository = {
   listRules,
   getRuleById,
   createRule,
-  deleteRule,
   updateRule,
+  deleteRule,
 };
 
 export default SecurityGroupRepository;

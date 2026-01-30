@@ -1,8 +1,21 @@
 import { PrismaClient } from "@@/generated/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
+import { Result } from "@/common/type";
+import { RepositoryError } from "@/common/errors";
 
 let adapter: PrismaMariaDb | undefined;
 let prisma: PrismaClient | undefined;
+
+export type Repository<TCreate, TUpdate, TResponse> = {
+  list: (userId?: string) => Promise<Result<TResponse[], RepositoryError>>;
+  getById: (id: string) => Promise<Result<TResponse | null, RepositoryError>>;
+  create: (data: TCreate) => Promise<Result<TResponse, RepositoryError>>;
+  update: (
+    id: string,
+    data: TUpdate,
+  ) => Promise<Result<TResponse, RepositoryError>>;
+  deleteById: (id: string) => Promise<Result<void, RepositoryError>>;
+};
 
 export class NotFoundError extends Error {
   constructor(message: string) {

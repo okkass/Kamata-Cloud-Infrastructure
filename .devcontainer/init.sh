@@ -10,9 +10,9 @@ cd backend
 mv tsconfig.json tsconfig.tmp.json
 cp ../.devcontainer/backend/tsconfig.json.temp tsconfig.json
 # prismaのセットアップ
-pnpx prisma migrate dev
-pnpx prisma generate
-pnpx prisma db seed
+pnpm exec prisma migrate dev
+pnpm exec prisma generate
+pnpm exec prisma db seed
 
 # コケたときのためにtrapで元に戻す
 trap 'mv tsconfig.tmp.json tsconfig.json 2>/dev/null || true' EXIT ERR

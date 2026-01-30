@@ -28,7 +28,7 @@ const createRefreshToken = async (uuid: string): Promise<string> => {
   const hashedToken = createHash("sha256").update(tokenBuffer).digest();
   const now = new Date();
   const expiredAt = new Date(
-    now.getTime() + TOKEN_EXPIRATION_DAYS * 24 * 60 * 60 * 1000
+    now.getTime() + TOKEN_EXPIRATION_DAYS * 24 * 60 * 60 * 1000,
   );
   await prisma.refreshToken.create({
     data: {
@@ -37,14 +37,14 @@ const createRefreshToken = async (uuid: string): Promise<string> => {
       expiredAt: expiredAt,
     },
   });
-  return tokenBuffer.toString("base64");
+  return tokenBuffer.toString("base64url");
 };
 
 const getRefreshTokenByToken = async (
-  token: string
+  token: string,
 ): Promise<RefreshTokenInfo | null> => {
   const prisma = getPrismaClient();
-  const tokenBuffer = Buffer.from(token, "base64");
+  const tokenBuffer = Buffer.from(token, "base64url");
   const hashedToken = createHash("sha256").update(tokenBuffer).digest();
   const refreshToken = await prisma.refreshToken.findUnique({
     where: {
@@ -74,7 +74,7 @@ const getRefreshTokenByToken = async (
 
 const revokeRefreshToken = async (token: string): Promise<void> => {
   const prisma = getPrismaClient();
-  const tokenBuffer = Buffer.from(token, "base64");
+  const tokenBuffer = Buffer.from(token, "base64url");
   const hashedToken = createHash("sha256").update(tokenBuffer).digest();
   await prisma.refreshToken.update({
     where: {
