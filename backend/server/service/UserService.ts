@@ -56,7 +56,6 @@ type UserService = ResourceService<
 
 export const getUserService = (permission: UserPermissions | null = null) => {
   const userService: UserService = {
-    permission,
     // 一覧取得
     list: async (query) => {
       // try-catchで囲う(prismaは例外を投げる)

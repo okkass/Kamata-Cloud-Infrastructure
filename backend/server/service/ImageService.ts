@@ -17,7 +17,6 @@ export const getImageService = (permission: UserPermissions) => {
     ImagePatchRequest | ImagePutRequest,
     ServiceError
   > = {
-    permission,
     list(query?: string): Result<ImageResponse[], ServiceError> {
       const images = ImageRepository.list();
       return { success: true, data: images };

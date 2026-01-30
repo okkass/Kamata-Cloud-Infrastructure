@@ -117,7 +117,6 @@ const mapGroupUpdateRequestToInput = (
 
 export const getSecurityGroupService = (permission: UserPermissions) => {
   const SecurityGroupService: SecurityGroupService = {
-    permission,
     list: async (query) => {
       let userId: string | undefined = undefined;
 
@@ -234,12 +233,10 @@ export const getSecurityGroupService = (permission: UserPermissions) => {
           delete: async () => {
             return { success: false, error: { reason: "Forbidden" } };
           },
-          permission,
         };
       }
 
       const SecurityRuleService: SecurityRuleService = {
-        permission,
         list: async (query) => {
           const result = await SecurityGroupRepository.listRules(sgId);
           if (!result.success) {
