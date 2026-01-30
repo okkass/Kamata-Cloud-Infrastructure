@@ -1,16 +1,16 @@
 import { PrismaClient } from "@@/generated/client";
 import { PrismaMariaDb } from "@prisma/adapter-mariadb";
-import { createInitialUsers, deleteAllUsers } from "./user.js";
-import { createInitialNodes, deleteAllNodes } from "./node.js";
+import { createInitialUsers, deleteAllUsers } from "./user";
+import { createInitialNodes, deleteAllNodes } from "./node";
 import {
   createInitialStoragePools,
   deleteAllStoragePools,
-} from "./storagePool.js";
+} from "./storagePool";
 import {
   createInitialInstanceTypes,
   deleteAllInstanceTypes,
-} from "./instanceType.js";
-import { createInitialSGs, deleteAllSGs } from "./securityGroup.js";
+} from "./instanceType";
+import { createInitialSGs, deleteAllSGs } from "./securityGroup";
 
 let prisma: PrismaClient | null = null;
 
@@ -94,6 +94,10 @@ async function main() {
   await createInitialSGs(users);
   const allSGs = await prisma.securityGroup.findMany();
   console.log(`Created ${allSGs.length} security groups:`);
+
+  allSGs.forEach((sg) => {
+    console.log(`- ${sg.name} (Description: ${sg.description})`);
+  });
 
   console.log("Seeding test data finished.");
 }
