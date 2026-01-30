@@ -71,7 +71,9 @@ export const createInitialSGs = async (users: Prisma.UserGetPayload<{}>[]) => {
       });
     });
     await Promise.all(createSGPromisses);
-  } catch (error) {}
+  } catch (error) {
+    console.error("Error creating security groups:", error);
+  }
 };
 
 export const deleteAllSGs = async () => {
