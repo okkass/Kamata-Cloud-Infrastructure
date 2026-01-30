@@ -14,13 +14,13 @@ import type { ServiceError } from "@/common/errors";
 import {
   SecurityGroupRecord,
   SecurityRuleRecord,
-  SecurityGroupCreateInput,
-  SecurityRuleCreateInput,
-  SecurityGroupUpdateInput,
-  SecurityRuleUpdateInput,
-  PORT_ALL,
+  SecurityGroupCreateProps,
+  SecurityRuleCreateProps,
+  SecurityGroupUpdateProps,
+  SecurityRuleUpdateProps,
 } from "@/repository/SecurityGroupRepository";
 import SecurityGroupRepository from "@/repository/SecurityGroupRepository";
+import { getPermissionService } from "./PermissionService";
 
 type SecurityRuleService = ResourceService<
   SecurityRuleResponse,
@@ -34,7 +34,7 @@ type SecurityGroupService = ResourceService<
   SecurityGroupPatchRequest | SecurityGroupPutRequest,
   ServiceError
 > & {
-  getSecurityRuleService: (sgId: string) => SecurityRuleService;
+  getSecurityRuleService: (sgId: string) => Promise<SecurityRuleService>;
 };
 
 const mapRuleRecordToResponse = (
@@ -43,8 +43,8 @@ const mapRuleRecordToResponse = (
   return {
     id: record.uuid,
     name: record.name,
-    ruleType: record.roleType,
-    port: record.port === PORT_ALL ? null : record.port,
+    ruleType: record.ruleType,
+    port: record.port,
     protocol: record.protocol,
     targetIp: record.targetIp,
     action: record.action,
@@ -60,8 +60,8 @@ const mapGroupRecordToResponse = (
     name: record.name,
     description: record.description ?? undefined,
     owner: {
-      id: record.user.uuid,
-      name: record.user.name,
+      id: record.owner.uuid,
+      name: record.owner.name,
     },
     rules: record.rules.map(mapRuleRecordToResponse),
     createdAt: record.createdAt.toISOString(),
@@ -70,7 +70,7 @@ const mapGroupRecordToResponse = (
 
 const mapRuleCreateRequestToInput = (
   request: SecurityRuleCreateRequest,
-): SecurityRuleCreateInput => {
+): SecurityRuleCreateProps => {
   return {
     name: request.name,
     ruleType: request.ruleType,
@@ -84,7 +84,7 @@ const mapRuleCreateRequestToInput = (
 const mapGroupCreateRequestToInput = (
   userId: string,
   request: SecurityGroupCreateRequest,
-): SecurityGroupCreateInput => {
+): SecurityGroupCreateProps => {
   return {
     userId,
     name: request.name,
@@ -95,11 +95,11 @@ const mapGroupCreateRequestToInput = (
 
 const mapRuleUpdateRequestToInput = (
   request: SecurityRulePatchRequest | SecurityRulePutRequest,
-): SecurityRuleUpdateInput => {
+): SecurityRuleUpdateProps => {
   return {
     name: request.name,
     ruleType: request.ruleType,
-    port: request.port === null ? PORT_ALL : request.port,
+    port: request.port,
     protocol: request.protocol,
     targetIp: request.targetIp,
     action: request.action,
@@ -108,7 +108,7 @@ const mapRuleUpdateRequestToInput = (
 
 const mapGroupUpdateRequestToInput = (
   request: SecurityGroupPatchRequest | SecurityGroupPutRequest,
-): SecurityGroupUpdateInput => {
+): SecurityGroupUpdateProps => {
   return {
     name: request.name,
     description: request.description ?? undefined,
@@ -118,127 +118,182 @@ const mapGroupUpdateRequestToInput = (
 export const getSecurityGroupService = (permission: UserPermissions) => {
   const SecurityGroupService: SecurityGroupService = {
     permission,
-    async list(query) {
-      try {
-        const groups = await SecurityGroupRepository.list();
-        return { success: true, data: groups.map(mapGroupRecordToResponse) };
-      } catch (error) {
-        return { success: false, error: { reason: "InternalError" } };
-      }
-    },
-    async getById(id) {
-      try {
-        const group = await SecurityGroupRepository.getById(id);
-        if (!group) {
-          return {
-            success: false,
-            error: { reason: "NotFound" },
-          };
+    list: async (query) => {
+      let userId: string | undefined = undefined;
+
+      // queryがallなら権限チェック
+      if (query === "all") {
+        const permissionService = getPermissionService();
+        const hasPermission =
+          await permissionService.hasSecurityGroupAdminPermission(permission);
+        if (!hasPermission) {
+          return { success: false, error: { reason: "Forbidden" } };
         }
-        return { success: true, data: mapGroupRecordToResponse(group) };
-      } catch (error) {
+      } else {
+        // 自分のセキュリティグループのみ取得
+        userId = permission.id;
+      }
+
+      const result = await SecurityGroupRepository.list(userId);
+      if (!result.success) {
         return { success: false, error: { reason: "InternalError" } };
       }
+      const groups = result.data.map(mapGroupRecordToResponse);
+      return { success: true, data: groups };
     },
-    async create(data) {
-      try {
-        const newGroup = await SecurityGroupRepository.create(
-          mapGroupCreateRequestToInput(permission.id, data),
+    getById: async (id) => {
+      const result = await SecurityGroupRepository.getById(id);
+      if (!result.success) {
+        return { success: false, error: { reason: "InternalError" } };
+      }
+      if (!result.data) {
+        return { success: false, error: { reason: "NotFound" } };
+      }
+      return {
+        success: true,
+        data: mapGroupRecordToResponse(result.data),
+      };
+    },
+    create: async (data) => {
+      const result = await SecurityGroupRepository.create(
+        mapGroupCreateRequestToInput(permission.id, data),
+      );
+      if (!result.success) {
+        return { success: false, error: { reason: "InternalError" } };
+      }
+      return {
+        success: true,
+        data: mapGroupRecordToResponse(result.data),
+      };
+    },
+    update: async (id, data) => {
+      // 権限チェック　管理者か所有者のみ更新可能
+      const permissionService = getPermissionService();
+      const hasPermission =
+        await permissionService.hasSecurityGroupAdminPermission(permission, id);
+      if (!hasPermission) {
+        return { success: false, error: { reason: "Forbidden" } };
+      }
+
+      const result = await SecurityGroupRepository.update(
+        id,
+        mapGroupUpdateRequestToInput(data),
+      );
+      if (!result.success) {
+        if (result.error.reason === "NotFound") {
+          return { success: false, error: { reason: "NotFound" } };
+        }
+        return { success: false, error: { reason: "InternalError" } };
+      }
+      return {
+        success: true,
+        data: mapGroupRecordToResponse(result.data),
+      };
+    },
+    delete: async (id) => {
+      // 権限チェック　管理者か所有者のみ削除可能
+      const permissionService = getPermissionService();
+      const hasPermission =
+        await permissionService.hasSecurityGroupAdminPermission(permission, id);
+      if (!hasPermission) {
+        return { success: false, error: { reason: "Forbidden" } };
+      }
+      const result = await SecurityGroupRepository.deleteById(id);
+      if (!result.success) {
+        if (result.error.reason === "NotFound") {
+          return { success: false, error: { reason: "NotFound" } };
+        }
+        return { success: false, error: { reason: "InternalError" } };
+      }
+      return { success: true, data: undefined };
+    },
+    getSecurityRuleService: async (sgId) => {
+      // 権限チェック
+      const permissionService = getPermissionService();
+      const hasPermission =
+        await permissionService.hasSecurityGroupAdminPermission(
+          permission,
+          sgId,
         );
+
+      // 権限がない場合は、すべての操作でForbiddenを返すダミーサービスを返す
+      if (!hasPermission) {
         return {
-          success: true,
-          data: mapGroupRecordToResponse(newGroup),
+          list: async () => {
+            return { success: false, error: { reason: "Forbidden" } };
+          },
+          getById: async () => {
+            return { success: false, error: { reason: "Forbidden" } };
+          },
+          create: async () => {
+            return { success: false, error: { reason: "Forbidden" } };
+          },
+          update: async () => {
+            return { success: false, error: { reason: "Forbidden" } };
+          },
+          delete: async () => {
+            return { success: false, error: { reason: "Forbidden" } };
+          },
+          permission,
         };
-      } catch (error) {
-        return { success: false, error: { reason: "InternalError" } };
       }
-    },
-    async update(id, data) {
-      try {
-        const updatedGroup = await SecurityGroupRepository.update(
-          id,
-          mapGroupUpdateRequestToInput(data),
-        );
-        return {
-          success: true,
-          data: mapGroupRecordToResponse(updatedGroup),
-        };
-      } catch (error) {
-        return { success: false, error: { reason: "InternalError" } };
-      }
-    },
-    async delete(id) {
-      try {
-        await SecurityGroupRepository.deleteById(id);
-        return { success: true, data: undefined };
-      } catch (error) {
-        return { success: false, error: { reason: "InternalError" } };
-      }
-    },
-    getSecurityRuleService(sgId) {
+
       const SecurityRuleService: SecurityRuleService = {
         permission,
-        async list(query) {
-          try {
-            const rules = await SecurityGroupRepository.listRules(sgId);
-            return {
-              success: true,
-              data: rules.map(mapRuleRecordToResponse),
-            };
-          } catch (error) {
+        list: async (query) => {
+          const result = await SecurityGroupRepository.listRules(sgId);
+          if (!result.success) {
             return { success: false, error: { reason: "InternalError" } };
           }
+          const rules = result.data.map(mapRuleRecordToResponse);
+          return { success: true, data: rules };
         },
-        async getById(id) {
-          try {
-            const rule = await SecurityGroupRepository.getRuleById(sgId, id);
-            if (!rule) {
-              return {
-                success: false,
-                error: { reason: "NotFound" },
-              };
-            }
-            return {
-              success: true,
-              data: mapRuleRecordToResponse(rule),
-            };
-          } catch (error) {
+        getById: async (id) => {
+          const result = await SecurityGroupRepository.getRuleById(sgId, id);
+          if (!result.success) {
             return { success: false, error: { reason: "InternalError" } };
           }
+          if (!result.data) {
+            return { success: false, error: { reason: "NotFound" } };
+          }
+          return {
+            success: true,
+            data: mapRuleRecordToResponse(result.data),
+          };
         },
-        async create(data) {
-          try {
-            const newRule = await SecurityGroupRepository.createRule(
-              sgId,
-              mapRuleCreateRequestToInput(data),
-            );
-            return { success: true, data: mapRuleRecordToResponse(newRule) };
-          } catch (error) {
+        create: async (data) => {
+          const result = await SecurityGroupRepository.createRule(
+            sgId,
+            mapRuleCreateRequestToInput(data),
+          );
+          if (!result.success) {
             return { success: false, error: { reason: "InternalError" } };
           }
+          return {
+            success: true,
+            data: mapRuleRecordToResponse(result.data),
+          };
         },
-        async update(id, data) {
-          try {
-            const updatedRule = await SecurityGroupRepository.updateRule(
-              sgId,
-              id,
-              mapRuleUpdateRequestToInput(data),
-            );
-            return {
-              success: true,
-              data: mapRuleRecordToResponse(updatedRule),
-            };
-          } catch (error) {
+        update: async (id, data) => {
+          const result = await SecurityGroupRepository.updateRule(
+            sgId,
+            id,
+            mapRuleUpdateRequestToInput(data),
+          );
+          if (!result.success) {
             return { success: false, error: { reason: "InternalError" } };
           }
+          return {
+            success: true,
+            data: mapRuleRecordToResponse(result.data),
+          };
         },
-        async delete(id) {
-          try {
-            await SecurityGroupRepository.deleteRule(sgId, id);
-            return { success: true, data: undefined };
-          } catch (error) {
+        delete: async (id) => {
+          const result = await SecurityGroupRepository.deleteRule(sgId, id);
+          if (!result.success) {
             return { success: false, error: { reason: "InternalError" } };
           }
+          return { success: true, data: undefined };
         },
       };
       return SecurityRuleService;

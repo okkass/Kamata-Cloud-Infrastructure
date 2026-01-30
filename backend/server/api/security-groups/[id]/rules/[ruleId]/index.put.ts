@@ -13,12 +13,12 @@ export default defineEventHandler(async (event) => {
   validateUUID(id);
 
   const service =
-    getSecurityGroupService(permission).getSecurityRuleService(id);
+    await getSecurityGroupService(permission).getSecurityRuleService(id);
 
   return updateResource(
     ruleId,
     body as SecurityRulePutRequest,
     updateSecurityGroupRuleSchema,
-    service.update
+    service.update,
   );
 });

@@ -51,7 +51,7 @@ const throwServiceError = (error: ServiceError): never => {
 export const getResourceList = async <T>(
   listFunc: (query?: string) => Promise<Result<T[], ServiceError>>,
   query?: string,
-  querySchema?: z.ZodType
+  querySchema?: z.ZodType,
 ): Promise<T[]> => {
   // queryがあればバリデート
   let validatedQuery: string | undefined = undefined;
@@ -81,7 +81,7 @@ export const getResourceList = async <T>(
 // 単一リソースを取得する共通ハンドラー
 export const getResource = async <T>(
   resourceId: string,
-  getByIdFunc: (id: string) => Promise<Result<T, ServiceError>>
+  getByIdFunc: (id: string) => Promise<Result<T, ServiceError>>,
 ): Promise<T> => {
   // idをバリデート
   const validatedId = validateUUID(resourceId);
@@ -111,7 +111,7 @@ export const getResource = async <T>(
 export const createResource = async <TRequest, TResponse>(
   requestBody: TRequest,
   bodySchema: z.ZodType,
-  createFunc: (params: TRequest) => Promise<Result<TResponse, ServiceError>>
+  createFunc: (params: TRequest) => Promise<Result<TResponse, ServiceError>>,
 ): Promise<TResponse> => {
   // bodyをバリデート
   const body = validateBody<TRequest>(requestBody, bodySchema);
@@ -147,8 +147,8 @@ export const updateResource = async <TRequest, TResponse>(
   bodySchema: z.ZodType,
   updateFunc: (
     id: string,
-    params: TRequest
-  ) => Promise<Result<TResponse, ServiceError>>
+    params: TRequest,
+  ) => Promise<Result<TResponse, ServiceError>>,
 ): Promise<TResponse> => {
   // idをバリデート
   const validatedId = validateUUID(id);
@@ -177,7 +177,7 @@ export const updateResource = async <TRequest, TResponse>(
 // リソースを削除する共通ハンドラー
 export const deleteResource = async (
   id: string,
-  deleteFunc: (id: string) => Promise<Result<null, ServiceError>>
+  deleteFunc: (id: string) => Promise<Result<void, ServiceError>>,
 ): Promise<void> => {
   // idをバリデート
   const validatedId = validateUUID(id);
@@ -201,18 +201,18 @@ export const bulkResource = async <TCreate, TUpdate, TResponse>(
   updateFunc:
     | ((
         id: string,
-        params: TUpdate
+        params: TUpdate,
       ) => Promise<Result<TResponse, ServiceError>>)
     | null,
-  deleteFunc: (id: string) => Promise<Result<null, ServiceError>>,
-  listFunc: () => Promise<Result<TResponse[], ServiceError>>
+  deleteFunc: (id: string) => Promise<Result<void, ServiceError>>,
+  listFunc: () => Promise<Result<TResponse[], ServiceError>>,
 ): Promise<TResponse[]> => {
   await Promise.all([
     ...body.add.map((item) =>
-      createResource(item as TCreate, createSchema, createFunc)
+      createResource(item as TCreate, createSchema, createFunc),
     ),
     ...body.patch.map((item) =>
-      updateResource(item.id, item.data as TUpdate, updateSchema, updateFunc!)
+      updateResource(item.id, item.data as TUpdate, updateSchema, updateFunc!),
     ),
     ...body.remove.map((id) => deleteResource(id, deleteFunc)),
   ]);
