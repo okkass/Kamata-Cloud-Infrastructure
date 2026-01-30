@@ -9,19 +9,6 @@ import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import ImageRepository from "@/repository/ImageRepository";
 
-// PrismaのKnownRequestErrorっぽい形（import不要）
-type PrismaKnownRequestErrorLike = {
-  code: string;
-  message?: string;
-  meta?: unknown;
-};
-
-const isPrismaKnownRequestError = (e: unknown): e is PrismaKnownRequestErrorLike =>
-  typeof e === "object" &&
-  e !== null &&
-  "code" in e &&
-  typeof (e as any).code === "string";
-
 // 権限（必要なら厳密化）
 const canManageImages = (permission: UserPermissions | null) => {
   if (!permission) return false;

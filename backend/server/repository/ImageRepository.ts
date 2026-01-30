@@ -1,186 +1,194 @@
-import type {
-  ImageResponse,
-  ImageCreateRequest,
-  ImagePatchRequest,
-  ImagePutRequest,
-} from "@app/shared/types";
+import { getPrismaClient } from "./common";
+import { Prisma } from "@@/generated/client";
+import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
-import { getPrismaClient, NotFoundError } from "./common";
+import type { Result } from "@/common/type";
+import type { Repository } from "./common";
+import type { RepositoryError } from "@/common/errors";
+
+// Nodeの情報はuuidだけ渡す。ほかはService叩いてね
+const imageArgs = {
+  select: {
+    uuid: true,
+    name: true,
+    description: true,
+    sizeMb: true,
+    createdAt: true,
+    ownNode: {
+      select: {
+        uuid: true,
+      },
+    },
+  },
+} satisfies Prisma.ImageFindManyArgs;
+
+export type ImageInsertProps = {
+  name: string;
+  description?: string;
+  sizeBytes: number;
+  nodeId: string; // Nodeのuuid
+};
+
+export type ImageUpdateProps = {
+  name?: string;
+  description?: string;
+};
+
+export type ImageRecord = {
+  uuid: string;
+  name: string;
+  description?: string;
+  sizeBytes: number;
+  createdAt: Date;
+  ownNodeUuid: string;
+};
 
 // PrismaのImage -> ImageResponse へ変換（nodeも含める）
-const mapDbImageToImageResponse = (image: any): ImageResponse => {
+const mapDbImageToImageResponse = (
+  image: Prisma.ImageGetPayload<typeof imageArgs>,
+): ImageRecord => {
   return {
-    id: image.uuid,
+    uuid: image.uuid,
     name: image.name,
     description: image.description ?? undefined,
-    createdAt: image.createdAt.toISOString(),
-    size: image.size,
-    node: {
-      id: image.ownNode.uuid,
-      name: image.ownNode.name,
-      ipAddress: image.ownNode.ipAddress,
-      isAdmin: image.ownNode.isAdmin,
-      createdAt: image.ownNode.createdAt.toISOString(),
-    },
-  } as ImageResponse;
+    createdAt: image.createdAt,
+    sizeBytes: mbToBytes(image.sizeMb),
+    ownNodeUuid: image.ownNode.uuid,
+  };
 };
 
 // 一覧取得
-const list = async (): Promise<ImageResponse[]> => {
+const list = async (): Promise<Result<ImageRecord[], RepositoryError>> => {
   const prisma = getPrismaClient();
 
-  const images = await prisma.image.findMany({
-    orderBy: { createdAt: "desc" },
-    select: {
-      uuid: true,
-      name: true,
-      description: true,
-      size: true,
-      createdAt: true,
-      ownNode: {
-        select: {
-          uuid: true,
-          name: true,
-          ipAddress: true,
-          isAdmin: true,
-          createdAt: true,
-        },
+  try {
+    const images = await prisma.image.findMany({
+      ...imageArgs,
+      orderBy: { createdAt: "desc" },
+    });
+    return { success: true, data: images.map(mapDbImageToImageResponse) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
       },
-    },
-  });
-
-  return images.map(mapDbImageToImageResponse);
+    };
+  }
 };
 
 // uuidで取得（無ければnull）
-const getById = async (id: string): Promise<ImageResponse | null> => {
+const getById = async (
+  id: string,
+): Promise<Result<ImageRecord | null, RepositoryError>> => {
   const prisma = getPrismaClient();
 
   const image = await prisma.image.findUnique({
     where: { uuid: id },
-    select: {
-      uuid: true,
-      name: true,
-      description: true,
-      size: true,
-      createdAt: true,
-      ownNode: {
-        select: {
-          uuid: true,
-          name: true,
-          ipAddress: true,
-          isAdmin: true,
-          createdAt: true,
-        },
-      },
-    },
+    ...imageArgs,
   });
 
-  return image ? mapDbImageToImageResponse(image) : null;
+  return image
+    ? { success: true, data: mapDbImageToImageResponse(image) }
+    : { success: true, data: null };
 };
 
 // 作成
-const create = async (image: ImageCreateRequest): Promise<ImageResponse> => {
+const create = async (
+  image: ImageInsertProps,
+): Promise<Result<ImageRecord, RepositoryError>> => {
   const prisma = getPrismaClient();
 
-  // ImageCreateRequest が nodeId(uuid) を持つ前提で、Node.uuid -> Node.id に変換してつなぐ
-  const node = await prisma.node.findUnique({
-    where: { uuid: image.nodeId },
-    select: { id: true },
-  });
-  if (!node) {
-    throw new NotFoundError("Node not found");
-  }
+  try {
+    // nodeId から内部IDを取得
+    const node = await prisma.node.findUnique({
+      where: { uuid: image.nodeId },
+      select: { id: true },
+    });
+    if (!node) {
+      return {
+        success: false,
+        error: { reason: "BadRequest", message: "Node not found" },
+      };
+    }
 
-  const created = await prisma.image.create({
-    data: {
-      name: image.name,
-      description: "description" in image ? (image as any).description ?? null : null,
-      // いまのモックは size 固定だけど、API側で渡せるなら image.size を使う
-      size: (image as any).size ?? 2 * 1024 * 1024 * 1024,
-      ownNodeId: node.id,
-    },
-    select: {
-      uuid: true,
-      name: true,
-      description: true,
-      size: true,
-      createdAt: true,
-      ownNode: {
-        select: {
-          uuid: true,
-          name: true,
-          ipAddress: true,
-          isAdmin: true,
-          createdAt: true,
-        },
+    const newImage = await prisma.image.create({
+      data: {
+        name: image.name,
+        description: image.description ?? null,
+        sizeMb: bytesToMb(image.sizeBytes),
+        ownNodeId: node.id,
       },
-    },
-  });
+      ...imageArgs,
+    });
 
-  return mapDbImageToImageResponse(created);
+    return { success: true, data: mapDbImageToImageResponse(newImage) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
 };
 
 // 更新（Patch/Put）
-// 無ければ null を返す（UserRepositoryと同じノリにしたいなら例外でもOK）
+// 無ければ 失敗 を返す
 const update = async (
   id: string,
-  updateFields: ImagePatchRequest | ImagePutRequest,
-): Promise<ImageResponse | null> => {
+  updateFields: ImageUpdateProps,
+): Promise<Result<ImageRecord, RepositoryError>> => {
   const prisma = getPrismaClient();
 
-  // Prismaは update で無いと例外なので、先に存在確認する（UserServiceのノリに合わせる）
-  const exists = await prisma.image.findUnique({
-    where: { uuid: id },
-    select: { id: true },
-  });
-  if (!exists) return null;
-
-  const updated = await prisma.image.update({
-    where: { uuid: id },
-    data: {
-      name: updateFields.name,
-      ...(("description" in updateFields)
-        ? { description: (updateFields as any).description ?? null }
-        : {}),
-      // nodeId を更新したい仕様ならここに接続更新を足す（今のモックは更新してないので無し）
-    },
-    select: {
-      uuid: true,
-      name: true,
-      description: true,
-      size: true,
-      createdAt: true,
-      ownNode: {
-        select: {
-          uuid: true,
-          name: true,
-          ipAddress: true,
-          isAdmin: true,
-          createdAt: true,
-        },
+  try {
+    const updated = await prisma.image.update({
+      where: { uuid: id },
+      data: {
+        name: updateFields.name,
+        description: updateFields.description,
       },
-    },
-  });
-
-  return mapDbImageToImageResponse(updated);
+      ...imageArgs,
+    });
+    return { success: true, data: mapDbImageToImageResponse(updated) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
 };
 
 // 削除（成功したら true、無ければ false）
-const deleteById = async (id: string): Promise<boolean> => {
+const deleteById = async (
+  id: string,
+): Promise<Result<void, RepositoryError>> => {
   const prisma = getPrismaClient();
 
-  const exists = await prisma.image.findUnique({
-    where: { uuid: id },
-    select: { uuid: true },
-  });
-  if (!exists) return false;
-
-  await prisma.image.delete({ where: { uuid: id } });
-  return true;
+  try {
+    await prisma.image.delete({ where: { uuid: id } });
+    return { success: true, data: undefined };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
 };
 
-export const ImageRepository = {
+export const ImageRepository: Repository<
+  ImageInsertProps,
+  ImageUpdateProps,
+  ImageRecord
+> = {
   list,
   getById,
   create,
