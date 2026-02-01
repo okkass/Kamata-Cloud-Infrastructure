@@ -55,7 +55,13 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 	// ---------------------------------------------------------
 	cloneArgs := []string{"clone", req.SourceVMID, req.NewVMID, "--name", req.NewName}
 	if len(req.Disks) > 0 && req.Disks[0].Storage != "" {
-		cloneArgs = append(cloneArgs, "--storage", req.Disks[0].Storage, "--full")
+		cloneArgs = append(cloneArgs, "--storage", req.Disks[0].Storage)
+	}
+	// フルクローン設定
+	if req.FullClone {
+		cloneArgs = append(cloneArgs, "--full", "1", "--format", "qcow2")
+	} else {
+		cloneArgs = append(cloneArgs, "--full", "0")
 	}
 
 	if err := execCommand("qm", cloneArgs...); err != nil {
@@ -67,10 +73,9 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 	// Step 3: 設定適用 (qm set)
 	// ---------------------------------------------------------
 	setArgs := []string{"set", req.NewVMID}
-
-	// ★重要: ここで --cicustom を指定するだけ！ --sshkeys は不要！
+	// Cloud-Init設定
 	setArgs = append(setArgs, "--cicustom", cicustomArg)
-
+	setArgs = append(setArgs, "--agent", "1")
 	// CPU / Memory
 	if req.Cores > 0 {
 		setArgs = append(setArgs, "--cores", fmt.Sprintf("%d", req.Cores))
