@@ -66,14 +66,8 @@ func respondWithSuccess(w http.ResponseWriter, message string, data any) {
 
 // === コマンド実行 ===
 
-// CommandResult はコマンド実行の結果を表します
-type CommandResult struct {
-	Success bool
-	Output  string
-	Error   string
-}
-
-// execCommand はシステムコマンドを実行し、結果を返します
+// execCommand はシステムコマンドを実行し、エラーが発生した場合は返します
+// args は可変長引数または []string のスライスをサポート
 func execCommand(name string, args ...string) error {
 	cmd := exec.Command(name, args...)
 	cmdStr := fmt.Sprintf("%s %s", name, strings.Join(args, " "))
@@ -87,30 +81,4 @@ func execCommand(name string, args ...string) error {
 	}
 	log.Printf("[OK] Command executed successfully")
 	return nil
-}
-
-// execCommandWithOutput はコマンドを実行し、出力を返します
-func execCommandWithOutput(name string, args ...string) (CommandResult, error) {
-	cmd := exec.Command(name, args...)
-	cmdStr := fmt.Sprintf("%s %s", name, strings.Join(args, " "))
-	log.Printf("[EXEC] %s", cmdStr)
-
-	out, err := cmd.CombinedOutput()
-	output := string(out)
-
-	if err != nil {
-		errMsg := fmt.Sprintf("%v", err)
-		log.Printf("[ERROR] %s: %s", errMsg, output)
-		return CommandResult{
-			Success: false,
-			Output:  output,
-			Error:   errMsg,
-		}, err
-	}
-
-	log.Printf("[OK] Command executed successfully")
-	return CommandResult{
-		Success: true,
-		Output:  output,
-	}, nil
 }

@@ -30,21 +30,12 @@ func HandleBackupRestore(w http.ResponseWriter, r *http.Request) {
 	// ---------------------------------------------------------
 	// Step 1: バックアップファイルのパス解決
 	// ---------------------------------------------------------
-	// ユーザーはパスを知らなくて良い。API側でProxmoxの標準ルールに基づいて解決する。
-	// 基本的にNFSやDirectoryストレージは /mnt/pve/<StorageID> にある。
-	// ※より厳密にするなら pvesm status からパスを取得するが、今回は標準構成を前提とする。
 	backupPath := filepath.Join("/mnt/pve", req.BackupStorageID, req.BackupFilename)
-
-	// ファイルが存在するか簡易チェック (lsコマンドなどを叩いてもいいが、qemu-imgがエラーを吐くので任せても良い)
-	// ここではパスログを出力
 	log.Printf("[RESTORE] Source Backup Path resolved to: %s", backupPath)
 
 	// ---------------------------------------------------------
 	// Step 2: 書き戻し先の物理パス解決 (pvesm path)
 	// ---------------------------------------------------------
-	// TargetVolumeID (例: local-zfs:vm-100-disk-0) は
-	// ZFSなら /dev/zvol/..., LVMなら /dev/pve/... に変換する必要があるため、
-	// 必ず pvesm path を通す必要がある。
 	out, err := exec.Command("pvesm", "path", req.TargetVolumeID).Output()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to resolve target volume path: %v", err))
@@ -68,12 +59,12 @@ func HandleBackupRestore(w http.ResponseWriter, r *http.Request) {
 
 	log.Printf("[RESTORE] Restoring %s -> %s (Format: %s)...", backupPath, targetPath, outputFormat)
 
+	// qemu-img は直接 exec.Command で実行（出力フラッシングが重要）
 	cmd := exec.Command("qemu-img", "convert", "-p", "-n", "-O", outputFormat, backupPath, targetPath)
-	
 	if output, err := cmd.CombinedOutput(); err != nil {
 		log.Printf("[ERROR] Restore failed: %s", string(output))
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to restore backup: %v", err))
-		execCommand("qm", "start", req.VMID) // 失敗時も起動だけは試みる
+		execCommand("qm", "start", req.VMID) // 失敗時も起動を試みる
 		return
 	}
 

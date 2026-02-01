@@ -8,6 +8,7 @@ import (
 // HandleZFSShareNFS はZFSプールをNFSで公開します
 // リクエスト: ZFSShareNFSRequest (pool_name, network, read_write, root_squash)
 // 処理: zfs set sharenfs コマンドで公開設定
+// 注：NFSは--nodesなしでクラスター全体に公開されます
 func HandleZFSShareNFS(w http.ResponseWriter, r *http.Request) {
 	if !validateHTTPMethod(w, r, http.MethodPost) {
 		return

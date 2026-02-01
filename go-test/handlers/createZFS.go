@@ -11,22 +11,31 @@ import (
 // ---------------------------------------------------------
 
 // ZFSプール作成ロジック
-func createZFSPoolLogic(poolName, device string) error {
+func createZFSPoolLogic(poolName, device, comment string) error {
 	// 念の為、既存のパーティション情報を消す (Wipe)
 	// エラーが出ても無視して進む (新品ディスクだとエラーになることがあるため)
 	execCommand("wipefs", "-a", device)
 
-	// zpool create -f <poolname> <device>
-	return execCommand("zpool", "create", "-f", poolName, device)
+	// コマンド引数の構築
+	args := []string{"create", "-f"}
+	if comment != "" {
+		args = append(args, "-o", fmt.Sprintf("comment=%s", comment))
+	}
+	args = append(args, poolName, device)
+
+	return execCommand("zpool", args...)
 }
 
 // Proxmox登録ロジック
+// ZFSストレージは--nodesで対象ノードを指定（自分だけ）
+// NFSストレージはnodes指定なし（クラスター全体）
 func registerZFSPoolLogic(storageName, poolName, nodeName string, content []string) error {
 	// コンテンツのデフォルト設定
 	if len(content) == 0 {
 		content = []string{"images", "rootdir"}
 	}
 
+	// ZFSは対象ノードを限定する（--nodesで指定）
 	// pvesm add zfspool ...
 	return execCommand("pvesm", "add", "zfspool", storageName,
 		"--pool", poolName,
@@ -63,8 +72,8 @@ func HandleCreateAndRegisterZFS(w http.ResponseWriter, r *http.Request) {
 		req.StorageName = req.PoolName
 	}
 
-	// ステップ1: ZFSプール作成
-	if err := createZFSPoolLogic(req.PoolName, req.Device); err != nil {
+	// ステップ1: ZFSプール作成（commentを付加）
+	if err := createZFSPoolLogic(req.PoolName, req.Device, req.Comment); err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to create ZFS pool: %v", err))
 		return
 	}

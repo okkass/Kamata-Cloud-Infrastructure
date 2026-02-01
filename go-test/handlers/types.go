@@ -17,14 +17,6 @@ type NodeInfoResponse struct {
 	Hostname  string `json:"hostname"`
 }
 
-// ZFSCreateResponse はZFS作成結果を返します
-type ZFSCreateResponse struct {
-	Status      string `json:"status"`
-	Message     string `json:"message,omitempty"`
-	PoolName    string `json:"pool_name,omitempty"`
-	StorageName string `json:"storage_name,omitempty"`
-}
-
 // ============================================================
 // リクエスト型: テンプレート・イメージ管理
 // ============================================================
@@ -47,12 +39,11 @@ type ImageDeleteRequest struct {
 // ============================================================
 
 // NodeAddRequest はノード追加リクエストです
+// パスワード認証は環境変数 LOCAL_PASSWORD, MASTER_PASSWORD を使用してください
 type NodeAddRequest struct {
 	NodeName        string `json:"node_name"`       // 新ノード名
 	IPAddress       string `json:"ip_address"`      // 新ノードのIP
 	MasterIPAddress string `json:"master_ip"`       // マスターノードのIP
-	LocalPassword   string `json:"local_password"`  // 新ノードのルートパスワード
-	MasterPassword  string `json:"master_password"` // マスターノードのパスワード
 }
 
 // MasterMigrationRequest はマスターノード移行リクエストです
@@ -84,6 +75,7 @@ type CreateAndRegisterZFSRequest struct {
 	StorageName string   `json:"storage_name"` // Proxmoxでの表示名
 	NodeName    string   `json:"node_name"`    // 対象ノード名 (例: "test01")
 	Content     []string `json:"content"`      // コンテンツタイプ (例: ["images", "rootdir"])
+	Comment     string   `json:"comment"`      // プール説明・UUID (例: "UUID:550e8400-e29b-41d4-a716-446655440000")
 }
 
 // ZFSShareNFSRequest はZFS NFS公開リクエストです
@@ -173,7 +165,8 @@ type RawDiskExportRequest struct {
 
 // RestoreRequest はバックアップ復元リクエストです
 type RestoreRequest struct {
-	VMID           string `json:"vmid"`            // VM ID
-	BackupPath     string `json:"backup_path"`     // バックアップファイルパス
-	TargetVolumeID string `json:"target_volume_id"` // 復元先ボリューム
+	VMID            string `json:"vmid"`
+	BackupStorageID string `json:"backup_storage_id"` // 変更: ストレージID
+	BackupFilename  string `json:"backup_filename"`   // 変更: ファイル名
+	TargetVolumeID  string `json:"target_volume_id"`
 }

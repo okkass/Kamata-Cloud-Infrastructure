@@ -26,29 +26,24 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// ロールバック設定
-	shouldRollback := true
-	defer func() {
-		if shouldRollback {
-			log.Printf("[ROLLBACK] Removing VM %s...", req.NewVMID)
-			execCommand("qm", "destroy", req.NewVMID)
-			// ※作成したSnippetファイルの削除処理もここに入れると完璧です
-		}
-	}()
-
 	// ---------------------------------------------------------
 	// Step 1: Cloud-Init (user-data) ファイルの作成
 	// ---------------------------------------------------------
-	// ここで SSH鍵 も パッケージ も全部入りファイルを作ります
-	snippetPath, err := createFullUserData(req.NewVMID, req.InstallPackages, req.SSHKey)
+	snippetFilePath, err := createFullUserData(req.NewVMID, req.InstallPackages, req.SSHKey)
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to create user-data: %v", err))
 		return
 	}
-	
+
+	// cleanup関数: 失敗時のロールバック
+	cleanup := func() {
+		log.Printf("[ROLLBACK] Cleaning up VM %s and snippet file %s...", req.NewVMID, snippetFilePath)
+		execCommand("qm", "destroy", req.NewVMID)
+		os.Remove(snippetFilePath)
+	}
+
 	// 引数用に整形: user=<storage:path>
-	// Cloud-Initの設定ファイルは "user-data" なので "user=" で指定します
-	cicustomArg := fmt.Sprintf("user=%s", snippetPath)
+	cicustomArg := fmt.Sprintf("user=%s", snippetFilePath)
 
 	// ---------------------------------------------------------
 	// Step 2: VMクローン
@@ -65,6 +60,7 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := execCommand("qm", cloneArgs...); err != nil {
+		cleanup()
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to clone VM: %v", err))
 		return
 	}
@@ -84,7 +80,7 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 		setArgs = append(setArgs, "--memory", fmt.Sprintf("%d", req.Memory))
 	}
 
-	// Network & IP (これだけはProxmoxの外側で制御するため引数が必要)
+	// Network & IP
 	for i, net := range req.Networks {
 		netConfig := fmt.Sprintf("%s,bridge=%s", net.Model, net.Bridge)
 		if net.MacAddress != "" {
@@ -92,8 +88,6 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 		}
 		setArgs = append(setArgs, fmt.Sprintf("--net%d", i), netConfig)
 
-		// IP設定 (ipconfig) も user-data に書けますが、
-		// Proxmoxの流儀として ipconfig はコマンド引数で渡すのが一般的です
 		var ipConfig string
 		if net.IPAddress != "" {
 			ipConfig = fmt.Sprintf("ip=%s", net.IPAddress)
@@ -108,6 +102,7 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 
 	// 適用
 	if err := execCommand("qm", setArgs...); err != nil {
+		cleanup()
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to configure VM: %v", err))
 		return
 	}
@@ -115,22 +110,21 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 	// ---------------------------------------------------------
 	// Step 4: ディスクリサイズ & 起動
 	// ---------------------------------------------------------
-	// (省略: 前回のコードと同じディスク処理) ...
-    for i, disk := range req.Disks {
-        if i == 0 && disk.Size != "" {
-            execCommand("qm", "resize", req.NewVMID, disk.Device, disk.Size)
-        } else if i > 0 {
-             storageSize := fmt.Sprintf("%s:%s", disk.Storage, disk.Size)
-             execCommand("qm", "set", req.NewVMID, fmt.Sprintf("--%s", disk.Device), storageSize)
-        }
-    }
+	for i, disk := range req.Disks {
+		if i == 0 && disk.Size != "" {
+			execCommand("qm", "resize", req.NewVMID, disk.Device, disk.Size)
+		} else if i > 0 && disk.Storage != "" && disk.Size != "" {
+			storageSize := fmt.Sprintf("%s:%s", disk.Storage, disk.Size)
+			execCommand("qm", "set", req.NewVMID, fmt.Sprintf("--%s", disk.Device), storageSize)
+		}
+	}
 
 	if err := execCommand("qm", "start", req.NewVMID); err != nil {
+		cleanup()
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to start VM: %v", err))
 		return
 	}
 
-	shouldRollback = false
 	respondWithSuccess(w, fmt.Sprintf("VM %s created with full cloud-init config", req.NewVMID), nil)
 }
 

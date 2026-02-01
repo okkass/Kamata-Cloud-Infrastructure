@@ -28,14 +28,11 @@ func HandleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// 失敗時の自動ロールバック: テンプレートVM 削除
-	shouldRollback := true
-	defer func() {
-		if shouldRollback {
-			log.Printf("[ROLLBACK] Removing template VM %s due to creation failure...", req.ID)
-			execCommand("qm", "destroy", req.ID)
-		}
-	}()
+	// cleanup関数: 失敗時のロールバック
+	cleanup := func() {
+		log.Printf("[ROLLBACK] Removing template VM %s due to creation failure...", req.ID)
+		execCommand("qm", "destroy", req.ID)
+	}
 
 	imagePath := filepath.Join(IsoPath, req.ImageName)
 
@@ -47,24 +44,24 @@ func HandleCreateTemplate(w http.ResponseWriter, r *http.Request) {
 
 	// ステップ2: ディスクインポート
 	if err := execCommand("qm", "importdisk", req.ID, imagePath, DefaultStorage); err != nil {
+		cleanup()
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to import disk: %v", err))
 		return
 	}
 
 	// ステップ3: ディスク設定
 	if err := execCommand("qm", "set", req.ID, "--scsihw", "virtio-scsi-pci", "--scsi0", fmt.Sprintf("%s:vm-%s-disk-0", DefaultStorage, req.ID)); err != nil {
+		cleanup()
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to set disk: %v", err))
 		return
 	}
 
 	// ステップ4: ブート設定
 	if err := execCommand("qm", "set", req.ID, "--boot", "c", "--bootdisk", "scsi0"); err != nil {
+		cleanup()
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to set boot: %v", err))
 		return
 	}
-
-	// 成功時: ロールバック無効化
-	shouldRollback = false
 
 	respondWithSuccess(w, "Template created successfully", map[string]string{
 		"vm_id": req.ID,

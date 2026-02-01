@@ -4,8 +4,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"os/exec"
+	"strconv"
 )
-
 
 type FirewallRule struct {
 	Pos     int    `json:"pos"`
@@ -14,8 +15,7 @@ type FirewallRule struct {
 
 // HandleSecurityGroupDetach はセキュリティグループをVMのネットワークインターフェースから削除します
 // リクエスト: SecurityGroupDetachRequest (vmid, node_name, security_group_uuid)
-// 処理: pvesh delete でファイアウォールルールを削除
-// 構造体定義 (pvesh get の結果を受け取る用)
+// 処理: pvesh get でルール一覧を取得 → UUIDマッチするルールを削除
 func HandleSecurityGroupDetach(w http.ResponseWriter, r *http.Request) {
 	if !validateHTTPMethod(w, r, http.MethodPost) {
 		return
@@ -35,14 +35,15 @@ func HandleSecurityGroupDetach(w http.ResponseWriter, r *http.Request) {
 	// Step 1: ルール一覧を取得して、UUID(comment)が一致するルールの pos (番号) を探す
 	listCmd := fmt.Sprintf("/nodes/%s/qemu/%s/firewall/rules", req.NodeName, req.VMID)
 	
-	result, err := execCommandWithOutput("pvesh", "get", listCmd, "--output-format", "json")
+	cmd := exec.Command("pvesh", "get", listCmd, "--output-format", "json")
+	output, err := cmd.CombinedOutput()
 	if err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to fetch firewall rules: %v", err))
 		return
 	}
 
 	var rules []FirewallRule
-	if err := json.Unmarshal([]byte(result.Output), &rules); err != nil {
+	if err := json.Unmarshal(output, &rules); err != nil {
 		respondWithError(w, http.StatusInternalServerError, "Failed to parse firewall rules")
 		return
 	}
@@ -61,7 +62,7 @@ func HandleSecurityGroupDetach(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Step 2: 見つけた pos を使って削除
-	deleteCmd := fmt.Sprintf("/nodes/%s/qemu/%s/firewall/rules/%d", req.NodeName, req.VMID, targetPos)
+	deleteCmd := fmt.Sprintf("/nodes/%s/qemu/%s/firewall/rules/%s", req.NodeName, req.VMID, strconv.Itoa(targetPos))
 	if err := execCommand("pvesh", "delete", deleteCmd); err != nil {
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to delete firewall rule pos %d: %v", targetPos, err))
 		return
