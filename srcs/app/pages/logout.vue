@@ -3,7 +3,7 @@
 </template>
 
 <script setup lang="ts">
-// /api/auth/loginを呼び出してセッションを破棄
+// /api/auth/logoutを呼び出してセッションを破棄
 import { onMounted } from "vue";
 
 onMounted(async () => {
