@@ -5,8 +5,7 @@ import type {
   ImagePutRequest,
 } from "@app/shared/types";
 
-import { NodeRepository } from "./NodeRepository";
-import { StoragePoolRepository } from "./StoragePoolRepository";
+import StoragePoolRepository from "./StoragePoolRepository";
 
 import crypto from "crypto";
 
@@ -19,21 +18,27 @@ const initImages = (): Array<ImageResponse> => {
       name: "Ubuntu 20.04",
       createdAt: new Date().toISOString(),
       size: 2 * 1024 * 1024 * 1024, // 2 GB
-      node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
+      storagePool: StoragePoolRepository.getById(
+        "6b593061-0281-4ef1-8b63-96924137b878",
+      )!,
     },
     {
       id: "616294c5-65fc-4336-8655-f61726ca55cd",
       name: "CentOS 8",
       createdAt: new Date().toISOString(),
       size: 3 * 1024 * 1024 * 1024, // 3 GB
-      node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
+      storagePool: StoragePoolRepository.getById(
+        "6b593061-0281-4ef1-8b63-96924137b878",
+      )!,
     },
     {
       id: "42af756f-6710-4994-b993-f2b2c2c5393b",
       name: "Debian 10",
       createdAt: new Date().toISOString(),
       size: 2.5 * 1024 * 1024 * 1024, // 2.5 GB
-      node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
+      storagePool: StoragePoolRepository.getById(
+        "6b593061-0281-4ef1-8b63-96924137b878",
+      )!,
     },
   ];
 };
@@ -50,19 +55,17 @@ const getById = (id: string): ImageResponse | undefined => {
 };
 
 const create = (image: ImageCreateRequest): ImageResponse | undefined => {
-  const input = image as any;
-  const storagePool = StoragePoolRepository.getById(input.storagePoolId);
-  if (!storagePool || !storagePool.node) {
+  const storagePool = StoragePoolRepository.getById(image.storagePoolId);
+  if (!storagePool) {
     return undefined;
   }
-  const node = storagePool.node;
 
   const newImage: ImageResponse = {
     id: crypto.randomUUID(),
     name: image.name,
     createdAt: new Date().toISOString(),
     size: 2 * 1024 * 1024 * 1024, // 2 GB
-    node: node,
+    storagePool: storagePool,
   };
   list().push(newImage);
   return newImage;
