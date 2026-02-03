@@ -6,6 +6,7 @@ import type {
 } from "@app/shared/types";
 
 import { NodeRepository } from "./NodeRepository";
+import { StoragePoolRepository } from "./StoragePoolRepository";
 
 import crypto from "crypto";
 
@@ -49,10 +50,12 @@ const getById = (id: string): ImageResponse | undefined => {
 };
 
 const create = (image: ImageCreateRequest): ImageResponse | undefined => {
-  const node = NodeRepository.getById(image.nodeId);
-  if (!node) {
+  const input = image as any;
+  const storagePool = StoragePoolRepository.getById(input.storagePoolId);
+  if (!storagePool || !storagePool.node) {
     return undefined;
   }
+  const node = storagePool.node;
 
   const newImage: ImageResponse = {
     id: crypto.randomUUID(),
@@ -67,7 +70,7 @@ const create = (image: ImageCreateRequest): ImageResponse | undefined => {
 
 const update = (
   id: string,
-  updateFields: ImagePatchRequest | ImagePutRequest
+  updateFields: ImagePatchRequest | ImagePutRequest,
 ): ImageResponse | undefined => {
   let target = getById(id);
   if (target === undefined) {

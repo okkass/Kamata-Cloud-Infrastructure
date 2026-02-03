@@ -13,18 +13,18 @@
       />
 
       <FormSelect
-        label="作成先ノード"
-        name="image-node-add"
-        :options="nodes ?? []"
+        label="作成先ストレージプール"
+        name="image-storage-add"
+        :options="storagePools ?? []"
         option-label="name"
         option-value="id"
-        placeholder="ノードを選択してください"
+        placeholder="ストレージプールを選択してください"
         :required="true"
-        :pending="nodesPending"
-        :error="nodesError"
-        :error-message="errors.nodeId"
-        v-model="nodeId"
-        v-bind="nodeIdAttrs"
+        :pending="storagePoolsPending"
+        :error="storagePoolsError"
+        :error-message="errors.storagePoolId"
+        v-model="storagePoolId"
+        v-bind="storagePoolIdAttrs"
       />
 
       <FormDropZone
@@ -82,12 +82,12 @@ const {
   description,
   descriptionAttrs,
   file,
-  // ★ ノード関連
-  nodeId,
-  nodeIdAttrs,
-  nodes,
-  nodesPending,
-  nodesError,
+  // ★ ストレージプール関連
+  storagePoolId,
+  storagePoolIdAttrs,
+  storagePools,
+  storagePoolsPending,
+  storagePoolsError,
 
   isValid,
   isCreating,
