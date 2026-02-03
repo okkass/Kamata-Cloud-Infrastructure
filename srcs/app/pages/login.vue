@@ -10,7 +10,7 @@
       </div>
       <form class="space-y-6" @submit.prevent="onSubmit">
         <FormInput
-          label="ユーザー名 または メールアドレス"
+          label="メールアドレス"
           name="username"
           type="text"
           v-model="userName"
