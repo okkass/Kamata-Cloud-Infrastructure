@@ -10,7 +10,7 @@
       </div>
       <form class="space-y-6" @submit.prevent="onSubmit">
         <FormInput
-          label="ユーザー名 または メールアドレス"
+          label="メールアドレス"
           name="username"
           type="text"
           v-model="userName"
@@ -65,7 +65,7 @@ definePageMeta({ layout: "login" });
  */
 const validationSchema = toTypedSchema(
   z.object({
-    userName: z.string().min(1, "ユーザー名またはメールアドレスは必須です。"),
+    userName: z.string().min(1, "メールアドレスは必須です。"),
     password: z.string().min(1, "パスワードを入力してください。"),
   }),
 );
@@ -121,7 +121,8 @@ const onSubmit = handleSubmit(async (values) => {
       type: "error",
       message: "ログインに失敗しました",
       details:
-        error.data?.message || "ユーザー名またはパスワードが正しくありません。",
+        error.data?.message ||
+        "メールアドレスまたはパスワードが正しくありません。",
     });
   }
 });
