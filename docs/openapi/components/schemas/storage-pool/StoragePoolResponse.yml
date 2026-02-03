@@ -26,6 +26,10 @@ properties:
     type: integer
     description: ストレージプールの使用済みサイズ（バイト単位）
     example: 549755813888
+  availableSize:
+    type: integer
+    description: ストレージプールの利用可能なサイズ（バイト単位）
+    example: 549755813888
   hasNetworkAccess:
     type: boolean
     description: ストレージプールがネットワークアクセス可能かどうかを示すフラグ
@@ -37,4 +41,5 @@ required:
   - createdAt
   - totalSize
   - usedSize
+  - availableSize
   - hasNetworkAccess
