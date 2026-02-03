@@ -13,19 +13,47 @@
       />
 
       <FormSelect
-        label="作成先ノード"
-        name="image-node-add"
-        :options="nodes ?? []"
+        label="作成先ストレージプール"
+        name="image-storage-add"
+        :options="storagePools ?? []"
         option-label="name"
         option-value="id"
-        placeholder="ノードを選択してください"
+        placeholder="ストレージプールを選択してください"
         :required="true"
-        :pending="nodesPending"
-        :error="nodesError"
-        :error-message="errors.nodeId"
-        v-model="nodeId"
-        v-bind="nodeIdAttrs"
+        :pending="storagePoolsPending"
+        :error="storagePoolsError"
+        :error-message="errors.storagePoolId"
+        v-model="storagePoolId"
+        v-bind="storagePoolIdAttrs"
       />
+
+      <div
+        v-if="selectedStoragePool"
+        class="rounded-lg border border-gray-200 bg-gray-50 p-3 text-sm"
+      >
+        <div class="mb-2 flex items-center justify-between">
+          <span class="font-medium text-gray-600">利用可能容量</span>
+          <span class="font-bold text-blue-600">
+            {{ toSize(selectedStoragePool.availableSize) }}
+          </span>
+        </div>
+
+        <div
+          class="relative h-2.5 w-full overflow-hidden rounded-full bg-gray-200"
+        >
+          <div
+            class="h-full rounded-full bg-blue-500 transition-all duration-300"
+            :style="{
+              width: `${(selectedStoragePool.usedSize / selectedStoragePool.totalSize) * 100}%`,
+            }"
+          ></div>
+        </div>
+
+        <div class="mt-1 flex justify-between text-xs text-gray-500">
+          <span>使用中: {{ toSize(selectedStoragePool.usedSize) }}</span>
+          <span>合計: {{ toSize(selectedStoragePool.totalSize) }}</span>
+        </div>
+      </div>
 
       <FormDropZone
         id="image-file-add"
@@ -82,12 +110,13 @@ const {
   description,
   descriptionAttrs,
   file,
-  // ★ ノード関連
-  nodeId,
-  nodeIdAttrs,
-  nodes,
-  nodesPending,
-  nodesError,
+  // ★ ストレージプール関連
+  storagePoolId,
+  storagePoolIdAttrs,
+  storagePools,
+  storagePoolsPending,
+  storagePoolsError,
+  selectedStoragePool,
 
   isValid,
   isCreating,

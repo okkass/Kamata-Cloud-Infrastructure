@@ -8,9 +8,9 @@ export const ImageCreateSchema = z.object({
   name: nameSchema,
   file: z.instanceof(File, { message: "イメージファイルを選択してください。" }),
   description: descriptionSchema,
-  nodeId: z
-    .string({ message: "作成先ノードを選択してください。" })
-    .min(1, "作成先ノードを選択してください。"),
+  storagePoolId: z
+    .string({ message: "作成先ストレージプールを選択してください。" })
+    .min(1, "作成先ストレージプールを選択してください。"),
 });
 
 export type ImageCreateInput = z.infer<typeof ImageCreateSchema>;

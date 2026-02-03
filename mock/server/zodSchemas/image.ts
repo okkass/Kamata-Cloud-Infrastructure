@@ -4,7 +4,7 @@ import { looseUuidSchema } from "./common";
 export const createImageSchema = z.object({
   name: z.string(),
   description: z.string().optional(),
-  nodeId: looseUuidSchema,
+  storagePoolId: looseUuidSchema,
 });
 
 export const updateImageSchema = z.object({

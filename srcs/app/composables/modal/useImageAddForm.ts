@@ -26,12 +26,12 @@ export function useImageAddForm() {
   const { uploadFile, cancelUpload, isUploading, progress } =
     useLargeFileUpload();
 
-  // ノード一覧取得
+  // ストレージプール一覧取得
   const {
-    data: nodes,
-    pending: nodesPending,
-    error: nodesError,
-  } = useResourceList<NodeResponse>(NODE.name);
+    data: storagePools,
+    pending: storagePoolsPending,
+    error: storagePoolsError,
+  } = useResourceList<StoragePoolResponse>(STORAGE.name);
 
   // ============================================================================
   // Form Setup
@@ -44,7 +44,7 @@ export function useImageAddForm() {
         name: "",
         description: "",
         file: undefined,
-        nodeId: "",
+        storagePoolId: "",
       },
     });
 
@@ -59,8 +59,16 @@ export function useImageAddForm() {
   // 3. file (FormDropZone用)
   const [file] = defineField("file");
 
-  // 4. nodeId
-  const [nodeId, nodeIdAttrs] = defineField("nodeId");
+  // 4. storagePoolId
+  const [storagePoolId, storagePoolIdAttrs] = defineField("storagePoolId");
+
+  // 選択されたストレージプールの詳細情報
+  const selectedStoragePool = computed(() => {
+    if (!storagePools.value || !storagePoolId.value) return null;
+    return (
+      storagePools.value.find((pool) => pool.id === storagePoolId.value) || null
+    );
+  });
 
   // ============================================================================
   // Submission Handler
@@ -86,7 +94,7 @@ export function useImageAddForm() {
             const metadata = {
               name: payload.name,
               description: payload.description || "",
-              nodeId: payload.nodeId,
+              storagePoolId: payload.storagePoolId,
             };
             formData.append("metadata", JSON.stringify(metadata));
 
@@ -95,7 +103,7 @@ export function useImageAddForm() {
           } catch (error: unknown) {
             const message = extractErrorMessage(
               error,
-              "ファイルのアップロードに失敗しました。"
+              "ファイルのアップロードに失敗しました。",
             );
             return { success: false, error: new Error(message) };
           }
@@ -108,7 +116,7 @@ export function useImageAddForm() {
         // 送信直後にモーダルを閉じる
         emitCloseImmediately: true,
       },
-      emit
+      emit,
     );
 
   // ★ Close ハンドラーを emit 付きで返す
@@ -121,11 +129,12 @@ export function useImageAddForm() {
     description,
     descriptionAttrs,
     file,
-    nodeId,
-    nodeIdAttrs,
-    nodes,
-    nodesPending,
-    nodesError,
+    storagePoolId,
+    storagePoolIdAttrs,
+    storagePools,
+    storagePoolsPending,
+    storagePoolsError,
+    selectedStoragePool,
 
     isCreating: isUploading,
     isValid: computed(() => meta.value.valid),
