@@ -62,6 +62,14 @@ export function useImageAddForm() {
   // 4. storagePoolId
   const [storagePoolId, storagePoolIdAttrs] = defineField("storagePoolId");
 
+  // 選択されたストレージプールの詳細情報
+  const selectedStoragePool = computed(() => {
+    if (!storagePools.value || !storagePoolId.value) return null;
+    return (
+      storagePools.value.find((pool) => pool.id === storagePoolId.value) || null
+    );
+  });
+
   // ============================================================================
   // Submission Handler
   // ============================================================================
@@ -126,6 +134,7 @@ export function useImageAddForm() {
     storagePools,
     storagePoolsPending,
     storagePoolsError,
+    selectedStoragePool,
 
     isCreating: isUploading,
     isValid: computed(() => meta.value.valid),
