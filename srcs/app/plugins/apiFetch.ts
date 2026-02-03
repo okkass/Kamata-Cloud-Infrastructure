@@ -1,23 +1,39 @@
 export default defineNuxtPlugin((nuxtApp) => {
   const runtimeConfig = useRuntimeConfig();
 
-  const apiFetch = $fetch.create({
-    baseURL: runtimeConfig.public.apiBaseUrl || "/api/", // デフォルト値を設定
-    headers: {
-      Authorization: "Bearer mock-token", // ハードコードなので、いずれ本物のトークンに置き換える必要があります
-    },
-    async onResponseError({ response }) {
-      // エラーログを出力
-      console.error("API Error:", {
-        status: response.status,
-        statusText: response.statusText,
-        data: response._data,
-      });
-
-      // APIエラーはそのまま throw して、呼び出し側でハンドリングさせる
-      // showError は呼ばない（ページ全体のエラーページ表示を避ける）
-    },
-  });
+  // 環境変数からモックかどうかを判定
+  if (runtimeConfig.public.mock === "true") {
+    console.warn("Mock API Fetch is enabled.");
+    const apiFetch = $fetch.create({
+      baseURL: runtimeConfig.public.apiBaseUrl,
+      headers: {
+        Authorization: "Bearer mock-token", // ハードコードなので、いずれ本物のトークンに置き換える必要があります
+      },
+    });
+    return {
+      provide: {
+        apiFetch: apiFetch as typeof $fetch,
+      },
+    };
+  }
+  // 本番用
+  // サーバーサイドではリクエストヘッダーからトークンを取得してセットする
+  let apiFetch;
+  if (import.meta.server) {
+    console.log("Server-side API Fetch");
+    const headers = useRequestHeaders(["cookie"]);
+    apiFetch = $fetch.create({
+      baseURL: runtimeConfig.public.apiBaseUrl,
+      headers: {
+        ...headers,
+      },
+    });
+  } else {
+    console.log("Client-side API Fetch");
+    apiFetch = $fetch.create({
+      baseURL: runtimeConfig.public.apiBaseUrl,
+    });
+  }
   return {
     provide: {
       apiFetch: apiFetch as typeof $fetch,

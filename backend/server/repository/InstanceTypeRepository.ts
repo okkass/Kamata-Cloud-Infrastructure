@@ -1,87 +1,209 @@
-import type {
-  InstanceTypeResponse,
-  InstanceTypePatchRequest,
-  InstanceTypePutRequest,
-  InstanceTypeCreateRequest,
-} from "@app/shared/types";
-import crypto from "crypto";
+import { getPrismaClient } from "./common";
+import type { Result } from "@/common/type";
+import type { RepositoryError } from "@/common/errors";
+import { Prisma } from "@@/generated/client";
+import type { Repository } from "./common";
+import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
-let instanceTypes: Array<InstanceTypeResponse> | null = null;
+const instanceTypeArgs = {
+  select: {
+    uuid: true,
+    name: true,
+    cpuCore: true,
+    memorySizeMb: true,
+    createdAt: true,
+  },
+} satisfies Prisma.InstanceTypeFindManyArgs;
 
-const initInstanceTypes = (): Array<InstanceTypeResponse> => {
-  return [
-    {
-      id: "f4841834-88f5-43c5-8d74-c8bc62d0ee3f",
-      name: "nano",
-      createdAt: new Date().toISOString(),
-      cpuCore: 1,
-      memorySize: 1 * 1024 * 1024 * 1024, // 1 GB
-    },
-    {
-      id: "94628e75-6f53-42ea-aa85-1fecc7859d19",
-      name: "small",
-      createdAt: new Date().toISOString(),
-      cpuCore: 2,
-      memorySize: 2 * 1024 * 1024 * 1024, // 2 GB
-    },
-    {
-      id: "42c3099f-bcd4-4d59-8661-e665aa59f6f1",
-      name: "medium",
-      createdAt: new Date().toISOString(),
-      cpuCore: 4,
-      memorySize: 4 * 1024 * 1024 * 1024, // 4 GB
-    },
-  ];
-};
+const instanceTypeManyArgs = {
+  ...instanceTypeArgs,
+  orderBy: {
+    createdAt: "desc",
+  },
+} satisfies Prisma.InstanceTypeFindManyArgs;
 
-const list = (): Array<InstanceTypeResponse> => {
-  if (!instanceTypes) {
-    instanceTypes = initInstanceTypes();
-  }
-  return instanceTypes;
-};
+export interface InstanceTypeInsertProps {
+  name: string;
+  cpuCore: number;
+  memorySizeBytes: number; // 窓口は bytes
+}
 
-const getById = (id: string): InstanceTypeResponse | undefined => {
-  return list().find((instanceType) => instanceType.id === id);
-};
+export interface InstanceTypeUpdateProps {
+  name?: string;
+  cpuCore?: number;
+  memorySizeBytes?: number; // 窓口は bytes
+}
 
-const create = (
-  instanceType: InstanceTypeCreateRequest
-): InstanceTypeResponse => {
-  const newInstanceType: InstanceTypeResponse = {
-    id: crypto.randomUUID(),
-    name: instanceType.name,
-    createdAt: new Date().toISOString(),
-    cpuCore: instanceType.cpuCore,
-    memorySize: instanceType.memorySize,
+export interface InstanceTypeRecord {
+  uuid: string;
+  name: string;
+  cpuCore: number;
+  memorySizeBytes: number; // 窓口は bytes
+  createdAt: string; // ISO string
+}
+
+const toResponse = (row: {
+  uuid: string;
+  name: string;
+  cpuCore: number;
+  memorySizeMb: number; // MB
+  createdAt: Date;
+}): InstanceTypeRecord => {
+  return {
+    uuid: row.uuid,
+    name: row.name,
+    cpuCore: row.cpuCore,
+    // DBはMB -> 窓口はbytesに変換
+    memorySizeBytes: mbToBytes(row.memorySizeMb),
+    createdAt: row.createdAt.toISOString(),
   };
-  list().push(newInstanceType);
-  return newInstanceType;
 };
 
-const update = (
-  id: string,
-  updateFields: InstanceTypePatchRequest | InstanceTypePutRequest
-): InstanceTypeResponse | undefined => {
-  let target = getById(id);
-  if (target === undefined) {
-    return undefined;
+const list = async (): Promise<
+  Result<Array<InstanceTypeRecord>, RepositoryError>
+> => {
+  try {
+    const prisma = getPrismaClient();
+    const rows = await prisma.instanceType.findMany(instanceTypeManyArgs);
+    const records: InstanceTypeRecord[] = rows.map((row) => toResponse(row));
+
+    return { success: true, data: records };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
   }
-
-  target.name = updateFields.name ?? target.name;
-  target.cpuCore = updateFields.cpuCore ?? target.cpuCore;
-  target.memorySize = updateFields.memorySize ?? target.memorySize;
-
-  return target;
 };
 
-const deleteById = (id: string): boolean => {
-  const initialLength = list().length;
-  instanceTypes = list().filter((instanceType) => instanceType.id !== id);
-  return list().length < initialLength;
+const getById = async (
+  id: string,
+): Promise<Result<InstanceTypeRecord | null, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const row = await prisma.instanceType.findUnique({
+      where: { uuid: id },
+      ...instanceTypeArgs,
+    });
+    // nullならnullを、存在すれば変換して返す
+    const res = row ? toResponse(row) : null;
+
+    return { success: true, data: res };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
 };
 
-export const InstanceTypeRepository = {
+const create = async (
+  instanceType: InstanceTypeInsertProps,
+): Promise<Result<InstanceTypeRecord, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const newRow = await prisma.instanceType.create({
+      data: {
+        name: instanceType.name,
+        cpuCore: instanceType.cpuCore,
+        // DBへはMBで保存
+        memorySizeMb: bytesToMb(instanceType.memorySizeBytes),
+      },
+      ...instanceTypeArgs,
+    });
+    return { success: true, data: toResponse(newRow) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+const update = async (
+  id: string,
+  updateFields: InstanceTypeUpdateProps,
+): Promise<Result<InstanceTypeRecord, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const updatedRow = await prisma.instanceType.update({
+      where: { uuid: id },
+      data: {
+        name: updateFields.name,
+        cpuCore: updateFields.cpuCore,
+        // DBへはMBで保存
+        memorySizeMb: updateFields.memorySizeBytes
+          ? bytesToMb(updateFields.memorySizeBytes)
+          : undefined,
+      },
+      ...instanceTypeArgs,
+    });
+    return { success: true, data: toResponse(updatedRow) };
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "The specified instance type was not found.",
+          },
+        };
+      }
+    }
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+const deleteById = async (
+  id: string,
+): Promise<Result<void, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    await prisma.instanceType.delete({ where: { uuid: id } });
+    return { success: true, data: undefined };
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "The specified instance type was not found.",
+          },
+        };
+      }
+    }
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+export const InstanceTypeRepository: Repository<
+  InstanceTypeInsertProps,
+  InstanceTypeUpdateProps,
+  InstanceTypeRecord
+> = {
   list,
   getById,
   create,

@@ -1,6 +1,11 @@
 import type { UserPermissions } from "@/types";
 
 export default defineEventHandler((event) => {
+  // /api/authは認証不要
+  if (getRequestURL(event).pathname.startsWith("/api/auth")) {
+    return;
+  }
+
   // Authorizationヘッダで簡易的に認証
   const authHeader = getHeader(event, "authorization");
   if (!authHeader) {

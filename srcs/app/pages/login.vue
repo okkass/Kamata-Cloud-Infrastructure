@@ -51,7 +51,7 @@
 import { useForm } from "vee-validate";
 import { toTypedSchema } from "@vee-validate/zod";
 import * as z from "zod";
-import type { LoginRequestDTO } from "#imports";
+import type { LoginRequest } from "#imports";
 
 // サイドバーなどを表示しない専用のレイアウトを指定
 definePageMeta({ layout: "login" });
@@ -67,7 +67,7 @@ const validationSchema = toTypedSchema(
   z.object({
     userName: z.string().min(1, "ユーザー名またはメールアドレスは必須です。"),
     password: z.string().min(1, "パスワードを入力してください。"),
-  })
+  }),
 );
 
 /**
@@ -99,13 +99,16 @@ const { addToast } = useToast();
  * ==============================================================================
  */
 const onSubmit = handleSubmit(async (values) => {
+  const runtimeConfig = useRuntimeConfig();
+
   try {
-    const dto: LoginRequestDTO = {
+    const dto: LoginRequest = {
       email: values.userName,
       password: values.password,
     };
-
-    await $fetch("/api/login/web", {
+    const url = runtimeConfig.public.apiBaseUrl + "auth/login";
+    console.log("Submitting login request to:", url);
+    await $fetch(url, {
       method: "POST",
       body: dto,
     });
@@ -113,6 +116,7 @@ const onSubmit = handleSubmit(async (values) => {
     // ログイン成功後にホーム画面へリダイレクト
     await navigateTo("/");
   } catch (error: any) {
+    console.error("Login failed:", error);
     addToast({
       type: "error",
       message: "ログインに失敗しました",

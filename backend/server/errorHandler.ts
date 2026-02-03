@@ -8,10 +8,10 @@ export default defineNitroErrorHandler(
     const res = createErrorResponse(
       statusCode,
       error.statusMessage || "Internal Server Error",
-      error.message
+      error.message,
     );
     setHeader(event, "Content-Type", "application/json");
     setResponseStatus(event, res.status);
     return send(event, JSON.stringify(res));
-  }
+  },
 );

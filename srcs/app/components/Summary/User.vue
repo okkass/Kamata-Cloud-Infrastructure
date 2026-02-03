@@ -3,27 +3,30 @@
     <section class="summary-section lg:col-span-1">
       <SummaryQuickLink />
     </section>
-    <section class="summary-section lg:col-span-1">
+    <section
+      v-if="summaryData && summaryData[0]"
+      class="summary-section lg:col-span-1"
+    >
       <h2 class="summary-section-title">あなたのリソース割り当て</h2>
       <div v-if="summaryData?.clusterSummary" class="summary-grid">
         <SummaryProgressBar
           title="CPU 割り当て"
-          :usage="summaryData.clusterSummary.usedCpu.toFixed(1)"
-          :total="summaryData.clusterSummary.totalCpu"
+          :usage="summaryData[0].clusterSummary.usedCpu.toFixed(1)"
+          :total="summaryData[0].clusterSummary.totalCpu"
           unit="Cores"
         />
         <SummaryProgressBar
           title="メモリ割り当て"
           :usage="
             convertByteToUnit(
-              summaryData.clusterSummary.usedMemory,
+              summaryData[0].clusterSummary.usedMemory,
               'GB',
               DISABLE_ROUNDING,
             ).toFixed(1)
           "
           :total="
             convertByteToUnit(
-              summaryData.clusterSummary.totalMemory,
+              summaryData[0].clusterSummary.totalMemory,
               'GB',
               DISABLE_ROUNDING,
             ).toFixed(0)
@@ -34,14 +37,14 @@
           title="ストレージ割り当て"
           :usage="
             convertByteToUnit(
-              summaryData.clusterSummary.usedStorage,
+              summaryData[0].clusterSummary.usedStorage,
               'GB',
               DISABLE_ROUNDING,
             ).toFixed(1)
           "
           :total="
             convertByteToUnit(
-              summaryData.clusterSummary.totalStorage,
+              summaryData[0].clusterSummary.totalStorage,
               'GB',
               DISABLE_ROUNDING,
             ).toFixed(0)

@@ -1,4 +1,19 @@
 import { getPrismaClient } from "./common";
+import type { Result } from "@/common/type";
+import type { RepositoryError } from "@/common/errors";
+import { Prisma } from "@@/generated/client";
+import type { Repository } from "./common";
+import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
+
+const nodeArgs = {
+  select: {
+    uuid: true,
+    name: true,
+    ipAddress: true,
+    isAdmin: true,
+    createdAt: true,
+  },
+} satisfies Prisma.NodeFindManyArgs;
 
 export interface NodeInsertProps {
   name: string;
@@ -19,119 +34,164 @@ export interface NodeRecord {
   createdAt: Date;
 }
 
-const list = async () => {
-  const prisma = getPrismaClient();
-  const nodes = await prisma.node.findMany({
-    select: {
-      uuid: true,
-      name: true,
-      ipAddress: true,
-      isAdmin: true,
-      createdAt: true,
-    },
-  });
-  return nodes;
+const list = async (): Promise<Result<NodeRecord[], RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const nodes = await prisma.node.findMany({
+      ...nodeArgs,
+      orderBy: { createdAt: "desc" },
+    });
+    return { success: true, data: nodes };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
 };
 
-const getById = async (uuid: string): Promise<NodeRecord | null> => {
-  const prisma = getPrismaClient();
-
-  const node = await prisma.node.findUnique({
-    where: {
-      uuid,
-    },
-    select: {
-      uuid: true,
-      name: true,
-      ipAddress: true,
-      isAdmin: true,
-      createdAt: true,
-    },
-  });
-
-  return node;
+const getById = async (
+  uuid: string,
+): Promise<Result<NodeRecord | null, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const node = await prisma.node.findUnique({
+      where: { uuid },
+      ...nodeArgs,
+    });
+    return { success: true, data: node };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
 };
 
-const create = async (data: NodeInsertProps) => {
-  const prisma = getPrismaClient();
-
-  // トランザクションを使用して一貫性を保つ
-  const result = await prisma.$transaction(async (tx) => {
-    if (data.isAdmin) {
-      await tx.node.updateMany({
-        where: {
-          isAdmin: true,
-        },
-        data: {
-          isAdmin: false,
-        },
-      });
-    }
-    const node = await tx.node.create({
+const create = async (
+  data: NodeInsertProps,
+): Promise<Result<NodeRecord, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    const newNode = await prisma.node.create({
       data: {
         name: data.name,
         ipAddress: data.ipAddress,
         isAdmin: data.isAdmin,
       },
-      select: {
-        uuid: true,
-        name: true,
-        ipAddress: true,
-        isAdmin: true,
-        createdAt: true,
-      },
+      ...nodeArgs,
     });
-    return node;
-  });
-  return result;
+    return { success: true, data: newNode };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
 };
 
-const update = async (uuid: string, data: NodeUpdateProps) => {
-  const prisma = getPrismaClient();
-  // トランザクションを使用して一貫性を保つ
-  const result = await prisma.$transaction(async (tx) => {
-    // isAdminがtrueの場合、既存のisAdminをfalseに更新する
-    if (data.isAdmin) {
-      await tx.node.updateMany({
+const update = async (
+  uuid: string,
+  data: NodeUpdateProps,
+): Promise<Result<NodeRecord, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    // トランザクションを使用して一貫性を保つ
+    const result = await prisma.$transaction(async (tx) => {
+      // isAdminがtrueの場合、既存のisAdminをfalseに更新する
+      if (data.isAdmin) {
+        await tx.node.updateMany({
+          where: {
+            isAdmin: true,
+          },
+          data: {
+            isAdmin: false,
+          },
+        });
+      }
+      const node = await prisma.node.update({
         where: {
-          isAdmin: true,
+          uuid,
         },
         data: {
-          isAdmin: false,
+          name: data.name,
+          isAdmin: data.isAdmin,
         },
+        ...nodeArgs,
       });
-    }
-    const node = await prisma.node.update({
-      where: {
-        uuid,
-      },
-      data: {
-        name: data.name,
-        isAdmin: data.isAdmin,
-      },
-      select: {
-        uuid: true,
-        name: true,
-        ipAddress: true,
-        isAdmin: true,
-        createdAt: true,
-      },
+      return node;
     });
-    return node;
-  });
-  return result;
+    return {
+      success: true,
+      data: result,
+    };
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      // P2025(レコードが見つからない)エラーを処理
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "The specified node was not found.",
+          },
+        };
+      }
+    }
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
 };
 
-const deleteById = async (uuid: string) => {
-  const prisma = getPrismaClient();
-
-  const result = await prisma.node.delete({
-    where: { uuid },
-  });
-  return result;
+const deleteById = async (
+  uuid: string,
+): Promise<Result<void, RepositoryError>> => {
+  try {
+    const prisma = getPrismaClient();
+    await prisma.node.delete({ where: { uuid } });
+    return { success: true, data: undefined };
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      // P2025(レコードが見つからない)エラーを処理
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "The specified node was not found.",
+          },
+        };
+      }
+    }
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
 };
 
-export const NodeRepository = {
+export const NodeRepository: Repository<
+  NodeInsertProps,
+  NodeUpdateProps,
+  NodeRecord
+> = {
   list,
   getById,
   create,

@@ -3,59 +3,54 @@
     <section class="summary-section lg:col-span-1">
       <SummaryQuickLink />
     </section>
-    <section class="summary-section lg:col-span-1">
-      <div v-if="summaryData?.clusterSummary">
-        <h2 class="summary-section-title">現在のリソース状況</h2>
-        <div class="summary-grid">
-          <SummaryProgressBar
-            title="CPU 使用率"
-            :usage="(summaryData.clusterSummary.usedCpu ?? 0).toFixed(1)"
-            :total="summaryData.clusterSummary.totalCpu"
-            unit="Cores"
-          />
-          <SummaryProgressBar
-            title="メモリ使用率"
-            :usage="
-              convertByteToUnit(
-                summaryData.clusterSummary.usedMemory,
-                'GB',
-                DISABLE_ROUNDING,
-              ).toFixed(1)
-            "
-            :total="
-              convertByteToUnit(
-                summaryData.clusterSummary.totalMemory,
-                'GB',
-                DISABLE_ROUNDING,
-              ).toFixed(0)
-            "
-            unit="GB"
-          />
-          <SummaryProgressBar
-            title="ストレージ使用率"
-            :usage="
-              convertByteToUnit(
-                summaryData.clusterSummary.usedStorage,
-                'GB',
-                DISABLE_ROUNDING,
-              ).toFixed(1)
-            "
-            :total="
-              convertByteToUnit(
-                summaryData.clusterSummary.totalStorage,
-                'GB',
-                DISABLE_ROUNDING,
-              ).toFixed(0)
-            "
-            unit="GB"
-          />
-        </div>
-      </div>
-      <div v-else-if="summaryPending" class="loading-text">
-        リソース状況を読み込み中...
-      </div>
-      <div v-else-if="summaryError" class="error-text">
-        リソース状況の読み込みに失敗しました。
+    <section
+      v-if="summaryData && summaryData[0]?.clusterSummary"
+      class="summary-section lg:col-span-1"
+    >
+      <h2 class="summary-section-title">現在のリソース状況</h2>
+      <div class="summary-grid">
+        <SummaryProgressBar
+          title="CPU 使用率"
+          :usage="summaryData[0].clusterSummary.usedCpu.toFixed(1)"
+          :total="summaryData[0].clusterSummary.totalCpu"
+          unit="Cores"
+        />
+        <SummaryProgressBar
+          title="メモリ使用率"
+          :usage="
+            convertByteToUnit(
+              summaryData[0].clusterSummary.usedMemory,
+              'GB',
+              DISABLE_ROUNDING,
+            ).toFixed(1)
+          "
+          :total="
+            convertByteToUnit(
+              summaryData[0].clusterSummary.totalMemory,
+              'GB',
+              DISABLE_ROUNDING,
+            ).toFixed(0)
+          "
+          unit="GB"
+        />
+        <SummaryProgressBar
+          title="ストレージ使用率"
+          :usage="
+            convertByteToUnit(
+              summaryData[0].clusterSummary.usedStorage,
+              'GB',
+              DISABLE_ROUNDING,
+            ).toFixed(1)
+          "
+          :total="
+            convertByteToUnit(
+              summaryData[0].clusterSummary.totalStorage,
+              'GB',
+              DISABLE_ROUNDING,
+            ).toFixed(0)
+          "
+          unit="GB"
+        />
       </div>
     </section>
   </div>

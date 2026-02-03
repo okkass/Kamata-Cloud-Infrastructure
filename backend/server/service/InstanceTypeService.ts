@@ -8,6 +8,41 @@ import type {
 import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import InstanceTypeRepository from "@/repository/InstanceTypeRepository";
+import type {
+  InstanceTypeRecord,
+  InstanceTypeInsertProps,
+  InstanceTypeUpdateProps,
+} from "@/repository/InstanceTypeRepository";
+
+const toResponse = (record: InstanceTypeRecord): InstanceTypeResponse => {
+  return {
+    id: record.uuid,
+    name: record.name,
+    cpuCore: record.cpuCore,
+    memorySize: record.memorySizeBytes,
+    createdAt: record.createdAt,
+  };
+};
+
+const toInsertProps = (
+  data: InstanceTypeCreateRequest,
+): InstanceTypeInsertProps => {
+  return {
+    name: data.name,
+    cpuCore: data.cpuCore,
+    memorySizeBytes: data.memorySize,
+  };
+};
+
+const toUpdateProps = (
+  data: InstanceTypePatchRequest | InstanceTypePutRequest,
+): InstanceTypeUpdateProps => {
+  return {
+    name: data.name,
+    cpuCore: data.cpuCore,
+    memorySizeBytes: data.memorySize,
+  };
+};
 
 export const getInstanceTypeService = (permission: UserPermissions) => {
   const InstanceTypeService: ResourceService<
@@ -16,48 +51,84 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
     InstanceTypePatchRequest | InstanceTypePutRequest,
     ServiceError
   > = {
-    permission,
-    list(query) {
-      const instanceTypes = InstanceTypeRepository.list();
-      return { success: true, data: instanceTypes };
-    },
-    getById(id) {
-      const instanceType = InstanceTypeRepository.getById(id);
-      if (!instanceType) {
+    async list(query) {
+      const instanceTypes = await InstanceTypeRepository.list();
+      if (!instanceTypes.success) {
         return {
           success: false,
-          error: "NotFound",
+          error: { reason: "InternalError" },
         };
       }
-      return { success: true, data: instanceType };
+      return { success: true, data: instanceTypes.data.map(toResponse) };
     },
-    create(data) {
-      const newInstanceType = InstanceTypeRepository.create(data);
-      if (!newInstanceType) {
+
+    async getById(id) {
+      const instanceType = await InstanceTypeRepository.getById(id);
+      if (!instanceType.success) {
         return {
           success: false,
-          error: "BadRequest",
+          error: { reason: "InternalError" },
         };
       }
-      return { success: true, data: newInstanceType };
-    },
-    update(id, data) {
-      const updatedInstanceType = InstanceTypeRepository.update(id, data);
-      if (!updatedInstanceType) {
+      if (!instanceType.data) {
         return {
           success: false,
-          error: "NotFound",
+          error: { reason: "NotFound" },
         };
       }
-      return { success: true, data: updatedInstanceType };
+      return { success: true, data: toResponse(instanceType.data) };
     },
-    delete(id) {
-      const deleted = InstanceTypeRepository.deleteById(id);
-      if (!deleted) {
-        return { success: false, error: "NotFound" };
+
+    async create(data) {
+      const newInstanceType = await InstanceTypeRepository.create(
+        toInsertProps(data),
+      );
+      if (!newInstanceType.success) {
+        return {
+          success: false,
+          error: { reason: "InternalError" },
+        };
       }
-      return { success: true, data: null };
+      return { success: true, data: toResponse(newInstanceType.data) };
+    },
+
+    async update(id, data) {
+      const updatedInstanceType = await InstanceTypeRepository.update(
+        id,
+        toUpdateProps(data),
+      );
+      if (!updatedInstanceType.success) {
+        if (updatedInstanceType.error.reason === "NotFound") {
+          return {
+            success: false,
+            error: { reason: "NotFound" },
+          };
+        }
+        return {
+          success: false,
+          error: { reason: "InternalError" },
+        };
+      }
+      return { success: true, data: toResponse(updatedInstanceType.data) };
+    },
+
+    async delete(id) {
+      const deleted = await InstanceTypeRepository.deleteById(id);
+      if (!deleted.success) {
+        if (deleted.error.reason === "NotFound") {
+          return {
+            success: false,
+            error: { reason: "NotFound" },
+          };
+        }
+        return {
+          success: false,
+          error: { reason: "InternalError" },
+        };
+      }
+      return { success: true, data: undefined };
     },
   };
+
   return InstanceTypeService;
 };

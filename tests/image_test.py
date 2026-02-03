@@ -3,6 +3,7 @@ import json
 import random
 import os
 import sys
+import uuid
 
 from auth_test import get_header
 
@@ -36,7 +37,16 @@ def main():
         # 5. 削除 (Delete)
         test_delete_image(image_id)
 
+        print("\n=== 存在しないリソースのテストを実行します ===")
+        test_get_not_exist_image()
+        test_patch_not_exist_image()
+        test_put_not_exist_image()
+        test_delete_not_exist_image()
+
     except Exception as e:
+        # AssertioonErrorはそのまま投げる
+        if isinstance(e, AssertionError):
+            raise
         print(f"エラーまたはリソース不足のため一部のテストをスキップします: {e}")
 
 
@@ -47,7 +57,7 @@ def test_get_images():
         res.status_code == 200
     ), f"イメージ一覧の取得に失敗しました: {res.status_code}"
     images = res.json()
-    assert isinstance(images, list)
+    assert isinstance(images, list), "イメージ一覧のレスポンスがリストではありません"
     print("イメージ一覧を正常に取得しました。件数:", len(images))
     return images
 
@@ -96,7 +106,9 @@ def test_create_image(node_id):
 
     assert res.status_code == 201, f"イメージの作成に失敗しました: {res.status_code}"
     image = res.json()
-    assert image["name"] == name
+    assert (
+        image["name"] == name
+    ), f"作成されたイメージ名が一致しません。期待値: {name}, 実際: {image['name']}"
     print(f"作成されたイメージID: {image['id']}")
     return image["id"]
 
@@ -125,11 +137,15 @@ def test_patch_image(image_id):
     ), f"イメージのパッチ更新に失敗しました: {res.status_code}"
 
     patched_image = res.json()
-    assert patched_image["name"] == new_name
+    assert (
+        patched_image["name"] == new_name
+    ), f"パッチ更新後のイメージ名が一致しません。期待値: {new_name}, 実際: {patched_image['name']}"
 
     # description は任意項目のため、存在する場合のみ検証
     if "description" in patched_image:
-        assert patched_image["description"] == new_desc
+        assert (
+            patched_image["description"] == new_desc
+        ), f"パッチ更新後の説明が一致しません。期待値: {new_desc}, 実際: {patched_image['description']}"
 
     print(f"パッチ更新後のイメージ名: {patched_image['name']}")
     return patched_image
@@ -149,11 +165,15 @@ def test_put_image(image_id):
     ), f"イメージの更新(PUT)に失敗しました: {res.status_code}"
 
     replaced_image = res.json()
-    assert replaced_image["name"] == new_name
+    assert (
+        replaced_image["name"] == new_name
+    ), f"更新(PUT)後のイメージ名が一致しません。期待値: {new_name}, 実際: {replaced_image['name']}"
 
     # description は任意項目のため、存在する場合のみ検証
     if "description" in replaced_image:
-        assert replaced_image["description"] == new_desc
+        assert (
+            replaced_image["description"] == new_desc
+        ), f"更新(PUT)後の説明が一致しません。期待値: {new_desc}, 実際: {replaced_image['description']}"
 
     print(f"更新(PUT)後のイメージ名: {replaced_image['name']}")
     return replaced_image
@@ -171,6 +191,57 @@ def test_delete_image(image_id):
         res_get.status_code == 404
     ), f"削除後にイメージがまだ存在しています: {res_get.status_code}"
     print("イメージが削除されたことを確認しました (404)。")
+
+    # 再度削除を試みて404が返ることを確認
+    res_del_again = requests.delete(f"{API_URL}images/{image_id}", headers=headers)
+    assert (
+        res_del_again.status_code == 404
+    ), f"存在しないイメージの削除で404以外が返されました: {res_del_again.status_code}"
+    print("存在しないイメージの削除で404が返ることを確認しました。")
+
+
+def test_get_not_exist_image():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- GET /api/images/{not_exist_id} (存在しないID) のテスト ---")
+    res = requests.get(f"{API_URL}images/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"存在しないイメージの取得で404以外が返されました: {res.status_code}"
+    print("存在しないイメージの取得で404が返ることを確認しました。")
+
+
+def test_patch_not_exist_image():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- PATCH /api/images/{not_exist_id} (存在しないID) のテスト ---")
+    payload = {"name": "ShouldNotExist"}
+    res = requests.patch(
+        f"{API_URL}images/{not_exist_id}", headers=headers, json=payload
+    )
+    assert (
+        res.status_code == 404
+    ), f"存在しないイメージのPATCHで404以外が返されました: {res.status_code}"
+    print("存在しないイメージのPATCHで404が返ることを確認しました。")
+
+
+def test_put_not_exist_image():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- PUT /api/images/{not_exist_id} (存在しないID) のテスト ---")
+    payload = {"name": "ShouldNotExist", "description": "ShouldNotExist"}
+    res = requests.put(f"{API_URL}images/{not_exist_id}", headers=headers, json=payload)
+    assert (
+        res.status_code == 404
+    ), f"存在しないイメージのPUTで404以外が返されました: {res.status_code}"
+    print("存在しないイメージのPUTで404が返ることを確認しました。")
+
+
+def test_delete_not_exist_image():
+    not_exist_id = str(uuid.uuid4())
+    print(f"\n--- DELETE /api/images/{not_exist_id} (存在しないID) のテスト ---")
+    res = requests.delete(f"{API_URL}images/{not_exist_id}", headers=headers)
+    assert (
+        res.status_code == 404
+    ), f"存在しないイメージの削除で404以外が返されました: {res.status_code}"
+    print("存在しないイメージの削除で404が返ることを確認しました。")
 
 
 if __name__ == "__main__":

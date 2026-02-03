@@ -24,7 +24,7 @@ properties:
     description: 仮想マシンが作成された日時
   owner:
     description: 仮想マシンの所有者情報
-    $ref: "../user/UserResponse.yml"
+    $ref: "../user/OwnerInfo.yml"
   securityGroups:
     type: array
     items:
