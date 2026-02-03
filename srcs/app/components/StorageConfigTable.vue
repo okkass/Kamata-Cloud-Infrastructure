@@ -51,8 +51,8 @@
                   isBackupStorage(storage)
                     ? 'バックアップ元のサイズに固定されています'
                     : !isNewStorage(storage)
-                    ? '既存ディスクのサイズは変更できません'
-                    : ''
+                      ? '既存ディスクのサイズは変更できません'
+                      : ''
                 "
                 class="w-full"
               />
@@ -65,7 +65,7 @@
                 v-model="storage.poolId"
                 :options="poolDisplayOptions"
                 :option-label="(opt) => opt.displayName"
-                :option-value="(opt) => opt.id"
+                :option-value="(opt) => opt.id!"
                 :columns="['プール名', '空き容量', '総容量', '使用率']"
                 grid-template-columns="2fr 1fr 1fr 1fr"
                 :error-message="errors?.[index]?.poolId"
