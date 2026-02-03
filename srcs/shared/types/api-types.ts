@@ -6757,6 +6757,11 @@ export interface components {
              */
             usedSize: number;
             /**
+             * @description ストレージプールの利用可能なサイズ（バイト単位）
+             * @example 549755813888
+             */
+            availableSize: number;
+            /**
              * @description ストレージプールがネットワークアクセス可能かどうかを示すフラグ
              * @example true
              */
