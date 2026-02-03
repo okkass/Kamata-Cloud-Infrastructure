@@ -2,7 +2,7 @@ export default defineNuxtPlugin((nuxtApp) => {
   const runtimeConfig = useRuntimeConfig();
 
   // 環境変数からモックかどうかを判定
-  if (runtimeConfig.public.mock === "true") {
+  if (runtimeConfig.public.runMode === "mock") {
     console.warn("Mock API Fetch is enabled.");
     const apiFetch = $fetch.create({
       baseURL: runtimeConfig.public.apiBaseUrl,

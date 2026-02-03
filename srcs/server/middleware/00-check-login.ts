@@ -1,7 +1,9 @@
 // UIを表示する前にログイン済みかチェックし、未ログインならログインページにリダイレクトするミドルウェア
 export default defineEventHandler(async (event) => {
-  // MOCK=trueなら処理をスルー
-  if (process.env.MOCK === "true") {
+  // RUN_MODE=mockなら処理をスルー
+  const runtimeConfig = useRuntimeConfig();
+  if (runtimeConfig.public.runMode === "mock") {
+    console.warn("Mock mode: skipping login check middleware.");
     return;
   }
 
