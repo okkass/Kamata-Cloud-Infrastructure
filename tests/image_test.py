@@ -18,12 +18,12 @@ def main():
     test_get_images()
 
     try:
-        node_id = get_node_id()
-        print(f"使用するノードID: {node_id}")
+        pool_id = get_pool_id()
+        print(f"使用するストレージプールID: {pool_id}")
 
         print("\n=== CRUDテストを実行します ===")
         # 1. 作成 (Create)
-        image_id = test_create_image(node_id)
+        image_id = test_create_image(pool_id)
 
         # 2. 詳細取得 (Get Detail)
         test_get_image(image_id)
@@ -62,26 +62,29 @@ def test_get_images():
     return images
 
 
-def get_node_id():
-    print("\n--- イメージ作成対象のノードを取得しています ---")
-    res = requests.get(f"{API_URL}nodes", headers=headers)
-    assert res.status_code == 200, f"ノード一覧の取得に失敗しました: {res.status_code}"
-    nodes = res.json()
+def get_pool_id():
+    print("\n--- イメージ作成対象のストレージプールを取得しています ---")
+    res = requests.get(f"{API_URL}storage-pools", headers=headers)
+    assert (
+        res.status_code == 200
+    ), f"ストレージプール一覧の取得に失敗しました: {res.status_code}"
+    pools = res.json()
+    if not pools:
+        raise Exception(
+            "ストレージプールが見つかりません。イメージ作成テストを実行できません。"
+        )
 
-    if not nodes:
-        raise Exception("ノードが見つかりません。イメージ作成テストを実行できません。")
-
-    # 最初のノードIDを返す
-    return nodes[0]["id"]
+    # 最初のストレージプールIDを返す
+    return pools[0]["id"]
 
 
-def test_create_image(node_id):
+def test_create_image(pool_id):
     print("\n--- POST /api/images のテスト ---")
     name = f"TestImage_{random.randint(1000, 9999)}"
     desc = "Created by image_test.py"
 
     # メタデータを作成
-    payload = {"name": name, "description": desc, "nodeId": node_id}
+    payload = {"name": name, "description": desc, "storagePoolId": pool_id}
     metadata_json = json.dumps(payload)
 
     print("以下のメタデータでイメージを作成します:", metadata_json)

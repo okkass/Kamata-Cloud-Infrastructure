@@ -14,10 +14,8 @@ const imageArgs = {
     description: true,
     sizeMb: true,
     createdAt: true,
-    ownNode: {
-      select: {
-        uuid: true,
-      },
+    ownPool: {
+      select: { uuid: true },
     },
   },
 } satisfies Prisma.ImageFindManyArgs;
@@ -26,7 +24,7 @@ export type ImageInsertProps = {
   name: string;
   description?: string;
   sizeBytes: number;
-  nodeId: string; // Nodeのuuid
+  poolId: string; // Poolのuuid
 };
 
 export type ImageUpdateProps = {
@@ -40,7 +38,7 @@ export type ImageRecord = {
   description?: string;
   sizeBytes: number;
   createdAt: Date;
-  ownNodeUuid: string;
+  ownPoolUuid: string;
 };
 
 // PrismaのImage -> ImageRecord へ変換(nodeはuuidのみ)
@@ -53,7 +51,7 @@ const mapDbImageToImageRecord = (
     description: image.description ?? undefined,
     createdAt: image.createdAt,
     sizeBytes: mbToBytes(image.sizeMb),
-    ownNodeUuid: image.ownNode.uuid,
+    ownPoolUuid: image.ownPool.uuid,
   };
 };
 
@@ -101,15 +99,15 @@ const create = async (
   const prisma = getPrismaClient();
 
   try {
-    // nodeId から内部IDを取得
-    const node = await prisma.node.findUnique({
-      where: { uuid: image.nodeId },
+    // poolId から内部IDを取得
+    const pool = await prisma.storagePool.findUnique({
+      where: { uuid: image.poolId },
       select: { id: true },
     });
-    if (!node) {
+    if (!pool) {
       return {
         success: false,
-        error: { reason: "BadRequest", message: "Node not found" },
+        error: { reason: "BadRequest", message: "Pool not found" },
       };
     }
 
@@ -118,7 +116,7 @@ const create = async (
         name: image.name,
         description: image.description ?? null,
         sizeMb: bytesToMb(image.sizeBytes),
-        ownNodeId: node.id,
+        ownPoolId: pool.id,
       },
       ...imageArgs,
     });
