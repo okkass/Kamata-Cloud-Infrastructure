@@ -81,15 +81,24 @@ const getById = async (
   id: string,
 ): Promise<Result<ImageRecord | null, RepositoryError>> => {
   const prisma = getPrismaClient();
+  try {
+    const image = await prisma.image.findUnique({
+      where: { uuid: id },
+      ...imageArgs,
+    });
 
-  const image = await prisma.image.findUnique({
-    where: { uuid: id },
-    ...imageArgs,
-  });
-
-  return image
-    ? { success: true, data: mapDbImageToImageRecord(image) }
-    : { success: true, data: null };
+    return image
+      ? { success: true, data: mapDbImageToImageRecord(image) }
+      : { success: true, data: null };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
 };
 
 // 作成
