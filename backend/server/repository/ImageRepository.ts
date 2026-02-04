@@ -43,8 +43,8 @@ export type ImageRecord = {
   ownNodeUuid: string;
 };
 
-// PrismaのImage -> ImageResponse へ変換（nodeも含める）
-const mapDbImageToImageResponse = (
+// PrismaのImage -> ImageRecord へ変換(nodeはuuidのみ)
+const mapDbImageToImageRecord = (
   image: Prisma.ImageGetPayload<typeof imageArgs>,
 ): ImageRecord => {
   return {
@@ -66,7 +66,7 @@ const list = async (): Promise<Result<ImageRecord[], RepositoryError>> => {
       ...imageArgs,
       orderBy: { createdAt: "desc" },
     });
-    return { success: true, data: images.map(mapDbImageToImageResponse) };
+    return { success: true, data: images.map(mapDbImageToImageRecord) };
   } catch (error) {
     return {
       success: false,
@@ -90,7 +90,7 @@ const getById = async (
   });
 
   return image
-    ? { success: true, data: mapDbImageToImageResponse(image) }
+    ? { success: true, data: mapDbImageToImageRecord(image) }
     : { success: true, data: null };
 };
 
@@ -123,7 +123,7 @@ const create = async (
       ...imageArgs,
     });
 
-    return { success: true, data: mapDbImageToImageResponse(newImage) };
+    return { success: true, data: mapDbImageToImageRecord(newImage) };
   } catch (error) {
     return {
       success: false,
@@ -152,7 +152,7 @@ const update = async (
       },
       ...imageArgs,
     });
-    return { success: true, data: mapDbImageToImageResponse(updated) };
+    return { success: true, data: mapDbImageToImageRecord(updated) };
   } catch (error) {
     return {
       success: false,

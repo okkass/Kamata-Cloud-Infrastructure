@@ -4,15 +4,19 @@ import type {
   ImageCreateRequest,
   ImagePutRequest,
   ImagePatchRequest,
+  NodeResponse,
 } from "@app/shared/types";
 import { UserPermissions } from "@/types";
 import type { ServiceError } from "@/common/errors";
 import ImageRepository from "@/repository/ImageRepository";
+import type { ImageRecord } from "@/repository/ImageRepository";
+import { getNodeService } from "./NodeService";
 
-// 権限（必要なら厳密化）
-const canManageImages = (permission: UserPermissions | null) => {
-  if (!permission) return false;
-  return permission.isAdmin === true || permission.isImageAdmin === true;
+const mapRecordToResponse = (
+  record: ImageRecord,
+  node: NodeResponse,
+): ImageResponse => {
+  return {};
 };
 
 export const getImageService = (permission: UserPermissions | null = null) => {
@@ -24,16 +28,15 @@ export const getImageService = (permission: UserPermissions | null = null) => {
   > = {
     permission,
 
-    list: async (_query?: string) => {
-      try {
-        const images = await ImageRepository.list();
-        return { success: true, data: images };
-      } catch (_error: unknown) {
+    list: async (query: string) => {
+      const result = await ImageRepository.list();
+      if (!result.success) {
         return {
           success: false,
           error: { reason: "InternalError", message: "Failed to list images" },
         };
       }
+      return { success: true, data: result.data };
     },
 
     getById: async (id: string) => {
