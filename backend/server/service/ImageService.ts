@@ -35,7 +35,7 @@ export const getImageService = (permission: UserPermissions) => {
     ServiceError
   > = {
     list: async (
-      query: string,
+      query?: string,
     ): Promise<Result<ImageResponse[], ServiceError>> => {
       // ImageとStoragePoolを全件取得
       const imagePromise = ImageRepository.list();
