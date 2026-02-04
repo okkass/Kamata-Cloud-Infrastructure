@@ -26,6 +26,7 @@ const mapStoragePoolToResponse = (
     createdAt: pool.createdAt.toISOString(),
     totalSize: pool.totalSizeBytes,
     usedSize: pool.totalSizeBytes - pool.availableSizeBytes,
+    availableSize: pool.availableSizeBytes,
     hasNetworkAccess: pool.hasNetworkAccess,
     node: nodeData,
   };
