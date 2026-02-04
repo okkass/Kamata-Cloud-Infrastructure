@@ -152,6 +152,14 @@ const update = async (
     });
     return { success: true, data: mapDbImageToImageRecord(updated) };
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: { reason: "NotFound", message: "Image not found" },
+        };
+      }
+    }
     return {
       success: false,
       error: {
@@ -172,6 +180,14 @@ const deleteById = async (
     await prisma.image.delete({ where: { uuid: id } });
     return { success: true, data: undefined };
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: { reason: "NotFound", message: "Image not found" },
+        };
+      }
+    }
     return {
       success: false,
       error: {

@@ -160,8 +160,9 @@ export const getImageService = (permission: UserPermissions) => {
         description: data.description,
       });
       if (!result.success) {
-        if (result.error.reason === "BadRequest") {
-          return { success: false, error: { reason: "BadRequest" } };
+        // 対象imageが存在しない場合
+        if (result.error.reason === "NotFound") {
+          return { success: false, error: { reason: "NotFound" } };
         }
         return {
           success: false,
@@ -171,6 +172,7 @@ export const getImageService = (permission: UserPermissions) => {
       const poolService = getStoragePoolService(permission);
       const poolResult = await poolService.getById(result.data.ownPoolUuid);
       if (!poolResult.success || !poolResult.data) {
+        // poolが見つからないのは想定外
         return {
           success: false,
           error: { reason: "InternalError" },
@@ -184,6 +186,9 @@ export const getImageService = (permission: UserPermissions) => {
     delete: async (id) => {
       const result = await ImageRepository.deleteById(id);
       if (!result.success) {
+        if (result.error.reason === "NotFound") {
+          return { success: false, error: { reason: "NotFound" } };
+        }
         return {
           success: false,
           error: { reason: "InternalError" },
