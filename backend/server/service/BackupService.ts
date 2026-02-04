@@ -22,7 +22,6 @@ type BackupService = ResourceService<
 
 export const getBackupService = (permission: UserPermissions) => {
   const BackupService: BackupService = {
-    permission,
     list(query?: string) {
       const backups = BackupRepository.list();
       return { success: true, data: backups };

@@ -19,12 +19,12 @@ properties:
     type: number
     format: integer
     description: 仮想マシンイメージのサイズ(バイト単位)
-  node:
-    description: 仮想マシンイメージが存在するノードの情報
-    $ref: "../node/NodeResponse.yml"
+  storagePool:
+    description: 仮想マシンイメージが存在するストレージプールの情報
+    $ref: "../storage-pool/StoragePoolResponse.yml"
 required:
   - id
   - name
   - createdAt
   - size
-  - node
+  - storagePool

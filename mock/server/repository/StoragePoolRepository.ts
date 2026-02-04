@@ -7,7 +7,6 @@ import type {
 
 import crypto from "crypto";
 import NodeRepository from "./NodeRepository";
-import { generateRandomUsage } from "../api/summary/realtime.get.js";
 
 let storagePools: Array<StoragePoolResponse> = [
   {
@@ -16,7 +15,8 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
     createdAt: new Date().toISOString(),
     totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: getRandomInt(0, 500) * 1024 * 1024 * 1024,
+    usedSize: 0,
+    availableSize: 500 * 1024 * 1024 * 1024,
     hasNetworkAccess: true,
   },
   {
@@ -25,7 +25,8 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
     createdAt: new Date().toISOString(),
     totalSize: 500 * 1024 * 1024 * 1024, // 500 GB
-    usedSize: getRandomInt(0, 500) * 1024 * 1024 * 1024,
+    usedSize: 0,
+    availableSize: 500 * 1024 * 1024 * 1024,
     hasNetworkAccess: false,
   },
   {
@@ -34,7 +35,8 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
     createdAt: new Date().toISOString(),
     totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: getRandomInt(0, 1000) * 1024 * 1024 * 1024,
+    usedSize: 0,
+    availableSize: 1000 * 1024 * 1024 * 1024,
     hasNetworkAccess: true,
   },
   {
@@ -43,7 +45,8 @@ let storagePools: Array<StoragePoolResponse> = [
     node: NodeRepository.getById("7b57836d-cc87-40e1-938c-66682f1a108b")!,
     createdAt: new Date().toISOString(),
     totalSize: 1000 * 1024 * 1024 * 1024, // 1000 GB
-    usedSize: getRandomInt(0, 1000) * 1024 * 1024 * 1024,
+    usedSize: 0,
+    availableSize: 1000 * 1024 * 1024 * 1024,
     hasNetworkAccess: false,
   },
 ];
@@ -57,20 +60,22 @@ const getById = (id: string): StoragePoolResponse | undefined => {
 };
 
 const add = (
-  pool: StoragePoolCreateRequest
+  pool: StoragePoolCreateRequest,
 ): StoragePoolResponse | undefined => {
   const node = NodeRepository.getById(pool.nodeId);
   if (!node) {
     return undefined;
   }
   const uuid = crypto.randomUUID();
+  const size = getRandomInt(100, 1000) * 1024 * 1024 * 1024; // Random size between 100GB and 1000GB
   const newPool: StoragePoolResponse = {
     id: uuid,
     node: node,
     name: pool.name,
     createdAt: new Date().toISOString(),
-    totalSize: getRandomInt(100, 1000) * 1024 * 1024 * 1024, // Random size between 100 GB and 1000 GB
+    totalSize: size,
     usedSize: 0,
+    availableSize: size,
     hasNetworkAccess: pool.hasNetworkAccess,
   };
   storagePools.push(newPool);
@@ -79,7 +84,7 @@ const add = (
 
 const update = (
   id: string,
-  updateFields: StoragePoolPatchRequest | StoragePoolPutRequest
+  updateFields: StoragePoolPatchRequest | StoragePoolPutRequest,
 ): StoragePoolResponse | undefined => {
   let target = getById(id);
   if (target === undefined) {

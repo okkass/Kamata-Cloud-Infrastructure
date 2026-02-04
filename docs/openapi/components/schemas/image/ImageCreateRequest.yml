@@ -4,5 +4,5 @@ allOf:
   - $ref: "./ImageClientUpdatable.yml"
   - $ref: "./ImageCreateOnly.yml"
 required:
-  - nodeId
+  - storagePoolId
   - name

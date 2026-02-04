@@ -24,8 +24,8 @@
       </div>
 
       <div>
-        <div class="detail-label">ノード</div>
-        <div class="detail-value">{{ image?.node?.name || "-" }}</div>
+        <div class="detail-label">ストレージプール</div>
+        <div class="detail-value">{{ image?.storagePool?.name || "-" }}</div>
       </div>
 
       <div class="detail-card-section">

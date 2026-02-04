@@ -36,7 +36,7 @@ type VirtualMachineService = ResourceService<
   ServiceError
 > & {
   getStorageService: (
-    vmId: string
+    vmId: string,
   ) =>
     | ResourceService<
         StorageResponse,
@@ -46,7 +46,7 @@ type VirtualMachineService = ResourceService<
       >
     | undefined;
   getNetworkInterfaceService: (
-    vmId: string
+    vmId: string,
   ) =>
     | ResourceService<
         NetworkInterfaceResponse,
@@ -56,7 +56,7 @@ type VirtualMachineService = ResourceService<
       >
     | undefined;
   getVmSecurityGroupService: (
-    vmId: string
+    vmId: string,
   ) =>
     | ResourceService<
         SecurityGroupResponse,
@@ -70,7 +70,6 @@ type VirtualMachineService = ResourceService<
 
 export const getVirtualMachineService = (permission: UserPermissions) => {
   const virtualMachineService: VirtualMachineService = {
-    permission,
     list(query) {
       const vms = VirtualMachineRepository.list();
       return { success: true, data: vms };
@@ -170,7 +169,7 @@ export const getVirtualMachineService = (permission: UserPermissions) => {
         list(query) {
           const nics =
             VirtualMachineRepository.listNetworkInterfacesByVirtualMachineId(
-              vmId
+              vmId,
             );
           if (!nics) {
             return {

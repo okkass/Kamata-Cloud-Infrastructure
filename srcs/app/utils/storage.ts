@@ -26,9 +26,9 @@ export interface StoragePoolInfo {
  * @returns 計算済みのストレージプール情報
  */
 export const getStoragePoolInfo = (
-  pool: StoragePoolResponse
+  pool: StoragePoolResponse,
 ): StoragePoolInfo => {
-  const availableSize = pool.totalSize - pool.usedSize;
+  const availableSize = pool.availableSize;
   const usagePercent =
     pool.totalSize > 0 ? Math.round((pool.usedSize / pool.totalSize) * 100) : 0;
 

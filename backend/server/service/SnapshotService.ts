@@ -16,7 +16,6 @@ export const getSnapshotService = (permission: UserPermissions) => {
     SnapshotPatchRequest | SnapshotPutRequest | never,
     ServiceError
   > = {
-    permission,
     list(query?: string) {
       const snapshots = SnapshotRepository.list();
       return { success: true, data: snapshots };

@@ -6725,6 +6725,48 @@ export interface components {
              */
             storageUtilization?: number;
         };
+        /** @description ストレージプールレスポンスオブジェクト */
+        StoragePoolResponse: {
+            /**
+             * Format: uuid
+             * @description ストレージプールを識別するための一意なID
+             * @example 550e8400-e29b-41d4-a716-446655440000
+             */
+            id: string;
+            /**
+             * @description ストレージプールの名前
+             * @example Node1 Pool 1
+             */
+            name: string;
+            /** @description ストレージプールが属する物理ノード */
+            node: components["schemas"]["NodeResponse"];
+            /**
+             * Format: date-time
+             * @description ストレージプールが作成された日時
+             * @example 2024-01-01T12:00:00Z
+             */
+            createdAt: string;
+            /**
+             * @description ストレージプールの総サイズ（バイト単位）
+             * @example 1099511627776
+             */
+            totalSize: number;
+            /**
+             * @description ストレージプールの使用済みサイズ（バイト単位）
+             * @example 549755813888
+             */
+            usedSize: number;
+            /**
+             * @description ストレージプールの利用可能なサイズ（バイト単位）
+             * @example 549755813888
+             */
+            availableSize: number;
+            /**
+             * @description ストレージプールがネットワークアクセス可能かどうかを示すフラグ
+             * @example true
+             */
+            hasNetworkAccess: boolean;
+        };
         /** @description 仮想マシンイメージのレスポンスオブジェクト */
         ImageResponse: {
             /**
@@ -6746,8 +6788,8 @@ export interface components {
              * @description 仮想マシンイメージのサイズ(バイト単位)
              */
             size: number;
-            /** @description 仮想マシンイメージが存在するノードの情報 */
-            node: components["schemas"]["NodeResponse"];
+            /** @description 仮想マシンイメージが存在するストレージプールの情報 */
+            storagePool: components["schemas"]["StoragePoolResponse"];
         };
         /** @description 仮想マシンイメージのうち更新可能な情報を表すスキーマ */
         ImageClientUpdatable: {
@@ -6766,12 +6808,12 @@ export interface components {
         ImageCreateOnly: {
             /**
              * Format: uuid
-             * @description イメージを作成するノードのID
+             * @description イメージを作成するストレージプールのID
              */
-            nodeId?: string;
+            storagePoolId?: string;
         };
         /** @description 仮想マシンイメージ作成リクエストオブジェクト */
-        ImageCreateRequest: WithRequired<components["schemas"]["ImageClientUpdatable"], "name"> & WithRequired<components["schemas"]["ImageCreateOnly"], "nodeId">;
+        ImageCreateRequest: WithRequired<components["schemas"]["ImageClientUpdatable"], "name"> & WithRequired<components["schemas"]["ImageCreateOnly"], "storagePoolId">;
         /** @description 仮想マシンイメージ更新リクエスト(PUT)オブジェクト */
         ImagePutRequest: {
             /**
@@ -7084,43 +7126,6 @@ export interface components {
              * @description セキュリティルールを識別するための一意なID
              */
             id?: string;
-        };
-        /** @description ストレージプールレスポンスオブジェクト */
-        StoragePoolResponse: {
-            /**
-             * Format: uuid
-             * @description ストレージプールを識別するための一意なID
-             * @example 550e8400-e29b-41d4-a716-446655440000
-             */
-            id: string;
-            /**
-             * @description ストレージプールの名前
-             * @example Node1 Pool 1
-             */
-            name: string;
-            /** @description ストレージプールが属する物理ノード */
-            node: components["schemas"]["NodeResponse"];
-            /**
-             * Format: date-time
-             * @description ストレージプールが作成された日時
-             * @example 2024-01-01T12:00:00Z
-             */
-            createdAt: string;
-            /**
-             * @description ストレージプールの総サイズ（バイト単位）
-             * @example 1099511627776
-             */
-            totalSize: number;
-            /**
-             * @description ストレージプールの使用済みサイズ（バイト単位）
-             * @example 549755813888
-             */
-            usedSize: number;
-            /**
-             * @description ストレージプールがネットワークアクセス可能かどうかを示すフラグ
-             * @example true
-             */
-            hasNetworkAccess: boolean;
         };
         /** @description ストレージプール作成時のみ設定可能なプロパティ */
         StoragePoolCreateOnly: {
@@ -7877,6 +7882,7 @@ export type LoginResponse = components['schemas']['LoginResponse'];
 export type ErrorResponse = components['schemas']['ErrorResponse'];
 export type RefreshRequest = components['schemas']['RefreshRequest'];
 export type NodeResponse = components['schemas']['NodeResponse'];
+export type StoragePoolResponse = components['schemas']['StoragePoolResponse'];
 export type ImageResponse = components['schemas']['ImageResponse'];
 export type ImageClientUpdatable = components['schemas']['ImageClientUpdatable'];
 export type ImageCreateOnly = components['schemas']['ImageCreateOnly'];
@@ -7909,7 +7915,6 @@ export type SecurityGroupPatchRequest = components['schemas']['SecurityGroupPatc
 export type SecurityRuleBulkRequest = components['schemas']['SecurityRuleBulkRequest'];
 export type SecurityRulePutRequest = components['schemas']['SecurityRulePutRequest'];
 export type SecurityRulePatchRequest = components['schemas']['SecurityRulePatchRequest'];
-export type StoragePoolResponse = components['schemas']['StoragePoolResponse'];
 export type StoragePoolCreateOnly = components['schemas']['StoragePoolCreateOnly'];
 export type StoragePoolUpdatable = components['schemas']['StoragePoolUpdatable'];
 export type StoragePoolCreateRequest = components['schemas']['StoragePoolCreateRequest'];

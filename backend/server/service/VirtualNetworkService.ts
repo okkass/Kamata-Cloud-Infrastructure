@@ -31,7 +31,6 @@ type VirtualNetworkService = ResourceService<
 
 export const getVirtualNetworkService = (permission: UserPermissions) => {
   const VirtualNetworkService: VirtualNetworkService = {
-    permission,
     list(query?: string) {
       const vnets = VirtualNetworkRepository.list();
       return { success: true, data: vnets };
@@ -113,7 +112,7 @@ export const getVirtualNetworkService = (permission: UserPermissions) => {
           const updatedSubnet = VirtualNetworkRepository.updateSubnet(
             vnetId,
             id,
-            data
+            data,
           );
           if (!updatedSubnet) {
             return {

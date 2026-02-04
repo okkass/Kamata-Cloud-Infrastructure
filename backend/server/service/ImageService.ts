@@ -26,11 +26,13 @@ export const getImageService = (permission: UserPermissions | null = null) => {
     ImagePatchRequest | ImagePutRequest,
     ServiceError
   > = {
-    permission,
-
-    list: async (query: string) => {
-      const result = await ImageRepository.list();
-      if (!result.success) {
+    list(query?: string): Result<ImageResponse[], ServiceError> {
+      const images = ImageRepository.list();
+      return { success: true, data: images };
+    },
+    getById(id): Result<ImageResponse, ServiceError> {
+      const image = ImageRepository.getById(id);
+      if (!image) {
         return {
           success: false,
           error: { reason: "InternalError", message: "Failed to list images" },
