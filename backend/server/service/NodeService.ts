@@ -53,7 +53,7 @@ export const mapNodeToResponse = (
 
 export const getNodeService = (permission: UserPermissions) => {
   const nodeService: NodeService = {
-    async list(query) {
+    list: async (query) => {
       const repositoryResult = await NodeRepository.list();
       if (!repositoryResult.success) {
         return {
@@ -75,7 +75,7 @@ export const getNodeService = (permission: UserPermissions) => {
         }),
       };
     },
-    async getById(id) {
+    getById: async (id) => {
       const repositoryResult = await NodeRepository.getById(id);
       if (!repositoryResult.success) {
         return {
@@ -99,7 +99,7 @@ export const getNodeService = (permission: UserPermissions) => {
       const result = mapNodeToResponse(node, pveNodeData);
       return { success: true, data: result };
     },
-    async create(data) {
+    create: async (data) => {
       const req: NodeInsertProps = {
         name: data.name ?? `node-${data.ipAddress}`,
         ipAddress: data.ipAddress,
@@ -123,7 +123,7 @@ export const getNodeService = (permission: UserPermissions) => {
       const result = mapNodeToResponse(node, pveNodeData);
       return { success: true, data: result };
     },
-    async update(id, data) {
+    update: async (id, data) => {
       const req: NodeUpdateProps = {
         name: data.name,
         isAdmin: data.isAdmin,
@@ -151,7 +151,7 @@ export const getNodeService = (permission: UserPermissions) => {
       const result = mapNodeToResponse(node, pveNodeData);
       return { success: true, data: result };
     },
-    async delete(id) {
+    delete: async (id) => {
       const res = await NodeRepository.deleteById(id);
       if (!res.success) {
         if (res.error.reason === "NotFound") {
@@ -167,10 +167,10 @@ export const getNodeService = (permission: UserPermissions) => {
       }
       return { success: true, data: undefined };
     },
-    async listNewDevices(nodeId) {
+    listNewDevices: async (nodeId) => {
       return { success: false, error: { reason: "NotImplemented" } };
     },
-    async listCandidates() {
+    listCandidates: async () => {
       return { success: false, error: { reason: "NotImplemented" } };
     },
   };
