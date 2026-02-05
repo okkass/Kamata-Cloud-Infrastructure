@@ -51,7 +51,7 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
     InstanceTypePatchRequest | InstanceTypePutRequest,
     ServiceError
   > = {
-    async list(query) {
+    list: async (query) => {
       const instanceTypes = await InstanceTypeRepository.list();
       if (!instanceTypes.success) {
         return {
@@ -62,7 +62,7 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
       return { success: true, data: instanceTypes.data.map(toResponse) };
     },
 
-    async getById(id) {
+    getById: async (id) => {
       const instanceType = await InstanceTypeRepository.getById(id);
       if (!instanceType.success) {
         return {
@@ -79,7 +79,7 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
       return { success: true, data: toResponse(instanceType.data) };
     },
 
-    async create(data) {
+    create: async (data) => {
       const newInstanceType = await InstanceTypeRepository.create(
         toInsertProps(data),
       );
@@ -92,7 +92,7 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
       return { success: true, data: toResponse(newInstanceType.data) };
     },
 
-    async update(id, data) {
+    update: async (id, data) => {
       const updatedInstanceType = await InstanceTypeRepository.update(
         id,
         toUpdateProps(data),
@@ -112,7 +112,7 @@ export const getInstanceTypeService = (permission: UserPermissions) => {
       return { success: true, data: toResponse(updatedInstanceType.data) };
     },
 
-    async delete(id) {
+    delete: async (id) => {
       const deleted = await InstanceTypeRepository.deleteById(id);
       if (!deleted.success) {
         if (deleted.error.reason === "NotFound") {
