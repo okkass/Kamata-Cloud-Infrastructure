@@ -1,93 +1,217 @@
-import type {
-  ImageResponse,
-  ImageCreateRequest,
-  ImagePatchRequest,
-  ImagePutRequest,
-} from "@app/shared/types";
+import { getPrismaClient } from "./common";
+import { Prisma } from "@@/generated/client";
+import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
 
-import { NodeRepository } from "./NodeRepository";
+import type { Result } from "@/common/type";
+import type { Repository } from "./common";
+import type { RepositoryError } from "@/common/errors";
 
-import crypto from "crypto";
-
-let images: Array<ImageResponse> | null = null;
-
-const initImages = (): Array<ImageResponse> => {
-  return [
-    {
-      id: "9456327e-7f15-48a5-875e-e367ec02ebaf",
-      name: "Ubuntu 20.04",
-      description: "Ubuntu 20.04 LTS image",
-      createdAt: new Date().toISOString(),
-      size: 2 * 1024 * 1024 * 1024, // 2 GB
-      node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
+// Nodeの情報はuuidだけ渡す。ほかはService叩いてね
+const imageArgs = {
+  select: {
+    uuid: true,
+    name: true,
+    description: true,
+    sizeMb: true,
+    createdAt: true,
+    ownPool: {
+      select: { uuid: true },
     },
-    {
-      id: "616294c5-65fc-4336-8655-f61726ca55cd",
-      name: "CentOS 8",
-      createdAt: new Date().toISOString(),
-      size: 3 * 1024 * 1024 * 1024, // 3 GB
-      node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
-    },
-    {
-      id: "42af756f-6710-4994-b993-f2b2c2c5393b",
-      name: "Debian 10",
-      createdAt: new Date().toISOString(),
-      size: 2.5 * 1024 * 1024 * 1024, // 2.5 GB
-      node: NodeRepository.getById("a2dcd604-49cb-4e1c-826a-2071d50404a3")!,
-    },
-  ];
+  },
+} satisfies Prisma.ImageFindManyArgs;
+
+export type ImageInsertProps = {
+  name: string;
+  description?: string;
+  sizeBytes: number;
+  poolId: string; // Poolのuuid
 };
 
-const list = (): Array<ImageResponse> => {
-  if (!images) {
-    images = initImages();
-  }
-  return images;
+export type ImageUpdateProps = {
+  name?: string;
+  description?: string;
 };
 
-const getById = (id: string): ImageResponse | undefined => {
-  return list().find((image) => image.id === id);
+export type ImageRecord = {
+  uuid: string;
+  name: string;
+  description?: string;
+  sizeBytes: number;
+  createdAt: Date;
+  ownPoolUuid: string;
 };
 
-const create = (image: ImageCreateRequest): ImageResponse | undefined => {
-  const node = NodeRepository.getById(image.nodeId);
-  if (!node) {
-    return undefined;
-  }
-
-  const newImage: ImageResponse = {
-    id: crypto.randomUUID(),
+// PrismaのImage -> ImageRecord へ変換(nodeはuuidのみ)
+const mapDbImageToImageRecord = (
+  image: Prisma.ImageGetPayload<typeof imageArgs>,
+): ImageRecord => {
+  return {
+    uuid: image.uuid,
     name: image.name,
-    createdAt: new Date().toISOString(),
-    size: 2 * 1024 * 1024 * 1024, // 2 GB
-    node: node,
+    description: image.description ?? undefined,
+    createdAt: image.createdAt,
+    sizeBytes: mbToBytes(image.sizeMb),
+    ownPoolUuid: image.ownPool.uuid,
   };
-  list().push(newImage);
-  return newImage;
 };
 
-const update = (
+// 一覧取得
+const list = async (): Promise<Result<ImageRecord[], RepositoryError>> => {
+  const prisma = getPrismaClient();
+
+  try {
+    const images = await prisma.image.findMany({
+      ...imageArgs,
+      orderBy: { createdAt: "desc" },
+    });
+    return { success: true, data: images.map(mapDbImageToImageRecord) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+// uuidで取得（無ければnull）
+const getById = async (
   id: string,
-  updateFields: ImagePatchRequest | ImagePutRequest
-): ImageResponse | undefined => {
-  let target = getById(id);
-  if (target === undefined) {
-    return undefined;
+): Promise<Result<ImageRecord | null, RepositoryError>> => {
+  const prisma = getPrismaClient();
+  try {
+    const image = await prisma.image.findUnique({
+      where: { uuid: id },
+      ...imageArgs,
+    });
+
+    return image
+      ? { success: true, data: mapDbImageToImageRecord(image) }
+      : { success: true, data: null };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
   }
-  target.name = updateFields.name ?? target.name;
-  if ("description" in updateFields) {
-    target.description = updateFields.description;
-  }
-  return target;
 };
 
-const deleteById = (id: string): boolean => {
-  const initialLength = list().length;
-  images = list().filter((image) => image.id !== id);
-  return list().length < initialLength;
+// 作成
+const create = async (
+  image: ImageInsertProps,
+): Promise<Result<ImageRecord, RepositoryError>> => {
+  const prisma = getPrismaClient();
+
+  try {
+    // poolId から内部IDを取得
+    const pool = await prisma.storagePool.findUnique({
+      where: { uuid: image.poolId },
+      select: { id: true },
+    });
+    if (!pool) {
+      return {
+        success: false,
+        error: { reason: "BadRequest", message: "Pool not found" },
+      };
+    }
+
+    const newImage = await prisma.image.create({
+      data: {
+        name: image.name,
+        description: image.description ?? null,
+        sizeMb: bytesToMb(image.sizeBytes),
+        ownPoolId: pool.id,
+      },
+      ...imageArgs,
+    });
+
+    return { success: true, data: mapDbImageToImageRecord(newImage) };
+  } catch (error) {
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
 };
 
-export const ImageRepository = {
+// 更新（Patch/Put）
+// 無ければ 失敗 を返す
+const update = async (
+  id: string,
+  updateFields: ImageUpdateProps,
+): Promise<Result<ImageRecord, RepositoryError>> => {
+  const prisma = getPrismaClient();
+
+  try {
+    const updated = await prisma.image.update({
+      where: { uuid: id },
+      data: {
+        name: updateFields.name,
+        description: updateFields.description,
+      },
+      ...imageArgs,
+    });
+    return { success: true, data: mapDbImageToImageRecord(updated) };
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: { reason: "NotFound", message: "Image not found" },
+        };
+      }
+    }
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+// 削除（成功したら true、無ければ false）
+const deleteById = async (
+  id: string,
+): Promise<Result<void, RepositoryError>> => {
+  const prisma = getPrismaClient();
+
+  try {
+    await prisma.image.delete({ where: { uuid: id } });
+    return { success: true, data: undefined };
+  } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: { reason: "NotFound", message: "Image not found" },
+        };
+      }
+    }
+    return {
+      success: false,
+      error: {
+        reason: "InternalError",
+        message: error instanceof Error ? error.message : "Unknown error",
+      },
+    };
+  }
+};
+
+export const ImageRepository: Repository<
+  ImageInsertProps,
+  ImageUpdateProps,
+  ImageRecord
+> = {
   list,
   getById,
   create,
