@@ -178,7 +178,6 @@ model Node {
 
   // Relations
   virtualMachines VirtualMachine[]
-  images          Image[]
   storagePools    StoragePool[]
 
   @@map("nodes")
@@ -191,10 +190,10 @@ model Image {
   description String?  @db.Text
   sizeMb      Int      @map("size_mb")
   createdAt   DateTime @default(now()) @map("created_at")
-  ownNodeId   BigInt   @map("own_node_id")
+  ownPoolId   BigInt   @map("own_pool_id")
 
   // Relations
-  ownNode         Node             @relation(fields: [ownNodeId], references: [id], onDelete: Cascade)
+  ownPool         StoragePool      @relation(fields: [ownPoolId], references: [id], onDelete: Cascade)
   virtualMachines VirtualMachine[]
 
   @@map("images")
@@ -239,6 +238,7 @@ model StoragePool {
   // Relations
   virtualStorages VirtualStorage[]
   node            Node           @relation(fields: [nodeId], references: [id], onDelete: Cascade)
+  images          Image[]
 
   @@map("storage_pools")
 }

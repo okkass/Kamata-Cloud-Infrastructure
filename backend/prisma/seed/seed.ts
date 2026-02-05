@@ -10,6 +10,7 @@ import {
   createInitialInstanceTypes,
   deleteAllInstanceTypes,
 } from "./instanceType.js";
+import { createInitialImages, deleteAllImages } from "./image.js";
 import { createInitialSGs, deleteAllSGs } from "./securityGroup.js";
 
 let prisma: PrismaClient | null = null;
@@ -87,6 +88,16 @@ async function main() {
     console.log(
       `- ${type.name} (CPU: ${type.cpuCore}, Memory: ${type.memorySizeMb}MB)`,
     );
+  });
+
+  // Seed Images
+  await deleteAllImages();
+  await createInitialImages();
+  const allImages = await prisma.image.findMany();
+  console.log(`Created ${allImages.length} images:`);
+
+  allImages.forEach((image) => {
+    console.log(`- ${image.name} (Size: ${image.sizeMb}MB)`);
   });
 
   // Seed Security Groups
