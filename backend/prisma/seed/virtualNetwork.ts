@@ -58,6 +58,7 @@ export const createInitialVNs = async (users: Prisma.UserGetPayload<{}>[]) => {
       });
     });
     await Promise.all(createVNPromises);
+    console.log("Initial virtual networks created successfully.");
   } catch (error) {
     console.error("Error creating virtual networks:", error);
   }
