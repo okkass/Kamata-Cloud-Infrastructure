@@ -68,6 +68,7 @@ export const deleteAllVNs = async () => {
   const prisma = getPrismaClient();
   try {
     await prisma.virtualNetwork.deleteMany({});
+    console.log("All virtual networks deleted successfully.");
   } catch (error) {
     console.error("Error deleting virtual networks:", error);
   }
