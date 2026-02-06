@@ -5,13 +5,9 @@
       読み込み中…
     </div>
 
-    <div v-else-if="!image && error" class="text-sm text-red-500">
-      エラーが発生しました：{{ error.message }}
-    </div>
-
     <!-- image が一度でも取得できたら、以降は常にこれ -->
     <ResourceDetailShell
-      v-else
+      v-else-if="image"
       title="イメージ詳細"
       subtitle="Image Information"
       :tabs="imageTabs"
@@ -32,10 +28,16 @@
 </template>
 
 <script setup lang="ts">
+import { ref, onMounted, onUnmounted, nextTick } from "vue";
+import { useRoute, useRouter } from "vue-router";
 import { IMAGE } from "~/utils/constants";
+import { createPolling } from "~/utils/polling";
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import MoImageEdit from "~/components/MoImageEdit.vue";
 import { imageTabs } from "~/composables/detail/useImageTabs";
+import { useResourceDetail } from "~/composables/useResourceDetail";
+import { useToast } from "~/composables/useToast";
+import { useResourceErrorGuard } from "~/composables/useResourceErrorGuard";
 
 const { addToast } = useToast();
 
@@ -49,8 +51,11 @@ const {
   refresh,
 } = await useResourceDetail<ImageResponse>(
   IMAGE.name,
-  route.params.id as string
+  route.params.id as string,
 );
+
+// エラーをカスタムエラーページに統一
+useResourceErrorGuard(image, pending, error);
 
 // --- ポーリング設定 ---
 const polling = createPolling(async () => {

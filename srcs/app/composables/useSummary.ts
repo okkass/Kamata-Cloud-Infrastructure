@@ -10,10 +10,13 @@ import type { ApexOptions } from "apexcharts";
 const createChartOptions = (
   title: string,
   totalValue: number,
-  unit: string
+  unit: string,
 ): ApexOptions => {
   return {
     chart: { type: "area", zoom: { enabled: false }, toolbar: { show: false } },
+    theme: {
+      mode: "light",
+    },
     dataLabels: { enabled: false },
     stroke: { curve: "smooth", width: 2 },
     fill: { type: "gradient", gradient: { opacityFrom: 0.7, opacityTo: 0.1 } },
@@ -41,6 +44,9 @@ const createChartOptions = (
 const createNetworkChartOptions = (): ApexOptions => {
   return {
     chart: { type: "area", zoom: { enabled: false }, toolbar: { show: false } },
+    theme: {
+      mode: "light",
+    },
     dataLabels: { enabled: false },
     stroke: { curve: "smooth", width: 2 },
     fill: {
@@ -86,21 +92,39 @@ export function useSummary(isAdmin: Ref<boolean>) {
     server: false,
   }));
 
-  // 2. リアルタイムAPIの呼び出し
+  // 2. リアルタイムAPIの呼び出し (オブジェクト型なので、useFetchを直接使用)
   const {
     data: summaryData,
     pending: summaryPending,
     error: summaryError,
     refresh: summaryRefresh,
-  } = useResourceList<SummaryResponse>("summary/realtime", apiParams);
+  } = useFetch<SummaryResponse>(() => `summary/realtime`, {
+    $fetch: useNuxtApp().$apiFetch,
+    params: apiParams,
+    default: () =>
+      ({
+        clusterSummary: {
+          totalCpu: 0,
+          usedCpu: 0,
+          totalMemory: 0,
+          usedMemory: 0,
+          totalStorage: 0,
+          usedStorage: 0,
+        },
+      }) as SummaryResponse,
+  });
 
-  // 3. 履歴APIの呼び出し
+  // 3. 履歴APIの呼び出し (オブジェクト型なので、useFetchを直接使用)
   const {
     data: historyData,
     pending: historyPending,
     error: historyError,
     refresh: historyRefresh,
-  } = useResourceList<SummaryHistoryResponse>("summary/history", apiParams);
+  } = useFetch<SummaryHistoryResponse>(() => `summary/history`, {
+    $fetch: useNuxtApp().$apiFetch,
+    params: apiParams,
+    default: () => ({ data: [] }) as SummaryHistoryResponse,
+  });
 
   // 4. グラフデータ整形ロジック
   const chartConfigData = computed(() => {
@@ -110,7 +134,7 @@ export function useSummary(isAdmin: Ref<boolean>) {
       history: HistoryItem[],
       label: string,
       totalValue: number,
-      unit: string
+      unit: string,
     ) => {
       const series = [
         {
@@ -123,7 +147,7 @@ export function useSummary(isAdmin: Ref<boolean>) {
     };
     const formatForNetwork = (
       inHistory: HistoryItem[],
-      outHistory: HistoryItem[]
+      outHistory: HistoryItem[],
     ) => {
       const series = [
         {
@@ -147,17 +171,17 @@ export function useSummary(isAdmin: Ref<boolean>) {
             node.cpuHistory,
             "CPU",
             node.totalCpu,
-            "Cores"
+            "Cores",
           ),
           memChart: formatForApex(
             node.memHistory,
             "メモリ",
             convertByteToUnit(node.totalMemory, "GB", DISABLE_ROUNDING),
-            "GB"
+            "GB",
           ),
           networkChart: formatForNetwork(
             node.networkINHistory,
-            node.networkOUTHistory
+            node.networkOUTHistory,
           ),
         })),
         vms: null,
@@ -172,7 +196,7 @@ export function useSummary(isAdmin: Ref<boolean>) {
             vm.memHistory,
             "メモリ",
             convertByteToUnit(vm.totalMemory, "GB", DISABLE_ROUNDING),
-            "GB"
+            "GB",
           ),
         })),
       };
