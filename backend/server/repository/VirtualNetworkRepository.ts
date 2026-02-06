@@ -238,7 +238,7 @@ const update = async (
           success: false,
           error: {
             reason: "NotFound",
-            message: "Subnet not found",
+            message: "VirtualNetwork not found",
           },
         };
       }
@@ -564,7 +564,7 @@ type VirtualNetworkRepositoryType = Repository<
     vnetId: string,
     subnetId: string,
     props: SubnetUpdateProps,
-  ) => Promise<Result<SubnetRecord | null, RepositoryError>>;
+  ) => Promise<Result<SubnetRecord, RepositoryError>>;
   deleteSubnet: (
     vnetId: string,
     subnetId: string,

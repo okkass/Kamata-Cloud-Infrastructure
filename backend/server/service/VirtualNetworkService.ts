@@ -87,7 +87,7 @@ const toNetworkInsertProps = (
     name: data.name,
     cidr: ip.network + "/" + ip.prefixLength,
     userId: userId,
-    initialSubnets: data.initialSubnets.map(toSubnetInsertProps) || [],
+    initialSubnets: data.initialSubnets.map(toSubnetInsertProps),
   };
 };
 
@@ -156,9 +156,6 @@ export const getVirtualNetworkService = (permission: UserPermissions) => {
       // サブネット同士の重複チェック
       for (let i = 0; i < subnetInets.length; i++) {
         for (let j = i + 1; j < subnetInets.length; j++) {
-          if (i === j) {
-            continue;
-          }
           if (hasOverlappingCidrs(subnetInets[i], subnetInets[j])) {
             return {
               success: false,
@@ -315,9 +312,6 @@ export const getVirtualNetworkService = (permission: UserPermissions) => {
           subnets.push(subnetInet);
           for (let i = 0; i < subnets.length; i++) {
             for (let j = i + 1; j < subnets.length; j++) {
-              if (i === j) {
-                continue;
-              }
               if (hasOverlappingCidrs(subnets[i], subnets[j])) {
                 return {
                   success: false,
@@ -383,9 +377,6 @@ export const getVirtualNetworkService = (permission: UserPermissions) => {
             subnets.push(subnetInet);
             for (let i = 0; i < subnets.length; i++) {
               for (let j = i + 1; j < subnets.length; j++) {
-                if (i === j) {
-                  continue;
-                }
                 if (hasOverlappingCidrs(subnets[i], subnets[j])) {
                   return {
                     success: false,
