@@ -71,9 +71,10 @@ const toNetworkResponse = (
 };
 
 const toSubnetInsertProps = (data: SubnetCreateRequest): SubnetInsertProps => {
+  const ip = parseCidr4(data.cidr);
   return {
     name: data.name,
-    cidr: data.cidr,
+    cidr: ip.network + "/" + ip.prefixLength,
   };
 };
 
@@ -81,9 +82,10 @@ const toNetworkInsertProps = (
   userId: string,
   data: VirtualNetworkCreateRequest,
 ): VirtualNetworkInsertProps => {
+  const ip = parseCidr4(data.cidr);
   return {
     name: data.name,
-    cidr: data.cidr,
+    cidr: ip.network + "/" + ip.prefixLength,
     userId: userId,
     initialSubnets: data.initialSubnets.map(toSubnetInsertProps) || [],
   };
@@ -132,51 +134,41 @@ export const getVirtualNetworkService = (permission: UserPermissions) => {
       };
     },
     create: async (data) => {
-      // 親をCIDRの妥当性チェック
-      const parentInet = parseCidr(data.cidr);
-      if (!parentInet) {
-        return {
-          success: false,
-          error: {
-            reason: "BadRequest",
-            message: "Invalid CIDR format",
-          },
-        };
-      }
-      // サブネットのCIDR妥当性チェック
+      // 親をIPv4にパース すでにzodでバリデしてるので、エラーはないはず
+      const parentInet = parseCidr4(data.cidr);
+      // サブネットをIPv4にパース＆親に含まれているかチェック
       const subnetInets: Array<Inet4> = [];
       for (const subnet of data.initialSubnets || []) {
-        const subnetInet = parseCidr(subnet.cidr);
-        if (!subnetInet) {
-          return {
-            success: false,
-            error: {
-              reason: "BadRequest",
-              message: `Invalid CIDR format in subnet ${subnet.name}`,
-            },
-          };
-        }
+        const subnetInet = parseCidr4(subnet.cidr);
         // サブネットが親に含まれているかチェック
-        if (!isCidrInCidr(subnetInet, parentInet)) {
+        if (isCidrInCidr(subnetInet, parentInet)) {
+          subnetInets.push(subnetInet);
+        } else {
           return {
             success: false,
             error: {
               reason: "BadRequest",
-              message: `Subnet ${subnet.name} CIDR is not within parent CIDR`,
+              message: `Subnet CIDR ${subnet.cidr} is not within parent CIDR`,
             },
           };
         }
-        subnetInets.push(subnetInet);
       }
       // サブネット同士の重複チェック
-      if (hasOverlappingCidrs(subnetInets)) {
-        return {
-          success: false,
-          error: {
-            reason: "BadRequest",
-            message: "Overlapping CIDRs found among subnets",
-          },
-        };
+      for (let i = 0; i < subnetInets.length; i++) {
+        for (let j = i + 1; j < subnetInets.length; j++) {
+          if (i === j) {
+            continue;
+          }
+          if (hasOverlappingCidrs(subnetInets[i], subnetInets[j])) {
+            return {
+              success: false,
+              error: {
+                reason: "BadRequest",
+                message: `Overlapping CIDRs found among subnets: ${data.initialSubnets?.[i].cidr} and ${data.initialSubnets?.[j].cidr}`,
+              },
+            };
+          }
+        }
       }
 
       const newVnet = await VirtualNetworkRepository.create(
@@ -296,16 +288,7 @@ export const getVirtualNetworkService = (permission: UserPermissions) => {
         },
         create: async (data) => {
           // CIDR妥当性チェック
-          const subnetInet = parseCidr(data.cidr);
-          if (!subnetInet) {
-            return {
-              success: false,
-              error: {
-                reason: "BadRequest",
-                message: "Invalid CIDR format",
-              },
-            };
-          }
+          const subnetInet = parseCidr4(data.cidr);
           // 親のCIDR取得
           const parentResult = await VirtualNetworkRepository.getById(vnetId);
           if (!parentResult.success || !parentResult.data) {
@@ -330,16 +313,24 @@ export const getVirtualNetworkService = (permission: UserPermissions) => {
           // 既存サブネットとの重複チェック
           const subnets = parentResult.data.subnets.map((s) => s.cidr);
           subnets.push(subnetInet);
-          if (hasOverlappingCidrs(subnets)) {
-            return {
-              success: false,
-              error: {
-                reason: "BadRequest",
-                message: "Overlapping CIDRs found among subnets",
-              },
-            };
+          for (let i = 0; i < subnets.length; i++) {
+            for (let j = i + 1; j < subnets.length; j++) {
+              if (i === j) {
+                continue;
+              }
+              if (hasOverlappingCidrs(subnets[i], subnets[j])) {
+                return {
+                  success: false,
+                  error: {
+                    reason: "BadRequest",
+                    message: "Overlapping CIDRs found among subnets",
+                  },
+                };
+              }
+            }
           }
 
+          // サブネット作成
           const newSubnet = await VirtualNetworkRepository.createSubnet(
             vnetId,
             toSubnetInsertProps(data),
@@ -358,29 +349,112 @@ export const getVirtualNetworkService = (permission: UserPermissions) => {
             data: toSubnetResponse(newSubnet.data, parentResult.data),
           };
         },
-        update(id, data) {
-          const updatedSubnet = VirtualNetworkRepository.updateSubnet(
+        update: async (id, data) => {
+          // まず親たる仮想ネットワークを取得
+          const parentResult = await VirtualNetworkRepository.getById(vnetId);
+          if (!parentResult.success || !parentResult.data) {
+            return {
+              success: false,
+              error: {
+                reason: "InternalError",
+                message: "Failed to retrieve parent virtual network",
+              },
+            };
+          }
+          const parent = parentResult.data;
+
+          // CIDRを更新したいときだけチェック
+          if (data.cidr) {
+            const subnetInet = parseCidr4(data.cidr);
+            // 親の範囲に含まれているかチェック
+            if (!isCidrInCidr(subnetInet, parent.cidr)) {
+              return {
+                success: false,
+                error: {
+                  reason: "BadRequest",
+                  message: "Subnet CIDR is not within parent CIDR",
+                },
+              };
+            }
+            // 既存サブネットとの重複チェック
+            const subnets = parent.subnets
+              .filter((s) => s.id !== id)
+              .map((s) => s.cidr);
+            subnets.push(subnetInet);
+            for (let i = 0; i < subnets.length; i++) {
+              for (let j = i + 1; j < subnets.length; j++) {
+                if (i === j) {
+                  continue;
+                }
+                if (hasOverlappingCidrs(subnets[i], subnets[j])) {
+                  return {
+                    success: false,
+                    error: {
+                      reason: "BadRequest",
+                      message: "Overlapping CIDRs found among subnets",
+                    },
+                  };
+                }
+              }
+            }
+          }
+          // ここに来ればCIDRは問題ないので更新実行
+          let cidr = undefined;
+          if (data.cidr) {
+            const parsed = parseCidr4(data.cidr);
+            cidr = parsed.network + "/" + parsed.prefixLength;
+          }
+          const result = await VirtualNetworkRepository.updateSubnet(
             vnetId,
             id,
-            data,
+            {
+              name: data.name,
+              cidr: cidr,
+            },
           );
-          if (!updatedSubnet) {
+          if (!result.success) {
             return {
               success: false,
-              error: "NotFound",
+              error: {
+                reason:
+                  result.error.reason === "NotFound"
+                    ? "NotFound"
+                    : "InternalError",
+                message: result.error.message,
+              },
             };
           }
-          return { success: true, data: updatedSubnet };
+          if (!result.data) {
+            return {
+              success: false,
+              error: {
+                reason: "NotFound",
+              },
+            };
+          }
+          return {
+            success: true,
+            data: toSubnetResponse(result.data, parent),
+          };
         },
-        delete(id) {
-          const deleted = VirtualNetworkRepository.deleteSubnet(vnetId, id);
-          if (!deleted) {
+        delete: async (id) => {
+          const result = await VirtualNetworkRepository.deleteSubnet(
+            vnetId,
+            id,
+          );
+          if (!result.success) {
             return {
               success: false,
-              error: "NotFound",
+              error: {
+                reason:
+                  result.error.reason === "NotFound"
+                    ? "NotFound"
+                    : "InternalError",
+                message: result.error.message,
+              },
             };
           }
-          return { success: true, data: null };
+          return { success: true, data: undefined };
         },
       };
       return SubnetService;

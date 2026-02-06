@@ -87,12 +87,12 @@ const toRecordSubnet = (
   return {
     id: row.uuid,
     name: row.name,
-    cidr: parseCidr(row.cidr)!,
+    cidr: parseCidr4(row.cidr),
     createdAt: row.createdAt,
     owner: {
       id: row.virtualNetwork.uuid,
       name: row.virtualNetwork.name,
-      cidr: parseCidr(row.virtualNetwork.cidr)!,
+      cidr: parseCidr4(row.virtualNetwork.cidr),
       createdAt: row.virtualNetwork.createdAt,
     },
   };
@@ -104,7 +104,7 @@ const toRecordVirtualNetwork = (
   return {
     id: row.uuid,
     name: row.name,
-    cidr: parseCidr(row.cidr)!,
+    cidr: parseCidr4(row.cidr),
     createdAt: row.createdAt,
     subnets: row.subnets.map(toRecordSubnet),
     owner: {
@@ -232,6 +232,17 @@ const update = async (
       data: toRecordVirtualNetwork(updated),
     };
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "Subnet not found",
+          },
+        };
+      }
+    }
     return {
       success: false,
       error: {
@@ -255,6 +266,17 @@ const deleteById = async (
       data: undefined,
     };
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "Virtual network not found",
+          },
+        };
+      }
+    }
     return {
       success: false,
       error: {
@@ -437,6 +459,17 @@ const updateSubnet = async (
       data: toRecordSubnet(updated),
     };
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "Subnet not found",
+          },
+        };
+      }
+    }
     return {
       success: false,
       error: {
@@ -490,6 +523,17 @@ const deleteSubnet = async (
       data: undefined,
     };
   } catch (error) {
+    if (error instanceof PrismaClientKnownRequestError) {
+      if (error.code === "P2025") {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "Subnet not found",
+          },
+        };
+      }
+    }
     return {
       success: false,
       error: {
