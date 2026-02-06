@@ -7,3 +7,4 @@ dist
 .env
 .env.local
 tsconfig.temp.json
+tsconfig.tmp.json
