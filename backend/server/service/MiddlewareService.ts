@@ -12,33 +12,54 @@ export const getMiddlewareService = (permission: UserPermissions) => {
     never,
     ServiceError
   > = {
-    list(query?: string): Result<MiddlewareResponse[], ServiceError> {
-      const middlewares = MiddlewareRepository.list();
-      return { success: true, data: middlewares };
-    },
-    getById(id): Result<MiddlewareResponse, ServiceError> {
-      // MiddlewareRepository does not have getById method in the current implementation
+    list: async (
+      query?: string,
+    ): Promise<Result<MiddlewareResponse[], ServiceError>> => {
+      const result = await MiddlewareRepository.list();
+      if (!result.success) {
+        return {
+          success: false,
+          error: {
+            reason: "InternalError",
+            message: result.error.message,
+          },
+        };
+      }
       return {
-        success: false,
-        error: "NotFound",
+        success: true,
+        data: result.data,
       };
     },
-    create(data) {
+    getById: async (id: string) => {
       return {
         success: false,
-        error: "BadRequest",
+        error: {
+          reason: "BadRequest",
+        },
       };
     },
-    update(id, data) {
+    create: async (data) => {
       return {
         success: false,
-        error: "NotFound",
+        error: {
+          reason: "BadRequest",
+        },
       };
     },
-    delete(id) {
+    update: async (id, data) => {
       return {
         success: false,
-        error: "NotFound",
+        error: {
+          reason: "BadRequest",
+        },
+      };
+    },
+    delete: async (id) => {
+      return {
+        success: false,
+        error: {
+          reason: "BadRequest",
+        },
       };
     },
   };

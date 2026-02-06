@@ -12,6 +12,7 @@ import {
 } from "./instanceType.js";
 import { createInitialImages, deleteAllImages } from "./image.js";
 import { createInitialSGs, deleteAllSGs } from "./securityGroup.js";
+import { createInitialMiddleware, deleteAllMiddleware } from "./middleware.js";
 
 let prisma: PrismaClient | null = null;
 
@@ -110,6 +111,15 @@ async function main() {
     console.log(`- ${sg.name} (Description: ${sg.description})`);
   });
 
+  // Seed Middleware
+  await deleteAllMiddleware();
+  await createInitialMiddleware();
+  const allMiddleware = await prisma.middleware.findMany();
+  console.log(`Created ${allMiddleware.length} middleware entries:`);
+
+  allMiddleware.forEach((mw) => {
+    console.log(`- ${mw.name}`);
+  });
   console.log("Seeding test data finished.");
 }
 
