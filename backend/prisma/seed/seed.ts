@@ -12,6 +12,7 @@ import {
 } from "./instanceType.js";
 import { createInitialImages, deleteAllImages } from "./image.js";
 import { createInitialSGs, deleteAllSGs } from "./securityGroup.js";
+import { createInitialVNs, deleteAllVNs } from "./virtualNetwork.js";
 import { createInitialMiddleware, deleteAllMiddleware } from "./middleware.js";
 
 let prisma: PrismaClient | null = null;
@@ -109,6 +110,16 @@ async function main() {
 
   allSGs.forEach((sg) => {
     console.log(`- ${sg.name} (Description: ${sg.description})`);
+  });
+
+  // Seed Virtual Networks
+  await deleteAllVNs();
+  await createInitialVNs(users);
+  const allVNs = await prisma.virtualNetwork.findMany();
+  console.log(`Created ${allVNs.length} virtual networks:`);
+
+  allVNs.forEach((vn) => {
+    console.log(`- ${vn.name} (CIDR: ${vn.cidr})`);
   });
 
   // Seed Middleware
