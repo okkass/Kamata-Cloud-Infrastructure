@@ -17,7 +17,6 @@ import type {
   VirtualNetworkUpdateProps,
   VirtualNetworkRecord,
   SubnetInsertProps,
-  SubnetUpdateProps,
   SubnetRecord,
 } from "@/repository/VirtualNetworkRepository";
 
