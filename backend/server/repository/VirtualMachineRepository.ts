@@ -4,7 +4,6 @@ import type { Result } from "@/common/type";
 import type { RepositoryError } from "@/common/errors";
 import type { Repository } from "./common";
 import { PrismaClientKnownRequestError } from "@@/generated/internal/prismaNamespace";
-import { uuid } from "zod";
 
 // selectで絞るカラムを定義
 // リレーション先はServiceを通じて得るためuuidのみ取得する
@@ -217,14 +216,32 @@ type VirtualMachineRepository = Repository<
   getNetworkInterface: (
     virtualMachineId: string,
     networkInterfaceId: string,
+  ) => Promise<Result<NetworkInterfaceRecord | null, RepositoryError>>;
+  updateNetworkInterface: (
+    virtualMachineId: string,
+    networkInterfaceId: string,
+    props: NetworkInterfaceUpdateProps,
   ) => Promise<Result<NetworkInterfaceRecord, RepositoryError>>;
+  deleteNetworkInterface: (
+    virtualMachineId: string,
+    networkInterfaceId: string,
+  ) => Promise<Result<void, RepositoryError>>;
   listStorages: (
     virtualMachineId: string,
   ) => Promise<Result<StorageRecord[], RepositoryError>>;
   getStorage: (
     virtualMachineId: string,
     storageId: string,
+  ) => Promise<Result<StorageRecord | null, RepositoryError>>;
+  updateStorage: (
+    virtualMachineId: string,
+    storageId: string,
+    props: StorageUpdateProps,
   ) => Promise<Result<StorageRecord, RepositoryError>>;
+  deleteStorage: (
+    virtualMachineId: string,
+    storageId: string,
+  ) => Promise<Result<void, RepositoryError>>;
   listSecurityGroups: (
     virtualMachineId: string,
   ) => Promise<Result<string[], RepositoryError>>;
@@ -276,11 +293,8 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
       });
       if (!record) {
         return {
-          success: false,
-          error: {
-            reason: "NotFound",
-            message: "Virtual machine not found",
-          },
+          success: true,
+          data: null,
         };
       }
       return {
@@ -300,6 +314,7 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
   create: async (props: VirtualMachineInsertProps) => {
     try {
       const prisma = getPrismaClient();
+
       const created = await prisma.virtualMachine.create({
         data: {
           name: props.name,
@@ -333,51 +348,500 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
               },
             })),
           },
-        },
-        ...virtualMachineArgs,
-      });
-      // sgのUUID->IDを引く
-      const securityGroups = await prisma.securityGroup.findMany({
-        where: {
-          uuid: {
-            in: props.securityGroupIds,
-          },
-        },
-        select: {
-          id: true,
-          uuid: true,
-        },
-      });
-      // 中間テーブルデータ挿入のPromise配列を作成
-      const vmSgCreatePromises = securityGroups.map((sg) =>
-        prisma.virtualMachineSecurityGroup.create({
-          data: {
-            virtualMachineId: created.id,
-            securityGroupId: sg.id,
-          },
-        }),
-      );
-      // ストレージの作成と中間テーブルデータ挿入のPromise配列を作成
-      const storageCreatePromises = props.storages.map((storage) => {
-        return prisma.virtualMachineAttachedStorage.create({
-          data: {
-            virtualMachineId: created.id,
-            path: storage.devicePath,
-            virtualStorage: {
-              create: {
-                name: storage.name,
-                sizeMb: bytesToMb(storage.sizeBytes),
-                storagePool: {
-                  connect: {
-                    uuid: storage.poolId,
+          attachedStorages: {
+            create: props.storages.map((storage) => ({
+              path: storage.devicePath,
+              virtualStorage: {
+                create: {
+                  name: storage.name,
+                  sizeMb: bytesToMb(storage.sizeBytes),
+                  storagePool: {
+                    connect: {
+                      uuid: storage.poolId,
+                    },
                   },
                 },
               },
+            })),
+          },
+          securityGroups: {
+            create: props.securityGroupIds.map((sgId) => ({
+              securityGroup: {
+                connect: {
+                  uuid: sgId,
+                },
+              },
+            })),
+          },
+        },
+        ...virtualMachineArgs,
+      });
+
+      return {
+        success: true,
+        data: toVirtualMachineRecord(created),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  update: async (id: string, props: VirtualMachineUpdateProps) => {
+    try {
+      const prisma = getPrismaClient();
+      const updated = await prisma.virtualMachine.update({
+        where: { uuid: id },
+        data: {
+          name: props.name,
+          cpu: props.cpu,
+          memoryMb: props.memoryBytes
+            ? bytesToMb(props.memoryBytes)
+            : undefined,
+          status: props.status,
+        },
+        ...virtualMachineArgs,
+      });
+      return {
+        success: true,
+        data: toVirtualMachineRecord(updated),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  deleteById: async (id: string) => {
+    try {
+      const prisma = getPrismaClient();
+      await prisma.virtualMachine.delete({
+        where: { uuid: id },
+      });
+      return {
+        success: true,
+        data: undefined,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  listNetworkInterfaces: async (virtualMachineId: string) => {
+    try {
+      const prisma = getPrismaClient();
+      const interfaces = await prisma.networkInterface.findMany({
+        where: {
+          virtualMachine: {
+            uuid: virtualMachineId,
+          },
+        },
+        ...networkInterfaceArgs,
+      });
+      return {
+        success: true,
+        data: interfaces.map(toNetworkInterfaceRecord),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  getNetworkInterface: async (
+    virtualMachineId: string,
+    networkInterfaceId: string,
+  ) => {
+    try {
+      const prisma = getPrismaClient();
+      const networkInterface = await prisma.networkInterface.findFirst({
+        where: {
+          uuid: networkInterfaceId,
+          virtualMachine: {
+            uuid: virtualMachineId,
+          },
+        },
+        ...networkInterfaceArgs,
+      });
+      if (!networkInterface) {
+        return {
+          success: true,
+          data: null,
+        };
+      }
+      return {
+        success: true,
+        data: toNetworkInterfaceRecord(networkInterface),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  updateNetworkInterface: async (
+    virtualMachineId: string,
+    networkInterfaceId: string,
+    props: NetworkInterfaceUpdateProps,
+  ) => {
+    try {
+      const prisma = getPrismaClient();
+
+      // 更新対象が存在するか確認
+      const nic = await prisma.networkInterface.findFirst({
+        where: {
+          uuid: networkInterfaceId,
+          virtualMachine: {
+            uuid: virtualMachineId,
+          },
+        },
+      });
+      // 存在しない場合はエラー
+      if (!nic) {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "Network interface not found",
+          },
+        };
+      }
+
+      // subnetがあればidを引く
+      let subnetId: bigint | undefined = undefined;
+      if (props.subnetId) {
+        const subnet = await prisma.subnet.findUnique({
+          where: { uuid: props.subnetId },
+          select: { id: true },
+        });
+        if (!subnet) {
+          return {
+            success: false,
+            error: {
+              reason: "NotFound",
+              message: "Subnet not found",
+            },
+          };
+        }
+        subnetId = subnet.id;
+      }
+
+      const updated = await prisma.networkInterface.update({
+        where: { uuid: networkInterfaceId },
+        data: {
+          name: props.name,
+          ipAddress: props.ipAddress,
+          macAddress: props.macAddress,
+          subnetId,
+        },
+        ...networkInterfaceArgs,
+      });
+      return {
+        success: true,
+        data: toNetworkInterfaceRecord(updated),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  deleteNetworkInterface: async (
+    virtualMachineId: string,
+    networkInterfaceId: string,
+  ) => {
+    try {
+      const prisma = getPrismaClient();
+
+      // 削除対象がvbmIdに紐づいているか確認
+      const nic = await prisma.networkInterface.findFirst({
+        where: {
+          uuid: networkInterfaceId,
+          virtualMachine: {
+            uuid: virtualMachineId,
+          },
+        },
+      });
+      if (!nic) {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "Network interface not found",
+          },
+        };
+      }
+
+      await prisma.networkInterface.delete({
+        where: { uuid: networkInterfaceId },
+      });
+      return {
+        success: true,
+        data: undefined,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  listStorages: async (virtualMachineId: string) => {
+    try {
+      const prisma = getPrismaClient();
+
+      const storages = await prisma.virtualMachineAttachedStorage.findMany({
+        where: {
+          virtualMachine: {
+            uuid: virtualMachineId,
+          },
+        },
+        ...attachedStoragesArgs,
+      });
+      return {
+        success: true,
+        data: storages.map(toStorageRecord),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  getStorage: async (virtualMachineId: string, storageId: string) => {
+    try {
+      const prisma = getPrismaClient();
+      const vmPromise = prisma.virtualMachine.findUnique({
+        where: { uuid: virtualMachineId },
+        select: {
+          id: true,
+        },
+      });
+      const storagePromise = prisma.virtualStorage.findUnique({
+        where: { uuid: storageId },
+        select: {
+          id: true,
+        },
+      });
+      const [vm, storage] = await Promise.all([vmPromise, storagePromise]);
+      if (!vm || !storage) {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "Virtual machine or storage not found",
+          },
+        };
+      }
+
+      const attachedStorage =
+        await prisma.virtualMachineAttachedStorage.findUnique({
+          where: {
+            virtualMachineId_virtualStorageId: {
+              virtualMachineId: vm.id,
+              virtualStorageId: storage.id,
             },
           },
+          ...attachedStoragesArgs,
         });
+      if (!attachedStorage) {
+        return {
+          success: true,
+          data: null,
+        };
+      }
+      return {
+        success: true,
+        data: toStorageRecord(attachedStorage),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  updateStorage: async (
+    virtualMachineId: string,
+    storageId: string,
+    props: StorageUpdateProps,
+  ) => {
+    try {
+      const prisma = getPrismaClient();
+
+      // 更新対象が存在するか確認
+      const vmPromise = prisma.virtualMachine.findUnique({
+        where: { uuid: virtualMachineId },
+        select: {
+          id: true,
+        },
       });
-    } catch (error) {}
+      const storagePromise = prisma.virtualStorage.findUnique({
+        where: { uuid: storageId },
+        select: {
+          id: true,
+        },
+      });
+      const [vm, storage] = await Promise.all([vmPromise, storagePromise]);
+      if (!vm || !storage) {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "Virtual machine or storage not found",
+          },
+        };
+      }
+
+      const updated = await prisma.virtualMachineAttachedStorage.update({
+        where: {
+          virtualMachineId_virtualStorageId: {
+            virtualMachineId: vm.id,
+            virtualStorageId: storage.id,
+          },
+        },
+        data: {
+          virtualStorage: {
+            update: {
+              name: props.name,
+            },
+          },
+        },
+        ...attachedStoragesArgs,
+      });
+      return {
+        success: true,
+        data: toStorageRecord(updated),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  deleteStorage: async (virtualMachineId: string, storageId: string) => {
+    try {
+      const prisma = getPrismaClient();
+
+      // 削除対象がvbmIdに紐づいているか確認
+      const vmPromise = prisma.virtualMachine.findUnique({
+        where: { uuid: virtualMachineId },
+        select: {
+          id: true,
+        },
+      });
+      const storagePromise = prisma.virtualStorage.findUnique({
+        where: { uuid: storageId },
+        select: {
+          id: true,
+        },
+      });
+      const [vm, storage] = await Promise.all([vmPromise, storagePromise]);
+
+      if (!vm || !storage) {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "Virtual machine or storage not found",
+          },
+        };
+      }
+
+      await prisma.virtualMachineAttachedStorage.delete({
+        where: {
+          virtualMachineId_virtualStorageId: {
+            virtualMachineId: vm.id,
+            virtualStorageId: storage.id,
+          },
+        },
+      });
+      await prisma.virtualStorage.delete({
+        where: { id: storage.id },
+      });
+      return {
+        success: true,
+        data: undefined,
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  listSecurityGroups: async (virtualMachineId: string) => {
+    try {
+      const prisma = getPrismaClient();
+      const sg = await prisma.virtualMachineSecurityGroup.findMany({
+        where: {
+          virtualMachine: {
+            uuid: virtualMachineId,
+          },
+        },
+        select: {
+          securityGroup: {
+            select: {
+              uuid: true,
+            },
+          },
+        },
+      });
+      return {
+        success: true,
+        data: sg.map((s) => s.securityGroup.uuid),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
   },
 };
 
