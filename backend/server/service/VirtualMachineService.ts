@@ -1042,7 +1042,7 @@ export const getVirtualMachineService = (permission: UserPermissions) => {
         },
         getById: async (id) => {
           // ID知ってるならセキュリティグループに聞いて
-          // PrimiseでBadRequestを返すだけ
+          // PromiseでBadRequestを返すだけ
           return await new Promise<Result<SecurityGroupResponse, ServiceError>>(
             (resolve) => {
               resolve({
