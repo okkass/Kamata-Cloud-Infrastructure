@@ -1000,7 +1000,7 @@ export const getVirtualMachineService = (permission: UserPermissions) => {
               },
             };
           }
-          return { success: true, data: res.data };
+          return { success: true, data: undefined };
         },
       };
       return NetworkInterfaceService;
