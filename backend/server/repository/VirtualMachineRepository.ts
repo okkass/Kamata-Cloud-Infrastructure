@@ -120,12 +120,13 @@ export type NetworkInterfaceRecord = {
   ipAddress: string;
   macAddress: string;
   subnetId: string;
+  vnetId: string;
 };
 
 export type VirtualMachineRecord = {
   id: string;
   name: string;
-  status: string;
+  status: "running" | "stopped" | "pending";
   nodeId: string;
   createdAt: Date;
   owner: {
@@ -181,6 +182,7 @@ const toNetworkInterfaceRecord = (
     ipAddress: record.ipAddress,
     macAddress: record.macAddress,
     subnetId: record.subnet.uuid,
+    vnetId: record.subnet.virtualNetwork.uuid,
   };
 };
 
@@ -205,7 +207,7 @@ const toVirtualMachineRecord = (
   };
 };
 
-type VirtualMachineRepository = Repository<
+type VirtualMachineRepositoryType = Repository<
   VirtualMachineInsertProps,
   VirtualMachineUpdateProps,
   VirtualMachineRecord
@@ -217,6 +219,10 @@ type VirtualMachineRepository = Repository<
     virtualMachineId: string,
     networkInterfaceId: string,
   ) => Promise<Result<NetworkInterfaceRecord | null, RepositoryError>>;
+  createNetworkInterface: (
+    vmId: string,
+    props: NetworkInterfaceInsertProps,
+  ) => Promise<Result<NetworkInterfaceRecord, RepositoryError>>;
   updateNetworkInterface: (
     virtualMachineId: string,
     networkInterfaceId: string,
@@ -233,6 +239,10 @@ type VirtualMachineRepository = Repository<
     virtualMachineId: string,
     storageId: string,
   ) => Promise<Result<StorageRecord | null, RepositoryError>>;
+  createStorage: (
+    vmId: string,
+    props: StorageInsertProps,
+  ) => Promise<Result<StorageRecord, RepositoryError>>;
   updateStorage: (
     virtualMachineId: string,
     storageId: string,
@@ -245,9 +255,17 @@ type VirtualMachineRepository = Repository<
   listSecurityGroups: (
     virtualMachineId: string,
   ) => Promise<Result<string[], RepositoryError>>;
+  addSecurityGroup: (
+    virtualMachineId: string,
+    securityGroupId: string,
+  ) => Promise<Result<void, RepositoryError>>;
+  removeSecurityGroup: (
+    virtualMachineId: string,
+    securityGroupId: string,
+  ) => Promise<Result<void, RepositoryError>>;
 };
 
-export const VirtualMachineRepository: VirtualMachineRepository = {
+export const VirtualMachineRepository: VirtualMachineRepositoryType = {
   list: async (userUuid?: string) => {
     try {
       const prisma = getPrismaClient();
@@ -411,6 +429,18 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
         data: toVirtualMachineRecord(updated),
       };
     } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        // P2025は、更新対象が見つからないエラー
+        if (error.code === "P2025") {
+          return {
+            success: false,
+            error: {
+              reason: "NotFound",
+              message: `Virtual machine with id ${id} not found`,
+            },
+          };
+        }
+      }
       return {
         success: false,
         error: {
@@ -431,6 +461,18 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
         data: undefined,
       };
     } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        // P2025は、削除対象が見つからないエラー
+        if (error.code === "P2025") {
+          return {
+            success: false,
+            error: {
+              reason: "NotFound",
+              message: `Virtual machine with id ${id} not found`,
+            },
+          };
+        }
+      }
       return {
         success: false,
         error: {
@@ -489,6 +531,44 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
       return {
         success: true,
         data: toNetworkInterfaceRecord(networkInterface),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  createNetworkInterface: async (
+    vmId: string,
+    props: NetworkInterfaceInsertProps,
+  ) => {
+    try {
+      const prisma = getPrismaClient();
+      const created = await prisma.networkInterface.create({
+        data: {
+          name: props.name,
+          ipAddress: props.ipAddress,
+          macAddress: props.macAddress,
+          virtualMachine: {
+            connect: {
+              uuid: vmId,
+            },
+          },
+          subnet: {
+            connect: {
+              uuid: props.subnetId,
+            },
+          },
+        },
+        ...networkInterfaceArgs,
+      });
+      return {
+        success: true,
+        data: toNetworkInterfaceRecord(created),
       };
     } catch (error) {
       return {
@@ -562,6 +642,18 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
         data: toNetworkInterfaceRecord(updated),
       };
     } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        // P2025は、更新対象が見つからないエラー
+        if (error.code === "P2025") {
+          return {
+            success: false,
+            error: {
+              reason: "NotFound",
+              message: "Network interface not found",
+            },
+          };
+        }
+      }
       return {
         success: false,
         error: {
@@ -605,6 +697,18 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
         data: undefined,
       };
     } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        // P2025は、削除対象が見つからないエラー
+        if (error.code === "P2025") {
+          return {
+            success: false,
+            error: {
+              reason: "NotFound",
+              message: "Network interface not found",
+            },
+          };
+        }
+      }
       return {
         success: false,
         error: {
@@ -696,6 +800,45 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
       };
     }
   },
+  createStorage: async (vmId: string, props: StorageInsertProps) => {
+    try {
+      const prisma = getPrismaClient();
+      const created = await prisma.virtualMachineAttachedStorage.create({
+        data: {
+          path: props.devicePath,
+          virtualMachine: {
+            connect: {
+              uuid: vmId,
+            },
+          },
+          virtualStorage: {
+            create: {
+              name: props.name,
+              sizeMb: bytesToMb(props.sizeBytes),
+              storagePool: {
+                connect: {
+                  uuid: props.poolId,
+                },
+              },
+            },
+          },
+        },
+        ...attachedStoragesArgs,
+      });
+      return {
+        success: true,
+        data: toStorageRecord(created),
+      };
+    } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
   updateStorage: async (
     virtualMachineId: string,
     storageId: string,
@@ -749,6 +892,18 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
         data: toStorageRecord(updated),
       };
     } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        // P2025は、更新対象が見つからないエラー
+        if (error.code === "P2025") {
+          return {
+            success: false,
+            error: {
+              reason: "NotFound",
+              message: "Virtual machine or storage not found",
+            },
+          };
+        }
+      }
       return {
         success: false,
         error: {
@@ -803,6 +958,19 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
         data: undefined,
       };
     } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        // P2025は、削除対象が見つからないエラー
+        if (error.code === "P2025") {
+          return {
+            success: false,
+            error: {
+              reason: "NotFound",
+              message: "Virtual storage not found",
+            },
+          };
+        }
+      }
+
       return {
         success: false,
         error: {
@@ -834,6 +1002,104 @@ export const VirtualMachineRepository: VirtualMachineRepository = {
         data: sg.map((s) => s.securityGroup.uuid),
       };
     } catch (error) {
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  addSecurityGroup: async (vmId: string, sgId: string) => {
+    try {
+      const prisma = getPrismaClient();
+      await prisma.virtualMachineSecurityGroup.create({
+        data: {
+          virtualMachine: {
+            connect: {
+              uuid: vmId,
+            },
+          },
+          securityGroup: {
+            connect: {
+              uuid: sgId,
+            },
+          },
+        },
+      });
+      return {
+        success: true,
+        data: undefined,
+      };
+    } catch (error) {
+      // すでに同じセキュリティグループが追加されている場合は、PrismaClientKnownRequestErrorが発生する
+      // その場合はエラーとせずに成功とする
+      if (error instanceof PrismaClientKnownRequestError) {
+        if (error.code === "P2002") {
+          return {
+            success: true,
+            data: undefined,
+          };
+        }
+      }
+      return {
+        success: false,
+        error: {
+          reason: "InternalError",
+          message: (error as Error).message,
+        },
+      };
+    }
+  },
+  removeSecurityGroup: async (vmId: string, sgId: string) => {
+    try {
+      const prisma = getPrismaClient();
+      // uuidからidを引く
+      const vmPromise = prisma.virtualMachine.findUnique({
+        where: { uuid: vmId },
+        select: { id: true },
+      });
+      const sgPromise = prisma.securityGroup.findUnique({
+        where: { uuid: sgId },
+        select: { id: true },
+      });
+      const [vm, sg] = await Promise.all([vmPromise, sgPromise]);
+      if (!vm || !sg) {
+        return {
+          success: false,
+          error: {
+            reason: "NotFound",
+            message: "Virtual machine or security group not found",
+          },
+        };
+      }
+
+      await prisma.virtualMachineSecurityGroup.delete({
+        where: {
+          virtualMachineId_securityGroupId: {
+            virtualMachineId: vm.id,
+            securityGroupId: sg.id,
+          },
+        },
+      });
+      return {
+        success: true,
+        data: undefined,
+      };
+    } catch (error) {
+      if (error instanceof PrismaClientKnownRequestError) {
+        // P2025は、削除対象が見つからないエラー
+        if (error.code === "P2025") {
+          return {
+            success: false,
+            error: {
+              reason: "NotFound",
+              message: "Virtual machine or security group not found",
+            },
+          };
+        }
+      }
       return {
         success: false,
         error: {

@@ -51,7 +51,7 @@ export const mapNodeToResponse = (
   };
 };
 
-export const getNodeService = (permission: UserPermissions) => {
+export const getNodeService = (permission?: UserPermissions) => {
   const nodeService: NodeService = {
     list: async (query) => {
       const repositoryResult = await NodeRepository.list();
