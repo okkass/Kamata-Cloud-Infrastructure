@@ -235,7 +235,7 @@ export const getVirtualMachineService = (permission: UserPermissions) => {
           return toStorageResponse(storage, pool);
         });
         const networkInterfaces = vm.networkInterfaces.map((nic) => {
-          const subnet = subnetMap[nic.vnetId];
+          const subnet = subnetMap[nic.subnetId];
           return toNetworkResponse(nic, subnet);
         });
         return toVirtualMachineResponse(
