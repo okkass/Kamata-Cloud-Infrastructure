@@ -14,6 +14,7 @@ import { createInitialImages, deleteAllImages } from "./image.js";
 import { createInitialSGs, deleteAllSGs } from "./securityGroup.js";
 import { createInitialVNs, deleteAllVNs } from "./virtualNetwork.js";
 import { createInitialMiddleware, deleteAllMiddleware } from "./middleware.js";
+import { createInitialVMs, deleteAllVMs } from "./virtualMachine.js";
 
 let prisma: PrismaClient | null = null;
 
@@ -131,6 +132,19 @@ async function main() {
   allMiddleware.forEach((mw) => {
     console.log(`- ${mw.name}`);
   });
+
+  // Seed Virtual Machines
+  await deleteAllVMs();
+  await createInitialVMs(users);
+  const allVMs = await prisma.virtualMachine.findMany();
+  console.log(`Created ${allVMs.length} virtual machines:`);
+
+  allVMs.forEach((vm) => {
+    console.log(
+      `- ${vm.name} (CPU: ${vm.cpu}, Memory: ${vm.memoryMb}MB, User ID: ${vm.userId})`,
+    );
+  });
+
   console.log("Seeding test data finished.");
 }
 
