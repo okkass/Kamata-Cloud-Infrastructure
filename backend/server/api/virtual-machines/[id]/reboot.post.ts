@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   if (!res.success) {
     throw createError({
       statusCode: 500,
-      statusMessage: res.error.reason,
+      statusMessage: res.error.message ? `${res.error.reason}: ${res.error.message}` : res.error.reason,
     });
   }
 
