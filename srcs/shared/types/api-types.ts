@@ -6613,6 +6613,496 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/agent/images/template": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * イメージをテンプレートに変換
+         * @description アップロードされた OS イメージをテンプレートに変換する
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description テンプレート VM の ID（例: 9000） */
+                        id: string;
+                        /** @description テンプレート VM 名（例: template-base） */
+                        name: string;
+                        /** @description アップロード済みイメージファイル名 */
+                        image_name: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description テンプレート化処理を開始しました */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description 非同期処理タスク ID */
+                            taskId?: string;
+                            message?: string;
+                        };
+                    };
+                };
+                /** @description リクエストの形式が不正です */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description 指定されたイメージまたはノードが見つかりません */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description サーバーエラー */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agent/images/{imageId}/delete": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * イメージを削除
+         * @description アップロードされた OS イメージを削除する
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description ストレージ ID（例: local） */
+                        storage_id: string;
+                        /** @description イメージファイル名 */
+                        image_name: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description イメージを削除しました */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            message?: string;
+                        };
+                    };
+                };
+                /** @description リクエストの形式が不正です */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description サーバーエラー */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agent/nodes/add": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ノードを追加
+         * @description 新しいノードをクラスタに追加する。ノードの IP アドレスを指定して認識させる
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description 新ノード名 */
+                        node_name: string;
+                        /**
+                         * Format: ipv4
+                         * @description 新ノードのプライベート IP アドレス
+                         */
+                        ip_address: string;
+                        /**
+                         * Format: ipv4
+                         * @description マスターノードの IP アドレス
+                         */
+                        master_ip: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description ノード追加処理を開始しました */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description 非同期処理タスク ID */
+                            taskId?: string;
+                            /** @description 追加されたノードの ID */
+                            nodeId?: string;
+                            message?: string;
+                        };
+                    };
+                };
+                /** @description リクエストの形式が不正です */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description ノードが既に存在します */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description サーバーエラー */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agent/storage-pools/create": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * ストレージプールを新規作成
+         * @description LVM または ZFS ストレージプールを新規作成する
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path?: never;
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description ZFS プール名（例: poka） */
+                        pool_name: string;
+                        /** @description デバイスパス（例: /dev/sdb） */
+                        device: string;
+                        /** @description Proxmox での表示名 */
+                        storage_name: string;
+                        /** @description 対象ノード名（例: test01） */
+                        node_name: string;
+                        /**
+                         * @description コンテンツタイプ
+                         * @default [
+                         *       "images",
+                         *       "rootdir"
+                         *     ]
+                         */
+                        content?: ("images" | "rootdir")[];
+                        /** @description プール説明・UUID */
+                        comment?: string;
+                    };
+                };
+            };
+            responses: {
+                /** @description ストレージプール作成処理を開始しました */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description 非同期処理タスク ID */
+                            taskId?: string;
+                            /** @description 作成されたストレージプールの ID */
+                            poolId?: string;
+                            poolName?: string;
+                            message?: string;
+                        };
+                    };
+                };
+                /** @description リクエストの形式が不正です */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description 指定されたノードが見つかりません */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description ストレージプール名が既に使用されています */
+                409: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description サーバーエラー */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agent/storage-pools/{poolId}/update": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        /**
+         * ストレージプール設定を更新
+         * @description NFS サーバーの共有設定など、ストレージプールの設定を更新する
+         */
+        put: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description 更新するストレージプール ID */
+                    poolId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description ZFS プール名 */
+                        pool_name: string;
+                        /** @description 公開ネットワーク（例: 192.168.3.0/24） */
+                        network: string;
+                        /**
+                         * @description RW 権限の有無
+                         * @default true
+                         */
+                        read_write?: boolean;
+                        /**
+                         * @description ルートスクワッシュ設定
+                         * @default false
+                         */
+                        root_squash?: boolean;
+                    };
+                };
+            };
+            responses: {
+                /** @description ストレージプール設定を更新しました */
+                200: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            poolId?: string;
+                            poolName?: string;
+                            message?: string;
+                        };
+                    };
+                };
+                /** @description リクエストの形式が不正です */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description 指定されたストレージプールが見つかりません */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description サーバーエラー */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/agent/storage-pools/{poolId}/mount-remote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * リモートストレージプールをマウント
+         * @description 別のノードで公開されている NFS ストレージプールを、現在のノードにマウントする
+         */
+        post: {
+            parameters: {
+                query?: never;
+                header?: never;
+                path: {
+                    /** @description マウント対象のリモートストレージプール ID */
+                    poolId: string;
+                };
+                cookie?: never;
+            };
+            requestBody: {
+                content: {
+                    "application/json": {
+                        /** @description ストレージ表示名 */
+                        storage_name: string;
+                        /**
+                         * Format: ipv4
+                         * @description NFS サーバーの IP アドレス
+                         */
+                        server_ip: string;
+                        /** @description エクスポートパス（例: /poka） */
+                        export_path: string;
+                        /** @description コンテンツタイプ */
+                        content: ("images" | "rootdir")[];
+                        /** @description 登録対象ノード名の配列 */
+                        node_name: string[];
+                    };
+                };
+            };
+            responses: {
+                /** @description リモートストレージプールのマウント処理を開始しました */
+                202: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content: {
+                        "application/json": {
+                            /** @description 非同期処理タスク ID */
+                            taskId?: string;
+                            message?: string;
+                        };
+                    };
+                };
+                /** @description リクエストの形式が不正です */
+                400: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description 指定されたストレージプールまたはノードが見つかりません */
+                404: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+                /** @description サーバーエラー */
+                500: {
+                    headers: {
+                        [name: string]: unknown;
+                    };
+                    content?: never;
+                };
+            };
+        };
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
