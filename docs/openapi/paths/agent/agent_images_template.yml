@@ -1,0 +1,51 @@
+post:
+  tags:
+    - Agent Images
+  summary: "イメージをテンプレートに変換"
+  description: "アップロードされた OS イメージをテンプレートに変換する"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - id
+            - name
+            - image_name
+          properties:
+            id:
+              type: string
+              description: "テンプレート VM の ID（例: 9000）"
+            name:
+              type: string
+              description: "テンプレート VM 名（例: template-base）"
+            image_name:
+              type: string
+              description: "アップロード済みイメージファイル名"
+          example:
+            id: "9000"
+            name: "template-base"
+            image_name: "upload.img"
+  responses:
+    "202":
+      description: "テンプレート化処理を開始しました"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              taskId:
+                type: string
+                description: "非同期処理タスク ID"
+              message:
+                type: string
+            example:
+              taskId: "task-abc123"
+              message: "イメージのテンプレート化を開始しました"
+    "400":
+      description: "リクエストの形式が不正です"
+    "404":
+      description: "指定されたイメージまたはノードが見つかりません"
+    "500":
+      description: "サーバーエラー"

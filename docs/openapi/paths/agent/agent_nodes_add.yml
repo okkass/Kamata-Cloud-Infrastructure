@@ -1,0 +1,57 @@
+post:
+  tags:
+    - Agent Nodes
+  summary: "ノードを追加"
+  description: "新しいノードをクラスタに追加する。ノードの IP アドレスを指定して認識させる"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - node_name
+            - ip_address
+            - master_ip
+          properties:
+            node_name:
+              type: string
+              description: "新ノード名"
+            ip_address:
+              type: string
+              format: ipv4
+              description: "新ノードのプライベート IP アドレス"
+            master_ip:
+              type: string
+              format: ipv4
+              description: "マスターノードの IP アドレス"
+          example:
+            node_name: "pve-node-03"
+            ip_address: "192.168.3.10"
+            master_ip: "192.168.3.5"
+  responses:
+    "202":
+      description: "ノード追加処理を開始しました"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              taskId:
+                type: string
+                description: "非同期処理タスク ID"
+              nodeId:
+                type: string
+                description: "追加されたノードの ID"
+              message:
+                type: string
+            example:
+              taskId: "task-def456"
+              nodeId: "node-003"
+              message: "ノードの追加を開始しました"
+    "400":
+      description: "リクエストの形式が不正です"
+    "409":
+      description: "ノードが既に存在します"
+    "500":
+      description: "サーバーエラー"

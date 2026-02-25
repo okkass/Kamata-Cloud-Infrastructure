@@ -1,51 +1,36 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
 	"net/http"
-	"os/exec"
+
+	"kci-agent/handlers"
 )
 
-
-func handler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		fmt.Fprintln(w, "POST で JSON の文字列配列を送信してください。例: [\"a\",\"b\"]")
-		return
-	}
-
-	defer r.Body.Close()
-
-	var arr []string
-	if err := json.NewDecoder(r.Body).Decode(&arr); err != nil {
-		http.Error(w, "invalid JSON array of strings", http.StatusBadRequest)
-		return
-	}
-
-	if len(arr) == 0 {
-		http.Error(w, "command array must contain at least a command name", http.StatusBadRequest)
-		return
-	}
-	out, err := exec.Command(arr[0], arr[1:]...).CombinedOutput()
-	if err != nil {
-		http.Error(w, fmt.Sprintf("command execution failed: %v, output: %s", err, string(out)), http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Printf("Command output: %s\n", out)
-
-	w.Header().Set("Content-Type", "application/json")
-	if err := json.NewEncoder(w).Encode(map[string]any{
-		"output": string(out),
-	}); err != nil {
-		fmt.Printf("failed to encode JSON response: %v\n", err)
-		http.Error(w, "failed to encode JSON response", http.StatusInternalServerError)
-		return
-	}
-}
-
 func main() {
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
+	// ログ設定: 日時とマイクロ秒を表示
+	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds)
+
+	registerHandlers()
+
+	// 利用可能なエンドポイント一覧を表示
+	fmt.Printf("Available EndPoint...\n")
+	fmt.Printf("[POST] %s\n", EndpointCreateTemplate)
+	fmt.Printf("[POST] %s\n", EndpointDeleteImage)
+	fmt.Printf("[GET]  %s\n", EndpointNodeInfo)
+	fmt.Printf("[POST] %s\n", EndpointNodeAdd)
+	fmt.Printf("[POST] %s\n", EndpointZFSCreate)
+	fmt.Printf("[POST] %s\n", EndpointZFSShare)
+	fmt.Printf("[POST] %s\n", EndpointZFSStopShare)
+	fmt.Printf("[POST] %s\n", EndpointNFSRegister)
+	fmt.Printf("[POST] %s\n", EndpointCreateVM)
+	fmt.Printf("[POST] %s\n", EndpointAttachSecurityGroup)
+	fmt.Printf("[POST] %s\n", EndpointDetachSecurityGroup)
+	fmt.Printf("[POST] %s\n", EndpointBackupCreate)
+	fmt.Printf("[POST] %s\n", EndpointBackupRestore)
+
+	log.Printf("Listening for requests on %s...", handlers.Port)
+	log.Fatal(http.ListenAndServe(handlers.Port, nil))
 }
+

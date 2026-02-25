@@ -1,0 +1,79 @@
+post:
+  tags:
+    - Agent Storage Pools
+  summary: "リモートストレージプールをマウント"
+  description: "別のノードで公開されている NFS ストレージプールを、現在のノードにマウントする"
+  parameters:
+    - name: poolId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: "マウント対象のリモートストレージプール ID"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - storage_name
+            - server_ip
+            - export_path
+            - content
+            - node_name
+          properties:
+            storage_name:
+              type: string
+              description: "ストレージ表示名"
+            server_ip:
+              type: string
+              format: ipv4
+              description: "NFS サーバーの IP アドレス"
+            export_path:
+              type: string
+              description: "エクスポートパス（例: /poka）"
+            content:
+              type: array
+              items:
+                type: string
+                enum:
+                  - images
+                  - rootdir
+              description: "コンテンツタイプ"
+            node_name:
+              type: array
+              items:
+                type: string
+              description: "登録対象ノード名の配列"
+          example:
+            storage_name: "remote-poka"
+            server_ip: "192.168.3.50"
+            export_path: "/poka"
+            content:
+              - images
+              - rootdir
+            node_name:
+              - "test02"
+  responses:
+    "202":
+      description: "リモートストレージプールのマウント処理を開始しました"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              taskId:
+                type: string
+                description: "非同期処理タスク ID"
+              message:
+                type: string
+            example:
+              taskId: "task-jkl012"
+              message: "リモートストレージプールのマウントを開始しました"
+    "400":
+      description: "リクエストの形式が不正です"
+    "404":
+      description: "指定されたストレージプールまたはノードが見つかりません"
+    "500":
+      description: "サーバーエラー"
