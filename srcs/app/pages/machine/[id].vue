@@ -5,13 +5,9 @@
       読み込み中…
     </div>
 
-    <div v-else-if="!vm && error" class="text-sm text-red-500">
-      エラーが発生しました：{{ error.message }}
-    </div>
-
     <!-- vm が一度でも取得できたら、以降は常にこれ -->
     <ResourceDetailShell
-      v-else
+      v-else-if="vm"
       title="仮想マシン詳細"
       subtitle="VM Information"
       :tabs="vmTabs"
@@ -48,6 +44,7 @@ import { useRoute, useRouter } from "vue-router";
 
 import { MACHINE } from "~/utils/constants";
 import { createPolling } from "~/utils/polling";
+import { useResourceErrorGuard } from "~/composables/useResourceErrorGuard";
 
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import MoVirtualMachineEdit from "~/components/MoVirtualMachineEdit.vue";
@@ -72,8 +69,11 @@ const {
   refresh,
 } = await useResourceDetail<VirtualMachineResponse>(
   MACHINE.name,
-  route.params.id as string
+  route.params.id as string,
 );
+
+// エラーをカスタムエラーページに統一
+useResourceErrorGuard(vm, pending, error);
 
 // --- ポーリング設定 ---
 const polling = createPolling(async () => {
@@ -251,7 +251,7 @@ const executeAction = async (actionValue: string) => {
 
     const res = await apiClient.post<VmActionResponse>(
       `${MACHINE.name}/${vm.value.id}/${endpoint}`,
-      { action: actionValue }
+      { action: action.value },
     );
 
     // ステータス反映

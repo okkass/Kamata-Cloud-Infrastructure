@@ -8,7 +8,7 @@
       class="summary-section lg:col-span-1"
     >
       <h2 class="summary-section-title">あなたのリソース割り当て</h2>
-      <div class="summary-grid">
+      <div v-if="summaryData?.clusterSummary" class="summary-grid">
         <SummaryProgressBar
           title="CPU 割り当て"
           :usage="summaryData[0].clusterSummary.usedCpu.toFixed(1)"
@@ -52,13 +52,13 @@
           unit="GB"
         />
       </div>
+      <div v-else-if="summaryPending" class="loading-text">
+        リソース状況を読み込み中...
+      </div>
+      <div v-else-if="summaryError" class="error-text">
+        リソース状況の読み込みに失敗しました。
+      </div>
     </section>
-    <div v-else-if="summaryPending" class="loading-text">
-      リソース状況を読み込み中...
-    </div>
-    <div v-else-if="summaryError" class="error-text">
-      リソース状況の読み込みに失敗しました。
-    </div>
   </div>
   <template v-if="chartConfigData?.vms">
     <section

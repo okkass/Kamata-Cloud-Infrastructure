@@ -4,7 +4,7 @@
       <SummaryQuickLink />
     </section>
     <section
-      v-if="summaryData &&summaryData[0]?.clusterSummary"
+      v-if="summaryData && summaryData[0]?.clusterSummary"
       class="summary-section lg:col-span-1"
     >
       <h2 class="summary-section-title">現在のリソース状況</h2>
@@ -21,14 +21,14 @@
             convertByteToUnit(
               summaryData[0].clusterSummary.usedMemory,
               'GB',
-              DISABLE_ROUNDING
+              DISABLE_ROUNDING,
             ).toFixed(1)
           "
           :total="
             convertByteToUnit(
               summaryData[0].clusterSummary.totalMemory,
               'GB',
-              DISABLE_ROUNDING
+              DISABLE_ROUNDING,
             ).toFixed(0)
           "
           unit="GB"
@@ -39,26 +39,20 @@
             convertByteToUnit(
               summaryData[0].clusterSummary.usedStorage,
               'GB',
-              DISABLE_ROUNDING
+              DISABLE_ROUNDING,
             ).toFixed(1)
           "
           :total="
             convertByteToUnit(
               summaryData[0].clusterSummary.totalStorage,
               'GB',
-              DISABLE_ROUNDING
+              DISABLE_ROUNDING,
             ).toFixed(0)
           "
           unit="GB"
         />
       </div>
     </section>
-    <div v-else-if="summaryPending" class="loading-text">
-      リソース状況を読み込み中...
-    </div>
-    <div v-else-if="summaryError" class="error-text">
-      リソース状況の読み込みに失敗しました。
-    </div>
   </div>
 
   <template v-if="chartConfigData?.nodes">
