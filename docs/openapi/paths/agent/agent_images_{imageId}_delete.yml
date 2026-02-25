@@ -1,0 +1,40 @@
+post:
+  tags:
+    - Agent Images
+  summary: "イメージを削除"
+  description: "アップロードされた OS イメージを削除する"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - storage_id
+            - image_name
+          properties:
+            storage_id:
+              type: string
+              description: "ストレージ ID（例: local）"
+            image_name:
+              type: string
+              description: "イメージファイル名"
+          example:
+            storage_id: "local"
+            image_name: "upload.img"
+  responses:
+    "200":
+      description: "イメージを削除しました"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              message:
+                type: string
+            example:
+              message: "イメージを削除しました"
+    "400":
+      description: "リクエストの形式が不正です"
+    "500":
+      description: "サーバーエラー"

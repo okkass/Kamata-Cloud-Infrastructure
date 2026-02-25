@@ -122,7 +122,7 @@ type NetworkConfig struct {
 }
 
 // VMCreateRequest はVM作成リクエストです
-type VMCreateRequest struct {
+type VMCreateRequestww struct {
 	SourceVMID string          `json:"source_vmid"` // テンプレートVM ID
 	NewVMID    string          `json:"new_vmid"`    // 新VM ID
 	NewName    string          `json:"new_name"`    // 新VM名

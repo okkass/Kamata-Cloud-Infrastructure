@@ -115,6 +115,18 @@ paths:
     $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}.yml"
   /api/virtual-networks/{networkId}/subnets/{subnetId}/virtual-machines:
     $ref: "paths/virtual-network/virtual-networks_{networkId}_subnets_{subnetId}_virtual-machines.yml"
+  /api/agent/images/template:
+    $ref: "paths/agent/agent_images_template.yml"
+  /api/agent/images/{imageId}/delete:
+    $ref: "paths/agent/agent_images_{imageId}_delete.yml"
+  /api/agent/nodes/add:
+    $ref: "paths/agent/agent_nodes_add.yml"
+  /api/agent/storage-pools/create:
+    $ref: "paths/agent/agent_storage-pools_create.yml"
+  /api/agent/storage-pools/{poolId}/update:
+    $ref: "paths/agent/agent_storage-pools_{poolId}_update.yml"
+  /api/agent/storage-pools/{poolId}/mount-remote:
+    $ref: "paths/agent/agent_storage-pools_{poolId}_mount-remote.yml"
 components:
   securitySchemes:
     BearerAuth:
@@ -141,3 +153,9 @@ tags:
     description: "仮想マシン関連の操作"
   - name: "VirtualNetwork"
     description: "仮想ネットワーク関連の操作"
+  - name: "Agent Images"
+    description: "Agent イメージ操作（テンプレート化、削除など）"
+  - name: "Agent Nodes"
+    description: "Agent ノード操作（追加など）"
+  - name: "Agent Storage Pools"
+    description: "Agent ストレージプール操作（作成、更新、マウントなど）"

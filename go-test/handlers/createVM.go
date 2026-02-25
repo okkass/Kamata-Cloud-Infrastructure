@@ -9,7 +9,22 @@ import (
 	"strings"
 )
 
-// HandleCreateVM はテンプレートからVMを作成し、Cloud-Init(user-data)ですべての設定を行います
+// VMCreateRequest に SnippetStorage を追加
+type VMCreateRequest struct {
+	SourceVMID      string          `json:"source_vmid"`
+	NewVMID         string          `json:"new_vmid"`
+	NewName         string          `json:"new_name"`
+	TargetNode      string          `json:"target_node"`
+	SnippetStorage  string          `json:"snippet_storage"` // ★追加: スニペット保存先ストレージID
+	Cores           int             `json:"cores"`
+	Memory          int             `json:"memory"`
+	Disks           []DiskConfig    `json:"disks"`
+	Networks        []NetworkConfig `json:"networks"`
+	InstallPackages []string        `json:"install_packages"`
+	SSHKey          string          `json:"ssh_key"`
+	FullClone       bool            `json:"full_clone"`
+}
+
 func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 	if !validateHTTPMethod(w, r, http.MethodPost) {
 		return
@@ -29,30 +44,49 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 	// ---------------------------------------------------------
 	// Step 1: Cloud-Init (user-data) ファイルの作成
 	// ---------------------------------------------------------
-	snippetFilePath, err := createFullUserData(req.NewVMID, req.InstallPackages, req.SSHKey)
+
+	// ★修正: リクエストで指定があればそれを使い、なければデフォルト(local-lvm)を使う
+	targetStorageID := req.SnippetStorage
+	if targetStorageID == "" {
+		// デフォルト値 (環境変数で変えられるようにしても良いですが、一旦ハードコードでfallback)
+		targetStorageID = "local-lvm"
+	}
+
+	log.Printf("[INFO] Creating Cloud-Init snippet on storage: %s", targetStorageID)
+
+	snippetFilePath, proxmoxVolID, err := createSharedUserData(req.NewVMID, req.InstallPackages, req.SSHKey, targetStorageID)
 	if err != nil {
-		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to create user-data: %v", err))
+		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to create user-data on shared storage (%s): %v", targetStorageID, err))
 		return
 	}
 
-	// cleanup関数: 失敗時のロールバック
+	// cleanup関数
 	cleanup := func() {
-		log.Printf("[ROLLBACK] Cleaning up VM %s and snippet file %s...", req.NewVMID, snippetFilePath)
+		log.Printf("[ROLLBACK] Cleaning up VM %s and snippet...", req.NewVMID)
+		// VM削除 (他ノードにある場合も考慮して本来はSSH等が必要だが、とりあえずローカルコマンド)
 		execCommand("qm", "destroy", req.NewVMID)
+		// ファイル削除
 		os.Remove(snippetFilePath)
 	}
 
 	// 引数用に整形: user=<storage:path>
-	cicustomArg := fmt.Sprintf("user=%s", snippetFilePath)
+	cicustomArg := fmt.Sprintf("user=%s", proxmoxVolID)
 
 	// ---------------------------------------------------------
-	// Step 2: VMクローン
+	// Step 2: VMクローン (ターゲット指定)
 	// ---------------------------------------------------------
 	cloneArgs := []string{"clone", req.SourceVMID, req.NewVMID, "--name", req.NewName}
+
+	if req.TargetNode != "" {
+		cloneArgs = append(cloneArgs, "--target", req.TargetNode)
+	}
+
+	// ディスク保存先の指定
+	// もしVM本体のディスクも同じストレージに入れたい場合は、req.Disks[0].Storage を使う
 	if len(req.Disks) > 0 && req.Disks[0].Storage != "" {
 		cloneArgs = append(cloneArgs, "--storage", req.Disks[0].Storage)
 	}
-	// フルクローン設定
+
 	if req.FullClone {
 		cloneArgs = append(cloneArgs, "--full", "1", "--format", "qcow2")
 	} else {
@@ -60,7 +94,7 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := execCommand("qm", cloneArgs...); err != nil {
-		cleanup()
+		os.Remove(snippetFilePath) // ファイルだけは確実に消す
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to clone VM: %v", err))
 		return
 	}
@@ -69,10 +103,9 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 	// Step 3: 設定適用 (qm set)
 	// ---------------------------------------------------------
 	setArgs := []string{"set", req.NewVMID}
-	// Cloud-Init設定
 	setArgs = append(setArgs, "--cicustom", cicustomArg)
 	setArgs = append(setArgs, "--agent", "1")
-	// CPU / Memory
+
 	if req.Cores > 0 {
 		setArgs = append(setArgs, "--cores", fmt.Sprintf("%d", req.Cores))
 	}
@@ -100,7 +133,6 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 		setArgs = append(setArgs, fmt.Sprintf("--ipconfig%d", i), ipConfig)
 	}
 
-	// 適用
 	if err := execCommand("qm", setArgs...); err != nil {
 		cleanup()
 		respondWithError(w, http.StatusInternalServerError, fmt.Sprintf("Failed to configure VM: %v", err))
@@ -125,28 +157,31 @@ func HandleCreateVM(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithSuccess(w, fmt.Sprintf("VM %s created with full cloud-init config", req.NewVMID), nil)
+	// レスポンスに保存先ストレージも含めておくと親切
+	respondWithSuccess(w, fmt.Sprintf("VM %s created on node %s (snippet: %s)", req.NewVMID, req.TargetNode, targetStorageID), nil)
 }
 
-// createFullUserData : パッケージもSSH鍵も全部入りのYAMLを作成
-func createFullUserData(vmid string, packages []string, sshKey string) (string, error) {
-	snippetDir := "/var/lib/vz/snippets"
-	if _, err := os.Stat(snippetDir); os.IsNotExist(err) {
-		os.MkdirAll(snippetDir, 0755)
+// createSharedUserData は変更なし（引数で storageID を受け取るようになっているため）
+func createSharedUserData(vmid string, packages []string, sshKey string, storageID string) (string, string, error) {
+	// 共有ストレージのパス解決
+	// 基本的に /mnt/pve/<StorageID> にあると仮定
+	baseDir := filepath.Join("/mnt/pve", storageID, "snippets")
+
+	if _, err := os.Stat(baseDir); os.IsNotExist(err) {
+		if err := os.MkdirAll(baseDir, 0755); err != nil {
+			return "", "", err
+		}
 	}
 
 	fileName := fmt.Sprintf("user-data-%s.yml", vmid)
-	filePath := filepath.Join(snippetDir, fileName)
+	filePath := filepath.Join(baseDir, fileName)
 
+	// 内容生成
 	var sb strings.Builder
 	sb.WriteString("#cloud-config\n")
-	
-	// ユーザー設定 (デフォルトユーザーに適用)
-	// 必要であればここでユーザー名(user)やパスワード(password)も指定可能です
-	
-	// 1. パッケージ設定
 	sb.WriteString("package_update: true\n")
 	sb.WriteString("package_upgrade: true\n")
+
 	if len(packages) > 0 {
 		sb.WriteString("packages:\n")
 		for _, pkg := range packages {
@@ -154,18 +189,15 @@ func createFullUserData(vmid string, packages []string, sshKey string) (string, 
 		}
 	}
 
-	// 2. SSH鍵設定 (ここに入れます！)
 	if sshKey != "" {
 		sb.WriteString("ssh_authorized_keys:\n")
 		sb.WriteString(fmt.Sprintf("  - %s\n", sshKey))
 	}
 
-	// 3. コマンド実行 (サービスの有効化など)
 	sb.WriteString("runcmd:\n")
-	// QEMU Guest Agentはほぼ必須なので、パッケージリストになくても有効化を試みる記述をしておくと親切
-	sb.WriteString("  - systemctl enable --now qemu-guest-agent || true\n") 
-	
-	// Nginxなど特定のパッケージに対する処理
+	sb.WriteString("  - systemctl enable --now qemu-guest-agent || true\n")
+
+	// 追加のパッケージ用設定など
 	for _, pkg := range packages {
 		if pkg == "nginx" {
 			sb.WriteString("  - systemctl enable --now nginx\n")
@@ -173,9 +205,11 @@ func createFullUserData(vmid string, packages []string, sshKey string) (string, 
 	}
 
 	if err := os.WriteFile(filePath, []byte(sb.String()), 0644); err != nil {
-		return "", err
+		return "", "", err
 	}
 
-	// Proxmox上のパス形式 (localストレージ前提)
-	return fmt.Sprintf("local:snippets/%s", fileName), nil
+	// ProxmoxボリュームIDを返す
+	proxmoxVolID := fmt.Sprintf("%s:snippets/%s", storageID, fileName)
+
+	return filePath, proxmoxVolID, nil
 }

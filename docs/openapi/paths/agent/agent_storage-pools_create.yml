@@ -1,0 +1,83 @@
+post:
+  tags:
+    - Agent Storage Pools
+  summary: "ストレージプールを新規作成"
+  description: "LVM または ZFS ストレージプールを新規作成する"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - pool_name
+            - device
+            - storage_name
+            - node_name
+          properties:
+            pool_name:
+              type: string
+              description: "ZFS プール名（例: poka）"
+            device:
+              type: string
+              description: "デバイスパス（例: /dev/sdb）"
+            storage_name:
+              type: string
+              description: "Proxmox での表示名"
+            node_name:
+              type: string
+              description: "対象ノード名（例: test01）"
+            content:
+              type: array
+              items:
+                type: string
+                enum:
+                  - images
+                  - rootdir
+              description: "コンテンツタイプ"
+              default:
+                - images
+                - rootdir
+            comment:
+              type: string
+              description: "プール説明・UUID"
+          example:
+            pool_name: "poka"
+            device: "/dev/sdb"
+            storage_name: "poka"
+            node_name: "test01"
+            content:
+              - images
+              - rootdir
+            comment: "UUID:550e8400-e29b-41d4-a716-446655440000"
+  responses:
+    "202":
+      description: "ストレージプール作成処理を開始しました"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              taskId:
+                type: string
+                description: "非同期処理タスク ID"
+              poolId:
+                type: string
+                description: "作成されたストレージプールの ID"
+              poolName:
+                type: string
+              message:
+                type: string
+            example:
+              taskId: "task-ghi789"
+              poolId: "storage-poka"
+              poolName: "poka"
+              message: "ストレージプールの作成を開始しました"
+    "400":
+      description: "リクエストの形式が不正です"
+    "404":
+      description: "指定されたノードが見つかりません"
+    "409":
+      description: "ストレージプール名が既に使用されています"
+    "500":
+      description: "サーバーエラー"

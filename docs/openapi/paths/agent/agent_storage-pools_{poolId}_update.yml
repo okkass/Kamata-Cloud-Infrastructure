@@ -1,0 +1,65 @@
+put:
+  tags:
+    - Agent Storage Pools
+  summary: "ストレージプール設定を更新"
+  description: "NFS サーバーの共有設定など、ストレージプールの設定を更新する"
+  parameters:
+    - name: poolId
+      in: path
+      required: true
+      schema:
+        type: string
+      description: "更新するストレージプール ID"
+  requestBody:
+    required: true
+    content:
+      application/json:
+        schema:
+          type: object
+          required:
+            - pool_name
+            - network
+          properties:
+            pool_name:
+              type: string
+              description: "ZFS プール名"
+            network:
+              type: string
+              description: "公開ネットワーク（例: 192.168.3.0/24）"
+            read_write:
+              type: boolean
+              description: "RW 権限の有無"
+              default: true
+            root_squash:
+              type: boolean
+              description: "ルートスクワッシュ設定"
+              default: false
+          example:
+            pool_name: "poka"
+            network: "192.168.3.0/24"
+            read_write: true
+            root_squash: false
+  responses:
+    "200":
+      description: "ストレージプール設定を更新しました"
+      content:
+        application/json:
+          schema:
+            type: object
+            properties:
+              poolId:
+                type: string
+              poolName:
+                type: string
+              message:
+                type: string
+            example:
+              poolId: "storage-poka"
+              poolName: "poka"
+              message: "ストレージプール設定を更新しました"
+    "400":
+      description: "リクエストの形式が不正です"
+    "404":
+      description: "指定されたストレージプールが見つかりません"
+    "500":
+      description: "サーバーエラー"
