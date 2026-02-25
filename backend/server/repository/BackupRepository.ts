@@ -6,7 +6,36 @@ import type { Result } from "@/common/type";
 import type { Repository } from "./common";
 import type { RepositoryError } from "@/common/errors";
 
-export type BackupInsertProps = {};
+const backupArgs = {
+  select: {
+    id: true,
+    uuid: true,
+    name: true,
+    sizeMb: true,
+    description: true,
+    createdAt: true,
+    virtualStorage: {
+      select: {
+        uuid: true,
+      },
+    },
+    sourceVirtualMachine: {
+      select: {
+        uuid: true,
+      },
+    },
+  },
+} satisfies Prisma.BackupFindManyArgs;
+
+export type BackupInsertProps = {
+  id: string;
+  name: string;
+  sizeBytes: number;
+  description?: string;
+  virtualStorageUuid: string;
+  sourceVirtualMachineUuid: string;
+};
+
 export type BackupUpdateProps = {};
 export type BackupRecord = {};
 
