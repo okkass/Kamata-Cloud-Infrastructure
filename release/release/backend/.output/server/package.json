@@ -1,0 +1,25 @@
+{
+  "name": "nitro-app-prod",
+  "version": "0.0.0",
+  "type": "module",
+  "private": true,
+  "dependencies": {
+    "@phc/format": "1.0.0",
+    "@prisma/adapter-mariadb": "7.1.0",
+    "@prisma/client": "7.1.0",
+    "@prisma/client-runtime-utils": "7.1.0",
+    "@prisma/debug": "7.1.0",
+    "@prisma/driver-adapter-utils": "7.1.0",
+    "argon2": "0.44.0",
+    "busboy": "1.6.0",
+    "denque": "2.1.0",
+    "iconv-lite": "0.6.3",
+    "jose": "6.1.3",
+    "lru-cache": "10.4.3",
+    "mariadb": "3.4.5",
+    "node-gyp-build": "4.8.4",
+    "safer-buffer": "2.1.2",
+    "streamsearch": "1.1.0",
+    "zod": "4.1.13"
+  }
+}
