@@ -371,7 +371,7 @@
 
   /* 汎用ディテールカード（中身に space を持たせる） */
   .detail-card {
-    @apply rounded-lg border border-neutral-200 bg-white p-4 space-y-3;
+    @apply rounded-lg border border-neutral-200 bg-white p-4 space-y-3 shadow-md;
   }
 
   /* カード内セクションの区切り */

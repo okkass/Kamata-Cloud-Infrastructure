@@ -5,13 +5,9 @@
       読み込み中…
     </div>
 
-    <div v-else-if="!pool && error" class="text-sm text-red-500">
-      エラーが発生しました：{{ error.message }}
-    </div>
-
     <!-- pool が一度でも取得できたら、以降は常にこれ -->
     <ResourceDetailShell
-      v-else
+      v-else-if="pool"
       title="ストレージプール詳細"
       subtitle="Storage Pool Information"
       :tabs="storagePoolTabs"
@@ -32,7 +28,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, onUnmounted, watch, nextTick } from "vue";
+import { ref, onMounted, onUnmounted, watch, nextTick, computed } from "vue";
 import { useRoute, useRouter } from "vue-router";
 
 import { STORAGE } from "~/utils/constants";
@@ -41,8 +37,8 @@ import { createPolling } from "~/utils/polling";
 import ResourceDetailShell from "~/components/detail/ResourceDetailShell.vue";
 import MoStorageEdit from "~/components/MoStorageEdit.vue";
 import { storagePoolTabs } from "~/composables/detail/useStoragePoolTabs";
-
-import { computed } from "vue";
+import { useResourceDetail } from "~/composables/useResourceDetail";
+import { useResourceErrorGuard } from "~/composables/useResourceErrorGuard";
 
 const poolContext = computed<Record<string, any> | undefined>(() => {
   return pool.value ?? undefined;
@@ -58,8 +54,11 @@ const {
   refresh,
 } = await useResourceDetail<StoragePoolResponse>(
   STORAGE.name,
-  route.params.id as string
+  route.params.id as string,
 );
+
+// エラーをカスタムエラーページに統一
+useResourceErrorGuard(pool, pending, error);
 
 // --- ポーリング設定 ---
 const polling = createPolling(async () => {
@@ -83,7 +82,7 @@ watch(
   (open) => {
     if (open) polling.stopPolling();
     else polling.startPolling();
-  }
+  },
 );
 
 // 戻る
